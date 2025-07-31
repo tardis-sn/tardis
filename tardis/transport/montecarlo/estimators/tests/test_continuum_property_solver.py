@@ -3,9 +3,12 @@ from copy import deepcopy
 import pandas.testing as pdt
 import pytest
 
+from tardis.plasma.equilibrium.rates.photoionization_strengths import (
+    AnalyticPhotoionizationCoeffSolver,
+)
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
-    DiluteBlackBodyContinuumPropertiesSolver,
+    ContinuumProperties,
     MCContinuumPropertiesSolver,
 )
 
@@ -22,16 +25,14 @@ def test_continuum_estimators(
         virtual_packet_logging=False,
     )
     # continuum_simulation.run_convergence()
-    continuum_properties_solver_dilute_bb = (
-        DiluteBlackBodyContinuumPropertiesSolver(
-            continuum_simulation.plasma.atomic_data
-        )
+    continuum_properties_solver_dilute_bb = AnalyticPhotoionizationCoeffSolver(
+        continuum_simulation.plasma.atomic_data.photoionization_data
     )
 
-    continuum_properties_dilute_bb = (
-        continuum_properties_solver_dilute_bb.solve(
+    continuum_properties_dilute_bb = ContinuumProperties(
+        *continuum_properties_solver_dilute_bb.solve(
             continuum_simulation.simulation_state.radiation_field_state,
-            continuum_simulation.plasma.t_electrons,
+            continuum_simulation.plasma.t_electrons * u.K,
         )
     )
 
