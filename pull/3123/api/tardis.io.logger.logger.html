@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5751f944"></script>
+      <script src="../_static/documentation_options.js?v=77ed292e"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -243,7 +243,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.io.logger.logger.TARDISLogger">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">TARDISLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#TARDISLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.TARDISLogger" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">TARDISLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_handles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#TARDISLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.TARDISLogger" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Main logger class for TARDIS.</p>
 <dl class="field-list simple">
@@ -316,7 +316,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.logger.logger.logging_state">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">logging_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tardis_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_logging_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widget_start_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widget_max_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#logging_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.logging_state" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.logger.logger.</span></span><span class="sig-name descname"><span class="pre">logging_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tardis_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_logging_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widget_start_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widget_max_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/logger/logger.html#logging_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.logger.logger.logging_state" title="Link to this definition">¶</a></dt>
 <dd><p>Configure and initialize the TARDIS logging system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -328,6 +328,12 @@
 <dt><strong>specific_log_level</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to enable specific log level filtering.</p>
 </dd>
 <dt><strong>display_logging_widget</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to display the logging widget. Default is True.</p>
+</dd>
+<dt><strong>widget_start_height</strong><span class="classifier">int, optional</span></dt><dd><p>Starting height for widget columns. Default is 10.</p>
+</dd>
+<dt><strong>widget_max_height</strong><span class="classifier">int, optional</span></dt><dd><p>Maximum height for widget columns. Default is 300.</p>
+</dd>
+<dt><strong>batch_size</strong><span class="classifier">int, optional</span></dt><dd><p>Number of logs to batch before updating widget. Default is 10.</p>
 </dd>
 </dl>
 </dd>
