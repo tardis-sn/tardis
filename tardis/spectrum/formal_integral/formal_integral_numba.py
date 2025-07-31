@@ -1,7 +1,12 @@
 import numpy as np
 from numba import njit, prange
 
-from tardis.spectrum.formal_integral.base import C_INV, BoundsError, intensity_black_body, calculate_p_values
+from tardis.spectrum.formal_integral.base import (
+    C_INV,
+    BoundsError,
+    intensity_black_body,
+    calculate_p_values,
+)
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
@@ -308,6 +313,7 @@ def numba_formal_integral(
 #    ("plasma", OpacityState.class_type.instance_type),
 #    ("points", int64),
 # ]
+
 
 # @jitclass(integrator_spec)
 class NumbaFormalIntegrator:
