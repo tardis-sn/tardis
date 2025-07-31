@@ -57,13 +57,16 @@ class PanelWidgetLogHandler(logging.Handler):
     display_handles : dict, optional
         Dictionary of display handles for each column (jupyter environment).
     """
-    def __init__(self, log_columns, colors, display_widget=True, display_handles=None):
+    def __init__(self, log_columns, colors, display_widget=True, display_handles=None, batch_size=10):
         super().__init__()
         self.log_columns = log_columns
         self.colors = colors
         self.display_widget = display_widget
         self.display_handles = display_handles or {}
         self.environment = Environment.get_current_environment()
+        
+        self.batch_size = batch_size
+        self.log_buffers = {"INFO": [], "WARNING/ERROR": [], "DEBUG": []}
         
         self.stream_handler = None
         if not self.display_widget:
@@ -133,7 +136,7 @@ class PanelWidgetLogHandler(logging.Handler):
         return log_entry
 
     def _emit_to_columns(self, level, html_output):
-        """Add log entry to appropriate scroll columns using string concatenation.
+        """Add log entry to buffer and flush when batch size reached.
         
         Parameters
         ----------
@@ -150,35 +153,46 @@ class PanelWidgetLogHandler(logging.Handler):
             logging.DEBUG: "DEBUG"
         }
 
-        # Add to specific level column using string concatenation
         output_key = level_to_output.get(level)
-        if output_key and output_key in self.log_columns:
-            level_column = self.log_columns[output_key]
+        if output_key and output_key in self.log_buffers:
+            self.log_buffers[output_key].append(html_output)
             
-            # Wrap in div and concatenate to existing content
-            html_wrapped = f"<div style='margin: 2px 0; padding: 2px 0;'>{html_output}</div>"
-            current_content = getattr(level_column, '_log_content', '') or level_column.object or ''
-            new_content = current_content + html_wrapped if current_content else html_wrapped
+            if len(self.log_buffers[output_key]) >= self.batch_size:
+                self._flush_buffer(output_key)
+    
+    def _flush_buffer(self, output_key):
+        """Flush buffered logs to column."""
+        if not self.log_buffers[output_key] or output_key not in self.log_columns:
+            return
             
-            # Store content and update column
-            level_column._log_content = new_content
-            level_column.object = new_content
+        level_column = self.log_columns[output_key]
+        
+        # Combine all buffered logs
+        batch_html = ''.join([f"<div style='margin: 2px 0; padding: 2px 0;'>{log}</div>" for log in self.log_buffers[output_key]])
+        current_content = getattr(level_column, '_log_content', '') or level_column.object or ''
+        new_content = current_content + batch_html if current_content else batch_html
+        
+        # Store content and update column
+        level_column._log_content = new_content
+        level_column.object = new_content
+        
+        # Dynamic height adjustment
+        self._adjust_column_height(level_column, new_content)
+        
+        # Trim old entries if needed
+        if new_content.count('<div') > level_column.max_log_entries:
+            divs = new_content.split('<div')
+            trimmed = '<div'.join(divs[-level_column.max_log_entries:])
+            level_column._log_content = trimmed
+            level_column.object = trimmed
+        
+        # Update display handle
+        if ((self.environment == 'jupyter' or self.environment == 'ssh_jh') and output_key in self.display_handles 
+            and self.display_handles[output_key] is not None):
+            self.display_handles[output_key].update(level_column)
             
-            # Dynamic height adjustment
-            self._adjust_column_height(level_column, new_content)
-            
-            # Trim old entries if needed (count divs)
-            if new_content.count('<div') > level_column.max_log_entries:
-                # Keep only the last max_log_entries
-                divs = new_content.split('<div')
-                trimmed = '<div'.join(divs[-level_column.max_log_entries:])
-                level_column._log_content = trimmed
-                level_column.object = trimmed
-            
-            # Update display handle in jupyter environment
-            if ((self.environment == 'jupyter' or self.environment == 'ssh_jh') and output_key in self.display_handles 
-                and self.display_handles[output_key] is not None):
-                self.display_handles[output_key].update(level_column)
+        # Clear buffer
+        self.log_buffers[output_key] = []
     
     def _adjust_column_height(self, column, content=None):
         """Dynamically adjust column height based on content.
@@ -205,6 +219,11 @@ class PanelWidgetLogHandler(logging.Handler):
     def close(self):
         """Close the log handler.
         """
+        # Flush any remaining buffered logs
+        for output_key in self.log_buffers:
+            if self.log_buffers[output_key]:
+                self._flush_buffer(output_key)
+        
         super().close()
         if self.stream_handler:
             self.stream_handler.flush()
