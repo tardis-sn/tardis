@@ -251,8 +251,6 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         display_handles = {}
         display_ids = {}
         for level, column in log_columns.items():
-            level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
-            display(level_title)
             display_id = f"logger_column_{level.lower().replace('/', '_')}"
             display_handles[level] = display(column, display_id=display_id)
             display_ids[level] = display_id
@@ -263,8 +261,6 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     elif Environment.is_vscode():
         # Use direct display for vscode (no change)
         for level, column in log_columns.items():
-            level_title = pn.pane.HTML(f"<h4 style='margin: 5px 0; color: #333;'>{level} LOGS</h4>")
-            display(level_title)
             display(column)
     elif Environment.is_terminal():
         logger.warning("Terminal environment detected, skipping logger widget")
