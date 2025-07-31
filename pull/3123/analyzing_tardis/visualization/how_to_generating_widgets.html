@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -196,8 +196,17 @@
 <h2>Warning<a class="headerlink" href="#Warning" title="Link to this heading">¶</a></h2>
 <p>You must install <code class="docutils literal notranslate"><span class="pre">qgridnext</span></code> inside your tardis environment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qgridnext</span></code> for the widgets to function.</p>
 <p>First create and run a simulation that we can use to generate widgets (more details about running simulation in <a class="reference external" href="https://tardis-sn.github.io/tardis/quickstart/quickstart.html">Quickstart</a> section):</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">panel</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pn</span>
+<span class="n">pn</span><span class="o">.</span><span class="n">extension</span><span class="p">(</span><span class="s2">&quot;tabulator&quot;</span><span class="p">,</span> <span class="s2">&quot;plotly&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_tardis</span>
@@ -1693,7 +1702,7 @@ Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /home/afullard/Dow
 </div>
 <p>Now, import functions &amp; class to create widgets from <code class="docutils literal notranslate"><span class="pre">visualization</span></code> subpackage:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.visualization</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1714,7 +1723,7 @@ Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /home/afullard/Dow
 <h3>Using a Simulation object<a class="headerlink" href="#Using-a-Simulation-object" title="Link to this heading">¶</a></h3>
 <p>We will use the simulation object we created in the beginning, <code class="docutils literal notranslate"><span class="pre">sim</span></code> to generate shell info widget. Then simply display it to start using.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shell_info_widget</span> <span class="o">=</span> <span class="n">shell_info_from_simulation</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
@@ -1797,7 +1806,7 @@ Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /home/afullard/Dow
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

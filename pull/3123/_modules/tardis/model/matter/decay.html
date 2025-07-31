@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -137,7 +137,7 @@
 import pandas as pd
 from astropy import units as u
 from radioactivedecay import Inventory, Nuclide
-from radioactivedecay.utils import Z_to_elem
+from radioactivedecay.utils import Z_to_elem, elem_to_Z
 
 logger = logging.getLogger(__name__)
 
@@ -225,9 +225,9 @@ class IsotopicMassFraction(pd.DataFrame):
         return [Inventory(comp_dict, &quot;g&quot;) for comp_dict in comp_dicts]</div>
 
 
-<div class="viewcode-block" id="IsotopicMassFraction.decay">
-<a class="viewcode-back" href="../../../../api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction.decay">[docs]</a>
-    def decay(self, t):
+<div class="viewcode-block" id="IsotopicMassFraction.calculate_decayed_mass_fractions">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction.calculate_decayed_mass_fractions">[docs]</a>
+    def calculate_decayed_mass_fractions(self, time_decay):
         &quot;&quot;&quot;
         Decay the Model
 
@@ -243,21 +243,70 @@ class IsotopicMassFraction(pd.DataFrame):
         &quot;&quot;&quot;
         inventories = self.to_inventories()
         t_second = (
-            u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
+            u.Quantity(time_decay, u.day).to(u.s).value - self.time_0.to(u.s).value
         )
         logger.info(f&quot;Decaying abundances for {t_second} seconds&quot;)
         if t_second &lt; 0:
             logger.warning(
-                f&quot;Decay time {t_second} is negative. This could indicate a miss-specified input model.&quot;
-                f&quot; A negative decay time can potentially lead to negative abundances.&quot;
+                &quot;Decay time %f is negative. This could indicate a miss-specified input model.&quot;
+                &quot; A negative decay time can potentially lead to negative abundances.&quot;,
+                t_second,
             )
-        decayed_inventories = [item.decay(t_second) for item in inventories]
+        decayed_inventories = [item.decay(t_second, &quot;s&quot;) for item in inventories]
         df = IsotopicMassFraction.from_inventories(decayed_inventories)
         df = df.sort_index()
         assert (
             df.ge(0.0).all().all()
         ), &quot;Negative abundances detected. Please make sure your input abundances are correct.&quot;
         return df</div>
+
+
+<div class="viewcode-block" id="IsotopicMassFraction.calculate_number_of_decays">
+<a class="viewcode-back" href="../../../../api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction.calculate_number_of_decays">[docs]</a>
+    def calculate_number_of_decays(self, time_decay, shell_masses=None):
+        &quot;&quot;&quot;
+        Calculate the number of decays over a given time period for each shell.
+
+        Parameters
+        ----------
+        time_decay : astropy.units.Quantity
+            Time elapsed for which to compute the total decays (converted to days internally).
+        shell_masses : astropy.units.Quantity, optional
+            Masses of each shell. If provided, isotopes in each shell&#39;s inventory will be
+            multiplied by the corresponding shell mass.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame of decays indexed by (atomic_number, mass_number),
+            with columns representing the decays in each shell.
+        &quot;&quot;&quot;
+        # Convert the time to days for radioactivedecay
+        t_days = u.Quantity(time_decay, u.day).value
+
+        # Get inventories for each shell. If shell_masses is provided,
+        # each inventory is in grams of isotopes.
+        inventories = self.to_inventories(shell_masses)
+
+        decays_dict = {}
+        for shell_index, inventory in enumerate(inventories):
+            shell_decays = inventory.cumulative_decays(t_days, &quot;d&quot;)
+            for isotope, dec_count in shell_decays.items():
+                element_symbol, massno_str = isotope.split(&quot;-&quot;)
+                atomic_number = elem_to_Z(element_symbol)
+                mass_number = int(massno_str)
+                decays_dict[(atomic_number, mass_number, shell_index)] = dec_count
+
+        # Build a decays DataFrame
+        decays_df = pd.DataFrame.from_dict(
+            decays_dict, orient=&quot;index&quot;, columns=[&quot;decays&quot;]
+        )
+        decays_df.index = pd.MultiIndex.from_tuples(
+            decays_df.index, names=[&quot;atomic_number&quot;, &quot;mass_number&quot;, &quot;cell_id&quot;]
+        )
+        decays_df = decays_df[&quot;decays&quot;].unstack(level=&quot;cell_id&quot;).fillna(0)
+
+        return decays_df</div>
 
 
 <div class="viewcode-block" id="IsotopicMassFraction.as_atoms">
@@ -313,7 +362,7 @@ class IsotopicMassFraction(pd.DataFrame):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

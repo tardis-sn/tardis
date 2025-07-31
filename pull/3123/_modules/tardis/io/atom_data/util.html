@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -133,7 +133,6 @@
              
   <h1>Source code for tardis.io.atom_data.util</h1><div class="highlight"><pre>
 <span></span>import logging
-import os
 from pathlib import Path
 
 from tardis.io.atom_data.atom_web_download import (
@@ -161,12 +160,12 @@ def resolve_atom_data_fname(fname):
         resolved fpath
     &quot;&quot;&quot;
     fname = Path(fname)
-    if os.path.exists(fname):
+    if fname.exists():
         return fname
 
     fname = Path(fname.stem).with_suffix(&quot;.h5&quot;)
-    fpath = Path(os.path.join(get_data_dir(), fname))
-    if os.path.exists(fpath):
+    fpath = Path(get_data_dir()) / fname
+    if fpath.exists():
         logger.info(
             f&quot;\n\tAtom Data {fname} not found in local path.\n\tExists in TARDIS Data repo {fpath}&quot;
         )
@@ -196,7 +195,7 @@ def resolve_atom_data_fname(fname):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

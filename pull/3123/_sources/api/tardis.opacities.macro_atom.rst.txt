@@ -18,6 +18,7 @@ Submodules
    tardis.opacities.macro_atom.base
    tardis.opacities.macro_atom.macroatom_solver
    tardis.opacities.macro_atom.macroatom_state
+   tardis.opacities.macro_atom.macroatom_transitions
    tardis.opacities.macro_atom.transition_probabilities
    tardis.opacities.macro_atom.util
 

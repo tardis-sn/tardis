@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -235,6 +235,7 @@ def to_rgb255_string(color_tuple):
     return f&quot;rgb{color_tuple_255}&quot;</div>
 
 
+
 <div class="viewcode-block" id="get_hex_color_strings">
 <a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_hex_color_strings">[docs]</a>
 def get_hex_color_strings(length, name=&quot;jet&quot;):
@@ -284,10 +285,14 @@ def extract_and_process_packet_data(simulation, packets_mode):
         Dictionary containing raw packet data, the full DataFrame `packets_df`,
         and a filtered `packets_df_line_interaction` with line interaction info.
     &quot;&quot;&quot;
-    transport_state = simulation.transport.transport_state
-    lines_df = simulation.plasma.atomic_data.lines.reset_index().set_index(
-        &quot;line_id&quot;
-    )
+    if hasattr(simulation, &quot;transport_state&quot;): # for workflows
+        transport_state = simulation.transport_state
+        lines = simulation.plasma_solver.atomic_data.lines
+    else:
+        transport_state = simulation.transport.transport_state
+        lines = simulation.plasma.atomic_data.lines
+
+    lines_df = lines.reset_index().set_index(&quot;line_id&quot;)
 
     if packets_mode == &quot;virtual&quot;:
         vpacket_tracker = transport_state.vpacket_tracker
@@ -367,20 +372,23 @@ def process_line_interactions(packet_data, lines_df):
         # Add columns for atomic number of last interaction out
         packet_data[&quot;packets_df_line_interaction&quot;][
             &quot;last_line_interaction_atom&quot;
-        ] = (
-            lines_df[&quot;atomic_number&quot;]
-            .iloc[
-                packet_data[&quot;packets_df_line_interaction&quot;][
-                    &quot;last_line_interaction_out_id&quot;
+        ] = list(
+            zip(
+                lines_df[&quot;atomic_number&quot;]
+                .iloc[
+                    packet_data[&quot;packets_df_line_interaction&quot;][
+                        &quot;last_line_interaction_out_id&quot;
+                    ]
                 ]
-            ]
-            .to_numpy()
+                .to_numpy(),
+                [0] * len(packet_data[&quot;packets_df_line_interaction&quot;]),
+            )
         )
 
         # Add columns for the species ID of last interaction
         packet_data[&quot;packets_df_line_interaction&quot;][
             &quot;last_line_interaction_species&quot;
-        ] = (
+        ] = list(zip(
             lines_df[&quot;atomic_number&quot;]
             .iloc[
                 packet_data[&quot;packets_df_line_interaction&quot;][
@@ -388,7 +396,7 @@ def process_line_interactions(packet_data, lines_df):
                 ]
             ]
             .to_numpy()
-            * 100
+            ,
             + lines_df[&quot;ion_number&quot;]
             .iloc[
                 packet_data[&quot;packets_df_line_interaction&quot;][
@@ -396,7 +404,7 @@ def process_line_interactions(packet_data, lines_df):
                 ]
             ]
             .to_numpy()
-        )</div>
+        ))</div>
 
 
 
@@ -534,15 +542,21 @@ def expand_species_list(species_list):
     # species_list should only contain species in the Roman numeral
     # format, e.g. Si II, and each ion must contain a space
     if any(char.isdigit() for char in &quot; &quot;.join(species_list)):
-        raise ValueError(&quot;All species must be in Roman numeral form, e.g. Si II&quot;)
+        raise ValueError(
+            &quot;All species must be in Roman numeral form, e.g. Si II&quot;
+        )
 
     full_species_list = []
     for species in species_list:
         if &quot;-&quot; in species:
-           element, ion_range = species.split(&quot; &quot;)
-           first_ion_numeral, last_ion_numeral = map(roman_to_int, ion_range.partition(&quot;-&quot;)[::2])
-           for ion_number in range(first_ion_numeral, last_ion_numeral + 1):
-               full_species_list.append(f&quot;{element} {int_to_roman(ion_number)}&quot;)
+            element, ion_range = species.split(&quot; &quot;)
+            first_ion_numeral, last_ion_numeral = map(
+                roman_to_int, ion_range.partition(&quot;-&quot;)[::2]
+            )
+            for ion_number in range(first_ion_numeral, last_ion_numeral + 1):
+                full_species_list.append(
+                    f&quot;{element} {int_to_roman(ion_number)}&quot;
+                )
         else:
             full_species_list.append(species)
 
@@ -605,7 +619,10 @@ def parse_species_list_util(species_list):
             species_mapped[species_id] = [species_id]
         else:
             atomic_number = element_symbol2atomic_number(species)
-            species_ids = [(atomic_number, ion_number) for ion_number in range(atomic_number)]
+            species_ids = [
+                (atomic_number, ion_number)
+                for ion_number in range(atomic_number)
+            ]
             requested_species_ids.append(species_ids)
             species_mapped[(atomic_number, 0)] = species_ids
             # add the atomic number to a list so you know that this element should
@@ -613,9 +630,16 @@ def parse_species_list_util(species_list):
             # species_list = [Si]
             elements_with_shared_color.append(atomic_number)
 
-    species_list_result = [species_id for group in requested_species_ids for species_id in group]
+    species_list_result = [
+        species_id for group in requested_species_ids for species_id in group
+    ]
 
-    return species_mapped, species_list_result, elements_with_shared_color, full_species_list</div>
+    return (
+        species_mapped,
+        species_list_result,
+        elements_with_shared_color,
+        full_species_list,
+    )</div>
 
 
 
@@ -758,7 +782,7 @@ def create_wavelength_mask(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

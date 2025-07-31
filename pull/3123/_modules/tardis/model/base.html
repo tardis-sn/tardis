@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -133,7 +133,6 @@
              
   <h1>Source code for tardis.model.base</h1><div class="highlight"><pre>
 <span></span>import logging
-import os
 from pathlib import Path
 
 import numpy as np
@@ -159,7 +158,7 @@ from tardis.io.model.parse_radiation_field_configuration import (
 from tardis.io.model.readers.csvy import (
     load_csvy,
 )
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
@@ -298,14 +297,12 @@ class SimulationState(HDFWriterMixin):
                 &quot;Trying to set t_radiative for different number of shells.&quot;
             )
 
-    @property
-    def elemental_number_density(self):
+<div class="viewcode-block" id="SimulationState.calculate_elemental_number_density">
+<a class="viewcode-back" href="../../../api/tardis.model.base.html#tardis.model.base.SimulationState.calculate_elemental_number_density">[docs]</a>
+    def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (
-                self.composition.elemental_mass_fraction
-                * self.composition.density
-            )
-            .divide(self.composition.element_masses, axis=0)
+            (self.composition.elemental_mass_fraction * self.composition.density)
+            .divide(element_masses, axis=0)
             .dropna()
         )
         elemental_number_density = elemental_number_density.iloc[
@@ -315,7 +312,8 @@ class SimulationState(HDFWriterMixin):
         elemental_number_density.columns = range(
             len(elemental_number_density.columns)
         )
-        return elemental_number_density
+        return elemental_number_density</div>
+
 
     @property
     def isotopic_number_density(self):
@@ -478,12 +476,10 @@ class SimulationState(HDFWriterMixin):
             &quot;dilution_factor&quot;,
         }
 
-        if os.path.isabs(config.csvy_model):
+        if Path(config.csvy_model).is_absolute():
             csvy_model_fname = config.csvy_model
         else:
-            csvy_model_fname = os.path.join(
-                config.config_dirname, config.csvy_model
-            )
+            csvy_model_fname = Path(config.config_dirname) / config.csvy_model
         csvy_model_config, csvy_model_data = load_csvy(csvy_model_fname)
         csvy_schema_fname = SCHEMA_DIR / &quot;csvy_model.yml&quot;
         csvy_model_config = Configuration(
@@ -562,7 +558,7 @@ class SimulationState(HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -317,48 +317,6 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
 
 
 
-<div class="viewcode-block" id="time_evolve_mass_fraction">
-<a class="viewcode-back" href="../../../api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.time_evolve_mass_fraction">[docs]</a>
-def time_evolve_mass_fraction(raw_isotope_mass_fraction, time_array):
-    &quot;&quot;&quot;
-    Function to evolve the mass fraction of isotopes with time.
-
-    Parameters
-    ----------
-    raw_isotope_mass_fraction : pd.DataFrame
-        isotope mass fraction in mass fractions.
-    time_array : np.array
-        array of time in days.
-
-    Returns
-    -------
-    time_evolved_isotope_mass_fraction : pd.DataFrame
-        time evolved mass fraction of isotopes.
-    &quot;&quot;&quot;
-    initial_isotope_mass_fraction = raw_isotope_mass_fraction
-    isotope_mass_fraction_list = []
-    dt = np.diff(time_array)
-    t_start = time_array[:-1]
-    t_end = time_array[1:]
-    t_start_index = np.indices(t_start.shape)[0]
-
-    for time in dt:
-        decayed_isotope_mass_fraction = IsotopicMassFraction(
-            initial_isotope_mass_fraction
-        ).decay(time)
-        isotope_mass_fraction_list.append(decayed_isotope_mass_fraction)
-        initial_isotope_mass_fraction = decayed_isotope_mass_fraction
-
-    time_keys = list(zip(t_start, t_end, t_start_index))
-
-    time_evolved_isotope_mass_fraction = pd.concat(
-        isotope_mass_fraction_list, keys=time_keys, names=[&quot;time_start&quot;, &quot;time_end&quot;, &quot;time_index&quot;],
-    )
-
-    return time_evolved_isotope_mass_fraction</div>
-
-
-
 <div class="viewcode-block" id="time_evolve_cumulative_decay">
 <a class="viewcode-back" href="../../../api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.time_evolve_cumulative_decay">[docs]</a>
 def time_evolve_cumulative_decay(
@@ -404,7 +362,7 @@ def time_evolve_cumulative_decay(
 
         decayed_isotope_mass_fraction = IsotopicMassFraction(
             initial_isotope_mass_fraction
-        ).decay(time)
+        ).calculate_decayed_mass_fractions(time)
 
         initial_isotope_mass_fraction = decayed_isotope_mass_fraction
 
@@ -426,7 +384,7 @@ def time_evolve_cumulative_decay(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

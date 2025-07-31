@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -134,16 +134,17 @@
   <h1>Source code for tardis.io.configuration.config_reader</h1><div class="highlight"><pre>
 <span></span>import copy
 import logging
-import os
 import pprint
+from pathlib import Path
 
 import pandas as pd
 import yaml
 from astropy import units as u
 
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.configuration import config_validator
 from tardis.io.model.readers.csvy import load_yaml_from_csvy
-from tardis.io.util import HDFWriterMixin, YAMLLoader, yaml_load_file
+from tardis.io.util import YAMLLoader, yaml_load_file
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -231,7 +232,7 @@ class ConfigurationNameSpace(dict):
             )
         if hasattr(self, &quot;csvy_model&quot;):
             model = {}
-            csvy_model_path = os.path.join(self.config_dirname, self.csvy_model)
+            csvy_model_path = Path(self.config_dirname) / self.csvy_model
             csvy_yml = load_yaml_from_csvy(csvy_model_path)
             if &quot;v_inner_boundary&quot; in csvy_yml:
                 model[&quot;v_inner_boundary&quot;] = csvy_yml[&quot;v_inner_boundary&quot;]
@@ -389,7 +390,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 &quot;Currently only tardis_config_version v1.0 supported&quot;
             )
 
-        kwargs[&quot;config_dirname&quot;] = os.path.dirname(fname)
+        kwargs[&quot;config_dirname&quot;] = str(Path(fname).parent)
 
         return cls.from_config_dict(yaml_dict, *args, **kwargs)</div>
 
@@ -687,7 +688,7 @@ yaml.add_representer(Configuration, cns_representer)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

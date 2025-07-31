@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    tardis.visualization.tools.convergence_plot
+   tardis.visualization.tools.lineid_plotter
    tardis.visualization.tools.liv_plot
    tardis.visualization.tools.rpacket_plot
    tardis.visualization.tools.sdec_plot

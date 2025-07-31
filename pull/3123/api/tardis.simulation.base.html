@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -216,8 +216,8 @@ used in iterated i.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.simulation.base.Simulation">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.simulation.base.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/simulation/base.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.simulation.base.Simulation" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#tardis.simulation.base.PlasmaStateStorerMixin" title="tardis.simulation.base.PlasmaStateStorerMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlasmaStateStorerMixin</span></code></a>, <a class="reference internal" href="tardis.io.util.html#tardis.io.util.HDFWriterMixin" title="tardis.io.util.HDFWriterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code></a></p>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.simulation.base.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/simulation/base.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.simulation.base.Simulation" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tardis.simulation.base.PlasmaStateStorerMixin" title="tardis.simulation.base.PlasmaStateStorerMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlasmaStateStorerMixin</span></code></a>, <a class="reference internal" href="tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin" title="tardis.io.hdf_writer_mixin.HDFWriterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code></a></p>
 <p>A composite object containing all the required information for a
 simulation.</p>
 <dl class="field-list simple">
@@ -229,7 +229,7 @@ simulation.</p>
 <dt><strong>plasma</strong><span class="classifier">tardis.plasma.BasePlasma</span></dt><dd></dd>
 <dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MontecarloTransport</span></dt><dd></dd>
 <dt><strong>opacity</strong><span class="classifier">tardis.opacities.opacity_solver.OpacitySolver</span></dt><dd></dd>
-<dt><strong>macro_atom</strong><span class="classifier">tardis.opacities.macro_atom.macroatom_solver.MacroAtomSolver</span></dt><dd></dd>
+<dt><strong>macro_atom</strong><span class="classifier">tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver</span></dt><dd></dd>
 <dt><strong>no_of_packets</strong><span class="classifier">int</span></dt><dd></dd>
 <dt><strong>last_no_of_packets</strong><span class="classifier">int</span></dt><dd></dd>
 <dt><strong>no_of_virtual_packets</strong><span class="classifier">int</span></dt><dd></dd>
@@ -237,6 +237,23 @@ simulation.</p>
 <dt><strong>luminosity_nu_end</strong><span class="classifier">astropy.units.Quantity</span></dt><dd></dd>
 <dt><strong>luminosity_requested</strong><span class="classifier">astropy.units.Quantity</span></dt><dd></dd>
 <dt><strong>convergence_plots_kwargs: dict</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p>Create a new instance and initialize HDF properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>*args</strong><span class="classifier">Any</span></dt><dd><p>Positional arguments passed to the parent class.</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">Any</span></dt><dd><p>Keyword arguments passed to the parent class.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>HDFWriterMixin</dt><dd><p>The new instance with initialized HDF properties.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -416,7 +433,7 @@ add_callback)</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

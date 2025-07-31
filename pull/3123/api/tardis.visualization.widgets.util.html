@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,17 +167,71 @@
 <span id="tardis-visualization-widgets-util-module"></span><h1>tardis.visualization.widgets.util module<a class="headerlink" href="#module-tardis.visualization.widgets.util" title="Link to this heading">¶</a></h1>
 <p>Utility classes and functions for widgets.</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.util.PanelTableWidget">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.util.</span></span><span class="sig-name descname"><span class="pre">PanelTableWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#PanelTableWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Panel-based table widget that mimics qgrid functionality.</p>
+<p>Initialize the Panel table widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Data to display in table widget</p>
+</dd>
+<dt><strong>table_options</strong><span class="classifier">dict, optional</span></dt><dd><p>Table configuration options</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.util.PanelTableWidget.change_selection">
+<span class="sig-name descname"><span class="pre">change_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#PanelTableWidget.change_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget.change_selection" title="Link to this definition">¶</a></dt>
+<dd><p>Programmatically change the selection by index values.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.util.PanelTableWidget.df">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">df</span></span><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget.df" title="Link to this definition">¶</a></dt>
+<dd><p>Get the current dataframe.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.util.PanelTableWidget.get_selected_rows">
+<span class="sig-name descname"><span class="pre">get_selected_rows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#PanelTableWidget.get_selected_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget.get_selected_rows" title="Link to this definition">¶</a></dt>
+<dd><p>Get the currently selected row indices.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.util.PanelTableWidget.layout">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">layout</span></span><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget.layout" title="Link to this definition">¶</a></dt>
+<dd><p>Get the layout object for compatibility.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.util.PanelTableWidget.on">
+<span class="sig-name descname"><span class="pre">on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#PanelTableWidget.on"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget.on" title="Link to this definition">¶</a></dt>
+<dd><p>Register an event callback.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.util.PanelTableWidget.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#PanelTableWidget.show"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.PanelTableWidget.show" title="Link to this definition">¶</a></dt>
+<dd><p>Show the table widget using Panel’s show method.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.util.TableSummaryLabel">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.util.</span></span><span class="sig-name descname"><span class="pre">TableSummaryLabel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_col_widths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#TableSummaryLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.TableSummaryLabel" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Label like widget to show summary of a qgrid table widget.</p>
+<p>Label like widget to show summary of a Panel table widget.</p>
 <p>Also handles aligning the label with the table columns exactly like a
 summary row.</p>
 <p>Initialize a TableSummaryLabel for a table widget.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>target_table</strong><span class="classifier">qgrid.QgridWidget</span></dt><dd><p>Table widget whose summary label it is</p>
+<dt><strong>target_table</strong><span class="classifier">PanelTableWidget</span></dt><dd><p>Table widget whose summary label it is</p>
 </dd>
 <dt><strong>table_col_widths</strong><span class="classifier">list</span></dt><dd><p>A list containing width of each column of table in order (including
 the index as 1st column). The width values must be proportions of
@@ -194,6 +248,20 @@ the index as 1st column). The width values must be proportions of
 <p>TableSummaryLabel can only be created for a table with two
 columns (including index as 1st column) as of now</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.util.TableSummaryLabel.get_value">
+<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#TableSummaryLabel.get_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.TableSummaryLabel.get_value" title="Link to this definition">¶</a></dt>
+<dd><p>Get the current value displayed in the label.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>The current value as a string</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.util.TableSummaryLabel.update_and_resize">
 <span class="sig-name descname"><span class="pre">update_and_resize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#TableSummaryLabel.update_and_resize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.TableSummaryLabel.update_and_resize" title="Link to this definition">¶</a></dt>
 <dd><p>Update the label value and resize it as per the size of target table.</p>
@@ -209,10 +277,6 @@ layout of target table.</p>
 </dl>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>The width resizing operation is highly dependent on qgrid tables’
-layout. So it may not remain precise if there happens any CSS change
-in upcoming versions of qgrid.</p>
 </dd></dl>
 
 </dd></dl>
@@ -248,36 +312,21 @@ please see <a class="reference external" href="https://ipywidgets.readthedocs.io
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.util.create_table_widget">
-<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.util.</span></span><span class="sig-name descname"><span class="pre">create_table_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_widths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">changeable_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#create_table_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.create_table_widget" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.util.</span></span><span class="sig-name descname"><span class="pre">create_table_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/util.html#create_table_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.util.create_table_widget" title="Link to this definition">¶</a></dt>
 <dd><p>Create table widget object which supports interaction and updating the data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Data you want to display in table widget</p>
 </dd>
-<dt><strong>col_widths</strong><span class="classifier">list</span></dt><dd><p>A list containing width of each column of data in order (including
-the index as 1st column). The width values must be proportions of
-100 i.e. they must sum to 100.</p>
-</dd>
 <dt><strong>table_options</strong><span class="classifier">dict, optional</span></dt><dd><p>A dictionary to specify options to use when creating interactive table
-widget (same as :grid_options: of qgrid, specified in Notes section of
-their <code class="xref py py-obj docutils literal notranslate"><span class="pre">API</span> <span class="pre">documentation</span> <span class="pre">&lt;https://qgrid.readthedocs.io/en/latest/#qgrid.show_grid&gt;_</span></code>).
-Invalid keys will have no effect and valid keys will override or add to
-the options used by this function.</p>
-</dd>
-<dt><strong>changeable_col</strong><span class="classifier">dict, optional</span></dt><dd><p>A dictionary to specify the information about column which will
-change its name when data in generated table widget updates. It
-must have two keys - <code class="code docutils literal notranslate"><span class="pre">index</span></code> to specify index of changeable
-column in dataframe <code class="code docutils literal notranslate"><span class="pre">data</span></code> as an integer, and <code class="code docutils literal notranslate"><span class="pre">other_names</span></code>
-to specify all possible names changeable column will get as a list
-of strings. Default value <code class="code docutils literal notranslate"><span class="pre">None</span></code> indicates that there is no
-changable column.</p>
+widget. Supported options: maxVisibleRows.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>qgrid.QgridWidget</dt><dd><p>Table widget object</p>
+<dt>PanelTableWidget</dt><dd><p>Table widget object</p>
 </dd>
 </dl>
 </dd>
@@ -322,7 +371,7 @@ please see <a class="reference external" href="https://ipywidgets.readthedocs.io
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

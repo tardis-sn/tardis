@@ -1,5 +1,19 @@
-tardis.spectrum.formal\_integral module
-=======================================
+tardis.spectrum.formal\_integral package
+========================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.spectrum.formal_integral.base
+   tardis.spectrum.formal_integral.formal_integral
+   tardis.spectrum.formal_integral.formal_integral_cuda
+   tardis.spectrum.formal_integral.formal_integral_numba
+
+Module contents
+---------------
 
 .. automodule:: tardis.spectrum.formal_integral
    :members:

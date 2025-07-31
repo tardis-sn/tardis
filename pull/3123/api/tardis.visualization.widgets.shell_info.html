@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -327,33 +327,13 @@ file</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.display">
-<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shells_table_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'30%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_count_table_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'24%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_count_table_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'24%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_count_table_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'18%'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">layout_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.display" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.display" title="Link to this definition">¶</a></dt>
 <dd><p>Display the shell info widget by putting all component widgets nicely
 together and allowing interaction between the table widgets</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>shells_table_width</strong><span class="classifier">str, optional</span></dt><dd><p>CSS <code class="code docutils literal notranslate"><span class="pre">width</span></code> property value for shells table, by default ‘30%’</p>
-</dd>
-<dt><strong>element_count_table_width</strong><span class="classifier">str, optional</span></dt><dd><p>CSS <code class="code docutils literal notranslate"><span class="pre">width</span></code> property value for element count table, by default ‘24%’</p>
-</dd>
-<dt><strong>ion_count_table_width</strong><span class="classifier">str, optional</span></dt><dd><p>CSS <code class="code docutils literal notranslate"><span class="pre">width</span></code> property value for ion count table, by default ‘24%’</p>
-</dd>
-<dt><strong>level_count_table_width</strong><span class="classifier">str, optional</span></dt><dd><p>CSS <code class="code docutils literal notranslate"><span class="pre">width</span></code> property value for level count table, by default ‘18%’</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>ipywidgets.Box</dt><dd><p>Shell info widget containing all component widgets</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-odd">Other Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>**layout_kwargs</strong></dt><dd><p>Any valid CSS properties to be passed to the <code class="code docutils literal notranslate"><span class="pre">layout</span></code> attribute
-of table widgets container (HTML <code class="code docutils literal notranslate"><span class="pre">div</span></code>) as explained in
-<a class="reference external" href="https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20Styling.html#The-layout-attribute">ipywidgets documentation</a></p>
+<dt>panel.Column</dt><dd><p>Shell info widget containing all component widgets</p>
 </dd>
 </dl>
 </dd>
@@ -362,7 +342,7 @@ of table widgets container (HTML <code class="code docutils literal notranslate"
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table">
-<span class="sig-name descname"><span class="pre">update_element_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qgrid_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_element_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update_element_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_element_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table" title="Link to this definition">¶</a></dt>
 <dd><p>Event listener to update the data in element count table widget based
 on interaction (row selected event) in shells table widget.</p>
 <dl class="field-list simple">
@@ -370,7 +350,7 @@ on interaction (row selected event) in shells table widget.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>event</strong><span class="classifier">dict</span></dt><dd><p>Dictionary that holds information about event (see Notes section)</p>
 </dd>
-<dt><strong>qgrid_widget</strong><span class="classifier">qgrid.QgridWidget</span></dt><dd><p>QgridWidget instance that fired the event (see Notes section)</p>
+<dt><strong>panel_widget</strong><span class="classifier">PanelTableWidget</span></dt><dd><p>PanelTableWidget instance that fired the event (see Notes section)</p>
 </dd>
 </dl>
 </dd>
@@ -378,13 +358,12 @@ on interaction (row selected event) in shells table widget.</p>
 <p class="rubric">Notes</p>
 <p>You will never need to pass any of these arguments explicitly. This is
 the expected signature of the function passed to <code class="code docutils literal notranslate"><span class="pre">handler</span></code> argument
-of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (qgrid.QgridWidget object) as
-explained in <a class="reference external" href="https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on">qrid documentation</a>.</p>
+of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (PanelTableWidget object).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table">
-<span class="sig-name descname"><span class="pre">update_ion_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qgrid_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_ion_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update_ion_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_ion_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table" title="Link to this definition">¶</a></dt>
 <dd><p>Event listener to update the data in ion count table widget based
 on interaction (row selected event) in element count table widget.</p>
 <dl class="field-list simple">
@@ -392,7 +371,7 @@ on interaction (row selected event) in element count table widget.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>event</strong><span class="classifier">dict</span></dt><dd><p>Dictionary that holds information about event (see Notes section)</p>
 </dd>
-<dt><strong>qgrid_widget</strong><span class="classifier">qgrid.QgridWidget</span></dt><dd><p>QgridWidget instance that fired the event (see Notes section)</p>
+<dt><strong>panel_widget</strong><span class="classifier">PanelTableWidget</span></dt><dd><p>PanelTableWidget instance that fired the event (see Notes section)</p>
 </dd>
 </dl>
 </dd>
@@ -400,13 +379,12 @@ on interaction (row selected event) in element count table widget.</p>
 <p class="rubric">Notes</p>
 <p>You will never need to pass any of these arguments explicitly. This is
 the expected signature of the function passed to <code class="code docutils literal notranslate"><span class="pre">handler</span></code> argument
-of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (qgrid.QgridWidget object) as
-explained in <a class="reference external" href="https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on">qrid documentation</a>.</p>
+of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (PanelTableWidget object).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table">
-<span class="sig-name descname"><span class="pre">update_level_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qgrid_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_level_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update_level_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_level_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table" title="Link to this definition">¶</a></dt>
 <dd><p>Event listener to update the data in level count table widget based
 on interaction (row selected event) in ion count table widget.</p>
 <dl class="field-list simple">
@@ -414,7 +392,7 @@ on interaction (row selected event) in ion count table widget.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>event</strong><span class="classifier">dict</span></dt><dd><p>Dictionary that holds information about event (see Notes section)</p>
 </dd>
-<dt><strong>qgrid_widget</strong><span class="classifier">qgrid.QgridWidget</span></dt><dd><p>QgridWidget instance that fired the event (see Notes section)</p>
+<dt><strong>panel_widget</strong><span class="classifier">PanelTableWidget</span></dt><dd><p>PanelTableWidget instance that fired the event (see Notes section)</p>
 </dd>
 </dl>
 </dd>
@@ -422,8 +400,7 @@ on interaction (row selected event) in ion count table widget.</p>
 <p class="rubric">Notes</p>
 <p>You will never need to pass any of these arguments explicitly. This is
 the expected signature of the function passed to <code class="code docutils literal notranslate"><span class="pre">handler</span></code> argument
-of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (qgrid.QgridWidget object) as
-explained in <a class="reference external" href="https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on">qrid documentation</a>.</p>
+of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (PanelTableWidget object).</p>
 </dd></dl>
 
 </dd></dl>
@@ -499,7 +476,7 @@ default arguments)</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

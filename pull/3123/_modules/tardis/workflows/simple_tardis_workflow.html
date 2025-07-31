@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -141,13 +141,13 @@ from astropy import units as u
 from tardis import constants as const
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -185,6 +185,13 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.simulation_state = SimulationState.from_csvy(
                 configuration, atom_data=atom_data
             )
+            assert np.isclose(
+                self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
+                self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,
+            ), (
+                &quot;If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell, see issue #3129.&quot;
+            )
+
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration,
@@ -203,7 +210,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         self.plasma_solver = plasma_solver_factory.assemble(
-            self.simulation_state.elemental_number_density,
+            self.simulation_state.calculate_elemental_number_density(
+                atom_data.atom_data.mass
+            ),
             self.simulation_state.radiation_field_state,
             self.simulation_state.time_explosion,
             self.simulation_state._electron_densities,
@@ -219,7 +228,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         if line_interaction_type == &quot;scatter&quot;:
             self.macro_atom_solver = None
         else:
-            self.macro_atom_solver = MacroAtomSolver()
+            self.macro_atom_solver = LegacyMacroAtomSolver()
 
         self.transport_state = None
         self.transport_solver = MonteCarloTransportSolver.from_config(
@@ -665,7 +674,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 

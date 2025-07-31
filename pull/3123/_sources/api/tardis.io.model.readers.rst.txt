@@ -1,6 +1,14 @@
 tardis.io.model.readers package
 ===============================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.io.model.readers.snec
+
 Submodules
 ----------
 

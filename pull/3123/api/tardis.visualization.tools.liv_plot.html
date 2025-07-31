@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/documentation_options.js?v=31849ae3"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -36,7 +36,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tardis.visualization.tools.rpacket_plot module" href="tardis.visualization.tools.rpacket_plot.html" />
-    <link rel="prev" title="tardis.visualization.tools.convergence_plot module" href="tardis.visualization.tools.convergence_plot.html" />
+    <link rel="prev" title="tardis.visualization.tools.lineid_plotter module" href="tardis.visualization.tools.lineid_plotter.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -210,6 +210,24 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.liv_plot.LIVPlotter.from_workflow">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workflow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/liv_plot.html#LIVPlotter.from_workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.liv_plot.LIVPlotter.from_workflow" title="Link to this definition">¶</a></dt>
+<dd><p>Create an instance of the plotter from a TARDIS workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>workflow</strong><span class="classifier">A TARDIS workflow object</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>LIVPlotter</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.liv_plot.LIVPlotter.generate_plot_mpl">
 <span class="sig-name descname"><span class="pre">generate_plot_mpl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'virtual'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_wvl_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(11,</span> <span class="pre">5)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmapname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlog_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylog_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/liv_plot.html#LIVPlotter.generate_plot_mpl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.liv_plot.LIVPlotter.generate_plot_mpl" title="Link to this definition">¶</a></dt>
 <dd><p>Generate the last interaction velocity distribution plot using matplotlib.</p>
@@ -303,7 +321,7 @@ values - lower lambda and upper lambda i.e.
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tardis.visualization.tools.convergence_plot.html" class="btn btn-neutral float-left" title="tardis.visualization.tools.convergence_plot module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.visualization.tools.lineid_plotter.html" class="btn btn-neutral float-left" title="tardis.visualization.tools.lineid_plotter module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="tardis.visualization.tools.rpacket_plot.html" class="btn btn-neutral float-right" title="tardis.visualization.tools.rpacket_plot module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -311,7 +329,7 @@ values - lower lambda and upper lambda i.e.
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jul 2025.
+      <span class="lastupdated">Last updated on 31 Jul 2025.
       </span></p>
   </div>
 
