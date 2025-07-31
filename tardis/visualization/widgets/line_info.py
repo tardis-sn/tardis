@@ -652,7 +652,7 @@ class LineInfoWidget:
         panel.Column
             Line info widget containing all component widgets
         """
-        if not Environment.is_notebook() or not Environment.is_sshjh() or not Environment.is_vscode():
+        if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
             print("Please use a notebook to display the widget")
         else:
             # Panel tables handle their own sizing

@@ -7,6 +7,8 @@ logger = logging.getLogger(__name__)
 VALID_MODES = ["ssh_jh", "notebook", "vscode", "vscode_noipy"]
 preferred_mode = None
 
+# note: pn.extension(comms="ipywidgets") and pn.extension("ipywidgets") behave differently! 
+
 def ssh_jh():
     """Initialize panel for JupyterHub (colab comms)"""
     print("Initializing panel with colab comms for JupyterHub")
