@@ -11,8 +11,8 @@ preferred_mode = None
 
 def ssh_jh():
     """Initialize panel for JupyterHub (colab comms)"""
-    print("Initializing panel with colab comms for JupyterHub")
-    pn.extension(comms="colab")
+    print("Initializing panel with ipywidgets comms for JupyterHub")
+    pn.extension(comms="ipywidgets")
 
 def notebook():
     """Initialize panel for standard Jupyter notebook (default comms)"""
