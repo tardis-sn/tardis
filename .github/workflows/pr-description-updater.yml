@@ -29,6 +29,10 @@ on:
         required: true
         description: 'GitHub token with pull request write permissions'
 
+concurrency:
+  group: update-pr-description-${{ inputs.pr_number }}
+  cancel-in-progress: false
+
 jobs:
   update-description:
     runs-on: ubuntu-latest
