@@ -1,0 +1,120 @@
+name: Update PR Description Section
+
+on:
+  workflow_call:
+    inputs:
+      section_id:
+        required: true
+        type: string
+        description: 'Unique section identifier (docs, benchmarks, regdata, ruff, orcid, welcome)'
+      content:
+        required: true
+        type: string
+        description: 'Content to update in the section'
+      pr_number:
+        required: true
+        type: string
+        description: 'PR number'
+      collapsible:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to make content collapsible'
+      title:
+        required: false
+        type: string
+        description: 'Section title'
+    secrets:
+      BOT_TOKEN:
+        required: true
+        description: 'GitHub token with pull request write permissions'
+
+concurrency:
+  group: update-pr-description-${{ inputs.pr_number }}
+  cancel-in-progress: false
+
+jobs:
+  update-description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update PR Description
+        uses: actions/github-script@v7
+        env:
+          SECTION_ID: ${{ inputs.section_id }}
+          CONTENT: ${{ inputs.content }}
+          COLLAPSIBLE: ${{ inputs.collapsible }}
+          TITLE: ${{ inputs.title }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          script: |
+            const sectionId = process.env.SECTION_ID;
+            const content = process.env.CONTENT;
+            const collapsible = process.env.COLLAPSIBLE === 'true';
+            const title = process.env.TITLE || sectionId.toUpperCase();
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            
+            // Get current PR
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+            
+            let description = pr.body || '';
+            
+            // Section delimiters
+            const startMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_START -->`;
+            const endMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_END -->`;
+            
+            // Format content
+            let formattedContent;
+            if (collapsible) {
+              formattedContent = `
+            <details>
+            <summary>${title}</summary>
+
+            ${content}
+
+            </details>`;
+            } else {
+              formattedContent = `
+            **${title}**: ${content}`;
+            }
+            
+            const sectionContent = `${startMarker}
+            ${formattedContent}
+            ${endMarker}`;
+            
+            // Check if section exists
+            const startIndex = description.indexOf(startMarker);
+            const endIndex = description.indexOf(endMarker);
+            
+            if (startIndex !== -1 && endIndex !== -1) {
+              // Update existing section
+              const before = description.substring(0, startIndex);
+              const after = description.substring(endIndex + endMarker.length);
+              description = before + sectionContent + after;
+            } else {
+              // Add new section
+              if (!description.includes('<!-- TARDIS_SECTIONS_START -->')) {
+                description += '\n\n<!-- TARDIS_SECTIONS_START -->\n## 🤖 Automated Checks\n<!-- TARDIS_SECTIONS_END -->';
+              }
+              
+              const sectionsStart = description.indexOf('<!-- TARDIS_SECTIONS_START -->');
+              const sectionsEnd = description.indexOf('<!-- TARDIS_SECTIONS_END -->');
+              
+              if (sectionsStart !== -1 && sectionsEnd !== -1) {
+                const before = description.substring(0, sectionsEnd);
+                const after = description.substring(sectionsEnd);
+                description = before + '\n' + sectionContent + '\n' + after;
+              }
+            }
+            
+            // Update PR description
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              body: description
+            });
