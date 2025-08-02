@@ -7,23 +7,19 @@ from tardis.spectrum.formal_integral.base import check, intensity_black_body
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.spectrum.formal_integral.formal_integral_numba import (
     calculate_p_values as calculate_p_values_numba,
-    intensity_black_body as intensity_black_body_numba
+    intensity_black_body as intensity_black_body_numba,
 )
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     calculate_p_values as calculate_p_values_cuda,
-    intensity_black_body_cuda
+    intensity_black_body_cuda,
 )
+
 
 @pytest.mark.parametrize(
-        "line_interaction_type", 
-            ("downbranch", 
-             "macroatom", 
-            pytest.param("?", marks=pytest.mark.xfail)
-            )
-
+    "line_interaction_type",
+    ("downbranch", "macroatom", pytest.param("?", marks=pytest.mark.xfail)),
 )
 def test_check(simulation_verysimple, line_interaction_type):
-
     sim_state = simulation_verysimple.simulation_state
     plasma = simulation_verysimple.plasma
     transport = simulation_verysimple.transport
@@ -53,7 +49,7 @@ def test_intensity_black_body(nu, temperature, expected):
     actual_numba = intensity_black_body_numba(nu, temperature)
     assert np.isclose(actual_numba, expected)
 
-    # TODO: check if cuda 
+    # TODO: check if cuda
     # actual_cuda = intensity_black_body_cuda(nu, temperature)
     # assert np.isclose(actual_cuda, expected)
 
@@ -79,5 +75,3 @@ def test_calculate_p_values(N):
     # actual_cuda = np.zeros_like(expected, dtype=np.float64)
     # actual_cuda[::] = calculate_p_values_cuda(r, N)
     # ntest.assert_allclose(actual_cuda, expected)
-
-

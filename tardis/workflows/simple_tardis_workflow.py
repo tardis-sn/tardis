@@ -14,6 +14,7 @@ from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -450,13 +451,26 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.spectrum_solver.integrator_settings = (
                 self.integrated_spectrum_settings
             )
-            self.spectrum_solver._integrator = FormalIntegrator(
-                self.simulation_state,
-                self.plasma_solver,
-                self.transport_solver,
-                opacity_states["opacity_state"],
-                opacity_states["macro_atom_state"],
+
+            formal_integrator = FormalIntegralSolver(self.spectrum_solver.integrator_settings)
+            self.spectrum_solver.setup_optional_spectra(
+                self.transport_state,
+                virtual_packet_luminosity=None,
+                integrator=formal_integrator,
+                simulation_state=self.simulation_state,
+                transport=self.transport_solver,
+                plasma=self.plasma_solver,
+                opacity_state=opacity_states["opacity_state"],
+                macro_atom_state=opacity_states["macro_atom_state"],
             )
+
+            # self.spectrum_solver._integrator = FormalIntegrator(
+            #     self.simulation_state,
+            #     self.plasma_solver,
+            #     self.transport_solver,
+            #     opacity_states["opacity_state"],
+            #     opacity_states["macro_atom_state"],
+            # )
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
