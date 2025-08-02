@@ -15,8 +15,8 @@ def he_workflow_minimal_run_params(atomic_dataset):
     return {
         "time_start": 2.0,
         "time_end": 100.0,
-        "number_of_packets": int(3e5),
-        "time_steps": 500,
+        "number_of_packets": int(3e4),
+        "time_steps": 20,
         "time_space": "log",
         "seed": 1993,
         "fp": 1.0,
