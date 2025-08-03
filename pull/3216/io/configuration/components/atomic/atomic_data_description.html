@@ -1,0 +1,595 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atomic Data Format Description &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=fda4fbf0"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Current Public Atomic Data Table" href="current_public_table.html" />
+    <link rel="prev" title="Atomic Data" href="atomic_data.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Configuration (Required Input)</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Configuration Components</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../supernova.html">Supernova Configuration</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="atomic_data.html">Atomic Data</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Atomic Data Format Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="current_public_table.html">Current Public Atomic Data Table</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../plasma.html">Plasma Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/index.html">Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../montecarlo.html">Monte Carlo Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spectrum.html">Spectrum Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../debug.html">Debug Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../example.html">TARDIS Example Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../config_validator.html">Configuration Validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial_read_configuration.html">Reading a Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Configuration (Required Input)</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Configuration Components</a></li>
+          <li class="breadcrumb-item"><a href="atomic_data.html">Atomic Data</a></li>
+      <li class="breadcrumb-item active">Atomic Data Format Description</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/io/configuration/components/atomic/atomic_data_description.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="atomic-data-format-description">
+<span id="atomic-data-descritpion"></span><h1>Atomic Data Format Description<a class="headerlink" href="#atomic-data-format-description" title="Link to this heading">¶</a></h1>
+<p>The atomic data for tardis is stored in <a class="reference external" href="http://www.h5py.org/">HDF5 files</a>. TARDIS ships with a
+relatively simple atomic dataset that only contains silicon lines and levels. TARDIS also has a full atomic dataset which contains
+the complete Kurucz dataset (<a class="reference external" href="http://kurucz.harvard.edu/LINELISTS/GFALL/">http://kurucz.harvard.edu/LINELISTS/GFALL/</a>). This full dataset also contains recombination
+coefficients from the ground state (<span class="math notranslate nohighlight">\(\zeta-\textrm{factor}\)</span> used in <a class="reference internal" href="../../../../physics/setup/plasma/nebular_plasma.html#calc-zeta-label"><span class="std std-ref">Calculating Zeta</span></a>) and data for calculating the
+branching or macro atom line interaction (<a class="reference internal" href="../../../../physics/setup/plasma/macroatom.html#macroatom"><span class="std std-ref">Macro Atom</span></a>).</p>
+<section id="hdf5-dataset">
+<h2>HDF5 Dataset<a class="headerlink" href="#hdf5-dataset" title="Link to this heading">¶</a></h2>
+<p>As mentioned previously, all atomic data is stored in <a class="reference external" href="http://www.h5py.org/">HDF5 files</a>  that contain tables
+that include mass, ionization, levels and lines data. The atom data that ships with TARDIS is located in data/atom.</p>
+<p>The dataset <code class="docutils literal notranslate"><span class="pre">basic_atom_set</span></code> contains the Atomic Number, Symbol of the elements and average mass of the elements.</p>
+<section id="basic-atomic-data">
+<h3>Basic Atomic Data<a class="headerlink" href="#basic-atomic-data" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>atomic_number</p></td>
+<td><p>Atomic Number (e.g. He = 2)</p></td>
+<td><p>z</p></td>
+</tr>
+<tr class="row-odd"><td><p>symbol</p></td>
+<td><p>Symbol (e.g. He, Fe, Ca, etc.)</p></td>
+<td><p>None</p></td>
+</tr>
+<tr class="row-even"><td><p>mass</p></td>
+<td><p>Average mass of atom</p></td>
+<td><p>u</p></td>
+</tr>
+</tbody>
+</table>
+<p>The ionization data is stored in <code class="docutils literal notranslate"><span class="pre">ionization_data</span></code>.</p>
+</section>
+<section id="ionization-data">
+<h3>Ionization Data<a class="headerlink" href="#ionization-data" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>atomic_number(z)</p></td>
+<td><p>Atomic Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ion_number</p></td>
+<td><p>Ion Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>ionization_energy</p></td>
+<td><p>Ionization Energy of atom</p></td>
+<td><p>erg</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In TARDIS, Ion 0 is neutral.</p>
+</div>
+</section>
+<section id="levels-data">
+<h3>Levels Data<a class="headerlink" href="#levels-data" title="Link to this heading">¶</a></h3>
+<p>The levels data is stored in <code class="docutils literal notranslate"><span class="pre">levels_data</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>atomic_number(z)</p></td>
+<td><p>Atomic Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ion_number</p></td>
+<td><p>Ion Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>level_number</p></td>
+<td><p>Level Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>energy</p></td>
+<td><p>Energy of a particular level</p></td>
+<td><p>erg</p></td>
+</tr>
+<tr class="row-even"><td><p>g</p></td>
+<td></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>metastable</p></td>
+<td></td>
+<td><p>bool</p></td>
+</tr>
+</tbody>
+</table>
+<p>All lines are stored in <code class="docutils literal notranslate"><span class="pre">lines_data</span></code>.</p>
+</section>
+<section id="lines-data">
+<h3>Lines Data<a class="headerlink" href="#lines-data" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>wavelength</p></td>
+<td><p>Waveslength</p></td>
+<td><p>angstrom</p></td>
+</tr>
+<tr class="row-odd"><td><p>atomic_number(z)</p></td>
+<td><p>Atomic Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>ion_number</p></td>
+<td><p>Ion Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>f_ul</p></td>
+<td><p>Upper level probability</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>f_lu</p></td>
+<td><p>Lower level probability</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>level_id_lower</p></td>
+<td><p>Upper level id</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>level_id_upper</p></td>
+<td><p>Lower level id</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+<p>The next three datasets are only contained in the full dataset available upon request from the authors.</p>
+<p>The factor correcting for photo-ionization from excited levels (needed in <a class="reference internal" href="../../../../physics/setup/plasma/nebular_plasma.html#calc-zeta-label"><span class="std std-ref">Calculating Zeta</span></a>) is stored in the dataset <code class="docutils literal notranslate"><span class="pre">zeta_data</span></code>.
+The data is stored in a special way as one large <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> where the first two columns are Atomic Number and Ion
+Number. All further columns are the <span class="math notranslate nohighlight">\(\zeta-\textrm{factors}\)</span> for different temperatures. The temperatures are stored
+in the attribute <code class="docutils literal notranslate"><span class="pre">t_rads</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>atomic_number(z)</p></td>
+<td><p>Atomic Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ion_number</p></td>
+<td><p>Ion Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>T_XXXX</p></td>
+<td><p>Temperature for column</p></td>
+<td><p>K</p></td>
+</tr>
+<tr class="row-odd"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+</tr>
+<tr class="row-even"><td><p>T_XXXX</p></td>
+<td><p>Temperature for column</p></td>
+<td><p>K</p></td>
+</tr>
+</tbody>
+</table>
+<p>There are two datasets for using the macro atom and branching line interactions. The <code class="docutils literal notranslate"><span class="pre">macro_atom_data</span></code> and <code class="docutils literal notranslate"><span class="pre">macro_atom_references</span></code>:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">macro_atom_data</span></code> contains blocks of transition probabilities, several indices and flags. The Transition Type flag
+has three states:</p>
+<ul class="simple">
+<li><p>-1 for downwards emitting</p></li>
+<li><p>0 for downwards internal</p></li>
+<li><p>1 for upwards internal (for more explanations, please refer to <a class="reference internal" href="../../../../physics/setup/plasma/macroatom.html#macroatom"><span class="std std-ref">Macro Atom</span></a>).</p></li>
+</ul>
+</section>
+<section id="macro-atom-data">
+<h3>Macro Atom Data<a class="headerlink" href="#macro-atom-data" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>atomic_number(z)</p></td>
+<td><p>Atomic Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ion_number</p></td>
+<td><p>Ion Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>source_level_number</p></td>
+<td><p>Source Level Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>destination_level_number</p></td>
+<td><p>Destination Level Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>transition_type</p></td>
+<td><p>Transition Type</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>transition_probability</p></td>
+<td><p>Transition Probability</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>transition_line_id</p></td>
+<td><p>Transition Line ID</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+<p>Here’s the structure of the probability block. The atomic number, ion number and source level number are the same
+within each block, the destination level number the transition type and transition probability are changing.
+The transition probabilities are only part of the final probability and will be changed during the calculation.
+For details on the macro atom, please refer to <a class="reference internal" href="../../../../physics/setup/plasma/macroatom.html#macroatom"><span class="std std-ref">Macro Atom</span></a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Atomic Number</p></th>
+<th class="head"><p>Ion Number</p></th>
+<th class="head"><p>Source Level Number</p></th>
+<th class="head"><p>Destination Level Number</p></th>
+<th class="head"><p>Transition Type</p></th>
+<th class="head"><p>Transition probabilities</p></th>
+<th class="head"><p>Transition Line ID</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>1</sub></p></td>
+<td><p>-1</p></td>
+<td><p>P<sub>emission down</sub> 1</p></td>
+<td><p>k<sub>1</sub></p></td>
+</tr>
+<tr class="row-odd"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>2</sub></p></td>
+<td><p>-1</p></td>
+<td><p>P<sub>emission down</sub> 2</p></td>
+<td><p>k<sub>2</sub></p></td>
+</tr>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+</tr>
+<tr class="row-odd"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>n</sub></p></td>
+<td><p>-1</p></td>
+<td><p>P<sub>emission down</sub> n</p></td>
+<td><p>k<sub>n</sub></p></td>
+</tr>
+<tr class="row-even"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>1</sub></p></td>
+<td><p>0</p></td>
+<td><p>P<sub>internal down</sub> 1</p></td>
+<td><p>k<sub>1</sub></p></td>
+</tr>
+<tr class="row-odd"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>2</sub></p></td>
+<td><p>0</p></td>
+<td><p>P<sub>internal down</sub> 2</p></td>
+<td><p>k<sub>2</sub></p></td>
+</tr>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+</tr>
+<tr class="row-odd"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>n</sub></p></td>
+<td><p>0</p></td>
+<td><p>P<sub>internal down</sub> n</p></td>
+<td><p>k<sub>n</sub></p></td>
+</tr>
+<tr class="row-even"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>1</sub></p></td>
+<td><p>1</p></td>
+<td><p>P<sub>internal up</sub>   1</p></td>
+<td><p>k<sub>1</sub></p></td>
+</tr>
+<tr class="row-odd"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>2</sub></p></td>
+<td><p>1</p></td>
+<td><p>P<sub>internal up</sub>   2</p></td>
+<td><p>k<sub>2</sub></p></td>
+</tr>
+<tr class="row-even"><td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+<td><p>…</p></td>
+</tr>
+<tr class="row-odd"><td><p>Z<sub>1</sub></p></td>
+<td><p>I<sub>1</sub></p></td>
+<td><p>i<sub>1</sub></p></td>
+<td><p>j<sub>n</sub></p></td>
+<td><p>1</p></td>
+<td><p>P<sub>internal up</sub>   n</p></td>
+<td><p>k<sub>n</sub></p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">macro_references</span></code> dataset contains the numbers for each block:</p>
+</section>
+<section id="macro-atom-references">
+<h3>Macro Atom References<a class="headerlink" href="#macro-atom-references" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>atomic_number(z)</p></td>
+<td><p>Atomic Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>ion_number</p></td>
+<td><p>Ion Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>source_level_number</p></td>
+<td><p>Source Level Number</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>count_down</p></td>
+<td><p>Number of down transitions</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>count_up</p></td>
+<td><p>Number of up transitions</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>count_total</p></td>
+<td><p>Total number of transitions</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="the-atom-data-class">
+<h2>The Atom Data Class<a class="headerlink" href="#the-atom-data-class" title="Link to this heading">¶</a></h2>
+<p>Atom Data is stored inside TARDIS in the <code class="xref py py-class docutils literal notranslate"><span class="pre">AtomData</span></code>-class. The class method <code class="xref py py-func docutils literal notranslate"><span class="pre">AtomData.from_hdf()</span></code> will
+instantiate a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">AtomData</span></code>-class from an HDF5 file. If none is given it will automatically
+take the default HDF5-dataset shipped with TARDIS. A second function <code class="xref py py-func docutils literal notranslate"><span class="pre">AtomData.prepare_atom_data()</span></code>
+will cut the levels and lines data to only the required atoms and ions. In addition, it will create the intricate system
+of references needed by macro atom or branching line interactions.</p>
+</section>
+<section id="indexing-fun">
+<h2>Indexing fun<a class="headerlink" href="#indexing-fun" title="Link to this heading">¶</a></h2>
+<p>The main problem with the atomic data is indexing. Most of these references require multiple numbers, e.g. atomic number,
+ion number and level number. The <a class="reference external" href="https://pandas.pydata.org/">pandas</a> framework provides the ideal functions to accomplish this. In TARDIS, we extensively
+use <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.MultiIndex.html#pandas.MultiIndex" title="(in pandas v3.0.0.dev0+2281.g364ca58fcc)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.MultiIndex</span></code></a>, <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.0.dev0+2281.g364ca58fcc)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Series</span></code></a> and <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.0.dev0+2281.g364ca58fcc)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a>.</p>
+<p>TO BE BETTER DOCUMENTED …</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="atomic_data.html" class="btn btn-neutral float-left" title="Atomic Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="current_public_table.html" class="btn btn-neutral float-right" title="Current Public Atomic Data Table" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 03 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
