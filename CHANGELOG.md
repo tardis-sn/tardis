@@ -1,5 +1,9 @@
 ## Changelog
 
+### release-2025.08.03 (2025/07/31 14:08)
+- [3212](https://github.com/tardis-sn/tardis/pull/3212) fix more \AA warnings (3212) (@hmperk18)
+- [2976](https://github.com/tardis-sn/tardis/pull/2976) Restructure/gamma rays code1 (2976) (@wkerzendorf)
+- [3211](https://github.com/tardis-sn/tardis/pull/3211) Post-release 2025.07.27 (3211) (@tardis-bot)
 ### release-2025.07.27 (2025/07/25 20:22)
 - [3145](https://github.com/tardis-sn/tardis/pull/3145) Remove SDEC encoding and fix colors (3145) (@KasukabeDefenceForce)
 - [3209](https://github.com/tardis-sn/tardis/pull/3209) fix \AA warnings with raw string (3209) (@hmperk18)
@@ -477,12 +481,8 @@
 - [2396](https://github.com/tardis-sn/tardis/pull/2396) Fix for Slack message (2396) (@epassaro)
 ### release-2023.08.20 (2023/08/19 20:43)
 - [2397](https://github.com/tardis-sn/tardis/pull/2397) Pre-release 2023.08.20 (2397) (@tardis-bot)
-- [2385](https://github.com/tardis-sn/tardis/pull/2385) Creating collisional excitation/deexcitation coefficient matrix for NLTE excitation treatment (2385) (@sonachitchyan)
 - [2395](https://github.com/tardis-sn/tardis/pull/2395) Fixing the shape of the solution vector to be accurate in NLTE excitation treatment (2395) (@sonachitchyan)
-- [2386](https://github.com/tardis-sn/tardis/pull/2386) Integrate density in state object (2386) (@wkerzendorf)
-- [2392](https://github.com/tardis-sn/tardis/pull/2392) Post-release 2023.08.13 (2392) (@tardis-bot)
 ### release-2023.08.13 (2023/08/13 17:04)
-- [2391](https://github.com/tardis-sn/tardis/pull/2391) Pre-release 2023.08.13 (2391) (@tardis-bot)
 ### release-2023.08.06 (2023/08/05 20:43)
 ### release-2023.07.30 (2023/07/29 20:47)
 ### release-2023.07.23 (2023/07/23 10:47)
