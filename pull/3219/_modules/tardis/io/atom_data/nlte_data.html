@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.io.atom_data.nlte_data &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=210e852c"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.io.atom_data.nlte_data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.io.atom_data.nlte_data</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import numpy as np
+from scipy import interpolate
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="NLTEData">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.nlte_data.html#tardis.io.atom_data.nlte_data.NLTEData">[docs]</a>
+class NLTEData:
+    def __init__(self, atom_data, nlte_species):
+        self.atom_data = atom_data
+        self.lines = atom_data.lines.reset_index()
+        self.nlte_species = nlte_species
+
+    def _init_indices(self):
+        self.lines_idx = {}
+        self.lines_level_number_lower = {}
+        self.lines_level_number_upper = {}
+        self.A_uls = {}
+        self.B_uls = {}
+        self.B_lus = {}
+
+        for species in self.nlte_species:
+            lines_idx = np.where(
+                (self.lines.atomic_number == species[0])
+                &amp; (self.lines.ion_number == species[1])
+            )
+            self.lines_idx[species] = lines_idx
+            self.lines_level_number_lower[species] = (
+                self.lines.level_number_lower.values[lines_idx].astype(int)
+            )
+            self.lines_level_number_upper[species] = (
+                self.lines.level_number_upper.values[lines_idx].astype(int)
+            )
+
+            self.A_uls[species] = self.lines.A_ul.values[lines_idx]
+            self.B_uls[species] = self.lines.B_ul.values[lines_idx]
+            self.B_lus[species] = self.lines.B_lu.values[lines_idx]
+
+    def _create_collision_coefficient_matrix(self):
+        self.C_ul_interpolator = {}
+        self.delta_E_matrices = {}
+        self.g_ratio_matrices = {}
+        collision_group = self.atom_data.collision_data.groupby(
+            level=[&quot;atomic_number&quot;, &quot;ion_number&quot;]
+        )
+        for species in self.nlte_species:
+            no_of_levels = self.atom_data.levels.loc[species].energy.count()
+            C_ul_matrix = np.zeros(
+                (
+                    no_of_levels,
+                    no_of_levels,
+                    len(self.atom_data.collision_data_temperatures),
+                )
+            )
+            delta_E_matrix = np.zeros((no_of_levels, no_of_levels))
+            g_ratio_matrix = np.zeros((no_of_levels, no_of_levels))
+
+            for (
+                (
+                    atomic_number,
+                    ion_number,
+                    level_number_lower,
+                    level_number_upper,
+                ),
+                line,
+            ) in collision_group.get_group(species).iterrows():
+                # line.columns : delta_e, g_ratio, temperatures ...
+                C_ul_matrix[level_number_lower, level_number_upper, :] = (
+                    line.values[2:]
+                )
+                delta_E_matrix[level_number_lower, level_number_upper] = line[
+                    &quot;delta_e&quot;
+                ]
+                # TODO TARDISATOMIC fix change the g_ratio to be the otherway round - I flip them now here.
+                g_ratio_matrix[level_number_lower, level_number_upper] = (
+                    1 / line[&quot;g_ratio&quot;]
+                )
+            self.C_ul_interpolator[species] = interpolate.interp1d(
+                self.atom_data.collision_data_temperatures, C_ul_matrix
+            )
+            self.delta_E_matrices[species] = delta_E_matrix
+
+            self.g_ratio_matrices[species] = g_ratio_matrix
+
+<div class="viewcode-block" id="NLTEData.get_collision_matrix">
+<a class="viewcode-back" href="../../../../api/tardis.io.atom_data.nlte_data.html#tardis.io.atom_data.nlte_data.NLTEData.get_collision_matrix">[docs]</a>
+    def get_collision_matrix(self, species, t_electrons):
+        &quot;&quot;&quot;
+        Creat collision matrix by interpolating the C_ul values for
+        the desired temperatures.
+        &quot;&quot;&quot;
+        c_ul_matrix = self.C_ul_interpolator[species](t_electrons)
+        no_of_levels = c_ul_matrix.shape[0]
+        c_ul_matrix[np.isnan(c_ul_matrix)] = 0.0
+
+        # TODO in tardisatomic the g_ratio is the other way round - here I&#39;ll flip it in prepare_collision matrix
+
+        c_lu_matrix = (
+            c_ul_matrix
+            * np.exp(
+                -self.delta_E_matrices[species].reshape(
+                    (no_of_levels, no_of_levels, 1)
+                )
+                / t_electrons.reshape((1, 1, t_electrons.shape[0]))
+            )
+            * self.g_ratio_matrices[species].reshape(
+                (no_of_levels, no_of_levels, 1)
+            )
+        )
+        return c_ul_matrix + c_lu_matrix.transpose(1, 0, 2)</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 04 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
