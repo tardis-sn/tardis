@@ -147,7 +147,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
     def run(
         self,
-        transport_state,
+        geometry_state,
+        opacity_state,
+        macro_atom_state,
+        plasma,
+        no_of_packets,
+        no_of_virtual_packets=0,
         iteration=0,
         total_iterations=0,
         show_progress_bars=True,
@@ -157,18 +162,43 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         Parameters
         ----------
-        model : tardis.model.SimulationState
+        geometry_state : tardis.model.geometry.Geometry
+            The geometry state of the simulation
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            The opacity state
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.LegacyMacroAtomState
+            The macro atom state
         plasma : tardis.plasma.BasePlasma
+            The plasma state
         no_of_packets : int
+            Number of packets to run
         no_of_virtual_packets : int
+            Number of virtual packets
+        iteration : int
+            Current iteration number
         total_iterations : int
             The total number of iterations in the simulation.
+        show_progress_bars : bool
+            Whether to show progress bars
 
         Returns
         -------
-        None
+        v_packets_energy_hist : numpy.ndarray
+            Virtual packet energy histogram
         """
         set_num_threads(self.nthreads)
+
+        # Initialize transport state
+        transport_state = self.initialize_transport_state(
+            geometry_state,
+            opacity_state,
+            macro_atom_state,
+            plasma,
+            no_of_packets,
+            no_of_virtual_packets=no_of_virtual_packets,
+            iteration=iteration,
+        )
+
         self.transport_state = transport_state
 
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
