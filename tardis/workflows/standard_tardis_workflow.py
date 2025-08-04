@@ -271,3 +271,31 @@ class StandardTARDISWorkflow(
             self.opacity_states,
             virtual_packet_energies,
         )
+
+    @property
+    def plasma(self):
+        return self.plasma_solver
+    
+    @property 
+    def transport(self):
+        return self.transport_solver
+        
+    @property
+    def iterations_executed(self):
+        return self.completed_iterations
+        
+    @property
+    def iterations(self):
+        return self.total_iterations
+        
+    @property
+    def no_of_packets(self):
+        return self.real_packet_count
+        
+    @property
+    def last_no_of_packets(self):
+        return self.final_iteration_packet_count
+        
+    @property
+    def no_of_virtual_packets(self):
+        return self.virtual_packet_count
