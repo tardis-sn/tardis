@@ -36,6 +36,20 @@ Please contact the TARDIS team via the `GitHub page
 <https://github.com/tardis-sn/tardis>`_ if you have questions or need
 assistance.
 
+------------------------------
+Documentation Structure Guide
+------------------------------
+
+This documentation is organized following the `Diátaxis framework <https://diataxis.fr/>`_:
+
+- **Getting Started**: Quick installation and first steps
+- **Tutorials**: Step-by-step lessons for learning TARDIS concepts
+- **How-to Guides**: Practical solutions to specific problems  
+- **Reference**: Technical specifications and API documentation
+- **Explanation**: Deep dives into the physics and theory behind TARDIS
+
+📋 :doc:`documentation_guide` - Detailed navigation guide
+
 -----------------
 Mission Statement
 -----------------
@@ -49,22 +63,39 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 2
+    :caption: Getting Started
     :hidden:
 
     installation
     quickstart
-    tutorials
-    how_to_guides
-    workflows
-    faq
-    API <api/modules>
-
 
 .. toctree::
-    :maxdepth: 3
-    :caption: Input/Output
+    :maxdepth: 2
+    :caption: Tutorials
     :hidden:
-    
+
+    Getting Started with TARDIS: Hands-On Tutorials
+
+.. toctree::
+    :maxdepth: 2
+    :caption: How-to Guides
+    :hidden:
+
+    how_to_guides
+    workflows
+    analyzing_tardis/visualization/index
+    analyzing_tardis/spectrum/index
+    analyzing_tardis/liv_plot_notebook.ipynb
+    analyzing_tardis/rpacket_plot_notebook.ipynb
+    analyzing_tardis/analysing_convergence_plot.ipynb
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Reference
+    :hidden:
+
+    API <api/modules>
+    faq
     io/hdf/index
     io/configuration/index
     io/model/index
@@ -72,24 +103,11 @@ Mission Statement
     io/output/index
     io/grid/TardisGridTutorial
 
-
-.. toctree::
-    :maxdepth: 3
-    :caption: Analyzing Tardis
-    :hidden:
-
-    analyzing_tardis/visualization/index
-    analyzing_tardis/spectrum/index
-    analyzing_tardis/liv_plot_notebook.ipynb
-    analyzing_tardis/rpacket_plot_notebook.ipynb
-    analyzing_tardis/analysing_convergence_plot.ipynb
-
-
 .. toctree::
     :maxdepth: 2
-    :caption: Physics Walkthrough
+    :caption: Explanation
     :hidden:
-    
+
     physics/intro/index
     physics/setup/index
     physics/montecarlo/index
