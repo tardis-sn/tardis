@@ -97,7 +97,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
     def initialize_transport_state(
         self,
-        simulation_state,
+        geometry_state,
         opacity_state,
         macro_atom_state,
         plasma,
@@ -114,13 +114,13 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             no_of_packets, seed_offset=iteration
         )
 
-        geometry_state = simulation_state.geometry.to_numba()
+        geometry_state_numba = geometry_state.to_numba()
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
         )
         opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+            geometry_state.v_inner_boundary_index : geometry_state.v_outer_boundary_index
         ]
 
         estimators = initialize_estimator_statistics(
@@ -130,9 +130,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state = MonteCarloTransportState(
             packet_collection,
             estimators,
-            geometry_state=geometry_state,
+            geometry_state=geometry_state_numba,
             opacity_state=opacity_state_numba,
-            time_explosion=simulation_state.time_explosion,
+            time_explosion=geometry_state.time_explosion,
         )
 
         transport_state.enable_full_relativity = (

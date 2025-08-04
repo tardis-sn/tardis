@@ -403,7 +403,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         macro_atom_state = opacity_states["macro_atom_state"]
 
         self.transport_state = self.transport_solver.initialize_transport_state(
-            self.simulation_state,
+            self.simulation_state.geometry,
             opacity_state,
             macro_atom_state,
             self.plasma_solver,
