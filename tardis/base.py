@@ -76,7 +76,6 @@ def run_tardis(
     from tardis.io.configuration.config_reader import Configuration
     from tardis.io.logger.logger import logging_state
     from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
-    from tardis.workflows.simulation_adapter import SimulationAdapter
 
     if simulation_callbacks is None:
         simulation_callbacks = []
@@ -118,8 +117,7 @@ def run_tardis(
     )
 
     workflow.run()
-    simulation = SimulationAdapter(workflow)
     if logger_widget:
         tardislogger.remove_widget_handler()
         tardislogger.setup_stream_handler()
-    return simulation
+    return workflow
