@@ -31,7 +31,7 @@ on:
 
 concurrency:
   group: update-pr-description-${{ inputs.pr_number }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   update-description:

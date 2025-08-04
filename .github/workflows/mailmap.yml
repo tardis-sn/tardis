@@ -52,3 +52,13 @@ jobs:
       title: 'Mailmap Check'
     secrets:
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+  alert-on-race-condition:
+    needs: update-mailmap-pr-description
+    if: always() && cancelled() && needs.check.outputs.mailmap_check_failed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1

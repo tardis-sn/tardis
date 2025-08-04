@@ -21,6 +21,16 @@ jobs:
     secrets:
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
+  alert-lfs-race-condition:
+    needs: git-lfs-pull-label
+    if: always() && cancelled() && contains(github.event.pull_request.labels.*.name, 'git-lfs-pull')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1
+
   check-first-time-committer:
     if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
     uses: ./.github/workflows/pr-description-updater.yml
@@ -33,6 +43,16 @@ jobs:
       title: 'Welcome Message'
     secrets:
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+  alert-welcome-race-condition:
+    needs: check-first-time-committer
+    if: always() && cancelled() && github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1
 
 
   check-orcid:
@@ -89,3 +109,13 @@ jobs:
       title: 'ORCID Check'
     secrets:
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+  alert-orcid-race-condition:
+    needs: update-orcid-pr-description
+    if: always() && cancelled() && needs.check-orcid.outputs.orcid_check_failed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1
