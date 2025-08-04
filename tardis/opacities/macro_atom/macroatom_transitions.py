@@ -307,7 +307,7 @@ def set_index(p, photo_ion_idx, transition_type=0, reverse=True):
         p = p.set_index(index, drop=True)
         return p
 
-def recombination(alpha_sp, nu_i, energy_i, photoionization_index):
+def continuum_transition_recombination(alpha_sp, nu_i, energy_i, photoionization_index):
     '''Unnormalized probabilities of radiative recombination
     alpha_sp : pandas.Series, dtype float
         Rate coefficient for spontaneous recombination from `k` to level `i`
@@ -352,7 +352,7 @@ def recombination(alpha_sp, nu_i, energy_i, photoionization_index):
     return p_recombination, recombination_metadata
 
 
-def photoionization(gamma_corr, energy_i, photo_ion_idx):
+def continuum_transition_photoionization(gamma_corr, energy_i, photo_ion_idx):
     '''
     Photoionization probability unnormalized
         gamma_corr : pandas.Series, dtype float
@@ -386,7 +386,7 @@ def photoionization(gamma_corr, energy_i, photo_ion_idx):
 
 
 
-def collisional(
+def continuum_transition_collisional(
     self,
     coll_exc_coeff,
     coll_deexc_coeff,
