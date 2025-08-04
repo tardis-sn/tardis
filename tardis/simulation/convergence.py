@@ -1,6 +1,5 @@
 import numpy as np
-from astropy import units as u
-from astropy.units import Quantity
+
 
 class ConvergenceSolver:
     def __init__(self, strategy):
@@ -22,16 +21,19 @@ class ConvergenceSolver:
         self.convergence_strategy = strategy
         self.damping_factor = self.convergence_strategy.damping_constant
         self.threshold = self.convergence_strategy.threshold
-        self.memory = self.convergence_strategy.get('memory', 5)
-
-        #Initializing the history for Anderson method
-        self.x_history = []
-        self.g_history = []
 
         if self.convergence_strategy.type in ("damped"):
             self.converge = self.damped_converge
-        elif self.convergence_strategy.type in ("anderson"):
-            self.converge = self.anderson_converge
+        elif self.convergence_strategy.type in ("adaptive_damped"):
+            self.lambda_min = 0.1
+            self.lambda_max = 1.0
+            self.lambda_step = 0.05
+            self.residual_old = None 
+            self.damping_factor = 0.5  # starting point
+            self.converge = self.adaptive_damped
+        elif self.convergence_strategy.type in ("RobbinsMonro"):
+            self.iteration = 1
+            self.converge = self.harmonic_damped
         elif self.convergence_strategy.type in ("custom"):
             raise NotImplementedError(
                 "Convergence strategy type is custom; "
@@ -40,67 +42,9 @@ class ConvergenceSolver:
         else:
             raise ValueError(
                 f"Convergence strategy type is "
-                f"not damped, anderson or custom "
+                f"not damped, adaptive damped, Robbins-Monro, or custom "
                 f"- input is {self.convergence_strategy.type}"
             )
-
-    def anderson_converge(self, value, estimated_value):
-        """
-        Anderson acceleration method for convergence.
-
-        Parameters
-        ----------
-        value : Quantity or float
-            The current value of the physical property.
-        estimated_value : Quantity or float
-            The estimated value of the physical property.
-
-        Returns
-        -------
-        Quantity
-            The accelerated converged value with the same units as the input value.
-
-        Raises
-        ------
-        LinAlgError
-            If the QR decomposition or the linear system solution fails, the method 
-            should fall back to returning the current estimated value without acceleration.
-        """
-        if not isinstance(value, Quantity):
-            value = value * u.K  
-        if not isinstance(estimated_value, Quantity):
-            estimated_value = estimated_value * u.K
-
-        original_unit = value.unit
-        if value.unit != estimated_value.unit:
-            value = value.to(estimated_value.unit)
-
-        value = value.value
-        estimated_value = estimated_value.value
-
-        x_new = estimated_value
-        g_new = x_new - value
-
-        self.x_history.append(value) 
-        self.g_history.append(g_new)
-
-        if len(self.x_history) > 1:
-            m = min(self.memory, len(self.x_history) - 1)
-            G_k = np.column_stack([self.g_history[i] - self.g_history[i - 1] for i in range(-m, 0)])
-            X_k = np.column_stack([self.x_history[i] - self.x_history[i - 1] for i in range(-m, 0)])
-
-            g_new = np.array(g_new).reshape(-1, 1)
-            try:
-                Q, R = np.linalg.qr(G_k)
-                gamma_k = np.linalg.solve(R, Q.T @ g_new)
-                x_accel = self.x_history[-1] - (X_k @ gamma_k + G_k @ gamma_k).flatten()
-                self.x_history[-1] = x_accel
-                self.g_history[-1] = estimated_value - x_accel
-                return (x_accel * original_unit)
-            except np.linalg.LinAlgError:
-                pass
-
-        return x_new * original_unit 
 
     def damped_converge(self, value, estimated_value):
         """Damped convergence solver
@@ -117,6 +61,109 @@ class ConvergenceSolver:
         np.float64
             The converged value
         """
+        return value + self.damping_factor * (estimated_value - value)
+    
+    # def adaptive_damped(self, value, estimated_value):
+    #     """
+    #     Monotonic non‐decreasing adaptive damping:
+    #     - Start at self.damping_factor 
+    #     - Candidate lambdas: {λ, λ + Δ}, clipped to [λ, λ_max]
+    #     - Compute residual r = mean(|estimated - x_new| / |estimated|)
+    #     - Pick the candidate that minimizes r
+    #     - Update self.damping_factor to that candidate (never decreases)
+    #     - Return the damped update with that λ
+    #     """
+    #     base  = self.damping_factor
+    #     delta = self.lambda_step
+
+    #     # Only allowing lambda to stay the same or increase
+    #     candidates = [base]
+    #     up = min(base + delta, self.lambda_max)
+    #     if up > base:
+    #         candidates.append(up)
+
+    #     best_lambda   = base
+    #     best_residual = None
+
+    #     for lam in candidates:
+    #         x_new = value + lam * (estimated_value - value)
+    #         # normalized residual
+    #         res = np.mean(np.abs((estimated_value - x_new) / estimated_value))
+    #         if best_residual is None or res < best_residual:
+    #             best_residual = res
+    #             best_lambda   = lam
+
+    #     # This assignment can only increase or hold λ
+    #     self.damping_factor = best_lambda
+
+    #     return value + best_lambda * (estimated_value - value)
+
+    # def adaptive_damped(self, value, estimated_value):
+    #     """
+    #     Monotonically non-increasing adaptive damping: λ₀ = 1.0
+    #     At each iteration n:
+    #       rₙ = mean(|est - val|/|est|)
+    #       if rₙ >= rₙ₋₁: λₙ₊₁ = max(λₙ - Δ, λ_min)
+    #       else:         λₙ₊₁ = λₙ
+    #     """
+    #     # Compute the new normalized residual
+    #     resid_new = np.mean(np.abs((estimated_value - value) / estimated_value))
+
+    #     if self.residual_old is not None:
+    #         # r_n is worse or unchanged?
+    #         if resid_new >= self.residual_old:
+    #             # step down
+    #             self.damping_factor = max(self.damping_factor - self.lambda_step,
+    #                                       self.lambda_min)
+    #         # else: leave damping_factor unchanged
+
+    #     # store for next iteration
+    #     self.residual_old = resid_new
+
+    #     # apply update
+    #     return value + self.damping_factor * (estimated_value - value)
+
+
+    def adaptive_damped(self, value, estimated_value):
+        """
+        Split(Local-search) damping:
+        - Start at 0.5
+        - Form candidates {λ, λ-Δ, λ+Δ} clipped to [0,1]
+        - Compute the residual for each: r = mean(|x* - (x + λ*(x*-x))|)
+        - Pick the λ that minimizes r, update self.damping_factor
+        - Return the damped update with that λ
+        """
+        delta = self.lambda_step # 0.05
+        base = self.damping_factor # 0.5
+
+        candidates = [base]
+        if base - delta >= self.lambda_min:
+            candidates.append(base - delta)
+        if base + delta <= self.lambda_max:
+            candidates.append(base + delta)
+
+        best_lambda = base
+        best_residual = None
+
+        for lam in candidates:
+            x_new = value + lam * (estimated_value - value)
+            res = np.mean(abs(np.abs((estimated_value - x_new) / (estimated_value))))
+            if best_residual is None or res < best_residual:
+                best_residual = res
+                best_lambda = lam
+
+        self.damping_factor = best_lambda
+
+        return value + best_lambda * (estimated_value - value)
+    
+    def harmonic_damped(self, value, estimated_value):
+        """
+        Robbins-Monro convergence algorithm: λ_n = 1 / n
+        Damping decreases with each iteration.
+        """
+        self.damping_factor = 1.0 / self.iteration
+        self.iteration += 1 
+
         return value + self.damping_factor * (estimated_value - value)
 
     def get_convergence_status(self, value, estimated_value, no_of_cells):
