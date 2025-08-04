@@ -97,7 +97,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
     def initialize_transport_state(
         self,
-        simulation_state,
+        geometry_state,
         opacity_state,
         macro_atom_state,
         plasma,
@@ -114,13 +114,13 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             no_of_packets, seed_offset=iteration
         )
 
-        geometry_state = simulation_state.geometry.to_numba()
+        geometry_state_numba = geometry_state.to_numba()
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
         )
         opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+            geometry_state.v_inner_boundary_index : geometry_state.v_outer_boundary_index
         ]
 
         estimators = initialize_estimator_statistics(
@@ -130,9 +130,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state = MonteCarloTransportState(
             packet_collection,
             estimators,
-            geometry_state=geometry_state,
+            geometry_state=geometry_state_numba,
             opacity_state=opacity_state_numba,
-            time_explosion=simulation_state.time_explosion,
+            time_explosion=geometry_state.time_explosion,
         )
 
         transport_state.enable_full_relativity = (
@@ -147,7 +147,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
     def run(
         self,
-        transport_state,
+        geometry_state,
+        opacity_state,
+        macro_atom_state,
+        plasma,
+        no_of_packets,
+        no_of_virtual_packets=0,
         iteration=0,
         total_iterations=0,
         show_progress_bars=True,
@@ -157,18 +162,43 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         Parameters
         ----------
-        model : tardis.model.SimulationState
+        geometry_state : tardis.model.geometry.Geometry
+            The geometry state of the simulation
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            The opacity state
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.LegacyMacroAtomState
+            The macro atom state
         plasma : tardis.plasma.BasePlasma
+            The plasma state
         no_of_packets : int
+            Number of packets to run
         no_of_virtual_packets : int
+            Number of virtual packets
+        iteration : int
+            Current iteration number
         total_iterations : int
             The total number of iterations in the simulation.
+        show_progress_bars : bool
+            Whether to show progress bars
 
         Returns
         -------
-        None
+        v_packets_energy_hist : numpy.ndarray
+            Virtual packet energy histogram
         """
         set_num_threads(self.nthreads)
+
+        # Initialize transport state
+        transport_state = self.initialize_transport_state(
+            geometry_state,
+            opacity_state,
+            macro_atom_state,
+            plasma,
+            no_of_packets,
+            no_of_virtual_packets=no_of_virtual_packets,
+            iteration=iteration,
+        )
+
         self.transport_state = transport_state
 
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
