@@ -24,22 +24,55 @@ def workflow_one_loop(config, atomic_data_fname):
     return workflow
 
 
-@pytest.fixture(scope="module")
-def simulation_regression_data(tardis_regression_path):
-    regression_data_path = tardis_regression_path / "tardis" / "simulation" / "tests" / "test_simulation"
-    h5_file_path = regression_data_path / "test_plasma_state_iterations__iterations_w__.h5"
-    
-    store = pd.HDFStore(h5_file_path, mode="r")
-    yield store
-    store.close()
 
 
-def test_plasma_state_iterations_w(workflow_one_loop, simulation_regression_data):
-    actual = workflow_one_loop.iterations_w
+@pytest.mark.parametrize(
+    "attr",
+    [
+        "iterations_w",
+        "iterations_t_rad",
+        "iterations_electron_densities",
+        "iterations_t_inner",
+    ],
+)
+def test_plasma_state_iterations(workflow_one_loop, attr, regression_data):
+    actual = getattr(workflow_one_loop, attr)
     if hasattr(actual, "value"):
         actual = actual.value
     actual = pd.DataFrame(actual)
-    
-    expected = pd.read_hdf(simulation_regression_data, key="data")
-    
+    expected = regression_data.sync_dataframe(actual)
     pd.testing.assert_frame_equal(actual, expected, rtol=1e-5, atol=1e-8)
+
+
+@pytest.mark.parametrize(
+    "attr",
+    [
+        "nu_bar_estimator",
+        "j_estimator",
+        "t_radiative",
+        "dilution_factor",
+        "output_nus",
+        "output_energies",
+    ],
+)
+def test_plasma_estimates(workflow_one_loop, attr, regression_data):
+    if attr in ["nu_bar_estimator", "j_estimator"]:
+        actual = getattr(
+            workflow_one_loop.transport_state.radfield_mc_estimators,
+            attr,
+        )
+    elif attr in ["t_radiative", "dilution_factor"]:
+        actual = getattr(workflow_one_loop.simulation_state, attr)
+    elif attr in ["output_nus", "output_energies"]:
+        actual = getattr(
+            workflow_one_loop.transport_state.packet_collection,
+            attr,
+        )
+    else:
+        actual = getattr(workflow_one_loop.transport, attr)
+
+    if hasattr(actual, "value"):
+        actual = actual.value
+    actual = pd.Series(actual)
+    expected = regression_data.sync_dataframe(actual)
+    pd.testing.assert_series_equal(actual, expected, rtol=1e-5, atol=1e-8)
