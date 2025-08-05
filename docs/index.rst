@@ -112,7 +112,6 @@ Mission Statement
     API <api/modules>
     reference/faq
     io/configuration/index
-    io/grid/TardisGridTutorial
     analyzing_tardis/spectrum/sdec_notebook
     analyzing_tardis/liv_plot_notebook
     analyzing_tardis/rpacket_plot_notebook
