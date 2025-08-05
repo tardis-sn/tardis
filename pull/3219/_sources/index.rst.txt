@@ -66,8 +66,9 @@ Mission Statement
     :caption: Getting Started
     :hidden:
 
-    installation
+    getting_started/installation
     quickstart
+    resources/credits
 
 .. toctree::
     :maxdepth: 2
@@ -75,37 +76,25 @@ Mission Statement
     :hidden:
 
     Getting Started with TARDIS: Hands-On Tutorials
+    high_energy
 
 .. toctree::
     :maxdepth: 2
     :caption: How-to Guides
     :hidden:
 
-    how_to_guides
+    how-to/how_to_guides
     workflows
     analyzing_tardis/visualization/index
     analyzing_tardis/spectrum/index
     analyzing_tardis/liv_plot_notebook.ipynb
     analyzing_tardis/rpacket_plot_notebook.ipynb
     analyzing_tardis/analysing_convergence_plot.ipynb
+    how-to/code_comparison/index
 
 .. toctree::
     :maxdepth: 2
-    :caption: Reference
-    :hidden:
-
-    API <api/modules>
-    faq
-    io/hdf/index
-    io/configuration/index
-    io/model/index
-    io/optional/index
-    io/output/index
-    io/grid/TardisGridTutorial
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Explanation
+    :caption: Physics Walkthrough
     :hidden:
 
     physics/intro/index
@@ -115,6 +104,21 @@ Mission Statement
     physics/spectrum/index
     physics/tardisgamma/index
 
+.. toctree::
+    :maxdepth: 2
+    :caption: Reference
+    :hidden:
+
+    API <api/modules>
+    reference/faq
+    io/hdf/index
+    io/configuration/index
+    io/model/index
+    io/optional/index
+    io/output/index
+    io/grid/TardisGridTutorial
+    resources/research_done_using_TARDIS/research_papers
+    resources/zreferences
 
 .. toctree::
     :maxdepth: 2
@@ -126,13 +130,5 @@ Mission Statement
     contributing/tools/index
     contributing/CHANGELOG.md
     contributing/in_progress/index
-
-
-.. toctree::
-    :caption: Other Resources
-    :hidden:
     
-    resources/credits
-    resources/research_done_using_TARDIS/research_papers
-    resources/code_comparison/index
-    resources/zreferences
+    

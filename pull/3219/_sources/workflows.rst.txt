@@ -10,4 +10,3 @@ The following pages contain the TARDIS workflows:
 * :doc:`workflows/standard_workflow`
 * :doc:`workflows/workflow_notebook`
 * :doc:`workflows/simple_workflow_equilibrium`
-* :doc:`workflows/high_energy/run_high_energy_workflow`
