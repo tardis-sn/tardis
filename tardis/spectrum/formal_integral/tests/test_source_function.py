@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 import numpy.testing as npt
 import pandas.testing as pdt
 from copy import deepcopy
@@ -74,4 +75,5 @@ def test_e_dot_u(source_function_verysimple, regression_data):
     """
     e_dot_u = source_function_verysimple.e_dot_u
     expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)
+    npt.assert_close(np.mean(e_dot_u), np.mean(expected_e_dot_u))
     pdt.assert_frame_equal(e_dot_u, expected_e_dot_u)
