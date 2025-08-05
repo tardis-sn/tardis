@@ -1,9 +1,9 @@
 ***********************
-References and Glossary
+Bibliography and Glossary
 ***********************
 
 
-References
+Bibliography
 ==========
 
 .. bibliography:: ../tardis.bib

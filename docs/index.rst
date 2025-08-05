@@ -73,8 +73,8 @@ Mission Statement
     :caption: Tutorials
     :hidden:
 
-    Getting Started with TARDIS: Hands-On Tutorials
-    high_energy
+    tutorials/high_energy/run_high_energy_workflow
+    analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization
 
 .. toctree::
     :maxdepth: 2
@@ -85,9 +85,11 @@ Mission Statement
     workflows
     analyzing_tardis/visualization/index
     analyzing_tardis/spectrum/index
-    analyzing_tardis/liv_plot_notebook.ipynb
     analyzing_tardis/rpacket_plot_notebook.ipynb
     analyzing_tardis/analysing_convergence_plot.ipynb
+    io/configuration/tutorial_read_configuration
+    io/optional/index
+    io/output/index
     how-to/code_comparison/index
 
 .. toctree::
@@ -109,12 +111,13 @@ Mission Statement
 
     API <api/modules>
     reference/faq
-    io/hdf/index
     io/configuration/index
-    io/model/index
-    io/optional/index
-    io/output/index
     io/grid/TardisGridTutorial
+    analyzing_tardis/spectrum/sdec_notebook
+    analyzing_tardis/liv_plot_notebook
+    analyzing_tardis/rpacket_plot_notebook
+    io/hdf/index
+    contributing/CHANGELOG.md 
     resources/research_done_using_TARDIS/research_papers
     resources/zreferences
 
@@ -126,7 +129,6 @@ Mission Statement
     contributing/CONTRIBUTING.md
     contributing/development/index
     contributing/tools/index
-    contributing/CHANGELOG.md
     contributing/in_progress/index
     
     
