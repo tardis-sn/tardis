@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=86b0eb08"></script>
+      <script src="../../../_static/documentation_options.js?v=feb30d7c"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -147,14 +147,14 @@
   <section id="monte-carlo-configuration">
 <span id="montecarlo-config"></span><h1>Monte Carlo Configuration<a class="headerlink" href="#monte-carlo-configuration" title="Link to this heading">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">montecarlo</span></code> section describes the parameters for the Monte Carlo radiation transport and convergence criteria:</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">seed</span></code> parameter seeds the random number generator first for the creation of the packets
-(<span class="math notranslate nohighlight">\(\nu\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span>) and then the interactions in the actual Monte Carlo process.
-The <code class="docutils literal notranslate"><span class="pre">no_of_packets</span></code> parameter can take a float number for input convenience and gives the number of packets normally
-used in each Monte Carlo loop. The parameters <code class="docutils literal notranslate"><span class="pre">last_no_of_packets</span></code> and <code class="docutils literal notranslate"><span class="pre">no_of_virtual_packets</span></code> influence the last run
-of the Monte Carlo loop (which calculates the final spectrum!) when the radiation field should have converged. <code class="docutils literal notranslate"><span class="pre">last_no_of_packets</span></code> is normally higher than
+<p>The <code class="docutils literal notranslate"><span class="pre">seed</span></code> parameter provides a <a class="reference internal" href="../../../resources/zreferences.html#term-Seed"><span class="xref std std-term">seed</span></a> for the random number generator first for the creation of the <a class="reference internal" href="../../../resources/zreferences.html#term-Packets"><span class="xref std std-term">packets</span></a>
+(<span class="math notranslate nohighlight">\(\nu\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span>) and then the interactions in the actual <a class="reference internal" href="../../../resources/zreferences.html#term-Monte-Carlo"><span class="xref std std-term">Monte Carlo</span></a> process.
+The <code class="docutils literal notranslate"><span class="pre">no_of_packets</span></code> parameter can take a float number for input convenience and gives the number of <a class="reference internal" href="../../../resources/zreferences.html#term-Packets"><span class="xref std std-term">packets</span></a> normally
+used in each <a class="reference internal" href="../../../resources/zreferences.html#term-Monte-Carlo"><span class="xref std std-term">Monte Carlo</span></a> loop. The parameters <code class="docutils literal notranslate"><span class="pre">last_no_of_packets</span></code> and <code class="docutils literal notranslate"><span class="pre">no_of_virtual_packets</span></code> influence the last run
+of the <a class="reference internal" href="../../../resources/zreferences.html#term-Monte-Carlo"><span class="xref std std-term">Monte Carlo</span></a> loop (which calculates the final spectrum!) when the radiation field should have converged. <code class="docutils literal notranslate"><span class="pre">last_no_of_packets</span></code> is normally higher than
 <code class="docutils literal notranslate"><span class="pre">no_of_packets</span></code> to create a less noisy output spectrum. <code class="docutils literal notranslate"><span class="pre">no_of_virtual_packets</span></code> can also be set to greater than 0 (a useful number is 3) to
 use the Virtual Packet formalism. Increasing this number drastically increases computational costs (and memory requirements if they are logged).
-The <code class="docutils literal notranslate"><span class="pre">iterations</span></code> parameter describes the maximum number of Monte Carlo loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
+The <code class="docutils literal notranslate"><span class="pre">iterations</span></code> parameter describes the maximum number of <a class="reference internal" href="../../../resources/zreferences.html#term-Monte-Carlo"><span class="xref std std-term">Monte Carlo</span></a> loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
 sooner when the convergence threshold has been reached (see <span class="xref std std-doc">../../../physics/update_and_conv/update_and_conv</span>).</p>
 <section id="convergence-strategy">
 <span id="conv-config"></span><h2>Convergence Strategy<a class="headerlink" href="#convergence-strategy" title="Link to this heading">¶</a></h2>

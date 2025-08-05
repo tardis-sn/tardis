@@ -16,7 +16,7 @@ TARDIS Core Package Documentation
 
 |
 
-TARDIS is an open-source Monte Carlo radiative-transfer spectral synthesis code
+TARDIS is an open-source :term:`Monte Carlo` radiative-transfer spectral synthesis code
 for 1D models of supernova ejecta. It is designed for rapid spectral modelling
 of supernovae. It is developed and maintained by a 
 `multi-disciplinary team <https://tardis-sn.github.io/people/collaboration/>`_
@@ -47,8 +47,6 @@ This documentation is organized following the `Diátaxis framework <https://diat
 - **How-to Guides**: Practical solutions to specific problems  
 - **Reference**: Technical specifications and API documentation
 - **Explanation**: Deep dives into the physics and theory behind TARDIS
-
-📋 :doc:`documentation_guide` - Detailed navigation guide
 
 -----------------
 Mission Statement
