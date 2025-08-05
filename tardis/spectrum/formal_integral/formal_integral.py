@@ -4,6 +4,7 @@ import numpy as np
 from astropy import units as u
 from scipy.interpolate import interp1d
 
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
@@ -81,7 +82,6 @@ class FormalIntegrator:
         Instantiate the numba interface objects
         needed for computing the formal integral
         """
-        from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
         self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
             self.transport.r_inner_i,

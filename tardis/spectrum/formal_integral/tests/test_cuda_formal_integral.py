@@ -300,10 +300,7 @@ def test_reverse_binary_search(nu_insert, simulation_verysimple_opacity_state):
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
-@pytest.mark.parametrize(["no_of_packets", "iterations"], [(200000, 5)])
-def test_full_formal_integral(
-    no_of_packets, iterations, config_verysimple, simulation_verysimple
-):
+def test_full_formal_integral(simulation_verysimple):
     """
     This function initializes both the cuda and numba formal_integrator,
     and the runs them and compares results to the 15th decimal place.
@@ -330,23 +327,16 @@ def test_full_formal_integral(
     )
 
     # get source function
-    sourceFunction = SourceFunctionSolver(
+    source_function_solver = SourceFunctionSolver(
         formal_integrator_numba.transport.line_interaction_type,
-        formal_integrator_numba.plasma.atomic_data,
     )
-    res_numba = sourceFunction.solve(
+    source_function_state_numba = source_function_solver.solve(
         formal_integrator_numba.simulation_state,
         formal_integrator_numba.opacity_state,
         formal_integrator_numba.transport.transport_state,
         formal_integrator_numba.plasma.levels,
     )
 
-    att_S_ul_numba, Jred_lu_numba, Jblue_lu_numba, e_dot_u_numba = (
-        res_numba.att_S_ul,
-        res_numba.Jred_lu,
-        res_numba.Jblue_lu,
-        res_numba.e_dot_u,
-    )
     if formal_integrator_numba.interpolate_shells > 0:
         (
             att_S_ul_numba,
@@ -354,10 +344,7 @@ def test_full_formal_integral(
             Jblue_lu_numba,
             e_dot_u_numba,
         ) = interpolate_integrator_quantities(
-            att_S_ul_numba,
-            Jred_lu_numba,
-            Jblue_lu_numba,
-            e_dot_u_numba,
+            source_function_state_numba,
             formal_integrator_numba.interpolate_shells,
             formal_integrator_numba.simulation_state,
             formal_integrator_numba.transport,
@@ -380,23 +367,16 @@ def test_full_formal_integral(
     formal_integrator_numba.generate_numba_objects()
 
     # cuda source function
-    sourceFunction = SourceFunctionSolver(
+    source_function_solver = SourceFunctionSolver(
         formal_integrator_cuda.transport.line_interaction_type,
-        formal_integrator_cuda.plasma.atomic_data,
     )
-    res_cuda = sourceFunction.solve(
+    source_function_state_cuda = source_function_solver.solve(
         formal_integrator_cuda.simulation_state,
         formal_integrator_cuda.opacity_state,
         formal_integrator_cuda.transport.transport_state,
         formal_integrator_cuda.plasma.levels,
     )
 
-    att_S_ul_cuda, Jred_lu_cuda, Jblue_lu_cuda, e_dot_u_cuda = (
-        res_cuda.att_S_ul,
-        res_cuda.Jred_lu,
-        res_cuda.Jblue_lu,
-        res_cuda.e_dot_u,
-    )
     if formal_integrator_cuda.interpolate_shells > 0:
         (
             att_S_ul_cuda,
@@ -404,10 +384,7 @@ def test_full_formal_integral(
             Jblue_lu_cuda,
             e_dot_u_cuda,
         ) = interpolate_integrator_quantities(
-            att_S_ul_cuda,
-            Jred_lu_cuda,
-            Jblue_lu_cuda,
-            e_dot_u_cuda,
+            source_function_state_cuda,
             formal_integrator_cuda.interpolate_shells,
             formal_integrator_cuda.simulation_state,
             formal_integrator_cuda.transport,

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class SourceFunctionSolver:
-    def __init__(self, line_interaction_type, atomic_data):
+    def __init__(self, line_interaction_type):
         """
         Configures the source function solver
 
@@ -20,14 +20,11 @@ class SourceFunctionSolver:
         ----------
         line_interaction_type : str
             The type of line interaction (e.g. "downbranch", "macroatom").
-        atomic_data : tardis.atomic.AtomicData
-            The atomic data for the simulation.
         """
 
         self.line_interaction_type = line_interaction_type
-        self.atomic_data = atomic_data
 
-    def solve(self, sim_state, opacity_state, transport_state, levels):
+    def solve(self, sim_state, opacity_state, transport_state, plasma, atomic_data):
         """
         Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.
         
@@ -36,9 +33,9 @@ class SourceFunctionSolver:
         sim_state : tardis.model.SimulationState
         opacity_state : tardis.transport.montecarlo.OpacityState
         transport_state : tardis.transport.montecarlo.TransportState
+        plasma : tardis.plasma.base.BasePlasma
         atomic_data : tardis.atomic.AtomicData
-        levels : pandas.DataFrame
-            DataFrame containing the levels of the atomic data
+            The atomic data for the simulation.
 
         Returns
         -------
@@ -74,24 +71,22 @@ class SourceFunctionSolver:
             transport_state.packet_collection.time_of_simulation * u.s
         )
 
+        levels = plasma.levels
+
         # slice for the active shells
         local_slice = slice(v_inner_boundary_index, v_outer_boundary_index)
 
         transition_probabilities = transition_probabilities[:, local_slice]
         tau_sobolevs = tau_sobolev[:, local_slice]
 
-        if self.line_interaction_type == 'macroatom':
-            macro_ref = self.atomic_data.macro_atom_references
-            macro_data = self.atomic_data.macro_atom_data
-        else:
-            macro_ref = None
-            macro_data = None
-
+        macro_ref = atomic_data.macro_atom_references
+        macro_data = atomic_data.macro_atom_data
+    
         no_lvls = len(levels)
         no_shells = len(dilution_factor)
 
         # Calculate e_dot_u
-        upper_level_index = self.atomic_data.lines.index.droplevel(
+        upper_level_index = atomic_data.lines.index.droplevel(
             "level_number_lower"
         )
         e_dot_u = self.calculate_e_dot_u(
@@ -109,15 +104,15 @@ class SourceFunctionSolver:
         )
 
         # Calculate att_S_ul
-        transition_type = self.atomic_data.macro_atom_data.transition_type
-        transitions = self.atomic_data.macro_atom_data[
+        transition_type = atomic_data.macro_atom_data.transition_type
+        transitions = atomic_data.macro_atom_data[
             transition_type == -1
         ].copy()
         transitions_index = transitions.set_index(
             ["atomic_number", "ion_number", "source_level_number"]
         ).index.copy()
         transition_line_id = transitions.transition_line_id.values
-        lines = self.atomic_data.lines.set_index("line_id")
+        lines = atomic_data.lines.set_index("line_id")
         lines_idx = lines.index.values
 
         att_S_ul = self.calculate_att_S_ul(
@@ -175,22 +170,11 @@ class SourceFunctionSolver:
             Number of levels in the atomic data
         line_interaction_type: str
             Type of line interaction (e.g. "macroatom", "downbranch")
-        macro_data: pd.DataFrame, optional
+        macro_data: pd.DataFrame
             DataFrame containing macro atom data
-        macro_ref: pd.DataFrame, optional
+        macro_ref: pd.DataFrame
             DataFrame containing macro atom references, see http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
         """
-        
-        # check if macroatom, that the macro atom data exists
-        if (line_interaction_type == "macroatom") and ((macro_data is None) or (macro_ref is None)):
-            raise ValueError(
-                "Macro atom data is required for line interaction type 'macroatom'."
-            )
-
-        if (line_interaction_type != "macroatom") and ((macro_data is not None) or (macro_ref is not None)):
-            logger.warning(
-                "Macro atom data is provided but line interaction type is not 'macroatom'. It will be ignored."
-            )
 
         e_dot_lu_norm_factor = 1 / (time_of_simulation * volume)
         exptau = 1 - np.exp(-tau_sobolevs)
