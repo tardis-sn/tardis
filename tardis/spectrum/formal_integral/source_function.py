@@ -182,12 +182,12 @@ class SourceFunctionSolver:
         """
         
         # check if macroatom, that the macro atom data exists
-        if line_interaction_type == "macroatom" & ((macro_data is None) or (macro_ref is None)):
+        if (line_interaction_type == "macroatom") and ((macro_data is None) or (macro_ref is None)):
             raise ValueError(
                 "Macro atom data is required for line interaction type 'macroatom'."
             )
-        
-        if line_interaction_type != "macroatom" & ((macro_data is not None) or (macro_ref is not None)):
+
+        if (line_interaction_type != "macroatom") and ((macro_data is not None) or (macro_ref is not None)):
             logger.warning(
                 "Macro atom data is provided but line interaction type is not 'macroatom'. It will be ignored."
             )
@@ -201,9 +201,10 @@ class SourceFunctionSolver:
             e_dot_lu.value, index=upper_level_idx, columns=columns
         )
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
-        e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
 
         if line_interaction_type == "macroatom":
+            e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
+
             internal_jump_mask = (macro_data.transition_type >= 0).values
             ma_int_data = macro_data[internal_jump_mask]
             internal = transition_probabilities[internal_jump_mask]
