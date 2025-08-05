@@ -24,7 +24,7 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
     @functools.cache
     def setup(self):
         self.sim = self.simulation_verysimple
-        self.FormalIntegrator = FormalIntegrator(
+        self.formal_integrator = FormalIntegrator(
             self.sim.simulation_state, self.sim.plasma, self.sim.transport
         )
 
@@ -36,18 +36,18 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
 
     # Benchmark for functions in FormalIntegrator class
     def time_FormalIntegrator_functions(self):
-        self.FormalIntegrator.calculate_spectrum(
+        self.formal_integrator.calculate_spectrum(
             self.sim.spectrum_solver.spectrum_frequency_grid
         )
 
-        source_function_solver = SourceFunctionSolver(self.FormalIntegrator.transport.line_interaction_type, self.FormalIntegrator.atomic_data)
+        source_function_solver = SourceFunctionSolver(self.formal_integrator.transport.line_interaction_type, self.formal_integrator.atomic_data)
         source_function_solver.solve(
-            self.FormalIntegrator.simulation_state, 
-            self.FormalIntegrator.opacity_state,  
-            self.FormalIntegrator.transport.transport_state, 
-            self.FormalIntegrator.plasma.levels)
+            self.formal_integrator.simulation_state, 
+            self.formal_integrator.opacity_state,  
+            self.formal_integrator.transport.transport_state, 
+            self.formal_integrator.plasma.levels)
 
-        self.FormalIntegrator.generate_numba_objects()
-        self.FormalIntegrator.formal_integral(
+        self.formal_integrator.generate_numba_objects()
+        self.formal_integrator.formal_integral(
             self.sim.spectrum_solver.spectrum_frequency_grid, 1000
         )
