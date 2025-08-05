@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=0ff2256c"></script>
+      <script src="../_static/documentation_options.js?v=fef32460"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,15 +167,13 @@
 <span id="tardis-spectrum-formal-integral-source-function-module"></span><h1>tardis.spectrum.formal_integral.source_function module<a class="headerlink" href="#module-tardis.spectrum.formal_integral.source_function" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.source_function.</span></span><span class="sig-name descname"><span class="pre">SourceFunctionSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.source_function.</span></span><span class="sig-name descname"><span class="pre">SourceFunctionSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Configures the source function solver</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>line_interaction_type</strong><span class="classifier">str</span></dt><dd><p>The type of line interaction (e.g. “downbranch”, “macroatom”).</p>
-</dd>
-<dt><strong>atomic_data</strong><span class="classifier">tardis.atomic.AtomicData</span></dt><dd><p>The atomic data for the simulation.</p>
 </dd>
 </dl>
 </dd>
@@ -238,7 +236,7 @@ so there is no need to factor out the source function explicitly.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u">
-<span class="sig-name descname"><span class="pre">calculate_e_dot_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_lu_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_level_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lvls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_e_dot_u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_e_dot_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_lu_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_level_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lvls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_e_dot_u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -259,9 +257,9 @@ so there is no need to factor out the source function explicitly.</p>
 </dd>
 <dt><strong>line_interaction_type: str</strong></dt><dd><p>Type of line interaction (e.g. “macroatom”, “downbranch”)</p>
 </dd>
-<dt><strong>macro_data: pd.DataFrame, optional</strong></dt><dd><p>DataFrame containing macro atom data</p>
+<dt><strong>macro_data: pd.DataFrame</strong></dt><dd><p>DataFrame containing macro atom data</p>
 </dd>
-<dt><strong>macro_ref: pd.DataFrame, optional</strong></dt><dd><p>DataFrame containing macro atom references, see <a class="reference external" href="http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html">http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html</a></p>
+<dt><strong>macro_ref: pd.DataFrame</strong></dt><dd><p>DataFrame containing macro atom references, see <a class="reference external" href="http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html">http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html</a></p>
 </dd>
 </dl>
 </dd>
@@ -270,7 +268,7 @@ so there is no need to factor out the source function explicitly.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve" title="Link to this definition">¶</a></dt>
 <dd><p>Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -278,8 +276,7 @@ so there is no need to factor out the source function explicitly.</p>
 <dt><strong>sim_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd></dd>
 <dt><strong>opacity_state</strong><span class="classifier">tardis.transport.montecarlo.OpacityState</span></dt><dd></dd>
 <dt><strong>transport_state</strong><span class="classifier">tardis.transport.montecarlo.TransportState</span></dt><dd></dd>
-<dt><strong>atomic_data</strong><span class="classifier">tardis.atomic.AtomicData</span></dt><dd></dd>
-<dt><strong>levels</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>DataFrame containing the levels of the atomic data</p>
+<dt><strong>atomic_data</strong><span class="classifier">tardis.atomic.AtomicData</span></dt><dd><p>The atomic data for the simulation.</p>
 </dd>
 </dl>
 </dd>
