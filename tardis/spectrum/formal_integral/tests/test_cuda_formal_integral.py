@@ -334,7 +334,7 @@ def test_full_formal_integral(simulation_verysimple):
         formal_integrator_numba.simulation_state,
         formal_integrator_numba.opacity_state,
         formal_integrator_numba.transport.transport_state,
-        formal_integrator_numba.plasma.levels,
+        formal_integrator_numba.atomic_data,
     )
 
     if formal_integrator_numba.interpolate_shells > 0:
@@ -374,7 +374,7 @@ def test_full_formal_integral(simulation_verysimple):
         formal_integrator_cuda.simulation_state,
         formal_integrator_cuda.opacity_state,
         formal_integrator_cuda.transport.transport_state,
-        formal_integrator_cuda.plasma.levels,
+        formal_integrator_cuda.atomic_data,
     )
 
     if formal_integrator_cuda.interpolate_shells > 0:

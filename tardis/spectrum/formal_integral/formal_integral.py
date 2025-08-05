@@ -155,13 +155,13 @@ class FormalIntegrator:
         transport_state = self.transport.transport_state
 
         source_function_solver = SourceFunctionSolver(
-            self.transport.line_interaction_type, self.plasma.atomic_data
+            self.transport.line_interaction_type
         )
         source_function_state = source_function_solver.solve(
             self.simulation_state,
             self.opacity_state,
             transport_state,
-            self.plasma.levels,
+            self.atomic_data,
         )
 
         if self.interpolate_shells > 0:
@@ -179,6 +179,12 @@ class FormalIntegrator:
                 self.plasma.electron_densities,
             )
         else:
+            att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
+                source_function_state.att_S_ul,
+                source_function_state.Jred_lu,
+                source_function_state.Jblue_lu,
+                source_function_state.e_dot_u,
+            )
             self.transport.r_inner_i = transport_state.geometry_state.r_inner
             self.transport.r_outer_i = transport_state.geometry_state.r_outer
             self.transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev

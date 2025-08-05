@@ -24,16 +24,15 @@ class SourceFunctionSolver:
 
         self.line_interaction_type = line_interaction_type
 
-    def solve(self, sim_state, opacity_state, transport_state, plasma, atomic_data):
+    def solve(self, sim_state, opacity_state, transport_state, atomic_data):
         """
         Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.
-        
+
         Parameters
         ----------
         sim_state : tardis.model.SimulationState
         opacity_state : tardis.transport.montecarlo.OpacityState
         transport_state : tardis.transport.montecarlo.TransportState
-        plasma : tardis.plasma.base.BasePlasma
         atomic_data : tardis.atomic.AtomicData
             The atomic data for the simulation.
 
@@ -45,7 +44,7 @@ class SourceFunctionSolver:
             Jred_lu : np.ndarray
                 the normalized J estimator from the red end of the line from lower to upper level
             Jblue_lu : np.ndarray
-                the normalized J estimator from the blue end of the line from lower to upper level 
+                the normalized J estimator from the blue end of the line from lower to upper level
             e_dot_u : pd.DataFrame
                 The rate energy density is added to the upper level of transitions excited to it
         """
@@ -71,7 +70,9 @@ class SourceFunctionSolver:
             transport_state.packet_collection.time_of_simulation * u.s
         )
 
-        levels = plasma.levels
+        levels = atomic_data.levels.loc[
+            atomic_data.selected_atomic_numbers
+        ].index  # TODO: Fix this in the atom data
 
         # slice for the active shells
         local_slice = slice(v_inner_boundary_index, v_outer_boundary_index)
@@ -81,7 +82,7 @@ class SourceFunctionSolver:
 
         macro_ref = atomic_data.macro_atom_references
         macro_data = atomic_data.macro_atom_data
-    
+
         no_lvls = len(levels)
         no_shells = len(dilution_factor)
 
@@ -100,14 +101,12 @@ class SourceFunctionSolver:
             no_lvls,
             line_interaction_type=self.line_interaction_type,
             macro_data=macro_data,
-            macro_ref=macro_ref
+            macro_ref=macro_ref,
         )
 
         # Calculate att_S_ul
         transition_type = atomic_data.macro_atom_data.transition_type
-        transitions = atomic_data.macro_atom_data[
-            transition_type == -1
-        ].copy()
+        transitions = atomic_data.macro_atom_data[transition_type == -1].copy()
         transitions_index = transitions.set_index(
             ["atomic_number", "ion_number", "source_level_number"]
         ).index.copy()
@@ -146,8 +145,8 @@ class SourceFunctionSolver:
         no_of_shells,
         no_lvls,
         line_interaction_type,
-        macro_data=None,
-        macro_ref=None,
+        macro_data,
+        macro_ref,
     ):
         """
         Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it
@@ -322,13 +321,13 @@ class SourceFunctionState:
 
     Attributes:
     ----------
-    
+
     att_S_ul : np.ndarray
         The attenuated source function
     Jred_lu : np.ndarray
         the normalized J estimator from the red end of the line from lower to upper level
     Jblue_lu : np.ndarray
-        the normalized J estimator from the blue end of the line from lower to upper level 
+        the normalized J estimator from the blue end of the line from lower to upper level
     e_dot_u : pd.DataFrame
         The rate energy density is added to the upper level of transitions excited to it
     """
