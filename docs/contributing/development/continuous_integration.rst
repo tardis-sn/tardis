@@ -136,13 +136,13 @@ and the comparison notebook to Moria. This workflow has a separate job to indica
 bridge has failed.
 
 The Regression Data Comparison Workflow
-======================================
+=======================================
 
 The Regression Data Comparison workflow compares the regression data between the current branch and the base branch on pull requests. It only runs on pull requests and not on the master branch. The workflow generates regression data for the latest commit on the pull request and compares it with the master branch using the comparison notebook. The notebook is then uploaded as an artifact and pushed to reg-data-comp repository for previews in the bot comment.
 
 .. note :: The workflow exports images from the comparison notebook and embeds them in the bot comment. Unless there are any key changes to any of the HDF files in the regression data the bot will only show two images, one containing the spectrum change and another containing relative changes in the keys. If there are any key changes, the bot will show three images, the additional one visualizing the key changes.
 
 The `LFS-cache` workflow
-=======================
+========================
 
 The `LFS-cache` workflow caches the regression data and atomic data and can be triggered either manually or when there is a push to the main branch of the regression data repository. This is mainly responsible for doing LFS pulls when necessary and caching objects while the `setup-lfs` action is used to restore the cached objects. Both fail if the cache is not available.

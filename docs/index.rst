@@ -81,7 +81,7 @@ Mission Statement
     :caption: How-to Guides
     :hidden:
 
-    how-to/how_to_guides
+    how_to_guides
     workflows
     analyzing_tardis/visualization/index
     analyzing_tardis/spectrum/index
@@ -97,12 +97,12 @@ Mission Statement
     :caption: Physics Walkthrough
     :hidden:
 
-    physics/intro/index
-    physics/setup/index
-    physics/montecarlo/index
-    physics/update_and_conv/update_and_conv
-    physics/spectrum/index
-    physics/tardisgamma/index
+    physics_walkthrough/intro/index
+    physics_walkthrough/setup/index
+    physics_walkthrough/montecarlo/index
+    physics_walkthrough/update_and_conv/update_and_conv
+    physics_walkthrough/spectrum/index
+    physics_walkthrough/tardisgamma/index
 
 .. toctree::
     :maxdepth: 2
