@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 import numpy as np
 import pandas as pd
@@ -6,6 +7,8 @@ import scipy.sparse.linalg as linalg
 from astropy import units as u
 
 from tardis import constants as const
+
+logger = logging.getLogger(__name__)
 
 
 class SourceFunctionSolver:
@@ -77,8 +80,12 @@ class SourceFunctionSolver:
         transition_probabilities = transition_probabilities[:, local_slice]
         tau_sobolevs = tau_sobolev[:, local_slice]
 
-        macro_ref = self.atomic_data.macro_atom_references
-        macro_data = self.atomic_data.macro_atom_data
+        if self.line_interaction_type == 'macroatom':
+            macro_ref = self.atomic_data.macro_atom_references
+            macro_data = self.atomic_data.macro_atom_data
+        else:
+            macro_ref = None
+            macro_data = None
 
         no_lvls = len(levels)
         no_shells = len(dilution_factor)
@@ -92,13 +99,13 @@ class SourceFunctionSolver:
             volume,
             tau_sobolevs,
             e_dot_lu_estimator,
-            macro_data,
-            macro_ref,
             transition_probabilities,
             upper_level_index,
             no_shells,
             no_lvls,
             line_interaction_type=self.line_interaction_type,
+            macro_data=macro_data,
+            macro_ref=macro_ref
         )
 
         # Calculate att_S_ul
@@ -139,13 +146,13 @@ class SourceFunctionSolver:
         volume,
         tau_sobolevs,
         e_dot_lu_estimator,
-        macro_data,
-        macro_ref,
         transition_probabilities,
         upper_level_idx,
         no_of_shells,
         no_lvls,
-        line_interaction_type="macroatom",
+        line_interaction_type,
+        macro_data=None,
+        macro_ref=None,
     ):
         """
         Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it
@@ -159,10 +166,6 @@ class SourceFunctionSolver:
             Sobolev optical depths
         e_dot_lu_estimator: np.ndarray
             The line estimator for the rate of energy absorption of a transition from lower to upper level
-        macro_data: pd.DataFrame
-            DataFrame containing macro atom data
-        macro_ref: pd.DataFrame
-            DataFrame containing macro atom references, see http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
         transition_probabilities: np.ndarray
         upper_level_idx: pd.Index
             Index of the upper levels in the atomic data
@@ -170,7 +173,24 @@ class SourceFunctionSolver:
             Number of shells in the simulation
         no_lvls: int
             Number of levels in the atomic data
+        line_interaction_type: str
+            Type of line interaction (e.g. "macroatom", "downbranch")
+        macro_data: pd.DataFrame, optional
+            DataFrame containing macro atom data
+        macro_ref: pd.DataFrame, optional
+            DataFrame containing macro atom references, see http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
         """
+        
+        # check if macroatom, that the macro atom data exists
+        if line_interaction_type == "macroatom" & ((macro_data is None) or (macro_ref is None)):
+            raise ValueError(
+                "Macro atom data is required for line interaction type 'macroatom'."
+            )
+        
+        if line_interaction_type != "macroatom" & ((macro_data is not None) or (macro_ref is not None)):
+            logger.warning(
+                "Macro atom data is provided but line interaction type is not 'macroatom'. It will be ignored."
+            )
 
         e_dot_lu_norm_factor = 1 / (time_of_simulation * volume)
         exptau = 1 - np.exp(-tau_sobolevs)

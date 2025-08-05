@@ -164,12 +164,6 @@ class FormalIntegrator:
             self.plasma.levels,
         )
 
-        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
-            source_function_state.att_S_ul,
-            source_function_state.Jred_lu,
-            source_function_state.Jblue_lu,
-            source_function_state.e_dot_u,
-        )
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -177,10 +171,7 @@ class FormalIntegrator:
                 Jblue_lu,
                 e_dot_u,
             ) = interpolate_integrator_quantities(
-                att_S_ul,
-                Jred_lu,
-                Jblue_lu,
-                e_dot_u,
+                source_function_state,
                 self.interpolate_shells,
                 self.simulation_state,
                 self.transport,

@@ -29,17 +29,17 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
     transport = sim.transport
 
     formal_integrator = FormalIntegrator(sim_state, plasma, transport)
-    sourceFunction = SourceFunctionSolver(
+    source_function = SourceFunctionSolver(
         formal_integrator.transport.line_interaction_type,
         formal_integrator.atomic_data,
     )
-    res = sourceFunction.solve(
+    source_function_state = source_function.solve(
         formal_integrator.simulation_state,
         formal_integrator.opacity_state,
         formal_integrator.transport.transport_state,
         formal_integrator.plasma.levels,
     )
-    return res
+    return source_function_state
 
 
 def test_att_S_ul(source_function_verysimple, regression_data):
@@ -75,6 +75,6 @@ def test_e_dot_u(source_function_verysimple, regression_data):
     """
     e_dot_u = source_function_verysimple.e_dot_u
     expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)
-    npt.assert_allclose(np.mean(e_dot_u), np.mean(expected_e_dot_u), rtol=1e-07, atol=0)
-    npt.assert_allclose(np.std(e_dot_u), np.std(expected_e_dot_u), rtol=1e-07, atol=0)
+    npt.assert_allclose(e_dot_u.mean(axis=0), expected_e_dot_u.mean(axis=0), rtol=1e-07, atol=0)
+    npt.assert_allclose(e_dot_u.std(axis=0), expected_e_dot_u.std(axis=0), rtol=1e-07, atol=0)
     pdt.assert_frame_equal(e_dot_u, expected_e_dot_u, rtol=1e-5, atol=1e-8)
