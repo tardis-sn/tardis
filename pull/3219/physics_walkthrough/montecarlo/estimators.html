@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3fa39e7b"></script>
+      <script src="../../_static/documentation_options.js?v=18afb33c"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -37,6 +37,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Updating Plasma and Convergence" href="../update_and_conv/update_and_conv.html" />
+    <link rel="prev" title="Line Interaction Treatments" href="lineinteraction.html" />
     <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -66,35 +68,67 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../how-to/how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../how-to/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Monte Carlo Iteration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basicprinciples.html">Monte Carlo Radiative Transfer - Basic Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="initialization.html">Energy Packet Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="propagation.html">Packet Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lineinteraction.html">Line Interaction Treatments</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Volume-Based Estimators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#theory">Theory</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#j-and-bar-nu-estimators"><span class="math notranslate nohighlight">\(J\)</span> and <span class="math notranslate nohighlight">\(\bar \nu\)</span> Estimators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#j-b-lu-estimator"><span class="math notranslate nohighlight">\(J^b_{lu}\)</span> Estimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dot-e-lu-estimator"><span class="math notranslate nohighlight">\(\dot{E}_{lu}\)</span> Estimator</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/faq.html">Frequently Asked Questions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../io/model/index.html">Reading Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/sdec_notebook.html">Analysing Spectral Energy Distribution and Emission/Absorption Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">Bibliography and Glossary</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
 </ul>
 
@@ -112,6 +146,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Monte Carlo Iteration</a></li>
       <li class="breadcrumb-item active">Volume-Based Estimators</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/physics_walkthrough/montecarlo/estimators.rst.txt" rel="nofollow"> View page source</a>
@@ -193,7 +228,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lineinteraction.html" class="btn btn-neutral float-left" title="Line Interaction Treatments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../update_and_conv/update_and_conv.html" class="btn btn-neutral float-right" title="Updating Plasma and Convergence" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

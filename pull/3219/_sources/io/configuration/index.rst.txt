@@ -23,4 +23,3 @@ Configuration Documentation
   components/index
   example
   config_validator
-  tutorial_read_configuration
