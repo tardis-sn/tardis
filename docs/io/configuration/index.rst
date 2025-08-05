@@ -6,7 +6,7 @@ Configuration Reference
 
 **This reference section documents all configuration options for TARDIS simulations.**
 
-The necessary parameters for a TARDIS simulation are provided via a `YAML <https://en.wikipedia.org/wiki/YAML>`_
+The necessary parameters for a TARDIS simulation are provided via a :term:`YAML`
 configuration file. This section provides comprehensive documentation of all available configuration options.
 
 .. note::
