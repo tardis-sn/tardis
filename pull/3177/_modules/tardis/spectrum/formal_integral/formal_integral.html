@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=e3b5629a"></script>
+      <script src="../../../../_static/documentation_options.js?v=cead86ee"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -153,7 +153,6 @@ from tardis.spectrum.formal_integral.base import (
 )
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 from tardis.spectrum.spectrum import TARDISSpectrum
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 <div class="viewcode-block" id="FormalIntegrator">
@@ -299,10 +298,10 @@ class FormalIntegrator:
 
         transport_state = self.transport.transport_state
 
-        sourceFunction = SourceFunctionSolver(
+        source_function_solver = SourceFunctionSolver(
             self.transport.line_interaction_type, self.plasma.atomic_data
         )
-        res = sourceFunction.solve(
+        source_function_state = source_function_solver.solve(
             self.simulation_state,
             self.opacity_state,
             transport_state,
@@ -310,10 +309,10 @@ class FormalIntegrator:
         )
 
         att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
-            res.att_S_ul,
-            res.Jred_lu,
-            res.Jblue_lu,
-            res.e_dot_u,
+            source_function_state.att_S_ul,
+            source_function_state.Jred_lu,
+            source_function_state.Jblue_lu,
+            source_function_state.e_dot_u,
         )
         if self.interpolate_shells &gt; 0:
             (

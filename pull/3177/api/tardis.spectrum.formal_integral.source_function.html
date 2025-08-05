@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e3b5629a"></script>
+      <script src="../_static/documentation_options.js?v=cead86ee"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -181,9 +181,9 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jbluelu">
-<span class="sig-name descname"><span class="pre">calculate_Jbluelu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j_blue_estimator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_Jbluelu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jbluelu" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates Jbluelu, the normalized J estimator from the blue end of the line from lower to upper level</p>
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jblue_lu">
+<span class="sig-name descname"><span class="pre">calculate_Jblue_lu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j_blue_estimator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_Jblue_lu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jblue_lu" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates Jblue_lu, the normalized J estimator from the blue end of the line from lower to upper level</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -200,15 +200,15 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jredlu">
-<span class="sig-name descname"><span class="pre">calculate_Jredlu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Jbluelu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_Jredlu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jredlu" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates Jredlu, J estimator from the red end of the line from lower to upper level</p>
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jred_lu">
+<span class="sig-name descname"><span class="pre">calculate_Jred_lu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_Jred_lu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jred_lu" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates Jred_lu, J estimator from the red end of the line from lower to upper level</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_att_S_ul">
 <span class="sig-name descname"><span class="pre">calculate_att_S_ul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_line_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_att_S_ul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_att_S_ul" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates the source function using the line absorption rate estimator <code class="xref py py-obj docutils literal notranslate"><span class="pre">Edotlu_estimator</span></code></p>
+<dd><p>Calculates the source function using the line absorption rate estimator <code class="xref py py-obj docutils literal notranslate"><span class="pre">e_dot_lu_estimator</span></code></p>
 <p>Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
 so there is no need to factor out the source function explicitly.</p>
 <dl class="field-list simple">
@@ -237,8 +237,8 @@ so there is no need to factor out the source function explicitly.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_edotu">
-<span class="sig-name descname"><span class="pre">calculate_edotu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Edotlu_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_level_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lvls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'macroatom'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_edotu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_edotu" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u">
+<span class="sig-name descname"><span class="pre">calculate_e_dot_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_lu_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_level_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lvls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'macroatom'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_e_dot_u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -248,7 +248,7 @@ so there is no need to factor out the source function explicitly.</p>
 <dt><strong>volume: astropy.units.Quantity</strong></dt><dd></dd>
 <dt><strong>tau_sobolevs: np.ndarray</strong></dt><dd><p>Sobolev optical depths</p>
 </dd>
-<dt><strong>Edotlu_estimator: np.ndarray</strong></dt><dd><p>The line estimator for the rate of energy absorption of a transition from lower to upper level</p>
+<dt><strong>e_dot_lu_estimator: np.ndarray</strong></dt><dd><p>The line estimator for the rate of energy absorption of a transition from lower to upper level</p>
 </dd>
 <dt><strong>macro_data: pd.DataFrame</strong></dt><dd><p>DataFrame containing macro atom data</p>
 </dd>

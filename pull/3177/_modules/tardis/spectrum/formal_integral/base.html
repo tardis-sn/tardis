@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=e3b5629a"></script>
+      <script src="../../../../_static/documentation_options.js?v=cead86ee"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -132,9 +132,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.spectrum.formal_integral.base</h1><div class="highlight"><pre>
-<span></span>import math
-import numpy as np
-import pandas as pd
+<span></span>import numpy as np
 from scipy.interpolate import interp1d
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
@@ -278,14 +276,14 @@ def interpolate_integrator_quantities(
         J estimator from the red end of the line from lower to upper level
     Jbluelu : np.ndarray
         J estimator from the blue end of the line from lower to upper level
-    e_dot_u : np.ndarray
+    e_dot_u : pd.DataFrame
         Line estimator for the rate of energy density absorption from lower to upper level
     interpolate_shells : int
         number of shells to interpolate to
     simulation_state : tardis.model.SimulationState
     transport : tardis.transport.montecarlo.MonteCarloTransportSolver
     opacity_state : OpacityStateNumba
-    electron_densities : np.ndarray
+    electron_densities : pd.DataFrame
 
     Returns
     -------
