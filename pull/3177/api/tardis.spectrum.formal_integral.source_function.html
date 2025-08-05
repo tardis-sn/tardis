@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9044fbc9"></script>
+      <script src="../_static/documentation_options.js?v=0ff2256c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -238,7 +238,7 @@ so there is no need to factor out the source function explicitly.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u">
-<span class="sig-name descname"><span class="pre">calculate_e_dot_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_lu_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_level_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lvls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'macroatom'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_e_dot_u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_e_dot_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_lu_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_level_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lvls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_e_dot_u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -250,16 +250,18 @@ so there is no need to factor out the source function explicitly.</p>
 </dd>
 <dt><strong>e_dot_lu_estimator: np.ndarray</strong></dt><dd><p>The line estimator for the rate of energy absorption of a transition from lower to upper level</p>
 </dd>
-<dt><strong>macro_data: pd.DataFrame</strong></dt><dd><p>DataFrame containing macro atom data</p>
-</dd>
-<dt><strong>macro_ref: pd.DataFrame</strong></dt><dd><p>DataFrame containing macro atom references, see <a class="reference external" href="http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html">http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html</a></p>
-</dd>
 <dt><strong>transition_probabilities: np.ndarray</strong></dt><dd></dd>
 <dt><strong>upper_level_idx: pd.Index</strong></dt><dd><p>Index of the upper levels in the atomic data</p>
 </dd>
 <dt><strong>no_of_shells: int</strong></dt><dd><p>Number of shells in the simulation</p>
 </dd>
 <dt><strong>no_lvls: int</strong></dt><dd><p>Number of levels in the atomic data</p>
+</dd>
+<dt><strong>line_interaction_type: str</strong></dt><dd><p>Type of line interaction (e.g. “macroatom”, “downbranch”)</p>
+</dd>
+<dt><strong>macro_data: pd.DataFrame, optional</strong></dt><dd><p>DataFrame containing macro atom data</p>
+</dd>
+<dt><strong>macro_ref: pd.DataFrame, optional</strong></dt><dd><p>DataFrame containing macro atom references, see <a class="reference external" href="http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html">http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html</a></p>
 </dd>
 </dl>
 </dd>

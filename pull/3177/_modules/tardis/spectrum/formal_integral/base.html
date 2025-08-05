@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=9044fbc9"></script>
+      <script src="../../../../_static/documentation_options.js?v=0ff2256c"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -256,10 +256,7 @@ def intensity_black_body(nu, temperature):
 <div class="viewcode-block" id="interpolate_integrator_quantities">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities">[docs]</a>
 def interpolate_integrator_quantities(
-    att_S_ul,
-    Jredlu,
-    Jbluelu,
-    e_dot_u,
+    source_function_state,
     interpolate_shells,
     simulation_state,
     transport,
@@ -270,14 +267,8 @@ def interpolate_integrator_quantities(
 
     Parameters
     ----------
-    att_S_ul : np.ndarray
-        attenuated source function for each line in each shell
-    Jredlu : np.ndarray
-        J estimator from the red end of the line from lower to upper level
-    Jbluelu : np.ndarray
-        J estimator from the blue end of the line from lower to upper level
-    e_dot_u : pd.DataFrame
-        Line estimator for the rate of energy density absorption from lower to upper level
+    source_function_state: SourceFunctionState
+        Data class to hold the computed source function values
     interpolate_shells : int
         number of shells to interpolate to
     simulation_state : tardis.model.SimulationState
@@ -288,10 +279,17 @@ def interpolate_integrator_quantities(
     Returns
     -------
     tuple
-        Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u
+        Interpolated values of att_S_ul, Jred_lu, Jbluelu, and e_dot_u
     &quot;&quot;&quot;
 
     mct_state = transport.transport_state
+
+    att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
+            source_function_state.att_S_ul,
+            source_function_state.Jred_lu,
+            source_function_state.Jblue_lu,
+            source_function_state.e_dot_u,
+        )
 
     nshells = interpolate_shells
     r_middle = (
@@ -330,10 +328,10 @@ def interpolate_integrator_quantities(
     att_S_ul = interp1d(r_middle, att_S_ul, fill_value=&quot;extrapolate&quot;)(
         r_middle_integ
     )
-    Jredlu = interp1d(r_middle, Jredlu, fill_value=&quot;extrapolate&quot;)(
+    Jred_lu = interp1d(r_middle, Jred_lu, fill_value=&quot;extrapolate&quot;)(
         r_middle_integ
     )
-    Jbluelu = interp1d(r_middle, Jbluelu, fill_value=&quot;extrapolate&quot;)(
+    Jblue_lu = interp1d(r_middle, Jblue_lu, fill_value=&quot;extrapolate&quot;)(
         r_middle_integ
     )
     e_dot_u = interp1d(r_middle, e_dot_u, fill_value=&quot;extrapolate&quot;)(
@@ -342,10 +340,10 @@ def interpolate_integrator_quantities(
 
     # Set negative values from the extrapolation to zero
     att_S_ul = att_S_ul.clip(0.0)
-    Jbluelu = Jbluelu.clip(0.0)
-    Jredlu = Jredlu.clip(0.0)
+    Jblue_lu = Jblue_lu.clip(0.0)
+    Jred_lu = Jred_lu.clip(0.0)
     e_dot_u = e_dot_u.clip(0.0)
-    return att_S_ul, Jredlu, Jbluelu, e_dot_u</div>
+    return att_S_ul, Jred_lu, Jblue_lu, e_dot_u</div>
 
 </pre></div>
 
