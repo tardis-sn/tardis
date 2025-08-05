@@ -19,7 +19,6 @@ from tardis.spectrum.formal_integral.base import (
 )
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 from tardis.spectrum.spectrum import TARDISSpectrum
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 class FormalIntegrator:
@@ -155,10 +154,10 @@ class FormalIntegrator:
 
         transport_state = self.transport.transport_state
 
-        sourceFunction = SourceFunctionSolver(
+        source_function_solver = SourceFunctionSolver(
             self.transport.line_interaction_type, self.plasma.atomic_data
         )
-        res = sourceFunction.solve(
+        source_function_state = source_function_solver.solve(
             self.simulation_state,
             self.opacity_state,
             transport_state,
@@ -166,10 +165,10 @@ class FormalIntegrator:
         )
 
         att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
-            res.att_S_ul,
-            res.Jred_lu,
-            res.Jblue_lu,
-            res.e_dot_u,
+            source_function_state.att_S_ul,
+            source_function_state.Jred_lu,
+            source_function_state.Jblue_lu,
+            source_function_state.e_dot_u,
         )
         if self.interpolate_shells > 0:
             (

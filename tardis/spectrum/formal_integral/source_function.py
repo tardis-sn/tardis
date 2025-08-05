@@ -64,7 +64,7 @@ class SourceFunctionSolver:
         j_blue_estimator = (
             transport_state.radfield_mc_estimators.j_blue_estimator
         )
-        Edotlu_estimator = (
+        e_dot_lu_estimator = (
             transport_state.radfield_mc_estimators.Edotlu_estimator
         )
         time_of_simulation = (
@@ -87,11 +87,11 @@ class SourceFunctionSolver:
         upper_level_index = self.atomic_data.lines.index.droplevel(
             "level_number_lower"
         )
-        e_dot_u = self.calculate_edotu(
+        e_dot_u = self.calculate_e_dot_u(
             time_of_simulation,
             volume,
             tau_sobolevs,
-            Edotlu_estimator,
+            e_dot_lu_estimator,
             macro_data,
             macro_ref,
             transition_probabilities,
@@ -125,20 +125,20 @@ class SourceFunctionSolver:
             time_explosion,
         )
 
-        # Calculate Jredlu and Jbluelu
-        Jbluelu = self.calculate_Jbluelu(
+        # Calculate Jred_lu and Jblue_lu
+        Jblue_lu = self.calculate_Jblue_lu(
             time_explosion, time_of_simulation, volume, j_blue_estimator
         )
-        Jredlu = self.calculate_Jredlu(Jbluelu, tau_sobolevs, att_S_ul)
+        Jred_lu = self.calculate_Jred_lu(Jblue_lu, tau_sobolevs, att_S_ul)
 
-        return SourceFunctionState(att_S_ul, Jredlu, Jbluelu, e_dot_u)
+        return SourceFunctionState(att_S_ul, Jred_lu, Jblue_lu, e_dot_u)
 
-    def calculate_edotu(
+    def calculate_e_dot_u(
         self,
         time_of_simulation,
         volume,
         tau_sobolevs,
-        Edotlu_estimator,
+        e_dot_lu_estimator,
         macro_data,
         macro_ref,
         transition_probabilities,
@@ -157,7 +157,7 @@ class SourceFunctionSolver:
         volume: astropy.units.Quantity
         tau_sobolevs: np.ndarray
             Sobolev optical depths
-        Edotlu_estimator: np.ndarray
+        e_dot_lu_estimator: np.ndarray
             The line estimator for the rate of energy absorption of a transition from lower to upper level
         macro_data: pd.DataFrame
             DataFrame containing macro atom data
@@ -172,13 +172,13 @@ class SourceFunctionSolver:
             Number of levels in the atomic data
         """
 
-        Edotlu_norm_factor = 1 / (time_of_simulation * volume)
+        e_dot_lu_norm_factor = 1 / (time_of_simulation * volume)
         exptau = 1 - np.exp(-tau_sobolevs)
-        Edotlu = Edotlu_norm_factor * exptau * Edotlu_estimator
+        e_dot_lu = e_dot_lu_norm_factor * exptau * e_dot_lu_estimator
 
         columns = range(no_of_shells)
         e_dot_lu = pd.DataFrame(
-            Edotlu.value, index=upper_level_idx, columns=columns
+            e_dot_lu.value, index=upper_level_idx, columns=columns
         )
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
@@ -226,7 +226,7 @@ class SourceFunctionSolver:
         time_explosion,
     ):
         """
-        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+        Calculates the source function using the line absorption rate estimator `e_dot_lu_estimator`
 
         Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
         so there is no need to factor out the source function explicitly.
@@ -270,11 +270,11 @@ class SourceFunctionSolver:
 
         return att_S_ul
 
-    def calculate_Jbluelu(
+    def calculate_Jblue_lu(
         self, time_explosion, time_of_simulation, volume, j_blue_estimator
     ):
         """
-        Calculates Jbluelu, the normalized J estimator from the blue end of the line from lower to upper level
+        Calculates Jblue_lu, the normalized J estimator from the blue end of the line from lower to upper level
 
         Parameters
         ----------
@@ -287,7 +287,7 @@ class SourceFunctionSolver:
             the line estimator
         """
 
-        Jbluelu_norm_factor = (
+        Jblue_lu_norm_factor = (
             (
                 const.c.cgs
                 * time_explosion
@@ -297,17 +297,17 @@ class SourceFunctionSolver:
             .value
         )
 
-        # Jbluelu should already by in the correct order, i.e. by wavelength of
+        # Jblue_lu should already by in the correct order, i.e. by wavelength of
         # the transition l->u
-        Jbluelu = j_blue_estimator * Jbluelu_norm_factor
-        return Jbluelu
+        Jblue_lu = j_blue_estimator * Jblue_lu_norm_factor
+        return Jblue_lu
 
-    def calculate_Jredlu(self, Jbluelu, tau_sobolevs, att_S_ul):
+    def calculate_Jred_lu(self, Jblue_lu, tau_sobolevs, att_S_ul):
         """
-        Calculates Jredlu, J estimator from the red end of the line from lower to upper level
+        Calculates Jred_lu, J estimator from the red end of the line from lower to upper level
         """
 
-        return Jbluelu * np.exp(-tau_sobolevs) + att_S_ul
+        return Jblue_lu * np.exp(-tau_sobolevs) + att_S_ul
 
 
 @dataclass

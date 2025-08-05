@@ -1,6 +1,4 @@
-import math
 import numpy as np
-import pandas as pd
 from scipy.interpolate import interp1d
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
@@ -127,14 +125,14 @@ def interpolate_integrator_quantities(
         J estimator from the red end of the line from lower to upper level
     Jbluelu : np.ndarray
         J estimator from the blue end of the line from lower to upper level
-    e_dot_u : np.ndarray
+    e_dot_u : pd.DataFrame
         Line estimator for the rate of energy density absorption from lower to upper level
     interpolate_shells : int
         number of shells to interpolate to
     simulation_state : tardis.model.SimulationState
     transport : tardis.transport.montecarlo.MonteCarloTransportSolver
     opacity_state : OpacityStateNumba
-    electron_densities : np.ndarray
+    electron_densities : pd.DataFrame
 
     Returns
     -------

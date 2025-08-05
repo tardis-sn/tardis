@@ -40,8 +40,8 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
             self.sim.spectrum_solver.spectrum_frequency_grid
         )
 
-        sourceFunction = SourceFunctionSolver(self.FormalIntegrator.transport.line_interaction_type, self.FormalIntegrator.atomic_data)
-        sourceFunction.solve(
+        source_function_solver = SourceFunctionSolver(self.FormalIntegrator.transport.line_interaction_type, self.FormalIntegrator.atomic_data)
+        source_function_solver.solve(
             self.FormalIntegrator.simulation_state, 
             self.FormalIntegrator.opacity_state,  
             self.FormalIntegrator.transport.transport_state, 
