@@ -204,7 +204,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
 
         level2continuum_edge_idx = pd.Series(
             np.arange(len(nu_i)),
-            nu_i.sort_values(ascending=False).index,
+            nu_i.sort_values(ascending=False, kind="stable").index,
             name="continuum_idx",
         )
 

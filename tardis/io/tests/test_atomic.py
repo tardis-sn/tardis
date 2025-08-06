@@ -48,7 +48,7 @@ def test_atom_data_levels(levels):
 
 
 def test_atom_data_lines(lines):
-    sorted_lines = lines.sort_index()
+    sorted_lines = lines.sort_index(kind="stable")
     assert_quantity_allclose(
         sorted_lines.loc[(2, 0, 0, 6), "wavelength_cm"].values[0]
         * u.Unit("cm"),

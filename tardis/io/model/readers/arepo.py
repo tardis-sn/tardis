@@ -592,8 +592,8 @@ class ConeProfile(Profile):
             spec_p[spec] = self.xnuc[spec][cmask_p]
             spec_n[spec] = self.xnuc[spec][cmask_n]
 
-        self.pos_prof_p = np.sort(pos_p)
-        self.pos_prof_n = np.sort(pos_n)
+        self.pos_prof_p = np.sort(pos_p, kind="stable")
+        self.pos_prof_n = np.sort(pos_n, kind="stable")
 
         if outer_radius is None:
             maxradius_p = max(self.pos_prof_p)
@@ -732,8 +732,8 @@ class FullProfile(Profile):
             spec_p[spec] = self.xnuc[spec].flatten()
             spec_n[spec] = self.xnuc[spec].flatten()
 
-        self.pos_prof_p = np.sort(pos_p)
-        self.pos_prof_n = np.sort(pos_n)
+        self.pos_prof_p = np.sort(pos_p, kind="stable")
+        self.pos_prof_n = np.sort(pos_n, kind="stable")
 
         if outer_radius is None:
             maxradius_p = max(self.pos_prof_p)

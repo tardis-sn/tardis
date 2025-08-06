@@ -31,7 +31,7 @@ def bound_free_estimator_array2frame(
     """
     bf_estimator_frame = pd.DataFrame(
         bound_free_estimator_array, index=level2continuum_idx.index
-    ).sort_index()
+    ).sort_index(kind="stable")
     bf_estimator_frame.columns.name = "Shell No."
     return bf_estimator_frame
 
