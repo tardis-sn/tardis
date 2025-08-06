@@ -97,7 +97,7 @@ def test_standard_tardis_workflow_against_run_tardis(
         if hasattr(attr_data, "value"):
             attr_data = attr_data.value
         attr_data = pd.DataFrame(attr_data)
-        pd.testing.assert_frame_equal(attr_data, ref_data, atol=1e-3, rtol=1e-6)
+        pd.testing.assert_frame_equal(attr_data, ref_data, atol=0, rtol=1e-14)
     else:
         raise ValueError(f"Unknown attr_type: {attr_type}")
 
@@ -125,7 +125,9 @@ def test_simple_tardis_workflow_against_standard_workflow(
         attr_simple_workflow = attr_simple_workflow.value
     if hasattr(attr_standard_workflow, "value"):
         attr_standard_workflow = attr_standard_workflow.value
-    assert np.allclose(attr_simple_workflow, attr_standard_workflow)
+    assert np.allclose(
+        attr_simple_workflow, attr_standard_workflow, atol=0, rtol=1e-14
+    )
 
 
 @pytest.mark.parametrize(
