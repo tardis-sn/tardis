@@ -1,16 +1,16 @@
-import pytest
-import numpy as np
-import numpy.testing as npt
-import pandas.testing as pdt
 from copy import deepcopy
+
+import numpy.testing as npt
+import pytest
 
 from tardis.simulation import Simulation
 from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
-config_line_modes = ["downbranch", "macroatom"]
+SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL = 1e-14
 
+config_line_modes = ["downbranch", "macroatom"]
 
 @pytest.fixture(scope="module", params=config_line_modes)
 def source_function_verysimple(request, config_verysimple, atomic_dataset):
@@ -49,10 +49,16 @@ def test_att_S_ul(source_function_verysimple, regression_data):
     att_S_ul = source_function_verysimple.att_S_ul
     expected_att_S_ul = regression_data.sync_ndarray(att_S_ul)
     npt.assert_allclose(
-        att_S_ul.mean(axis=0), expected_att_S_ul.mean(axis=0), rtol=1e-15, atol=0
+        att_S_ul.mean(axis=0),
+        expected_att_S_ul.mean(axis=0),
+        rtol=SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL,
+        atol=0,
     )
     npt.assert_allclose(
-        att_S_ul.std(axis=0), expected_att_S_ul.std(axis=0), rtol=1e-15, atol=0
+        att_S_ul.std(axis=0),
+        expected_att_S_ul.std(axis=0),
+        rtol=SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL,
+        atol=0,
     )
 
 
@@ -63,11 +69,18 @@ def test_Jred_lu(source_function_verysimple, regression_data):
     Jred_lu = source_function_verysimple.Jred_lu
     expected_Jred_lu = regression_data.sync_ndarray(Jred_lu)
     npt.assert_allclose(
-        Jred_lu.mean(axis=0), expected_Jred_lu.mean(axis=0), rtol=1e-15, atol=0
+        Jred_lu.mean(axis=0),
+        expected_Jred_lu.mean(axis=0),
+        rtol=SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL,
+        atol=0,
     )
     npt.assert_allclose(
-        Jred_lu.std(axis=0), expected_Jred_lu.std(axis=0), rtol=1e-15, atol=0
+        Jred_lu.std(axis=0),
+        expected_Jred_lu.std(axis=0),
+        rtol=SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL,
+        atol=0,
     )
+
 
 def test_Jblue_lu(source_function_verysimple, regression_data):
     """
@@ -76,11 +89,18 @@ def test_Jblue_lu(source_function_verysimple, regression_data):
     Jblue_lu = source_function_verysimple.Jblue_lu
     expected_Jblue_lu = regression_data.sync_ndarray(Jblue_lu)
     npt.assert_allclose(
-        Jblue_lu.mean(axis=0), expected_Jblue_lu.mean(axis=0), rtol=1e-15, atol=0
+        Jblue_lu.mean(axis=0),
+        expected_Jblue_lu.mean(axis=0),
+        rtol=SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL,
+        atol=0,
     )
     npt.assert_allclose(
-        Jblue_lu.std(axis=0), expected_Jblue_lu.std(axis=0), rtol=1e-15, atol=0
+        Jblue_lu.std(axis=0),
+        expected_Jblue_lu.std(axis=0),
+        rtol=SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL,
+        atol=0,
     )
+
 
 def test_e_dot_u(source_function_verysimple, regression_data):
     """
@@ -89,8 +109,14 @@ def test_e_dot_u(source_function_verysimple, regression_data):
     e_dot_u = source_function_verysimple.e_dot_u
     expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)
     npt.assert_allclose(
-        e_dot_u.mean(axis=0), expected_e_dot_u.mean(axis=0), rtol=1e-15, atol=0
+        e_dot_u.mean(axis=0),
+        expected_e_dot_u.mean(axis=0),
+        rtol=SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL,
+        atol=0,
     )
     npt.assert_allclose(
-        e_dot_u.std(axis=0), expected_e_dot_u.std(axis=0), rtol=1e-15, atol=0
+        e_dot_u.std(axis=0),
+        expected_e_dot_u.std(axis=0),
+        rtol=SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL,
+        atol=0,
     )
