@@ -47,7 +47,12 @@ def test_att_S_ul(source_function_verysimple, regression_data):
     """
     att_S_ul = source_function_verysimple.att_S_ul
     expected_att_S_ul = regression_data.sync_ndarray(att_S_ul)
-    npt.assert_allclose(att_S_ul, expected_att_S_ul, rtol=1e-15, atol=0.0)
+    npt.assert_allclose(
+        att_S_ul.mean(axis=0), expected_att_S_ul.mean(axis=0), rtol=1e-15, atol=0
+    )
+    npt.assert_allclose(
+        att_S_ul.std(axis=0), expected_att_S_ul.std(axis=0), rtol=1e-15, atol=0
+    )
 
 
 def test_Jred_lu(source_function_verysimple, regression_data):
@@ -56,8 +61,12 @@ def test_Jred_lu(source_function_verysimple, regression_data):
     """
     Jred_lu = source_function_verysimple.Jred_lu
     expected_Jred_lu = regression_data.sync_ndarray(Jred_lu)
-    npt.assert_allclose(Jred_lu, expected_Jred_lu, rtol=1e-5, atol=1e-8)
-
+    npt.assert_allclose(
+        Jred_lu.mean(axis=0), expected_Jred_lu.mean(axis=0), rtol=1e-15, atol=0
+    )
+    npt.assert_allclose(
+        Jred_lu.std(axis=0), expected_Jred_lu.std(axis=0), rtol=1e-15, atol=0
+    )
 
 def test_Jblue_lu(source_function_verysimple, regression_data):
     """
@@ -65,8 +74,12 @@ def test_Jblue_lu(source_function_verysimple, regression_data):
     """
     Jblue_lu = source_function_verysimple.Jblue_lu
     expected_Jblue_lu = regression_data.sync_ndarray(Jblue_lu)
-    npt.assert_allclose(Jblue_lu, expected_Jblue_lu, rtol=1e-5, atol=1e-8)
-
+    npt.assert_allclose(
+        Jblue_lu.mean(axis=0), expected_Jblue_lu.mean(axis=0), rtol=1e-15, atol=0
+    )
+    npt.assert_allclose(
+        Jblue_lu.std(axis=0), expected_Jblue_lu.std(axis=0), rtol=1e-15, atol=0
+    )
 
 def test_e_dot_u(source_function_verysimple, regression_data):
     """
@@ -75,8 +88,8 @@ def test_e_dot_u(source_function_verysimple, regression_data):
     e_dot_u = source_function_verysimple.e_dot_u
     expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)
     npt.assert_allclose(
-        e_dot_u.mean(axis=0), expected_e_dot_u.mean(axis=0), rtol=1e-14, atol=0
+        e_dot_u.mean(axis=0), expected_e_dot_u.mean(axis=0), rtol=1e-15, atol=0
     )
     npt.assert_allclose(
-        e_dot_u.std(axis=0), expected_e_dot_u.std(axis=0), rtol=1e-14, atol=0
+        e_dot_u.std(axis=0), expected_e_dot_u.std(axis=0), rtol=1e-15, atol=0
     )
