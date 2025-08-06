@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7585622c"></script>
+      <script src="../_static/documentation_options.js?v=58c6e869"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -229,56 +229,25 @@ IntegrationError is raised instead</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.interpolate_integrator_quantities">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">interpolate_integrator_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jredlu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jbluelu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#interpolate_integrator_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">interpolate_integrator_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_function_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#interpolate_integrator_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities" title="Link to this definition">¶</a></dt>
 <dd><p>Interpolate the integrator quantities to interpolate_shells.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>att_S_ul</strong><span class="classifier">np.ndarray</span></dt><dd><p>attenuated source function for each line in each shell</p>
-</dd>
-<dt><strong>Jredlu</strong><span class="classifier">np.ndarray</span></dt><dd><p>J estimator from the red end of the line from lower to upper level</p>
-</dd>
-<dt><strong>Jbluelu</strong><span class="classifier">np.ndarray</span></dt><dd><p>J estimator from the blue end of the line from lower to upper level</p>
-</dd>
-<dt><strong>e_dot_u</strong><span class="classifier">np.ndarray</span></dt><dd><p>Line estimator for the rate of energy density absorption from lower to upper level</p>
+<dt><strong>source_function_state: SourceFunctionState</strong></dt><dd><p>Data class to hold the computed source function values</p>
 </dd>
 <dt><strong>interpolate_shells</strong><span class="classifier">int</span></dt><dd><p>number of shells to interpolate to</p>
 </dd>
-<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd></dd>
 <dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd></dd>
+<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd></dd>
 <dt><strong>opacity_state</strong><span class="classifier">OpacityStateNumba</span></dt><dd></dd>
-<dt><strong>plasma</strong><span class="classifier">tardis.plasma.BasePlasma</span></dt><dd></dd>
+<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>tuple</dt><dd><p>Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u</p>
+<dt>tuple</dt><dd><p>Interpolated values of att_S_ul, Jred_lu, Jbluelu, and e_dot_u</p>
 </dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.make_source_function">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">make_source_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#make_source_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.make_source_function" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates the source function using the line absorption rate estimator <code class="xref py py-obj docutils literal notranslate"><span class="pre">Edotlu_estimator</span></code></p>
-<p>Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
-so there is no need to factor out the source function explicitly.
-Parameters
-———-
-simulation_state : tardis.model.SimulationState
-opacity_state : tardis.opacity.OpacityStateNumba
-transport : tardis.transport.montecarlo.MonteCarloTransportSolver
-plasma : tardis.plasma.BasePlasma
-interpolate_shells : int</p>
-<blockquote>
-<div><p>Number of shells to interpolate to. If set to 0, no interpolation is performed.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -&gt; l</dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -298,7 +267,7 @@ interpolate_shells : int</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Aug 2025.
+      <span class="lastupdated">Last updated on 06 Aug 2025.
       </span></p>
   </div>
 

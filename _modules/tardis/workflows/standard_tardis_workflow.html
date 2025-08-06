@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=7585622c"></script>
+      <script src="../../../_static/documentation_options.js?v=58c6e869"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -235,7 +235,9 @@ class StandardTARDISWorkflow(
                 self.convergence_plots_kwargs[&quot;export_convergence_plots&quot;],
                 bool,
             ):
-                raise TypeError(&quot;Expected bool in export_convergence_plots argument&quot;)
+                raise TypeError(
+                    &quot;Expected bool in export_convergence_plots argument&quot;
+                )
             export_convergence_plots = self.convergence_plots_kwargs[
                 &quot;export_convergence_plots&quot;
             ]
@@ -267,12 +269,8 @@ class StandardTARDISWorkflow(
             )
         )
 
-        estimated_t_radiative = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
-        )
-        estimated_dilution_factor = (
-            estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
-        )
+        estimated_t_radiative = estimated_radfield_properties.dilute_blackbody_radiationfield_state.temperature
+        estimated_dilution_factor = estimated_radfield_properties.dilute_blackbody_radiationfield_state.dilution_factor
 
         emitted_luminosity = calculate_filtered_luminosity(
             self.transport_state.emitted_packet_nu,
@@ -287,11 +285,14 @@ class StandardTARDISWorkflow(
             self.luminosity_nu_end,
         )
 
-        luminosity_ratios = (emitted_luminosity / self.luminosity_requested).to(1).value
+        luminosity_ratios = (
+            (emitted_luminosity / self.luminosity_requested).to(1).value
+        )
 
         estimated_t_inner = (
             self.simulation_state.t_inner
-            * luminosity_ratios**self.convergence_strategy.t_inner_update_exponent
+            * luminosity_ratios
+            ** self.convergence_strategy.t_inner_update_exponent
         )
 
         if self.convergence_plots is not None:
@@ -363,10 +364,10 @@ class StandardTARDISWorkflow(
                 self.simulation_state.t_inner,
             )
 
-            opacity_states = self.solve_opacity()
+            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -390,9 +391,12 @@ class StandardTARDISWorkflow(
         if self.converged:
             logger.info(&quot;\n\tStarting final iteration&quot;)
         else:
-            logger.error(&quot;\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration&quot;)
+            logger.error(
+                &quot;\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration&quot;
+            )
+        self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
-            opacity_states,
+            self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
@@ -411,7 +415,7 @@ class StandardTARDISWorkflow(
                 last=True,
             )
         self.initialize_spectrum_solver(
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )</div>
 </div>
@@ -426,7 +430,7 @@ class StandardTARDISWorkflow(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Aug 2025.
+      <span class="lastupdated">Last updated on 06 Aug 2025.
       </span></p>
   </div>
 

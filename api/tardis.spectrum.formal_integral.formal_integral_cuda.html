@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7585622c"></script>
+      <script src="../_static/documentation_options.js?v=58c6e869"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -303,6 +303,27 @@ This is where the results will be stored</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.intensity_black_body_cuda">
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">intensity_black_body_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#intensity_black_body_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.intensity_black_body_cuda" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the blackbody intensity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nu</strong><span class="classifier">float64</span></dt><dd><p>frequency</p>
+</dd>
+<dt><strong>temperature</strong><span class="classifier">float64</span></dt><dd><p>Temperature</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float64</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.line_search_cuda">
 <span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">line_search_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu_insert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_lines</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#line_search_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.line_search_cuda" title="Link to this definition">¶</a></dt>
 <dd><p>Insert a value in to an array of line frequencies</p>
@@ -412,7 +433,7 @@ trapezoidal integration of the array.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Aug 2025.
+      <span class="lastupdated">Last updated on 06 Aug 2025.
       </span></p>
   </div>
 
