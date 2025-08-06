@@ -1,15 +1,16 @@
 import copy
 import logging
-import os
 import pprint
+from pathlib import Path
 
 import pandas as pd
 import yaml
 from astropy import units as u
 
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.configuration import config_validator
 from tardis.io.model.readers.csvy import load_yaml_from_csvy
-from tardis.io.util import HDFWriterMixin, YAMLLoader, yaml_load_file
+from tardis.io.util import YAMLLoader, yaml_load_file
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -86,7 +87,7 @@ class ConfigurationNameSpace(dict):
             )
         if hasattr(self, "csvy_model"):
             model = {}
-            csvy_model_path = os.path.join(self.config_dirname, self.csvy_model)
+            csvy_model_path = Path(self.config_dirname) / self.csvy_model
             csvy_yml = load_yaml_from_csvy(csvy_model_path)
             if "v_inner_boundary" in csvy_yml:
                 model["v_inner_boundary"] = csvy_yml["v_inner_boundary"]
@@ -224,7 +225,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 "Currently only tardis_config_version v1.0 supported"
             )
 
-        kwargs["config_dirname"] = os.path.dirname(fname)
+        kwargs["config_dirname"] = str(Path(fname).parent)
 
         return cls.from_config_dict(yaml_dict, *args, **kwargs)
 

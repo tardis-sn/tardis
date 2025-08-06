@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import tardis.util.base
 
@@ -1265,7 +1266,7 @@ class Tardis(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
 
         # path to icons folder
-        self.path = os.path.join(tardis.__path__[0], "gui", "images")
+        self.path = Path(tardis.__path__[0]) / "gui" / "images"
 
         # Check if configuration file was provided
         self.mode = "passive"
@@ -1288,13 +1289,13 @@ class Tardis(QtWidgets.QMainWindow):
         # Actions
         quitAction = QtWidgets.QAction("&Quit", self)
         quitAction.setIcon(
-            QtGui.QIcon(os.path.join(self.path, "closeicon.png"))
+            QtGui.QIcon(str(self.path / "closeicon.png"))
         )
         quitAction.triggered.connect(self.close)
 
         self.viewMdv = QtWidgets.QAction("View &Model", self)
         self.viewMdv.setIcon(
-            QtGui.QIcon(os.path.join(self.path, "mdvswitch.png"))
+            QtGui.QIcon(str(self.path / "mdvswitch.png"))
         )
         self.viewMdv.setCheckable(True)
         self.viewMdv.setChecked(True)
@@ -1303,7 +1304,7 @@ class Tardis(QtWidgets.QMainWindow):
 
         self.viewForm = QtWidgets.QAction("&Edit Model", self)
         self.viewForm.setIcon(
-            QtGui.QIcon(os.path.join(self.path, "formswitch.png"))
+            QtGui.QIcon(str(self.path / "formswitch.png"))
         )
         self.viewForm.setCheckable(True)
         self.viewForm.setEnabled(False)

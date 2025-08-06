@@ -2,6 +2,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
+from copy import deepcopy
 
 import tardis
 from tardis.io.configuration.config_reader import Configuration
@@ -16,13 +17,8 @@ def config(example_configuration_dir):
 
 
 @pytest.fixture(scope="module")
-def simulation_one_loop(config, atomic_data_fname):
-    config.atom_data = atomic_data_fname
-    config.montecarlo.iterations = 2
-    config.montecarlo.no_of_packets = int(4e4)
-    config.montecarlo.last_no_of_packets = int(4e4)
-
-    sim = Simulation.from_config(config)
+def simulation_one_loop(config_verysimple_for_simulation_one_loop):
+    sim = Simulation.from_config(config_verysimple_for_simulation_one_loop)
     sim.run_convergence()
     sim.run_final()
     return sim

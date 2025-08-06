@@ -1,14 +1,15 @@
 from pathlib import Path
 
+import numpy as np
 import numpy.testing as npt
 import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.simulation.base import Simulation
-from tardis.tests.fixtures.regression_data import RegressionData
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]
@@ -89,11 +90,11 @@ class TestTransportSimpleFormalIntegral:
         luminosity = simulation.spectrum_solver.spectrum_real_packets.luminosity
         expected = regression_data.sync_ndarray(luminosity.cgs.value)
         expected = u.Quantity(expected, "erg /s")
-        assert_quantity_allclose(luminosity, expected)
+        assert_quantity_allclose(luminosity, expected, rtol=1e-11, atol=0*u.erg/u.s)
 
     def test_spectrum_integrated(self, simulation, request):
         regression_data = RegressionData(request)
         luminosity = simulation.spectrum_solver.spectrum_integrated.luminosity
         expected = regression_data.sync_ndarray(luminosity.cgs.value)
         expected = u.Quantity(expected, "erg /s")
-        assert_quantity_allclose(luminosity, expected)
+        assert_quantity_allclose(luminosity, expected, rtol=1e-11, atol=0*u.erg/u.s)

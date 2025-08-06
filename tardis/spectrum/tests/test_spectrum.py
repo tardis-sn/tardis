@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import astropy.tests.helper as test_helper
 import numpy as np
@@ -160,11 +160,11 @@ def test_hdf_spectrum(hdf_file_path, spectrum, attr):
         actual = actual.cgs.value
 
     if np.isscalar(actual):
-        path = os.path.join("spectrum", "scalars")
+        path = "spectrum/scalars"
         expected = getattr(pd.read_hdf(hdf_file_path, path), attr)
         assert_almost_equal(actual, expected)
     else:
-        path = os.path.join("spectrum", attr)
+        path = f"spectrum/{attr}"
         expected = pd.read_hdf(hdf_file_path, path)
         assert_almost_equal(actual, expected.values)
 

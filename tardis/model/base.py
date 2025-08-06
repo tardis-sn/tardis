@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 
 import numpy as np
@@ -25,7 +24,7 @@ from tardis.io.model.parse_radiation_field_configuration import (
 from tardis.io.model.readers.csvy import (
     load_csvy,
 )
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
@@ -162,14 +161,10 @@ class SimulationState(HDFWriterMixin):
                 "Trying to set t_radiative for different number of shells."
             )
 
-    @property
-    def elemental_number_density(self):
+    def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (
-                self.composition.elemental_mass_fraction
-                * self.composition.density
-            )
-            .divide(self.composition.element_masses, axis=0)
+            (self.composition.elemental_mass_fraction * self.composition.density)
+            .divide(element_masses, axis=0)
             .dropna()
         )
         elemental_number_density = elemental_number_density.iloc[
@@ -337,12 +332,10 @@ class SimulationState(HDFWriterMixin):
             "dilution_factor",
         }
 
-        if os.path.isabs(config.csvy_model):
+        if Path(config.csvy_model).is_absolute():
             csvy_model_fname = config.csvy_model
         else:
-            csvy_model_fname = os.path.join(
-                config.config_dirname, config.csvy_model
-            )
+            csvy_model_fname = Path(config.config_dirname) / config.csvy_model
         csvy_model_config, csvy_model_data = load_csvy(csvy_model_fname)
         csvy_schema_fname = SCHEMA_DIR / "csvy_model.yml"
         csvy_model_config = Configuration(

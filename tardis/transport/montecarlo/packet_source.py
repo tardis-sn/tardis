@@ -5,7 +5,7 @@ import numpy as np
 from astropy import units as u
 
 from tardis import constants as const
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.transport.montecarlo.packet_collections import (
     PacketCollection,
 )
@@ -41,8 +41,11 @@ class BasePacketSource(abc.ABC):
     def _reseed(self, seed):
         self.rng = np.random.default_rng(seed=seed)
 
-    @abc.abstractmethod
+    # One should either implement create_packet_velocities or create_packet_radii
     def create_packet_radii(self, no_of_packets, *args, **kwargs):
+        pass
+
+    def create_packet_velocities(self, no_of_packets, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -334,7 +337,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         """
         if self.radius is None or self.time_explosion is None:
             raise ValueError("Black body Radius or Time of Explosion isn't set")
-        self.beta = (self.radius / self.time_explosion) / const.c
+        self.beta = ((self.radius / self.time_explosion) / const.c).to(u.dimensionless_unscaled).value
         return super().create_packets(no_of_packets, *args, **kwargs)
 
     def create_packet_mus(self, no_of_packets):

@@ -5,7 +5,7 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 
 def read_csv_isotope_mass_fractions(
-    fname, delimiter=r"\s+", skip_columns=0, skip_rows=[1]
+    fname, delimiter=r"\s+", skip_columns=0, skip_rows=None
 ):
     """
     A generic parser for a TARDIS composition stored as a CSV file
@@ -42,6 +42,8 @@ def read_csv_isotope_mass_fractions(
     mass_fractions : pandas.DataFrame
     isotope_mass_fraction : pandas.MultiIndex
     """
+    if skip_rows is None:
+        skip_rows = [1]
     df = pd.read_csv(
         fname, comment="#", sep=delimiter, skiprows=skip_rows, index_col=0
     )

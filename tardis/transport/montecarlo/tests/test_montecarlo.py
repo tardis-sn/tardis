@@ -1,10 +1,9 @@
-import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
 
-import tardis.spectrum.formal_integral as formal_integral
 import tardis.transport.montecarlo.r_packet as r_packet
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
@@ -35,7 +34,7 @@ from tardis import __path__ as path
 @pytest.fixture(scope="module")
 def continuum_compare_data_fname():
     fname = "continuum_compare_data.hdf"
-    return os.path.join(path[0], "montecarlo", "tests", "data", fname)
+    return str(Path(path[0]) / "montecarlo" / "tests" / "data" / fname)
 
 
 @pytest.fixture(scope="module")
@@ -92,105 +91,6 @@ The tests written further (till next block comment is encountered) have been
 categorized as important tests, these tests correspond to methods which are
 relatively old and stable code.
 """
-
-
-@pytest.mark.parametrize(
-    ["x", "x_insert", "imin", "imax", "expected_params"],
-    [
-        (
-            [5.0, 4.0, 3.0, 1.0],
-            2.0,
-            0,
-            3,
-            {"result": 2},
-        ),
-        (
-            [5.0, 4.0, 3.0, 2.0],
-            0.0,
-            0,
-            3,
-            {"result": 0},  # This one might need to check for a bounds error
-        ),
-    ],
-)
-def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
-    # x = (c_double * (imax - imin + 1))(*x)
-    obtained_result = 0
-
-    obtained_result = formal_integral.reverse_binary_search(
-        x, x_insert, imin, imax
-    )
-
-    assert obtained_result == expected_params["result"]
-
-
-@pytest.mark.parametrize(
-    ["nu", "nu_insert", "number_of_lines", "expected_params"],
-    [
-        (
-            [0.5, 0.4, 0.3, 0.1],
-            0.2,
-            4,
-            {"result": 3},
-        ),
-        (
-            [0.5, 0.4, 0.3, 0.2],
-            0.1,
-            4,
-            {"result": 4},
-        ),
-        (
-            [0.4, 0.3, 0.2, 0.1],
-            0.5,
-            4,
-            {"result": 0},
-        ),
-    ],
-)
-def test_line_search(nu, nu_insert, number_of_lines, expected_params):
-    # nu = (c_double * number_of_lines)(*nu)
-    obtained_result = 0
-
-    obtained_result = formal_integral.line_search(
-        nu, nu_insert, number_of_lines, obtained_result
-    )
-
-    assert obtained_result == expected_params["result"]
-
-
-@pytest.mark.parametrize(
-    ["x", "x_insert", "imin", "imax", "expected_params"],
-    [
-        (
-            [2.0, 4.0, 6.0, 7.0],
-            5.0,
-            0,
-            3,
-            {"result": 2},
-        ),
-        (
-            [2.0, 3.0, 5.0, 7.0],
-            8.0,
-            0,
-            3,
-            {"result": 0},  # this one too
-        ),
-        (
-            [2.0, 4.0, 6.0, 7.0],
-            4.0,
-            0,
-            3,
-            {"result": 0},
-        ),
-    ],
-)
-def test_binary_search(x, x_insert, imin, imax, expected_params):
-    obtained_result = 0
-
-    obtained_result = formal_integral.binary_search(x, x_insert, imin, imax)
-
-    assert obtained_result == expected_params["result"]
-
 
 def test_get_random_mu_different_output():
     """

@@ -1,36 +1,36 @@
 """Class to create and display Custom Abundance Widget."""
-import os
-import yaml
+from pathlib import Path
+
+import ipywidgets as ipw
 import numpy as np
 import pandas as pd
-import ipywidgets as ipw
 import plotly.graph_objects as go
+import yaml
 from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
-from pathlib import Path
 
 import tardis
-from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
-from tardis.util.base import (
-    quantity_linspace,
-    is_valid_nuclide_or_elem,
-    is_notebook,
-)
-from tardis.io.configuration.config_reader import Configuration
-from tardis.model import SimulationState
-from tardis.io.model.parse_density_configuration import (
-    calculate_power_law_density,
-    calculate_exponential_density,
-)
+import tardis.visualization.plot_util as pu
 from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.model.readers.csvy import load_csvy
+from tardis.io.model.parse_density_configuration import (
+    calculate_exponential_density,
+    calculate_power_law_density,
+)
 from tardis.io.model.readers.csvy import (
+    load_csvy,
     parse_csv_mass_fractions,
 )
-from tardis.util.base import atomic_number2element_symbol, quantity_linspace
-from tardis.visualization.tools.convergence_plot import transition_colors
+from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
+from tardis.model import SimulationState
+from tardis.util.base import (
+    atomic_number2element_symbol,
+    is_notebook,
+    is_valid_nuclide_or_elem,
+    quantity_linspace,
+)
 from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
@@ -91,9 +91,7 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         """
         csvy_model_config, csvy_model_data = load_csvy(fpath)
-        csvy_schema_file = os.path.join(
-            BASE_DIR, "io", "schemas", "csvy_model.yml"
-        )
+        csvy_schema_file = Path(BASE_DIR) / "io" / "schemas" / "csvy_model.yml"
         csvy_model_config = Configuration(
             validate_dict(csvy_model_config, schemapath=csvy_schema_file)
         )
@@ -601,7 +599,7 @@ class CustomAbundanceWidget:
         """
         self._trigger = False
         # `input_items` is the list of  abundance input widgets.
-        self.input_items[index].value = float("{:.2e}".format(value))
+        self.input_items[index].value = float(f"{value:.2e}")
         self._trigger = True
 
     def read_abundance(self):
@@ -699,7 +697,7 @@ class CustomAbundanceWidget:
 
     def update_line_color(self):
         """Update line color in the plot according to colormap."""
-        colorscale = transition_colors(self.no_of_elements, self.plot_cmap)
+        colorscale = pu.get_hex_color_strings(self.no_of_elements, self.plot_cmap)
         for i in range(self.no_of_elements):
             self.fig.data[2 + i].line.color = colorscale[i]
 
@@ -734,12 +732,11 @@ class CustomAbundanceWidget:
             else position_1
         )
 
-        if (index_1 - index_0 > 1) or (
-            index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0)
-        ):
-            return True
-        else:
-            return False
+        return bool(
+            index_1 - index_0 > 1
+            or index_1 - index_0 == 1
+            and not np.isclose(v_vals[index_0], v_0)
+        )
 
     def on_btn_add_shell(self, obj):
         """Add new shell with given boundary velocities. Triggered if
@@ -914,7 +911,7 @@ class CustomAbundanceWidget:
         """
         item_index = obj.owner.index
 
-        if obj.new == True:
+        if obj.new is True:
             self.bound_locked_sum_to_1(item_index)
 
     def dpd_shell_no_eventhandler(self, obj):
@@ -1470,7 +1467,7 @@ class CustomAbundanceWidget:
             data = data.sort_index()
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
-                lambda x: "%.3e" % x
+                lambda x: f"{x:.3e}"
             )
             # Make sure velocity is within the boundary.
             formatted_v[0] = self.data.velocity.value[0]
@@ -1685,7 +1682,7 @@ class DensityEditor:
         """
         dvalue = self.data.density[self.shell_no].value
         self._trigger = False
-        self.input_d.value = float("{:.3e}".format(dvalue))
+        self.input_d.value = float(f"{dvalue:.3e}")
         self._trigger = True
 
     def update_density_plot(self):

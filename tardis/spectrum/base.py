@@ -3,8 +3,8 @@ import warnings
 import numpy as np
 from astropy import units as u
 
-from tardis.io.util import HDFWriterMixin
-from tardis.spectrum.formal_integral import IntegrationError
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.spectrum.formal_integral.base import IntegrationError
 from tardis.spectrum.spectrum import TARDISSpectrum
 from tardis.util.base import (
     quantity_linspace,

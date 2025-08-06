@@ -247,10 +247,10 @@ class AtomData:
 
             atom_data = cls(**dataframes, molecule_data=molecule_data)
 
-            atom_data.uuid1 = cls.get_attributes_from_store(store, "uuid1")
-            atom_data.md5 = cls.get_attributes_from_store(store, "md5")
+            atom_data.uuid1 = cls.get_attributes_from_store(store, "UUID1")
+            atom_data.md5 = cls.get_attributes_from_store(store, "MD5")
             atom_data.version = cls.get_attributes_from_store(
-                store, "database_version"
+                store, "FORMAT_VERSION"
             )
 
             # TODO: strore data sources as attributes in carsus
@@ -390,8 +390,8 @@ class AtomData:
 
             if len(check_list) != 0 and len(check_list) != len(group):
                 raise AtomDataMissingError(
-                    f'The following dataframes from the related group [{", ".join(group)}]'
-                    f'were not given: {", ".join(check_list)}'
+                    f"The following dataframes from the related group [{', '.join(group)}]"
+                    f"were not given: {', '.join(check_list)}"
                 )
 
     def prepare_atom_data(
@@ -452,7 +452,9 @@ class AtomData:
         # with kind="stable" the returned array will maintain the relative order of a values which compare as equal.
         # this is important especially after numpy v2 release
         # https://numpy.org/doc/stable/release/2.0.0-notes.html#minor-changes-in-behavior-of-sorting-functions
-        self.lines = self.lines.sort_values(by=["wavelength", "line_id"], kind="stable")
+        self.lines = self.lines.sort_values(
+            by=["wavelength", "line_id"], kind="stable"
+        )
 
     def prepare_line_level_indexes(self):
         levels_index = pd.Series(

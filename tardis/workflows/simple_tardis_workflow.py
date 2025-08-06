@@ -7,13 +7,13 @@ from astropy import units as u
 from tardis import constants as const
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
-from tardis.opacities.macro_atom.macroatom_solver import MacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -49,6 +49,13 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.simulation_state = SimulationState.from_csvy(
                 configuration, atom_data=atom_data
             )
+            assert np.isclose(
+                self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
+                self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,
+            ), (
+                "If using csvy density input in the workflow, the initial v_inner_boundary must start at the first shell, see issue #3129."
+            )
+
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration,
@@ -67,7 +74,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         self.plasma_solver = plasma_solver_factory.assemble(
-            self.simulation_state.elemental_number_density,
+            self.simulation_state.calculate_elemental_number_density(
+                atom_data.atom_data.mass
+            ),
             self.simulation_state.radiation_field_state,
             self.simulation_state.time_explosion,
             self.simulation_state._electron_densities,
@@ -83,7 +92,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         if line_interaction_type == "scatter":
             self.macro_atom_solver = None
         else:
-            self.macro_atom_solver = MacroAtomSolver()
+            self.macro_atom_solver = LegacyMacroAtomSolver()
 
         self.transport_state = None
         self.transport_solver = MonteCarloTransportSolver.from_config(
@@ -457,10 +466,10 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
 
-            opacity_states = self.solve_opacity()
+            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -484,13 +493,14 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
+        self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
-            opacity_states,
+            self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
 
         self.initialize_spectrum_solver(
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )

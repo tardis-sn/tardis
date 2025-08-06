@@ -7,7 +7,7 @@ supernova:
   distance: 8.32 Mpc
 
 # standard atomic data base; get it from the tardis-regression-data repository
-atom_data: kurucz_cd23_chianti_H_He.h5
+atom_data: kurucz_cd23_chianti_H_He_latest.h5
 
 csvy_model: uniform_csvy.csvy
 

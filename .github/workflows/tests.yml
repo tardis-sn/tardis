@@ -15,7 +15,6 @@ on:
       - opened
       - reopened
       - synchronize
-
   workflow_call:
     inputs:
       pip_git:
@@ -46,7 +45,7 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -55,6 +54,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
+        pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
             os: macos-latest
@@ -64,30 +64,29 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4          
 
       - name: Setup LFS
-        uses: ./.github/actions/setup_lfs
+        uses: tardis-sn/tardis-actions/setup-lfs@main
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
 
-      - name: Install package editable
-        if: ${{ !inputs.pip_git }}
+      - name: Install tardis editable
+        if: ${{ !matrix.pip_git }}
         run: |
-          pip install -e . --user
+          pip install -e ".[tardisbase]" 
 
-      - name: Install package git
-        if: ${{ inputs.pip_git }}
+      - name: Install tardis git
+        if: ${{ matrix.pip_git }}
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@master
+          pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@master"
 
-      - name: Install qgridnext
-        if: ${{ !inputs.pip_git }}
+      - name: Install qgridnext and lineid_plot
         run: |
-          pip install qgridnext
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
@@ -100,7 +99,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.os }}
+          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}
           include-hidden-files: true
           path: |
             .coverage*
@@ -112,8 +111,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
 

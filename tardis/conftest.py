@@ -10,10 +10,19 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
-from tardis.tests.fixtures.regression_data import regression_data
 
-# ensuring that regression_data is not removed by ruff
-assert regression_data is not None
+from tardis.util.base import packet_pbar, iterations_pbar
+from tardis.tests.test_util import monkeysession
+
+try:
+    import tardisbase
+
+    # this imports regression data fixture from tardisbase
+    pytest_plugins = "tardisbase.testing.regression_data.regression_data"
+
+except ImportError:
+    pytest_plugins = []
+
 
 """Configure Test Suite.
 
@@ -51,6 +60,14 @@ def pytest_configure(config):
     config : pytest configuration
 
     """
+    try:
+        import tardisbase
+    except ImportError:
+        pytest.exit(
+            "tardisbase package not available - skipping entire test suite",
+            returncode=0,
+        )
+
     if ASTROPY_HEADER:
         config.option.astropy_header = True
 
@@ -61,7 +78,7 @@ def pytest_configure(config):
 
         from . import __version__
 
-        packagename = os.path.basename(os.path.dirname(__file__))
+        packagename = Path(__file__).parent.name
         TESTED_VERSIONS[packagename] = __version__
 
     # Create a marker to ignore the `--generate-reference` flag. A use case for this
@@ -70,6 +87,10 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers",
         "ignore_generate: mark test to not generate new reference data",
+    )
+    config.pluginmanager.register(
+        tardisbase.testing.regression_data.regression_data.PytestWritingPlugin(),
+        "writing",
     )
 
 
@@ -150,20 +171,7 @@ def tardis_regression_path(request):
     if tardis_regression_path is None:
         pytest.skip("--tardis-regression-data was not specified")
     else:
-        return Path(
-            os.path.expandvars(os.path.expanduser(tardis_regression_path))
-        )
-
-
-@pytest.fixture(scope="session")
-def tardis_snapshot_path(request):
-    tardis_snapshot_path = request.config.getoption("--tardis-snapshot-data")
-    if tardis_snapshot_path is None:
-        pytest.skip("--tardis-snapshot-data was not specified")
-    else:
-        return Path(
-            os.path.expandvars(os.path.expanduser(tardis_snapshot_path))
-        )
+        return Path(os.path.expandvars(tardis_regression_path)).expanduser().resolve()
 
 
 @pytest.fixture(scope="function")
@@ -173,6 +181,17 @@ def tardis_config_verysimple():
         YAMLLoader,
     )
 
+@pytest.fixture(scope="session")
+def config_verysimple_for_simulation_one_loop(
+    config_verysimple, atomic_data_fname
+):
+    config = deepcopy(config_verysimple)
+    config.atom_data = atomic_data_fname
+    config.montecarlo.iterations = 2
+    config.montecarlo.no_of_packets = int(4e4)
+    config.montecarlo.last_no_of_packets = int(4e4)
+    return config
+
 
 @pytest.fixture(scope="function")
 def tardis_config_verysimple_nlte():
@@ -180,6 +199,7 @@ def tardis_config_verysimple_nlte():
         "tardis/io/configuration/tests/data/tardis_configv1_nlte.yml",
         YAMLLoader,
     )
+
 
 ###
 # HDF Fixtures
@@ -234,6 +254,14 @@ def simulation_verysimple(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="session")
+def simulation_verysimple_default(config_verysimple, atomic_dataset):
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim.run_final()
+    return sim
+
+
+@pytest.fixture(scope="session")
 def simulation_verysimple_vpacket_tracking(config_verysimple, atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
     sim = Simulation.from_config(
@@ -271,3 +299,8 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
         show_convergence_plots=False,
     )
     return sim
+
+
+def pytest_sessionfinish(session, exitstatus):
+    packet_pbar.close()
+    iterations_pbar.close()
