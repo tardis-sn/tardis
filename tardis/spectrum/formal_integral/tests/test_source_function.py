@@ -78,6 +78,6 @@ def test_e_dot_u(source_function_verysimple, regression_data):
         e_dot_u.mean(axis=0), expected_e_dot_u.mean(axis=0), rtol=1e-14, atol=0
     )
     npt.assert_allclose(
-        e_dot_u.std(axis=0), expected_e_dot_u.std(axis=0), rtol=1e-07, atol=0
+        e_dot_u.std(axis=0), expected_e_dot_u.std(axis=0), rtol=1e-14, atol=0
     )
     pdt.assert_frame_equal(e_dot_u, expected_e_dot_u, rtol=1e-5, atol=1e-8)
