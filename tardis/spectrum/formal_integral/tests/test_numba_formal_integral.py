@@ -18,6 +18,8 @@ TESTDATA = [
     },
     # {"r": np.linspace(1, 2, 10, dtype=np.float64)},
 ]
+
+
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_geometry(request):
     r = request.param["r"]
@@ -53,12 +55,10 @@ def calculate_z(r, p):
 
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
 def test_calculate_z(formal_integral_geometry, time_explosion, p):
-
     inv_t = 1.0 / time_explosion
     size = len(formal_integral_geometry.r_outer)
     r_outer = formal_integral_geometry.r_outer
     for r in r_outer:
-
         actual = formal_integral_numba.calculate_z(r, p, inv_t)
         if p >= r:
             assert actual == 0
@@ -81,7 +81,9 @@ def test_populate_z_photosphere(formal_integral_geometry, time_explosion, p):
     oz = np.zeros_like(r_inner)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-    N = formal_integral_numba.populate_z(formal_integral_geometry, time_explosion, p, oz, oshell_id)
+    N = formal_integral_numba.populate_z(
+        formal_integral_geometry, time_explosion, p, oz, oshell_id
+    )
     assert N == size
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
@@ -123,7 +125,9 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
         r_outer[np.arange(idx, size, 1)], p
     )
 
-    N = formal_integral_numba.populate_z(formal_integral_geometry, time_explosion, p, oz, oshell_id)
+    N = formal_integral_numba.populate_z(
+        formal_integral_geometry, time_explosion, p, oz, oshell_id
+    )
 
     assert N == expected_N
 

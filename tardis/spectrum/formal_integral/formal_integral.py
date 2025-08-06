@@ -1,13 +1,26 @@
-from tardis.opacities.opacity_state import opacity_state_initialize
+import warnings
+
 import numpy as np
 from astropy import units as u
 from scipy.interpolate import interp1d
-import warnings
-from tardis.spectrum.formal_integral.formal_integral_cuda import CudaFormalIntegrator
-from tardis.spectrum.formal_integral.formal_integral_numba import NumbaFormalIntegrator, calculate_p_values, trapezoid_integration
-from tardis.spectrum.formal_integral.base import check, make_source_function
+
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.opacities.opacity_state import opacity_state_initialize
+from tardis.spectrum.formal_integral.formal_integral_cuda import (
+    CudaFormalIntegrator,
+)
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    NumbaFormalIntegrator,
+    calculate_p_values,
+    trapezoid_integration,
+)
+from tardis.spectrum.formal_integral.base import (
+    check,
+    interpolate_integrator_quantities,
+)
+from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 from tardis.spectrum.spectrum import TARDISSpectrum
-from tardis.transport.montecarlo.configuration import montecarlo_globals
+
 
 class FormalIntegrator:
     """
@@ -65,10 +78,10 @@ class FormalIntegrator:
             self.opacity_state = None
 
     def generate_numba_objects(self):
-        """instantiate the numba interface objects
+        """
+        Instantiate the numba interface objects
         needed for computing the formal integral
         """
-        from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
         self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
             self.transport.r_inner_i,
@@ -133,19 +146,55 @@ class FormalIntegrator:
 
         return TARDISSpectrum(frequency, luminosity)
 
-    
     def formal_integral(self, nu, N):
-        """Do the formal integral with the numba
-        routines
+        """
+        Do the formal integral with the numba routines
         """
         # TODO: get rid of storage later on
 
-        res = make_source_function(self.simulation_state, self.opacity_state, self.transport, 
-                                   self.plasma, self.interpolate_shells)
+        transport_state = self.transport.transport_state
 
-        att_S_ul = res[0].flatten(order="F")
-        Jred_lu = res[1].flatten(order="F")
-        Jblue_lu = res[2].flatten(order="F")
+        source_function_solver = SourceFunctionSolver(
+            self.transport.line_interaction_type
+        )
+        source_function_state = source_function_solver.solve(
+            self.simulation_state,
+            self.opacity_state,
+            transport_state,
+            self.atomic_data,
+        )
+
+        if self.interpolate_shells > 0:
+            (
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                e_dot_u,
+            ) = interpolate_integrator_quantities(
+                source_function_state,
+                self.interpolate_shells,
+                self.simulation_state,
+                self.transport,
+                self.opacity_state,
+                self.plasma.electron_densities,
+            )
+        else:
+            att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
+                source_function_state.att_S_ul,
+                source_function_state.Jred_lu,
+                source_function_state.Jblue_lu,
+                source_function_state.e_dot_u,
+            )
+            self.transport.r_inner_i = transport_state.geometry_state.r_inner
+            self.transport.r_outer_i = transport_state.geometry_state.r_outer
+            self.transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev
+            self.transport.electron_densities_integ = (
+                self.opacity_state.electron_density
+            )
+
+        att_S_ul = att_S_ul.flatten(order="F")
+        Jred_lu = Jred_lu.flatten(order="F")
+        Jblue_lu = Jblue_lu.flatten(order="F")
 
         self.generate_numba_objects()
         L, I_nu_p = self.integrator.formal_integral(
@@ -168,13 +217,16 @@ class FormalIntegrator:
         I_nu = self.transport.I_nu_p * ps
         L_test = np.array(
             [
-                8 * np.pi * np.pi * trapezoid_integration((I_nu)[i, :], R_max / N)
+                8
+                * np.pi
+                * np.pi
+                * trapezoid_integration((I_nu)[i, :], R_max / N)
                 for i in range(nu.shape[0])
             ]
         )
         error = np.max(np.abs((L_test - L) / L))
-        assert (
-            error < 1e-7
-        ), f"Incorrect I_nu_p values, max relative difference:{error}"
+        assert error < 1e-7, (
+            f"Incorrect I_nu_p values, max relative difference:{error}"
+        )
 
         return np.array(L, np.float64)
