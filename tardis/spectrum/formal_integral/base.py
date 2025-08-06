@@ -1,6 +1,4 @@
-import math
 import numpy as np
-import pandas as pd
 from scipy.interpolate import interp1d
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
@@ -107,10 +105,7 @@ def intensity_black_body(nu, temperature):
 
 
 def interpolate_integrator_quantities(
-    att_S_ul,
-    Jredlu,
-    Jbluelu,
-    e_dot_u,
+    source_function_state,
     interpolate_shells,
     simulation_state,
     transport,
@@ -121,28 +116,29 @@ def interpolate_integrator_quantities(
 
     Parameters
     ----------
-    att_S_ul : np.ndarray
-        attenuated source function for each line in each shell
-    Jredlu : np.ndarray
-        J estimator from the red end of the line from lower to upper level
-    Jbluelu : np.ndarray
-        J estimator from the blue end of the line from lower to upper level
-    e_dot_u : np.ndarray
-        Line estimator for the rate of energy density absorption from lower to upper level
+    source_function_state: SourceFunctionState
+        Data class to hold the computed source function values
     interpolate_shells : int
         number of shells to interpolate to
     simulation_state : tardis.model.SimulationState
     transport : tardis.transport.montecarlo.MonteCarloTransportSolver
     opacity_state : OpacityStateNumba
-    electron_densities : np.ndarray
+    electron_densities : pd.DataFrame
 
     Returns
     -------
     tuple
-        Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u
+        Interpolated values of att_S_ul, Jred_lu, Jbluelu, and e_dot_u
     """
 
     mct_state = transport.transport_state
+
+    att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
+            source_function_state.att_S_ul,
+            source_function_state.Jred_lu,
+            source_function_state.Jblue_lu,
+            source_function_state.e_dot_u,
+        )
 
     nshells = interpolate_shells
     r_middle = (
@@ -181,10 +177,10 @@ def interpolate_integrator_quantities(
     att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
         r_middle_integ
     )
-    Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
+    Jred_lu = interp1d(r_middle, Jred_lu, fill_value="extrapolate")(
         r_middle_integ
     )
-    Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
+    Jblue_lu = interp1d(r_middle, Jblue_lu, fill_value="extrapolate")(
         r_middle_integ
     )
     e_dot_u = interp1d(r_middle, e_dot_u, fill_value="extrapolate")(
@@ -193,7 +189,7 @@ def interpolate_integrator_quantities(
 
     # Set negative values from the extrapolation to zero
     att_S_ul = att_S_ul.clip(0.0)
-    Jbluelu = Jbluelu.clip(0.0)
-    Jredlu = Jredlu.clip(0.0)
+    Jblue_lu = Jblue_lu.clip(0.0)
+    Jred_lu = Jred_lu.clip(0.0)
     e_dot_u = e_dot_u.clip(0.0)
-    return att_S_ul, Jredlu, Jbluelu, e_dot_u
+    return att_S_ul, Jred_lu, Jblue_lu, e_dot_u

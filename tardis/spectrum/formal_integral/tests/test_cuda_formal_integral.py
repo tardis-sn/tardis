@@ -301,10 +301,7 @@ def test_reverse_binary_search(nu_insert, simulation_verysimple_opacity_state):
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
-@pytest.mark.parametrize(["no_of_packets", "iterations"], [(200000, 5)])
-def test_full_formal_integral(
-    no_of_packets, iterations, config_verysimple, simulation_verysimple
-):
+def test_full_formal_integral(simulation_verysimple):
     """
     This function initializes both the cuda and numba formal_integrator,
     and the runs them and compares results to the 15th decimal place.
@@ -330,11 +327,99 @@ def test_full_formal_integral(
         2 * sim.simulation_state.no_of_shells, 80
     )
 
-    formal_integrator_cuda.integrator_settings.interpolate_shells = max(
-        2 * sim.simulation_state.no_of_shells, 80
+    # get source function
+    source_function_solver = SourceFunctionSolver(
+        formal_integrator_numba.transport.line_interaction_type,
+    )
+    source_function_state_numba = source_function_solver.solve(
+        formal_integrator_numba.simulation_state,
+        formal_integrator_numba.opacity_state,
+        formal_integrator_numba.transport.transport_state,
+        formal_integrator_numba.atomic_data,
     )
 
-    L_numba = formal_integrator_numba.solve(
+    if formal_integrator_numba.interpolate_shells > 0:
+        (
+            att_S_ul_numba,
+            Jred_lu_numba,
+            Jblue_lu_numba,
+            e_dot_u_numba,
+        ) = interpolate_integrator_quantities(
+            source_function_state_numba,
+            formal_integrator_numba.interpolate_shells,
+            formal_integrator_numba.simulation_state,
+            formal_integrator_numba.transport,
+            formal_integrator_numba.opacity_state,
+            formal_integrator_numba.plasma.electron_densities,
+        )
+    else:
+        formal_integrator_numba.transport.r_inner_i = formal_integrator_numba.transport.transport_state.geometry_state.r_inner
+        formal_integrator_numba.transport.r_outer_i = formal_integrator_numba.transport.transport_state.geometry_state.r_outer
+        formal_integrator_numba.transport.tau_sobolevs_integ = (
+            formal_integrator_numba.opacity_state.tau_sobolev
+        )
+        formal_integrator_numba.transport.electron_densities_integ = (
+            formal_integrator_numba.opacity_state.electron_density
+        )
+
+    att_S_ul_numba = att_S_ul_numba.flatten(order="F")
+    Jred_lu_numba = Jred_lu_numba.flatten(order="F")
+    Jblue_lu_numba = Jblue_lu_numba.flatten(order="F")
+    formal_integrator_numba.generate_numba_objects()
+
+    # cuda source function
+    source_function_solver = SourceFunctionSolver(
+        formal_integrator_cuda.transport.line_interaction_type,
+    )
+    source_function_state_cuda = source_function_solver.solve(
+        formal_integrator_cuda.simulation_state,
+        formal_integrator_cuda.opacity_state,
+        formal_integrator_cuda.transport.transport_state,
+        formal_integrator_cuda.atomic_data,
+    )
+
+    if formal_integrator_cuda.interpolate_shells > 0:
+        (
+            att_S_ul_cuda,
+            Jred_lu_cuda,
+            Jblue_lu_cuda,
+            e_dot_u_cuda,
+        ) = interpolate_integrator_quantities(
+            source_function_state_cuda,
+            formal_integrator_cuda.interpolate_shells,
+            formal_integrator_cuda.simulation_state,
+            formal_integrator_cuda.transport,
+            formal_integrator_cuda.opacity_state,
+            formal_integrator_cuda.plasma.electron_densities,
+        )
+    else:
+        formal_integrator_cuda.transport.r_inner_i = formal_integrator_cuda.transport.transport_state.geometry_state.r_inner
+        formal_integrator_cuda.transport.r_outer_i = formal_integrator_cuda.transport.transport_state.geometry_state.r_outer
+        formal_integrator_cuda.transport.tau_sobolevs_integ = (
+            formal_integrator_cuda.opacity_state.tau_sobolev
+        )
+        formal_integrator_cuda.transport.electron_densities_integ = (
+            formal_integrator_cuda.opacity_state.electron_density
+        )
+
+    att_S_ul_cuda = att_S_ul_cuda.flatten(order="F")
+    Jred_lu_cuda = Jred_lu_cuda.flatten(order="F")
+    Jblue_lu_cuda = Jblue_lu_cuda.flatten(order="F")
+
+    formal_integrator_cuda.generate_numba_objects()
+    # This is to force the for formal_integrator_numba to use the numba version
+    # as it is automatically set to the CUDA version when there is a GPU available
+    formal_integrator_numba.integrator = (
+        formal_integral_numba.NumbaFormalIntegrator(
+            formal_integrator_numba.numba_radial_1d_geometry,
+            sim.simulation_state.time_explosion.cgs.value,
+            formal_integrator_numba.opacity_state,
+            formal_integrator_numba.points,
+        )
+    )
+
+    L_cuda = formal_integrator_cuda.integrator.formal_integral(
+        formal_integrator_cuda.simulation_state.t_inner,
         sim.spectrum_solver.spectrum_real_packets.frequency,
         sim.simulation_state,
         sim.transport,

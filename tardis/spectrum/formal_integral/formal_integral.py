@@ -4,6 +4,7 @@ import numpy as np
 from astropy import units as u
 from scipy.interpolate import interp1d
 
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
@@ -19,7 +20,6 @@ from tardis.spectrum.formal_integral.base import (
 )
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 from tardis.spectrum.spectrum import TARDISSpectrum
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 class FormalIntegrator:
@@ -82,7 +82,6 @@ class FormalIntegrator:
         Instantiate the numba interface objects
         needed for computing the formal integral
         """
-        from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
         self.numba_radial_1d_geometry = NumbaRadial1DGeometry(
             self.transport.r_inner_i,
@@ -155,22 +154,16 @@ class FormalIntegrator:
 
         transport_state = self.transport.transport_state
 
-        sourceFunction = SourceFunctionSolver(
-            self.transport.line_interaction_type, self.plasma.atomic_data
+        source_function_solver = SourceFunctionSolver(
+            self.transport.line_interaction_type
         )
-        res = sourceFunction.solve(
+        source_function_state = source_function_solver.solve(
             self.simulation_state,
             self.opacity_state,
             transport_state,
-            self.plasma.levels,
+            self.atomic_data,
         )
 
-        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
-            res.att_S_ul,
-            res.Jred_lu,
-            res.Jblue_lu,
-            res.e_dot_u,
-        )
         if self.interpolate_shells > 0:
             (
                 att_S_ul,
@@ -178,10 +171,7 @@ class FormalIntegrator:
                 Jblue_lu,
                 e_dot_u,
             ) = interpolate_integrator_quantities(
-                att_S_ul,
-                Jred_lu,
-                Jblue_lu,
-                e_dot_u,
+                source_function_state,
                 self.interpolate_shells,
                 self.simulation_state,
                 self.transport,
@@ -189,6 +179,12 @@ class FormalIntegrator:
                 self.plasma.electron_densities,
             )
         else:
+            att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
+                source_function_state.att_S_ul,
+                source_function_state.Jred_lu,
+                source_function_state.Jblue_lu,
+                source_function_state.e_dot_u,
+            )
             self.transport.r_inner_i = transport_state.geometry_state.r_inner
             self.transport.r_outer_i = transport_state.geometry_state.r_outer
             self.transport.tau_sobolevs_integ = self.opacity_state.tau_sobolev

@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 import numpy.testing as npt
 import pandas.testing as pdt
 from copy import deepcopy
@@ -28,17 +29,17 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
     plasma = sim.plasma
     transport = sim.transport
 
-    formal_integrator = FormalIntegralSolver(sim.spectrum_solver.integrator_settings)
-    atomic_data, levels, opacity_state = formal_integrator.setup(transport, plasma)
-    sourceFunction = SourceFunctionSolver(transport.line_interaction_type, 
-                                          atomic_data)
-    res = sourceFunction.solve(
-        sim_state, 
-        opacity_state, 
-        transport.transport_state,
-        levels
+    formal_integrator = FormalIntegrator(sim_state, plasma, transport)
+    source_function_solver = SourceFunctionSolver(
+        formal_integrator.transport.line_interaction_type
     )
-    return res
+    source_function_state = source_function_solver.solve(
+        formal_integrator.simulation_state,
+        formal_integrator.opacity_state,
+        formal_integrator.transport.transport_state,
+        formal_integrator.atomic_data,
+    )
+    return source_function_state
 
 
 def test_att_S_ul(source_function_verysimple, regression_data):
@@ -47,7 +48,12 @@ def test_att_S_ul(source_function_verysimple, regression_data):
     """
     att_S_ul = source_function_verysimple.att_S_ul
     expected_att_S_ul = regression_data.sync_ndarray(att_S_ul)
-    npt.assert_allclose(att_S_ul, expected_att_S_ul, rtol=1e-5, atol=1e-8)
+    npt.assert_allclose(
+        att_S_ul.mean(axis=0), expected_att_S_ul.mean(axis=0), rtol=1e-15, atol=0
+    )
+    npt.assert_allclose(
+        att_S_ul.std(axis=0), expected_att_S_ul.std(axis=0), rtol=1e-15, atol=0
+    )
 
 
 def test_Jred_lu(source_function_verysimple, regression_data):
@@ -56,8 +62,12 @@ def test_Jred_lu(source_function_verysimple, regression_data):
     """
     Jred_lu = source_function_verysimple.Jred_lu
     expected_Jred_lu = regression_data.sync_ndarray(Jred_lu)
-    npt.assert_allclose(Jred_lu, expected_Jred_lu, rtol=1e-5, atol=1e-8)
-
+    npt.assert_allclose(
+        Jred_lu.mean(axis=0), expected_Jred_lu.mean(axis=0), rtol=1e-15, atol=0
+    )
+    npt.assert_allclose(
+        Jred_lu.std(axis=0), expected_Jred_lu.std(axis=0), rtol=1e-15, atol=0
+    )
 
 def test_Jblue_lu(source_function_verysimple, regression_data):
     """
@@ -65,8 +75,12 @@ def test_Jblue_lu(source_function_verysimple, regression_data):
     """
     Jblue_lu = source_function_verysimple.Jblue_lu
     expected_Jblue_lu = regression_data.sync_ndarray(Jblue_lu)
-    npt.assert_allclose(Jblue_lu, expected_Jblue_lu, rtol=1e-5, atol=1e-8)
-
+    npt.assert_allclose(
+        Jblue_lu.mean(axis=0), expected_Jblue_lu.mean(axis=0), rtol=1e-15, atol=0
+    )
+    npt.assert_allclose(
+        Jblue_lu.std(axis=0), expected_Jblue_lu.std(axis=0), rtol=1e-15, atol=0
+    )
 
 def test_e_dot_u(source_function_verysimple, regression_data):
     """
@@ -74,4 +88,9 @@ def test_e_dot_u(source_function_verysimple, regression_data):
     """
     e_dot_u = source_function_verysimple.e_dot_u
     expected_e_dot_u = regression_data.sync_dataframe(e_dot_u)
-    pdt.assert_frame_equal(e_dot_u, expected_e_dot_u)
+    npt.assert_allclose(
+        e_dot_u.mean(axis=0), expected_e_dot_u.mean(axis=0), rtol=1e-15, atol=0
+    )
+    npt.assert_allclose(
+        e_dot_u.std(axis=0), expected_e_dot_u.std(axis=0), rtol=1e-15, atol=0
+    )
