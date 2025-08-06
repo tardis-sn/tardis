@@ -49,7 +49,7 @@ class ThermalCollisionalRateSolver:
         self.all_collisional_strengths_index = (
             self.missing_collision_strengths_index.append(
                 thermal_collisional_strengths.index
-            ).sort_values(kind="stable")
+            ).sort_values()
         )
         self.delta_energies = (
             self.levels.loc[

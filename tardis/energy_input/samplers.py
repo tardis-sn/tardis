@@ -58,8 +58,8 @@ def create_energy_cdf(energy, intensity):
         CDF where each index corresponds to the energy in
         the sorted array
     """
-    energy.sort(kind="stable")
-    sorted_indices = np.argsort(energy, kind="stable")
+    energy.sort()
+    sorted_indices = np.argsort(energy)
     sorted_intensity = intensity[sorted_indices]
     norm_intensity = sorted_intensity / np.sum(sorted_intensity)
     cdf = np.cumsum(norm_intensity)
