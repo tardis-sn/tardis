@@ -438,20 +438,22 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.opacity_state.beta_sobolev,
                 )
 
-        v_packets_energy_hist = self.transport.run(
-            self.simulation_state.geometry,
+        transport_state = self.transport.initialize_transport_state(
+            self.simulation_state,
             self.opacity_state,
             macro_atom_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.iterations_executed,
+        )
+
+        v_packets_energy_hist = self.transport.run(
+            transport_state,
+            iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
         )
-
-        # Get transport state for further processing
-        transport_state = self.transport.transport_state
 
         output_energy = self.transport.transport_state.packet_collection.output_energies
         if np.sum(output_energy < 0) == len(output_energy):

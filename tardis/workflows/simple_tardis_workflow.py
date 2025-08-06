@@ -404,7 +404,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         macro_atom_state = opacity_states["macro_atom_state"]
 
         self.transport_state = self.transport_solver.initialize_transport_state(
-            self.simulation_state.geometry,
+            self.simulation_state,
             opacity_state,
             macro_atom_state,
             self.plasma_solver,
@@ -480,10 +480,10 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
 
-            opacity_states = self.solve_opacity()
+            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -507,13 +507,14 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
+        self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
-            opacity_states,
+            self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
 
         self.initialize_spectrum_solver(
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )
