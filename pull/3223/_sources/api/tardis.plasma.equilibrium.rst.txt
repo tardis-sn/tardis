@@ -1,0 +1,27 @@
+tardis.plasma.equilibrium package
+=================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.plasma.equilibrium.rates
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.plasma.equilibrium.level_populations
+   tardis.plasma.equilibrium.rate_matrix
+
+Module contents
+---------------
+
+.. automodule:: tardis.plasma.equilibrium
+   :members:
+   :show-inheritance:
+   :undoc-members:
