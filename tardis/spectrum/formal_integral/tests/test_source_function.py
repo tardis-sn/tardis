@@ -11,7 +11,6 @@ SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL = 1e-14
 
 config_line_modes = ["downbranch", "macroatom"]
 
-
 @pytest.fixture(scope="module", params=config_line_modes)
 def source_function_verysimple(request, config_verysimple, atomic_dataset):
     """
