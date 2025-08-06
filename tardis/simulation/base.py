@@ -423,7 +423,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.beta_sobolev = None
             macro_atom_state = None
 
-        opacity_state = self.opacity.legacy_solve(self.plasma)
+        self.opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                 macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
@@ -433,27 +433,25 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
                     self.plasma.atomic_data,
-                    opacity_state.tau_sobolev,
+                    self.opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
-                    opacity_state.beta_sobolev,
+                    self.opacity_state.beta_sobolev,
                 )
 
-        transport_state = self.transport.initialize_transport_state(
-            self.simulation_state,
-            opacity_state,
+        v_packets_energy_hist = self.transport.run(
+            self.simulation_state.geometry,
+            self.opacity_state,
             macro_atom_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
             iteration=self.iterations_executed,
-        )
-
-        v_packets_energy_hist = self.transport.run(
-            transport_state,
-            iteration=self.iterations_executed,
             total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
         )
+
+        # Get transport state for further processing
+        transport_state = self.transport.transport_state
 
         output_energy = self.transport.transport_state.packet_collection.output_energies
         if np.sum(output_energy < 0) == len(output_energy):

@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 
-from tardis.energy_input.GXPacket import GXPacketStatus
+from tardis.energy_input.transport.GXPacket import GXPacketStatus
 from tardis.energy_input.util import (
     ELECTRON_MASS_ENERGY_KEV,
     H_CGS_KEV,
@@ -203,23 +203,33 @@ def compton_scatter(photon, compton_angle):
     # compute an arbitrary perpendicular vector to the comoving direction
     orthogonal_vector = get_perpendicular_vector(comov_direction)
     # determine a random vector with compton_angle to the comoving direction
+    euler_matrix_1 = euler_rodrigues(compton_angle, orthogonal_vector)
     new_vector = np.dot(
-        euler_rodrigues(compton_angle, orthogonal_vector),
-        comov_direction,
+        np.ascontiguousarray(euler_matrix_1),
+        np.ascontiguousarray(comov_direction),
     )
 
     # draw a random angle from [0,2pi]
     phi = 2.0 * np.pi * np.random.random()
     # rotate the vector with compton_angle around the comoving direction
+    euler_matrix_2 = euler_rodrigues(phi, comov_direction)
     final_compton_scattered_vector = np.dot(
-        euler_rodrigues(phi, comov_direction), new_vector
+        np.ascontiguousarray(euler_matrix_2), np.ascontiguousarray(new_vector)
     )
+
+    final_compton_scattered_vector_contiguous = np.ascontiguousarray(
+        final_compton_scattered_vector
+    )
+    comov_direction_contiguous = np.ascontiguousarray(comov_direction)
 
     norm_phi = np.dot(
-        final_compton_scattered_vector, final_compton_scattered_vector
+        final_compton_scattered_vector_contiguous,
+        final_compton_scattered_vector_contiguous,
     )
 
-    norm_theta = np.dot(final_compton_scattered_vector, comov_direction)
+    norm_theta = np.dot(
+        final_compton_scattered_vector_contiguous, comov_direction_contiguous
+    )
 
     assert (
         np.abs(norm_phi - 1) < 1e-8

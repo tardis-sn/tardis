@@ -372,6 +372,45 @@ def test_full_formal_integral(simulation_verysimple):
         formal_integrator_cuda.transport.line_interaction_type,
     )
     source_function_state_cuda = source_function_solver.solve(
+        formal_integrator_numba.opacity_state,
+        formal_integrator_numba.transport.transport_state,
+        formal_integrator_numba.atomic_data,
+    )
+
+    if formal_integrator_numba.interpolate_shells > 0:
+        (
+            att_S_ul_numba,
+            Jred_lu_numba,
+            Jblue_lu_numba,
+            e_dot_u_numba,
+        ) = interpolate_integrator_quantities(
+            source_function_state_numba,
+            formal_integrator_numba.interpolate_shells,
+            formal_integrator_numba.simulation_state,
+            formal_integrator_numba.transport,
+            formal_integrator_numba.opacity_state,
+            formal_integrator_numba.plasma.electron_densities,
+        )
+    else:
+        formal_integrator_numba.transport.r_inner_i = formal_integrator_numba.transport.transport_state.geometry_state.r_inner
+        formal_integrator_numba.transport.r_outer_i = formal_integrator_numba.transport.transport_state.geometry_state.r_outer
+        formal_integrator_numba.transport.tau_sobolevs_integ = (
+            formal_integrator_numba.opacity_state.tau_sobolev
+        )
+        formal_integrator_numba.transport.electron_densities_integ = (
+            formal_integrator_numba.opacity_state.electron_density
+        )
+
+    att_S_ul_numba = att_S_ul_numba.flatten(order="F")
+    Jred_lu_numba = Jred_lu_numba.flatten(order="F")
+    Jblue_lu_numba = Jblue_lu_numba.flatten(order="F")
+    formal_integrator_numba.generate_numba_objects()
+
+    # cuda source function
+    source_function_solver = SourceFunctionSolver(
+        formal_integrator_cuda.transport.line_interaction_type,
+    )
+    source_function_state_cuda = source_function_solver.solve(
         formal_integrator_cuda.simulation_state,
         formal_integrator_cuda.opacity_state,
         formal_integrator_cuda.transport.transport_state,
