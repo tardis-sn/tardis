@@ -47,7 +47,7 @@ def test_att_S_ul(source_function_verysimple, regression_data):
     """
     att_S_ul = source_function_verysimple.att_S_ul
     expected_att_S_ul = regression_data.sync_ndarray(att_S_ul)
-    npt.assert_allclose(att_S_ul, expected_att_S_ul, rtol=1e-5, atol=1e-8)
+    npt.assert_allclose(att_S_ul, expected_att_S_ul, rtol=1e-15, atol=0.0)
 
 
 def test_Jred_lu(source_function_verysimple, regression_data):
