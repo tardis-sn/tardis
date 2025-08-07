@@ -80,9 +80,14 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
             plasma,
         )
 
+        att_S_ul = att_S_ul.flatten(order="F")
+        Jred_lu = Jred_lu.flatten(order="F")
+        Jblue_lu = Jblue_lu.flatten(order="F")
+
         self.formal_integral_solver.setup_integrator(
             opacity_state, sim_state.time_explosion, r_inner_itp, r_outer_itp
         )
+
         self.formal_integral_solver.integrator.formal_integral(
             sim_state.t_inner,
             nu,
