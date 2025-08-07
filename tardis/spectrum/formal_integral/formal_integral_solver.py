@@ -91,7 +91,7 @@ class FormalIntegralSolver:
         else:
             logger.warning(
                 f"Computing formal integral via the {self.method} method isn't supported"
-                "Please run with config option numba or cuda"
+                "Please run with config option numba or cuda."
                 "Defaulting to numba implementation"
             )
             self.method = "numba"
