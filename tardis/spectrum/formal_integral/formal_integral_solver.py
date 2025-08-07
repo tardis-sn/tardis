@@ -167,7 +167,7 @@ class FormalIntegralSolver:
 
     def solve(
         self,
-        nu: u.Quantity,
+        frequencies: u.Quantity,
         simulation_state,
         transport,
         plasma,
@@ -215,7 +215,6 @@ class FormalIntegralSolver:
             att_S_ul_interpolated,
             Jred_lu_interpolated,
             Jblue_lu_interpolated,
-            _,  # e_dot_u is not used
             r_inner_interpolated,
             r_outer_interpolated,
             tau_sobolevs_interpolated,
@@ -239,10 +238,10 @@ class FormalIntegralSolver:
             r_outer_interpolated,
         )
 
-        L, I_nu_p = self.integrator.formal_integral(
+        luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
             simulation_state.t_inner,
-            nu,
-            nu.shape[0],
+            frequencies,
+            frequencies.shape[0],
             att_S_ul_interpolated,
             Jred_lu_interpolated,
             Jblue_lu_interpolated,
@@ -251,24 +250,30 @@ class FormalIntegralSolver:
             points,
         )
 
-        L = np.array(L, dtype=np.float64)
-        luminosity = u.Quantity(L, "erg") * (nu[1] - nu[0])
+        luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
+        delta_frequency = frequencies[1] - frequencies[0]
+
+        assert np.allclose(
+            frequencies.diff(), delta_frequency, atol=0, rtol=1e-14
+        ), "Frequency grid must be uniform"
+
+        luminosity = u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
 
         self.interpolate_shells = interpolate_shells
-        frequency = nu.to("Hz", u.spectral())
+        frequencies = frequencies.to("Hz", u.spectral())
 
         # Ugly hack to convert to 'bin edges'
-        frequency = u.Quantity(
+        frequencies = u.Quantity(
             np.concatenate(
                 [
-                    frequency.value,
-                    [frequency.value[-1] + np.diff(frequency.value)[-1]],
+                    frequencies.value,
+                    [frequencies.value[-1] + np.diff(frequencies.value)[-1]],
                 ]
             ),
-            frequency.unit,
+            frequencies.unit,
         )
 
-        return TARDISSpectrum(frequency, luminosity)
+        return TARDISSpectrum(frequencies, luminosity)
 
     # TODO: rewrite interpolate_integrator_quantities
     def interpolate_integrator_quantities(
@@ -282,7 +287,6 @@ class FormalIntegralSolver:
         opacity_state,
         electron_densities,
     ) -> tuple[
-        np.ndarray,
         np.ndarray,
         np.ndarray,
         np.ndarray,
@@ -325,15 +329,15 @@ class FormalIntegralSolver:
             mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
         ) / 2.0
 
-        r_integ = np.linspace(
+        radius_interpolated = np.linspace(
             mct_state.geometry_state.r_inner[0],
             mct_state.geometry_state.r_outer[-1],
             nshells,
         )
-        r_inner_interpolated = r_integ[:-1]
-        r_outer_interpolated = r_integ[1:]
+        r_inner_interpolated = radius_interpolated[:-1]
+        r_outer_interpolated = radius_interpolated[1:]
 
-        r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
+        r_middle_integ = (radius_interpolated[:-1] + radius_interpolated[1:]) / 2.0
 
         electron_densities_interpolated = interp1d(
             r_middle,
@@ -394,7 +398,6 @@ class FormalIntegralSolver:
         np.ndarray,
         np.ndarray,
         np.ndarray,
-        np.ndarray,
     ]:
         """
         If needed, interpolate the quantities from the source function state and prepare the results for use in the formal integral.
@@ -419,11 +422,10 @@ class FormalIntegralSolver:
         tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
             (Possibly interpolated) att_S_ul, Jred_lu, Jblue_lu, e_dot_u, r_inner, r_outer, tau_sobolevs, electron_densities
         """
-        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
+        att_S_ul, Jred_lu, Jblue_lu = (
             source_function_state.att_S_ul,
             source_function_state.Jred_lu,
             source_function_state.Jblue_lu,
-            source_function_state.e_dot_u,
         )
 
         # interpolate, if not use existing values
@@ -450,7 +452,6 @@ class FormalIntegralSolver:
                 att_S_ul_interpolated,
                 Jred_lu_interpolated,
                 Jblue_lu_interpolated,
-                e_dot_u,
                 r_inner_interpolated,
                 r_outer_interpolated,
                 tau_sobolevs_interpolated,
@@ -466,7 +467,6 @@ class FormalIntegralSolver:
             att_S_ul,
             Jred_lu,
             Jblue_lu,
-            e_dot_u,
             r_inner_i,
             r_outer_i,
             tau_sobolevs_integ,
