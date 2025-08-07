@@ -10,14 +10,17 @@ from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.base import TARDISSpectrum
 from tardis.spectrum.formal_integral.base import check
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
-from tardis.spectrum.formal_integral.formal_integral_numba import NumbaFormalIntegrator
-from tardis.spectrum.formal_integral.formal_integral_cuda import CudaFormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    NumbaFormalIntegrator,
+)
+from tardis.spectrum.formal_integral.formal_integral_cuda import (
+    CudaFormalIntegrator,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class FormalIntegralSolver:
-
     def __init__(self, integrator_settings):
         """
         Initialize the formal integral solver.
@@ -25,7 +28,7 @@ class FormalIntegralSolver:
         Parameters
         ----------
         integrator_settings : IntegratorSettings
-            The settings to use for the integrator, such as: 
+            The settings to use for the integrator, such as:
                 points (int): Number of points
                 interpolate_shells (int): Number of shells to interpolate to
                 method (str): Method to use for the formal integral solver ('numba' or 'cuda')
@@ -38,8 +41,9 @@ class FormalIntegralSolver:
         except AttributeError:
             self.method = None
 
-    def setup(self, transport, plasma, opacity_state=None, macro_atom_state=None):
-
+    def setup(
+        self, transport, plasma, opacity_state=None, macro_atom_state=None
+    ):
         """
         Prepares the necessary data for the formal integral solver.
 
@@ -55,23 +59,25 @@ class FormalIntegralSolver:
         opacity_state : OpacityStateNumba
         """
 
-        self.montecarlo_configuration = (
-            transport.montecarlo_configuration
-        )
+        self.montecarlo_configuration = transport.montecarlo_configuration
 
-        if self.method in [None, 'numba', 'cuda']: # TODO: better way to handle this
+        if self.method in [
+            None,
+            "numba",
+            "cuda",
+        ]:  # TODO: better way to handle this
             # use GPU if available
             if transport.use_gpu:
-                self.method = 'cuda'
+                self.method = "cuda"
             else:
-                self.method = 'numba'
+                self.method = "numba"
         else:
             logger.warning(
-                    f"Computing formal integral via the {self.method} method isn't supported"
-                    "Please run with config option numba or cuda"
-                    "Defaulting to numba implementation"
+                f"Computing formal integral via the {self.method} method isn't supported"
+                "Please run with config option numba or cuda"
+                "Defaulting to numba implementation"
             )
-            self.method = 'numba'
+            self.method = "numba"
 
         if opacity_state and macro_atom_state:
             opacity_state = opacity_state.to_numba(
@@ -107,13 +113,11 @@ class FormalIntegralSolver:
         numba_radial_1d_geometry = NumbaRadial1DGeometry(
             r_inner,
             r_outer,
-            r_inner
-            / time_explosion.to("s").value,
-            r_outer
-            / time_explosion.to("s").value,
+            r_inner / time_explosion.to("s").value,
+            r_outer / time_explosion.to("s").value,
         )
 
-        if self.method == 'cuda':
+        if self.method == "cuda":
             self.integrator = CudaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
@@ -125,10 +129,18 @@ class FormalIntegralSolver:
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
                 opacity_state,
-                self.integrator_settings.points
+                self.integrator_settings.points,
             )
-    
-    def solve(self, nu, simulation_state, transport, plasma, opacity_state=None, macro_atom_state=None):
+
+    def solve(
+        self,
+        nu,
+        simulation_state,
+        transport,
+        plasma,
+        opacity_state=None,
+        macro_atom_state=None,
+    ):
         """
         Solve the formal integral
 
@@ -151,7 +163,9 @@ class FormalIntegralSolver:
             the formal integral spectrum
         """
 
-        atomic_data, opacity_state = self.setup(transport, plasma, opacity_state, macro_atom_state)
+        atomic_data, opacity_state = self.setup(
+            transport, plasma, opacity_state, macro_atom_state
+        )
         transport_state = transport.transport_state
 
         points = self.integrator_settings.points
@@ -160,34 +174,36 @@ class FormalIntegralSolver:
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
         source_function_state = source_function_solver.solve(
-            simulation_state, 
-            opacity_state, 
-            transport_state, 
-            atomic_data
+            simulation_state, opacity_state, transport_state, atomic_data
         )
 
         (
-            att_S_ul, 
-            Jred_lu, 
-            Jblue_lu, 
-            _, # e_dot_u is not used
-            r_inner_itp, 
-            r_outer_itp, 
-            tau_sobolevs_integ, 
-            electron_densities_integ
+            att_S_ul,
+            Jred_lu,
+            Jblue_lu,
+            _,  # e_dot_u is not used
+            r_inner_itp,
+            r_outer_itp,
+            tau_sobolevs_integ,
+            electron_densities_integ,
         ) = self.get_interpolated_quantities(
-                source_function_state, 
-                interpolate_shells, 
-                simulation_state, 
-                transport, 
-                opacity_state, 
-                plasma
-            )   
+            source_function_state,
+            interpolate_shells,
+            simulation_state,
+            transport,
+            opacity_state,
+            plasma,
+        )
         att_S_ul = att_S_ul.flatten(order="F")
         Jred_lu = Jred_lu.flatten(order="F")
-        Jblue_lu = Jblue_lu.flatten(order="F")     
+        Jblue_lu = Jblue_lu.flatten(order="F")
 
-        self.setup_integrator(opacity_state, simulation_state.time_explosion, r_inner_itp, r_outer_itp)
+        self.setup_integrator(
+            opacity_state,
+            simulation_state.time_explosion,
+            r_inner_itp,
+            r_outer_itp,
+        )
 
         L, I_nu_p = self.integrator.formal_integral(
             simulation_state.t_inner,
@@ -219,13 +235,19 @@ class FormalIntegralSolver:
         )
 
         return TARDISSpectrum(frequency, luminosity)
-    
 
     # TODO: rewrite interpolate_integrator_quantities
-    def interpolate_integrator_quantities(self,
-        att_S_ul, Jredlu, Jbluelu, e_dot_u,
+    def interpolate_integrator_quantities(
+        self,
+        att_S_ul,
+        Jredlu,
+        Jbluelu,
+        e_dot_u,
         interpolate_shells,
-        simulation_state, transport, opacity_state, electron_densities
+        simulation_state,
+        transport,
+        opacity_state,
+        electron_densities,
     ):
         """
         Interpolate the integrator quantities to interpolate_shells.
@@ -248,7 +270,7 @@ class FormalIntegralSolver:
         """
 
         mct_state = transport.transport_state
-        
+
         nshells = interpolate_shells
         r_middle = (
             mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
@@ -301,10 +323,26 @@ class FormalIntegralSolver:
         Jbluelu = Jbluelu.clip(0.0)
         Jredlu = Jredlu.clip(0.0)
         e_dot_u = e_dot_u.clip(0.0)
-        return att_S_ul, Jredlu, Jbluelu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, electron_densities_integ
+        return (
+            att_S_ul,
+            Jredlu,
+            Jbluelu,
+            e_dot_u,
+            r_inner_i,
+            r_outer_i,
+            tau_sobolevs_integ,
+            electron_densities_integ,
+        )
 
-
-    def get_interpolated_quantities(self, source_function_state, interpolate_shells, simulation_state, transport, opacity_state, plasma):
+    def get_interpolated_quantities(
+        self,
+        source_function_state,
+        interpolate_shells,
+        simulation_state,
+        transport,
+        opacity_state,
+        plasma,
+    ):
         """
         If needed, interpolate the quantities from the source function state, and prepare the results for use in the formal integral.
 
@@ -325,10 +363,15 @@ class FormalIntegralSolver:
             (possibly interpolated) att_S_ul, Jred_lu, Jblue_lu, e_dot_u, r_inner, r_outer, tau_sobolevs, electron_densities
         """
 
-        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = source_function_state.att_S_ul, source_function_state.Jred_lu, source_function_state.Jblue_lu, source_function_state.e_dot_u
-        
+        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
+            source_function_state.att_S_ul,
+            source_function_state.Jred_lu,
+            source_function_state.Jblue_lu,
+            source_function_state.e_dot_u,
+        )
+
         # interpolate, if not use existing values
-        if interpolate_shells > 0: 
+        if interpolate_shells > 0:
             (
                 att_S_ul,
                 Jred_lu,
@@ -337,11 +380,17 @@ class FormalIntegralSolver:
                 r_inner_i,
                 r_outer_i,
                 tau_sobolevs_integ,
-                electron_densities_integ
+                electron_densities_integ,
             ) = self.interpolate_integrator_quantities(
-                att_S_ul, Jred_lu, Jblue_lu, e_dot_u,
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                e_dot_u,
                 interpolate_shells,
-                simulation_state, transport, opacity_state, plasma.electron_densities
+                simulation_state,
+                transport,
+                opacity_state,
+                plasma.electron_densities,
             )
         else:
             r_inner_i = transport.transport_state.geometry_state.r_inner
@@ -349,5 +398,13 @@ class FormalIntegralSolver:
             tau_sobolevs_integ = opacity_state.tau_sobolev
             electron_densities_integ = opacity_state.electron_density
 
-        return att_S_ul, Jred_lu, Jblue_lu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, electron_densities_integ
-    
+        return (
+            att_S_ul,
+            Jred_lu,
+            Jblue_lu,
+            e_dot_u,
+            r_inner_i,
+            r_outer_i,
+            tau_sobolevs_integ,
+            electron_densities_integ,
+        )
