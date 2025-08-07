@@ -4,7 +4,7 @@ import numpy.testing as npt
 import pytest
 
 from tardis.simulation import Simulation
-from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL = 1e-14
@@ -28,15 +28,16 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
     plasma = sim.plasma
     transport = sim.transport
 
-    formal_integrator = FormalIntegrator(sim_state, plasma, transport)
+    formal_integrator = FormalIntegralSolver(sim.spectrum_solver.integrator_settings)
+    atomic_data, opacity_state = formal_integrator.setup(transport, plasma)
     source_function_solver = SourceFunctionSolver(
-        formal_integrator.transport.line_interaction_type
+        transport.line_interaction_type
     )
     source_function_state = source_function_solver.solve(
-        formal_integrator.simulation_state,
-        formal_integrator.opacity_state,
-        formal_integrator.transport.transport_state,
-        formal_integrator.atomic_data,
+        sim_state,
+        opacity_state,
+        transport.transport_state,
+        atomic_data,
     )
     return source_function_state
 
