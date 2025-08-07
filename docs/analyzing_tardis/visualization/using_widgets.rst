@@ -179,7 +179,7 @@ you remember to click back on the **Box Select** option for making selections on
 spectrum.
 
 Energy Level Diagram
-################
+####################
 
 This widget lets you visualize the last line interactions
 
@@ -202,7 +202,7 @@ with thicker lines representing more packets than the thin lines.
 The wavelength of the transition is given by the color.
 
 Setting Other Options
------------------
+---------------------
 You can select the range on which to filter the wavelength using the slider.
 You can also select the model shell by which to filter the last line interactions
 and the level populations. If no shell is selected, then all the last line

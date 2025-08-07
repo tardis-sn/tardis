@@ -8,14 +8,14 @@ The ``montecarlo`` section describes the parameters for the Monte Carlo radiatio
 
 .. jsonschema:: schemas/montecarlo.yml
 
-The ``seed`` parameter seeds the random number generator first for the creation of the packets
-(:math:`\nu` and :math:`\mu`) and then the interactions in the actual Monte Carlo process.
-The ``no_of_packets`` parameter can take a float number for input convenience and gives the number of packets normally
-used in each Monte Carlo loop. The parameters ``last_no_of_packets`` and ``no_of_virtual_packets`` influence the last run
-of the Monte Carlo loop (which calculates the final spectrum!) when the radiation field should have converged. ``last_no_of_packets`` is normally higher than
+The ``seed`` parameter provides a :term:`seed` for the random number generator first for the creation of the :term:`packets`
+(:math:`\nu` and :math:`\mu`) and then the interactions in the actual :term:`Monte Carlo` process.
+The ``no_of_packets`` parameter can take a float number for input convenience and gives the number of :term:`packets` normally
+used in each :term:`Monte Carlo` loop. The parameters ``last_no_of_packets`` and ``no_of_virtual_packets`` influence the last run
+of the :term:`Monte Carlo` loop (which calculates the final spectrum!) when the radiation field should have converged. ``last_no_of_packets`` is normally higher than
 ``no_of_packets`` to create a less noisy output spectrum. ``no_of_virtual_packets`` can also be set to greater than 0 (a useful number is 3) to
 use the Virtual Packet formalism. Increasing this number drastically increases computational costs (and memory requirements if they are logged).
-The ``iterations`` parameter describes the maximum number of Monte Carlo loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
+The ``iterations`` parameter describes the maximum number of :term:`Monte Carlo` loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
 sooner when the convergence threshold has been reached (see :doc:`../../../physics/update_and_conv/update_and_conv`).
  
 .. _conv-config:

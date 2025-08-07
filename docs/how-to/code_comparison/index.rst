@@ -1,5 +1,5 @@
-Code Comparison
-===============
+How to do Code Comparison using TARDIS
+======================================
 
 Several groups have started a comparison of their supernova radiative transfer
 codes to understand systematics uncertainties and different strategies.

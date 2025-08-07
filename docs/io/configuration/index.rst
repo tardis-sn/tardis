@@ -1,19 +1,25 @@
 .. _config-file:
 
 ******************************
-Configuration (Required Input)
+Configuration Reference
 ******************************
 
+**This reference section documents all configuration options for TARDIS simulations.**
 
-The necessary parameters for a TARDIS simulation are provided via a `YAML <https://en.wikipedia.org/wiki/YAML>`_
-configuration file. The following sections respectively describes what can or must be included in the
-configuration file, shows an example configuration file, describes how TARDIS checks to make sure a configuration
-file is valid, and demonstrates how a YAML configuration file is read in.
-  
+The necessary parameters for a TARDIS simulation are provided via a :term:`YAML`
+configuration file. This section provides comprehensive documentation of all available configuration options.
+
+.. note::
+   **Learning configuration basics?** See the configuration tutorial in our :doc:`../../tutorials`.
+   
+   **Need help with a specific configuration task?** Check our :doc:`../../how_to_guides`.
+
+Configuration Documentation
+===========================
+
 .. toctree::
   :maxdepth: 1
 
   components/index
   example
   config_validator
-  tutorial_read_configuration

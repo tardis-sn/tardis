@@ -4,7 +4,7 @@
 Spectrum Generation with the Formal Integral
 ********************************************
 
-:cite:`Lucy1999a` describes an alternative method for calculating the TARDIS spectrum while eliminating nearly all Monte Carlo noise. Instead of calculating the spectrum directly from the Monte Carlo (or virtual) packets, we use information from the Monte Carlo simulation to build an analytical solution for the supernova spectrum.
+:cite:`Lucy1999a` describes an alternative method for calculating the TARDIS spectrum while eliminating nearly all :term:`Monte Carlo` noise. Instead of calculating the spectrum directly from the :term:`Monte Carlo` (or virtual) :term:`packets`, we use information from the :term:`Monte Carlo` simulation to build an analytical solution for the supernova spectrum.
 
 .. warning::
 

@@ -5,7 +5,7 @@ Models
 ******
 
 TARDIS requires a model of the ejecta in order to run a simulation. A model typically includes information
-for the velocity shell structure, density, and abundances. **See** :doc:`../../../../physics/setup/model` **for more information on the
+for the velocity shell structure, density, and abundances. **See** :doc:`../../../../physics_walkthrough/setup/model` **for more information on the
 TARDIS model**. TARDIS offers two ways of specifying the model: either directly in the configuration YAML file
 or separately in a CSVY file. See `here <https://csvy.org/>`_ for an explanation of the CSVY file format.
 
@@ -109,7 +109,7 @@ Structure
 
 When using the built-in structure functionality, the code requires two sections (``velocities`` and ``densities``) and a
 parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. See
-`Shell Structure <../../../../physics/setup/model.ipynb#shell-structure>`_ for more information.
+`Shell Structure <../../../../physics_walkthrough/setup/model.ipynb#shell-structure>`_ for more information.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/structure/specific
     :lift_description:
@@ -133,7 +133,7 @@ Density
 -------
 
 In the ``densities`` section of the specific structure, the ``type`` parameter decides on the parameters.
-The physics of these density models is further discussed in :doc:`../../../../physics/setup/model`.
+The physics of these density models is further discussed in :doc:`../../../../physics_walkthrough/setup/model`.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/branch85_w7
     :lift_description:
@@ -149,7 +149,7 @@ For example:
             density:
                 type: branch85_w7
 
-For more information, see `Branch85 W7 Density <../../../../physics/setup/model.ipynb#branch85-w7-density>`_.
+For more information, see `Branch85 W7 Density <../../../../physics_walkthrough/setup/model.ipynb#branch85-w7-density>`_.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/exponential
     :lift_description:
@@ -167,7 +167,7 @@ For example:
                 rho_0: 1e-10 g/cm^3
                 v_0: 10000 km/s
 
-For more information, see `Exponential Density <../../../../physics/setup/model.ipynb#exponential-density>`_.
+For more information, see `Exponential Density <../../../../physics_walkthrough/setup/model.ipynb#exponential-density>`_.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/power_law
     :lift_description:
@@ -186,7 +186,7 @@ For example:
                 v_0: 10000 km/s
                 exponent: 3
 
-For more information, see `Power Law Density <../../../../physics/setup/model.ipynb#power-law-density>`_.
+For more information, see `Power Law Density <../../../../physics_walkthrough/setup/model.ipynb#power-law-density>`_.
 
 .. jsonschema:: ../schemas/model_definitions.yml#/definitions/density/uniform
     :lift_description:
@@ -204,7 +204,7 @@ For example:
                 value: 1e-10 g/cm^3
     
 
-For more information, see `Uniform Density <../../../../physics/setup/model.ipynb#uniform-density>`_.
+For more information, see `Uniform Density <../../../../physics_walkthrough/setup/model.ipynb#uniform-density>`_.
 
 Abundance
 ---------
@@ -229,7 +229,7 @@ For example:
             Ni56: 0.25
 
 
-For more information, see `Abundance <../../../../physics/setup/model.ipynb#abundance>`_.
+For more information, see `Abundance <../../../../physics_walkthrough/setup/model.ipynb#abundance>`_.
 
 .. _csvy-models:
 
@@ -263,7 +263,7 @@ description to go along with it. While the description is not necessary for any 
 is required for ``velocity``, ``density``, and ``t_rad``.
 
 Since the ``velocity`` column contains the outer shell velocity, the first entry in the velocity column is the
-velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :doc:`../../../../physics/setup/model`).
+velocity of the photosphere -- i.e. the inner boundary of the computational domain (see :doc:`../../../../physics_walkthrough/setup/model`).
 Consequently, **none of the other information in the first row is used**. In our example, there are only two
 shells, and the first shell will have an inner boundary with a velocity of :math:`9000 \mathrm{ km/s}`, an outer boundary
 with a velocity of :math:`10500 \mathrm{ km/s}`, a density of :math:`2.0*10^{-10} \mathrm{ g/cm^3}`, a dilution
@@ -273,12 +273,12 @@ factor of .8, etc.
 
     None of the CSV columns are required. However, if ``velocity``, ``density``, or the abundances are missing,
     they must be specified in the YAML portion of the file. If ``t_rad`` or ``dilution_factor`` are missing,
-    they will be automatically calculated (see :doc:`../../../../physics/setup/model`).
+    they will be automatically calculated (see :doc:`../../../../physics_walkthrough/setup/model`).
 
 .. note::
 
     ``t_rad`` and ``dilution_factor`` are the values of the temperature and dilution factor for the first
-    iteration, and will be updated in subsequent iterations (see :doc:`../../../../physics/update_and_conv/update_and_conv`).
+    iteration, and will be updated in subsequent iterations (see :doc:`../../../../physics_walkthrough/update_and_conv/update_and_conv`).
     To prevent these quantities from being changed, you must set the damping constant to zero in the :ref:`Damped Convergence
     Configuration <damped-config>` in the Monte Carlo section of the configuration file.
 

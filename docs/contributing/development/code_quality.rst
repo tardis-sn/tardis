@@ -30,7 +30,7 @@ To run Ruff, use the following command: ::
 .. note :: We adopt the linting rules utilized by astropy. Permanent rules are defined in the ``pyproject.toml``, non-permanent rules are defined in the ``.ruff.toml`` file. If you want to add a new rule, please add it to the ``.ruff.toml`` file. If you want to add a permanent rule, please open a PR to the ``pyproject.toml``.
 
 Pre-commit (Optional)
-----
+---------------------
 `Pre-commit <https://pre-commit.com/>`_ hooks are tools that help enforce quality standards by running checks on your code before you commit. If you choose to use pre-commit on your local machine, please follow these steps:
 
 Install pre-commit by running: ::
