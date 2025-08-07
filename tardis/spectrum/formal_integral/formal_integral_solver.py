@@ -212,14 +212,14 @@ class FormalIntegralSolver:
         )
 
         (
-            att_S_ul,
-            Jred_lu,
-            Jblue_lu,
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
             _,  # e_dot_u is not used
-            r_inner_itp,
-            r_outer_itp,
-            tau_sobolevs_integ,
-            electron_densities_integ,
+            r_inner_interpolated,
+            r_outer_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
         ) = self.get_interpolated_quantities(
             source_function_state,
             interpolate_shells,
@@ -228,26 +228,26 @@ class FormalIntegralSolver:
             opacity_state,
             plasma,
         )
-        att_S_ul = att_S_ul.flatten(order="F")
-        Jred_lu = Jred_lu.flatten(order="F")
-        Jblue_lu = Jblue_lu.flatten(order="F")
+        att_S_ul_interpolated = att_S_ul_interpolated.flatten(order="F")
+        Jred_lu_interpolated = Jred_lu_interpolated.flatten(order="F")
+        Jblue_lu_interpolated = Jblue_lu_interpolated.flatten(order="F")
 
         self.setup_integrator(
             opacity_state,
             simulation_state.time_explosion,
-            r_inner_itp,
-            r_outer_itp,
+            r_inner_interpolated,
+            r_outer_interpolated,
         )
 
         L, I_nu_p = self.integrator.formal_integral(
             simulation_state.t_inner,
             nu,
             nu.shape[0],
-            att_S_ul,
-            Jred_lu,
-            Jblue_lu,
-            tau_sobolevs_integ,
-            electron_densities_integ,
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
             points,
         )
 
@@ -276,7 +276,6 @@ class FormalIntegralSolver:
         att_S_ul: np.ndarray,
         Jredlu: np.ndarray,
         Jbluelu: np.ndarray,
-        e_dot_u: np.ndarray,
         interpolate_shells: int,
         simulation_state,
         transport,
@@ -300,11 +299,9 @@ class FormalIntegralSolver:
         att_S_ul : np.ndarray
             Attenuated source function values
         Jredlu : np.ndarray
-            Red wing mean intensity values
+            Red line source function values
         Jbluelu : np.ndarray
-            Blue wing mean intensity values
-        e_dot_u : np.ndarray
-            Energy dot upper level values
+            Blue line source function values
         interpolate_shells : int
             Number of shells to interpolate to
         simulation_state : tardis.model.SimulationState
@@ -319,7 +316,7 @@ class FormalIntegralSolver:
         Returns
         -------
         tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
-            Interpolated values of att_S_ul, Jredlu, Jbluelu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, and electron_densities_integ
+            Interpolated values of att_S_ul_interpolated, Jredlu_interpolated, Jbluelu_interpolated, r_inner_interpolated, r_outer_interpolated, tau_sobolevs_interpolated, and electron_densities_interpolated
         """
         mct_state = transport.transport_state
 
@@ -333,12 +330,12 @@ class FormalIntegralSolver:
             mct_state.geometry_state.r_outer[-1],
             nshells,
         )
-        r_inner_i = r_integ[:-1]
-        r_outer_i = r_integ[1:]
+        r_inner_interpolated = r_integ[:-1]
+        r_outer_interpolated = r_integ[1:]
 
         r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
 
-        electron_densities_integ = interp1d(
+        electron_densities_interpolated = interp1d(
             r_middle,
             electron_densities.iloc[
                 simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
@@ -348,7 +345,7 @@ class FormalIntegralSolver:
         )(r_middle_integ)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        tau_sobolevs_integ = interp1d(
+        tau_sobolevs_interpolated = interp1d(
             r_middle,
             opacity_state.tau_sobolev[
                 :,
@@ -357,33 +354,28 @@ class FormalIntegralSolver:
             fill_value="extrapolate",
             kind="nearest",
         )(r_middle_integ)
-        att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
+        att_S_ul_interpolated = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
+        Jredlu_interpolated = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
             r_middle_integ
         )
-        Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
-            r_middle_integ
-        )
-        e_dot_u = interp1d(r_middle, e_dot_u, fill_value="extrapolate")(
+        Jbluelu_interpolated = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
             r_middle_integ
         )
 
         # Set negative values from the extrapolation to zero
-        att_S_ul = att_S_ul.clip(0.0)
-        Jbluelu = Jbluelu.clip(0.0)
-        Jredlu = Jredlu.clip(0.0)
-        e_dot_u = e_dot_u.clip(0.0)
+        att_S_ul_interpolated = att_S_ul_interpolated.clip(0.0)
+        Jbluelu_interpolated = Jbluelu_interpolated.clip(0.0)
+        Jredlu_interpolated = Jredlu_interpolated.clip(0.0)
         return (
-            att_S_ul,
-            Jredlu,
-            Jbluelu,
-            e_dot_u,
-            r_inner_i,
-            r_outer_i,
-            tau_sobolevs_integ,
-            electron_densities_integ,
+            att_S_ul_interpolated,
+            Jredlu_interpolated,
+            Jbluelu_interpolated,
+            r_inner_interpolated,
+            r_outer_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
         )
 
     def get_interpolated_quantities(
@@ -437,30 +429,38 @@ class FormalIntegralSolver:
         # interpolate, if not use existing values
         if interpolate_shells > 0:
             (
-                att_S_ul,
-                Jred_lu,
-                Jblue_lu,
-                e_dot_u,
-                r_inner_i,
-                r_outer_i,
-                tau_sobolevs_integ,
-                electron_densities_integ,
+                att_S_ul_interpolated,
+                Jred_lu_interpolated,
+                Jblue_lu_interpolated,
+                r_inner_interpolated,
+                r_outer_interpolated,
+                tau_sobolevs_interpolated,
+                electron_densities_interpolated,
             ) = self.interpolate_integrator_quantities(
                 att_S_ul,
                 Jred_lu,
                 Jblue_lu,
-                e_dot_u,
                 interpolate_shells,
                 simulation_state,
                 transport,
                 opacity_state,
                 plasma.electron_densities,
             )
-        else:
-            r_inner_i = transport.transport_state.geometry_state.r_inner
-            r_outer_i = transport.transport_state.geometry_state.r_outer
-            tau_sobolevs_integ = opacity_state.tau_sobolev
-            electron_densities_integ = opacity_state.electron_density
+            return (
+                att_S_ul_interpolated,
+                Jred_lu_interpolated,
+                Jblue_lu_interpolated,
+                e_dot_u,
+                r_inner_interpolated,
+                r_outer_interpolated,
+                tau_sobolevs_interpolated,
+                electron_densities_interpolated,
+            )
+
+        r_inner_i = transport.transport_state.geometry_state.r_inner
+        r_outer_i = transport.transport_state.geometry_state.r_outer
+        tau_sobolevs_integ = opacity_state.tau_sobolev
+        electron_densities_integ = opacity_state.electron_density
 
         return (
             att_S_ul,
