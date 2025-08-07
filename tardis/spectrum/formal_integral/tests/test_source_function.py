@@ -28,7 +28,12 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
     plasma = sim.plasma
     transport = sim.transport
 
-    formal_integrator = FormalIntegralSolver(sim.spectrum_solver.integrator_settings)
+    integrator_settings = sim.spectrum_solver.integrator_settings
+    formal_integrator = FormalIntegralSolver(
+        integrator_settings.points,
+        integrator_settings.interpolate_shells,
+        getattr(integrator_settings, "method", None),
+    )
     atomic_data, opacity_state = formal_integrator.setup(transport, plasma)
     source_function_solver = SourceFunctionSolver(
         transport.line_interaction_type

@@ -537,7 +537,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.last_no_of_packets, self.no_of_virtual_packets
         )
 
-        formal_integral_solver = FormalIntegralSolver(self.spectrum_solver.integrator_settings)
+        integrator_settings = self.spectrum_solver.integrator_settings
+        formal_integral_solver = FormalIntegralSolver(
+            integrator_settings.points,
+            integrator_settings.interpolate_shells,
+            getattr(integrator_settings, "method", None),
+        )
 
         self.spectrum_solver.setup_optional_spectra(
             self.transport.transport_state,

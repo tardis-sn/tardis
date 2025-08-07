@@ -308,23 +308,22 @@ def test_full_formal_integral(simulation_verysimple):
     """
     sim = simulation_verysimple
 
+    integrator_settings = sim.spectrum_solver.integrator_settings
     formal_integrator_numba = FormalIntegralSolver(
-        sim.spectrum_solver.integrator_settings
+        integrator_settings.points, integrator_settings.interpolate_shells, "numba"
     )
-    formal_integrator_numba.method = 'numba'
 
     formal_integrator_cuda = FormalIntegralSolver(
-        sim.spectrum_solver.integrator_settings
+        integrator_settings.points, integrator_settings.interpolate_shells, "cuda"
     )
-    formal_integrator_numba.method = 'cuda'
 
     # The function calculate_spectrum sets this property, but in order to test the CUDA.
     # version it is done manually, as well as to speed up the test.
-    formal_integrator_numba.integrator_settings.interpolate_shells = max(
+    formal_integrator_numba.interpolate_shells = max(
         2 * sim.simulation_state.no_of_shells, 80
     )
 
-    formal_integrator_cuda.integrator_settings.interpolate_shells = max(
+    formal_integrator_cuda.interpolate_shells = max(
         2 * sim.simulation_state.no_of_shells, 80
     )
 

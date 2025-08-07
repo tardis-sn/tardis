@@ -1,14 +1,14 @@
+from __future__ import annotations
+
+import logging
+
 import numpy as np
 from astropy import units as u
-import warnings
 from scipy.interpolate import interp1d
-import logging
 
 from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-
 from tardis.spectrum.base import TARDISSpectrum
-from tardis.spectrum.formal_integral.base import check
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 from tardis.spectrum.formal_integral.formal_integral_numba import (
     NumbaFormalIntegrator,
@@ -21,25 +21,42 @@ logger = logging.getLogger(__name__)
 
 
 class FormalIntegralSolver:
-    def __init__(self, integrator_settings):
+    """
+    Formal integral solver for TARDIS spectra.
+
+    Attributes
+    ----------
+    points : int
+        Number of points for the formal integral calculation
+    interpolate_shells : int
+        Number of shells to interpolate to
+    method : str or None
+        Method to use for the formal integral solver ('numba' or 'cuda')
+    """
+
+    points: int
+    interpolate_shells: int
+    method: str | None
+
+    def __init__(
+        self, points: int, interpolate_shells: int, method: str | None = None
+    ) -> None:
         """
         Initialize the formal integral solver.
 
         Parameters
         ----------
-        integrator_settings : IntegratorSettings
-            The settings to use for the integrator, such as:
-                points (int): Number of points
-                interpolate_shells (int): Number of shells to interpolate to
-                method (str): Method to use for the formal integral solver ('numba' or 'cuda')
+        points : int
+            Number of points for the formal integral calculation
+        interpolate_shells : int
+            Number of shells to interpolate to
+        method : str, optional
+            Method to use for the formal integral solver ('numba' or 'cuda').
+            If None, will be determined based on GPU availability.
         """
-        self.integrator_settings = integrator_settings
-
-        # check if the method was set in the configuration
-        try:
-            self.method = self.integrator_settings.integrated.method
-        except AttributeError:
-            self.method = None
+        self.points = points
+        self.interpolate_shells = interpolate_shells
+        self.method = method
 
     def setup(
         self, transport, plasma, opacity_state=None, macro_atom_state=None
@@ -122,14 +139,14 @@ class FormalIntegralSolver:
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
                 opacity_state,
-                self.integrator_settings.points,
+                self.points,
             )
         else:
             self.integrator = NumbaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
                 opacity_state,
-                self.integrator_settings.points,
+                self.points,
             )
 
     def solve(
@@ -168,8 +185,8 @@ class FormalIntegralSolver:
         )
         transport_state = transport.transport_state
 
-        points = self.integrator_settings.points
-        interpolate_shells = self.integrator_settings.interpolate_shells
+        points = self.points
+        interpolate_shells = self.interpolate_shells
         line_interaction_type = transport.line_interaction_type
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
