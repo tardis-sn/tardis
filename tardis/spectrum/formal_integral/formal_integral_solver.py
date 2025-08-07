@@ -111,12 +111,12 @@ class FormalIntegralSolver:
             self.method = "numba"
 
         if opacity_state and macro_atom_state:
-            opacity_state = opacity_state.to_numba(
+            opacity_state_numba = opacity_state.to_numba(
                 macro_atom_state,
                 transport.line_interaction_type,
             )
 
-        return opacity_state
+        return opacity_state_numba
 
     def setup_integrator(
         self,
@@ -166,7 +166,7 @@ class FormalIntegralSolver:
         frequencies: u.Quantity,
         simulation_state,
         transport_solver,
-        opacity_state,
+        opacity_state_numba,
         atomic_data,
         electron_densities,
         macro_atom_state=None,
@@ -196,7 +196,9 @@ class FormalIntegralSolver:
         TARDISSpectrum
             The formal integral spectrum
         """
-        opacity_state = self.setup(transport_solver, opacity_state, macro_atom_state)
+        opacity_state_numba = self.setup(
+            transport_solver, opacity_state_numba, macro_atom_state
+        )
         transport_state = transport_solver.transport_state
 
         points = self.points
@@ -205,7 +207,7 @@ class FormalIntegralSolver:
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
         source_function_state = source_function_solver.solve(
-            simulation_state, opacity_state, transport_state, atomic_data
+            simulation_state, opacity_state_numba, transport_state, atomic_data
         )
 
         # Generate interpolated radii if needed
@@ -238,7 +240,7 @@ class FormalIntegralSolver:
             r_outer_interpolated,
             source_function_state,
             simulation_state,
-            opacity_state,
+            opacity_state_numba,
             electron_densities,
         )
 
@@ -247,7 +249,7 @@ class FormalIntegralSolver:
         Jblue_lu_interpolated = Jblue_lu_interpolated.flatten(order="F")
 
         self.setup_integrator(
-            opacity_state,
+            opacity_state_numba,
             simulation_state.time_explosion,
             r_inner_interpolated,
             r_outer_interpolated,
@@ -358,7 +360,7 @@ class FormalIntegralSolver:
         # (as in the MC simulation)
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
-            opacity_state.tau_sobolevs[
+            opacity_state.tau_sobolev[
                 :,
                 simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
             ],

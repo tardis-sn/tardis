@@ -420,7 +420,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         if self.macro_atom is None:
             self.plasma.beta_sobolev = None
-            macro_atom_state = None
+            self.macro_atom_state = None
 
         self.opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
@@ -429,7 +429,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma
                 )  # TODO: Impliment
             else:
-                macro_atom_state = self.macro_atom.solve(
+                self.macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
                     self.plasma.atomic_data,
                     self.opacity_state.tau_sobolev,
@@ -440,7 +440,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
             self.opacity_state,
-            macro_atom_state,
+            self.macro_atom_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
@@ -455,6 +455,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         output_energy = self.transport.transport_state.packet_collection.output_energies
+
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
@@ -551,6 +552,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.simulation_state,
             self.transport,
             self.plasma,
+            opacity_state=self.opacity_state,
+            macro_atom_state=self.macro_atom_state,
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)
