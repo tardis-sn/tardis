@@ -1,5 +1,5 @@
 import numpy as np
-from numba import njit
+from numba import njit, prange
 
 from tardis.energy_input.transport.gamma_ray_grid import (
     distance_trace,
@@ -26,12 +26,12 @@ from tardis.opacities.opacities import (
     pair_creation_opacity_calculation,
     photoabsorption_opacity_calculation,
 )
+
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
-
 @njit(**njit_dict_no_parallel)
-def gamma_packet_loop(
-    packets,
+def single_gamma_packet_loop(
+    packet,
     grey_opacity,
     photoabsorption_opacity_type,
     pair_creation_opacity_type,
@@ -48,7 +48,6 @@ def gamma_packet_loop(
     energy_out_cosi,
     total_energy,
     energy_deposited_gamma,
-    packets_info_array,
 ):
     """Propagates packets through the simulation
 
@@ -99,194 +98,155 @@ def gamma_packet_loop(
     ValueError
         Packet time index less than zero
     """
-    escaped_packets = 0
-    scattered_packets = 0
-    packet_count = len(packets)
+    # escaped_packets = 0
+    # scattered_packets = 0
+    # packet_count = len(packets)
     # Logging does not work with numba. Using print instead.
-    print("Entering gamma ray loop for " + str(packet_count) + " packets")
+    # print("Entering gamma ray loop for " + str(packet_count) + " packets")
 
-    for i in range(packet_count):
-        packet = packets[i]
-        time_index = packet.time_index
-
-        if time_index < 0:
-            print(packet.time_start, time_index)
-            raise ValueError("Packet time index less than 0!")
-
-        scattered = False
-        # Not used now. Useful for the deposition estimator.
-        # initial_energy = packet.energy_cmf
-
-        while packet.status == GXPacketStatus.IN_PROCESS:
-            # Get delta-time value for this step
-            dt = dt_array[time_index]
-            # Calculate packet comoving energy for opacities
-            comoving_energy = H_CGS_KEV * packet.nu_cmf
-
-            if grey_opacity < 0:
-                doppler_factor = doppler_factor_3d(
-                    packet.direction,
-                    packet.location,
-                    times[time_index],
+    # for i in prange(packet_count):
+    # packet = packets[i]
+    time_index = packet.time_index
+    scattered = False
+    luminosity = 0.0
+    if time_index < 0:
+        print(packet.time_start, time_index)
+        raise ValueError("Packet time index less than 0!")
+    while packet.status == GXPacketStatus.IN_PROCESS:
+        dt = dt_array[time_index]
+        comoving_energy = H_CGS_KEV * packet.nu_cmf
+        doppler_factor = 1.0
+        if grey_opacity < 0:
+            doppler_factor = doppler_factor_3d(
+                packet.direction,
+                packet.location,
+                times[time_index],
+            )
+            kappa = kappa_calculation(comoving_energy)
+            if kappa < 1e-2:
+                compton_opacity = (
+                    SIGMA_T * electron_number_density_time[packet.shell, time_index]
                 )
-
-                kappa = kappa_calculation(comoving_energy)
-
-                # artis threshold for Thomson scattering
-                if kappa < 1e-2:
-                    compton_opacity = (
-                        SIGMA_T * electron_number_density_time[packet.shell, time_index]
-                    )
-                else:
-                    compton_opacity = compton_opacity_calculation(
-                        comoving_energy,
-                        electron_number_density_time[packet.shell, time_index],
-                    )
-
-                if photoabsorption_opacity_type == "kasen":
-                    # currently not functional, requires proton count and
-                    # electron count per isotope
-                    photoabsorption_opacity = 0
-                    # photoabsorption_opacity_calculation_kasen()
-                elif photoabsorption_opacity_type == "tardis":
-                    photoabsorption_opacity = photoabsorption_opacity_calculation(
-                        comoving_energy,
-                        mass_density_time[packet.shell, time_index],
-                        iron_group_fraction_per_shell[packet.shell],
-                    )
-                else:
-                    raise ValueError("Invalid photoabsorption opacity type!")
-
-                if pair_creation_opacity_type == "artis":
-                    pair_creation_opacity = pair_creation_opacity_artis(
-                        comoving_energy,
-                        mass_density_time[packet.shell, time_index],
-                        iron_group_fraction_per_shell[packet.shell],
-                    )
-                elif pair_creation_opacity_type == "tardis":
-                    pair_creation_opacity = pair_creation_opacity_calculation(
-                        comoving_energy,
-                        mass_density_time[packet.shell, time_index],
-                        iron_group_fraction_per_shell[packet.shell],
-                    )
-                else:
-                    raise ValueError("Invalid pair creation opacity type!")
             else:
-                compton_opacity = 0.0
-                pair_creation_opacity = 0.0
-                photoabsorption_opacity = (
-                    grey_opacity * mass_density_time[packet.shell, time_index]
+                compton_opacity = compton_opacity_calculation(
+                    comoving_energy,
+                    electron_number_density_time[packet.shell, time_index],
                 )
-
-            # convert opacities to rest frame
+            if photoabsorption_opacity_type == "kasen":
+                photoabsorption_opacity = 0
+            elif photoabsorption_opacity_type == "tardis":
+                photoabsorption_opacity = photoabsorption_opacity_calculation(
+                    comoving_energy,
+                    mass_density_time[packet.shell, time_index],
+                    iron_group_fraction_per_shell[packet.shell],
+                )
+            else:
+                raise ValueError("Invalid photoabsorption opacity type!")
+            if pair_creation_opacity_type == "artis":
+                pair_creation_opacity = pair_creation_opacity_artis(
+                    comoving_energy,
+                    mass_density_time[packet.shell, time_index],
+                    iron_group_fraction_per_shell[packet.shell],
+                )
+            elif pair_creation_opacity_type == "tardis":
+                pair_creation_opacity = pair_creation_opacity_calculation(
+                    comoving_energy,
+                    mass_density_time[packet.shell, time_index],
+                    iron_group_fraction_per_shell[packet.shell],
+                )
+            else:
+                raise ValueError("Invalid pair creation opacity type!")
             total_opacity = (
                 compton_opacity + photoabsorption_opacity + pair_creation_opacity
             ) * doppler_factor
-
-            packet.tau = -np.log(np.random.random())
-
-            (
-                distance_interaction,
-                distance_boundary,
-                distance_time,
-                shell_change,
-            ) = distance_trace(
-                packet,
-                inner_velocities,
-                outer_velocities,
-                total_opacity,
-                effective_time_array[time_index],
-                times[time_index + 1],
+        else:
+            compton_opacity = 0.0
+            pair_creation_opacity = 0.0
+            photoabsorption_opacity = (
+                grey_opacity * mass_density_time[packet.shell, time_index]
             )
-
-            distance = min(distance_interaction, distance_boundary, distance_time)
-
-            packet.time_start += distance / C_CGS
-
-            packet = move_packet(packet, distance)
-
-            if distance == distance_time:
-                time_index += 1
-
-                if time_index > len(effective_time_array) - 1:
-                    # Packet ran out of time
-                    packet.status = GXPacketStatus.END
-                else:
-                    packet.shell = get_index(
-                        packet.get_location_r(),
-                        inner_velocities * times[time_index],
-                    )
-
-            elif distance == distance_interaction:
-                packet.status = scatter_type(
-                    compton_opacity,
-                    photoabsorption_opacity,
-                    total_opacity,
-                )
-
-                packet, ejecta_energy_gained = process_packet_path(packet)
-
-                # Ejecta gains energy from the packets (gamma-rays)
-                energy_deposited_gamma[packet.shell, time_index] += ejecta_energy_gained
-                # Ejecta gains energy from both gamma-rays and positrons
-                total_energy[packet.shell, time_index] += ejecta_energy_gained
-
-                if packet.status == GXPacketStatus.PHOTOABSORPTION:
-                    # Packet destroyed, go to the next packet
-                    break
-                packet.status = GXPacketStatus.IN_PROCESS
-                scattered = True
-
+            total_opacity = (
+                compton_opacity + photoabsorption_opacity + pair_creation_opacity
+            )
+        packet.tau = -np.log(np.random.random())
+        (
+            distance_interaction,
+            distance_boundary,
+            distance_time,
+            shell_change,
+        ) = distance_trace(
+            packet,
+            inner_velocities,
+            outer_velocities,
+            total_opacity,
+            effective_time_array[time_index],
+            times[time_index + 1],
+        )
+        distance = min(distance_interaction, distance_boundary, distance_time)
+        packet.time_start += distance / C_CGS
+        packet = move_packet(packet, distance)
+        if distance == distance_time:
+            time_index += 1
+            if time_index > len(effective_time_array) - 1:
+                packet.status = GXPacketStatus.END
             else:
-                packet.shell += shell_change
-
-                if packet.shell > len(mass_density_time[:, 0]) - 1:
-                    rest_energy = packet.nu_rf * H_CGS_KEV
-                    bin_index = get_index(rest_energy, energy_bins)
-                    bin_width = energy_bins[bin_index + 1] - energy_bins[bin_index]
-                    freq_bin_width = bin_width / H_CGS_KEV
-
-                    # get energy out in ergs per second per keV
-                    energy_out[bin_index, time_index] += (
-                        packet.energy_rf
-                        / dt
-                        / freq_bin_width  # Take light crossing time into account
-                    )
-                    # get energy out in photons per second per keV
-                    energy_out_cosi[bin_index, time_index] += 1 / dt / bin_width
-
-                    luminosity = packet.energy_rf / dt
-                    packet.status = GXPacketStatus.ESCAPED
-                    escaped_packets += 1
-                    if scattered:
-                        scattered_packets += 1
-                elif packet.shell < 0:
-                    packet.energy_rf = 0.0
-                    packet.energy_cmf = 0.0
-                    packet.status = GXPacketStatus.END
-
-            packets_info_array[i] = np.array(
-                [
-                    i,
-                    packet.status,
-                    packet.nu_cmf,
-                    packet.nu_rf,
-                    packet.energy_cmf,
-                    luminosity,
-                    packet.energy_rf,
-                    packet.shell,
-                ]
+                packet.shell = get_index(
+                    packet.get_location_r(),
+                    inner_velocities * times[time_index],
+                )
+        elif distance == distance_interaction:
+            packet.status = scatter_type(
+                compton_opacity,
+                photoabsorption_opacity,
+                total_opacity,
             )
+            packet, ejecta_energy_gained = process_packet_path(packet)
+            if packet.status == GXPacketStatus.PHOTOABSORPTION:
+                break
+            packet.status = GXPacketStatus.IN_PROCESS
+            scattered = True
+        else:
+            packet.shell += shell_change
+            if packet.shell > len(mass_density_time[:, 0]) - 1:
+            #    rest_energy = packet.nu_rf * H_CGS_KEV
+            #    bin_index = get_index(rest_energy, energy_bins)
+            #    bin_width = energy_bins[bin_index + 1] - energy_bins[bin_index]
+                # freq_bin_width = bin_width / H_CGS_KEV
+                # energy_out[bin_index, time_index] = (
+                #     packet.energy_rf
+                #     / dt
+                #     / freq_bin_width
+                # )
+                # energy_out_cosi[bin_index, time_index] = 1 / dt / bin_width
+                # luminosity = packet.energy_rf / dt
+                packet.status = GXPacketStatus.ESCAPED
+                escaped_packet = True
+                if scattered:
+                    scattered_packet = True
+            elif packet.shell < 0:
+                packet.energy_rf = 0.0
+                packet.energy_cmf = 0.0
+                packet.status = GXPacketStatus.END
+        packet_info = np.array( #This should become part of the GXPacket so it can just be written there for the packet
+            [
+                packet.status,
+                packet.nu_cmf,
+                packet.nu_rf,
+                packet.energy_cmf,
+                luminosity,
+                packet.energy_rf,
+                packet.shell,
+            ]
+        )
 
-    print("Number of escaped packets:", escaped_packets)
-    print("Number of scattered packets:", scattered_packets)
+    #print("Number of escaped packets:", escaped_packets)
+    #print("Number of scattered packets:", scattered_packets)
 
     return (
-        energy_out,
-        energy_out_cosi,
-        packets_info_array,
-        energy_deposited_gamma,
-        total_energy,
+        packet_info, #This is now the info for this packet
+        # energy_deposited_gamma, #Commented out to be summed later
+        ejecta_energy_gained, #This is now the ejecta energy gained for this packet
+        # total_energy, #Commented out to be summed later
     )
 
 
