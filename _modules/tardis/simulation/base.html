@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=58c6e869"></script>
+      <script src="../../../_static/documentation_options.js?v=53221d5e"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -155,7 +155,7 @@ from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -690,15 +690,21 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.simulation_state.t_inner,
         )
+
+        # Set up spectrum solver integrator and virtual spectrum
         emitted_luminosity, v_packets_energy_hist = self.iterate(
             self.last_no_of_packets, self.no_of_virtual_packets
         )
 
-        # Set up spectrum solver integrator and virtual spectrum
+        formal_integral_solver = FormalIntegralSolver(self.spectrum_solver.integrator_settings)
+
         self.spectrum_solver.setup_optional_spectra(
             self.transport.transport_state,
             v_packets_energy_hist,
-            FormalIntegrator(self.simulation_state, self.plasma, self.transport),
+            formal_integral_solver,
+            self.simulation_state,
+            self.transport,
+            self.plasma,
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)
@@ -974,7 +980,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 06 Aug 2025.
+      <span class="lastupdated">Last updated on 07 Aug 2025.
       </span></p>
   </div>
 

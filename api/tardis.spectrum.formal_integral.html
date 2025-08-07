@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=58c6e869"></script>
+      <script src="../_static/documentation_options.js?v=53221d5e"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -177,15 +177,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities"><code class="docutils literal notranslate"><span class="pre">interpolate_integrator_quantities()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral.html">tardis.spectrum.formal_integral.formal_integral module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral.html#tardis.spectrum.formal_integral.formal_integral.FormalIntegrator"><code class="docutils literal notranslate"><span class="pre">FormalIntegrator</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral.html#tardis.spectrum.formal_integral.formal_integral.FormalIntegrator.calculate_spectrum"><code class="docutils literal notranslate"><span class="pre">FormalIntegrator.calculate_spectrum()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral.html#tardis.spectrum.formal_integral.formal_integral.FormalIntegrator.formal_integral"><code class="docutils literal notranslate"><span class="pre">FormalIntegrator.formal_integral()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral.html#tardis.spectrum.formal_integral.formal_integral.FormalIntegrator.generate_numba_objects"><code class="docutils literal notranslate"><span class="pre">FormalIntegrator.generate_numba_objects()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_cuda.html">tardis.spectrum.formal_integral.formal_integral_cuda module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.BoundsError"><code class="docutils literal notranslate"><span class="pre">BoundsError</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.CudaFormalIntegrator"><code class="docutils literal notranslate"><span class="pre">CudaFormalIntegrator</span></code></a><ul>
@@ -214,6 +205,17 @@
 <li class="toctree-l2"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.populate_z"><code class="docutils literal notranslate"><span class="pre">populate_z()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.reverse_binary_search"><code class="docutils literal notranslate"><span class="pre">reverse_binary_search()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.trapezoid_integration"><code class="docutils literal notranslate"><span class="pre">trapezoid_integration()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_solver.html">tardis.spectrum.formal_integral.formal_integral_solver module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver"><code class="docutils literal notranslate"><span class="pre">FormalIntegralSolver</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.get_interpolated_quantities"><code class="docutils literal notranslate"><span class="pre">FormalIntegralSolver.get_interpolated_quantities()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.interpolate_integrator_quantities"><code class="docutils literal notranslate"><span class="pre">FormalIntegralSolver.interpolate_integrator_quantities()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup"><code class="docutils literal notranslate"><span class="pre">FormalIntegralSolver.setup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup_integrator"><code class="docutils literal notranslate"><span class="pre">FormalIntegralSolver.setup_integrator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.solve"><code class="docutils literal notranslate"><span class="pre">FormalIntegralSolver.solve()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.spectrum.formal_integral.source_function.html">tardis.spectrum.formal_integral.source_function module</a><ul>
@@ -254,7 +256,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 06 Aug 2025.
+      <span class="lastupdated">Last updated on 07 Aug 2025.
       </span></p>
   </div>
 
