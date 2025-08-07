@@ -28,8 +28,11 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
     @functools.cache
     def setup(self):
         self.sim = self.simulation_verysimple
+        integrator_settings = self.sim.spectrum_solver.integrator_settings
         self.formal_integral_solver = FormalIntegralSolver(
-            self.sim.spectrum_solver.integrator_settings
+            integrator_settings.points,
+            integrator_settings.interpolate_shells,
+            getattr(integrator_settings, "method", None),
         )
 
     # Benchmark for intensity black body function
@@ -59,9 +62,7 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
             sim_state, opacity_state, transport.transport_state, atomic_data
         )
 
-        interpolate_shells = (
-            self.formal_integral_solver.integrator_settings.interpolate_shells
-        )
+        interpolate_shells = self.formal_integral_solver.interpolate_shells
         (
             att_S_ul,
             Jred_lu,
@@ -92,5 +93,5 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
             Jblue_lu,
             tau_sobolevs_integ,
             electron_densities_integ,
-            self.formal_integral_solver.integrator_settings.points,
+            self.formal_integral_solver.points,
         )
