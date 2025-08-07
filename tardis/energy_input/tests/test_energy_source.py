@@ -23,7 +23,7 @@ def test_create_energy_cdf(energy, intensity, expected_cdf):
     expected_cdf : One-dimensional Numpy Array, dtype float
     """
     actual_energy, actual_cdf = create_energy_cdf(energy, intensity)
-    expected_energy = np.sort(energy)
+    expected_energy = np.sort(energy, kind="stable")
 
     npt.assert_array_almost_equal_nulp(actual_cdf, expected_cdf)
     npt.assert_array_almost_equal_nulp(actual_energy, expected_energy)

@@ -152,7 +152,9 @@ class PositroniumSampler:
             Number of grid points for the CDF, by default 1000
         """
         self.x_grid = np.linspace(1e-4, 0.9999, n_grid)
-        self.norm_pdf = self.pdf(self.x_grid) / np.trapz(self.pdf(self.x_grid), self.x_grid)
+        self.norm_pdf = self.pdf(self.x_grid) / np.trapz(
+            self.pdf(self.x_grid), self.x_grid
+        )
         self.cdf_grid = np.cumsum(self.norm_pdf)
         self.cdf_grid /= self.cdf_grid[-1]
 
@@ -175,7 +177,7 @@ class PositroniumSampler:
         fourth_term = 2 * (1 - x) * np.log(1 - x) / x**2
 
         return 2 * (first_term - second_term + third_term + fourth_term)
-    
+
     def sample_energy(self, samples):
         """
         Returns
@@ -183,10 +185,18 @@ class PositroniumSampler:
         float
             Sampled positronium energy
         """
-        inverse_cdf = interp1d(self.cdf_grid, self.x_grid, bounds_error=False, fill_value="extrapolate")
+        inverse_cdf = interp1d(
+            self.cdf_grid,
+            self.x_grid,
+            bounds_error=False,
+            fill_value="extrapolate",
+        )
 
         z = np.random.random(samples)
         # converted to keV
-        return (inverse_cdf(z) * const.m_e.cgs.value 
-            * const.c.cgs.value**2 
-         * u.erg.to(u.keV))
+        return (
+            inverse_cdf(z)
+            * const.m_e.cgs.value
+            * const.c.cgs.value**2
+            * u.erg.to(u.keV)
+        )

@@ -96,7 +96,8 @@ class IsotopicMassFraction(pd.DataFrame):
         """
         inventories = self.to_inventories()
         t_second = (
-            u.Quantity(time_decay, u.day).to(u.s).value - self.time_0.to(u.s).value
+            u.Quantity(time_decay, u.day).to(u.s).value
+            - self.time_0.to(u.s).value
         )
         logger.info(f"Decaying abundances for {t_second} seconds")
         if t_second < 0:
@@ -105,12 +106,14 @@ class IsotopicMassFraction(pd.DataFrame):
                 " A negative decay time can potentially lead to negative abundances.",
                 t_second,
             )
-        decayed_inventories = [item.decay(t_second, "s") for item in inventories]
+        decayed_inventories = [
+            item.decay(t_second, "s") for item in inventories
+        ]
         df = IsotopicMassFraction.from_inventories(decayed_inventories)
-        df = df.sort_index()
-        assert (
-            df.ge(0.0).all().all()
-        ), "Negative abundances detected. Please make sure your input abundances are correct."
+        df = df.sort_index(kind="stable")
+        assert df.ge(0.0).all().all(), (
+            "Negative abundances detected. Please make sure your input abundances are correct."
+        )
         return df
 
     def calculate_number_of_decays(self, time_decay, shell_masses=None):
@@ -145,7 +148,9 @@ class IsotopicMassFraction(pd.DataFrame):
                 element_symbol, massno_str = isotope.split("-")
                 atomic_number = elem_to_Z(element_symbol)
                 mass_number = int(massno_str)
-                decays_dict[(atomic_number, mass_number, shell_index)] = dec_count
+                decays_dict[(atomic_number, mass_number, shell_index)] = (
+                    dec_count
+                )
 
         # Build a decays DataFrame
         decays_df = pd.DataFrame.from_dict(

@@ -338,7 +338,7 @@ class SDECPlotter:
 
         # Sort the element list based on the total contribution
         sorted_list = self.total_luminosities_df.sum().sort_values(
-            ascending=False
+            ascending=False, kind="stable"
         )
 
         if nelements is None and self._species_list is None:
@@ -370,7 +370,9 @@ class SDECPlotter:
                 )
                 setattr(self, df_name, processed_df)
 
-            self.species = np.sort(self.total_luminosities_df.columns[1:])
+            self.species = np.sort(
+                self.total_luminosities_df.columns[1:], kind="stable"
+            )
 
         else:  # nelements is not None
             top_n_keys = sorted_list.keys()[:nelements]
@@ -396,7 +398,9 @@ class SDECPlotter:
                 )
                 setattr(self, df_name, processed_df)
 
-            self.species = np.sort(self.total_luminosities_df.columns[1:])
+            self.species = np.sort(
+                self.total_luminosities_df.columns[1:], kind="stable"
+            )
 
         # Final calculations
         self.photosphere_luminosity = self._calculate_photosphere_luminosity()

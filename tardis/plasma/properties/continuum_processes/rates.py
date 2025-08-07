@@ -683,7 +683,7 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         continuum_idx = level2continuum_idx.loc[p_fb_deactivation.index].values
         p_fb_deactivation = p_fb_deactivation.set_index(
             continuum_idx
-        ).sort_index(ascending=True)
+        ).sort_index(ascending=True, kind="stable")
         p_fb_deactivation.index.name = "continuum_idx"
         return cool_rate_fb_tot, cool_rate_fb, p_fb_deactivation
 

@@ -389,7 +389,7 @@ def reindex_sort_and_clean_probabilities_and_metadata(
         macro_atom_transition_metadata.source.apply(lambda x: x[2])
     )
     macro_atom_transition_metadata = macro_atom_transition_metadata.sort_values(
-        ["atomic_number", "ion_number", "source_level"]
+        ["atomic_number", "ion_number", "source_level"], kind="stable"
     )  # This is how carsus sorted the macro atom transitions.
 
     normalized_probabilities = normalized_probabilities.loc[
