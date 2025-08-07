@@ -7,7 +7,6 @@ from astropy import units as u
 from scipy.interpolate import interp1d
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.spectrum.base import TARDISSpectrum
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
@@ -65,7 +64,6 @@ class FormalIntegralSolver:
     def setup(
         self,
         transport,
-        plasma,
         opacity_state=None,
         macro_atom_state=None,
     ) -> tuple:
@@ -76,20 +74,21 @@ class FormalIntegralSolver:
         ----------
         transport : tardis.transport.montecarlo.MontecarloTransport
             The transport configuration object
-        plasma : tardis.plasma.BasePlasma
-            The plasma object containing atomic data and densities
-        opacity_state : tardis.opacities.opacity_state.OpacityState, optional
-            The opacity state object. If None, will be initialized from plasma and transport
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            The opacity state object
         macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional
             The macro atom state object
 
         Returns
         -------
-        atomic_data : tardis.atomic.AtomicData
-            Atomic data from the plasma
         opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
             The opacity state converted to numba format
         """
+        if opacity_state is None or macro_atom_state is None:
+            raise NotImplementedError(
+                "This functionality does not work anymore. Both opacity_state and macro_atom_state must be provided."
+            )
+
         self.montecarlo_configuration = transport.montecarlo_configuration
 
         if self.method in [
@@ -116,15 +115,8 @@ class FormalIntegralSolver:
                 macro_atom_state,
                 transport.line_interaction_type,
             )
-        else:
-            opacity_state = opacity_state_initialize(
-                plasma,
-                transport.line_interaction_type,
-                self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            )
-        atomic_data = plasma.atomic_data
 
-        return atomic_data, opacity_state
+        return opacity_state
 
     def setup_integrator(
         self,
@@ -173,9 +165,10 @@ class FormalIntegralSolver:
         self,
         frequencies: u.Quantity,
         simulation_state,
-        transport,
-        plasma,
-        opacity_state=None,
+        transport_solver,
+        opacity_state,
+        atomic_data,
+        electron_densities,
         macro_atom_state=None,
     ) -> TARDISSpectrum:
         """
@@ -183,16 +176,18 @@ class FormalIntegralSolver:
 
         Parameters
         ----------
-        nu : u.Quantity
+        frequencies : u.Quantity
             The frequency grid for the formal integral
         simulation_state : tardis.model.SimulationState
             State which holds information about each shell
         transport : tardis.transport.montecarlo.MonteCarloTransportSolver
             The transport solver
-        plasma : tardis.plasma.BasePlasma
-            The plasma object
-        opacity_state : tardis.opacities.opacity_state.OpacityState, optional
+        opacity_state : tardis.opacities.opacity_state.OpacityState
             State of the line opacities
+        atomic_data : tardis.atomic.AtomicData
+            Atomic data containing atomic properties
+        electron_densities : pd.Series
+            Electron densities for each shell
         macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional
             State of the macro atom
 
@@ -201,14 +196,12 @@ class FormalIntegralSolver:
         TARDISSpectrum
             The formal integral spectrum
         """
-        atomic_data, opacity_state = self.setup(
-            transport, plasma, opacity_state, macro_atom_state
-        )
-        transport_state = transport.transport_state
+        opacity_state = self.setup(transport_solver, opacity_state, macro_atom_state)
+        transport_state = transport_solver.transport_state
 
         points = self.points
         interpolate_shells = self.interpolate_shells
-        line_interaction_type = transport.line_interaction_type
+        line_interaction_type = transport_solver.line_interaction_type
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
         source_function_state = source_function_solver.solve(
@@ -216,7 +209,7 @@ class FormalIntegralSolver:
         )
 
         # Generate interpolated radii if needed
-        mct_state = transport.transport_state
+        mct_state = transport_solver.transport_state
         if interpolate_shells > 0:
             radius_interpolated = np.linspace(
                 mct_state.geometry_state.r_inner[0],
@@ -246,7 +239,7 @@ class FormalIntegralSolver:
             source_function_state,
             simulation_state,
             opacity_state,
-            plasma.electron_densities,
+            electron_densities,
         )
 
         att_S_ul_interpolated = att_S_ul_interpolated.flatten(order="F")
@@ -365,7 +358,7 @@ class FormalIntegralSolver:
         # (as in the MC simulation)
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
-            opacity_state.tau_sobolev[
+            opacity_state.tau_sobolevs[
                 :,
                 simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
             ],
