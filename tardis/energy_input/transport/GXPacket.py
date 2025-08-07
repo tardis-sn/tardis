@@ -82,6 +82,20 @@ class GXPacket:
         )
 
 
+gxpacket_collection_spec = [
+    ("location", float64[:, :]),
+    ("direction", float64[:, :]),
+    ("energy_rf", float64[:]),
+    ("energy_cmf", float64[:]),
+    ("nu_rf", float64[:]),
+    ("nu_cmf", float64[:]),
+    ("status", int64[:]),
+    ("shell", int64[:]),
+    ("time_start", float64[:]),
+    ("time_index", int64[:]),
+]
+
+@jitclass(gxpacket_collection_spec)
 class GXPacketCollection:
     """
     Gamma-ray packet collection
@@ -99,7 +113,6 @@ class GXPacketCollection:
         shell,
         time_start,
         time_index,
-        source_isotopes,
     ):
         self.location = location
         self.direction = direction
@@ -111,5 +124,4 @@ class GXPacketCollection:
         self.shell = shell
         self.time_start = time_start
         self.time_index = time_index
-        self.tau = -np.log(np.random.random())
-        self.source_isotopes = source_isotopes
+        #self.tau = -np.log(np.random.random())
