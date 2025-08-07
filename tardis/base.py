@@ -76,6 +76,8 @@ def run_tardis(
     from tardis.io.configuration.config_reader import Configuration
     from tardis.io.logger.logger import logging_state
     from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
+    from tardis.io.atom_data.util import resolve_atom_data_fname
+    from tardis.io.atom_data import download_atom_data
 
     if simulation_callbacks is None:
         simulation_callbacks = []
@@ -92,6 +94,12 @@ def run_tardis(
 
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
+
+    try:
+        _ = resolve_atom_data_fname(atom_data)
+    except OSError:
+        logger.info("Atom Data not found, downloading")
+        download_atom_data('kurucz_cd23_chianti_H_He_latest')
 
     logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
