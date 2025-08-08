@@ -95,11 +95,17 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
+    # Handle atom data resolution and downloading
+    atom_data_source = atom_data or tardis_config.get("atom_data")
+    
+    if not atom_data_source:
+        raise ValueError("No atom data specified in configuration file or function parameter")
+    
     try:
-        _ = resolve_atom_data_fname(atom_data)
+        resolve_atom_data_fname(atom_data_source)
     except OSError:
-        logger.info("Atom Data not found, downloading")
-        download_atom_data('kurucz_cd23_chianti_H_He_latest')
+        logger.info(f"Atom data '{atom_data_source}' not found locally, downloading...")
+        download_atom_data(atom_data_source)
 
     logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
 
