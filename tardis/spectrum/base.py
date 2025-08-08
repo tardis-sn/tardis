@@ -95,11 +95,12 @@ class SpectrumSolver(HDFWriterMixin):
             try:
                 self._spectrum_integrated = self.integrator.solve(
                     self.spectrum_frequency_grid[:-1],
-                    self.simulation_state, 
-                    self.transport, 
-                    self.plasma, 
-                    self.opacity_state, 
-                    self.macro_atom_state
+                    self.simulation_state,
+                    self.transport,
+                    self.opacity_state,
+                    self.plasma.atomic_data,
+                    self.plasma.electron_densities,
+                    self.macro_atom_state,
                 )
             except IntegrationError:
                 # if integration is impossible or fails, return an empty spectrum
