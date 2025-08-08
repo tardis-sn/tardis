@@ -34,7 +34,10 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
         integrator_settings.interpolate_shells,
         getattr(integrator_settings, "method", None),
     )
-    atomic_data, opacity_state = formal_integrator.setup(transport, plasma)
+    opacity_state = formal_integrator.setup(
+        transport, sim.opacity_state, sim.macro_atom_state
+    )
+    atomic_data = plasma.atomic_data
     source_function_solver = SourceFunctionSolver(
         transport.line_interaction_type
     )
