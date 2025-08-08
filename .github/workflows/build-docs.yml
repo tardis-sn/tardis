@@ -111,7 +111,7 @@ jobs:
           mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-regression-data/atom_data/. ~/Downloads/tardis-data
 
       - name: Install package
-        run: pip install -e ".[viz]"
+        run: pip install -e --no-deps ".[tardisbase,viz]" 
 
       - name: Install Sphinx extensions
         run: |
