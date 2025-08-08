@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import Any  # noqa: TC003
 
 import numpy as np
