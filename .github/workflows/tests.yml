@@ -16,12 +16,6 @@ on:
       - reopened
       - synchronize
   workflow_call:
-    inputs:
-      pip_git:
-        description: "Whether or not to install tardis using git"
-        required: false
-        type: boolean
-        default: false
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -32,9 +26,9 @@ defaults:
   run:
     shell: bash -l {0}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+#   cancel-in-progress: true
 
 jobs:
   test-cache:
@@ -45,7 +39,7 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
+    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.install_method }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -54,7 +48,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
-        pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
+        install_method: [editable, git, normal]
         include:
           - label: osx-arm64
             os: macos-latest
@@ -64,7 +58,10 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
-      - uses: actions/checkout@v4          
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full git history
+          fetch-tags: true  # Fetch all tags          
 
       - name: Setup LFS
         uses: tardis-sn/tardis-actions/setup-lfs@main
@@ -74,67 +71,42 @@ jobs:
         with:
           os-label: ${{ matrix.label }}
 
-      - name: Install tardis editable
-        if: ${{ !matrix.pip_git }}
+      - name: Inspect git tags and version info
         run: |
-          pip install -e ".[tardisbase]" 
+          echo "=== Git Tags ==="
+          git tag --sort=-version:refname | head -10 || echo "No tags found"
+          echo "\n=== Git Describe ==="
+          git describe --tags --always --dirty || echo "No describe available"
+          echo "\n=== Current Commit ==="
+          git rev-parse HEAD
+          echo "\n=== Tag on Current Commit ==="
+          git tag --points-at HEAD || echo "No tag on current commit"
+
+      - name: Install tardis editable
+        if: ${{ matrix.install_method == 'editable' }}
+        run: |
+          pip install -e ".[tardisbase]"
 
       - name: Install tardis git
-        if: ${{ matrix.pip_git }}
+        if: ${{ matrix.install_method == 'git' }}
         run: |
-          pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@master"
+          pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@${{ github.sha }}"
+
+      - name: Install tardis normal
+        if: ${{ matrix.install_method == 'normal' }}
+        run: |
+          pip install ".[tardisbase]"
+
+      - name: Verify installation and version
+        run: |
+          echo "=== TARDIS Version (${{ matrix.install_method }}) ==="
+          python -c "import tardis; print(f'Python version: {tardis.__version__}')"
+          echo "\n=== Git State ==="
+          git describe --tags --always --dirty 
+          echo "\n=== Package Info ==="
+          micromamba list | grep tardis 
 
       - name: Install qgridnext and lineid_plot
         run: |
           pip install --no-deps qgridnext lineid_plot
-
-      - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
-
-      - name: Regression Data Generation tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
-        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
-
-      - run: mv .coverage .coverage.${{ strategy.job-index }}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}
-          include-hidden-files: true
-          path: |
-            .coverage*
-            !.coveragerc
-
-  combine_coverage_reports:
-    needs: [tests]
-    if: github.repository_owner == 'tardis-sn'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
-        with:
-          os-label: linux-64
-
-      # will download all artifacts(in this case all are coverage reports)
-      - uses: actions/download-artifact@v4
-        with:
-          path: .
-          merge-multiple: true
-
-      - name: Combine coverage reports
-        run: |
-          coverage combine
-          coverage xml
-          coverage html
-
-      - name: Print report
-        run: coverage report
-
-      - uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
+      
