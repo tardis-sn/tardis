@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class SourceFunctionSolver:
-
     def __init__(self, line_interaction_type: str) -> None:
         """
         Configures the source function solver
@@ -192,11 +191,13 @@ class SourceFunctionSolver:
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
 
         if line_interaction_type == "macroatom":
-            e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
+            e_dot_u_src_idx = macro_ref.loc[
+                e_dot_u.index
+            ].references_idx.to_numpy()
 
-            internal_jump_mask = (macro_data.transition_type >= 0).values
+            internal_jump_mask = (macro_data.transition_type >= 0).to_numpy()
             ma_int_data = macro_data[internal_jump_mask]
-            internal = transition_probabilities[np.asarray(internal_jump_mask)]
+            internal = transition_probabilities[internal_jump_mask]
 
             source_level_idx = ma_int_data.source_level_idx.values
             destination_level_idx = ma_int_data.destination_level_idx.values
@@ -209,8 +210,7 @@ class SourceFunctionSolver:
                 )
                 inv_N = sp.identity(no_lvls) - Q
                 e_dot_u_vec = np.zeros(no_lvls)
-                e_dot_u_src_idx_array = np.asarray(e_dot_u_src_idx)
-                e_dot_u_vec[e_dot_u_src_idx_array] = np.asarray(e_dot_u[shell].values)
+                e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].to_numpy()
                 C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
 
             e_dot_u = C_frame.loc[e_dot_u.index]
