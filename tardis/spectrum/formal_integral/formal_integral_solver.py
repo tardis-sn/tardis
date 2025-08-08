@@ -66,7 +66,7 @@ class FormalIntegralSolver:
         transport,
         opacity_state=None,
         macro_atom_state=None,
-    ) -> tuple:
+    ) -> object:
         """
         Prepare the necessary data for the formal integral solver.
 
@@ -75,13 +75,13 @@ class FormalIntegralSolver:
         transport : tardis.transport.montecarlo.MontecarloTransport
             The transport configuration object
         opacity_state : tardis.opacities.opacity_state.OpacityState
-            The opacity state object
+            The regular (non-numba) opacity state object to be converted
         macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional
             The macro atom state object
 
         Returns
         -------
-        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
+        opacity_state_numba : tardis.opacities.opacity_state.OpacityStateNumba
             The opacity state converted to numba format
         """
         if opacity_state is None or macro_atom_state is None:
@@ -120,7 +120,7 @@ class FormalIntegralSolver:
 
     def setup_integrator(
         self,
-        opacity_state,
+        opacity_state_numba,
         time_explosion: u.Quantity,
         r_inner: np.ndarray,
         r_outer: np.ndarray,
@@ -130,8 +130,8 @@ class FormalIntegralSolver:
 
         Parameters
         ----------
-        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
-            The opacity state to use for the formal integral
+        opacity_state_numba : tardis.opacities.opacity_state.OpacityStateNumba
+            The opacity state (numba format) to use for the formal integral
         time_explosion : u.Quantity
             The time of the explosion
         r_inner : np.ndarray
@@ -150,14 +150,14 @@ class FormalIntegralSolver:
             self.integrator = CudaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
-                opacity_state,
+                opacity_state_numba,
                 self.points,
             )
         else:
             self.integrator = NumbaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
-                opacity_state,
+                opacity_state_numba,
                 self.points,
             )
 
@@ -166,7 +166,7 @@ class FormalIntegralSolver:
         frequencies: u.Quantity,
         simulation_state,
         transport_solver,
-        opacity_state_numba,
+        opacity_state,
         atomic_data,
         electron_densities,
         macro_atom_state=None,
@@ -180,24 +180,25 @@ class FormalIntegralSolver:
             The frequency grid for the formal integral
         simulation_state : tardis.model.SimulationState
             State which holds information about each shell
-        transport : tardis.transport.montecarlo.MonteCarloTransportSolver
+        transport_solver : tardis.transport.montecarlo.MonteCarloTransportSolver
             The transport solver
         opacity_state : tardis.opacities.opacity_state.OpacityState
-            State of the line opacities
+            Regular (non-numba) opacity state; will be converted to numba via `setup`
         atomic_data : tardis.atomic.AtomicData
             Atomic data containing atomic properties
         electron_densities : pd.Series
             Electron densities for each shell
         macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional
-            State of the macro atom
+            State of the macro atom (required for converting opacity_state to numba)
 
         Returns
         -------
         TARDISSpectrum
             The formal integral spectrum
         """
+        # Convert to numba opacity state for source function and integrator
         opacity_state_numba = self.setup(
-            transport_solver, opacity_state_numba, macro_atom_state
+            transport_solver, opacity_state, macro_atom_state
         )
         transport_state = transport_solver.transport_state
 
@@ -240,7 +241,7 @@ class FormalIntegralSolver:
             r_outer_interpolated,
             source_function_state,
             simulation_state,
-            opacity_state_numba,
+            opacity_state,
             electron_densities,
         )
 
@@ -329,8 +330,8 @@ class FormalIntegralSolver:
             Data class that holds the computed source function values which will be interpolated
         simulation_state : tardis.model.SimulationState
             The simulation state object
-        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
-            The opacity state object
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            The opacity state object (regular, non-numba)
         electron_densities : pd.Series
             Electron densities for each shell
 
@@ -353,28 +354,35 @@ class FormalIntegralSolver:
             electron_densities.iloc[
                 simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
             ],
-            fill_value="extrapolate",
+            fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
         )(r_middle_interpolated)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
+        v_inner_boundary_index = simulation_state.geometry.v_inner_boundary_index
+        v_outer_boundary_index = simulation_state.geometry.v_outer_boundary_index
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
-            opacity_state.tau_sobolev[
-                :,
-                simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
+            opacity_state.tau_sobolev.values[
+                :, v_inner_boundary_index:v_outer_boundary_index
             ],
-            fill_value="extrapolate",
+            fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
         )(r_middle_interpolated)
         att_S_ul_interpolated = interp1d(
-            r_middle_original, att_S_ul, fill_value="extrapolate"
+            r_middle_original,
+            att_S_ul,
+            fill_value="extrapolate",  # type: ignore[arg-type]
         )(r_middle_interpolated)
         Jred_lu_interpolated = interp1d(
-            r_middle_original, Jred_lu, fill_value="extrapolate"
+            r_middle_original,
+            Jred_lu,
+            fill_value="extrapolate",  # type: ignore[arg-type]
         )(r_middle_interpolated)
         Jblue_lu_interpolated = interp1d(
-            r_middle_original, Jblue_lu, fill_value="extrapolate"
+            r_middle_original,
+            Jblue_lu,
+            fill_value="extrapolate",  # type: ignore[arg-type]
         )(r_middle_interpolated)
 
         # Set negative values from the extrapolation to zero
