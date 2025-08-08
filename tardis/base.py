@@ -95,7 +95,6 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
-    # Handle atom data resolution and downloading
     atom_data_source = atom_data or tardis_config.get("atom_data")
     
     if not atom_data_source:
