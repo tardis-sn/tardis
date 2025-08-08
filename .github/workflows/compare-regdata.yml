@@ -97,12 +97,12 @@ jobs:
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
         run: |
-          pip install -e ".[tardisbase]" 
+          pip install -e . 
 
       - name: Install tardis git
         if: ${{ matrix.pip_git }}
         run: |
-          pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@master"
+          pip install "tardis @ git+https://github.com/tardis-sn/tardis.git@master"
 
       - name: Install qgridnext and lineid_plot
         run: |
