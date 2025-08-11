@@ -280,8 +280,8 @@ class CollisionalIonizationThermalRates:
 
 
 class CollisionalBoundThermalRates:
-    def __init__(self, collisional_cross_sections):
-        self.nu = collisional_cross_sections["nu"].values
+    def __init__(self, lines):
+        self.nu = lines["nu"].values
 
     def solve(
         self,
