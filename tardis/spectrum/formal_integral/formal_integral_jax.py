@@ -525,7 +525,7 @@ def formal_integral_jax(
         frequency x p-ray grid
     """
     # get params
-    size_line, size_shell = tau_sobolev.shape
+    _, size_shell = tau_sobolev.shape
     exp_tau = jnp.exp(
         -tau_sobolev.T.ravel()
     )  # TODO: figure this out (10000 nus but 29000 in first axis)
@@ -554,9 +554,9 @@ def formal_integral_jax(
         time_explosion,
         electron_density,
         exp_tau,
-        att_S_ul.ravel(order="F"),
-        Jred_lu.ravel(order="F"),
-        Jblue_lu.ravel(order="F"),
+        att_S_ul, # pre-raveled from solver
+        Jred_lu,
+        Jblue_lu,
     )
 
     # compute the luminosity
