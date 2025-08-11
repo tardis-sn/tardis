@@ -10,7 +10,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 viz = ["qgridnext", "lineid_plot"]
-tardisbase = ["tardisbase @ git+https://github.com/tardis-sn/tardisbase.git@a9cd49b"]
+tardisbase = ["tardisbase @ git+https://github.com/tardis-sn/tardisbase.git@bc62e61d"]
 
 
 [project.scripts]
