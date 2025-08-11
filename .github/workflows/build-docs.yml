@@ -111,7 +111,11 @@ jobs:
           mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-regression-data/atom_data/. ~/Downloads/tardis-data
 
       - name: Install package
-        run: pip install -e ".[tardisbase,viz]"  --no-deps 
+        run: pip install -e ".[tardisbase]"
+
+      - name: Install qgridnext and lineid_plot
+        run: |
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Install Sphinx extensions
         run: |
