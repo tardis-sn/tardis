@@ -19,6 +19,17 @@ on:
       - synchronize
       - labeled # requires the `build-docs` label
       - ready_for_review
+  
+  pull_request:
+    branches:
+      - master
+
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled # requires the `build-docs` label
+      - ready_for_review
 
   workflow_dispatch: # manual trigger
 

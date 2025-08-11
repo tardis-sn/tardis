@@ -13,6 +13,14 @@ on:
       - reopened
       - synchronize
       - labeled
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
   workflow_call:
     inputs:
       pip_git:
