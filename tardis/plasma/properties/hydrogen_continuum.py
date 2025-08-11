@@ -27,7 +27,7 @@ from tardis.plasma.properties.partition_function import LevelBoltzmannFactorNLTE
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["HydrogenContinuumPropertes", "Iteration"]
+__all__ = ["HydrogenContinuumProperties", "Iteration"]
 
 
 class Iteration(Input):
@@ -82,8 +82,12 @@ class LTELevelNumberDensity(LevelNumberDensity):
         )
 
 
-class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
-    outputs = ("level_number_density", "stimulated_emission_factor")
+class HydrogenContinuumProperties(ProcessingPlasmaProperty):
+    outputs = (
+        "level_number_density",
+        "stimulated_emission_factor",
+        "plus other things",
+    )
 
     def __init__(self, plasma_parent, photo_ion_cross_sections):
         super().__init__(plasma_parent)
@@ -119,16 +123,19 @@ class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
             photoionization_rate_solver, collisional_rate_solver
         )
 
-        solver = IonPopulationSolver(ion_rate_matrix_solver, [(1, 0), (1, 1)])
+        solver = IonPopulationSolver(ion_rate_matrix_solver)
 
         fractional_ion_population, fractional_electron_density = solver.solve(
             dilute_planckian_radiation_field,
             electron_dist,
+            elemental_number_density,
             lte_level_number_density,
             level_number_density,
             lte_ion_number_density,
             ion_number_density,
-            charge_conservation=True,
+            partition_function,
+            boltzmann_factor,
+            charge_conservation=False,
         )
 
         ion_number_density = fractional_ion_population * number_density
@@ -154,6 +161,7 @@ class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
         thermal_phi_lte = ThermalPhiSahaLTE.calculate(
             thermal_g_electron,
             beta_electron,
+            thermal_lte_partition_function,
             ionization_data,
         )
 
@@ -214,10 +222,10 @@ class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
             level_boltzmann_factor_solver._calculate_general(
                 atomic_data,
                 nlte_data,
-                t_electrons,
+                t_electrons,  # changes every loop
                 dilute_planckian_radiation_field,
                 None,
-                general_level_boltzmann_factor,
+                general_level_boltzmann_factor,  # changes every loop
                 previous_electron_densities,
                 g,
             )
@@ -231,16 +239,18 @@ class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
             t_rad,
             w,
             zeta_data,
-            t_electrons,
-            delta,
+            t_electrons,  # changes every loop
+            delta,  # changes every loop
             g_electron,
             beta_rad,
-            partition_function,
+            partition_function,  # changes every loop
             ionization_data,
         )
 
         ion_number_density = IonNumberDensity(self.plasma_parent).calculate(
-            phi, partition_function, number_density
+            phi,  # changes every loop
+            partition_function,  # changes every loop
+            number_density,
         )
 
         lte_level_number_density_solver = LTELevelNumberDensity(
@@ -250,10 +260,10 @@ class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
         level_number_density_solver = LevelNumberDensity(self.plasma_parent)
 
         level_number_density = level_number_density_solver.calculate(
-            level_boltzmann_factor,
-            ion_number_density,
+            level_boltzmann_factor,  # changes every loop
+            ion_number_density,  # changes every loop
             levels,
-            partition_function,
+            partition_function,  # changes every loop
         )
 
         lte_level_number_density, lte_ion_number_density = (
@@ -263,11 +273,11 @@ class HydrogenContinuumPropertes(ProcessingPlasmaProperty):
                 previous_electron_densities,
                 levels,
                 block_ids,
-                thermal_g_electron,
-                beta_electron,
+                thermal_g_electron,  # changes every loop
+                beta_electron,  # changes every loop
                 ionization_data,
-                thermal_lte_level_boltzmann_factor,
-                thermal_lte_partition_function,
+                thermal_lte_level_boltzmann_factor,  # changes every loop
+                thermal_lte_partition_function,  # changes every loop
             )
         )
 
