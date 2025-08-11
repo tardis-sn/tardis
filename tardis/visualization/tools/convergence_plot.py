@@ -1,29 +1,30 @@
 """Convergence Plots to see the convergence of the simulation in real time."""
 
 from collections import defaultdict
-from contextlib import suppress
 
 import ipywidgets as widgets
-import matplotlib as mpl
 import numpy as np
-import plotly.graph_objects as go
-from astropy import units as u
-from IPython.display import display
-from traitlets import TraitError
 
-
-# Added the below as a (temporary) workaround to the latex
+# Added the below as a (temporary) workaround to the latex
 # labels on the convergence plots not rendering correctly.
 import plotly
-from IPython.display import display, HTML
+import plotly.graph_objects as go
+from astropy import units as u
+from IPython.display import HTML, display
+
 import tardis.visualization.plot_util as pu
 
 plotly.offline.init_notebook_mode(connected=True)
 # mathjax needs to be loaded for latex labels to render correctly
 # see https://github.com/tardis-sn/tardis/issues/2446
-display(HTML('<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'))
+display(
+    HTML(
+        '<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'
+    )
+)
 
-class ConvergencePlots(object):
+
+class ConvergencePlots:
     """
     Create and update convergence plots for visualizing convergence of the simulation.
 
@@ -72,9 +73,7 @@ class ConvergencePlots(object):
             self.plasma_plot_config = kwargs["plasma_plot_config"]
 
         if "t_inner_luminosities_config" in kwargs:
-            self.t_inner_luminosities_config = kwargs[
-                "t_inner_luminosities_config"
-            ]
+            self.t_inner_luminosities_config = kwargs["t_inner_luminosities_config"]
 
         if "plasma_cmap" in kwargs:
             self.plasma_colorscale = pu.get_hex_color_strings(
@@ -92,9 +91,7 @@ class ConvergencePlots(object):
                     name=kwargs["t_inner_luminosities_colors"],
                 )
             else:
-                self.t_inner_luminosities_colors = kwargs[
-                    "t_inner_luminosities_colors"
-                ]
+                self.t_inner_luminosities_colors = kwargs["t_inner_luminosities_colors"]
         else:
             # using default plotly colors
             self.t_inner_luminosities_colors = [None] * 5
@@ -239,9 +236,7 @@ class ConvergencePlots(object):
             ),
             height=630,
             hoverlabel_align="right",
-            margin=dict(
-                b=25, t=25, pad=0
-            ),  # reduces whitespace surrounding the plot
+            margin=dict(b=25, t=25, pad=0),  # reduces whitespace surrounding the plot
         )
 
         # allow overriding default layout
@@ -295,35 +290,31 @@ class ConvergencePlots(object):
                 widgets.VBox(
                     [self.plasma_plot, self.t_inner_luminosities_plot],
                 ),
-                display_id="convergence_plots"
+                display_id="convergence_plots",
             )
 
     def update_plasma_plots(self):
         """Update plasma convergence plots every iteration."""
         # convert velocity to km/s
-        velocity_km_s = (
-            self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
-        )
+        velocity_km_s = self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
 
         # add luminosity data in hover data in plasma plots
         customdata = len(velocity_km_s) * [
             "<br>"
-            + "Emitted Luminosity: "
-            + f'{self.value_data["Emitted"][-1]:.4g}'
-            + "<br>"
-            + "Requested Luminosity: "
-            + f'{self.value_data["Requested"][-1]:.4g}'
-            + "<br>"
-            + "Absorbed Luminosity: "
-            + f'{self.value_data["Absorbed"][-1]:.4g}'
+            "Emitted Luminosity: "
+            f"{self.value_data['Emitted'][-1]:.4g}"
+            "<br>"
+            "Requested Luminosity: "
+            f"{self.value_data['Requested'][-1]:.4g}"
+            "<br>"
+            "Absorbed Luminosity: "
+            f"{self.value_data['Absorbed'][-1]:.4g}"
         ]
 
         # add a radiation temperature vs shell velocity trace to the plasma plot
         self.plasma_plot.add_scatter(
             x=velocity_km_s,
-            y=np.append(
-                self.iterable_data["t_rad"], self.iterable_data["t_rad"][-1:]
-            ),
+            y=np.append(self.iterable_data["t_rad"], self.iterable_data["t_rad"][-1:]),
             line_color=self.plasma_colorscale[self.current_iteration - 1],
             line_shape="hv",
             row=1,
@@ -357,12 +348,10 @@ class ConvergencePlots(object):
             # traces are updated according to the order they were added
             # the first trace is of the inner boundary temperature plot
             self.t_inner_luminosities_plot.data[0].x = x
-            self.t_inner_luminosities_plot.data[0].y = self.value_data[
-                "t_inner"
-            ]
-            self.t_inner_luminosities_plot.data[
-                0
-            ].hovertemplate = "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"  # trace name in extra tag to avoid new lines in hoverdata
+            self.t_inner_luminosities_plot.data[0].y = self.value_data["t_inner"]
+            self.t_inner_luminosities_plot.data[0].hovertemplate = (
+                "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"  # trace name in extra tag to avoid new lines in hoverdata
+            )
 
             # the next three for emitted, absorbed and requested luminosities
             for index, luminosity in zip(range(1, 4), self.luminosities):
@@ -384,9 +373,9 @@ class ConvergencePlots(object):
 
             self.t_inner_luminosities_plot.data[4].x = x
             self.t_inner_luminosities_plot.data[4].y = y
-            self.t_inner_luminosities_plot.data[
-                4
-            ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
+            self.t_inner_luminosities_plot.data[4].hovertemplate = (
+                "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
+            )
 
     def update(self, export_convergence_plots=False, last=False):
         """
@@ -408,11 +397,17 @@ class ConvergencePlots(object):
 
             self.update_plasma_plots()
             self.update_t_inner_luminosities_plot()
-            self.display_handle.update(
-                widgets.VBox(
-                    [self.plasma_plot, self.t_inner_luminosities_plot],
+
+            # Update the existing widget display unless we're in export mode
+            # In export mode, we'll display the plots using show() instead
+            if self.display_handle is not None and not (
+                export_convergence_plots and last
+            ):
+                self.display_handle.update(
+                    widgets.VBox(
+                        [self.plasma_plot, self.t_inner_luminosities_plot],
+                    )
                 )
-            )
 
             # data property for plasma plots needs to be
             # updated after the last iteration because new traces have been added
@@ -424,15 +419,19 @@ class ConvergencePlots(object):
 
         self.current_iteration += 1
 
-        # the display function expects a Widget, while
-        # fig.show() returns None, which causes the TraitError.
-        if export_convergence_plots and (self.plasma_plot is not None):
-            with suppress(TraitError):
-                display(
-                    widgets.VBox(
-                        [
-                            self.plasma_plot.show(),
-                            self.t_inner_luminosities_plot.show(),
-                        ]
-                    )
-                )
+        # Export convergence plots for sharing on platforms like nbviewer
+        # This creates additional outputs that work better for static notebook sharing
+        # but can cause duplicate displays in interactive environments
+        if (
+            export_convergence_plots
+            and last
+            and self.plasma_plot is not None
+            and self.t_inner_luminosities_plot is not None
+        ):
+            # Only show at the very end to avoid multiple duplicate displays
+            try:
+                self.plasma_plot.show(renderer="notebook_connected")
+                self.t_inner_luminosities_plot.show(renderer="notebook_connected")
+            except Exception:
+                # Fallback if notebook_connected renderer is not available
+                pass

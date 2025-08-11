@@ -5,12 +5,8 @@ from numba import cuda, set_num_threads
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
-from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
-from tardis.opacities.continuum.continuum_state import ContinuumState
-from tardis.opacities.opacity_state import (
-    OpacityState,
-)
+from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
@@ -32,10 +28,12 @@ from tardis.transport.montecarlo.packet_trackers import (
     generate_rpacket_tracker_list,
     rpacket_trackers_to_dataframe,
 )
-from tardis.util.base import (
-    quantity_linspace,
+from tardis.transport.montecarlo.progress_bars import (
     refresh_packet_pbar,
     update_iterations_pbar,
+)
+from tardis.util.base import (
+    quantity_linspace,
 )
 
 logger = logging.getLogger(__name__)
@@ -181,9 +179,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             transport_state.rpacket_tracker = (
-                generate_rpacket_last_interaction_tracker_list(
-                    number_of_rpackets
-                )
+                generate_rpacket_last_interaction_tracker_list(number_of_rpackets)
             )
 
         (
@@ -208,12 +204,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         transport_state.last_interaction_type = last_interaction_tracker.types
         transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
         transport_state.last_interaction_in_r = last_interaction_tracker.in_rs
-        transport_state.last_line_interaction_in_id = (
-            last_interaction_tracker.in_ids
-        )
-        transport_state.last_line_interaction_out_id = (
-            last_interaction_tracker.out_ids
-        )
+        transport_state.last_line_interaction_in_id = last_interaction_tracker.in_ids
+        transport_state.last_line_interaction_out_id = last_interaction_tracker.out_ids
         transport_state.last_line_interaction_shell_id = (
             last_interaction_tracker.shell_ids
         )
@@ -230,10 +222,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # Such that it also takes of the case of
         # RPacketLastInteractionTracker
         if self.enable_rpacket_tracking:
-            self.transport_state.rpacket_tracker_df = (
-                rpacket_trackers_to_dataframe(
-                    self.transport_state.rpacket_tracker
-                )
+            self.transport_state.rpacket_tracker_df = rpacket_trackers_to_dataframe(
+                self.transport_state.rpacket_tracker
             )
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
@@ -242,9 +232,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         return v_packets_energy_hist
 
     @classmethod
-    def from_config(
-        cls, config, packet_source, enable_virtual_packet_logging=False
-    ):
+    def from_config(cls, config, packet_source, enable_virtual_packet_logging=False):
         """
         Create a new MontecarloTransport instance from a Configuration object.
 
@@ -307,9 +295,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             config.montecarlo.tracking.initial_array_length
         )
 
-        radfield_prop_solver = MCRadiationFieldPropertiesSolver(
-            config.plasma.w_epsilon
-        )
+        radfield_prop_solver = MCRadiationFieldPropertiesSolver(config.plasma.w_epsilon)
 
         return cls(
             radfield_prop_solver=radfield_prop_solver,
