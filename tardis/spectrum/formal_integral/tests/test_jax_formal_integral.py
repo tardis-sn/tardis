@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-import numpy.testing as ntest
+import numpy.testing as npt
 import pandas as pd
 import pytest
 
@@ -84,13 +84,11 @@ def electron_densities(simulation_verysimple):
     ],
 )
 def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
-    obtained_result = 0
-
-    obtained_result = reverse_binary_search_jax(
+    actual = reverse_binary_search_jax(
         x, x_insert, imin, imax
     )
-
-    assert obtained_result == expected_params["result"]
+    expected = expected_params['result']
+    npt.assert_almost_equal(actual, expected, decimal=7)
 
 
 @pytest.mark.parametrize(
@@ -114,13 +112,11 @@ def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
     ],
 )
 def test_line_search(nu, nu_insert, expected_params):
-    obtained_result = 0
-
-    obtained_result = line_search_jax(
+    actual = line_search_jax(
         nu, nu_insert
     )
-
-    assert obtained_result == expected_params["result"]
+    expected = expected_params["result"]
+    npt.assert_almost_equal(actual, expected, decimal=7)
 
 
 @pytest.mark.parametrize(
@@ -133,10 +129,9 @@ def test_line_search(nu, nu_insert, expected_params):
 )
 def test_intensity_black_body(nu, temperature):
     actual = intensity_black_body_jax(nu, temperature)
-    # print(actual, type(actual))
     expected = intensity_black_body(nu, temperature)
-    ntest.assert_almost_equal(actual, expected)
-      
+    npt.assert_almost_equal(actual, expected, decimal=7)
+
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
 def test_calculate_z(formal_integral_geometry, texp, p):
 
@@ -149,7 +144,7 @@ def test_calculate_z(formal_integral_geometry, texp, p):
             assert actual == 0
         else:
             desired = np.sqrt(r * r - p * p) * C_INV * inv_t
-            ntest.assert_almost_equal(actual, desired)
+            npt.assert_almost_equal(actual, desired, decimal=7)
 
 
 @pytest.mark.parametrize("ps", [
@@ -175,7 +170,7 @@ def test_populate_z(ps, tau_sizes, texp, formal_integral_geometry):
 
     # populate zs with the JAX formal integral
     zs_j, shell_ids_j, sizes_j = populate_z_jax(jnp.array(ps), jnp.array(formal_integral_geometry.r_inner), jnp.array(formal_integral_geometry.r_outer), texp, size_shell)
-    
-    assert np.allclose(zs_n, zs_j)
-    assert np.allclose(shell_ids_n, shell_ids_j)
-    assert np.allclose(sizes_n, sizes_j)
+
+    npt.assert_allclose(zs_n, zs_j, rtol=1e-14, atol=0)
+    npt.assert_allclose(shell_ids_n, shell_ids_j, rtol=1e-14, atol=0)
+    npt.assert_allclose(sizes_n, sizes_j, rtol=1e-14, atol=0)
