@@ -210,10 +210,8 @@ class BenchmarkBase:
         config_verysimple.montecarlo.no_of_virtual_packets = 1
         config_verysimple.montecarlo.tracking.track_rpacket = True
         config_verysimple.spectrum.num = 2000
-        atomic_data = deepcopy(self.atomic_dataset)
         sim = run_tardis(
             config_verysimple,
-            atom_data=atomic_data,
             show_convergence_plots=False,
         )
         return sim

@@ -9,8 +9,6 @@ logger = logging.getLogger(__name__)
 
 def run_tardis(
     config,
-    atom_data=None,
-    packet_source=None,
     simulation_callbacks=None,
     virtual_packet_logging=False,
     show_convergence_plots=False,
@@ -29,10 +27,6 @@ def run_tardis(
     ----------
     config : str or dict or tardis.io.config_reader.Configuration
         filename of configuration yaml file or dictionary or TARDIS Configuration object
-    atom_data : str or tardis.atomic.AtomData, optional
-        If atom_data is a string it is interpreted as a path to a file storing
-        the atomic data. Atomic data to use for this TARDIS simulation. If set to None (i.e. default),
-        the atomic data will be loaded according to keywords set in the configuration
     packet_source : class, optional
         A custom packet source class or a child class of `tardis.transport.montecarlo.packet_source`
         used to override the TARDIS `BasePacketSource` class.

@@ -21,12 +21,11 @@ class BenchmarkRunTardis(BenchmarkBase):
 
     def time_run_tardis(self):
         run_tardis(
-            self.config, atom_data=self.atom_data, show_convergence_plots=False
+            self.config, show_convergence_plots=False
         )
 
     def time_run_tardis_rpacket_tracking(self):
         run_tardis(
             self.config_rpacket_tracking,
-            atom_data=self.atom_data,
             show_convergence_plots=False,
         )
