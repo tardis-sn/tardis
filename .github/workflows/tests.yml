@@ -77,7 +77,7 @@ jobs:
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
         run: |
-          pip install -e --no-deps ".[tardisbase,viz]" 
+          pip install -e ".[tardisbase,viz]" --no-deps 
 
       - name: Install tardis git
         if: ${{ matrix.pip_git }}
