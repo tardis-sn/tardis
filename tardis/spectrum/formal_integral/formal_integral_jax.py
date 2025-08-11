@@ -1,26 +1,18 @@
+from functools import partial
+import timeit
+
 import jax
 from jax import jit
 import jax.numpy as jnp
 import jax.debug as jdb
 
 jax.config.update("jax_enable_x64", True)
-from functools import partial
-
-import timeit
 
 import numpy as np
-import pandas as pd
-import math
-from scipy.interpolate import interp1d
-import scipy.sparse as sp
-import scipy.sparse.linalg as linalg
 from astropy import units as u
-from tardis import constants as const
 
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 from tardis.spectrum.formal_integral.base import C_INV, KB_CGS, H_CGS
-
-PI = np.pi
 
 @partial(jit, static_argnames="N")
 def calculate_p_values_jax(Rmax, N):
