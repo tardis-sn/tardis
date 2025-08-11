@@ -106,6 +106,10 @@ jobs:
         if: ${{ !matrix.pip_git }}
         run: |
           pip install -e . 
+      
+      - name: Install tardisbase editable
+        run: pip install -e .
+        working-directory: tardisbase
 
       - name: Install tardis git
         if: ${{ matrix.pip_git }}
