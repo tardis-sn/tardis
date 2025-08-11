@@ -566,66 +566,50 @@ def formal_integral_jax(
 
 class JaxFormalIntegrator:
 
-    def __init__(self, simulation_state, transport_state, plasma):
+    def __init__(self, geometry, time_explosion, opacity_state, points):
         
-        self.simulation_state = simulation_state
-        self.transport_state = transport_state
-        self.plasma = plasma
+        self.geometry = geometry
+        self.time_explosion = time_explosion
+        self.opacity_state = opacity_state
+        self.points = points
 
-    def formal_integral(self, nu, N):
-
-        # get all necessary parameters for make source function
-        v_inner_idx = self.simulation_state.geometry.v_inner_boundary_index
-        v_outer_idx = self.simulation_state.geometry.v_outer_boundary_index
-        time_explosion = self.simulation_state.time_explosion
-
-        no_of_shells = self.simulation_state.no_of_shells
-        dilution_factor = self.simulation_state.dilution_factor
-        volume = self.simulation_state.volume
-        
-        time_of_simulation = self.transport_state.packet_collection.time_of_simulation *u.s # TODO: check why no units here
-        transition_probabilities = self.transport_state.opacity_state.transition_probabilities
-        tau_sobolev = self.transport_state.opacity_state.tau_sobolev
-        Edotlu_estimator = self.transport_state.radfield_mc_estimators.Edotlu_estimator
-        j_blue_estimator = self.transport_state.radfield_mc_estimators.j_blue_estimator
-
-        atomic_data = self.plasma.atomic_data
-        levels_index = self.plasma.levels
-
-        interpolate_shells = 20
-        mct_state = self.transport_state
-        mct_inner = mct_state.geometry_state.r_inner 
-        mct_outer = mct_state.geometry_state.r_outer
-        electron_densities = self.transport_state.opacity_state.electron_density
-
-        # extra params for formal integral
+    def formal_integral(
+        self, 
+        iT,
+        frequencies, 
+        frequencies_size, # remove?
+        att_S_ul, 
+        Jred_lu, 
+        Jblue_lu, 
+        tau_sobolevs,
+        electron_densities,
+        points
+    ):
+        # get all necessary parameters and put them in jax arrays
+        r_inner_i = jnp.array(self.geometry.r_inner)
+        r_outer_i = jnp.array(self.geometry.r_outer)
+        tau_sobolevs = jnp.array(tau_sobolevs)
         line_list_nu = jnp.array(self.transport_state.opacity_state.line_list_nu)
-        iT = 1e4 # TODO fix
+        frequencies = jnp.array(frequencies)
+        att_S_ul = jnp.array(att_S_ul)
+        Jred_lu = jnp.array(Jred_lu)
+        Jblue_lu = jnp.array(Jblue_lu)
+        electron_densities = jnp.array(electron_densities)
 
-        # set up for formal integral
-        r_inner_i, r_outer_i, electron_densities_integ, tau_sobolevs_integ, att_S_ul_i, Jredlu_i, Jbluelu_i, _ = make_source_function(
-            v_inner_idx, v_outer_idx, time_explosion, 
-            no_of_shells, dilution_factor, volume, time_of_simulation,
-            tau_sobolev, transition_probabilities,
-            Edotlu_estimator, j_blue_estimator,
-            atomic_data, levels_index,
-            interpolate_shells, mct_inner, mct_outer, electron_densities
-        )
-
-        # calc formal integral
+        # compute formal integral
         L, Inup = formal_integral_jax(
             r_inner_i,
             r_outer_i,
-            time_explosion.value,
-            tau_sobolevs_integ,
+            self.time_explosion.value,
+            tau_sobolevs,
             line_list_nu,
             iT,
-            nu,
-            att_S_ul_i,
-            Jredlu_i,
-            Jbluelu_i,
-            electron_densities_integ,
-            N
+            frequencies,
+            att_S_ul,
+            Jred_lu,
+            Jblue_lu,
+            electron_densities,
+            points
         )
 
         return L, Inup
