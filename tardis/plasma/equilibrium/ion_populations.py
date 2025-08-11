@@ -117,10 +117,6 @@ class IonPopulationSolver:
 
         new_electron_energy_distribution = thermal_electron_energy_distribution
 
-        ion_population_solution = pd.DataFrame(
-            index=ion_population.index, columns=ion_population.columns
-        )
-
         for iteration in range(self.max_solver_iterations):
             self.rates_matrices = self.rate_matrix_solver.solve(
                 radiation_field,

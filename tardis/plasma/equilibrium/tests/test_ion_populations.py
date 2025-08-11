@@ -23,9 +23,11 @@ def test_solve(rate_matrix_solver, regression_data):
         0, np.ones(20) * 10000 * u.K, np.ones(20) * 2e9 * u.cm**-3
     )
     lte_level_population = pd.DataFrame(
-        data=np.ones((2, 20)) * 1e5,
+        data=np.vstack(
+            [np.ones(20) * 1e5, np.ones(20) * 1e-1, np.ones(20) * 1e10]
+        ),
         index=pd.MultiIndex.from_tuples(
-            [(1, 0, 0), (1, 0, 1)],
+            [(1, 0, 0), (1, 0, 1), (1, 1, 0)],
             names=["atomic_number", "ion_number", "level_number"],
         ),
     )
@@ -39,15 +41,18 @@ def test_solve(rate_matrix_solver, regression_data):
     )
 
     boltzmann_factor = pd.DataFrame(
-        data=np.vstack([np.ones(20) * 2.0, np.ones(20) * 0.000011]),
+        data=np.vstack(
+            [np.ones(20) * 2.0, np.ones(20) * 0.000011, np.ones(20)]
+        ),
         index=pd.MultiIndex.from_tuples(
-            [(1, 0, 0), (1, 0, 1)],
+            [(1, 0, 0), (1, 0, 1), (1, 1, 0)],
             names=["atomic_number", "ion_number", "level_number"],
         ),
     )
 
     elemental_number_density = pd.DataFrame(
         data=np.vstack([np.ones(20) * 1e5]),
+        index=pd.Index([1], name="atomic_number"),
     )
 
     level_population = lte_level_population.copy() * 1.4
