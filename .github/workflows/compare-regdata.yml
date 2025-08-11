@@ -85,6 +85,18 @@ jobs:
           haskell: true
           large-packages: true
           swap-storage: true
+      
+      - name: Free up disk space on macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          # Remove unnecessary Xcode versions
+          sudo rm -rf /Applications/Xcode_*.app
+          # Clean Homebrew cache
+          brew cleanup --prune=all
+          # Remove iOS simulators you don't need
+          xcrun simctl delete unavailable
+          # Clear system caches
+          sudo rm -rf ~/Library/Caches/*
 
       - uses: actions/checkout@v4
       
