@@ -45,8 +45,9 @@ This documentation is organized following the `Diátaxis framework <https://diat
 - **Getting Started**: Quick installation and first steps
 - **Tutorials**: Step-by-step lessons for learning TARDIS concepts
 - **How-to Guides**: Practical solutions to specific problems  
+- **Physics Walkthrough**: Deep dives into the physics and theory behind TARDIS
 - **Reference**: Technical specifications and API documentation
-- **Explanation**: Deep dives into the physics and theory behind TARDIS
+
 
 -----------------
 Mission Statement
@@ -83,10 +84,7 @@ Mission Statement
 
     how_to_guides
     workflows
-    analyzing_tardis/visualization/index
-    analyzing_tardis/spectrum/index
-    analyzing_tardis/rpacket_plot_notebook.ipynb
-    analyzing_tardis/analysing_convergence_plot.ipynb
+    analyzing_tardis/index
     io/configuration/tutorial_read_configuration
     io/optional/index
     io/output/index
@@ -111,10 +109,8 @@ Mission Statement
 
     API <api/modules>
     reference/faq
+    reference/visualization_reference
     io/configuration/index
-    analyzing_tardis/spectrum/sdec_notebook
-    analyzing_tardis/liv_plot_notebook
-    analyzing_tardis/rpacket_plot_notebook
     io/hdf/index
     contributing/CHANGELOG.md 
     resources/research_done_using_TARDIS/research_papers
