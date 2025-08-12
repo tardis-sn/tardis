@@ -60,7 +60,7 @@ jobs:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
       - name: Find comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v3
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
