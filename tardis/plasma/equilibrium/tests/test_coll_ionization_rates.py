@@ -71,38 +71,17 @@ def test_collisional_ionization_rate_solver_solve(
         approximation="seaton",
     )
 
-    # write paths manually with regression_data directory info from the class
-    if regression_data.enable_generate_reference:
-        actual_ionization_rates.to_hdf(
-            regression_data.absolute_regression_data_dir
-            / "ionization_rates.h5",
-            key="data",
-        )
-        actual_recombination_rates.to_hdf(
-            regression_data.absolute_regression_data_dir
-            / "recombination_rates.h5",
-            key="data",
-        )
-        pytest.skip("Skipping test to generate reference data")
-    else:
-        expected_ionization_rates = pd.read_hdf(
-            regression_data.absolute_regression_data_dir
-            / "ionization_rates.h5",
-            key="data",
-        )
+    expected_ionization_rates = regression_data.sync_dataframe(
+        actual_ionization_rates, key="ionization_rates"
+    )
+    expected_recombination_rates = regression_data.sync_dataframe(
+        actual_recombination_rates, key="recombination_rates"
+    )
 
-        expected_recombination_rates = pd.read_hdf(
-            regression_data.absolute_regression_data_dir
-            / "recombination_rates.h5",
-            key="data",
-        )
-
-        pdt.assert_frame_equal(
-            actual_ionization_rates, expected_ionization_rates
-        )
-        pdt.assert_frame_equal(
-            actual_recombination_rates, expected_recombination_rates
-        )
+    pdt.assert_frame_equal(actual_ionization_rates, expected_ionization_rates)
+    pdt.assert_frame_equal(
+        actual_recombination_rates, expected_recombination_rates
+    )
 
 
 def test_collisional_ionization_rate_solver_invalid_approximation(
