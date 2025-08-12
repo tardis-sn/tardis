@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=047b7eee"></script>
+      <script src="_static/documentation_options.js?v=0ae095ae"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,7 +35,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Visualization Tools &amp; Widgets" href="analyzing_tardis/visualization/index.html" />
+    <link rel="next" title="Analysis How-To Guides" href="analyzing_tardis/index.html" />
     <link rel="prev" title="How-To Guides" href="how_to_guides.html" />
     <link href="_static/tardis.css" rel="stylesheet" type="text/css">
 
@@ -75,10 +75,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="how_to_guides.html">How-To Guides</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/index.html">Analysis How-To Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="io/output/index.html">Additional Outputs</a></li>
@@ -97,10 +94,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/visualization_reference.html">Visualization Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="io/configuration/index.html">Configuration Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/spectrum/sdec_notebook.html">Analysing Spectral Energy Distribution and Emission/Absorption Visualization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
-<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing/CHANGELOG.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
@@ -145,11 +140,11 @@
 <div><p>These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives.</p>
 </div></blockquote>
 <ul class="simple">
-<li><p><a class="reference internal" href="workflows/v_inner_solver_workflow.html"><span class="doc">Workflow to solve v_inner boundary</span></a></p></li>
-<li><p><a class="reference internal" href="workflows/simple_workflow.html"><span class="doc">Simple TARDIS Workflow</span></a></p></li>
-<li><p><a class="reference internal" href="workflows/standard_workflow.html"><span class="doc">Standard TARDIS Workflow</span></a></p></li>
 <li><p><a class="reference internal" href="workflows/workflow_notebook.html"><span class="doc">TARDIS High Energy (HE) Workflow</span></a></p></li>
 <li><p><a class="reference internal" href="workflows/simple_workflow_equilibrium.html"><span class="doc">Equilibrium Plasma Workflow</span></a></p></li>
+<li><p><a class="reference internal" href="workflows/v_inner_solver_workflow.html"><span class="doc">Workflow to solve v_inner boundary</span></a></p></li>
+<li><p><a class="reference internal" href="workflows/standard_workflow.html"><span class="doc">Standard TARDIS Workflow</span></a></p></li>
+<li><p><a class="reference internal" href="workflows/simple_workflow.html"><span class="doc">Simple TARDIS Workflow</span></a></p></li>
 </ul>
 </section>
 
@@ -158,14 +153,14 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="how_to_guides.html" class="btn btn-neutral float-left" title="How-To Guides" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="analyzing_tardis/visualization/index.html" class="btn btn-neutral float-right" title="Visualization Tools &amp; Widgets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="analyzing_tardis/index.html" class="btn btn-neutral float-right" title="Analysis How-To Guides" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 05 Aug 2025.
+      <span class="lastupdated">Last updated on 12 Aug 2025.
       </span></p>
   </div>
 
