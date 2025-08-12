@@ -9,36 +9,35 @@ panel_init.auto()
 
 
 def create_logger_columns(start_height=10, max_height=300):
-    """Create logger scroll columns with dynamic height.
+    """Create a single logger scroll column with dynamic height.
     
     Returns
     -------
     dict
-        Dictionary of scroll columns for each log level.
+        Dictionary containing a single log column for all logs.
     """
-    # Create scroll columns for each log level
+    # Create single scroll column for all logs
     columns = {}
     
-    for level in ["INFO", "WARNING/ERROR", "DEBUG"]:
-        column = pn.pane.HTML(
-            "",
-            height=10,  # Start small
-            styles={
-                'border': '1px solid #ddd',
-                'background-color': 'white',
-                'overflow-y': 'auto',
-                'overflow-x': 'auto',
-                'font-family': 'monospace',
-                'padding': '8px',
-                'white-space': 'pre-wrap'
-            },
-            sizing_mode='stretch_width'
-        )
-        column.max_log_entries = 1000
-        column._start_height = start_height
-        column._max_height = max_height
-        column._log_content = ""  # Store content as string
-        columns[level] = column
+    column = pn.pane.HTML(
+        "",
+        height=10,  # Start small
+        styles={
+            'border': '1px solid #ddd',
+            'background-color': 'white',
+            'overflow-y': 'auto',
+            'overflow-x': 'auto',
+            'font-family': 'monospace',
+            'padding': '8px',
+            'white-space': 'pre-wrap'
+        },
+        sizing_mode='stretch_width'
+    )
+    column.max_log_entries = 1000
+    column._start_height = start_height
+    column._max_height = max_height
+    column._log_content = ""  # Store content as string
+    columns["ALL"] = column
     
     return columns
 
@@ -66,7 +65,7 @@ class PanelWidgetLogHandler(logging.Handler):
         self.environment = Environment.get_current_environment()
         
         self.batch_size = batch_size
-        self.log_buffers = {"INFO": [], "WARNING/ERROR": [], "DEBUG": []}
+        self.log_buffers = {"ALL": []}
         
         self.stream_handler = None
         if not self.display_widget:
@@ -94,7 +93,7 @@ class PanelWidgetLogHandler(logging.Handler):
             clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
             html_output = self._format_html_output(clean_log_entry, record)
 
-        self._emit_to_columns(record.levelno, html_output)
+        self._emit_to_columns(html_output)
 
     @staticmethod
     def _remove_ansi_escape_sequences(text):
@@ -135,26 +134,17 @@ class PanelWidgetLogHandler(logging.Handler):
             return f'<span>{prefix}</span> <span style="color: {color}; font-weight: bold;">{levelname}</span> {message}'
         return log_entry
 
-    def _emit_to_columns(self, level, html_output):
+    def _emit_to_columns(self, html_output):
         """Add log entry to buffer and flush when batch size reached.
         
         Parameters
         ----------
-        level : int
-            The logging level.
         html_output : str
             The HTML-formatted log message.
         """
-        level_to_output = {
-            logging.WARNING: "WARNING/ERROR",
-            logging.ERROR: "WARNING/ERROR",
-            logging.CRITICAL: "WARNING/ERROR",
-            logging.INFO: "INFO",
-            logging.DEBUG: "DEBUG"
-        }
-
-        output_key = level_to_output.get(level)
-        if output_key and output_key in self.log_buffers:
+        # Send all logs to the single "ALL" column
+        output_key = "ALL"
+        if output_key in self.log_buffers:
             self.log_buffers[output_key].append(html_output)
             
             if len(self.log_buffers[output_key]) >= self.batch_size:
