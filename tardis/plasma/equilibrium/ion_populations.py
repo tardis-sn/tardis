@@ -6,6 +6,8 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
+LOWER_ION_LEVEL_H = 0
+
 
 class IonPopulationSolver:
     def __init__(self, rate_matrix_solver, max_solver_iterations=100):
@@ -65,9 +67,9 @@ class IonPopulationSolver:
         thermal_electron_energy_distribution,
         elemental_number_density,
         lte_level_population,
-        level_population,
+        estimated_level_population,
         lte_ion_population,
-        ion_population,
+        estimated_ion_population,
         partition_function,
         boltzmann_factor,
         charge_conservation=False,
@@ -85,11 +87,11 @@ class IonPopulationSolver:
             Elemental number density. Index is atomic number, columns are cells.
         lte_level_population : pd.DataFrame
             LTE level number density. Columns are cells.
-        level_population : pd.DataFrame
+        estimated_level_population : pd.DataFrame
             Estimated level number density. Columns are cells.
         lte_ion_population : pd.DataFrame
             LTE ion number density. Columns are cells.
-        ion_population : pd.DataFrame
+        estimated_ion_population : pd.DataFrame
             Estimated ion number density. Columns are cells.
         charge_conservation : bool, optional
             Whether to include a charge conservation row in the rate matrix.
@@ -107,12 +109,14 @@ class IonPopulationSolver:
         # TODO: make more general indices that work for non-Hydrogen species
         # this is the i level in Lucy 2003
         lower_ion_level_index = (
-            lte_level_population.index.get_level_values("ion_number") == 0
+            lte_level_population.index.get_level_values("ion_number")
+            == LOWER_ION_LEVEL_H
         )
 
         # this is the k level in Lucy 2003
         upper_ion_population_index = (
-            lte_ion_population.index.get_level_values("ion_number") >= 1
+            lte_ion_population.index.get_level_values("ion_number")
+            > LOWER_ION_LEVEL_H
         )
 
         new_electron_energy_distribution = thermal_electron_energy_distribution
@@ -122,9 +126,9 @@ class IonPopulationSolver:
                 radiation_field,
                 new_electron_energy_distribution,
                 lte_level_population.loc[lower_ion_level_index],
-                level_population.loc[lower_ion_level_index],
+                estimated_level_population.loc[lower_ion_level_index],
                 lte_ion_population.loc[upper_ion_population_index],
-                ion_population.loc[upper_ion_population_index],
+                estimated_ion_population.loc[upper_ion_population_index],
                 partition_function,
                 boltzmann_factor,
                 charge_conservation,
@@ -146,7 +150,7 @@ class IonPopulationSolver:
 
             ion_population_solution = pd.DataFrame(
                 np.vstack(solved_matrices.values[0]).T,
-                index=ion_population.index,
+                index=estimated_ion_population.index,
                 columns=self.rates_matrices.columns,
             )
 
@@ -161,7 +165,7 @@ class IonPopulationSolver:
             ).sum()
 
             delta_ion = (
-                ion_population - ion_population_solution
+                estimated_ion_population - ion_population_solution
             ) / ion_population_solution
             delta_electron = (
                 new_electron_energy_distribution.number_density.value
@@ -178,7 +182,7 @@ class IonPopulationSolver:
                 )
                 break
 
-            ion_population = ion_population_solution
+            estimated_ion_population = ion_population_solution
             new_electron_energy_distribution.number_density = (
                 electron_population_solution.values * u.cm**-3
             )
