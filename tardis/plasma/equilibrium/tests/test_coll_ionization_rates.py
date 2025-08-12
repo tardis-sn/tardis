@@ -27,7 +27,7 @@ def mock_electron_distribution():
 
 
 @pytest.fixture
-def mock_saha_factor():
+def mock_level_to_ion_population_factor():
     """Fixture for mock Saha factor."""
     index = pd.MultiIndex.from_tuples(
         [(1, 0, 0), (1, 0, 1)],
@@ -54,7 +54,7 @@ def test_collisional_ionization_rate_solver_init(
 def test_collisional_ionization_rate_solver_solve(
     mock_photoionization_cross_sections,
     mock_electron_distribution,
-    mock_saha_factor,
+    mock_level_to_ion_population_factor,
     mock_boltzmann_factor,
     regression_data,
 ):
@@ -65,7 +65,7 @@ def test_collisional_ionization_rate_solver_solve(
 
     actual_ionization_rates, actual_recombination_rates = solver.solve(
         mock_electron_distribution,
-        mock_saha_factor,
+        mock_level_to_ion_population_factor,
         1.0,  # Simple partition function for testing
         mock_boltzmann_factor,
         approximation="seaton",
@@ -108,7 +108,7 @@ def test_collisional_ionization_rate_solver_solve(
 def test_collisional_ionization_rate_solver_invalid_approximation(
     mock_photoionization_cross_sections,
     mock_electron_distribution,
-    mock_saha_factor,
+    mock_level_to_ion_population_factor,
     mock_boltzmann_factor,
 ):
     """Test that an invalid approximation raises a ValueError."""
@@ -120,7 +120,7 @@ def test_collisional_ionization_rate_solver_invalid_approximation(
     ):
         solver.solve(
             mock_electron_distribution,
-            mock_saha_factor,
+            mock_level_to_ion_population_factor,
             1.0,  # Simple partition function for testing
             mock_boltzmann_factor,
             approximation="invalid_approx",

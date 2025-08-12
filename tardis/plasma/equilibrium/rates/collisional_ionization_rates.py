@@ -22,7 +22,7 @@ class CollisionalIonizationRateSolver:
     def solve(
         self,
         electron_distribution,
-        saha_factor,
+        level_to_ion_population_factor,
         partition_function,
         level_boltzmann_factor,
         approximation="seaton",
@@ -33,8 +33,9 @@ class CollisionalIonizationRateSolver:
         ----------
         electron_distribution : ThermalElectronEnergyDistribution
             Electron distribution per cell
-        saha_factor : pandas.DataFrame, dtype float
-            The Saha factor for each cell. Indexed by atom number, ion number, level number.
+        level_to_ion_population_factor : pandas.DataFrame, dtype float
+            The level to ion population factor for each cell, Lucy 2003 Eq 14.
+            Indexed by atom number, ion number, level number.
         approximation : str, optional
             The rate approximation to use, by default "seaton"
 
@@ -63,7 +64,7 @@ class CollisionalIonizationRateSolver:
 
         # Inverse of the ionization rate for equilibrium
         collision_recombination_rates = collision_ionization_rates.multiply(
-            saha_factor
+            level_to_ion_population_factor
         )
 
         # TODO: Update for non-Hydrogenic species

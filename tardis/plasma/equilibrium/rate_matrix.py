@@ -236,7 +236,8 @@ class IonRateMatrix:
             )
         )
 
-        saha_factor = lte_level_population / (
+        # Lucy 2003 Eq 14
+        level_to_ion_population_factor = lte_level_population / (
             lte_ion_population.values
             * thermal_electron_energy_distribution.number_density.value
         )
@@ -244,7 +245,7 @@ class IonRateMatrix:
         collisional_ionization_rates_df, collision_recombination_rates_df = (
             self.collisional_ionization_rate_solver.solve(
                 thermal_electron_energy_distribution,
-                saha_factor,
+                level_to_ion_population_factor,
                 partition_function,
                 boltzmann_factor,
             )

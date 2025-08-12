@@ -73,7 +73,7 @@ class AnalyticPhotoionizationRateSolver:
             ion_population,
         )
 
-        recombination_rate_coeff = (
+        spontaneous_recombination_rate_coeff = (
             self.spontaneous_recombination_rate_coeff_solver.solve(
                 electron_energy_distribution.temperature
             )
@@ -84,7 +84,8 @@ class AnalyticPhotoionizationRateSolver:
             level_boltzmann_factor / partition_function
         )
 
-        level_population_ratio = lte_level_population.values / (
+        # Lucy 2003 Eq 14
+        level_to_ion_population_factor = lte_level_population.values / (
             lte_ion_population.values
             * electron_energy_distribution.number_density
         )
@@ -95,9 +96,10 @@ class AnalyticPhotoionizationRateSolver:
             photoionization_rate_coeff * fractional_level_population
         )
 
-        recombination_rate = (
-            recombination_rate_coeff
-            * level_population_ratio
+        # Lucy 2003 Eq 20
+        spontaneous_recombination_rate = (
+            spontaneous_recombination_rate_coeff
+            * level_to_ion_population_factor
             * electron_energy_distribution.number_density
         )
 
@@ -105,11 +107,11 @@ class AnalyticPhotoionizationRateSolver:
             photoionization_rate, recombination=False
         )
 
-        recombination_rate = reindex_ionization_rate_dataframe(
-            recombination_rate, recombination=True
+        spontaneous_recombination_rate = reindex_ionization_rate_dataframe(
+            spontaneous_recombination_rate, recombination=True
         )
 
-        return photoionization_rate, recombination_rate
+        return photoionization_rate, spontaneous_recombination_rate
 
 
 class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):

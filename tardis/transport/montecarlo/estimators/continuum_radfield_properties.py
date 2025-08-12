@@ -67,6 +67,6 @@ class MCContinuumPropertiesSolver:
 
 @dataclass
 class ContinuumProperties:
-    photo_ionization_rate_coefficient: pd.DataFrame
     # this is not the rate coefficient but misses Phi I_K
     stimulated_recombination_rate_factor: pd.DataFrame
+    photo_ionization_rate_coefficient: pd.DataFrame

@@ -35,7 +35,7 @@ class SpontaneousRecombinationCoeffSolver:
     @property
     def common_prefactor(self):
         """Used to multiply with both spontaneous recombination and
-        photoionization coefficients.
+        photoionization coefficients. Lucy 2003 Eq 13, 15, 16.
 
         Returns
         -------
@@ -80,7 +80,7 @@ class SpontaneousRecombinationCoeffSolver:
 
         Notes
         -----
-        Equation 13 in Lucy 2003.
+        Equation 13 in Lucy 2003, missing the factor from Eq 14.
         """
         prefactor = self.common_prefactor * (2 * H * self.nu**3.0) / (C**2.0)
         photoionization_boltzmann_factor = pd.DataFrame(
@@ -151,42 +151,6 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
             ),
         )
 
-    def calculate_photoionization_rate_coeff(
-        self,
-        mean_intensity_photoionization_df,
-    ):
-        """
-        Calculate the photoionization rate coefficient.
-
-        Parameters
-        ----------
-        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
-            A dilute black body radiation field state.
-
-        Returns
-        -------
-        pd.DataFrame
-            The calculated photoionization rate coefficient.
-
-        Notes
-        -----
-        Equation 16 in Lucy 2003.
-        """
-        photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
-            self.common_prefactor,
-            axis=0,
-        )
-        photoionization_rate_coeff = integrate_array_by_blocks(
-            photoionization_rate_coeff.values,
-            self.nu.value,
-            self.photoionization_block_references,
-        )
-        photoionization_rate_coeff = pd.DataFrame(
-            photoionization_rate_coeff,
-            index=self.photoionization_index,
-        )
-        return photoionization_rate_coeff
-
     def calculate_stimulated_recombination_rate_coeff(
         self,
         mean_intensity_photoionization_df,
@@ -232,6 +196,42 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         )
         return stimulated_recombination_rate_coeff
 
+    def calculate_photoionization_rate_coeff(
+        self,
+        mean_intensity_photoionization_df,
+    ):
+        """
+        Calculate the photoionization rate coefficient.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
+            A dilute black body radiation field state.
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated photoionization rate coefficient.
+
+        Notes
+        -----
+        Equation 16 in Lucy 2003.
+        """
+        photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
+            self.common_prefactor,
+            axis=0,
+        )
+        photoionization_rate_coeff = integrate_array_by_blocks(
+            photoionization_rate_coeff.values,
+            self.nu.value,
+            self.photoionization_block_references,
+        )
+        photoionization_rate_coeff = pd.DataFrame(
+            photoionization_rate_coeff,
+            index=self.photoionization_index,
+        )
+        return photoionization_rate_coeff
+
     def solve(
         self,
         dilute_blackbody_radiationfield_state,
@@ -266,16 +266,18 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
                 dilute_blackbody_radiationfield_state
             )
         )
-        # Equation 16 Lucy 2003
-        photoionization_rate_coeff = self.calculate_photoionization_rate_coeff(
-            mean_intensity_photoionization_df,
-        )
-        # Equation 15 Lucy 2003. Must be multiplied by Saha LTE factor Phi_ik
+
+        # Equation 15 Lucy 2003. Must be multiplied by factor Phi_ik from Eq 14
         stimulated_recombination_rate_coeff = (
             self.calculate_stimulated_recombination_rate_coeff(
                 mean_intensity_photoionization_df,
                 photoionization_boltzmann_factor,
             )
+        )
+
+        # Equation 16 Lucy 2003
+        photoionization_rate_coeff = self.calculate_photoionization_rate_coeff(
+            mean_intensity_photoionization_df,
         )
 
         return (
@@ -341,7 +343,7 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
 
         Notes
         -----
-        Equation 16 in Lucy 2003.
+        Equation 18 in Lucy 2003.
         """
         photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
             self.common_prefactor,
@@ -350,6 +352,7 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
 
         # need to handle He and up. They have extra ionization states that
         # break the indexing.
+        # Lucy 2003 Eq 18
         correction_factor = (
             1
             - (ion_population / lte_ion_population).values
@@ -455,6 +458,10 @@ class EstimatedPhotoionizationCoeffSolver:
         -------
         ContinuumProperties
             The calculated continuum properties.
+
+        Notes
+        -----
+        Lucy 2003 Eq 44, 45.
         """
         # TODO: the estimators are computed in the form epsilon_nu * distance * xsection / comoving_nu
         # with the stimulated recombination multiplied by a Boltzmann factor exp(-h * comoving_nu / k * electron_temp)
