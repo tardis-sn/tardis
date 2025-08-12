@@ -528,7 +528,7 @@ def formal_integral_jax(
     _, size_shell = tau_sobolev.shape
     exp_tau = jnp.exp(
         -tau_sobolev.T.ravel()
-    )  # TODO: figure this out (10000 nus but 29000 in first axis)
+    )
 
     # compute impact parameters, p
     rmax = r_outer[-1]
@@ -543,26 +543,145 @@ def formal_integral_jax(
     Inup = init_Inup_jax(inu, ps, zs[:, 0], iT, r_inner[0])
 
     # calculate the final intensity
-    Inup_i = calc_Inup_jax(
-        Inup[:, 1:],
-        inu,
-        ps[1:],
-        zs[1:],
-        size_zs[1:],
-        shellids[1:],
-        line_list_nu,
-        time_explosion,
-        electron_density,
-        exp_tau,
-        att_S_ul, # pre-raveled from solver
-        Jred_lu,
-        Jblue_lu,
+        # skip p = 0, so Inup = initialized Inup
+    Inup = Inup.at[:, 1:].set(
+        calc_Inup_jax(
+            Inup[:, 1:],
+            inu,
+            ps[1:],
+            zs[1:],
+            size_zs[1:],
+            shellids[1:],
+            line_list_nu,
+            time_explosion,
+            electron_density,
+            exp_tau,
+            att_S_ul, # pre-raveled from solver
+            Jred_lu,
+            Jblue_lu,
+        )
     )
 
     # compute the luminosity
-    L = 8 * jnp.pi * jnp.pi * jnp.trapezoid(Inup_i, dx=rmax/N, axis=1)    
+    L = 8 * jnp.pi * jnp.pi * jnp.trapezoid(Inup, dx=rmax/N, axis=1)    
 
-    return L, Inup_i
+    return L, Inup
+
+def formal_integral_jax_batch(
+    r_inner,
+    r_outer,
+    time_explosion,
+    tau_sobolev,
+    line_list_nu,
+    iT,
+    inu,
+    att_S_ul,
+    Jred_lu,
+    Jblue_lu,
+    electron_density,
+    N,
+):
+    """
+    Computes the formal integral
+
+    Parameters
+    ----------
+    r_inner : float64 array
+        inner radii of the shells
+    r_outer : float64 array
+        outer radii of the shells
+    time_explosion : float64
+        time of the explosion in seconds
+    tau_sobolev : float64 2D array
+        Sobolev Optical depth for each line in each shell
+    line_list_nu : float64 array
+        line frequencies
+    iT : float64
+        interpolated temperature
+    inu : float64 array
+        interpolated frequencies
+    att_S_ul : float64 2D array
+        attentuated source function
+    Jred_lu : float64 2D array
+        J estimator from red end of the line from lower to upper level
+    Jblue_lu : float64 2D array
+        J estimator from blue end of the line from lower to upper level
+    electron_density : float64 1D array
+        electron densities in each shell
+    N : int
+        number of impact parameters
+
+
+    Returns
+    -------
+    L : float64 array
+        integrated luminosities
+    I_nu_p : float64 2D array
+        intensities at each p-ray multiplied by p
+        frequency x p-ray grid
+    """
+    # get params
+    _, size_shell = tau_sobolev.shape
+    exp_tau = jnp.exp(
+        -tau_sobolev.T.ravel()
+    )
+
+    # compute impact parameters, p
+    rmax = r_outer[-1]
+    ps = calculate_p_values_jax(rmax, N)
+
+    # compute interaction points, z
+    zs, shellids, size_zs = populate_z_jax(
+        ps, r_inner, r_outer, time_explosion, size_shell
+    )
+
+    # init Inup with the photopshere
+    Inup = init_Inup_jax(inu, ps, zs[:, 0], iT, r_inner[0])
+
+    # Batch the calc_Inup_jax call over both frequency (nu) and impact parameter (p) axes
+    n_sections = 4  # You can make this a parameter if desired
+    n_freq, n_p = Inup.shape[0], Inup.shape[1] - 1
+    freq_section_size = (n_freq + n_sections - 1) // n_sections
+    p_section_size = (n_p + n_sections - 1) // n_sections
+
+    updated = []
+    for i in range(n_sections):
+        freq_start = i * freq_section_size
+        freq_end = min((i + 1) * freq_section_size, n_freq)
+        inu_batch = inu[freq_start:freq_end]
+        Inup_batch_rows = Inup[freq_start:freq_end, 1:]
+        row_results = []
+        for j in range(n_sections):
+            p_start = j * p_section_size
+            p_end = min((j + 1) * p_section_size, n_p)
+            Inup_block = Inup_batch_rows[:, p_start:p_end]
+            ps_block = ps[1+p_start:1+p_end]
+            zs_block = zs[1+p_start:1+p_end]
+            size_zs_block = size_zs[1+p_start:1+p_end]
+            shellids_block = shellids[1+p_start:1+p_end]
+            result_block = calc_Inup_jax(
+                Inup_block,
+                inu_batch,
+                ps_block,
+                zs_block,
+                size_zs_block,
+                shellids_block,
+                line_list_nu,
+                time_explosion,
+                electron_density,
+                exp_tau,
+                att_S_ul, # pre-raveled from solver
+                Jred_lu,
+                Jblue_lu,
+            )
+            row_results.append(result_block)
+        updated.append(jnp.concatenate(row_results, axis=1))
+    Inup = Inup.at[:, 1:].set(jnp.concatenate(updated, axis=0))
+
+    # compute the luminosity
+    L = 8 * jnp.pi * jnp.pi * jnp.trapezoid(Inup, dx=rmax/N, axis=1)
+
+    return L, Inup
 
 class JaxFormalIntegrator:
 
@@ -583,13 +702,14 @@ class JaxFormalIntegrator:
         Jblue_lu, 
         tau_sobolevs,
         electron_densities,
-        points
+        points, 
+        batch=False
     ):
         # get all necessary parameters and put them in jax arrays
         r_inner_i = jnp.array(self.geometry.r_inner)
         r_outer_i = jnp.array(self.geometry.r_outer)
         tau_sobolevs = jnp.array(tau_sobolevs)
-        line_list_nu = jnp.array(self.transport_state.opacity_state.line_list_nu)
+        line_list_nu = jnp.array(self.opacity_state.line_list_nu)
         frequencies = jnp.array(frequencies)
         att_S_ul = jnp.array(att_S_ul)
         Jred_lu = jnp.array(Jred_lu)
@@ -597,7 +717,12 @@ class JaxFormalIntegrator:
         electron_densities = jnp.array(electron_densities)
 
         # compute formal integral
-        L, Inup = formal_integral_jax(
+        if batch:
+            f = formal_integral_jax_batch
+        else:
+            f = formal_integral_jax
+
+        L, Inup = f(
             r_inner_i,
             r_outer_i,
             self.time_explosion.value,
