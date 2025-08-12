@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=1fa82e57"></script>
+      <script src="../../../../_static/documentation_options.js?v=374321dc"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -143,7 +143,6 @@ from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
-    is_notebook,
     species_string_to_tuple,
     species_tuple_to_string,
 )
@@ -152,6 +151,7 @@ from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
+from tardis.util.environment import Environment
 
 
 <div class="viewcode-block" id="LineInfoWidget">
@@ -808,7 +808,7 @@ class LineInfoWidget:
         panel.Column
             Line info widget containing all component widgets
         &quot;&quot;&quot;
-        if not is_notebook():
+        if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
             print(&quot;Please use a notebook to display the widget&quot;)
         else:
             # Panel tables handle their own sizing
