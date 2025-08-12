@@ -537,14 +537,14 @@ class PlasmaSolverFactory:
         initial_continuum_properties : `~tardis.plasma.properties.ContinuumProperties`
             The initial continuum properties of the plasma.
         """
-        t_electrons = dilute_planckian_radiation_field.temperature.to(u.K).value
+        t_electrons = dilute_planckian_radiation_field.temperature.to(u.K)
 
         initial_continuum_solver = AnalyticPhotoionizationCoeffSolver(
             self.atom_data.photoionization_data
         )
         initial_continuum_properties = ContinuumProperties(
             *initial_continuum_solver.solve(
-                dilute_planckian_radiation_field, t_electrons * u.K
+                dilute_planckian_radiation_field, t_electrons
             )
         )
         return initial_continuum_properties
