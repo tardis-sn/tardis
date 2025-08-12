@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=313296cd"></script>
+      <script src="../../../../_static/documentation_options.js?v=0a9dcfe3"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -145,36 +145,35 @@ panel_init.auto()
 <div class="viewcode-block" id="create_logger_columns">
 <a class="viewcode-back" href="../../../../api/tardis.io.logger.logger_widget.html#tardis.io.logger.logger_widget.create_logger_columns">[docs]</a>
 def create_logger_columns(start_height=10, max_height=300):
-    &quot;&quot;&quot;Create logger scroll columns with dynamic height.
+    &quot;&quot;&quot;Create a single logger scroll column with dynamic height.
     
     Returns
     -------
     dict
-        Dictionary of scroll columns for each log level.
+        Dictionary containing a single log column for all logs.
     &quot;&quot;&quot;
-    # Create scroll columns for each log level
+    # Create single scroll column for all logs
     columns = {}
     
-    for level in [&quot;INFO&quot;, &quot;WARNING/ERROR&quot;, &quot;DEBUG&quot;]:
-        column = pn.pane.HTML(
-            &quot;&quot;,
-            height=10,  # Start small
-            styles={
-                &#39;border&#39;: &#39;1px solid #ddd&#39;,
-                &#39;background-color&#39;: &#39;white&#39;,
-                &#39;overflow-y&#39;: &#39;auto&#39;,
-                &#39;overflow-x&#39;: &#39;auto&#39;,
-                &#39;font-family&#39;: &#39;monospace&#39;,
-                &#39;padding&#39;: &#39;8px&#39;,
-                &#39;white-space&#39;: &#39;pre-wrap&#39;
-            },
-            sizing_mode=&#39;stretch_width&#39;
-        )
-        column.max_log_entries = 1000
-        column._start_height = start_height
-        column._max_height = max_height
-        column._log_content = &quot;&quot;  # Store content as string
-        columns[level] = column
+    column = pn.pane.HTML(
+        &quot;&quot;,
+        height=10,  # Start small
+        styles={
+            &#39;border&#39;: &#39;1px solid #ddd&#39;,
+            &#39;background-color&#39;: &#39;white&#39;,
+            &#39;overflow-y&#39;: &#39;auto&#39;,
+            &#39;overflow-x&#39;: &#39;auto&#39;,
+            &#39;font-family&#39;: &#39;monospace&#39;,
+            &#39;padding&#39;: &#39;8px&#39;,
+            &#39;white-space&#39;: &#39;pre-wrap&#39;
+        },
+        sizing_mode=&#39;stretch_width&#39;
+    )
+    column.max_log_entries = 1000
+    column._start_height = start_height
+    column._max_height = max_height
+    column._log_content = &quot;&quot;  # Store content as string
+    columns[&quot;ALL&quot;] = column
     
     return columns</div>
 
@@ -205,7 +204,7 @@ class PanelWidgetLogHandler(logging.Handler):
         self.environment = Environment.get_current_environment()
         
         self.batch_size = batch_size
-        self.log_buffers = {&quot;INFO&quot;: [], &quot;WARNING/ERROR&quot;: [], &quot;DEBUG&quot;: []}
+        self.log_buffers = {&quot;ALL&quot;: []}
         
         self.stream_handler = None
         if not self.display_widget:
@@ -235,7 +234,7 @@ class PanelWidgetLogHandler(logging.Handler):
             clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
             html_output = self._format_html_output(clean_log_entry, record)
 
-        self._emit_to_columns(record.levelno, html_output)</div>
+        self._emit_to_columns(html_output)</div>
 
 
     @staticmethod
@@ -277,26 +276,17 @@ class PanelWidgetLogHandler(logging.Handler):
             return f&#39;&lt;span&gt;{prefix}&lt;/span&gt; &lt;span style=&quot;color: {color}; font-weight: bold;&quot;&gt;{levelname}&lt;/span&gt; {message}&#39;
         return log_entry
 
-    def _emit_to_columns(self, level, html_output):
+    def _emit_to_columns(self, html_output):
         &quot;&quot;&quot;Add log entry to buffer and flush when batch size reached.
         
         Parameters
         ----------
-        level : int
-            The logging level.
         html_output : str
             The HTML-formatted log message.
         &quot;&quot;&quot;
-        level_to_output = {
-            logging.WARNING: &quot;WARNING/ERROR&quot;,
-            logging.ERROR: &quot;WARNING/ERROR&quot;,
-            logging.CRITICAL: &quot;WARNING/ERROR&quot;,
-            logging.INFO: &quot;INFO&quot;,
-            logging.DEBUG: &quot;DEBUG&quot;
-        }
-
-        output_key = level_to_output.get(level)
-        if output_key and output_key in self.log_buffers:
+        # Send all logs to the single &quot;ALL&quot; column
+        output_key = &quot;ALL&quot;
+        if output_key in self.log_buffers:
             self.log_buffers[output_key].append(html_output)
             
             if len(self.log_buffers[output_key]) &gt;= self.batch_size:
@@ -387,7 +377,7 @@ class PanelWidgetLogHandler(logging.Handler):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Jul 2025.
+      <span class="lastupdated">Last updated on 12 Aug 2025.
       </span></p>
   </div>
 
