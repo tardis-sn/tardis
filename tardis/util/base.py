@@ -1,9 +1,9 @@
 import functools
 import logging
-import os
 import re
 import warnings
 from collections import OrderedDict
+from pathlib import Path
 
 import numexpr as ne
 import numpy as np
@@ -27,15 +27,11 @@ m_e_cgs = constants.m_e.cgs.value
 e_charge_gauss = constants.e.gauss.value
 
 logger = logging.getLogger(__name__)
-tardis_dir = os.path.realpath(tardis.__path__[0])
+tardis_dir = Path(tardis.__path__[0]).resolve()
 
 ATOMIC_SYMBOLS_DATA = (
     pd.read_csv(
         get_internal_data_path("atomic_symbols.dat"),
-        # The argument `delim_whitespace` was changed to `sep`
-        #   because the first one is deprecated since version 2.2.0.
-        #   The regular expression means: the separation is one or
-        #   more spaces together (simple space, tabs, new lines).
         sep=r"\s+",
         names=["atomic_number", "symbol"],
     )
@@ -238,10 +234,8 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         yaml_reference = yaml.load(stream, Loader=yaml.CLoader)
 
     if lines_db is not None:
-        yaml_reference["opacity"]["line_dir"] = os.path.join(lines_db, "lines")
-        yaml_reference["opacity"]["line_dir"] = os.path.join(
-            lines_db, "refs.dat"
-        )
+        yaml_reference["opacity"]["line_dir"] = str(Path(lines_db) / "lines")
+        yaml_reference["opacity"]["line_dir"] = str(Path(lines_db) / "refs.dat")
 
     yaml_reference["output"]["min_wl"] = float(
         radial1d_mdl.transport.spectrum.wavelength.to("angstrom").value.min()

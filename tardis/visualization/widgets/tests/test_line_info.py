@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 import pytest
-from plotly.callbacks import BoxSelector, Points
 
 from tardis.util.base import species_string_to_tuple
+
+# check if qgrid is installed for the widgets
+qgridnext = pytest.importorskip("qgridnext", reason="qgridnext is not installed")
 from tardis.visualization.widgets.line_info import LineInfoWidget
 
 
@@ -52,6 +54,12 @@ class TestLineInfoWidgetData:
                 .ngroups
             )
             assert species_interactions_df.shape == (expected_df_length, 1)
+
+    def test_get_middle_half_edges(self, line_info_widget, wavelength_range, filter_mode):
+        arr = np.array([0, 1, 2, 3, 4])
+        res = line_info_widget.get_middle_half_edges(arr)
+        expected_res = [(arr[-1] - arr[0]) / 4 + arr[1], (arr[-1] - arr[0]) * 3 / 4 + arr[1]]
+        assert res == expected_res
 
     @pytest.fixture
     def allowed_species(self, line_info_widget, wavelength_range, filter_mode):
@@ -156,20 +164,17 @@ class TestLineInfoWidgetEvents:
 
         selection_range = request.param
 
-        # Since we cannot programatically make a Box selection on spectrum
-        # so we have to directly call its event listener by passing
-        # selected wavelength range in a BoxSelector object
+        # Since we cannot programmatically make a Box selection on spectrum,
+        # we directly set the wavelength range and update the species interactions
         if selection_range:
-            liw._spectrum_selection_handler(
-                trace=liw.figure_widget.data[0],
-                points=Points(),
-                selector=BoxSelector(
-                    xrange=selection_range,
-                    yrange=[
-                        -1.8e39,
-                        1.8e40,
-                    ],  # Not very relevant, approx height of box
-                ),
+            # Set the current wavelength range
+            liw._current_wavelength_range = selection_range
+
+            # Get current filter mode and update species interactions directly
+            filter_mode_index = list(liw.FILTER_MODES_DESC).index(liw.filter_mode_buttons.value)
+            liw._update_species_interactions(
+                selection_range,
+                liw.FILTER_MODES[filter_mode_index]
             )
 
         return liw, selection_range
@@ -184,12 +189,14 @@ class TestLineInfoWidgetEvents:
 
         line_info_widget, selected_wavelength_range = liw_with_selection
 
+        # Get current filter mode index from the widget value
+        filter_mode_index = list(line_info_widget.FILTER_MODES_DESC).index(
+            line_info_widget.filter_mode_buttons.value
+        )
         expected_species_interactions = (
             line_info_widget.get_species_interactions(
                 wavelength_range=selected_wavelength_range,
-                filter_mode=line_info_widget.FILTER_MODES[
-                    line_info_widget.filter_mode_buttons.index
-                ],
+                filter_mode=line_info_widget.FILTER_MODES[filter_mode_index],
             )
         )
 
@@ -198,14 +205,14 @@ class TestLineInfoWidgetEvents:
             line_info_widget.species_interactions_table.df,
         )
 
+        # Get current group mode index from the widget value
+        group_mode_index = list(line_info_widget.GROUP_MODES_DESC).index(
+            line_info_widget.group_mode_dropdown.value
+        )
         expected_last_line_counts = line_info_widget.get_last_line_counts(
             selected_species=expected_species_interactions.index[0],
-            filter_mode=line_info_widget.FILTER_MODES[
-                line_info_widget.filter_mode_buttons.index
-            ],
-            group_mode=line_info_widget.GROUP_MODES[
-                line_info_widget.group_mode_dropdown.index
-            ],
+            filter_mode=line_info_widget.FILTER_MODES[filter_mode_index],
+            group_mode=line_info_widget.GROUP_MODES[group_mode_index],
         )
 
         pd.testing.assert_frame_equal(
@@ -218,7 +225,7 @@ class TestLineInfoWidgetEvents:
         else:
             expected_total_packets = expected_last_line_counts.iloc[:, 0].sum()
         assert expected_total_packets == int(
-            line_info_widget.total_packets_label.widget.children[1].value
+            line_info_widget.total_packets_label.get_value()
         )
 
     @pytest.mark.parametrize("selected_filter_mode_idx", [0, 1])
@@ -234,7 +241,7 @@ class TestLineInfoWidgetEvents:
         line_info_widget, selected_wavelength_range = liw_with_selection
 
         # Toggle the filter_mode_buttons
-        line_info_widget.filter_mode_buttons.index = selected_filter_mode_idx
+        line_info_widget.filter_mode_buttons.value = line_info_widget.FILTER_MODES_DESC[selected_filter_mode_idx]
 
         expected_species_interactions = (
             line_info_widget.get_species_interactions(
@@ -254,7 +261,7 @@ class TestLineInfoWidgetEvents:
             selected_species=expected_species_interactions.index[0],
             filter_mode=line_info_widget.FILTER_MODES[selected_filter_mode_idx],
             group_mode=line_info_widget.GROUP_MODES[
-                line_info_widget.group_mode_dropdown.index
+                list(line_info_widget.GROUP_MODES_DESC).index(line_info_widget.group_mode_dropdown.value)
             ],
         )
 
@@ -268,7 +275,7 @@ class TestLineInfoWidgetEvents:
         else:
             expected_total_packets = expected_last_line_counts.iloc[:, 0].sum()
         assert expected_total_packets == int(
-            line_info_widget.total_packets_label.widget.children[1].value
+            line_info_widget.total_packets_label.get_value()
         )
 
     def test_selection_on_species_intrctn_table(self, liw_with_selection):
@@ -294,10 +301,10 @@ class TestLineInfoWidgetEvents:
             expected_last_line_counts = line_info_widget.get_last_line_counts(
                 selected_species=selected_species,
                 filter_mode=line_info_widget.FILTER_MODES[
-                    line_info_widget.filter_mode_buttons.index
+                    list(line_info_widget.FILTER_MODES_DESC).index(line_info_widget.filter_mode_buttons.value)
                 ],
                 group_mode=line_info_widget.GROUP_MODES[
-                    line_info_widget.group_mode_dropdown.index
+                    list(line_info_widget.GROUP_MODES_DESC).index(line_info_widget.group_mode_dropdown.value)
                 ],
             )
 
@@ -313,7 +320,7 @@ class TestLineInfoWidgetEvents:
                     :, 0
                 ].sum()
             assert expected_total_packets == int(
-                line_info_widget.total_packets_label.widget.children[1].value
+                line_info_widget.total_packets_label.get_value()
             )
 
     @pytest.mark.parametrize("selected_group_mode_idx", [0, 1, 2])
@@ -327,7 +334,7 @@ class TestLineInfoWidgetEvents:
         line_info_widget, _ = liw_with_selection
 
         # Select the option in group_mode_dropdown
-        line_info_widget.group_mode_dropdown.index = selected_group_mode_idx
+        line_info_widget.group_mode_dropdown.value = line_info_widget.GROUP_MODES_DESC[selected_group_mode_idx]
 
         # For testing changes in last_line_counts_table data,
         # we're only considering the 1st row (0th index species)
@@ -344,7 +351,7 @@ class TestLineInfoWidgetEvents:
         expected_last_line_counts = line_info_widget.get_last_line_counts(
             selected_species=species0,
             filter_mode=line_info_widget.FILTER_MODES[
-                line_info_widget.filter_mode_buttons.index
+                list(line_info_widget.FILTER_MODES_DESC).index(line_info_widget.filter_mode_buttons.value)
             ],
             group_mode=line_info_widget.GROUP_MODES[selected_group_mode_idx],
         )
@@ -359,5 +366,5 @@ class TestLineInfoWidgetEvents:
         else:
             expected_total_packets = expected_last_line_counts.iloc[:, 0].sum()
         assert expected_total_packets == int(
-            line_info_widget.total_packets_label.widget.children[1].value
+            line_info_widget.total_packets_label.get_value()
         )

@@ -171,45 +171,6 @@ def create_isotope_decay_df(cumulative_decay_df, gamma_ray_lines):
     return isotope_decay_df
 
 
-def time_evolve_mass_fraction(raw_isotope_mass_fraction, time_array):
-    """
-    Function to evolve the mass fraction of isotopes with time.
-
-    Parameters
-    ----------
-    raw_isotope_mass_fraction : pd.DataFrame
-        isotope mass fraction in mass fractions.
-    time_array : np.array
-        array of time in days.
-
-    Returns
-    -------
-    time_evolved_isotope_mass_fraction : pd.DataFrame
-        time evolved mass fraction of isotopes.
-    """
-    initial_isotope_mass_fraction = raw_isotope_mass_fraction
-    isotope_mass_fraction_list = []
-    dt = np.diff(time_array)
-    t_start = time_array[:-1]
-    t_end = time_array[1:]
-    t_start_index = np.indices(t_start.shape)[0]
-
-    for time in dt:
-        decayed_isotope_mass_fraction = IsotopicMassFraction(
-            initial_isotope_mass_fraction
-        ).decay(time)
-        isotope_mass_fraction_list.append(decayed_isotope_mass_fraction)
-        initial_isotope_mass_fraction = decayed_isotope_mass_fraction
-
-    time_keys = list(zip(t_start, t_end, t_start_index))
-
-    time_evolved_isotope_mass_fraction = pd.concat(
-        isotope_mass_fraction_list, keys=time_keys, names=["time_start", "time_end", "time_index"],
-    )
-
-    return time_evolved_isotope_mass_fraction
-
-
 def time_evolve_cumulative_decay(
     raw_isotope_mass_fraction, shell_masses, gamma_ray_lines, time_array
 ):
@@ -253,7 +214,7 @@ def time_evolve_cumulative_decay(
 
         decayed_isotope_mass_fraction = IsotopicMassFraction(
             initial_isotope_mass_fraction
-        ).decay(time)
+        ).calculate_decayed_mass_fractions(time)
 
         initial_isotope_mass_fraction = decayed_isotope_mass_fraction
 

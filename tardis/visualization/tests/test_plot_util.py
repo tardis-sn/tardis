@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tardis.tests.fixtures.regression_data import PlotDataHDF
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
     create_wavelength_mask,
@@ -14,6 +13,7 @@ from tardis.visualization.plot_util import (
     parse_species_list_util,
     to_rgb255_string,
 )
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
 
 class TestPlotUtil:
@@ -129,19 +129,30 @@ class TestPlotUtil:
             expected_df["last_line_interaction_in_id"] > -1
         )
         expected_df_line_interaction = expected_df.loc[line_mask].copy()
-        expected_df_line_interaction["last_line_interaction_atom"] = (
-            lines_df["atomic_number"]
-            .iloc[expected_df_line_interaction["last_line_interaction_out_id"]]
-            .to_numpy()
+        expected_df_line_interaction["last_line_interaction_atom"] = list(
+            zip(
+                lines_df["atomic_number"]
+                .iloc[
+                    expected_df_line_interaction["last_line_interaction_out_id"]
+                ]
+                .to_numpy(),
+                [0] * len(expected_df_line_interaction),
+            )
         )
-        expected_df_line_interaction["last_line_interaction_species"] = (
-            lines_df["atomic_number"]
-            .iloc[expected_df_line_interaction["last_line_interaction_out_id"]]
-            .to_numpy()
-            * 100
-            + lines_df["ion_number"]
-            .iloc[expected_df_line_interaction["last_line_interaction_out_id"]]
-            .to_numpy()
+
+        expected_df_line_interaction["last_line_interaction_species"] = list(
+            zip(
+                lines_df["atomic_number"]
+                .iloc[
+                    expected_df_line_interaction["last_line_interaction_out_id"]
+                ]
+                .to_numpy(),
+                +lines_df["ion_number"]
+                .iloc[
+                    expected_df_line_interaction["last_line_interaction_out_id"]
+                ]
+                .to_numpy(),
+            )
         )
 
         pd.testing.assert_frame_equal(
@@ -169,9 +180,7 @@ class TestPlotUtil:
             (["Si 1-5"], None),
         ],
     )
-    def test_expand_species_list(
-        self, input_species, expected_output
-    ):
+    def test_expand_species_list(self, input_species, expected_output):
         if expected_output is None:
             with pytest.raises(ValueError):
                 expand_species_list(input_species)
@@ -254,25 +263,38 @@ class TestPlotUtil:
                 expected_value.value,
             )
 
-
     @pytest.fixture(scope="module")
     def generate_masked_dataframe_hdf(self, simulation_simple):
         packet_data = {
-            "real": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="real"),
-            "virtual": extract_and_process_packet_data(simulation=simulation_simple, packets_mode="virtual"),
+            "real": extract_and_process_packet_data(
+                simulation=simulation_simple, packets_mode="real"
+            ),
+            "virtual": extract_and_process_packet_data(
+                simulation=simulation_simple, packets_mode="virtual"
+            ),
         }
         masked_data = {
             mode: PlotDataHDF(
-                masked_df=pd.DataFrame(create_wavelength_mask(
-                    packet_data, mode, [3000, 9000] * u.AA, df_key="packets_df", column_name="nus"
-                ))
+                masked_df=pd.DataFrame(
+                    create_wavelength_mask(
+                        packet_data,
+                        mode,
+                        [3000, 9000] * u.AA,
+                        df_key="packets_df",
+                        column_name="nus",
+                    )
+                )
             )
             for mode in ["real", "virtual"]
         }
         return masked_data
 
     @pytest.mark.parametrize("mode", ["real", "virtual"])
-    def test_create_wavelength_mask(self, generate_masked_dataframe_hdf, regression_data, mode):
-        expected = regression_data.sync_dataframe(generate_masked_dataframe_hdf[mode].masked_df, key=mode)
+    def test_create_wavelength_mask(
+        self, generate_masked_dataframe_hdf, regression_data, mode
+    ):
+        expected = regression_data.sync_dataframe(
+            generate_masked_dataframe_hdf[mode].masked_df, key=mode
+        )
         actual = generate_masked_dataframe_hdf[mode].masked_df
         pd.testing.assert_frame_equal(actual, expected)

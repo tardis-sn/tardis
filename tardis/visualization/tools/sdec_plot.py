@@ -126,19 +126,56 @@ class SDECPlotter:
             plotter.t_inner = u.Quantity(
                 hdf["/simulation/simulation_state/scalars"].t_inner, "K"
             )
-            transport_state_scalars = hdf["/simulation/transport/transport_state/scalars"]
+            transport_state_scalars = hdf[
+                "/simulation/transport/transport_state/scalars"
+            ]
             plotter.time_of_simulation = u.Quantity(
                 transport_state_scalars.time_of_simulation,
                 "s",
             )
 
-            has_virtual = bool(getattr(transport_state_scalars, "virt_logging", False))
+            has_virtual = bool(
+                getattr(transport_state_scalars, "virt_logging", False)
+            )
             modes = ["real"] + (["virtual"] if has_virtual else [])
 
             for mode in modes:
                 plotter.spectrum[mode] = pu.extract_spectrum_data_hdf(hdf, mode)
-                plotter.packet_data[mode] = pu.extract_and_process_packet_data_hdf(hdf, mode)
+                plotter.packet_data[mode] = (
+                    pu.extract_and_process_packet_data_hdf(hdf, mode)
+                )
 
+        return plotter
+
+    @classmethod
+    def from_workflow(cls, workflow):
+        """
+        Create an instance of SDECPlotter from a TARDIS workflow.
+
+        Parameters
+        ----------
+        workflow : A TARDIS workflow object
+
+        Returns
+        -------
+        SDECPlotter
+        """
+        plotter = cls()
+        plotter.t_inner = workflow.simulation_state.t_inner
+        plotter.r_inner = workflow.simulation_state.geometry.r_inner_active
+        plotter.time_of_simulation = (
+            workflow.transport_state.time_of_simulation * u.s
+        )
+
+        modes = ["real"]
+        if workflow.enable_virtual_packet_logging:
+            modes.append("virtual")
+
+        for mode in modes:
+            plotter.spectrum[mode] = pu.get_spectrum_data(mode, workflow)
+            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
+                workflow, mode
+            )
         return plotter
 
     def _parse_species_list(self, species_list):
@@ -161,15 +198,8 @@ class SDECPlotter:
                 full_species_list,
             ) = pu.parse_species_list_util(species_list)
             self._full_species_list = full_species_list
-            self._species_list = [
-                atomic_num * 100 + ion_num
-                for atomic_num, ion_num in requested_species_ids_tuples
-            ]
-
-            self._species_mapped = {
-                (k[0] * 100 + k[1]): [v[0] * 100 + v[1] for v in values]
-                for k, values in species_mapped_tuples.items()
-            }
+            self._species_list = requested_species_ids_tuples
+            self._species_mapped = species_mapped_tuples
             self._keep_colour = keep_colour
         else:
             self._full_species_list = None
@@ -295,14 +325,15 @@ class SDECPlotter:
         ) = self._calculate_absorption_luminosities(
             packets_mode=packets_mode, packet_wvl_range=packet_wvl_range
         )
-
         # Calculate the total contribution of elements
         # by summing absorption and emission
         # Only care about elements, so drop no interaction and electron scattering
         # contributions from the emitted luminosities
         self.total_luminosities_df = (
             self.absorption_luminosities_df
-            + self.emission_luminosities_df.drop(["noint", "escatter"], axis=1)
+            + self.emission_luminosities_df.drop(
+                [("noint", ""), ("escatter", "")], axis=1
+            )
         )
 
         # Sort the element list based on the total contribution
@@ -321,7 +352,7 @@ class SDECPlotter:
             df_map = {
                 "total_luminosities_df": keys_to_keep,
                 "emission_luminosities_df": keys_to_keep
-                + ["noint", "escatter"],
+                + [("noint", ""), ("escatter", "")],
                 "absorption_luminosities_df": keys_to_keep,
             }
 
@@ -343,7 +374,7 @@ class SDECPlotter:
 
         else:  # nelements is not None
             top_n_keys = sorted_list.keys()[:nelements]
-            always_keep = ["noint", "escatter"]
+            always_keep = [("noint", ""), ("escatter", "")]
 
             df_map = {
                 "total_luminosities_df": list(top_n_keys),
@@ -396,7 +427,7 @@ class SDECPlotter:
         pandas.DataFrame
             A new DataFrame with the excluded columns summed into 'other' and removed from the original.
         """
-        mask = np.isin(df.columns, keys_to_exclude)
+        mask = df.columns.isin(keys_to_exclude)
         excluded_keys = df.columns[mask]
 
         if len(excluded_keys) > 0:
@@ -521,7 +552,7 @@ class SDECPlotter:
             enumerate(self.species), self._species_name
         ):
             try:
-                y_data = df[identifier] * (-1 if invert_y else 1)
+                y_data = df[tuple(identifier)] * (-1 if invert_y else 1)
                 self.fig.add_trace(
                     go.Scatter(
                         y=y_data,
@@ -577,6 +608,9 @@ class SDECPlotter:
         )
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
+        luminosities_df.columns = pd.MultiIndex.from_tuples(
+            [], names=["atomic_number", "ion_number"]
+        )
 
         # Contribution of packets which experienced no interaction
         # Mask to select packets with no interaction
@@ -587,7 +621,7 @@ class SDECPlotter:
             == -1
         )
         self._calculate_luminosity_contribution(
-            packets_mode, mask_noint, "noint", luminosities_df
+            packets_mode, mask_noint, ("noint", ""), luminosities_df
         )
 
         # Contribution of packets which only experienced electron scattering ---
@@ -603,7 +637,7 @@ class SDECPlotter:
             == -1
         )
         self._calculate_luminosity_contribution(
-            packets_mode, mask_escatter, "escatter", luminosities_df
+            packets_mode, mask_escatter, ("escatter", ""), luminosities_df
         )
 
         return self._calculate_grouped_luminosities(
@@ -644,6 +678,9 @@ class SDECPlotter:
         )
 
         luminosities_df = pd.DataFrame(index=self.plot_wavelength)
+        luminosities_df.columns = pd.MultiIndex.from_tuples(
+            [], names=["atomic_number", "ion_number"]
+        )
 
         return self._calculate_grouped_luminosities(
             packets_mode=packets_mode,
@@ -842,7 +879,8 @@ class SDECPlotter:
         # lower level and will keep adding luminosities to it (upper level)
         lower_level = np.zeros(self.emission_luminosities_df.shape[0])
         upper_level = (
-            lower_level + self.emission_luminosities_df.noint.to_numpy()
+            lower_level
+            + self.emission_luminosities_df[("noint", "")].to_numpy()
         )
 
         self.ax.fill_between(
@@ -855,7 +893,8 @@ class SDECPlotter:
 
         lower_level = upper_level
         upper_level = (
-            lower_level + self.emission_luminosities_df.escatter.to_numpy()
+            lower_level
+            + self.emission_luminosities_df[("escatter", "")].to_numpy()
         )
 
         self.ax.fill_between(
@@ -870,7 +909,8 @@ class SDECPlotter:
         if "other" in self.emission_luminosities_df.keys():
             lower_level = upper_level
             upper_level = (
-                lower_level + self.emission_luminosities_df.other.to_numpy()
+                lower_level
+                + self.emission_luminosities_df[("other", "")].to_numpy()
             )
 
             self.ax.fill_between(
@@ -887,7 +927,9 @@ class SDECPlotter:
                 lower_level = upper_level
                 upper_level = (
                     lower_level
-                    + self.emission_luminosities_df[identifier].to_numpy()
+                    + self.emission_luminosities_df[
+                        tuple(identifier)
+                    ].to_numpy()
                 )
 
                 self.ax.fill_between(
@@ -913,7 +955,8 @@ class SDECPlotter:
         if "other" in self.absorption_luminosities_df.keys():
             upper_level = lower_level
             lower_level = (
-                upper_level - self.absorption_luminosities_df.other.to_numpy()
+                upper_level
+                - self.absorption_luminosities_df[("other", "")].to_numpy()
             )
 
             self.ax.fill_between(
@@ -928,7 +971,9 @@ class SDECPlotter:
                 upper_level = lower_level
                 lower_level = (
                     upper_level
-                    - self.absorption_luminosities_df[identifier].to_numpy()
+                    - self.absorption_luminosities_df[
+                        tuple(identifier)
+                    ].to_numpy()
                 )
 
                 self.ax.fill_between(
@@ -967,14 +1012,15 @@ class SDECPlotter:
         if self._species_list is None:
             # If species_list is none then the labels are just elements
             species_name = [
-                atomic_number2element_symbol(atomic_num)
+                atomic_number2element_symbol(atomic_num[0])
                 for atomic_num in self.species
             ]
         else:
             species_name = []
             for element in self.species:
                 # Go through each species requested
-                atomic_number, ion_number = divmod(element, 100)
+                # atomic_number, ion_number = divmod(element, 100)
+                atomic_number, ion_number = element
 
                 ion_numeral = int_to_roman(ion_number + 1)
                 atomic_symbol = atomic_number2element_symbol(atomic_number)
@@ -995,17 +1041,19 @@ class SDECPlotter:
 
     def _make_colorbar_colors(self):
         """Get the colours for the species to be plotted."""
+        color_counter = 0
         color_list = []
         # - For elements in self._keep_colour, all ionization states share the same color
         #   (e.g., Si I, Si II, Si III all get the same color if Si's atomic number is in self._keep_colour)
         # - For elements not in self._keep_colour, each ionization state gets a new color
         for i, identifier in enumerate(self.species):
             if self._species_list is not None:
-                color_counter = 0
-                atomic_number = identifier // 100
+                # atomic_number = identifier // 100
+                atomic_number = identifier[0]
                 # For any element after the first one
                 if i > 0:
-                    previous_atomic_number = self.species[i - 1] // 100
+                    # previous_atomic_number = self.species[i - 1] // 100
+                    previous_atomic_number = self.species[i - 1][0]
                     # Increment color when:
                     # 1. There is a new element, OR
                     # 2. The previous element isn't in the keep_colour list
@@ -1276,16 +1324,17 @@ class SDECPlotter:
             True if checking absorption species, False for emission species.
         """
         interaction_type = "absorbed" if is_absorption else "emitted"
+        atomic_number, ion_number = identifier
         if self._species_list is None:
             info_msg = (
-                f"{atomic_number2element_symbol(identifier)}"
+                f"{atomic_number2element_symbol(atomic_number)}"
                 f" is not in the {interaction_type} packets; skipping"
             )
         else:
             # Get the ion number and atomic number for each species
-            atomic_number, ion_number = divmod(
-                identifier, 100
-            )  # (quotient, remainder)
+            # atomic_number, ion_number = divmod(
+            #     identifier, 100
+            # )  # (quotient, remainder)
             info_msg = (
                 f"{atomic_number2element_symbol(atomic_number)}"
                 f"{int_to_roman(ion_number + 1)}"

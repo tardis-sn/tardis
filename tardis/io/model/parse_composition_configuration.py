@@ -19,6 +19,7 @@ from tardis.model.matter.composition import Composition
 
 logger = logging.getLogger(__name__)
 
+
 def parse_density_from_config(config: Configuration) -> u.Quantity:
     """
     Parse the configuration file and produce a density at
@@ -50,9 +51,7 @@ def parse_density_from_config(config: Configuration) -> u.Quantity:
             d_conf, v_middle, time_explosion
         )
 
-    density = calculate_density_after_time(
-        density, density_time, time_explosion
-    )
+    density = calculate_density_after_time(density, density_time, time_explosion)
     # Note: This is the number of shells *without* taking in mind the
     #       v boundaries.
     if len(density) == len(velocity):
@@ -87,17 +86,14 @@ def parse_composition_from_config(atom_data, config, time_explosion, geometry):
     """
     density, electron_densities = parse_density_from_config(config)
 
-    (
-        nuclide_mass_fractions,
-        raw_isotope_mass_fractions,
-    ) = parse_mass_fractions_from_config(config, geometry, time_explosion)
+    nuclide_mass_fractions = parse_mass_fractions_from_config(
+        config, geometry, time_explosion
+    )
 
     return (
         Composition(
             density,
             nuclide_mass_fractions,
-            raw_isotope_mass_fractions,
-            atom_data.atom_data.mass.copy(),
         ),
         electron_densities,
     )
@@ -141,15 +137,7 @@ def parse_composition_from_csvy(
         csvy_model_config, csvy_model_data, time_explosion
     )
 
-    (
-        nuclide_mass_fractions,
-        raw_isotope_mass_fractions,
-    ) = parse_mass_fractions_from_csvy(
+    nuclide_mass_fractions = parse_mass_fractions_from_csvy(
         csvy_model_config, csvy_model_data, geometry, time_explosion
     )
-    return Composition(
-        density,
-        nuclide_mass_fractions,
-        raw_isotope_mass_fractions,
-        atom_data.atom_data.mass.copy(),
-    )
+    return Composition(density, nuclide_mass_fractions)

@@ -1,20 +1,19 @@
 """Class to create and display Line Info Widget."""
 
-
-import ipywidgets as ipw
 import numpy as np
 import pandas as pd
+import panel as pn
 from astropy import units as u
-from plotly import graph_objects as go
-from plotly.callbacks import BoxSelector
 
+from bokeh.plotting import figure
+from bokeh.models import ColumnDataSource
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
     is_notebook,
     species_string_to_tuple,
     species_tuple_to_string,
 )
-from tardis.visualization import plot_util as pu
+
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
@@ -81,19 +80,16 @@ class LineInfoWidget:
         max_rows_option = {"maxVisibleRows": 9}
         self.species_interactions_table = create_table_widget(
             data=self.get_species_interactions(None),
-            col_widths=[35, 65],
             table_options=max_rows_option,
         )
 
-        line_counts_col_widths = [75, 25]
         self.last_line_counts_table = create_table_widget(
             data=self.get_last_line_counts(None),
-            col_widths=line_counts_col_widths,
             table_options=max_rows_option,
         )
         self.total_packets_label = TableSummaryLabel(
             target_table=self.last_line_counts_table,
-            table_col_widths=line_counts_col_widths,
+            table_col_widths=[75, 25],
             label_key="Total Packets",
             label_value=0,
         )
@@ -105,13 +101,15 @@ class LineInfoWidget:
             virt_spectrum_luminosity_density_lambda,
         )
 
-        self.filter_mode_buttons = ipw.ToggleButtons(
-            options=self.FILTER_MODES_DESC, index=0
+        self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
+            options=list(self.FILTER_MODES_DESC), value=self.FILTER_MODES_DESC[0]
         )
 
-        self.group_mode_dropdown = ipw.Dropdown(
-            options=self.GROUP_MODES_DESC, index=0
+        self.group_mode_dropdown = pn.widgets.Select(
+            options=list(self.GROUP_MODES_DESC), value=self.GROUP_MODES_DESC[0]
         )
+
+        self._current_wavelength_range = None  # Track current selection
 
     @classmethod
     def from_simulation(cls, sim):
@@ -212,8 +210,7 @@ class LineInfoWidget:
                 )
 
             else:  # No species could be selected in specified wavelength_range
-                # qgrid cannot show empty dataframe properly,
-                # so create one row with empty strings
+                # Create one row with empty strings for empty dataframe
                 selected_species_symbols = [""]
                 fractional_species_interactions = pd.Series([""])
 
@@ -228,6 +225,7 @@ class LineInfoWidget:
         return fractional_species_interactions.sort_values(
             ascending=False
         ).to_frame()
+
 
     def get_last_line_counts(
         self,
@@ -390,8 +388,7 @@ class LineInfoWidget:
                 )
 
         else:  # species_selected is None
-            # qgrid cannot show empty dataframe properly,
-            # so create one row with empty strings
+            # Create one row with empty strings for empty dataframe
             interacting_packets_count = [""]
             last_line_interaction_string = [""]
 
@@ -448,56 +445,73 @@ class LineInfoWidget:
         -------
         plotly.graph_objects.FigureWidget
         """
-        # Initially zoomed range in rangeslider should be middle half of spectrum
-        initial_zoomed_range = self.get_middle_half_edges(wavelength.value)
+        # Create Bokeh figure with box select
+        p = figure(width=800, height=400, title='Spectrum', tools='box_select,reset')
+        
+        # Add proper axis labels with units (Bokeh compatible)
+        p.xaxis.axis_label = f"Wavelength [{wavelength.unit}]"
+        p.yaxis.axis_label = f"Luminosity [{luminosity_density_lambda.unit}]"
+        
+        # Add line plots
+        p.line(wavelength.value, luminosity_density_lambda.value, legend_label='Real packets', color='blue')
+        p.line(virt_wavelength.value, virt_luminosity_density_lambda.value, legend_label='Virtual packets', color='red')
+        
+        # Create invisible scatter for selection (needed for box select to work)
+        source = ColumnDataSource(dict(x=wavelength.value, y=luminosity_density_lambda.value))
+        p.scatter('x', 'y', source=source, alpha=0, size=1)
+        
+        # Create selection overlay source (initially empty)
+        selection_source = ColumnDataSource(dict(left=[], right=[], top=[], bottom=[]))
+        p.quad(left='left', right='right', top='top', bottom='bottom',
+               source=selection_source, alpha=0.3, color='lightblue')
+        
+        # Store references for callback
+        self._bokeh_plot = p
+        self._selection_source = selection_source
+        self._y_range = [luminosity_density_lambda.value.min(), luminosity_density_lambda.value.max()]
+        self._wavelength_data = wavelength  # Store wavelength data for callback access
 
-        # The scatter point should be a middle point in spectrum otherwise
-        # the extra padding around it will be oddly visible when near the edge
-        scatter_point_idx = pu.get_mid_point_idx(wavelength.value)
+        # Connect selection callback
+        source.selected.on_change('indices', self._selection_callback)
+        
+        return pn.pane.Bokeh(p)
 
-        return go.FigureWidget(
-            [
-                go.Scatter(
-                    x=wavelength,
-                    y=luminosity_density_lambda,
-                    name="Real packets",
-                ),
-                go.Scatter(
-                    x=virt_wavelength,
-                    y=virt_luminosity_density_lambda,
-                    name="Virtual packets",
-                ),
-                # Hide a one point scatter trace, to bring boxselect in modebar
-                go.Scatter(
-                    x=wavelength[scatter_point_idx],
-                    y=luminosity_density_lambda[scatter_point_idx],
-                    mode="markers",
-                    marker=dict(opacity=0),
-                    showlegend=False,
-                ),
-            ],
-            layout=go.Layout(
-                title="Spectrum",
-                xaxis=dict(
-                    title=pu.axis_label_in_latex("Wavelength", wavelength.unit),
-                    exponentformat="none",
-                    rangeslider=dict(visible=True),
-                    range=initial_zoomed_range,
-                ),
-                yaxis=dict(
-                    title=pu.axis_label_in_latex(
-                        "Luminosity",
-                        luminosity_density_lambda.unit,
-                    ),
-                    exponentformat="e",
-                    fixedrange=False,
-                ),
-                dragmode="select",
-                selectdirection="h",
-                height=400,
-                margin=dict(t=50, b=60),
-            ),
-        )
+    def _selection_callback(self, _attr, _old, new):
+        """
+        Bokeh selection callback for spectrum plot.
+
+        This method handles selection events from the Bokeh plot and updates
+        the species interactions table based on the selected wavelength range.
+
+        Parameters
+        ----------
+        _attr : str
+            Attribute name (unused)
+        _old : list
+            Previous selection indices (unused)
+        new : list
+            New selection indices
+        """
+        if new:
+            indices = new
+            if len(indices) > 0:
+                selected_x = [self._wavelength_data.value[i] for i in indices]
+                x_range = [min(selected_x), max(selected_x)]
+
+                # Update selection overlay to show persistent selection
+                self._selection_source.data = dict(
+                    left=[x_range[0]],
+                    right=[x_range[1]],
+                    top=[self._y_range[1]],
+                    bottom=[self._y_range[0]]
+                )
+
+                # Track the current selection
+                self._current_wavelength_range = x_range
+
+                # Get current filter mode from buttons
+                filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+                self._update_species_interactions(x_range, self.FILTER_MODES[filter_mode_index])
 
     def _update_species_interactions(self, wavelength_range, filter_mode):
         """
@@ -513,43 +527,20 @@ class LineInfoWidget:
         )
 
         # Get index of 0th row in species_interactions_table
-        species0 = self.species_interactions_table.df.index[0]
+        if not self.species_interactions_table.df.empty and self.species_interactions_table.df.index[0] != "":
+            
+            species0 = self.species_interactions_table.df.index[0]
 
-        # Also update last_line_counts_table by triggering its event listener
-        if self.species_interactions_table.get_selected_rows() == [0]:
-            # Listener won't trigger if last row selected in
-            # species_interactions_table was also 0th, so unselect the rows
+            # Also update last_line_counts_table by triggering its event listener
+            if self.species_interactions_table.get_selected_rows() == [0]:
+                # Listener won't trigger if last row selected in
+                # species_interactions_table was also 0th, so unselect the rows
+                self.species_interactions_table.change_selection([])
+            # Select 0th row in this table to trigger _update_last_line_counts
+            self.species_interactions_table.change_selection([species0])
+        else:
+            # Clear selection if no valid data
             self.species_interactions_table.change_selection([])
-        # Select 0th row in this table to trigger _update_last_line_counts
-        self.species_interactions_table.change_selection([species0])
-
-    def _add_selection_box(self, selector):
-        """
-        Draw a shape on plotly figure widget to represent the selection.
-
-        Parameters
-        ----------
-        selector : plotly.callbacks.BoxSelector
-            The object containing data about current selection made on plot
-            (x-axis and y-axis range of selection box)
-        """
-        self.figure_widget.layout.shapes = [
-            dict(
-                type="rect",
-                xref="x",
-                yref="y",
-                x0=selector.xrange[0],
-                y0=selector.yrange[0],
-                x1=selector.xrange[1],
-                y1=selector.yrange[1],
-                line=dict(
-                    color=self.COLORS["selection_border"],
-                    width=1,
-                ),
-                fillcolor=self.COLORS["selection_area"],
-                opacity=0.5,
-            )
-        ]
 
     def _update_last_line_counts(self, species, filter_mode, group_mode):
         """
@@ -570,51 +561,33 @@ class LineInfoWidget:
         else:  # Line counts table will be empty
             self.total_packets_label.update_and_resize(0)
 
-    def _spectrum_selection_handler(self, trace, points, selector):
-        """
-        Event handler for selection of spectrum in plotly figure widget.
 
-        This method has the expected signature of the callback function passed
-        to :code:`on_selection` method of a plotly trace as explained in
-        `their docs <https://plotly.com/python-api-reference/generated/plotly.html#plotly.basedatatypes.BaseTraceType.on_selection>`_.
-        """
-        if isinstance(selector, BoxSelector):
-            self._add_selection_box(selector)
-            self._update_species_interactions(
-                selector.xrange,
-                self.FILTER_MODES[self.filter_mode_buttons.index],
-            )
 
-    def _filter_mode_toggle_handler(self, change):
+    def _filter_mode_toggle_handler(self, event):
         """
         Event handler for toggle in filter_mode_buttons.
 
         This method has the expected signature of the callback function
-        passed to :code:`observe` method of ipywidgets as explained in
-        `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
+        for Panel widgets.
         """
-        try:
-            wavelength_range = [
-                self.figure_widget.layout.shapes[0][x] for x in ("x0", "x1")
-            ]
-        except IndexError:  # No selection is made on figure widget
-            return
+        # Use tracked wavelength range instead of trying to access plotly shapes
+        if self._current_wavelength_range is not None:
+            # Get index from the selected value
+            filter_mode_index = list(self.FILTER_MODES_DESC).index(event.new)
+            self._update_species_interactions(
+                self._current_wavelength_range,
+                self.FILTER_MODES[filter_mode_index],
+            )
 
-        self._update_species_interactions(
-            wavelength_range,
-            self.FILTER_MODES[self.filter_mode_buttons.index],
-        )
-
-    def _species_intrctn_selection_handler(self, event, qgrid_widget):
+    def _species_intrctn_selection_handler(self, event, _panel_widget):
         """
         Event handler for selection in species_interactions_table.
 
         This method has the expected signature of the function passed to
-        :code:`handler` argument of :code:`on_selection` method of qgrid.QgridWidget
-        as explained in `their docs <https://qgrid.readthedocs.io/en/latest/#qgrid.QgridWidget.on>`_.
+        :code:`handler` argument of :code:`on` method of PanelTableWidget.
         """
-        # Don't execute function if no row was selected implicitly (by api)
-        if event["new"] == [] and event["source"] == "api":
+        # Don't execute function if no row was selected
+        if not event["new"]:
             return
 
         # Get species from the selected row in species_interactions_table
@@ -624,19 +597,23 @@ class LineInfoWidget:
         if species_selected == "":  # when species_interactions_table is empty
             species_selected = None
 
+        # Get indices from the selected values
+        filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+        group_mode_index = list(self.GROUP_MODES_DESC).index(self.group_mode_dropdown.value)
+
         self._update_last_line_counts(
             species_selected,
-            self.FILTER_MODES[self.filter_mode_buttons.index],
-            self.GROUP_MODES[self.group_mode_dropdown.index],
+            self.FILTER_MODES[filter_mode_index],
+            self.GROUP_MODES[group_mode_index],
         )
 
-    def _group_mode_dropdown_handler(self, change):
+
+    def _group_mode_dropdown_handler(self, event):
         """
         Event handler for selection in group_mode_dropdown.
 
         This method has the expected signature of the callback function
-        passed to :code:`observe` method of ipywidgets as explained in
-        `their docs <https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#Signatures>`_.
+        for Panel widgets.
         """
         try:
             selected_row_idx = (
@@ -648,16 +625,20 @@ class LineInfoWidget:
         except IndexError:  # No row is selected in species_interactions_table
             return
 
+        # Get indices from the selected values
+        filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+        group_mode_index = list(self.GROUP_MODES_DESC).index(event.new)
+
         self._update_last_line_counts(
             species_selected,
-            self.FILTER_MODES[self.filter_mode_buttons.index],
-            self.GROUP_MODES[self.group_mode_dropdown.index],
+            self.FILTER_MODES[filter_mode_index],
+            self.GROUP_MODES[group_mode_index],
         )
 
     @staticmethod
     def ui_control_description(text):
         """Get description label of a UI control with increased font size."""
-        return ipw.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
+        return pn.pane.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
 
     def display(self):
         """
@@ -668,29 +649,23 @@ class LineInfoWidget:
 
         Returns
         -------
-        ipywidgets.Box
+        panel.Column
             Line info widget containing all component widgets
         """
         if not is_notebook():
             print("Please use a notebook to display the widget")
         else:
-            # Set widths of widgets
-            self.species_interactions_table.layout.width = "350px"
-            self.last_line_counts_table.layout.width = "450px"
+            # Panel tables handle their own sizing
             self.total_packets_label.update_and_resize(0)
-            self.group_mode_dropdown.layout.width = "auto"
 
-            # Attach event listeners to widgets
-            spectrum_trace = self.figure_widget.data[0]
-            spectrum_trace.on_selection(self._spectrum_selection_handler)
-            self.filter_mode_buttons.observe(
-                self._filter_mode_toggle_handler, names="index"
+            self.filter_mode_buttons.param.watch(
+                self._filter_mode_toggle_handler, "value"
             )
             self.species_interactions_table.on(
                 "selection_changed", self._species_intrctn_selection_handler
             )
-            self.group_mode_dropdown.observe(
-                self._group_mode_dropdown_handler, names="index"
+            self.group_mode_dropdown.param.watch(
+                self._group_mode_dropdown_handler, "value"
             )
 
             selection_box_symbol = (
@@ -700,42 +675,43 @@ class LineInfoWidget:
                 "width: 0.8em; height: 1.2em; vertical-align: middle;'></span>"
             )
 
-            table_container_left = ipw.VBox(
-                [
-                    self.ui_control_description(
-                        "Filter selected wavelength range "
-                        f"( {selection_box_symbol} ) by"
-                    ),
-                    self.filter_mode_buttons,
-                    self.species_interactions_table,
-                ],
-                layout=dict(margin="0px 15px"),
+            # Create Panel description components
+            filter_description = pn.pane.HTML(
+                f"<span style='font-size: 1.15em;'>Filter selected wavelength range "
+                f"( {selection_box_symbol} ) by:</span>"
             )
 
-            table_container_right = ipw.VBox(
-                [
-                    self.ui_control_description("Group packet counts by"),
-                    self.group_mode_dropdown,
-                    self.last_line_counts_table,
-                    self.total_packets_label.widget,
-                ],
-                layout=dict(margin="0px 15px"),
+
+            group_description = pn.pane.HTML(
+                "<span style='font-size: 1.15em;'>Group packet counts by:</span>"
             )
 
-            return ipw.VBox(
-                [
-                    self.figure_widget,
-                    ipw.Box(
-                        [
-                            table_container_left,
-                            table_container_right,
-                        ],
-                        layout=dict(
-                            display="flex",
-                            align_items="flex-start",
-                            justify_content="center",
-                            height="420px",
-                        ),
-                    ),
-                ]
+            table_container_left = pn.Column(
+                filter_description,
+                self.filter_mode_buttons,
+                self.species_interactions_table.table,
+                margin=(0, 15)
             )
+
+            table_container_right = pn.Column(
+                group_description,
+                self.group_mode_dropdown,
+                self.last_line_counts_table.table,
+                self.total_packets_label.widget,
+                margin=(0, 15)
+            )
+
+            tables_row = pn.Row(
+                table_container_left,
+                table_container_right,
+                sizing_mode='stretch_width'
+            )
+
+            widget = pn.Column(
+                self.figure_widget,
+                tables_row,
+                sizing_mode='stretch_width'
+            )
+            
+            return widget
+

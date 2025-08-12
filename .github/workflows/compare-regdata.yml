@@ -13,6 +13,13 @@ on:
       - reopened
       - synchronize
       - labeled
+  workflow_call:
+    inputs:
+      pip_git:
+        description: "Whether or not to install tardis using git"
+        required: false
+        type: boolean
+        default: false
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -37,7 +44,7 @@ jobs:
       allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ inputs.pip_git && 'pip tests enabled' || '' }}
+    name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -46,6 +53,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
+        pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
             os: macos-latest
@@ -71,30 +79,34 @@ jobs:
           swap-storage: true
 
       - uses: actions/checkout@v4
+      
+      - name: Checkout tardisbase repository
+        uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardisbase
+          path: tardisbase
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
 
       - name: Setup environment
-        uses: ./.github/actions/setup_env
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
 
-      - name: Install package editable
-        if: ${{ !inputs.pip_git }}
+      - name: Install tardis editable
+        if: ${{ !matrix.pip_git }}
         run: |
-          pip install -e . --user
+          pip install -e ".[tardisbase]" 
 
-      - name: Install package git
-        if: ${{ inputs.pip_git }}
+      - name: Install tardis git
+        if: ${{ matrix.pip_git }}
         run: |
-          pip install git+https://github.com/tardis-sn/tardis.git@master
+          pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@master"
 
-      - name: Install qgridnext
-        if: ${{ !inputs.pip_git }}
+      - name: Install qgridnext and lineid_plot
         run: |
-          pip install qgridnext
-
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
@@ -106,12 +118,7 @@ jobs:
           git add tardis
           git commit -m "Update regression data for commit ${GITHUB_SHA}"
         working-directory: ${{ github.workspace }}/tardis-regression-data
-      
-      - name: Update compare.py from fork
-        run: |
-          curl -s https://raw.githubusercontent.com/atharva-2001/tardis-regression-data/refs/heads/update_notebook/compare.py > compare.py
-        working-directory: ${{ github.workspace }}/tardis-regression-data
-      
+
       - name: Add environment variable to save plots
         run: |
           echo "SAVE_COMP_IMG=1" >> $GITHUB_ENV
@@ -122,19 +129,21 @@ jobs:
 
       - name: Run comparison notebook
         run: |
-          jupyter nbconvert --execute compare_regression_data.ipynb \
+          jupyter nbconvert --execute ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data.ipynb \
             --to html \
             --output=compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html \
         working-directory: ${{ github.workspace }}/tardis-regression-data
-
+        env:
+          REGRESSION_DATA_REPO: ${{ github.workspace }}/tardis-regression-data
+  
       - name: Upload comparison notebook
         uses: actions/upload-artifact@v4
         with:
-          name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+          name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}.html
           include-hidden-files: true
           path: |
-            ${{ github.workspace }}/tardis-regression-data/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
-            ${{ github.workspace }}/tardis-regression-data/comparison_plots*
+            ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
+            ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/comparison_plots*
 
 
   deploy-comparison:
@@ -176,7 +185,7 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.BOT_TOKEN }}
+          personal_token: ${{ secrets.BOT_TOKEN }} # personal_token since pushing to external repo
           publish_branch: ${{ env.DEPLOY_BRANCH }}
           publish_dir: comparison-artifacts
           destination_dir: ${{ env.DEST_DIR }}
@@ -237,3 +246,4 @@ jobs:
             You can also download the artifacts directly from the [Actions tab](${{ env.ARTIFACT_URL }}).
         env:
           ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+ 

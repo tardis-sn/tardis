@@ -1,6 +1,7 @@
 import numpy.testing as npt
 import pandas.testing as pdt
 import pytest
+from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
@@ -16,6 +17,7 @@ def tardis_model_density_config(example_model_file_dir):
 
 @pytest.fixture
 def raw_simulation_state(tardis_model_density_config, kurucz_atomic_data):
+    tardis_model_density_config.model.abundances.model_isotope_time_0 = 0 * u.s
     return SimulationState.from_config(
         tardis_model_density_config, atom_data=kurucz_atomic_data
     )

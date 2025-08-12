@@ -1,6 +1,6 @@
 import logging
 
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.simulation.base import PlasmaStateStorerMixin
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
@@ -164,7 +164,7 @@ class StandardTARDISWorkflow(
                 "Absorbed": [absorbed_luminosity.value, "value"],
                 "Requested": [self.luminosity_requested.value, "value"],
             }
-        self.update_convergence_plot_data(plot_data)
+            self.update_convergence_plot_data(plot_data)
 
         logger.info(
             f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
@@ -217,10 +217,10 @@ class StandardTARDISWorkflow(
                 self.simulation_state.t_inner,
             )
 
-            opacity_states = self.solve_opacity()
+            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -247,8 +247,9 @@ class StandardTARDISWorkflow(
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
+        self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
-            opacity_states,
+            self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
@@ -267,6 +268,6 @@ class StandardTARDISWorkflow(
                 last=True,
             )
         self.initialize_spectrum_solver(
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )
