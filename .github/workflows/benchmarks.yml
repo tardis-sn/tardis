@@ -136,13 +136,13 @@ jobs:
 
       - name: Benchmarks compare output
         id: asv_pr_vs_master
-        uses: juliangruber/read-file-action@v1.0.0
+        uses: juliangruber/read-file-action@v1.1.7
         with:
           path: asv-compare-output.log
 
       - name: Benchmarks compare only changed output
         id: asv_pr_vs_master_changed
-        uses: juliangruber/read-file-action@v1.0.0
+        uses: juliangruber/read-file-action@v1.1.7
         with:
           path: asv-compare-changed-output.log
 
