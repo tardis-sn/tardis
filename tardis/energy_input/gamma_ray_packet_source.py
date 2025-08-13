@@ -356,7 +356,7 @@ class GammaRayPacketSource(BasePacketSource):
         cumulative_decays_df: pd.DataFrame,
         number_of_packets: int,
         legacy_energy_per_packet: float | None = None,
-    ) -> GXPacketCollection:
+    ):
         """
         Initialize a collection of gamma ray packets for simulation.
 
@@ -443,7 +443,7 @@ class GammaRayPacketSource(BasePacketSource):
 
         # get the isotopes and shells of the sampled packets
         source_isotopes = sampled_packets_df.index.get_level_values("isotope")
-        shells = sampled_packets_df.index.get_level_values("shell_number")
+        shells = sampled_packets_df.index.get_level_values("shell_number").to_numpy()
 
         # get the inner and outer velocity boundaries for each packet to compute
         sampled_packets_df["inner_velocity"] = self.inner_velocities[shells]
@@ -453,7 +453,7 @@ class GammaRayPacketSource(BasePacketSource):
         initial_velocities = self.create_packet_velocities(sampled_packets_df)
 
         # get the time step index of the packets
-        decay_time_indices = sampled_packets_df.index.get_level_values("time_index")
+        decay_time_indices = sampled_packets_df.index.get_level_values("time_index").to_numpy()
 
         effective_decay_times = self.times[decay_time_indices]
 
@@ -508,8 +508,7 @@ class GammaRayPacketSource(BasePacketSource):
             shells,
             effective_decay_times,
             decay_time_indices,
-            source_isotopes=source_isotopes,
-        )
+        ), source_isotopes
 
 
 def legacy_calculate_positron_fraction(
