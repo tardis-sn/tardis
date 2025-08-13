@@ -18,7 +18,7 @@ Glossary
         CHIANTI consists of a critically evaluated set of up-to-date atomic data, together with user-friendly programs written in Interactive Data Language (IDL) and Python to calculate the spectra from astrophysical plasmas.
     
     Estimator
-        A statistical tool or algorithm used in Monte Carlo simulations to calculate physical quantities (like radiation field properties) from the random sampling of particle interactions.
+        A statistical tool or algorithm used in Monte Carlo simulations to calculate physical quantities. In the case of TARDIS this is usually the estimation of radiation field properties based on the behavior and distribution of photon packets.
     
     Grey Opacity
         A simplified opacity model where the absorption coefficient is assumed to be independent of photon wavelength or frequency, making calculations more tractable.
@@ -30,13 +30,15 @@ Glossary
         A comprehensive database of atomic line data compiled by Robert Kurucz, widely used in stellar and supernova atmosphere modeling for opacity calculations.
     
     Meta-Stable
-        Metastability is the condition of a system where the system has stability, but is not as stable as in the system's state of least energy.
+        Metastability is the condition of a system where the system has stability, but is not as stable as in the system's state of least energy. 
+        In atomic physics, this is term is usually used to describe excitation states that have long spontaneous emission timescales, which corresponds to low oscillator strengths of transitions away from the metastable state. 
     
     Monte Carlo
         A computational method that uses random sampling to solve complex physical problems, particularly useful for simulating particle transport and radiative transfer.
     
     Nebular
-        Relating to the nebular phase of supernovae, typically occurring weeks to months after explosion when the ejecta becomes optically thin and emission lines dominate the spectrum.
+        Relating to the nebular phase of supernovae, typically occurring weeks to months after explosion when the ejecta becomes optically thin and emission lines dominate the spectrum. 
+        In TARDIS, this may also refer to adjustments to LTE assumptions to handle lower density environments, which are often applicable to supernova ejecta. 
     
     Opacity
         A measure of how opaque or transparent a material is to electromagnetic radiation, quantifying the probability of photon absorption or scattering per unit path length.
