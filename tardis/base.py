@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 def run_tardis(
     config,
+    atom_data=None,
     simulation_callbacks=None,
     virtual_packet_logging=False,
     show_convergence_plots=False,
@@ -27,6 +28,10 @@ def run_tardis(
     ----------
     config : str or dict or tardis.io.config_reader.Configuration
         filename of configuration yaml file or dictionary or TARDIS Configuration object
+    atom_data : str or tardis.atomic.AtomData, optional
+        If atom_data is a string it is interpreted as a path to a file storing
+        the atomic data. Atomic data to use for this TARDIS simulation. If set to None (i.e. default),
+        the atomic data will be loaded according to keywords set in the configuration
     packet_source : class, optional
         A custom packet source class or a child class of `tardis.transport.montecarlo.packet_source`
         used to override the TARDIS `BasePacketSource` class.
@@ -86,7 +91,15 @@ def run_tardis(
                 "TARDIS Config not available via YAML. Reading through TARDIS Config Dictionary"
             )
             tardis_config = Configuration.from_config_dict(config)
-
+    if atom_data is not None:
+        try:
+            atom_data = AtomData.from_hdf(atom_data)
+        except TypeError:
+            logger.debug(
+                "Atom Data Cannot be Read from HDF. Setting to Default Atom Data"
+            )
+            atom_data = atom_data
+            
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
@@ -105,6 +118,7 @@ def run_tardis(
 
     workflow = StandardTARDISWorkflow(
         configuration=tardis_config,
+        atom_data=atom_data,
         enable_virtual_packet_logging=virtual_packet_logging,
         log_level=log_level,
         specific_log_level=specific_log_level,

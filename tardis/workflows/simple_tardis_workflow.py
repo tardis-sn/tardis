@@ -32,7 +32,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
     log_level = None
     specific_log_level = None
 
-    def __init__(self, configuration, csvy=False):
+    def __init__(self, configuration, csvy=False, atom_data=None):
         """A simple TARDIS workflow that runs a simulation to convergence
 
         Parameters
@@ -43,7 +43,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             Set true if the configuration uses CSVY, by default False
         """
         super().__init__(configuration, self.log_level, self.specific_log_level)
-        atom_data = parse_atom_data(configuration)
+        atom_data = parse_atom_data(configuration, atom_data=atom_data)
 
         # set up states and solvers
         if csvy:
