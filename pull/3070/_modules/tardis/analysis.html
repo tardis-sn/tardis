@@ -1,0 +1,713 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.analysis &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=fa5b0a2b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.analysis</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.analysis</h1><div class="highlight"><pre>
+<span></span>&quot;&quot;&quot;
+Code to analyse the model.
+&quot;&quot;&quot;
+
+import re
+
+import numpy as np
+import pandas as pd
+from astropy import units as u
+
+from tardis import constants
+
+INVALID_ION_ERROR_MSG = &quot;Atomic number, ion_number pair not present in model&quot;
+
+
+<div class="viewcode-block" id="LastLineInteraction">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.LastLineInteraction">[docs]</a>
+class LastLineInteraction:
+<div class="viewcode-block" id="LastLineInteraction.from_simulation">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.LastLineInteraction.from_simulation">[docs]</a>
+    @classmethod
+    def from_simulation(cls, simulation, packet_filter_mode=&quot;packet_out_nu&quot;):
+        transport_state = simulation.transport.transport_state
+        return cls(
+            transport_state.last_line_interaction_in_id,
+            transport_state.last_line_interaction_out_id,
+            transport_state.last_line_interaction_shell_id,
+            transport_state.packet_collection.output_nus,
+            transport_state.last_interaction_in_nu,
+            simulation.plasma.atomic_data.lines,
+            packet_filter_mode,
+        )</div>
+
+
+    def __init__(
+        self,
+        last_line_interaction_in_id,
+        last_line_interaction_out_id,
+        last_line_interaction_shell_id,
+        output_nu,
+        input_nu,
+        lines,
+        packet_filter_mode=&quot;packet_out_nu&quot;,
+    ):
+        # mask out packets which did not perform a line interaction
+        # TODO mask out packets which do not escape to observer?
+        mask = last_line_interaction_out_id != -1
+        self.last_line_interaction_in_id = last_line_interaction_in_id[mask]
+        self.last_line_interaction_out_id = last_line_interaction_out_id[mask]
+        self.last_line_interaction_shell_id = last_line_interaction_shell_id[
+            mask
+        ]
+        self.last_line_interaction_out_angstrom = u.Quantity(
+            output_nu[mask], &quot;Hz&quot;
+        ).to(u.Angstrom, equivalencies=u.spectral())
+        self.last_line_interaction_in_angstrom = u.Quantity(
+            input_nu[mask], &quot;Hz&quot;
+        ).to(u.Angstrom, equivalencies=u.spectral())
+        self.lines = lines
+
+        self._wavelength_start = 0 * u.angstrom
+        self._wavelength_end = np.inf * u.angstrom
+        self._atomic_number = None
+        self._ion_number = None
+        self._shell = None
+        self.packet_filter_mode = packet_filter_mode
+        self.update_last_interaction_filter()
+
+    @property
+    def wavelength_start(self):
+        return self._wavelength_start.to(&quot;angstrom&quot;)
+
+    @wavelength_start.setter
+    def wavelength_start(self, value):
+        if not isinstance(value, u.Quantity):
+            raise ValueError(&quot;needs to be a Quantity&quot;)
+        self._wavelength_start = value
+        self.update_last_interaction_filter()
+
+    @property
+    def wavelength_end(self):
+        return self._wavelength_end.to(&quot;angstrom&quot;)
+
+    @wavelength_end.setter
+    def wavelength_end(self, value):
+        if not isinstance(value, u.Quantity):
+            raise ValueError(&quot;needs to be a Quantity&quot;)
+        self._wavelength_end = value
+        self.update_last_interaction_filter()
+
+    @property
+    def atomic_number(self):
+        return self._atomic_number
+
+    @atomic_number.setter
+    def atomic_number(self, value):
+        old_atomic_number = self._atomic_number
+        try:
+            self._atomic_number = value
+            self.update_last_interaction_filter()
+        except:
+            self._atomic_number = old_atomic_number
+            raise ValueError(INVALID_ION_ERROR_MSG)
+
+    @property
+    def ion_number(self):
+        return self._ion_number
+
+    @ion_number.setter
+    def ion_number(self, value):
+        old_ion_number = self._ion_number
+        try:
+            self._ion_number = value
+            self.update_last_interaction_filter()
+        except:
+            self._ion_number = old_ion_number
+            raise ValueError(INVALID_ION_ERROR_MSG)
+
+<div class="viewcode-block" id="LastLineInteraction.set_ion">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.LastLineInteraction.set_ion">[docs]</a>
+    def set_ion(self, atomic_number, ion_number):
+        old_atomic_number = self._atomic_number
+        old_ion_number = self._ion_number
+        try:
+            self._atomic_number = atomic_number
+            self._ion_number = ion_number
+            self.update_last_interaction_filter()
+        except:
+            self._atomic_number = old_atomic_number
+            self._ion_number = old_ion_number
+            raise ValueError(INVALID_ION_ERROR_MSG)</div>
+
+
+    @property
+    def shell(self):
+        return self._shell
+
+    @shell.setter
+    def shell(self, value):
+        old_shell = self._shell
+        try:
+            self._shell = value
+            self.update_last_interaction_filter()
+        except:
+            self._shell = old_shell
+            raise ValueError(&quot;Invalid shell number&quot;)
+
+<div class="viewcode-block" id="LastLineInteraction.update_last_interaction_filter">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.LastLineInteraction.update_last_interaction_filter">[docs]</a>
+    def update_last_interaction_filter(self):
+        if self.packet_filter_mode == &quot;packet_out_nu&quot;:
+            packet_filter = (
+                self.last_line_interaction_out_angstrom &gt; self.wavelength_start
+            ) &amp; (self.last_line_interaction_out_angstrom &lt; self.wavelength_end)
+
+        elif self.packet_filter_mode == &quot;packet_in_nu&quot;:
+            packet_filter = (
+                self.last_line_interaction_in_angstrom &gt; self.wavelength_start
+            ) &amp; (self.last_line_interaction_in_angstrom &lt; self.wavelength_end)
+
+        elif self.packet_filter_mode == &quot;line_in_nu&quot;:
+            line_in_nu = self.lines.wavelength.iloc[
+                self.last_line_interaction_in_id
+            ].values
+            packet_filter = (
+                line_in_nu &gt; self.wavelength_start.to(u.angstrom).value
+            ) &amp; (line_in_nu &lt; self.wavelength_end.to(u.angstrom).value)
+
+        else:
+            raise ValueError(
+                &quot;Invalid value of packet_filter_mode. The only values &quot;
+                &quot;allowed are: packet_out_nu, packet_in_nu, line_in_nu&quot;
+            )
+
+        if self.shell is not None:
+            packet_filter = packet_filter &amp; (
+                self.last_line_interaction_shell_id == self.shell
+            )
+
+        last_line_in = self.lines.iloc[
+            self.last_line_interaction_in_id[packet_filter]
+        ]
+        last_line_out = self.lines.iloc[
+            self.last_line_interaction_out_id[packet_filter]
+        ]
+
+        if self.atomic_number is not None:
+            last_line_in = last_line_in.xs(
+                self.atomic_number, level=&quot;atomic_number&quot;, drop_level=False
+            )
+            last_line_out = last_line_out.xs(
+                self.atomic_number, level=&quot;atomic_number&quot;, drop_level=False
+            )
+
+        if self.ion_number is not None:
+            last_line_in = last_line_in.xs(
+                self.ion_number, level=&quot;ion_number&quot;, drop_level=False
+            )
+            last_line_out = last_line_out.xs(
+                self.ion_number, level=&quot;ion_number&quot;, drop_level=False
+            )
+
+        self.last_line_in = last_line_in
+        self.last_line_out = last_line_out
+
+        last_line_in_count = self.last_line_in.line_id.value_counts()
+        last_line_out_count = self.last_line_out.line_id.value_counts()
+
+        self.last_line_in_table = self.last_line_in.reset_index()[
+            [
+                &quot;wavelength&quot;,
+                &quot;atomic_number&quot;,
+                &quot;ion_number&quot;,
+                &quot;level_number_lower&quot;,
+                &quot;level_number_upper&quot;,
+            ]
+        ]
+        self.last_line_in_table[&quot;count&quot;] = last_line_in_count
+        self.last_line_in_table = self.last_line_in_table.sort_values(
+            by=&quot;count&quot;, ascending=False
+        )
+        self.last_line_out_table = self.last_line_out.reset_index()[
+            [
+                &quot;wavelength&quot;,
+                &quot;atomic_number&quot;,
+                &quot;ion_number&quot;,
+                &quot;level_number_lower&quot;,
+                &quot;level_number_upper&quot;,
+            ]
+        ]
+        self.last_line_out_table[&quot;count&quot;] = last_line_out_count
+        self.last_line_out_table = self.last_line_out_table.sort_values(
+            by=&quot;count&quot;, ascending=False
+        )</div>
+
+
+<div class="viewcode-block" id="LastLineInteraction.plot_wave_in_out">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.LastLineInteraction.plot_wave_in_out">[docs]</a>
+    def plot_wave_in_out(self, fig, do_clf=True, plot_resonance=True):
+        if do_clf:
+            fig.clf()
+        ax = fig.add_subplot(111)
+        wave_in = self.last_line_list_in[&quot;wavelength&quot;]
+        wave_out = self.last_line_list_out[&quot;wavelength&quot;]
+
+        if plot_resonance:
+            min_wave = np.min([wave_in.min(), wave_out.min()])
+            max_wave = np.max([wave_in.max(), wave_out.max()])
+            ax.plot([min_wave, max_wave], [min_wave, max_wave], &quot;b-&quot;)
+
+        ax.plot(wave_in, wave_out, &quot;b.&quot;, picker=True)
+        ax.set_xlabel(&quot;Last interaction Wave in&quot;)
+        ax.set_ylabel(&quot;Last interaction Wave out&quot;)
+
+        def onpick(event):
+            print(&quot;-&quot; * 80)
+            print(
+                &quot;Line_in&quot;
+                f&quot;({len(event.ind)}/{self.current_no_packets})&quot;
+                f&quot;:\n{self.last_line_list_in.iloc[event.ind]}&quot;
+            )
+            print(&quot;\n\n&quot;)
+            print(
+                &quot;Line_out&quot;
+                f&quot;({len(event.ind)}/{self.current_no_packets})&quot;
+                f&quot;:\n{self.last_line_list_in.iloc[event.ind]}&quot;
+            )
+            print(&quot;^&quot; * 80)
+
+        def onpress(event):
+            pass
+
+        fig.canvas.mpl_connect(&quot;pick_event&quot;, onpick)
+        fig.canvas.mpl_connect(&quot;on_press&quot;, onpress)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="TARDISHistory">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory">[docs]</a>
+class TARDISHistory:
+    &quot;&quot;&quot;
+    Records the history of the model
+    &quot;&quot;&quot;
+
+    def __init__(self, hdf5_fname, iterations=None):
+        self.hdf5_fname = hdf5_fname
+        if iterations is None:
+            iterations = []
+            hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+            for key in hdf_store.keys():
+                if key.split(&quot;/&quot;)[1] == &quot;atom_data&quot;:
+                    continue
+                iterations.append(
+                    int(re.match(r&quot;model(\d+)&quot;, key.split(&quot;/&quot;)[1]).groups()[0])
+                )
+
+            self.iterations = np.sort(np.unique(iterations))
+            hdf_store.close()
+        else:
+            self.iterations = iterations
+
+        self.levels = None
+        self.lines = None
+
+<div class="viewcode-block" id="TARDISHistory.load_atom_data">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.load_atom_data">[docs]</a>
+    def load_atom_data(self):
+        if self.levels is None or self.lines is None:
+            hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+            self.levels = hdf_store[&quot;atom_data/levels&quot;]
+            self.lines = hdf_store[&quot;atom_data/lines&quot;]
+            hdf_store.close()</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.load_t_inner">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.load_t_inner">[docs]</a>
+    def load_t_inner(self, iterations=None):
+        t_inners = []
+        hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+        for iter in iterations:
+            t_inners.append(
+                hdf_store[f&quot;model{iter:03d}/configuration&quot;].iloc[&quot;t_inner&quot;]
+            )
+        hdf_store.close()
+
+        t_inners = np.array(t_inners)
+        return t_inners</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.load_t_rads">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.load_t_rads">[docs]</a>
+    def load_t_rads(self, iterations=None):
+        t_rads_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+        for iter in iterations:
+            current_iter = f&quot;iter{iter:03d}&quot;
+            t_rads_dict[current_iter] = hdf_store[f&quot;model{iter:03d}/t_rads&quot;]
+
+        t_rads = pd.DataFrame(t_rads_dict)
+        hdf_store.close()
+        return t_rads</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.load_ws">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.load_ws">[docs]</a>
+    def load_ws(self, iterations=None):
+        ws_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+        for iter in iterations:
+            current_iter = f&quot;iter{iter:03d}&quot;
+            ws_dict[current_iter] = hdf_store[f&quot;model{iter:03d}/ws&quot;]
+        hdf_store.close()
+
+        return pd.DataFrame(ws_dict)</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.load_level_populations">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.load_level_populations">[docs]</a>
+    def load_level_populations(self, iterations=None):
+        level_populations_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+        is_scalar = False
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            is_scalar = True
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+        for iter in iterations:
+            current_iter = f&quot;iter{iter:03d}&quot;
+            level_populations_dict[current_iter] = hdf_store[
+                f&quot;model{iter:03d}/level_populations&quot;
+            ]
+
+        hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(level_populations_dict.values()[0])
+        else:
+            return pd.Panel(level_populations_dict)</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.load_jblues">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.load_jblues">[docs]</a>
+    def load_jblues(self, iterations=None):
+        jblues_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+        is_scalar = False
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            is_scalar = True
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+        for iter in iterations:
+            current_iter = f&quot;iter{iter:03d}&quot;
+            jblues_dict[current_iter] = hdf_store[f&quot;model{iter:03d}/j_blues&quot;]
+
+        hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(jblues_dict.values()[0])
+        else:
+            return pd.Panel(jblues_dict)</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.load_ion_populations">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.load_ion_populations">[docs]</a>
+    def load_ion_populations(self, iterations=None):
+        ion_populations_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+
+        is_scalar = False
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            is_scalar = True
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+        for iter in iterations:
+            current_iter = f&quot;iter{iter:03d}&quot;
+            ion_populations_dict[current_iter] = hdf_store[
+                f&quot;model{iter:03d}/ion_populations&quot;
+            ]
+
+        hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(ion_populations_dict.values()[0])
+        else:
+            return pd.Panel(ion_populations_dict)</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.load_spectrum">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.load_spectrum">[docs]</a>
+    def load_spectrum(self, iteration, spectrum_keyword=&quot;luminosity_density&quot;):
+        hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+
+        spectrum = hdf_store[
+            f&quot;model{self.iterations[iteration]:03d}/{spectrum_keyword}&quot;
+        ]
+        hdf_store.close()
+        return spectrum</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.calculate_relative_lte_level_populations">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.calculate_relative_lte_level_populations">[docs]</a>
+    def calculate_relative_lte_level_populations(self, species, iteration=-1):
+        self.load_atom_data()
+        t_rads = self.load_t_rads(iteration)
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:, 0])
+
+        species_levels = self.levels.iloc[species]
+
+        relative_lte_level_populations = (
+            species_levels.g.values[np.newaxis].T
+            / float(species_levels.g.loc[0])
+        ) * np.exp(-beta_rads * species_levels.energy.values[np.newaxis].T)
+
+        return pd.DataFrame(
+            relative_lte_level_populations, index=species_levels.index
+        )</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.calculate_departure_coefficients">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.calculate_departure_coefficients">[docs]</a>
+    def calculate_departure_coefficients(self, species, iteration=-1):
+        self.load_atom_data()
+        t_rads = self.load_t_rads(iteration)
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:, 0])
+
+        species_levels = self.levels.iloc[species]
+        species_level_populations = self.load_level_populations(iteration).iloc[
+            species
+        ]
+        departure_coefficient = (
+            (species_level_populations.values * species_levels.g.iloc[0])
+            / (
+                species_level_populations.iloc[0].values
+                * species_levels.g.values[np.newaxis].T
+            )
+        ) * np.exp(beta_rads * species_levels.energy.values[np.newaxis].T)
+
+        return pd.DataFrame(departure_coefficient, index=species_levels.index)</div>
+
+
+<div class="viewcode-block" id="TARDISHistory.get_last_line_interaction">
+<a class="viewcode-back" href="../../api/tardis.analysis.html#tardis.analysis.TARDISHistory.get_last_line_interaction">[docs]</a>
+    def get_last_line_interaction(self, iteration=-1):
+        iteration = self.iterations[iteration]
+        self.load_atom_data()
+
+        hdf_store = pd.HDFStore(self.hdf5_fname, &quot;r&quot;)
+        model_string = &quot;model&quot; + (f&quot;{iteration:03d}&quot;) + &quot;/%s&quot;
+        last_line_interaction_in_id = hdf_store[
+            model_string % &quot;last_line_interaction_in_id&quot;
+        ].values
+        last_line_interaction_out_id = hdf_store[
+            model_string % &quot;last_line_interaction_out_id&quot;
+        ].values
+        last_line_interaction_shell_id = hdf_store[
+            model_string % &quot;last_line_interaction_shell_id&quot;
+        ].values
+        try:
+            montecarlo_nu = hdf_store[
+                model_string % &quot;montecarlo_nus_path&quot;
+            ].values
+        except KeyError:
+            montecarlo_nu = hdf_store[model_string % &quot;montecarlo_nus&quot;].values
+        hdf_store.close()
+        return LastLineInteraction(
+            last_line_interaction_in_id,
+            last_line_interaction_out_id,
+            last_line_interaction_shell_id,
+            montecarlo_nu,
+            self.lines,
+        )</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 13 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
