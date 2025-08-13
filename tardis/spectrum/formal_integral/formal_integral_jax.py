@@ -347,7 +347,6 @@ def calc_Inup(
     nu_ends = nu * z[1:]
     nu_ends_idxs = (
         size_line
-        - 1
         - jnp.searchsorted(line_list_nu[::-1], nu_ends, side="right")
     )
 
@@ -357,14 +356,16 @@ def calc_Inup(
         def first_contrib(cond_state):
             escat_contrib, zdiff, escat_op, Inup, pline_offset = cond_state
             escat_contrib += zdiff * escat_op * (Jblue_lu[pline_offset] - Inup)
+            # jdb.print("first j: {}, zend {} zstart {}, escat_contrib: {}", i, zend, zstart, escat_contrib)
             return escat_contrib, 0
 
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
         def otherwise(cond_state):
             escat_contrib, zdiff, escat_op, Inup, pline_offset = cond_state
-
             Jkkp = 0.5 * (Jred_lu[pline_offset - 1] + Jblue_lu[pline_offset])
             escat_contrib += (zdiff) * escat_op * (Jkkp - Inup)
+            # jdb.print("j: {} zend: {}, zstart: {}", i, zend, zstart)
+            # jdb.print("j: {} Jkkp: {}, escat_contrib: {}", i, Jkkp, escat_contrib)
             return escat_contrib, 0
 
         Inup, pline, pline_offset, escat_contrib, escat_op, zstart, first = (
@@ -399,6 +400,14 @@ def calc_Inup(
         escat_op = electron_density[shell_id[i]] * SIGMA_THOMSON
         nu_end = nu_ends[i]
         nu_end_idx = nu_ends_idxs[i]
+        # jdb.print(
+        #     "i: {} \nnu_end {}, nu_end_idx {}\npline: {}, pline_offset: {}",
+        #     i,
+        #     nu_end,
+        #     nu_end_idx,
+        #     pline,
+        #     pline_offset
+        # )
 
         # escat loop
         Inup, pline, pline_offset, _, _, zstart, _ = jax.lax.fori_loop(
@@ -412,14 +421,16 @@ def calc_Inup(
         Jkkp = 0.5 * (Jred_lu[pline_offset - 1] + Jblue_lu[pline_offset])
         zend = time_explosion / C_INV * (1.0 - nu_end / nu)
         escat_contrib += (zend - zstart) * escat_op * (Jkkp - Inup)
-        dir = (
+        direction = (
             (shell_id[i + 1] - shell_id[i]) * size_line
         )  # TODO: replace since flattened need to move by sizeline, but if not flat then just diff axis
 
-        return (Inup, pline + dir, pline_offset + dir, escat_contrib, zend)
+        # jdb.print("i {} dir {} pline {} pline offset {}", i, direction, pline, pline_offset+direction)
+        return (Inup, pline, pline_offset + direction, escat_contrib, zend)
 
     # run the inner loop for i in range(size_z - 1):
     zstart = time_explosion / C_INV * (1.0 - z[0])
+    # jdb.print("nu {} p {} size_z {}", nu, p, size_z)
     Inup, _, _, _, _ = jax.lax.fori_loop(
         0,
         size_z - 1,
@@ -580,6 +591,7 @@ def formal_integral_jax_batch(
     Jblue_lu,
     electron_density,
     N,
+    n_sections
 ):
     """
     Computes the formal integral
@@ -610,7 +622,8 @@ def formal_integral_jax_batch(
         electron densities in each shell
     N : int
         number of impact parameters
-
+    n_sections: int
+        number of sections to batch over frequency and impact parameter
 
     Returns
     -------
@@ -639,7 +652,6 @@ def formal_integral_jax_batch(
     Inup = init_Inup_jax(inu, ps, zs[:, 0], iT, r_inner[0])
 
     # Batch the calc_Inup_jax call over both frequency (nu) and impact parameter (p) axes
-    n_sections = 4  # You can make this a parameter if desired
     n_freq, n_p = Inup.shape[0], Inup.shape[1] - 1
     freq_section_size = (n_freq + n_sections - 1) // n_sections
     p_section_size = (n_p + n_sections - 1) // n_sections
@@ -703,7 +715,7 @@ class JaxFormalIntegrator:
         tau_sobolevs,
         electron_densities,
         points, 
-        batch=False
+        batch=0
     ):
         # get all necessary parameters and put them in jax arrays
         r_inner_i = jnp.array(self.geometry.r_inner)
@@ -717,24 +729,36 @@ class JaxFormalIntegrator:
         electron_densities = jnp.array(electron_densities)
 
         # compute formal integral
-        if batch:
-            f = formal_integral_jax_batch
+        if batch > 1:
+            L, Inup = formal_integral_jax_batch(
+                r_inner_i,
+                r_outer_i,
+                self.time_explosion.value,
+                tau_sobolevs,
+                line_list_nu,
+                iT,
+                frequencies,
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                electron_densities,
+                points, 
+                n_sections=batch
+            )
         else:
-            f = formal_integral_jax
-
-        L, Inup = f(
-            r_inner_i,
-            r_outer_i,
-            self.time_explosion.value,
-            tau_sobolevs,
-            line_list_nu,
-            iT,
-            frequencies,
-            att_S_ul,
-            Jred_lu,
-            Jblue_lu,
-            electron_densities,
-            points
-        )
+            L, Inup = formal_integral_jax(
+                r_inner_i,
+                r_outer_i,
+                self.time_explosion.value,
+                tau_sobolevs,
+                line_list_nu,
+                iT,
+                frequencies,
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                electron_densities,
+                points
+            )
 
         return L, Inup
