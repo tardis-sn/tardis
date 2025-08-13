@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class SourceFunctionSolver:
-    def __init__(self, line_interaction_type):
+    def __init__(self, line_interaction_type: str) -> None:
         """
         Configures the source function solver
 
@@ -21,10 +22,11 @@ class SourceFunctionSolver:
         line_interaction_type : str
             The type of line interaction (e.g. "downbranch", "macroatom").
         """
-
         self.line_interaction_type = line_interaction_type
 
-    def solve(self, sim_state, opacity_state, transport_state, atomic_data):
+    def solve(
+        self, sim_state, opacity_state, transport_state, atomic_data
+    ) -> "SourceFunctionState":
         """
         Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.
 
@@ -48,7 +50,6 @@ class SourceFunctionSolver:
             e_dot_u : pd.DataFrame
                 The rate energy density is added to the upper level of transitions excited to it
         """
-
         # Parse states for required values
         v_inner_boundary_index = sim_state.geometry.v_inner_boundary_index
         v_outer_boundary_index = sim_state.geometry.v_outer_boundary_index
@@ -136,45 +137,49 @@ class SourceFunctionSolver:
 
     def calculate_e_dot_u(
         self,
-        time_of_simulation,
-        volume,
-        tau_sobolevs,
-        e_dot_lu_estimator,
-        transition_probabilities,
-        upper_level_idx,
-        no_of_shells,
-        no_lvls,
-        line_interaction_type,
-        macro_data,
-        macro_ref,
-    ):
+        time_of_simulation: u.Quantity,
+        volume: u.Quantity,
+        tau_sobolevs: np.ndarray,
+        e_dot_lu_estimator: np.ndarray,
+        transition_probabilities: np.ndarray,
+        upper_level_idx: pd.Index,
+        no_of_shells: int,
+        no_lvls: int,
+        line_interaction_type: str,
+        macro_data: pd.DataFrame,
+        macro_ref: pd.DataFrame,
+    ) -> pd.DataFrame:
         """
         Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it
 
         Parameters
         ----------
-        time_of_simulation: float
+        time_of_simulation : astropy.units.Quantity
             Time duration of the simulation
-        volume: astropy.units.Quantity
-        tau_sobolevs: np.ndarray
+        volume : astropy.units.Quantity
+        tau_sobolevs : np.ndarray
             Sobolev optical depths
-        e_dot_lu_estimator: np.ndarray
+        e_dot_lu_estimator : np.ndarray
             The line estimator for the rate of energy absorption of a transition from lower to upper level
-        transition_probabilities: np.ndarray
-        upper_level_idx: pd.Index
+        transition_probabilities : np.ndarray
+        upper_level_idx : pd.Index
             Index of the upper levels in the atomic data
-        no_of_shells: int
+        no_of_shells : int
             Number of shells in the simulation
-        no_lvls: int
+        no_lvls : int
             Number of levels in the atomic data
-        line_interaction_type: str
+        line_interaction_type : str
             Type of line interaction (e.g. "macroatom", "downbranch")
-        macro_data: pd.DataFrame
+        macro_data : pd.DataFrame
             DataFrame containing macro atom data
-        macro_ref: pd.DataFrame
+        macro_ref : pd.DataFrame
             DataFrame containing macro atom references, see http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
-        """
 
+        Returns
+        -------
+        pd.DataFrame
+            The rate energy density is added to the upper level of transitions excited to it
+        """
         e_dot_lu_norm_factor = 1 / (time_of_simulation * volume)
         exptau = 1 - np.exp(-tau_sobolevs)
         e_dot_lu = e_dot_lu_norm_factor * exptau * e_dot_lu_estimator
@@ -186,9 +191,11 @@ class SourceFunctionSolver:
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
 
         if line_interaction_type == "macroatom":
-            e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
+            e_dot_u_src_idx = macro_ref.loc[
+                e_dot_u.index
+            ].references_idx.to_numpy()
 
-            internal_jump_mask = (macro_data.transition_type >= 0).values
+            internal_jump_mask = (macro_data.transition_type >= 0).to_numpy()
             ma_int_data = macro_data[internal_jump_mask]
             internal = transition_probabilities[internal_jump_mask]
 
@@ -203,7 +210,7 @@ class SourceFunctionSolver:
                 )
                 inv_N = sp.identity(no_lvls) - Q
                 e_dot_u_vec = np.zeros(no_lvls)
-                e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
+                e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].to_numpy()
                 C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
 
             e_dot_u = C_frame.loc[e_dot_u.index]
@@ -219,16 +226,16 @@ class SourceFunctionSolver:
 
     def calculate_att_S_ul(
         self,
-        lines,
-        transition_probabilities,
-        no_of_shells,
-        transition_line_id,
-        line_idx,
-        transitions_index,
-        transition_type,
-        e_dot_u,
-        time_explosion,
-    ):
+        lines: pd.DataFrame,
+        transition_probabilities: np.ndarray,
+        no_of_shells: int,
+        transition_line_id: np.ndarray,
+        line_idx: np.ndarray,
+        transitions_index: pd.Index,
+        transition_type: np.ndarray,
+        e_dot_u: pd.DataFrame,
+        time_explosion: float,
+    ) -> np.ndarray:
         """
         Calculates the source function using the line absorption rate estimator `e_dot_lu_estimator`
 
@@ -237,25 +244,29 @@ class SourceFunctionSolver:
 
         Parameters
         ----------
-        lines: pd.DataFrame
+        lines : pd.DataFrame
             atomic line data
-        transition_probabilities: np.ndarray
-        no_of_shells: int
+        transition_probabilities : np.ndarray
+        no_of_shells : int
             Number of shells in the simulation
-        transition_line_id: np.ndarray
+        transition_line_id : np.ndarray
             Line ids for the transitions
-        line_idx: np.ndarray
+        line_idx : np.ndarray
             Indices of the lines in the atomic data
-        transitions_index: pd.Index
+        transitions_index : pd.Index
             Index of the transitions in the macro atom data
-        transition_type: np.ndarray
+        transition_type : np.ndarray
             transition types, see https://tardis-sn.github.io/tardis/physics/setup/plasma/macroatom.html#macroatom for flag definitions
-        e_dot_u: pd.DataFrame
+        e_dot_u : pd.DataFrame
             the rate energy density is add to the upper level of transitions excited to it
-        time_explosion: float
+        time_explosion : float
             geometrical explosion time
-        """
 
+        Returns
+        -------
+        np.ndarray
+            The attenuated source function
+        """
         q_ul = pd.DataFrame(
             transition_probabilities[(transition_type == -1).values],
             index=transitions_index,
@@ -275,22 +286,30 @@ class SourceFunctionSolver:
         return att_S_ul
 
     def calculate_Jblue_lu(
-        self, time_explosion, time_of_simulation, volume, j_blue_estimator
-    ):
+        self,
+        time_explosion: float,
+        time_of_simulation: u.Quantity,
+        volume: u.Quantity,
+        j_blue_estimator: np.ndarray,
+    ) -> np.ndarray:
         """
         Calculates Jblue_lu, the normalized J estimator from the blue end of the line from lower to upper level
 
         Parameters
         ----------
-        time_explosion: float
+        time_explosion : float
             Time duration of the explosion in seconds
-        time_of_simulation: float
+        time_of_simulation : astropy.units.Quantity
             Time duration of the simulation
-        volume: astropy.units.Quantity
-        j_blue_estimator: np.ndarray
+        volume : astropy.units.Quantity
+        j_blue_estimator : np.ndarray
             the line estimator
-        """
 
+        Returns
+        -------
+        np.ndarray
+            The normalized J estimator from the blue end of the line from lower to upper level
+        """
         Jblue_lu_norm_factor = (
             (
                 const.c.cgs
@@ -306,11 +325,29 @@ class SourceFunctionSolver:
         Jblue_lu = j_blue_estimator * Jblue_lu_norm_factor
         return Jblue_lu
 
-    def calculate_Jred_lu(self, Jblue_lu, tau_sobolevs, att_S_ul):
+    def calculate_Jred_lu(
+        self,
+        Jblue_lu: np.ndarray,
+        tau_sobolevs: np.ndarray,
+        att_S_ul: np.ndarray,
+    ) -> np.ndarray:
         """
         Calculates Jred_lu, J estimator from the red end of the line from lower to upper level
-        """
 
+        Parameters
+        ----------
+        Jblue_lu : np.ndarray
+            the normalized J estimator from the blue end of the line from lower to upper level
+        tau_sobolevs : np.ndarray
+            Sobolev optical depths
+        att_S_ul : np.ndarray
+            The attenuated source function
+
+        Returns
+        -------
+        np.ndarray
+            J estimator from the red end of the line from lower to upper level
+        """
         return Jblue_lu * np.exp(-tau_sobolevs) + att_S_ul
 
 
@@ -319,9 +356,8 @@ class SourceFunctionState:
     """
     Data class to hold the computed source function values
 
-    Attributes:
+    Attributes
     ----------
-
     att_S_ul : np.ndarray
         The attenuated source function
     Jred_lu : np.ndarray
@@ -337,7 +373,13 @@ class SourceFunctionState:
     Jblue_lu: np.ndarray
     e_dot_u: pd.DataFrame
 
-    def __init__(self, att_S_ul, Jred_lu, Jblue_lu, e_dot_u):
+    def __init__(
+        self,
+        att_S_ul: np.ndarray,
+        Jred_lu: np.ndarray,
+        Jblue_lu: np.ndarray,
+        e_dot_u: pd.DataFrame,
+    ) -> None:
         self.att_S_ul = att_S_ul
         self.Jred_lu = Jred_lu
         self.Jblue_lu = Jblue_lu
