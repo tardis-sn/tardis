@@ -1,8 +1,6 @@
-*******************************
-Analysis How-To Guides
-*******************************
-
-**These are problem-oriented guides for analyzing TARDIS simulation outputs.**
+************************************
+Analyszing TARDIS Simulation Outputs
+************************************
 
 This section provides practical solutions for common analysis tasks. These guides assume you have completed simulations and want to extract scientific insights from the results.
 
@@ -22,7 +20,5 @@ Detailed Guides
     visualization/index
 
 .. note::
-   **New to TARDIS analysis?** Start with the spectrum analysis tutorial in our :doc:`../tutorials`.
-   
    **Need technical details?** Check the API reference for analysis modules.
     
