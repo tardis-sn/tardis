@@ -16,7 +16,8 @@ defaults:
 jobs:
   codespell:
     runs-on: ubuntu-latest
-
+    outputs:
+      codespell_success: ${{ steps.codespell_status_success.outputs.success || steps.codespell_status_failure.outputs.success }}
     steps:
       - uses: actions/checkout@v4
         if: github.event_name != 'pull_request'
@@ -36,3 +37,30 @@ jobs:
       - name: Run codespell
         run: |
           codespell docs/
+
+      - name: Set codespell status (success)
+        if: success()
+        id: codespell_status_success
+        run: |
+          echo "success=true" >> $GITHUB_OUTPUT
+
+      - name: Set codespell status (failure)
+        if: failure()
+        id: codespell_status_failure
+        run: |
+          echo "success=false" >> $GITHUB_OUTPUT
+
+  update-codespell-pr-description:
+    needs: codespell
+    if: always() && github.event_name == 'pull_request'
+    uses: ./.github/workflows/pr-description-updater.yml
+    permissions:
+      pull-requests: write
+    with:
+      section_id: 'codespell'
+      content: |
+        ${{ needs.codespell.outputs.codespell_success == 'true' && '✅ **Codespell**: Passed' || '❌ **Codespell**: Failed - [View logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})' }}
+      pr_number: '${{ github.event.number }}'
+      title: 'Codespell'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

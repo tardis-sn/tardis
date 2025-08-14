@@ -61,7 +61,7 @@ jobs:
             const startMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_START -->`;
             const endMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_END -->`;
             
-            // Format content
+            // Format content - ensure consistent formatting
             let formattedContent;
             if (collapsible) {
               formattedContent = `
@@ -72,8 +72,8 @@ jobs:
 
             </details>`;
             } else {
-              formattedContent = `
-            **${title}**: ${content}`;
+              // Standardized single-line format: status icon + workflow name + status + optional link
+              formattedContent = `${content}`;
             }
             
             const sectionContent = `${startMarker}
