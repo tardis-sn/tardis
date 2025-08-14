@@ -4,13 +4,15 @@
 name: mailmap
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    outputs:
+      mailmap_check_failed: ${{ steps.check_mailmap.outcome == 'failure' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,6 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Check PR authors
+        id: check_mailmap
         run: cat .mailmap | grep "$(git log $PR_BASE_SHA..HEAD --pretty='%aN <%aE>')"
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -28,19 +31,34 @@ jobs:
           echo; git log $PR_BASE_SHA..HEAD --pretty='%aN <%aE>'
         if: failure()
 
-      - name: Create comment
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            *\*beep\* \*bop\**
+  update-mailmap-pr-description:
+    needs: check
+    if: needs.check.outputs.mailmap_check_failed == 'true'
+    uses: ./.github/workflows/pr-description-updater.yml
+    permissions:
+      pull-requests: write
+    with:
+      section_id: 'mailmap'
+      content: |
+        ❌ Mailmap validation failed
 
-            Hi, human.
+        Your name or email couldn't be found in the `.mailmap` file.
 
-            I'm the @tardis-bot and couldn't find your records in my database. I think we don't know each other, or you changed your credentials recently.
+        **Action required:** Please add your name and email to the `.mailmap` file in your current branch and push the changes.
 
-            Please add your **name** and **email** to `.mailmap` in your current branch and push the changes to this pull request.
+        [Learn more about mailmap](https://docs.enterprise.codescene.io/versions/2.0.0/getting-started/ensure-you-use-a-mailmap.html)
+      pr_number: '${{ github.event.pull_request.number }}'
+      collapsible: true
+      title: 'Mailmap Check'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
-            In case you need to map an existing alias, follow [this example](https://docs.enterprise.codescene.io/versions/2.0.0/getting-started/ensure-you-use-a-mailmap.html).
-        if: failure()
+  alert-on-race-condition:
+    needs: update-mailmap-pr-description
+    if: always() && cancelled() && needs.check.outputs.mailmap_check_failed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1

@@ -1,0 +1,149 @@
+name: Update PR Comment Section
+
+on:
+  workflow_call:
+    inputs:
+      section_id:
+        required: true
+        type: string
+        description: 'Unique section identifier (docs, benchmarks, regdata, ruff, orcid, welcome)'
+      content:
+        required: true
+        type: string
+        description: 'Content to update in the section'
+      pr_number:
+        required: true
+        type: string
+        description: 'PR number'
+      collapsible:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to make content collapsible'
+      title:
+        required: false
+        type: string
+        description: 'Section title'
+    secrets:
+      BOT_TOKEN:
+        required: true
+        description: 'GitHub token with pull request write permissions'
+
+concurrency:
+  group: update-pr-description-${{ inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  update-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update PR Comment
+        uses: actions/github-script@v7
+        env:
+          SECTION_ID: ${{ inputs.section_id }}
+          CONTENT: ${{ inputs.content }}
+          COLLAPSIBLE: ${{ inputs.collapsible }}
+          TITLE: ${{ inputs.title }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          script: |
+            const sectionId = process.env.SECTION_ID;
+            const content = process.env.CONTENT;
+            const collapsible = process.env.COLLAPSIBLE === 'true';
+            const title = process.env.TITLE || sectionId.toUpperCase();
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            
+            // Main comment identifier
+            const mainCommentMarker = '<!-- TARDIS_AUTOMATED_COMMENT -->';
+            
+            // Section delimiters
+            const startMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_START -->`;
+            const endMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_END -->`;
+            
+            // Format content - ensure consistent formatting
+            let formattedContent;
+            if (collapsible) {
+              formattedContent = `
+            <details>
+            <summary>${title}</summary>
+
+            ${content}
+
+            </details>`;
+            } else {
+              // Standardized single-line format: status icon + workflow name + status + optional link
+              formattedContent = `${content}`;
+            }
+            
+            const sectionContent = `${startMarker}
+            ${formattedContent}
+            ${endMarker}`;
+            
+            // Get existing comments
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+            
+            // Find existing TARDIS automated comment
+            const existingComment = comments.find(comment => 
+              comment.body && comment.body.includes(mainCommentMarker)
+            );
+            
+            let commentBody;
+            
+            if (existingComment) {
+              // Update existing section in the comment
+              let currentBody = existingComment.body;
+              
+              const startIndex = currentBody.indexOf(startMarker);
+              const endIndex = currentBody.indexOf(endMarker);
+              
+              if (startIndex !== -1 && endIndex !== -1) {
+                // Update existing section
+                const before = currentBody.substring(0, startIndex);
+                const after = currentBody.substring(endIndex + endMarker.length);
+                commentBody = before + sectionContent + after;
+              } else {
+                // Add new section
+                if (!currentBody.includes('<!-- TARDIS_SECTIONS_START -->')) {
+                  currentBody += '\n\n<!-- TARDIS_SECTIONS_START -->\n## 🤖 Automated Checks\n<!-- TARDIS_SECTIONS_END -->';
+                }
+                
+                const sectionsStart = currentBody.indexOf('<!-- TARDIS_SECTIONS_START -->');
+                const sectionsEnd = currentBody.indexOf('<!-- TARDIS_SECTIONS_END -->');
+                
+                if (sectionsStart !== -1 && sectionsEnd !== -1) {
+                  const before = currentBody.substring(0, sectionsEnd);
+                  const after = currentBody.substring(sectionsEnd);
+                  commentBody = before + '\n' + sectionContent + '\n' + after;
+                } else {
+                  commentBody = currentBody + '\n\n' + sectionContent;
+                }
+              }
+              
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment with the section
+              commentBody = `${mainCommentMarker}
+
+            <!-- TARDIS_SECTIONS_START -->
+            ## 🤖 Automated Checks
+            ${sectionContent}
+            <!-- TARDIS_SECTIONS_END -->`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: commentBody
+              });
+            }
