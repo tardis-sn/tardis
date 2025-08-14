@@ -7,6 +7,9 @@ from astropy import units as u
 
 from tardis.plasma import BasePlasma
 from tardis.plasma.base import PlasmaSolverSettings
+from tardis.plasma.equilibrium.rates.photoionization_strengths import (
+    AnalyticPhotoionizationCoeffSolver,
+)
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (
     HeliumNumericalNLTE,
@@ -25,7 +28,7 @@ from tardis.plasma.properties.nlte_rate_equation_solver import (
 )
 from tardis.plasma.properties.rate_matrix_index import NLTEIndexHelper
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
-    DiluteBlackBodyContinuumPropertiesSolver,
+    ContinuumProperties,
 )
 from tardis.util.base import species_string_to_tuple
 
@@ -534,13 +537,15 @@ class PlasmaSolverFactory:
         initial_continuum_properties : `~tardis.plasma.properties.ContinuumProperties`
             The initial continuum properties of the plasma.
         """
-        t_electrons = dilute_planckian_radiation_field.temperature.to(u.K).value
+        t_electrons = dilute_planckian_radiation_field.temperature.to(u.K)
 
-        initial_continuum_solver = DiluteBlackBodyContinuumPropertiesSolver(
-            self.atom_data
+        initial_continuum_solver = AnalyticPhotoionizationCoeffSolver(
+            self.atom_data.photoionization_data
         )
-        initial_continuum_properties = initial_continuum_solver.solve(
-            dilute_planckian_radiation_field, t_electrons
+        initial_continuum_properties = ContinuumProperties(
+            *initial_continuum_solver.solve(
+                dilute_planckian_radiation_field, t_electrons
+            )
         )
         return initial_continuum_properties
 
