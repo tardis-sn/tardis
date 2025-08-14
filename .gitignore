@@ -86,3 +86,6 @@ benchmarks/data/*.h5
 .asv/
 pkgs/
 release_hashes.txt
+docs/how_to_guides.rst
+docs/workflows.rst
+docs/analyzing_tardis/spectrum/tardis_example.yml

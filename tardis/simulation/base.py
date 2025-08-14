@@ -21,7 +21,7 @@ from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -30,7 +30,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
-from tardis.util.base import is_notebook
+from tardis.util.environment import Environment
 from tardis.visualization import ConvergencePlots
 
 logger = logging.getLogger(__name__)
@@ -188,7 +188,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         if show_convergence_plots:
-            if not is_notebook():
+            if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
                 raise RuntimeError(
                     "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                     "to False."
@@ -559,17 +559,21 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.simulation_state.t_inner,
         )
+
+        # Set up spectrum solver integrator and virtual spectrum
         emitted_luminosity, v_packets_energy_hist = self.iterate(
             self.last_no_of_packets, self.no_of_virtual_packets
         )
 
-        # Set up spectrum solver integrator and virtual spectrum
+        formal_integral_solver = FormalIntegralSolver(self.spectrum_solver.integrator_settings)
+
         self.spectrum_solver.setup_optional_spectra(
             self.transport.transport_state,
             v_packets_energy_hist,
-            FormalIntegrator(
-                self.simulation_state, self.plasma, self.transport
-            ),
+            formal_integral_solver,
+            self.simulation_state,
+            self.transport,
+            self.plasma,
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)

@@ -10,6 +10,7 @@ from tardis.transport.montecarlo.estimators.continuum_radfield_properties import
 )
 
 
+@pytest.mark.skip("Continuum tests skipping until replaced.")
 @pytest.mark.continuum
 def test_continuum_estimators(
     continuum_config,

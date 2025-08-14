@@ -4,6 +4,15 @@
 Physics Walkthrough Introduction
 ********************************
 
+**This explanation section helps you understand the theory and concepts behind TARDIS.**
+
+These pages explain *why* TARDIS works the way it does, providing the theoretical foundation for understanding supernova radiative transfer simulations.
+
+.. note::
+   **Want to learn by doing?** Check out our :doc:`../../tutorials` for hands-on practice.
+   
+   **Need to solve a specific problem?** See our :doc:`../../how_to_guides`.
+
 How TARDIS Works
 ================
 
