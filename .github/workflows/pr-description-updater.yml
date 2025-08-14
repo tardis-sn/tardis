@@ -1,4 +1,4 @@
-name: Update PR Description Section
+name: Update PR Comment Section
 
 on:
   workflow_call:
@@ -34,10 +34,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  update-description:
+  update-comment:
     runs-on: ubuntu-latest
     steps:
-      - name: Update PR Description
+      - name: Update PR Comment
         uses: actions/github-script@v7
         env:
           SECTION_ID: ${{ inputs.section_id }}
@@ -54,67 +54,55 @@ jobs:
             const title = process.env.TITLE || sectionId.toUpperCase();
             const prNumber = parseInt(process.env.PR_NUMBER);
             
-            // Get current PR
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
-            
-            let description = pr.body || '';
-            
-            // Section delimiters
-            const startMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_START -->`;
-            const endMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_END -->`;
+            // Comment identifier
+            const commentMarker = `<!-- TARDIS_${sectionId.toUpperCase()}_COMMENT -->`;
             
             // Format content
             let formattedContent;
             if (collapsible) {
-              formattedContent = `
+              formattedContent = `## ${title}
+
             <details>
-            <summary>${title}</summary>
+            <summary>Click to expand</summary>
 
             ${content}
 
             </details>`;
             } else {
-              formattedContent = `
-            **${title}**: ${content}`;
+              formattedContent = `## ${title}
+
+            ${content}`;
             }
             
-            const sectionContent = `${startMarker}
-            ${formattedContent}
-            ${endMarker}`;
+            const commentBody = `${commentMarker}
+            ${formattedContent}`;
             
-            // Check if section exists
-            const startIndex = description.indexOf(startMarker);
-            const endIndex = description.indexOf(endMarker);
-            
-            if (startIndex !== -1 && endIndex !== -1) {
-              // Update existing section
-              const before = description.substring(0, startIndex);
-              const after = description.substring(endIndex + endMarker.length);
-              description = before + sectionContent + after;
-            } else {
-              // Add new section
-              if (!description.includes('<!-- TARDIS_SECTIONS_START -->')) {
-                description += '\n\n<!-- TARDIS_SECTIONS_START -->\n## 🤖 Automated Checks\n<!-- TARDIS_SECTIONS_END -->';
-              }
-              
-              const sectionsStart = description.indexOf('<!-- TARDIS_SECTIONS_START -->');
-              const sectionsEnd = description.indexOf('<!-- TARDIS_SECTIONS_END -->');
-              
-              if (sectionsStart !== -1 && sectionsEnd !== -1) {
-                const before = description.substring(0, sectionsEnd);
-                const after = description.substring(sectionsEnd);
-                description = before + '\n' + sectionContent + '\n' + after;
-              }
-            }
-            
-            // Update PR description
-            await github.rest.pulls.update({
+            // Get existing comments
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: prNumber,
-              body: description
+              issue_number: prNumber
             });
+            
+            // Find existing comment with this section
+            const existingComment = comments.find(comment => 
+              comment.body && comment.body.includes(commentMarker)
+            );
+            
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: commentBody
+              });
+            }
