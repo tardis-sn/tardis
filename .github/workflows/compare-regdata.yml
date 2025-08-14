@@ -155,7 +155,11 @@ jobs:
 
       - name: Install qgridnext and lineid_plot
         run: |
-          pip install --no-deps qgridnext lineid_plot GitPython
+          pip install --no-deps qgridnext lineid_plot
+
+      - name: Install GitPython
+        run: |
+          pip install GitPython
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
