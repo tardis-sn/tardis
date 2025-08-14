@@ -21,7 +21,9 @@ class RadiativeRatesSolver:
             einstein_coefficients.index.get_level_values("level_number_lower")
             < einstein_coefficients.index.get_level_values("level_number_upper")
         )
-        self.einstein_coefficients = einstein_coefficients.sort_index()
+        self.einstein_coefficients = einstein_coefficients.sort_index(
+            kind="stable"
+        )
 
     def solve(self, radiation_field):
         mean_intensity = radiation_field.calculate_mean_intensity(

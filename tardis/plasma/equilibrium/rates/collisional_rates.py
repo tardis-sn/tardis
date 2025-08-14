@@ -180,4 +180,4 @@ class ThermalCollisionalRateSolver:
                 thermal_collision_strengths,
                 thermal_collision_strength_approximated,
             ]
-        ).sort_index()
+        ).sort_index(kind="stable")

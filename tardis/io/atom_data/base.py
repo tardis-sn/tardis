@@ -524,7 +524,7 @@ class AtomData:
 
         self.level2continuum_edge_idx = pd.Series(
             np.arange(len(nu_ion_threshold)),
-            nu_ion_threshold.sort_values(ascending=False).index,
+            nu_ion_threshold.sort_values(ascending=False, kind="stable").index,
             name="continuum_idx",
         )
 
