@@ -19,6 +19,17 @@ on:
       - synchronize
       - labeled # requires the `build-docs` label
       - ready_for_review
+  
+  pull_request:
+    branches:
+      - master
+
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled # requires the `build-docs` label
+      - ready_for_review
 
   workflow_dispatch: # manual trigger
 
@@ -111,7 +122,11 @@ jobs:
           mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-regression-data/atom_data/. ~/Downloads/tardis-data
 
       - name: Install package
-        run: pip install -e ".[viz]"
+        run: pip install -e ".[tardisbase]"
+
+      - name: Install qgridnext and lineid_plot
+        run: |
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Install Sphinx extensions
         run: |
