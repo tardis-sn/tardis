@@ -210,7 +210,7 @@ jobs:
 
   deploy-comparison:
     needs: tests
-    if: github.event_name == 'pull_request_target'
+    # if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
