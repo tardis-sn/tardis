@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
@@ -31,7 +32,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
     log_level = None
     specific_log_level = None
 
-    def __init__(self, configuration, csvy=False):
+    def __init__(self, configuration, csvy=False, atom_data=None):
         """A simple TARDIS workflow that runs a simulation to convergence
 
         Parameters
@@ -42,7 +43,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             Set true if the configuration uses CSVY, by default False
         """
         super().__init__(configuration, self.log_level, self.specific_log_level)
-        atom_data = parse_atom_data(configuration)
+        atom_data = parse_atom_data(configuration, atom_data=atom_data)
 
         # set up states and solvers
         if csvy:
@@ -165,6 +166,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         self.convergence_solvers["t_inner"] = ConvergenceSolver(
             self.convergence_strategy.t_inner
         )
+
+        self._callbacks = OrderedDict()
+        self._cb_next_id = 0
 
     def get_convergence_estimates(self):
         """Compute convergence estimates from the transport state
@@ -488,6 +492,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
 
+            self._call_back()
+
             if self.converged and self.convergence_strategy.stop_if_converged:
                 break
 
@@ -508,3 +514,18 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.opacity_states,
             virtual_packet_energies,
         )
+
+        self._call_back()
+
+    def _call_back(self):
+        for cb, args in self._callbacks.values():
+            cb(self, *args)
+
+    def add_callback(self, cb_func, *args):
+        cb_id = self._cb_next_id
+        self._callbacks[cb_id] = (cb_func, args)
+        self._cb_next_id += 1
+        return cb_id
+
+    def remove_callback(self, cb_id):
+        return self._callbacks.pop(cb_id, None) is not None

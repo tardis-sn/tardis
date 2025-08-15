@@ -40,6 +40,7 @@ class StandardTARDISWorkflow(
         show_convergence_plots=False,
         convergence_plots_kwargs=None,
         csvy=False,
+        atom_data=None,
     ):
         if convergence_plots_kwargs is None:
             convergence_plots_kwargs = {}
@@ -49,7 +50,7 @@ class StandardTARDISWorkflow(
         self.enable_virtual_packet_logging = enable_virtual_packet_logging
         self.convergence_plots_kwargs = convergence_plots_kwargs
 
-        SimpleTARDISWorkflow.__init__(self, configuration, csvy)
+        SimpleTARDISWorkflow.__init__(self, configuration, csvy, atom_data)
 
         # set up plasma storage
         PlasmaStateStorerMixin.__init__(
@@ -271,3 +272,31 @@ class StandardTARDISWorkflow(
             self.opacity_states,
             virtual_packet_energies,
         )
+
+    @property
+    def plasma(self):
+        return self.plasma_solver
+    
+    @property 
+    def transport(self):
+        return self.transport_solver
+        
+    @property
+    def iterations_executed(self):
+        return self.completed_iterations
+        
+    @property
+    def iterations(self):
+        return self.total_iterations
+        
+    @property
+    def no_of_packets(self):
+        return self.real_packet_count
+        
+    @property
+    def last_no_of_packets(self):
+        return self.final_iteration_packet_count
+        
+    @property
+    def no_of_virtual_packets(self):
+        return self.virtual_packet_count
