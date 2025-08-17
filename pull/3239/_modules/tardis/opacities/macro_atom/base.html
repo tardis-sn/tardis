@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.opacities.macro_atom.base &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=c15f583c"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.opacities.macro_atom.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.opacities.macro_atom.base</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import numpy as np
+import pandas as pd
+
+from tardis.opacities.macro_atom import util
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="initialize_transition_probabilities">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_transition_probabilities">[docs]</a>
+def initialize_transition_probabilities(
+    atomic_data,
+):
+    &quot;&quot;&quot;Convienience Function for initializing the transition probabilities
+
+    Parameters
+    ----------
+    atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+
+    Returns
+    -------
+    dict
+        &quot;transition_probability_coef&quot; : np.ndarray
+            Reshaped macro atom transition probabilities
+        &quot;block_references&quot;: np.ndarray
+            macro atom block references
+    &quot;&quot;&quot;
+    macro_atom_data = get_macro_atom_data(atomic_data)
+    (
+        transition_up_filter,
+        transition_up_line_filter,
+        block_references,
+    ) = initialize_macro_atom_transition_type_filters(
+        atomic_data, macro_atom_data
+    )
+    transition_probability_coef = get_transition_probability_coefs(
+        macro_atom_data
+    )
+
+    return {
+        &quot;transition_probability_coef&quot;: transition_probability_coef,
+        &quot;block_references&quot;: block_references,
+    }</div>
+
+
+
+<div class="viewcode-block" id="initialize_macro_atom_transition_type_filters">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_macro_atom_transition_type_filters">[docs]</a>
+def initialize_macro_atom_transition_type_filters(atomic_data, macro_atom_data):
+    &quot;&quot;&quot;Get the filters and block references from the macro atom
+
+    Parameters
+    ----------
+    atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+    macro_atom_data : pd.DataFrame
+        Macro Atom Data
+
+    Returns
+    -------
+    np.ndarray
+        Mask where the transition type is 1
+    np.ndarray
+        index of lines at these locations
+    pd.ndarray
+        macro atom block references
+    &quot;&quot;&quot;
+    transition_up_filter = macro_atom_data.transition_type.values == 1
+    transition_up_line_filter = macro_atom_data.lines_idx.values[
+        transition_up_filter
+    ]
+    block_references = np.hstack(
+        (
+            atomic_data.macro_atom_references.block_references,
+            len(macro_atom_data),
+        )
+    )
+
+    return transition_up_filter, transition_up_line_filter, block_references</div>
+
+
+
+<div class="viewcode-block" id="get_transition_probability_coefs">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_transition_probability_coefs">[docs]</a>
+def get_transition_probability_coefs(macro_atom_data):
+    &quot;&quot;&quot;Coefficients of the transition probabilities
+
+    Parameters
+    ----------
+    macro_atom_data : pd.DataFrame
+        Macro Atom Data
+
+    Returns
+    -------
+    np.ndarray
+        Reshaped macro atom transition probabilities
+    &quot;&quot;&quot;
+    return macro_atom_data.transition_probability.values[np.newaxis].T</div>
+
+
+
+<div class="viewcode-block" id="get_macro_atom_data">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_macro_atom_data">[docs]</a>
+def get_macro_atom_data(atomic_data):
+    &quot;&quot;&quot;Get the macro atom data from the atomic data
+
+    Parameters
+    ----------
+    atomic_data : tardis.io.atom_data.AtomData
+            Atomic Data
+
+    Returns
+    -------
+    pd.DataFrame
+        The macro atom data in the plasma
+    &quot;&quot;&quot;
+    try:
+        return atomic_data.macro_atom_data
+    except:
+        logger.debug(
+            &quot;Macro Atom Data was not found. Instead returning All Macro Atom Data&quot;
+        )
+        return atomic_data.macro_atom_data_all</div>
+
+
+
+<div class="viewcode-block" id="TransitionProbabilities">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities">[docs]</a>
+class TransitionProbabilities(
+    ProcessingPlasmaProperty
+):  # Base MacroAtom Property
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    transition_probabilities : Pandas DataFrame, dtype float
+    &quot;&quot;&quot;
+
+    outputs = (&quot;transition_probabilities&quot;,)
+
+    def __init__(self, plasma_parent):
+        super(TransitionProbabilities, self).__init__(plasma_parent)
+        self.initialize = True
+        self.normalize = True
+
+<div class="viewcode-block" id="TransitionProbabilities.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.calculate">[docs]</a>
+    def calculate(
+        self,
+        atomic_data,
+        beta_sobolev,
+        j_blues,
+        stimulated_emission_factor,
+        tau_sobolevs,
+    ):
+        # Referenced in https://github.com/tardis-sn/tardis/issues/3009
+        if len(j_blues) == 0:
+            return None
+        macro_atom_data = self._get_macro_atom_data(atomic_data)
+        if self.initialize:
+            self.initialize_macro_atom_transition_type_filters(
+                atomic_data, macro_atom_data
+            )
+            self.transition_probability_coef = (
+                self._get_transition_probability_coefs(macro_atom_data)
+            )
+            self.initialize = False
+        transition_probabilities = self._calculate_transition_probability(
+            macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
+        )
+        transition_probabilities = pd.DataFrame(
+            transition_probabilities,
+            index=macro_atom_data.transition_line_id,
+            columns=tau_sobolevs.columns,
+        )
+        return transition_probabilities</div>
+
+
+    def _calculate_transition_probability(
+        self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
+    ):
+        transition_probabilities = np.empty(
+            (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
+        )
+        transition_type = macro_atom_data.transition_type.values
+        lines_idx = macro_atom_data.lines_idx.values
+        tpos = macro_atom_data.transition_probability.values
+        util.fast_calculate_transition_probabilities(
+            tpos,
+            beta_sobolev.values,
+            j_blues.values,
+            stimulated_emission_factor,
+            transition_type,
+            lines_idx,
+            self.block_references,
+            transition_probabilities,
+            self.normalize,
+        )
+        return transition_probabilities
+
+<div class="viewcode-block" id="TransitionProbabilities.initialize_macro_atom_transition_type_filters">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.initialize_macro_atom_transition_type_filters">[docs]</a>
+    def initialize_macro_atom_transition_type_filters(
+        self, atomic_data, macro_atom_data
+    ):
+        self.transition_up_filter = macro_atom_data.transition_type.values == 1
+        self.transition_up_line_filter = macro_atom_data.lines_idx.values[
+            self.transition_up_filter
+        ]
+        self.block_references = np.hstack(
+            (
+                atomic_data.macro_atom_references.block_references,
+                len(macro_atom_data),
+            )
+        )</div>
+
+
+    @staticmethod
+    def _get_transition_probability_coefs(macro_atom_data):
+        return macro_atom_data.transition_probability.values[np.newaxis].T
+
+<div class="viewcode-block" id="TransitionProbabilities.prepare_transition_probabilities">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.prepare_transition_probabilities">[docs]</a>
+    def prepare_transition_probabilities(
+        self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
+    ):
+        current_beta_sobolev = beta_sobolev.values.take(
+            macro_atom_data.lines_idx.values, axis=0, mode=&quot;raise&quot;
+        )
+        transition_probabilities = (
+            self.transition_probability_coef * current_beta_sobolev
+        )
+        j_blues = j_blues.take(
+            self.transition_up_line_filter, axis=0, mode=&quot;raise&quot;
+        )
+        macro_stimulated_emission = stimulated_emission_factor.take(
+            self.transition_up_line_filter, axis=0, mode=&quot;raise&quot;
+        )
+        transition_probabilities[self.transition_up_filter] *= (
+            j_blues * macro_stimulated_emission
+        )
+        return transition_probabilities</div>
+
+
+    @staticmethod
+    def _get_macro_atom_data(atomic_data):
+        try:
+            return atomic_data.macro_atom_data
+        except:
+            logger.debug(
+                &quot;Macro Atom Data was not found. Instead returning All Macro Atom Data&quot;
+            )
+            return atomic_data.macro_atom_data_all</div>
+
+
+
+<div class="viewcode-block" id="NonMarkovChainTransitionProbabilities">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities">[docs]</a>
+class NonMarkovChainTransitionProbabilities(
+    TransitionProbabilities
+):  # Continuum Only
+    outputs = (&quot;non_markov_transition_probabilities&quot;,)</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 17 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

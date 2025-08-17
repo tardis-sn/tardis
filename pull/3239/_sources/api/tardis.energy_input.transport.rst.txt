@@ -1,0 +1,21 @@
+tardis.energy\_input.transport package
+======================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.energy_input.transport.GXPacket
+   tardis.energy_input.transport.gamma_packet_loop
+   tardis.energy_input.transport.gamma_ray_grid
+   tardis.energy_input.transport.gamma_ray_interactions
+
+Module contents
+---------------
+
+.. automodule:: tardis.energy_input.transport
+   :members:
+   :show-inheritance:
+   :undoc-members:

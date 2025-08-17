@@ -1,0 +1,1712 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TARDIS High Energy Workflow Tutorial &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=c15f583c"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Montecarlo Packet Visualization" href="../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html" />
+    <link rel="prev" title="Credits &amp; Publication Policies" href="../../resources/credits.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TARDIS High Energy Workflow Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#TARDIS-vs-Summa-et-al.-2013-Comparison">TARDIS vs Summa et al. 2013 Comparison</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Model-Setup">Model Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Data-Extraction-Options">Data Extraction Options</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">TARDIS High Energy Workflow Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/tutorials/high_energy/run_high_energy_workflow.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/tutorials/high_energy/run_high_energy_workflow.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import necessary modules for TARDIS High Energy Workflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">constants</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span><span class="p">,</span> <span class="n">download_atom_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.workflows.high_energy.tardis_he_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">TARDISHEWorkflow</span>
+
+<span class="c1"># Configure matplotlib for LaTeX rendering of scientific notation and Greek letters</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;text.usetex&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="kc">False</span>  <span class="c1"># Use mathtext instead of full LaTeX for better compatibility</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.family&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;serif&quot;</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;mathtext.fontset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cm&quot;</span>  <span class="c1"># Computer Modern fonts for consistency</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download and load atomic data</span>
+<span class="c1"># We recommend using the latest atomic data from the TARDIS data repository</span>
+<span class="n">atomic_data_fname</span> <span class="o">=</span> <span class="s2">&quot;kurucz_cd23_chianti_H_He_latest&quot;</span>
+<span class="n">download_atom_data</span><span class="p">(</span><span class="n">atomic_data_fname</span><span class="p">)</span>
+<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s2">&quot;kurucz_cd23_chianti_H_He_latest.h5&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:tardis.io.atom_data.atom_web_download:Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /Users/wkerzend/projects/tardis/tardis-data/kurucz_cd23_chianti_H_He_latest.h5. Will not download - override with force_download=True.
+INFO:tardis.io.atom_data.util:
+        Atom Data kurucz_cd23_chianti_H_He_latest.h5 not found in local path.
+        Exists in TARDIS Data repo /Users/wkerzend/projects/tardis/tardis-data/kurucz_cd23_chianti_H_He_latest.h5
+INFO:tardis.io.atom_data.util:
+        Atom Data kurucz_cd23_chianti_H_He_latest.h5 not found in local path.
+        Exists in TARDIS Data repo /Users/wkerzend/projects/tardis/tardis-data/kurucz_cd23_chianti_H_He_latest.h5
+INFO:tardis.io.atom_data.base:Reading Atom Data with: UUID = b58b2ef63bf811f08edf96479f911fbd MD5  = 5d80fa4ae0638469bf1ff281b6ca2a94
+INFO:tardis.io.atom_data.base:Non provided Atomic Data: levels, lines, collision_data, collision_data_temperatures, synpp_refs, photoionization_data, yg_data, two_photon_data, linelist_atoms, linelist_molecules
+INFO:tardis.io.atom_data.base:Reading Atom Data with: UUID = b58b2ef63bf811f08edf96479f911fbd MD5  = 5d80fa4ae0638469bf1ff281b6ca2a94
+INFO:tardis.io.atom_data.base:Non provided Atomic Data: levels, lines, collision_data, collision_data_temperatures, synpp_refs, photoionization_data, yg_data, two_photon_data, linelist_atoms, linelist_molecules
+</pre></div></div>
+</div>
+<section id="TARDIS-High-Energy-Workflow-Tutorial">
+<h1>TARDIS High Energy Workflow Tutorial<a class="headerlink" href="#TARDIS-High-Energy-Workflow-Tutorial" title="Link to this heading">¶</a></h1>
+<p>This notebook demonstrates how to use the TARDIS High Energy (HE) Workflow to simulate <span class="math notranslate nohighlight">\(\gamma\)</span>-ray transport in supernova ejecta. The HE workflow is specifically designed to model high-energy phenomena in supernovae, including:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\gamma\)</span>-ray transport through the ejecta</p></li>
+<li><p>Energy deposition processes</p></li>
+<li><p>Positron-electron pair creation</p></li>
+<li><p>Compton scattering</p></li>
+<li><p>Photoabsorption processes</p></li>
+</ul>
+<p>In this example, we’ll simulate a <strong>white dwarf merger scenario for Type Ia supernovae</strong> using:</p>
+<ul class="simple">
+<li><p><strong>Merger model</strong>: Based on the hydrodynamic simulation from <strong>Pakmor et al. (2012)</strong></p></li>
+<li><p><strong>:math:`gamma`-ray transport</strong>: Compared against reference results from <strong>Summa et al. (2013)</strong></p></li>
+</ul>
+<p>This represents a double-detonation scenario where <span class="math notranslate nohighlight">\(\gamma\)</span>-rays from radioactive decay (primarily <span class="math notranslate nohighlight">\(^{56}\)</span>Ni → <span class="math notranslate nohighlight">\(^{56}\)</span>Co → <span class="math notranslate nohighlight">\(^{56}\)</span>Fe) play a crucial role in powering the optical light curve.</p>
+<p>This tutorial is based on the methodology and results presented in <strong>Dutta et al. (2025)</strong>, which demonstrates the application of the TARDIS HE workflow to Type Ia supernova models and provides detailed analysis of <span class="math notranslate nohighlight">\(\gamma\)</span>-ray transport in these systems.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the white dwarf merger configuration (Pakmor et al. 2012)</span>
+<span class="c1"># This configuration represents a Type Ia supernova from a double-detonation scenario</span>
+<span class="c1"># Gamma-ray transport results will be compared against Summa et al. 2013</span>
+
+<span class="n">config_file</span> <span class="o">=</span> <span class="s2">&quot;tardis_config_merger_2012.yml&quot;</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the TARDIS High Energy Workflow</span>
+<span class="n">he_workflow</span> <span class="o">=</span> <span class="n">TARDISHEWorkflow</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="o">=</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">configuration</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s2">&quot;csvy&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:tardis.io.model.parse_mass_fraction_configuration:Mass fractions have not been normalized to 1. - normalizing
+INFO:tardis.model.matter.decay:Decaying abundances for 2600540.0352 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2600540.0352 seconds
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the High Energy simulation for Type Ia supernova</span>
+<span class="c1"># These parameters are optimized for white dwarf merger gamma-ray transport</span>
+
+<span class="n">simulation_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;time_start&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>  <span class="c1"># Start time in days (early in SN evolution)</span>
+    <span class="s2">&quot;time_end&quot;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span>  <span class="c1"># End time in days (covers main decay period)</span>
+    <span class="s2">&quot;number_of_packets&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span>
+        <span class="mf">1e6</span>
+    <span class="p">),</span>  <span class="c1"># Number of gamma-ray packets (for quick demo)</span>
+    <span class="s2">&quot;time_steps&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>  <span class="c1"># Number of time steps</span>
+    <span class="s2">&quot;time_space&quot;</span><span class="p">:</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span>  <span class="c1"># Logarithmic time spacing (appropriate for decay)</span>
+    <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="mi">1993</span><span class="p">,</span>  <span class="c1"># Random seed for reproducibility</span>
+    <span class="s2">&quot;fp&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Covering factor</span>
+    <span class="s2">&quot;spectrum_bins&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>  <span class="c1"># Number of spectrum bins</span>
+    <span class="s2">&quot;grey_opacity&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Use detailed opacity calculation</span>
+    <span class="s2">&quot;legacy&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">&quot;legacy_atom_data&quot;</span><span class="p">:</span> <span class="n">atom_data</span><span class="p">,</span>  <span class="c1"># Use legacy mode for compatibility</span>
+<span class="p">}</span>
+
+<span class="c1"># Run the simulation (commented out for demo - use pre-computed results)</span>
+<span class="n">he_result</span> <span class="o">=</span> <span class="n">he_workflow</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">**</span><span class="n">simulation_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:tardis.model.matter.decay:Decaying abundances for 1357.2980077192738 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1367.9592223127727 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1367.9592223127727 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1378.7041779093443 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1378.7041779093443 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1389.5335322722658 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1389.5335322722658 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1400.4479483313573 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1400.4479483313573 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1411.4480942236141 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1411.4480942236141 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1422.5346433340703 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1422.5346433340703 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1433.7082743370459 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1433.7082743370459 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1444.9696712375471 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1444.9696712375471 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1456.3195234133957 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1456.3195234133957 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1467.7585256572058 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1467.7585256572058 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1479.2873782190497 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1479.2873782190497 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1490.9067868492784 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1490.9067868492784 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1502.6174628416868 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1502.6174628416868 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1514.420123077025 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1514.420123077025 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1526.315490067276 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1526.315490067276 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1538.3042919990899 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1538.3042919990899 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1550.3872627791366 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1550.3872627791366 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1562.5651420786908 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1562.5651420786908 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1574.8386753789077 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1574.8386753789077 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1587.2086140164824 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1587.2086140164824 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1599.6757152296937 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1599.6757152296937 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1612.2407422046379 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1612.2407422046379 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1624.9044641222326 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1624.9044641222326 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1637.6676562049113 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1637.6676562049113 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1650.5310997643548 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1650.5310997643548 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1663.4955822492614 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1663.4955822492614 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1676.5618972934617 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1676.5618972934617 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1689.7308447646096 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1689.7308447646096 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1703.0032308131026 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1703.0032308131026 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1716.3798679214253 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1716.3798679214253 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1729.8615749539522 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1729.8615749539522 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1743.4491772069437 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1743.4491772069437 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1757.143506459154 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1757.143506459154 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1770.9454010227873 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1770.9454010227873 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1784.855705794719 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1784.855705794719 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1798.875272308257 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1798.875272308257 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1813.0049587853237 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1813.0049587853237 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1827.2456301889065 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1827.2456301889065 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1841.5981582761617 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1841.5981582761617 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1856.0634216514402 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1856.0634216514402 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1870.6423058204266 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1870.6423058204266 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1885.3357032443555 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1885.3357032443555 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1900.1445133941886 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1900.1445133941886 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1915.0696428062886 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1915.0696428062886 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1930.1120051374412 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1930.1120051374412 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1945.2725212210269 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1945.2725212210269 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1960.552119123386 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1960.552119123386 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1975.9517342004528 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1975.9517342004528 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1991.472309155192 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 1991.472309155192 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2007.1147940952699 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2007.1147940952699 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2022.8801465911445 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2022.8801465911445 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2038.7693317348094 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2038.7693317348094 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2054.783322198729 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2054.783322198729 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2070.9230982954255 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2070.9230982954255 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2087.189648037642 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2087.189648037642 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2103.583967198661 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2103.583967198661 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2120.107059373039 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2120.107059373039 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2136.7599360388085 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2136.7599360388085 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2153.5436166185177 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2153.5436166185177 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2170.459128541931 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2170.459128541931 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2187.507507309297 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2187.507507309297 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2204.689796554314 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2204.689796554314 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2222.007048108205 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2222.007048108205 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2239.460322063796 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2239.460322063796 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2257.0506868410134 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2257.0506868410134 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2274.779219251802 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2274.779219251802 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2292.6470045658916 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2292.6470045658916 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2310.655136578059 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2310.655136578059 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2328.8047176742366 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2328.8047176742366 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2347.0968588990827 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2347.0968588990827 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2365.532680024661 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2365.532680024661 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2384.113309618509 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2384.113309618509 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2402.83988511224 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2402.83988511224 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2421.7135528720705 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2421.7135528720705 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2440.735468269145 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2440.735468269145 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2459.906795748606 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2459.906795748606 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2479.228708902646 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2479.228708902646 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2498.702390542107 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2498.702390542107 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2518.3290327676145 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2518.3290327676145 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2538.109837043902 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2538.109837043902 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2558.046014273016 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2558.046014273016 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2578.13878486818 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2578.13878486818 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2598.3893788283067 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2598.3893788283067 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2618.7990358141988 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2618.7990358141988 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2639.369005223561 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2639.369005223561 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2660.1005462676258 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2660.1005462676258 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2680.9949280488086 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2680.9949280488086 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2702.0534296376427 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2702.0534296376427 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2723.2773401515487 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2723.2773401515487 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2744.6679588334546 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2744.6679588334546 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2766.226595132025 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2766.226595132025 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2787.954568780626 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2787.954568780626 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2809.8532098789346 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2809.8532098789346 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2831.9238589749007 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2831.9238589749007 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2854.1678671450086 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2854.1678671450086 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2876.5865960787723 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2876.5865960787723 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2899.1814181615327 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2899.1814181615327 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2921.953716557951 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2921.953716557951 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2944.904885297035 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2944.904885297035 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2968.036329357932 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2968.036329357932 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2991.3494647555694 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 2991.3494647555694 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3014.8457186263727 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3014.8457186263727 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3038.526529317818 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3038.526529317818 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3062.39334647438 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3062.39334647438 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3086.4476311273934 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3086.4476311273934 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3110.6908557836846 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3110.6908557836846 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3135.124504517583 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3135.124504517583 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3159.750073058939 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3159.750073058939 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3184.5690688865916 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3184.5690688865916 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3209.5830113209927 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3209.5830113209927 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3234.793431615449 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3234.793431615449 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3260.201873051278 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3260.201873051278 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3285.809891031812 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3285.809891031812 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3311.6190531780917 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3311.6190531780917 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3337.630939423255 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3337.630939423255 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3363.8471421119134 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3363.8471421119134 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3390.269266095001 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3390.269266095001 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3416.898928829227 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3416.898928829227 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3443.7377604766825 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3443.7377604766825 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3470.7874040034512 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3470.7874040034512 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3498.0495152804424 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3498.0495152804424 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3525.5257631853 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3525.5257631853 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3553.217829704849 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3553.217829704849 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3581.12741003616 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3581.12741003616 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3609.256212692296 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3609.256212692296 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3637.6059596071345 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3637.6059596071345 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3666.178386238201 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3666.178386238201 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3694.9752416754054 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3694.9752416754054 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3723.998288747785 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3723.998288747785 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3753.24930413025 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3753.24930413025 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3782.7300784528575 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3782.7300784528575 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3812.442416411315 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3812.442416411315 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3842.3881368764114 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3842.3881368764114 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3872.569073005056 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3872.569073005056 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3902.9870723543127 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3902.9870723543127 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3933.643996992595 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3933.643996992595 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3964.5417236140047 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3964.5417236140047 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3995.68214365421 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 3995.68214365421 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4027.067163405934 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4027.067163405934 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4058.698704134218 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4058.698704134218 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4090.5787021955975 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4090.5787021955975 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4122.70910915712 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4122.70910915712 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4155.091891913298 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4155.091891913298 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4187.729032808892 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4187.729032808892 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4220.622529759768 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4220.622529759768 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4253.774396374305 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4253.774396374305 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4287.1866620773235 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4287.1866620773235 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4320.861372234248 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4320.861372234248 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4354.800588277192 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4354.800588277192 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4389.006387828505 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4389.006387828505 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4423.480864830998 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4423.480864830998 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4458.2261296751 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4458.2261296751 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4493.244309326627 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4493.244309326627 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4528.537547458467 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4528.537547458467 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4564.108004582875 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4564.108004582875 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4599.957858180318 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4599.957858180318 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4636.089302835689 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4636.089302835689 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4672.504550372747 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4672.504550372747 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4709.205829986576 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4709.205829986576 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4746.195388383239 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4746.195388383239 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4783.475489916461 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4783.475489916461 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4821.048416724597 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4821.048416724597 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4858.916468872374 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4858.916468872374 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4897.08196449048 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4897.08196449048 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4935.547239919364 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4935.547239919364 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4974.314649848452 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 4974.314649848452 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5013.386567463857 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5013.386567463857 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5052.765384593499 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5052.765384593499 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5092.453511850374 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5092.453511850374 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5132.453378783114 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5132.453378783114 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5172.767434025016 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5172.767434025016 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5213.398145440457 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5213.398145440457 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5254.34800027952 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5254.34800027952 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5295.619505329947 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5295.619505329947 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5337.215187067301 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5337.215187067301 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5379.137591813367 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5379.137591813367 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5421.389285891388 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5421.389285891388 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5463.9728557802355 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5463.9728557802355 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5506.89090827671 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5506.89090827671 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5550.14607065209 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5550.14607065209 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5593.740990816042 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5593.740990816042 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5637.678337474091 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5637.678337474091 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5681.960800295678 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5681.960800295678 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5726.591090077153 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5726.591090077153 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5771.571938905686 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5771.571938905686 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5816.9061003294755 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5816.9061003294755 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5862.596349525807 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5862.596349525807 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5908.645483468343 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5908.645483468343 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5955.056321101312 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 5955.056321101312 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6001.83170351188 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6001.83170351188 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6048.974494101259 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6048.974494101259 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6096.487578762907 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6096.487578762907 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6144.373866059175 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6144.373866059175 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6192.636287396425 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6192.636287396425 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6241.277797207977 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6241.277797207977 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6290.301373132138 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6290.301373132138 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6339.710016197915 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6339.710016197915 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6389.50675100412 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6389.50675100412 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6439.6946259078395 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6439.6946259078395 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6490.276713211983 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6490.276713211983 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6541.256109348387 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6541.256109348387 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6592.635935072571 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6592.635935072571 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6644.419335653282 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6644.419335653282 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6696.609481062814 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6696.609481062814 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6749.2095661728345 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6749.2095661728345 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6802.222810952685 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6802.222810952685 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6855.652460659536 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6855.652460659536 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6909.501786043739 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6909.501786043739 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6963.774083547276 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 6963.774083547276 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7018.472675502198 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7018.472675502198 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7073.600910338445 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7073.600910338445 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7129.162162785809 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7129.162162785809 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7185.159834084056 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7185.159834084056 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7241.597352185659 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7241.597352185659 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7298.47817197006 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7298.47817197006 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7355.805775455315 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7355.805775455315 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7413.583672007581 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7413.583672007581 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7471.815398558454 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7471.815398558454 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7530.504519823353 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7530.504519823353 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7589.654628514864 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7589.654628514864 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7649.269345566046 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7649.269345566046 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7709.352320354043 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7709.352320354043 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7769.907230916647 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7769.907230916647 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7830.9377841838905 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7830.9377841838905 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7892.4477162044295 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7892.4477162044295 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7954.440792369001 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 7954.440792369001 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8016.920807646784 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8016.920807646784 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8079.891586814381 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8079.891586814381 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8143.356984693253 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8143.356984693253 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8207.320886379932 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8207.320886379932 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8271.787207489439 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8271.787207489439 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8336.759894393783 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8336.759894393783 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8402.242924460466 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8402.242924460466 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8468.240306298669 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8468.240306298669 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8534.756080006486 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8534.756080006486 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8601.794317412669 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8601.794317412669 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8669.359122330008 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8669.359122330008 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8737.454630808264 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8737.454630808264 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8806.08501138081 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8806.08501138081 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8875.254465325537 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8875.254465325537 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8944.967226922086 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 8944.967226922086 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9015.22756370585 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9015.22756370585 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9086.039776734413 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9086.039776734413 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9157.408200848613 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9157.408200848613 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9229.3372049399 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9229.3372049399 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9301.831192213245 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9301.831192213245 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9374.894600461244 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9374.894600461244 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9448.53190233547 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9448.53190233547 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9522.747605616132 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9522.747605616132 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9597.54625349248 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9597.54625349248 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9672.9324248406 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9672.9324248406 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9748.91073449935 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9748.91073449935 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9825.485833557696 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9825.485833557696 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9902.662409639084 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9902.662409639084 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9980.445187183694 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 9980.445187183694 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10058.838927742807 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10058.838927742807 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10137.848430269953 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10137.848430269953 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10217.478531409904 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10217.478531409904 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10297.734105799958 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10297.734105799958 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10378.620066365222 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10378.620066365222 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10460.141364623876 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10460.141364623876 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10542.302990981863 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10542.302990981863 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10625.109975046274 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10625.109975046274 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10708.567385931849 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10708.567385931849 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10792.680332566397 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10792.680332566397 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10877.453964008646 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10877.453964008646 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10962.893469764254 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 10962.893469764254 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11049.004080095983 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11049.004080095983 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11135.791066352147 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11135.791066352147 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11223.259741287677 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11223.259741287677 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11311.415459383363 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11311.415459383363 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11400.263617181043 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11400.263617181043 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11489.809653611428 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11489.809653611428 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11580.059050324087 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11580.059050324087 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11671.01733202693 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11671.01733202693 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11762.690066822632 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11762.690066822632 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11855.082866552119 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11855.082866552119 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11948.201387131292 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 11948.201387131292 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12042.051328904949 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12042.051328904949 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12136.638436993337 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12136.638436993337 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12231.968501640233 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12231.968501640233 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12328.047358570859 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12328.047358570859 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12424.880889351936 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12424.880889351936 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12522.475021743765 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12522.475021743765 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12620.83573006887 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12620.83573006887 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12719.969035579743 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12719.969035579743 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12819.88100681981 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12819.88100681981 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12920.577760000378 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 12920.577760000378 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13022.065459377267 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13022.065459377267 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13124.35031762069 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13124.35031762069 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13227.438596201091 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13227.438596201091 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13331.336605771003 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13331.336605771003 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13436.050706554874 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13436.050706554874 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13541.587308728469 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13541.587308728469 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13647.952872822816 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13647.952872822816 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13755.153910111892 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13755.153910111892 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13863.196983018111 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13863.196983018111 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13972.088705504917 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 13972.088705504917 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14081.835743488102 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14081.835743488102 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14192.44481524621 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14192.44481524621 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14303.922691822641 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14303.922691822641 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14416.27619744802 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14416.27619744802 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14529.512209957658 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14529.512209957658 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14643.63766120564 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14643.63766120564 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14758.659537497306 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14758.659537497306 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14874.584880014709 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14874.584880014709 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14991.42078524235 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 14991.42078524235 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15109.174405407044 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15109.174405407044 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15227.852948919633 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15227.852948919633 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15347.463680802572 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15347.463680802572 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15468.013923148203 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15468.013923148203 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15589.511055563855 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15589.511055563855 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15711.962515616302 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15711.962515616302 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15835.37579929557 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15835.37579929557 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15959.758461469857 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 15959.758461469857 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16085.118116351783 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16085.118116351783 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16211.462437956368 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16211.462437956368 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16338.799160578355 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16338.799160578355 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16467.13607926645 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16467.13607926645 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16596.481050292336 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16596.481050292336 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16726.84199163814 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16726.84199163814 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16858.226883483247 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16858.226883483247 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16990.643768683763 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 16990.643768683763 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17124.10075327225 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17124.10075327225 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17258.6060069562 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17258.6060069562 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17394.167763607027 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17394.167763607027 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17530.794321775444 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17530.794321775444 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17668.494045192405 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17668.494045192405 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17807.2753632894 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17807.2753632894 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17947.146771700933 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 17947.146771700933 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18088.116832796175 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18088.116832796175 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18230.194176203237 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18230.194176203237 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18373.38749932669 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18373.38749932669 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18517.705567889356 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18517.705567889356 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18663.157216471915 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18663.157216471915 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18809.751349039347 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18809.751349039347 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18957.496939499877 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 18957.496939499877 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19106.403032251696 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19106.403032251696 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19256.478742728064 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19256.478742728064 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19407.733257965527 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19407.733257965527 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19560.17583716439 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19560.17583716439 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19713.81581224799 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19713.81581224799 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19868.662588441635 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 19868.662588441635 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20024.72564485148 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20024.72564485148 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20182.014535029975 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20182.014535029975 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20340.538887577168 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20340.538887577168 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20500.30840671932 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20500.30840671932 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20661.3328729136 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20661.3328729136 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20823.62214342978 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20823.62214342978 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20987.186152970266 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 20987.186152970266 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21152.034914273565 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21152.034914273565 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21318.17851872055 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21318.17851872055 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21485.627136957544 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21485.627136957544 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21654.39101952652 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21654.39101952652 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21824.48049747286 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21824.48049747286 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21995.9059829961 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 21995.9059829961 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22168.677970085333 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22168.677970085333 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22342.807035146303 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22342.807035146303 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22518.30383766751 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22518.30383766751 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22695.17912086112 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22695.17912086112 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22873.4437123303 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 22873.4437123303 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23053.108524716867 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23053.108524716867 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23234.184556383367 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23234.184556383367 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23416.682892087738 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23416.682892087738 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23600.61470364328 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23600.61470364328 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23785.99125062219 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23785.99125062219 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23972.82388104129 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 23972.82388104129 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24161.12403204286 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24161.12403204286 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24350.903230611675 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24350.903230611675 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24542.173094276724 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24542.173094276724 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24734.94533181165 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24734.94533181165 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24929.231743961645 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 24929.231743961645 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25125.044224172143 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25125.044224172143 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25322.394759296047 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25322.394759296047 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25521.295430343933 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25521.295430343933 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25721.758413228097 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25721.758413228097 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25923.79597948575 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 25923.79597948575 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26127.420497051913 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26127.420497051913 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26332.644431005952 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26332.644431005952 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26539.480344341406 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26539.480344341406 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26747.940898724162 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26747.940898724162 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26958.038855275823 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 26958.038855275823 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 27169.787075360706 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 27169.787075360706 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 27383.198521352642 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 27383.198521352642 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 27598.286257450854 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 27598.286257450854 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 27815.063450471895 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 27815.063450471895 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28033.54337064527 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28033.54337064527 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28253.739392438547 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28253.739392438547 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28475.664995379975 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28475.664995379975 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28699.333764863946 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28699.333764863946 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28924.759392999407 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 28924.759392999407 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 29151.955679443563 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 29151.955679443563 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 29380.936532251508 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 29380.936532251508 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 29611.71596871054 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 29611.71596871054 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 29844.30811621744 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 29844.30811621744 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 30078.72721313977 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 30078.72721313977 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 30314.98760967413 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 30314.98760967413 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 30553.103768738787 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 30553.103768738787 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 30793.09026685892 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 30793.09026685892 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 31034.961795046955 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 31034.961795046955 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 31278.733159708736 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 31278.733159708736 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 31524.419283563726 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 31524.419283563726 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 31772.035206526605 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 31772.035206526605 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 32021.59608665761 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 32021.59608665761 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 32273.117201083984 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 32273.117201083984 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 32526.613946916565 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 32526.613946916565 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 32782.10184221484 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 32782.10184221484 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 33039.59652693607 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 33039.59652693607 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 33299.11376386715 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 33299.11376386715 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 33560.66943962351 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 33560.66943962351 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 33824.27956559325 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 33824.27956559325 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 34089.96027894643 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 34089.96027894643 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 34357.72784358603 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 34357.72784358603 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 34627.59865117621 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 34627.59865117621 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 34899.58922213502 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 34899.58922213502 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 35173.716206633864 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 35173.716206633864 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 35449.99638563252 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 35449.99638563252 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 35728.44667190743 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 35728.44667190743 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 36009.08411106654 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 36009.08411106654 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 36291.92588261378 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 36291.92588261378 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 36576.989300999456 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 36576.989300999456 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 36864.29181666331 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 36864.29181666331 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 37153.85101711927 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 37153.85101711927 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 37445.68462802244 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 37445.68462802244 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 37739.810514271696 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 37739.810514271696 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 38036.24668106925 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 38036.24668106925 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 38335.0112750564 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 38335.0112750564 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 38636.12258541491 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 38636.12258541491 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 38939.59904497017 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 38939.59904497017 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 39245.45923133983 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 39245.45923133983 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 39553.72186807138 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 39553.72186807138 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 39864.405825764356 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 39864.405825764356 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 40177.53012325154 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 40177.53012325154 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 40493.11392875982 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 40493.11392875982 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 40811.17656106251 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 40811.17656106251 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 41131.73749068385 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 41131.73749068385 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 41454.81634109183 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 41454.81634109183 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 41780.4328898781 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 41780.4328898781 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 42108.60706998521 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 42108.60706998521 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 42439.35897093624 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 42439.35897093624 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 42772.70884003501 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 42772.70884003501 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 43108.67708363071 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 43108.67708363071 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 43447.28426835495 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 43447.28426835495 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 43788.5511223993 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 43788.5511223993 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 44132.49853674802 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 44132.49853674802 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 44479.14756648811 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 44479.14756648811 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 44828.519432097346 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 44828.519432097346 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 45180.6355207224 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 45180.6355207224 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 45535.517387501204 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 45535.517387501204 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 45893.18675689269 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 45893.18675689269 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 46253.66552398195 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 46253.66552398195 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 46616.97575583944 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 46616.97575583944 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 46983.13969287524 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 46983.13969287524 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 47352.179750174946 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 47352.179750174946 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 47724.11851890306 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 47724.11851890306 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 48098.97876766095 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 48098.97876766095 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 48476.7834439062 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 48476.7834439062 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 48857.5556753241 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 48857.5556753241 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 49241.31877127156 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 49241.31877127156 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 49628.09622420013 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 49628.09622420013 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 50017.91171107661 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 50017.91171107661 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 50410.789094844135 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 50410.789094844135 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 50806.75242590046 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 50806.75242590046 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 51205.825943529635 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 51205.825943529635 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 51608.03407742078 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 51608.03407742078 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 52013.401449157434 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 52013.401449157434 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 52421.95287370323 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 52421.95287370323 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 52833.713360947695 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 52833.713360947695 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 53248.70811722999 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 53248.70811722999 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 53666.96254686754 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 53666.96254686754 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 54088.50225372148 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 54088.50225372148 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 54513.3530427855 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 54513.3530427855 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 54941.540921715656 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 54941.540921715656 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 55373.092102468305 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 55373.092102468305 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 55808.0330028803 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 55808.0330028803 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 56246.390248309355 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 56246.390248309355 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 56688.19067322529 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 56688.19067322529 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 57133.461322886025 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 57133.461322886025 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 57582.229454995104 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 57582.229454995104 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 58034.52254133226 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 58034.52254133226 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 58490.368269479724 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 58490.368269479724 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 58949.7945444994 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 58949.7945444994 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 59412.82949062606 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 59412.82949062606 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 59879.50145300961 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 59879.50145300961 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 60349.83899945855 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 60349.83899945855 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 60823.87092214303 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 60823.87092214303 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 61301.626239414414 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 61301.626239414414 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 61783.134197538995 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 61783.134197538995 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 62268.42427252618 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 62268.42427252618 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 62757.52617188309 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 62757.52617188309 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 63250.469836475895 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 63250.469836475895 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 63747.285442362954 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 63747.285442362954 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 64248.003402596034 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 64248.003402596034 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 64752.65436913323 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 64752.65436913323 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 65261.269234702835 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 65261.269234702835 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 65773.87913466587 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 65773.87913466587 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 66290.51544895241 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 66290.51544895241 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 66811.20980398805 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 66811.20980398805 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 67335.994074592 seconds
+INFO:tardis.model.matter.decay:Decaying abundances for 67335.994074592 seconds
+INFO:tardis.energy_input.main_gamma_ray_loop:Creating packets
+INFO:tardis.energy_input.gamma_ray_packet_source:Total energy in gamma-rays is 4.0406859321999453e+49
+INFO:tardis.energy_input.gamma_ray_packet_source:Energy per packet is 4.040685932199945e+43
+INFO:tardis.energy_input.main_gamma_ray_loop:Creating packets
+INFO:tardis.energy_input.gamma_ray_packet_source:Total energy in gamma-rays is 4.0406859321999453e+49
+INFO:tardis.energy_input.gamma_ray_packet_source:Energy per packet is 4.040685932199945e+43
+INFO:tardis.energy_input.main_gamma_ray_loop:Creating packet list
+INFO:tardis.energy_input.main_gamma_ray_loop:Creating packet list
+INFO:tardis.energy_input.main_gamma_ray_loop:Total energy deposited by the positrons is 1.3137085975901763e+48
+INFO:tardis.energy_input.main_gamma_ray_loop:Total energy deposited by the positrons is 1.3137085975901763e+48
+INFO:tardis.energy_input.main_gamma_ray_loop:Entering the main gamma-ray loop
+INFO:tardis.energy_input.main_gamma_ray_loop:Entering the main gamma-ray loop
+INFO:tardis.energy_input.main_gamma_ray_loop:Total CMF energy is 4.04068593224685e+49
+INFO:tardis.energy_input.main_gamma_ray_loop:Total RF energy is 4.0412654767362364e+49
+INFO:tardis.energy_input.main_gamma_ray_loop:Total CMF energy is 4.04068593224685e+49
+INFO:tardis.energy_input.main_gamma_ray_loop:Total RF energy is 4.0412654767362364e+49
+INFO:tardis.energy_input.main_gamma_ray_loop:Total energy deposited by gamma rays and positrons is 2.911439073754442e+49
+INFO:tardis.energy_input.main_gamma_ray_loop:Total energy deposited by gamma rays and positrons is 2.911439073754442e+49
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Entering gamma ray loop for 1000000 packets
+Number of escaped packets: 260519
+Number of scattered packets: 83913
+</pre></div></div>
+</div>
+<section id="TARDIS-vs-Summa-et-al.-2013-Comparison">
+<h2>TARDIS vs Summa et al. 2013 Comparison<a class="headerlink" href="#TARDIS-vs-Summa-et-al.-2013-Comparison" title="Link to this heading">¶</a></h2>
+<p>This section compares TARDIS HE results with reference <span class="math notranslate nohighlight">\(\gamma\)</span>-ray transport calculations from <strong>Summa et al. (2013)</strong>.</p>
+<section id="Model-Setup">
+<h3>Model Setup<a class="headerlink" href="#Model-Setup" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Merger simulation</strong>: White dwarf double-detonation model from <strong>Pakmor et al. (2012)</strong></p></li>
+<li><p><strong>:math:`gamma`-ray reference</strong>: Monte Carlo transport results from <strong>Summa et al. (2013)</strong></p></li>
+<li><p><strong>TARDIS implementation</strong>: High-energy workflow validation against established benchmarks</p></li>
+</ul>
+</section>
+<section id="Data-Extraction-Options">
+<h3>Data Extraction Options<a class="headerlink" href="#Data-Extraction-Options" title="Link to this heading">¶</a></h3>
+<p>The TARDIS HE workflow provides two ways to access the <span class="math notranslate nohighlight">\(\gamma\)</span>-ray spectra:</p>
+<ol class="arabic simple">
+<li><p><strong>Direct extraction</strong> from the simulation result object (<code class="docutils literal notranslate"><span class="pre">he_result.escaped_energy_spectrum</span></code>)</p></li>
+<li><p><strong>Loading from disk</strong> using pre-computed high-statistics results</p></li>
+</ol>
+<p>For this tutorial, we use pre-computed results with 5×10<span class="math notranslate nohighlight">\(^7\)</span> packets to ensure:</p>
+<ul class="simple">
+<li><p><strong>High signal-to-noise ratio</strong> for clear spectral features</p></li>
+<li><p><strong>Faster execution</strong> without waiting for long simulations</p></li>
+<li><p><strong>Reproducible results</strong> for documentation purposes</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Data loading - choose your option below</span>
+<span class="n">DISTANCE</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">pc</span>
+<span class="n">flux_conversion</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">DISTANCE</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Option 1: From workflow result</span>
+<span class="c1"># tardis_luminosity_density_df = he_result.escape_energy</span>
+
+<span class="c1"># Option 2: From pre-computed file</span>
+<span class="n">tardis_luminosity_density_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;merger_2012_100d_500ts_5e7_escape_energy.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+
+<span class="c1"># Extract time and energy grids with units</span>
+<span class="n">tardis_times_explosion</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tardis_luminosity_density_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="p">)</span>
+<span class="n">tardis_times_explosion</span> <span class="o">=</span> <span class="n">tardis_times_explosion</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+<span class="n">tardis_energies</span> <span class="o">=</span> <span class="n">tardis_luminosity_density_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">keV</span>
+
+<span class="c1"># Create luminosity density and flux arrays with standard units</span>
+<span class="n">tardis_luminosity_density</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tardis_luminosity_density_df</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">)</span>
+<span class="n">tardis_flux</span> <span class="o">=</span> <span class="p">(</span><span class="n">tardis_luminosity_density</span> <span class="o">*</span> <span class="n">flux_conversion</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+    <span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span>
+<span class="p">)</span>
+
+<span class="c1"># Load Summa et al. 2013 reference data</span>
+<span class="n">summa2013_flux_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;merger_2012_11_09_spectra_gamma.dat&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span>
+<span class="p">)</span>
+<span class="n">summa2013_flux_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">summa2013_flux_df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Extract time and energy grids with units</span>
+<span class="n">summa2013_times_explosion</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">summa2013_flux_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+<span class="p">)</span>
+<span class="n">summa2013_energies</span> <span class="o">=</span> <span class="n">summa2013_flux_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">MeV</span>
+
+<span class="c1"># Create flux and luminosity density arrays with standard units</span>
+<span class="n">summa2013_flux</span> <span class="o">=</span> <span class="p">(</span><span class="n">summa2013_flux_df</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+    <span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span>
+<span class="p">)</span>
+<span class="n">summa2013_luminosity_density</span> <span class="o">=</span> <span class="p">(</span><span class="n">summa2013_flux</span> <span class="o">*</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">DISTANCE</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+    <span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Target times for comparison</span>
+<span class="n">target_times</span> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+
+
+<span class="c1"># Find closest time indices, handling out-of-bounds cases</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_closest_index</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1"># Find indices and extract data at target times</span>
+<span class="n">tardis_indices</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">get_closest_index</span><span class="p">(</span><span class="n">tardis_times_explosion</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">target_times</span>
+<span class="p">]</span>
+<span class="n">summa2013_indices</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">get_closest_index</span><span class="p">(</span><span class="n">summa2013_times_explosion</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">target_times</span>
+<span class="p">]</span>
+
+<span class="n">tardis_target_times</span> <span class="o">=</span> <span class="p">[</span><span class="n">tardis_times_explosion</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tardis_indices</span><span class="p">]</span>
+<span class="n">summa2013_target_times</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">summa2013_times_explosion</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">summa2013_indices</span>
+<span class="p">]</span>
+
+<span class="n">tardis_target_flux</span> <span class="o">=</span> <span class="p">[</span><span class="n">tardis_flux</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tardis_indices</span><span class="p">]</span>
+<span class="n">summa2013_target_flux</span> <span class="o">=</span> <span class="p">[</span><span class="n">summa2013_flux</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">summa2013_indices</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Spectral comparison plots</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;TARDIS HE vs Summa et al. 2013 $\gamma$-ray Flux Comparison&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span>
+<span class="p">)</span>
+
+<span class="n">target_labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">value</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> days&quot;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">target_times</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">target_labels</span><span class="p">)):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+        <span class="n">tardis_energies</span><span class="p">,</span>
+        <span class="n">tardis_target_flux</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="s2">&quot;r-&quot;</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS HE&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span>
+        <span class="n">summa2013_energies</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">keV</span><span class="p">),</span>
+        <span class="n">summa2013_target_flux</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="s2">&quot;b--&quot;</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Summa et al. 2013&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (TARDIS: </span><span class="si">{</span><span class="n">tardis_target_times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, Summa2013: </span><span class="si">{</span><span class="n">summa2013_target_times</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy [</span><span class="si">{</span><span class="n">tardis_energies</span><span class="o">.</span><span class="n">unit</span><span class="si">:</span><span class="s2">latex_inline</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Flux [</span><span class="si">{</span><span class="n">tardis_target_flux</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span><span class="si">:</span><span class="s2">latex_inline</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_high_energy_run_high_energy_workflow_9_0.png" src="../../_images/tutorials_high_energy_run_high_energy_workflow_9_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Gamma-ray light curve comparison with time integration and residuals</span>
+
+<span class="c1"># TARDIS light curve integration - use full energy range</span>
+<span class="n">tardis_frequencies</span> <span class="o">=</span> <span class="p">(</span><span class="n">tardis_energies</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">)</span>
+<span class="n">tardis_gamma_luminosity_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
+    <span class="n">tardis_flux</span><span class="p">,</span> <span class="n">tardis_frequencies</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+
+<span class="c1"># Summa et al. 2013 light curve integration - use full energy range</span>
+<span class="n">summa2013_frequencies</span> <span class="o">=</span> <span class="p">(</span><span class="n">summa2013_energies</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">)</span>
+<span class="n">summa2013_gamma_luminosity_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
+    <span class="n">summa2013_flux</span><span class="p">,</span> <span class="n">summa2013_frequencies</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+
+<span class="c1"># Time integration of gamma-ray luminosity</span>
+<span class="n">tardis_gamma_luminosity</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tardis_gamma_luminosity_density</span> <span class="o">/</span> <span class="n">flux_conversion</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+<span class="n">summa2013_gamma_luminosity</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">summa2013_gamma_luminosity_density</span> <span class="o">/</span> <span class="n">flux_conversion</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># Integrate over time using trapezoidal rule</span>
+<span class="n">tardis_total_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
+    <span class="n">tardis_gamma_luminosity</span><span class="p">,</span> <span class="n">tardis_times_explosion</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">summa2013_total_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trapezoid</span><span class="p">(</span>
+    <span class="n">summa2013_gamma_luminosity</span><span class="p">,</span> <span class="n">summa2013_times_explosion</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Calculate fractional difference (not percentage)</span>
+<span class="n">fractional_difference</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tardis_total_energy</span> <span class="o">-</span> <span class="n">summa2013_total_energy</span>
+<span class="p">)</span> <span class="o">/</span> <span class="n">summa2013_total_energy</span>
+
+<span class="c1"># Get energy ranges for legend</span>
+<span class="n">tardis_energy_min</span> <span class="o">=</span> <span class="n">tardis_energies</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">tardis_energy_max</span> <span class="o">=</span> <span class="n">tardis_energies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">summa2013_energy_min</span> <span class="o">=</span> <span class="n">summa2013_energies</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">keV</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">summa2013_energy_max</span> <span class="o">=</span> <span class="n">summa2013_energies</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">keV</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="c1"># Create figure with two subplots using shared x-axis</span>
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+    <span class="mi">2</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;height_ratios&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;hspace&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="c1"># Top panel: Main light curve plot</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">tardis_times_explosion</span><span class="p">,</span>
+    <span class="n">tardis_gamma_luminosity_density</span><span class="p">,</span>
+    <span class="s2">&quot;r-&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;TARDIS HE (</span><span class="si">{</span><span class="n">tardis_energy_min</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">tardis_energy_max</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">summa2013_times_explosion</span><span class="p">,</span>
+    <span class="n">summa2013_gamma_luminosity_density</span><span class="p">,</span>
+    <span class="s2">&quot;b--&quot;</span><span class="p">,</span>
+    <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Summa et al. 2013 (</span><span class="si">{</span><span class="n">summa2013_energy_min</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">summa2013_energy_max</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">gamma$-ray luminosity [</span><span class="si">{</span><span class="n">tardis_gamma_luminosity_density</span><span class="o">.</span><span class="n">unit</span><span class="si">:</span><span class="s2">latex_inline</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;$\gamma$-Ray Light Curve: TARDIS vs Summa et al. 2013&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span>
+<span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center right&quot;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="c1"># X-axis labels handled by shared axis</span>
+
+<span class="c1"># Calculate residuals for bottom panel</span>
+<span class="n">summa2013_interp_func</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span>
+    <span class="n">summa2013_times_explosion</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="n">summa2013_gamma_luminosity_density</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">summa2013_interpolated</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">summa2013_interp_func</span><span class="p">(</span><span class="n">tardis_times_explosion</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="o">*</span> <span class="n">summa2013_gamma_luminosity_density</span><span class="o">.</span><span class="n">unit</span>
+<span class="p">)</span>
+<span class="n">fractional_residuals</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">tardis_gamma_luminosity_density</span> <span class="o">-</span> <span class="n">summa2013_interpolated</span>
+<span class="p">)</span> <span class="o">/</span> <span class="n">summa2013_interpolated</span>
+
+<span class="c1"># Bottom panel: Residual plot</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">tardis_times_explosion</span><span class="p">,</span> <span class="n">fractional_residuals</span><span class="p">,</span> <span class="s2">&quot;g-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span>
+<span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Time [</span><span class="si">{</span><span class="n">tardis_times_explosion</span><span class="o">.</span><span class="n">unit</span><span class="si">:</span><span class="s2">latex_inline</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span>
+<span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Residual&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="c1"># Add integration info text box</span>
+<span class="n">integration_info</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Time Integration: TARDIS </span><span class="si">{</span><span class="n">tardis_total_energy</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">, &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Summa2013 </span><span class="si">{</span><span class="n">summa2013_total_energy</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">, &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;Frac. diff.: </span><span class="si">{</span><span class="n">fractional_difference</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+    <span class="mf">0.02</span><span class="p">,</span>
+    <span class="mf">0.98</span><span class="p">,</span>
+    <span class="n">integration_info</span><span class="p">,</span>
+    <span class="n">transform</span><span class="o">=</span><span class="n">ax1</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
+    <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;round,pad=0.3&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightblue&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/var/folders/fg/nwmb1mss6kq3hwhj10dt0qh00000gn/T/ipykernel_99945/3145511594.py:124: UserWarning: This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.
+  plt.tight_layout()
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_high_energy_run_high_energy_workflow_10_1.png" src="../../_images/tutorials_high_energy_run_high_energy_workflow_10_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../resources/credits.html" class="btn btn-neutral float-left" title="Credits &amp; Publication Policies" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html" class="btn btn-neutral float-right" title="Montecarlo Packet Visualization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 17 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
