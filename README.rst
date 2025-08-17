@@ -62,7 +62,7 @@ following paragraph to the Acknowledgement section:
     synthesis in supernovae \\citep{2014MNRAS.440..387K, |CITATION|}. The
     development of \\textsc{tardis} received support from GitHub, the Google Summer of Code
     initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
-    sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and radioactivedecay.
+    sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
 
 If you use any of the full relativity treatments or use TARDIS for modelling
 Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_
@@ -113,14 +113,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2025_16730222
+.. |CITATION| replace:: kerzendorf_2025_16888341
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.16730222-blue
-                 :target: https://doi.org/10.5281/zenodo.16730222
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.16888341-blue
+                 :target: https://doi.org/10.5281/zenodo.16888341
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2025_16730222,
+    @software{kerzendorf_2025_16888341,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -228,13 +228,13 @@ The following BibTeX entries are needed for the references:
                       Nayak U, Ashwin and
                       Kumar, Atul and
                       Kharkar, Atharwa},
-      title        = {tardis-sn/tardis: TARDIS v2025.08.03},
+      title        = {tardis-sn/tardis: TARDIS v2025.08.17},
       month        = aug,
       year         = 2025,
       publisher    = {Zenodo},
-      version      = {release-2025.08.03},
-      doi          = {10.5281/zenodo.16730222},
-      url          = {https://doi.org/10.5281/zenodo.16730222},
+      version      = {release-2025.08.17},
+      doi          = {10.5281/zenodo.16888341},
+      url          = {https://doi.org/10.5281/zenodo.16888341},
     }
 
 *******
