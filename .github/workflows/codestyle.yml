@@ -9,7 +9,7 @@ on:
     branches:
       - "*"
 
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -18,8 +18,12 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  ruff: 
+  ruff:
     runs-on: ubuntu-latest
+    outputs:
+      ruff_success: ${{ steps.ruff_status_success.outputs.success || steps.ruff_status_failure.outputs.success }}
+      ruff_stats: ${{ steps.ruff_stats.outputs.content }}
+      ruff_complete: ${{ steps.ruff_complete.outputs.content }}
     steps:
       - uses: actions/checkout@v4
         if: github.event_name == 'push'
@@ -27,7 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -39,11 +43,11 @@ jobs:
           os-label: linux-64
 
       - name: Show statistics pull request
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
       
       - name: Show entire output pull request
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD -- | grep -E '\.py$') | tee ruff_full.txt
 
       - name: Show statistics push
@@ -67,47 +71,25 @@ jobs:
           path: ruff_full.txt
       
       - name: Find Comment
-        if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request'
         uses: peter-evans/find-comment@v1
         id: fc
         with:
           issue-number: ${{ github.event.number }}
           body-includes: I ran ruff on the latest commit
-      
-      - name: Post comment
-        if: github.event_name == 'pull_request_target'
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-            Hi human, 
-            I ran ruff on the latest commit (${{ github.event.pull_request.head.sha }}). 
-            Here are the outputs produced.
-            Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
-            Summarised output:
-            <details>
 
-              ```diff
-              ${{ steps.ruff_stats.outputs.content }}
-              ```
+      - name: Set ruff status (success)
+        if: success()
+        id: ruff_status_success
+        run: |
+          echo "success=true" >> $GITHUB_OUTPUT
 
-            </details>
+      - name: Set ruff status (failure)
+        if: failure()
+        id: ruff_status_failure
+        run: |
+          echo "success=false" >> $GITHUB_OUTPUT
 
-            Complete output(might be large):
-            <details>
-
-              ```diff
-              ${{ steps.ruff_complete.outputs.content }}
-              ```
-              
-            </details>
-        env:
-          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
-          
       - name: Save results artifact
         uses: actions/upload-artifact@v4
         if: always()
@@ -116,3 +98,41 @@ jobs:
           path: |
             ruff_full.txt
             ruff_stats.txt
+
+  update-ruff-pr-description:
+    needs: ruff
+    if: always() && github.event_name == 'pull_request'
+    uses: ./.github/workflows/pr-description-updater.yml
+    permissions:
+      pull-requests: write
+    with:
+      section_id: 'ruff'
+      content: |
+        ${{ needs.ruff.outputs.ruff_success == 'true' && '✅ Code style checks passed' || '❌ Code style issues found' }} on commit ${{ github.event.pull_request.head.sha }}
+
+        **Summary:**
+        ```diff
+        ${{ needs.ruff.outputs.ruff_stats }}
+        ```
+
+        **Complete output:**
+        ```diff
+        ${{ needs.ruff.outputs.ruff_complete }}
+        ```
+
+        [View detailed results](https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true)
+      pr_number: '${{ github.event.number }}'
+      collapsible: true
+      title: 'Code Style (Ruff)'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+  alert-on-race-condition:
+    needs: update-ruff-pr-description
+    if: always() && cancelled() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1

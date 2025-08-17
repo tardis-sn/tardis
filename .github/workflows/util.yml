@@ -1,55 +1,70 @@
 name: utility
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
 jobs:
   git-lfs-pull-label:
     if: contains(github.event.pull_request.labels.*.name, 'git-lfs-pull')
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/pr-description-updater.yml
     permissions:
       pull-requests: write
       issues: write
       contents: read
-    
+    with:
+      section_id: 'lfs_warning'
+      content: '⚠️ **LFS bandwidth warning**: The label you applied triggers workflows that consume LFS bandwidth. Use carefully - this label will be removed after checks complete.'
+      pr_number: '${{ github.event.pull_request.number }}'
+      title: 'LFS Warning'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+  alert-lfs-race-condition:
+    needs: git-lfs-pull-label
+    if: always() && cancelled() && contains(github.event.pull_request.labels.*.name, 'git-lfs-pull')
+    runs-on: ubuntu-latest
     steps:
-      - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          edit-mode: replace
-          body: |
-            Warning - LFS bandwidth usage
-            ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1
 
   check-first-time-committer:
-    runs-on: ubuntu-latest
     if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    uses: ./.github/workflows/pr-description-updater.yml
     permissions:
       pull-requests: write
-    
-    steps:
-      - name: Add welcome comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
-            Before asking for reviews, please make sure all checks have passed.
+    with:
+      section_id: 'welcome'
+      content: '👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution! Please ensure all checks pass before requesting reviews.'
+      pr_number: '${{ github.event.pull_request.number }}'
+      title: 'Welcome Message'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
-  
+  alert-welcome-race-condition:
+    needs: check-first-time-committer
+    if: always() && cancelled() && github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1
+
+
   check-orcid:
     runs-on: ubuntu-latest
+    outputs:
+      orcid_check_failed: ${{ steps.check_orcid.outcome == 'failure' }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      
+
       - name: Check if author email exists in orcid.csv
         id: check_orcid
         continue-on-error: true
@@ -67,27 +82,40 @@ jobs:
           body-includes: Please add your email and ORCID ID
         if: always()
 
-      - name: Create comment
-        if: steps.check_orcid.outcome == 'failure'
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
+  update-orcid-pr-description:
+    needs: check-orcid
+    if: needs.check-orcid.outputs.orcid_check_failed == 'true'
+    uses: ./.github/workflows/pr-description-updater.yml
+    permissions:
+      pull-requests: write
+    with:
+      section_id: 'orcid'
+      content: |
+        ❌ ORCID validation failed
 
-            Hi, human.
+        Your email is not associated with an ORCID ID in our database.
 
-            I'm the @tardis-bot and I noticed that your email is not associated with an ORCID ID in our database.
+        **Action required:** Please add your email and ORCID ID to the `.orcid.csv` file in your current branch.
 
-            Please add your email and ORCID ID to the `.orcid.csv` file in your current branch and push the changes to this pull request.
+        **Format:**
+        ```
+        email,orcid
+        your.email@example.com,0000-0000-0000-0000
+        ```
 
-            If you don't have an ORCID ID yet, you can create one for free at [orcid.org](https://orcid.org/). ORCID IDs help ensure you get proper credit for your scientific contributions.
+        Don't have an ORCID? [Create one for free](https://orcid.org/) - it helps ensure you get proper credit for your contributions.
+      pr_number: '${{ github.event.pull_request.number }}'
+      collapsible: true
+      title: 'ORCID Check'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
-            The format should be:
-            ```
-            email,orcid
-            your.email@example.com,0000-0000-0000-0000
-            ```
+  alert-orcid-race-condition:
+    needs: update-orcid-pr-description
+    if: always() && cancelled() && needs.check-orcid.outputs.orcid_check_failed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1

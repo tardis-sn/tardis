@@ -5,7 +5,7 @@
 name: compare-regdata
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
     types:
@@ -148,7 +148,7 @@ jobs:
 
   deploy-comparison:
     needs: tests
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
@@ -173,7 +173,7 @@ jobs:
 
       - name: Set destination directory
         run: |
-          if [[ $EVENT == pull_request_target ]]; then
+          if [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
           else
             echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV
@@ -201,49 +201,45 @@ jobs:
           issue-number: ${{ github.event.number }}
           body-includes: Regression Data Comparison Results
 
-      - name: Post comment
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            ### Regression Data Comparison Results
-            
-            The comparison results have been generated and can be viewed here:
-            
-            - [macOS (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_macos-latest.html/compare_regression_data_${{ github.sha }}_not_macos-latest.html)
-            - [macOS (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__macos-latest.html/compare_regression_data_${{ github.sha }}__macos-latest.html)
-            - [Ubuntu (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html)
-            - [Ubuntu (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__ubuntu-latest.html/compare_regression_data_${{ github.sha }}__ubuntu-latest.html)
-            
-            <details>
-            <summary>📊 View Comparison Plots</summary>
-            
-            ### macOS (not continuum)
-            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/spectrum.png?raw=true)
-            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/same_name_diff.png?raw=true)
-            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_macos-latest_path }}/diff_keys.png?raw=true)
-            
-            ### macOS (continuum)
-            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/spectrum.png?raw=true)
-            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/same_name_diff.png?raw=true)
-            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.macos-latest_path }}/diff_keys.png?raw=true)
-            
-            ### Ubuntu (not continuum)
-            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/spectrum.png?raw=true)
-            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/same_name_diff.png?raw=true)
-            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.not_ubuntu-latest_path }}/diff_keys.png?raw=true)
-            
-            ### Ubuntu (continuum)
-            ![Spectrum Comparison](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/spectrum.png?raw=true)
-            ![Same Name Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/same_name_diff.png?raw=true)
-            ![Key Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/${{ steps.get_paths.outputs.ubuntu-latest_path }}/diff_keys.png?raw=true)
-            
-            </details>
-            
-            You can also download the artifacts directly from the [Actions tab](${{ env.ARTIFACT_URL }}).
-        env:
-          ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  update-regdata-pr-description:
+    needs: deploy-comparison
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/pr-description-updater.yml
+    permissions:
+      pull-requests: write
+    with:
+      section_id: 'regdata'
+      content: |
+        ✅ Regression Data Comparison Results
+
+        **Comparison Reports:**
+        - [macOS (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_macos-latest.html/compare_regression_data_${{ github.sha }}_not_macos-latest.html)
+        - [macOS (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__macos-latest.html/compare_regression_data_${{ github.sha }}__macos-latest.html)
+        - [Ubuntu (not continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html)
+        - [Ubuntu (continuum)](https://tardis-sn.github.io/reg-data-comp/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__ubuntu-latest.html/compare_regression_data_${{ github.sha }}__ubuntu-latest.html)
+
+        **Comparison Plots:**
+
+        **macOS (not continuum)**
+        ![Spectrum](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_macos-latest.html/spectrum.png?raw=true)
+        ![Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_macos-latest.html/same_name_diff.png?raw=true)
+
+        **macOS (continuum)**
+        ![Spectrum](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__macos-latest.html/spectrum.png?raw=true)
+        ![Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__macos-latest.html/same_name_diff.png?raw=true)
+
+        **Ubuntu (not continuum)**
+        ![Spectrum](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html/spectrum.png?raw=true)
+        ![Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}_not_ubuntu-latest.html/same_name_diff.png?raw=true)
+
+        **Ubuntu (continuum)**
+        ![Spectrum](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__ubuntu-latest.html/spectrum.png?raw=true)
+        ![Differences](https://github.com/tardis-sn/reg-data-comp/blob/main/pull/${{ github.event.number }}/compare_regression_data_${{ github.sha }}__ubuntu-latest.html/same_name_diff.png?raw=true)
+
+        [Download artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+      pr_number: '${{ github.event.number }}'
+      collapsible: true
+      title: 'Regression Data Changes'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
  

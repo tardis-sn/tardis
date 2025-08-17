@@ -9,7 +9,7 @@ on:
     branches:
       - master
 
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -51,18 +51,18 @@ jobs:
       docs-check-outcome: ${{ steps.docs_check.outcome }}
     steps:
       - uses: actions/checkout@v4
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Check for trigger by push event, manual dispatch, build-docs label on a PR
         id: trigger_check
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'build-docs')
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'build-docs')
         run: |
           echo "Building docs as a test."
           exit 0
@@ -86,15 +86,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-cache, check-for-changes]
     if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
+    outputs:
+      docs_success: ${{ steps.docs_status_success.outputs.success || steps.docs_status_failure.outputs.success }}
     steps:
       - uses: actions/checkout@v4
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -131,7 +133,7 @@ jobs:
               echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
             fi
 
-          elif [[ $EVENT == pull_request_target ]]; then
+          elif [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
 
           else
@@ -178,42 +180,43 @@ jobs:
         with:
           issue-number: ${{ github.event.number }}
           body-includes: Hi, human.
-        if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request'
 
-      - name: Post comment (success)
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
+      - name: Set docs status (success)
+        if: success()
+        id: docs_status_success
+        run: |
+          echo "success=true" >> $GITHUB_OUTPUT
 
-            Hi, human.
+      - name: Set docs status (failure)
+        if: failure()
+        id: docs_status_failure
+        run: |
+          echo "success=false" >> $GITHUB_OUTPUT
 
-            The **`${{ github.workflow }}`** workflow has **succeeded** :heavy_check_mark:
+  update-docs-pr-description:
+    needs: build-docs
+    if: always() && github.event_name == 'pull_request'
+    uses: ./.github/workflows/pr-description-updater.yml
+    permissions:
+      pull-requests: write
+    with:
+      section_id: 'docs'
+      content: |
+        ${{ needs.build-docs.outputs.docs_success == 'true' && '✅' || '❌' }} Documentation Build
 
-            [**Click here**](${{ env.URL }}) to see your results.
-        env:
-          URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ github.event.number }}/index.html
-        if: success() && github.event_name == 'pull_request_target'
+        ${{ needs.build-docs.outputs.docs_success == 'true' && format('[View documentation](https://{0}.github.io/{1}/pull/{2}/index.html)', github.repository_owner, github.event.repository.name, github.event.number) || format('[View build logs](https://github.com/{0}/{1}/actions/runs/{2}?check_suite_focus=true)', github.repository_owner, github.event.repository.name, github.run_id) }}
+      pr_number: '${{ github.event.number }}'
+      title: 'Documentation Build'
+    secrets:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
 
-      - name: Post comment (failure)
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            *\*beep\* \*bop\**
-
-            Hi, human.
-
-            The **`${{ github.workflow }}`** workflow has **failed** :x:
-
-            [**Click here**](${{ env.URL }}) to see the build log.
-        env:
-          URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
-        if: failure() && github.event_name == 'pull_request_target'
+  alert-on-race-condition:
+    needs: update-docs-pr-description
+    if: always() && cancelled() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Alert developers about race condition
+        run: |
+          echo "::error::PR description update was cancelled due to race condition. Multiple workflows may be updating the same PR description simultaneously."
+          exit 1
