@@ -149,7 +149,7 @@ jobs:
         run: |
           pip install --no-deps qgridnext lineid_plot
 
-      # installation doesnt work without no-deps
+      # installation doesnt work with no-deps
       - name: Install GitPython
         run: |
           pip install GitPython
@@ -178,7 +178,7 @@ jobs:
       - name: Install Kaleido
         if: steps.commit.outputs.has_changes == 'true'
         run: |
-          pip install kaleido==0.2.1
+          pip install --no-deps kaleido==0.2.1
 
       - name: Run comparison notebook
         if: steps.commit.outputs.has_changes == 'true'
