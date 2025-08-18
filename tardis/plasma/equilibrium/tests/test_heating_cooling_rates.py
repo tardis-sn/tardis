@@ -84,8 +84,8 @@ def test_bound_free_thermal_rates_solve(
 
 
 @pytest.mark.parametrize(
-    ["heating_rate", "cooling_rate"],
-    [1.2809489753862688e-06, 1.2018593543520837e-06],
+    "heating_rate, cooling_rate",
+    [(1.2809489753862688e-06, 1.2018593543520837e-06)],
 )
 def test_bound_free_thermal_rates_solve_with_estimators(
     nlte_atom_data,
@@ -124,8 +124,8 @@ def test_free_free_thermal_rates_heating_factor(
 
 
 @pytest.mark.parametrize(
-    ["heating_rate", "cooling_rate"],
-    [2.3829164962085199e-07, 6.941664530316456e-07],
+    "heating_rate, cooling_rate",
+    [(2.3829164962085199e-07, 6.941664530316456e-07)],
 )
 def test_free_free_thermal_rates_solve(
     heating_estimator,
@@ -145,8 +145,8 @@ def test_free_free_thermal_rates_solve(
 
 
 @pytest.mark.parametrize(
-    ["heating_rate", "cooling_rate"],
-    [1.5946196993219911e-07, 1.6125333965984259e-07],
+    "heating_rate, cooling_rate",
+    [(1.5946196993219911e-07, 1.6125333965984259e-07)],
 )
 def test_collisional_ionization_thermal_rates_solve(
     nlte_atom_data,
@@ -173,8 +173,8 @@ def test_collisional_ionization_thermal_rates_solve(
 
 
 @pytest.mark.parametrize(
-    ["heating_rate", "cooling_rate"],
-    [8.49837495539e-06, 8.5059159013e-06],
+    "heating_rate, cooling_rate",
+    [(8.49837495539e-06, 8.5059159013e-06)],
 )
 def test_collisional_bound_thermal_rates_solve(
     lines,
