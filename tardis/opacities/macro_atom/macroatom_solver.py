@@ -287,6 +287,15 @@ class BoundBoundMacroAtomSolver:
             ],
             inplace=True,
         )
+        source_to_index = {
+            source: idx
+            for idx, source in enumerate(
+                macro_atom_transition_metadata.source.unique()
+            )
+        }
+        macro_atom_transition_metadata["destination_level_idx"] = (
+            macro_atom_transition_metadata.destination.map(source_to_index)
+        )
 
         return MacroAtomState(
             normalized_probabilities,

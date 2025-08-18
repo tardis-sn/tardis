@@ -8,7 +8,6 @@ from tardis import constants as const
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
-    LegacyMacroAtomSolver,
     BoundBoundMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
@@ -97,7 +96,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         if line_interaction_type == "scatter":
             self.macro_atom_solver = None
         else:
-            self.old_macro_atom_solver = LegacyMacroAtomSolver()
             self.macro_atom_solver = BoundBoundMacroAtomSolver(
                 atom_data.levels, atom_data.lines
             )
@@ -373,21 +371,12 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         if self.macro_atom_solver is None:
             macro_atom_state = None
         else:
-            old_macro_atom_state = self.old_macro_atom_solver.solve(
-                self.plasma_solver.j_blues,
-                self.plasma_solver.atomic_data,
-                opacity_state.tau_sobolev,
-                self.plasma_solver.stimulated_emission_factor,
-                opacity_state.beta_sobolev,
-            )
             macro_atom_state = self.macro_atom_solver.solve(
                 self.plasma_solver.j_blues,
                 opacity_state.beta_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
             ).to_legacy_format()
-            # .recreate_legacy_macro_atom_state(
-            #     old_macro_atom_state, self.plasma_solver.atomic_data.lines
-            # )
+
         return {
             "opacity_state": opacity_state,
             "macro_atom_state": macro_atom_state,

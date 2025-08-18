@@ -1,7 +1,6 @@
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 import pandas as pd
-import numpy as np
 
 
 class LegacyMacroAtomState(HDFWriterMixin):
@@ -132,11 +131,7 @@ class MacroAtomState:
         """
         transition_probabilities = self.transition_probabilities
         transition_type = self.transition_metadata.transition_type
-        destination_level_id = pd.Series(
-            data=np.arange(len(self.transition_metadata)),
-            index=self.transition_metadata.index,
-            name="destination_level_idx",
-        )
+        destination_level_id = self.transition_metadata.destination_level_idx
         transition_line_id = self.transition_metadata.transition_line_idx
         unique_source_multi_index = pd.MultiIndex.from_tuples(
             self.transition_metadata.source.unique(),
