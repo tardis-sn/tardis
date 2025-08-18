@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=600d1dbd"></script>
+      <script src="../../../../../_static/documentation_options.js?v=d010c3c6"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -131,7 +131,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.plasma.equilibrium.rates.photoionization_strengths</h1><div class="highlight"><pre>
-<span></span>import numpy as np
+<span></span>import astropy.units as u
+import numpy as np
 import pandas as pd
 
 from tardis import constants as const
@@ -140,9 +141,9 @@ from tardis.transport.montecarlo.estimators.util import (
     integrate_array_by_blocks,
 )
 
-C = const.c.cgs.value
-H = const.h.cgs.value
-K_B = const.k_B.cgs.value
+C = const.c.cgs
+H = const.h.cgs
+K_B = const.k_B.cgs
 
 
 <div class="viewcode-block" id="SpontaneousRecombinationCoeffSolver">
@@ -153,7 +154,7 @@ class SpontaneousRecombinationCoeffSolver:
         photoionization_cross_sections,
     ):
         self.photoionization_cross_sections = photoionization_cross_sections
-        self.nu = self.photoionization_cross_sections.nu.values
+        self.nu = self.photoionization_cross_sections.nu.values * u.Hz
 
         self.photoionization_block_references = np.pad(
             self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
@@ -169,7 +170,7 @@ class SpontaneousRecombinationCoeffSolver:
     @property
     def common_prefactor(self):
         &quot;&quot;&quot;Used to multiply with both spontaneous recombination and
-        photoionization coefficients.
+        photoionization coefficients. Lucy 2003 Eq 13, 15, 16.
 
         Returns
         -------
@@ -219,7 +220,7 @@ class SpontaneousRecombinationCoeffSolver:
 
         Notes
         -----
-        Equation 13 in Lucy 2003.
+        Equation 13 in Lucy 2003, missing the factor from Eq 14.
         &quot;&quot;&quot;
         prefactor = self.common_prefactor * (2 * H * self.nu**3.0) / (C**2.0)
         photoionization_boltzmann_factor = pd.DataFrame(
@@ -237,15 +238,20 @@ class SpontaneousRecombinationCoeffSolver:
         spontaneous_recombination_rate_coeff_integrated = (
             integrate_array_by_blocks(
                 spontaneous_recombination_rate_coeff.to_numpy(),
-                self.nu,
+                self.nu.value,
                 self.photoionization_block_references,
             )
         )
 
-        return pd.DataFrame(
+        spontaneous_recombination_rate_coeff_df = pd.DataFrame(
             spontaneous_recombination_rate_coeff_integrated,
             index=self.photoionization_index,
-        )</div>
+        )
+
+        # Lymann continuum handling
+        spontaneous_recombination_rate_coeff_df.loc[(1, 0, 0)] = 0.0
+
+        return spontaneous_recombination_rate_coeff_df</div>
 </div>
 
 
@@ -292,45 +298,6 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         )</div>
 
 
-<div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver.calculate_photoionization_rate_coeff">
-<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_photoionization_rate_coeff">[docs]</a>
-    def calculate_photoionization_rate_coeff(
-        self,
-        mean_intensity_photoionization_df,
-    ):
-        &quot;&quot;&quot;
-        Calculate the photoionization rate coefficient.
-
-        Parameters
-        ----------
-        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
-            A dilute black body radiation field state.
-
-        Returns
-        -------
-        pd.DataFrame
-            The calculated photoionization rate coefficient.
-
-        Notes
-        -----
-        Equation 16 in Lucy 2003.
-        &quot;&quot;&quot;
-        photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
-            self.common_prefactor,
-            axis=0,
-        )
-        photoionization_rate_coeff = integrate_array_by_blocks(
-            photoionization_rate_coeff.values,
-            self.nu,
-            self.photoionization_block_references,
-        )
-        photoionization_rate_coeff = pd.DataFrame(
-            photoionization_rate_coeff,
-            index=self.photoionization_index,
-        )
-        return photoionization_rate_coeff</div>
-
-
 <div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver.calculate_stimulated_recombination_rate_coeff">
 <a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_stimulated_recombination_rate_coeff">[docs]</a>
     def calculate_stimulated_recombination_rate_coeff(
@@ -362,14 +329,14 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
         )
 
         stimulated_recombination_rate_coeff = (
-            mean_intensity_photoionization_df.multiply(
+            stimulated_recombination_rate_coeff.multiply(
                 self.common_prefactor,
                 axis=0,
             )
         )
         stimulated_recombination_rate_coeff = integrate_array_by_blocks(
             stimulated_recombination_rate_coeff.values,
-            self.nu,
+            self.nu.value,
             self.photoionization_block_references,
         )
         stimulated_recombination_rate_coeff = pd.DataFrame(
@@ -377,6 +344,45 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
             index=self.photoionization_index,
         )
         return stimulated_recombination_rate_coeff</div>
+
+
+<div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver.calculate_photoionization_rate_coeff">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_photoionization_rate_coeff">[docs]</a>
+    def calculate_photoionization_rate_coeff(
+        self,
+        mean_intensity_photoionization_df,
+    ):
+        &quot;&quot;&quot;
+        Calculate the photoionization rate coefficient.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
+            A dilute black body radiation field state.
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated photoionization rate coefficient.
+
+        Notes
+        -----
+        Equation 16 in Lucy 2003.
+        &quot;&quot;&quot;
+        photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
+            self.common_prefactor,
+            axis=0,
+        )
+        photoionization_rate_coeff = integrate_array_by_blocks(
+            photoionization_rate_coeff.values,
+            self.nu.value,
+            self.photoionization_block_references,
+        )
+        photoionization_rate_coeff = pd.DataFrame(
+            photoionization_rate_coeff,
+            index=self.photoionization_index,
+        )
+        return photoionization_rate_coeff</div>
 
 
 <div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver.solve">
@@ -415,11 +421,8 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
                 dilute_blackbody_radiationfield_state
             )
         )
-        # Equation 16 Lucy 2003
-        photoionization_rate_coeff = self.calculate_photoionization_rate_coeff(
-            mean_intensity_photoionization_df,
-        )
-        # Equation 15 Lucy 2003. Must be multiplied by Saha LTE factor Phi_ik
+
+        # Equation 15 Lucy 2003. Must be multiplied by factor Phi_ik from Eq 14
         stimulated_recombination_rate_coeff = (
             self.calculate_stimulated_recombination_rate_coeff(
                 mean_intensity_photoionization_df,
@@ -427,10 +430,170 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
             )
         )
 
+        # Equation 16 Lucy 2003
+        photoionization_rate_coeff = self.calculate_photoionization_rate_coeff(
+            mean_intensity_photoionization_df,
+        )
+
         return (
             photoionization_rate_coeff,
             stimulated_recombination_rate_coeff,
         )</div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnalyticCorrectedPhotoionizationCoeffSolver">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver">[docs]</a>
+class AnalyticCorrectedPhotoionizationCoeffSolver(
+    SpontaneousRecombinationCoeffSolver
+):
+    def __init__(
+        self,
+        photoionization_cross_sections,
+    ):
+        super().__init__(photoionization_cross_sections)
+
+<div class="viewcode-block" id="AnalyticCorrectedPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">[docs]</a>
+    def calculate_mean_intensity_photoionization_df(
+        self,
+        radiation_field,
+    ):
+        &quot;&quot;&quot;Calculates the mean intensity of the radiation field at each photoionization frequency.
+
+        Parameters
+        ----------
+        radiation_field : RadiationField
+            The radiation field.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of mean intensities indexed by photoionization levels and
+            columns of cells.
+        &quot;&quot;&quot;
+        mean_intensity = radiation_field.calculate_mean_intensity(self.nu)
+        return pd.DataFrame(
+            mean_intensity,
+            index=self.photoionization_cross_sections.index,
+            columns=np.arange(len(radiation_field.temperature)),
+        )</div>
+
+
+<div class="viewcode-block" id="AnalyticCorrectedPhotoionizationCoeffSolver.calculate_corrected_photoionization_rate_coeff">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_corrected_photoionization_rate_coeff">[docs]</a>
+    def calculate_corrected_photoionization_rate_coeff(
+        self,
+        mean_intensity_photoionization_df,
+        photoionization_boltzmann_factor,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
+    ):
+        &quot;&quot;&quot;
+        Calculate the stimulated emission corrected photoionization rate coefficient.
+
+        Parameters
+        ----------
+        mean_intensity_photoionization_df : pd.DataFrame
+            A DataFrame of the mean intensity of the radiation field at each frequency
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated photoionization rate coefficient.
+
+        Notes
+        -----
+        Equation 18 in Lucy 2003.
+        &quot;&quot;&quot;
+        photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
+            self.common_prefactor,
+            axis=0,
+        )
+
+        # need to handle He and up. They have extra ionization states that
+        # break the indexing.
+        # Lucy 2003 Eq 18
+        correction_factor = (
+            1
+            - (ion_population / lte_ion_population).values
+            * (lte_level_population / level_population)
+            * photoionization_boltzmann_factor
+        )
+
+        corrected_photoionization_rate_coeff = (
+            photoionization_rate_coeff.multiply(correction_factor, axis=0)
+        )
+
+        corrected_photoionization_rate_coeff = integrate_array_by_blocks(
+            corrected_photoionization_rate_coeff.values,
+            self.nu.value,
+            self.photoionization_block_references,
+        )
+        corrected_photoionization_rate_coeff = pd.DataFrame(
+            corrected_photoionization_rate_coeff,
+            index=self.photoionization_index,
+        )
+        return corrected_photoionization_rate_coeff</div>
+
+
+<div class="viewcode-block" id="AnalyticCorrectedPhotoionizationCoeffSolver.solve">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.solve">[docs]</a>
+    def solve(
+        self,
+        dilute_blackbody_radiationfield_state,
+        electron_temperature,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
+    ):
+        &quot;&quot;&quot;
+        Prepares the ionization and recombination coefficients by grouping them for
+        ion numbers.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
+            The dilute black body radiation field state.
+        electron_temperature : u.Quantity
+            Electron temperature in each shell.
+
+        Returns
+        -------
+        photoionization_rate_coeff
+            Photoionization rate coefficient grouped by atomic number and ion number.
+        recombination_rate_coeff
+            Radiative recombination rate coefficient grouped by atomic number and ion number.
+        &quot;&quot;&quot;
+        photoionization_boltzmann_factor = pd.DataFrame(
+            self.calculate_photoionization_boltzmann_factor(
+                electron_temperature
+            ),
+            index=self.common_prefactor.index,
+        )
+
+        mean_intensity_photoionization_df = (
+            self.calculate_mean_intensity_photoionization_df(
+                dilute_blackbody_radiationfield_state
+            )
+        )
+        # Equation 16 Lucy 2003
+        corrected_photoionization_rate_coeff = (
+            self.calculate_corrected_photoionization_rate_coeff(
+                mean_intensity_photoionization_df,
+                photoionization_boltzmann_factor,
+                lte_level_population,
+                level_population,
+                lte_ion_population,
+                ion_population,
+            )
+        )
+
+        return corrected_photoionization_rate_coeff</div>
 </div>
 
 
@@ -468,6 +631,10 @@ class EstimatedPhotoionizationCoeffSolver:
         -------
         ContinuumProperties
             The calculated continuum properties.
+
+        Notes
+        -----
+        Lucy 2003 Eq 44, 45.
         &quot;&quot;&quot;
         # TODO: the estimators are computed in the form epsilon_nu * distance * xsection / comoving_nu
         # with the stimulated recombination multiplied by a Boltzmann factor exp(-h * comoving_nu / k * electron_temp)
@@ -499,7 +666,7 @@ class EstimatedPhotoionizationCoeffSolver:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Aug 2025.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
       </span></p>
   </div>
 

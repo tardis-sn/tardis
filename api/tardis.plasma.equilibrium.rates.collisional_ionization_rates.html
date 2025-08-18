@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=600d1dbd"></script>
+      <script src="../_static/documentation_options.js?v=d010c3c6"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -170,16 +170,26 @@
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collisional_ionization_rates.</span></span><span class="sig-name descname"><span class="pre">CollisionalIonizationRateSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photoionization_cross_sections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collisional_ionization_rates.html#CollisionalIonizationRateSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Solver for collisional ionization and recombination rates.</p>
+<p>Initialize the collisional ionization rate solver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>photoionization_cross_sections</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Photoionization cross sections.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saha_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'seaton'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collisional_ionization_rates.html#CollisionalIonizationRateSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver.solve" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_to_ion_population_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_boltzmann_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'seaton'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collisional_ionization_rates.html#CollisionalIonizationRateSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collisional_ionization_rates.CollisionalIonizationRateSolver.solve" title="Link to this definition">¶</a></dt>
 <dd><p>Solve the collisional ionization and recombination rates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>electron_temperature</strong><span class="classifier">u.Quantity</span></dt><dd><p>Electron temperatures per cell</p>
+<dt><strong>electron_distribution</strong><span class="classifier">ThermalElectronEnergyDistribution</span></dt><dd><p>Electron distribution per cell</p>
 </dd>
-<dt><strong>saha_factor</strong><span class="classifier">pandas.DataFrame, dtype float</span></dt><dd><p>The Saha factor for each cell. Indexed by atom number, ion number, level number.</p>
+<dt><strong>level_to_ion_population_factor</strong><span class="classifier">pandas.DataFrame, dtype float</span></dt><dd><p>The level to ion population factor for each cell, Lucy 2003 Eq 14.
+Indexed by atom number, ion number, level number.</p>
 </dd>
 <dt><strong>approximation</strong><span class="classifier">str, optional</span></dt><dd><p>The rate approximation to use, by default “seaton”</p>
 </dd>
@@ -218,7 +228,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Aug 2025.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=600d1dbd"></script>
+      <script src="_static/documentation_options.js?v=d010c3c6"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -181,6 +181,8 @@
       <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate">AdiabaticCoolingRate (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.advance_state">advance_state() (tardis.simulation.base.Simulation method)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver">AnalyticCorrectedPhotoionizationCoeffSolver (class in tardis.plasma.equilibrium.rates.photoionization_strengths)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver">AnalyticPhotoionizationCoeffSolver (class in tardis.plasma.equilibrium.rates.photoionization_strengths)</a>
 </li>
@@ -423,6 +425,8 @@
 </li>
         <li><a href="api/tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNumericalNLTE.calculate">(tardis.plasma.properties.helium_nlte.HeliumNumericalNLTE method)</a>
 </li>
+        <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties.calculate">(tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties method)</a>
+</li>
         <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate">(tardis.plasma.properties.ion_population.IonNumberDensity method)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.calculate">(tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE method)</a>
@@ -484,6 +488,8 @@
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.collisional_rates.html#tardis.plasma.equilibrium.rates.collisional_rates.ThermalCollisionalRateSolver.calculate_collision_strengths">calculate_collision_strengths() (tardis.plasma.equilibrium.rates.collisional_rates.ThermalCollisionalRateSolver method)</a>
 </li>
+      <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_corrected_photoionization_rate_coeff">calculate_corrected_photoionization_rate_coeff() (tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver method)</a>
+</li>
       <li><a href="api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction.calculate_decayed_mass_fractions">calculate_decayed_mass_fractions() (tardis.model.matter.decay.IsotopicMassFraction method)</a>
 </li>
       <li><a href="api/tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.calculate_density_after_time">calculate_density_after_time() (in module tardis.io.model.parse_density_configuration)</a>
@@ -526,11 +532,15 @@
 </li>
       <li><a href="api/tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNLTE.calculate_helium_three">calculate_helium_three() (tardis.plasma.properties.helium_nlte.HeliumNLTE static method)</a>
 </li>
+      <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties.calculate_hydrogen_ion_populations">calculate_hydrogen_ion_populations() (tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties method)</a>
+</li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF.calculate_j_nu">calculate_j_nu() (tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF static method)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jblue_lu">calculate_Jblue_lu() (tardis.spectrum.formal_integral.source_function.SourceFunctionSolver method)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jred_lu">calculate_Jred_lu() (tardis.spectrum.formal_integral.source_function.SourceFunctionSolver method)</a>
+</li>
+      <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties.calculate_lte_quantities">calculate_lte_quantities() (tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties method)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU.calculate_lu_solver_delta">calculate_lu_solver_delta() (tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU static method)</a>
 </li>
@@ -544,10 +554,12 @@
         <li><a href="api/tardis.plasma.radiation_field.planck_rad_field.html#tardis.plasma.radiation_field.planck_rad_field.PlanckianRadiationField.calculate_mean_intensity">(tardis.plasma.radiation_field.planck_rad_field.PlanckianRadiationField method)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver.calculate_mean_intensity_photo_ion_table">calculate_mean_intensity_photo_ion_table() (tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver method)</a>
+      <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">calculate_mean_intensity_photoionization_df() (tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver method)</a>
+
+      <ul>
+        <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">(tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver method)</a>
 </li>
-      <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">calculate_mean_intensity_photoionization_df() (tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver method)</a>
-</li>
+      </ul></li>
       <li><a href="api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction.calculate_number_of_decays">calculate_number_of_decays() (tardis.model.matter.decay.IsotopicMassFraction method)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.calculate_p_values">calculate_p_values() (in module tardis.spectrum.formal_integral.base)</a>
@@ -556,8 +568,6 @@
         <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_p_values">(in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver.calculate_photo_ionization_rate_coefficient">calculate_photo_ionization_rate_coefficient() (tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver method)</a>
-</li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver.calculate_photoionization_boltzmann_factor">calculate_photoionization_boltzmann_factor() (tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver method)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_photoionization_rate_coeff">calculate_photoionization_rate_coeff() (tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver method)</a>
@@ -571,8 +581,6 @@
       <li><a href="api/tardis.analysis.html#tardis.analysis.TARDISHistory.calculate_relative_lte_level_populations">calculate_relative_lte_level_populations() (tardis.analysis.TARDISHistory method)</a>
 </li>
       <li><a href="api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.calculate_sobolev_line_opacity">calculate_sobolev_line_opacity() (in module tardis.opacities.tau_sobolev)</a>
-</li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver.calculate_stimulated_recomb_rate_factor">calculate_stimulated_recomb_rate_factor() (tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver method)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_stimulated_recombination_rate_coeff">calculate_stimulated_recombination_rate_coeff() (tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver method)</a>
 </li>
@@ -588,12 +596,12 @@
 </li>
       <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate_with_n_electron">calculate_with_n_electron() (tardis.plasma.properties.ion_population.IonNumberDensity static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.calculate_yg_van_regemorter">calculate_yg_van_regemorter() (tardis.plasma.properties.atomic.YgData class method)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.calculate_z">calculate_z() (in module tardis.spectrum.formal_integral.formal_integral_numba)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_z_cuda">calculate_z_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.Timer.cancel">cancel() (tardis.visualization.widgets.util.Timer method)</a>
@@ -717,8 +725,6 @@
       <li><a href="api/tardis.energy_input.transport.gamma_ray_interactions.html#tardis.energy_input.transport.gamma_ray_interactions.compton_scatter">compton_scatter() (in module tardis.energy_input.transport.gamma_ray_interactions)</a>
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.compton_theta_distribution">compton_theta_distribution() (in module tardis.energy_input.util)</a>
-</li>
-      <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver.compute_rates">compute_rates() (tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver method)</a>
 </li>
       <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.ConeProfile">ConeProfile (class in tardis.io.model.readers.arepo)</a>
 </li>
@@ -938,11 +944,9 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.PanelTableWidget.df">df (tardis.visualization.widgets.util.PanelTableWidget property)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.base.html#tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties.dilute_blackbody_radiationfield_state">dilute_blackbody_radiationfield_state (tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver">DiluteBlackBodyContinuumPropertiesSolver (class in tardis.transport.montecarlo.estimators.continuum_radfield_properties)</a>
+      <li><a href="api/tardis.transport.montecarlo.estimators.base.html#tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties.dilute_blackbody_radiationfield_state">dilute_blackbody_radiationfield_state (tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.DilutePlanckianRadField">DilutePlanckianRadField (class in tardis.plasma.properties.plasma_input)</a>
 </li>
@@ -1542,6 +1546,8 @@
 </li>
       <li><a href="api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry">HomologousRadial1DGeometry (class in tardis.model.geometry.radial1d)</a>
 </li>
+      <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties">HydrogenContinuumProperties (class in tardis.plasma.properties.hydrogen_continuum)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1616,14 +1622,14 @@
 </li>
       <li><a href="api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.integrator">integrator (tardis.spectrum.base.SpectrumSolver property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.intensity_black_body">intensity_black_body() (in module tardis.spectrum.formal_integral.base)</a>
 
       <ul>
         <li><a href="api/tardis.util.base.html#tardis.util.base.intensity_black_body">(in module tardis.util.base)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.intensity_black_body_cuda">intensity_black_body_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
       <li><a href="api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.intensity_ratio">intensity_ratio() (in module tardis.energy_input.energy_source)</a>
@@ -1655,6 +1661,10 @@
       <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity">IonNumberDensity (class in tardis.plasma.properties.ion_population)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE">IonNumberDensityHeNLTE (class in tardis.plasma.properties.ion_population)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver">IonPopulationSolver (class in tardis.plasma.equilibrium.ion_populations)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.IonRateMatrix">IonRateMatrix (class in tardis.plasma.equilibrium.rate_matrix)</a>
 </li>
       <li><a href="api/tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.iron_group_fraction_per_shell">iron_group_fraction_per_shell() (in module tardis.energy_input.gamma_ray_transport)</a>
 </li>
@@ -1689,6 +1699,8 @@
       <li><a href="api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction">IsotopicMassFraction (class in tardis.model.matter.decay)</a>
 </li>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.iterate">iterate() (tardis.simulation.base.Simulation method)</a>
+</li>
+      <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.Iteration">Iteration (class in tardis.plasma.properties.hydrogen_continuum)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2296,6 +2308,8 @@
 </li>
         <li><a href="api/tardis.plasma.equilibrium.html#module-tardis.plasma.equilibrium">tardis.plasma.equilibrium</a>
 </li>
+        <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#module-tardis.plasma.equilibrium.ion_populations">tardis.plasma.equilibrium.ion_populations</a>
+</li>
         <li><a href="api/tardis.plasma.equilibrium.level_populations.html#module-tardis.plasma.equilibrium.level_populations">tardis.plasma.equilibrium.level_populations</a>
 </li>
         <li><a href="api/tardis.plasma.equilibrium.rate_matrix.html#module-tardis.plasma.equilibrium.rate_matrix">tardis.plasma.equilibrium.rate_matrix</a>
@@ -2315,6 +2329,8 @@
         <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#module-tardis.plasma.equilibrium.rates.photoionization_strengths">tardis.plasma.equilibrium.rates.photoionization_strengths</a>
 </li>
         <li><a href="api/tardis.plasma.equilibrium.rates.radiative_rates.html#module-tardis.plasma.equilibrium.rates.radiative_rates">tardis.plasma.equilibrium.rates.radiative_rates</a>
+</li>
+        <li><a href="api/tardis.plasma.equilibrium.rates.util.html#module-tardis.plasma.equilibrium.rates.util">tardis.plasma.equilibrium.rates.util</a>
 </li>
         <li><a href="api/tardis.plasma.exceptions.html#module-tardis.plasma.exceptions">tardis.plasma.exceptions</a>
 </li>
@@ -2337,6 +2353,8 @@
         <li><a href="api/tardis.plasma.properties.general.html#module-tardis.plasma.properties.general">tardis.plasma.properties.general</a>
 </li>
         <li><a href="api/tardis.plasma.properties.helium_nlte.html#module-tardis.plasma.properties.helium_nlte">tardis.plasma.properties.helium_nlte</a>
+</li>
+        <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#module-tardis.plasma.properties.hydrogen_continuum">tardis.plasma.properties.hydrogen_continuum</a>
 </li>
         <li><a href="api/tardis.plasma.properties.ion_population.html#module-tardis.plasma.properties.ion_population">tardis.plasma.properties.ion_population</a>
 </li>
@@ -2798,6 +2816,10 @@
 </li>
         <li><a href="api/tardis.plasma.properties.helium_nlte.html#tardis.plasma.properties.helium_nlte.HeliumNumericalNLTE.outputs">(tardis.plasma.properties.helium_nlte.HeliumNumericalNLTE attribute)</a>
 </li>
+        <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties.outputs">(tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties attribute)</a>
+</li>
+        <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.Iteration.outputs">(tardis.plasma.properties.hydrogen_continuum.Iteration attribute)</a>
+</li>
         <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.outputs">(tardis.plasma.properties.ion_population.IonNumberDensity attribute)</a>
 </li>
         <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.outputs">(tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE attribute)</a>
@@ -3175,10 +3197,10 @@
 </li>
       <li><a href="api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_simple_ascii_density">read_simple_ascii_density() (in module tardis.io.model.readers.generic_readers)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_simple_ascii_mass_fractions">read_simple_ascii_mass_fractions() (in module tardis.io.model.readers.generic_readers)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.snec.snec_output.html#tardis.io.model.readers.snec.snec_output.read_snec_dat_output">read_snec_dat_output() (in module tardis.io.model.readers.snec.snec_output)</a>
 </li>
       <li><a href="api/tardis.io.model.readers.snec.snec_output.html#tardis.io.model.readers.snec.snec_output.read_snec_em_output">read_snec_em_output() (in module tardis.io.model.readers.snec.snec_output)</a>
@@ -3206,6 +3228,8 @@
       <li><a href="api/tardis.util.base.html#tardis.util.base.reformat_element_symbol">reformat_element_symbol() (in module tardis.util.base)</a>
 </li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.refresh_packet_pbar">refresh_packet_pbar() (in module tardis.util.base)</a>
+</li>
+      <li><a href="api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe">reindex_ionization_rate_dataframe() (in module tardis.plasma.equilibrium.rates.util)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.reindex_sort_and_clean_probabilities_and_metadata">reindex_sort_and_clean_probabilities_and_metadata() (in module tardis.opacities.macro_atom.macroatom_solver)</a>
 </li>
@@ -3402,7 +3426,11 @@
 </li>
         <li><a href="api/tardis.opacities.opacity_solver.html#tardis.opacities.opacity_solver.OpacitySolver.solve">(tardis.opacities.opacity_solver.OpacitySolver method)</a>
 </li>
+        <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve">(tardis.plasma.equilibrium.ion_populations.IonPopulationSolver method)</a>
+</li>
         <li><a href="api/tardis.plasma.equilibrium.level_populations.html#tardis.plasma.equilibrium.level_populations.LevelPopulationSolver.solve">(tardis.plasma.equilibrium.level_populations.LevelPopulationSolver method)</a>
+</li>
+        <li><a href="api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.IonRateMatrix.solve">(tardis.plasma.equilibrium.rate_matrix.IonRateMatrix method)</a>
 </li>
         <li><a href="api/tardis.plasma.equilibrium.rate_matrix.html#tardis.plasma.equilibrium.rate_matrix.RateMatrix.solve">(tardis.plasma.equilibrium.rate_matrix.RateMatrix method)</a>
 </li>
@@ -3422,6 +3450,8 @@
 </li>
         <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve">(tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver method)</a>
 </li>
+        <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.solve">(tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver method)</a>
+</li>
         <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.solve">(tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver method)</a>
 </li>
         <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.EstimatedPhotoionizationCoeffSolver.solve">(tardis.plasma.equilibrium.rates.photoionization_strengths.EstimatedPhotoionizationCoeffSolver method)</a>
@@ -3435,8 +3465,6 @@
         <li><a href="api/tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.solve">(tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver method)</a>
 </li>
         <li><a href="api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve">(tardis.spectrum.formal_integral.source_function.SourceFunctionSolver method)</a>
-</li>
-        <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver.solve">(tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver method)</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.MCContinuumPropertiesSolver.solve">(tardis.transport.montecarlo.estimators.continuum_radfield_properties.MCContinuumPropertiesSolver method)</a>
 </li>
@@ -4195,6 +4223,13 @@
 </li>
       </ul></li>
       <li>
+    tardis.plasma.equilibrium.ion_populations
+
+      <ul>
+        <li><a href="api/tardis.plasma.equilibrium.ion_populations.html#module-tardis.plasma.equilibrium.ion_populations">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.plasma.equilibrium.level_populations
 
       <ul>
@@ -4262,6 +4297,13 @@
 
       <ul>
         <li><a href="api/tardis.plasma.equilibrium.rates.radiative_rates.html#module-tardis.plasma.equilibrium.rates.radiative_rates">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.plasma.equilibrium.rates.util
+
+      <ul>
+        <li><a href="api/tardis.plasma.equilibrium.rates.util.html#module-tardis.plasma.equilibrium.rates.util">module</a>
 </li>
       </ul></li>
       <li>
@@ -4342,6 +4384,13 @@
 </li>
       </ul></li>
       <li>
+    tardis.plasma.properties.hydrogen_continuum
+
+      <ul>
+        <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#module-tardis.plasma.properties.hydrogen_continuum">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.plasma.properties.ion_population
 
       <ul>
@@ -4369,6 +4418,8 @@
         <li><a href="api/tardis.plasma.properties.nlte.html#module-tardis.plasma.properties.nlte">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.nlte_excitation_data
 
@@ -4376,8 +4427,6 @@
         <li><a href="api/tardis.plasma.properties.nlte_excitation_data.html#module-tardis.plasma.properties.nlte_excitation_data">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.nlte_rate_equation_solver
 
@@ -5375,7 +5424,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Aug 2025.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=600d1dbd"></script>
+      <script src="../_static/documentation_options.js?v=d010c3c6"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -166,6 +166,80 @@
   <section id="module-tardis.plasma.equilibrium.rates.photoionization_strengths">
 <span id="tardis-plasma-equilibrium-rates-photoionization-strengths-module"></span><h1>tardis.plasma.equilibrium.rates.photoionization_strengths module<a class="headerlink" href="#module-tardis.plasma.equilibrium.rates.photoionization_strengths" title="Link to this heading">¶</a></h1>
 <dl class="py class">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.photoionization_strengths.</span></span><span class="sig-name descname"><span class="pre">AnalyticCorrectedPhotoionizationCoeffSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photoionization_cross_sections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_strengths.html#AnalyticCorrectedPhotoionizationCoeffSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver" title="tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpontaneousRecombinationCoeffSolver</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_corrected_photoionization_rate_coeff">
+<span class="sig-name descname"><span class="pre">calculate_corrected_photoionization_rate_coeff</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean_intensity_photoionization_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photoionization_boltzmann_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lte_level_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lte_ion_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_population</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_strengths.html#AnalyticCorrectedPhotoionizationCoeffSolver.calculate_corrected_photoionization_rate_coeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_corrected_photoionization_rate_coeff" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate the stimulated emission corrected photoionization rate coefficient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mean_intensity_photoionization_df</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>A DataFrame of the mean intensity of the radiation field at each frequency</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>The calculated photoionization rate coefficient.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Equation 18 in Lucy 2003.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">
+<span class="sig-name descname"><span class="pre">calculate_mean_intensity_photoionization_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radiation_field</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_strengths.html#AnalyticCorrectedPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates the mean intensity of the radiation field at each photoionization frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>radiation_field</strong><span class="classifier">RadiationField</span></dt><dd><p>The radiation field.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>DataFrame of mean intensities indexed by photoionization levels and
+columns of cells.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dilute_blackbody_radiationfield_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lte_level_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lte_ion_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_population</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_strengths.html#AnalyticCorrectedPhotoionizationCoeffSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Prepares the ionization and recombination coefficients by grouping them for
+ion numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>dilute_blackbody_radiationfield_state</strong><span class="classifier">DiluteBlackBodyRadiationFieldState</span></dt><dd><p>The dilute black body radiation field state.</p>
+</dd>
+<dt><strong>electron_temperature</strong><span class="classifier">u.Quantity</span></dt><dd><p>Electron temperature in each shell.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>photoionization_rate_coeff</dt><dd><p>Photoionization rate coefficient grouped by atomic number and ion number.</p>
+</dd>
+<dt>recombination_rate_coeff</dt><dd><p>Radiative recombination rate coefficient grouped by atomic number and ion number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.photoionization_strengths.</span></span><span class="sig-name descname"><span class="pre">AnalyticPhotoionizationCoeffSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photoionization_cross_sections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_strengths.html#AnalyticPhotoionizationCoeffSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver" title="tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpontaneousRecombinationCoeffSolver</span></code></a></p>
@@ -289,6 +363,8 @@ ion numbers.</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Lucy 2003 Eq 44, 45.</p>
 </dd></dl>
 
 </dd></dl>
@@ -321,7 +397,7 @@ ion numbers.</p>
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver.common_prefactor">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">common_prefactor</span></span><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver.common_prefactor" title="Link to this definition">¶</a></dt>
 <dd><p>Used to multiply with both spontaneous recombination and
-photoionization coefficients.</p>
+photoionization coefficients. Lucy 2003 Eq 13, 15, 16.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -351,7 +427,7 @@ photoionization coefficients.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Equation 13 in Lucy 2003.</p>
+<p>Equation 13 in Lucy 2003, missing the factor from Eq 14.</p>
 </dd></dl>
 
 </dd></dl>
@@ -370,7 +446,7 @@ photoionization coefficients.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Aug 2025.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=600d1dbd"></script>
+      <script src="../_static/documentation_options.js?v=d010c3c6"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -172,60 +172,24 @@
 <p>Solve the photoionization and spontaneous recombination rates in the
 case where the radiation field is computed analytically.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver.compute_rates">
-<span class="sig-name descname"><span class="pre">compute_rates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">photoionization_rate_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimulated_recombination_rate_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spontaneous_recombination_rate_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saha_factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_rates.html#AnalyticPhotoionizationRateSolver.compute_rates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver.compute_rates" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the photoionization and spontaneous recombination rates</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>photoionization_rate_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The photoionization rate coefficients for each transition.
-Columns are cells.</p>
-</dd>
-<dt><strong>stimulated_recombination_rate_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The stimulated recombination rate coefficients for each transition.
-Columns are cells.</p>
-</dd>
-<dt><strong>spontaneous_recombination_rate_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The spontaneous recombination rate coefficients for each transition.
-Columns are cells.</p>
-</dd>
-<dt><strong>level_number_density</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The electron energy level number density. Columns are cells.</p>
-</dd>
-<dt><strong>ion_number_density</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The ion number density. Columns are cells.</p>
-</dd>
-<dt><strong>electron_number_density</strong><span class="classifier">u.Quantity</span></dt><dd><p>The free electron number density per cell.</p>
-</dd>
-<dt><strong>saha_factor</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The LTE population factor. Columns are cells.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>Photoionization rate for each electron energy level. Columns are cells</p>
-</dd>
-<dt>pd.DataFrame</dt><dd><p>Spontaneous recombination rate for each electron energy level. Columns are cells</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dilute_blackbody_radiationfield_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_energy_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saha_factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_rates.html#AnalyticPhotoionizationRateSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver.solve" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radiation_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_energy_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lte_level_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lte_ion_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_boltzmann_factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_rates.html#AnalyticPhotoionizationRateSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_rates.AnalyticPhotoionizationRateSolver.solve" title="Link to this definition">¶</a></dt>
 <dd><p>Solve the photoionization and spontaneous recombination rates in the
 case where the radiation field is not estimated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>dilute_blackbody_radiationfield_state</strong><span class="classifier">DiluteBlackBodyRadiationFieldState</span></dt><dd><p>A dilute black body radiation field state.</p>
+<dt><strong>radiation_field</strong><span class="classifier">RadiationField</span></dt><dd><p>A radiation field that can compute its mean intensity.</p>
 </dd>
 <dt><strong>electron_energy_distribution</strong><span class="classifier">ThermalElectronEnergyDistribution</span></dt><dd><p>Electron properties.</p>
 </dd>
-<dt><strong>level_number_density</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron energy level number density. Columns are cells.</p>
+<dt><strong>lte_level_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>LTE level number density. Columns are cells.</p>
 </dd>
-<dt><strong>ion_number_density</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Ion number density. Columns are cells.</p>
+<dt><strong>level_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Estimated level number density. Columns are cells.</p>
 </dd>
-<dt><strong>saha_factor</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Saha factor: the LTE level number density divided by the LTE ion
-number density and the electron number density.</p>
+<dt><strong>lte_ion_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>LTE ion number density. Columns are cells.</p>
+</dd>
+<dt><strong>ion_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Estimated ion number density. Columns are cells.</p>
 </dd>
 </dl>
 </dd>
@@ -250,7 +214,7 @@ number density and the electron number density.</p>
 case where the radiation field is estimated by Monte Carlo processes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_energy_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radfield_mc_estimators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saha_factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_rates.html#EstimatedPhotoionizationRateSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_energy_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radfield_mc_estimators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_population</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_rates.html#EstimatedPhotoionizationRateSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve" title="Link to this definition">¶</a></dt>
 <dd><p>Solve the photoionization and spontaneous recombination rates in the
 case where the radiation field is estimated by Monte Carlo processes.</p>
 <dl class="field-list simple">
@@ -264,12 +228,7 @@ case where the radiation field is estimated by Monte Carlo processes.</p>
 </dd>
 <dt><strong>volume</strong><span class="classifier">u.Quantity</span></dt><dd><p>Volume per cell.</p>
 </dd>
-<dt><strong>level_number_density</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron energy level number density. Columns are cells.</p>
-</dd>
-<dt><strong>ion_number_density</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Ion number density. Columns are cells.</p>
-</dd>
-<dt><strong>saha_factor</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Saha factor: the LTE level number density divided by the LTE ion
-number density and the electron number density.</p>
+<dt><strong>level_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron energy level number density. Columns are cells.</p>
 </dd>
 </dl>
 </dd>
@@ -300,7 +259,7 @@ number density and the electron number density.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Aug 2025.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
       </span></p>
   </div>
 

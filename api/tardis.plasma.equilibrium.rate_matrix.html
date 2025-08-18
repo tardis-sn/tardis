@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=600d1dbd"></script>
+      <script src="../_static/documentation_options.js?v=d010c3c6"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -165,6 +165,57 @@
   <section id="module-tardis.plasma.equilibrium.rate_matrix">
 <span id="tardis-plasma-equilibrium-rate-matrix-module"></span><h1>tardis.plasma.equilibrium.rate_matrix module<a class="headerlink" href="#module-tardis.plasma.equilibrium.rate_matrix" title="Link to this heading">¶</a></h1>
 <dl class="py class">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rate_matrix.IonRateMatrix">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rate_matrix.</span></span><span class="sig-name descname"><span class="pre">IonRateMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radiative_ionization_rate_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collisional_ionization_rate_solver</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rate_matrix.html#IonRateMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rate_matrix.IonRateMatrix" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Constructs the ionization rate matrix from radiative and collisional
+ionization rate solvers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>radiative_ionization_rate_solver</strong><span class="classifier">AnalyticPhotoionizationRateSolver | EstimatedPhotoionizationRateSolver</span></dt><dd><p>Solver for radiative ionization and recombination rates.</p>
+</dd>
+<dt><strong>collisional_ionization_rate_solver</strong><span class="classifier">CollisionalIonizationRateSolver</span></dt><dd><p>Solver for collisional ionization and recombination rates.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rate_matrix.IonRateMatrix.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radiation_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_electron_energy_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lte_level_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lte_ion_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_population</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boltzmann_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_conservation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rate_matrix.html#IonRateMatrix.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rate_matrix.IonRateMatrix.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the ionization rate matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>radiation_field</strong><span class="classifier">RadiationField</span></dt><dd><p>A radiation field that can compute its mean intensity.</p>
+</dd>
+<dt><strong>thermal_electron_energy_distribution</strong><span class="classifier">ThermalElectronEnergyDistribution</span></dt><dd><p>Electron properties.</p>
+</dd>
+<dt><strong>lte_level_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>LTE level number density. Columns are cells.</p>
+</dd>
+<dt><strong>level_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Estimated level number density. Columns are cells.</p>
+</dd>
+<dt><strong>lte_ion_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>LTE ion number density. Columns are cells.</p>
+</dd>
+<dt><strong>ion_population</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Estimated ion number density. Columns are cells.</p>
+</dd>
+<dt><strong>charge_conservation</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to include a charge conservation row in the rate matrix.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>A DataFrame of rate matrices indexed by atomic number and ion number,
+with each column being a cell. Each entry is a numpy array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rate_matrix.RateMatrix">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rate_matrix.</span></span><span class="sig-name descname"><span class="pre">RateMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rate_solvers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rate_matrix.html#RateMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rate_matrix.RateMatrix" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
@@ -219,7 +270,7 @@ with each column being a cell.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Aug 2025.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
       </span></p>
   </div>
 

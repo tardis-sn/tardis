@@ -1,0 +1,366 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.plasma.equilibrium.ion_populations &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=d010c3c6"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.plasma.equilibrium.ion_populations</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.plasma.equilibrium.ion_populations</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import astropy.units as u
+import numpy as np
+import pandas as pd
+
+logger = logging.getLogger(__name__)
+
+LOWER_ION_LEVEL_H = 0
+
+
+<div class="viewcode-block" id="IonPopulationSolver">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver">[docs]</a>
+class IonPopulationSolver:
+    def __init__(self, rate_matrix_solver, max_solver_iterations=100):
+        &quot;&quot;&quot;Solve the normalized ion population values from the rate matrices.
+
+        Parameters
+        ----------
+        rate_matrix_solver : IonRateMatrix
+        &quot;&quot;&quot;
+        self.rate_matrix_solver = rate_matrix_solver
+        self.max_solver_iterations = max_solver_iterations
+
+    def __calculate_balance_vector(
+        self,
+        elemental_number_density,
+        rate_matrix_index,
+        charge_conservation=False,
+    ):
+        &quot;&quot;&quot;Constructs the balance vector for the NLTE ionization solver set of
+        equations by combining all solution vector blocks.
+
+        Parameters
+        ----------
+        elemental_number_density : pandas.Series
+            Elemental number densities indexed by atomic number.
+        rate_matrix_index : pandas.MultiIndex
+            (atomic_number, ion_number)
+        charge_conservation : bool, optional
+            Whether to include a charge conservation row.
+
+        Returns
+        -------
+        numpy.array
+            Solution vector for the NLTE ionization solver.
+        &quot;&quot;&quot;
+        balance_array = [
+            np.append(
+                np.zeros(
+                    (
+                        rate_matrix_index.get_level_values(&quot;atomic_number&quot;)
+                        == atomic_number
+                    ).sum()
+                ),
+                elemental_number_density.loc[atomic_number],
+            )
+            for atomic_number in elemental_number_density.index
+        ]
+
+        if charge_conservation:
+            balance_array.append(np.array([0.0]))
+
+        return np.hstack(balance_array)
+
+<div class="viewcode-block" id="IonPopulationSolver.solve">
+<a class="viewcode-back" href="../../../../api/tardis.plasma.equilibrium.ion_populations.html#tardis.plasma.equilibrium.ion_populations.IonPopulationSolver.solve">[docs]</a>
+    def solve(
+        self,
+        radiation_field,
+        thermal_electron_energy_distribution,
+        elemental_number_density,
+        lte_level_population,
+        estimated_level_population,
+        lte_ion_population,
+        estimated_ion_population,
+        partition_function,
+        boltzmann_factor,
+        charge_conservation=False,
+        tolerance=1e-14,
+    ):
+        &quot;&quot;&quot;Solves the normalized ion population values from the rate matrices.
+
+        Parameters
+        ----------
+        radiation_field : RadiationField
+            A radiation field that can compute its mean intensity.
+        thermal_electron_energy_distribution : ThermalElectronEnergyDistribution
+            Electron properties.
+        elemental_number_density : pd.DataFrame
+            Elemental number density. Index is atomic number, columns are cells.
+        lte_level_population : pd.DataFrame
+            LTE level number density. Columns are cells.
+        estimated_level_population : pd.DataFrame
+            Estimated level number density. Columns are cells.
+        lte_ion_population : pd.DataFrame
+            LTE ion number density. Columns are cells.
+        estimated_ion_population : pd.DataFrame
+            Estimated ion number density. Columns are cells.
+        charge_conservation : bool, optional
+            Whether to include a charge conservation row in the rate matrix.
+        tolerance : float, optional
+            Tolerance for convergence of the ion population solver.
+
+        Returns
+        -------
+        pd.DataFrame
+            Normalized ion population values indexed by atomic number, ion
+            number and ion number. Columns are cells.
+        pd.DataFrame
+            Normalized electron fraction values. Columns are cells.
+        &quot;&quot;&quot;
+        # TODO: make more general indices that work for non-Hydrogen species
+        # this is the i level in Lucy 2003
+        lower_ion_level_index = (
+            lte_level_population.index.get_level_values(&quot;ion_number&quot;)
+            == LOWER_ION_LEVEL_H
+        )
+
+        # this is the k level in Lucy 2003
+        upper_ion_population_index = (
+            lte_ion_population.index.get_level_values(&quot;ion_number&quot;)
+            &gt; LOWER_ION_LEVEL_H
+        )
+
+        new_electron_energy_distribution = thermal_electron_energy_distribution
+
+        for iteration in range(self.max_solver_iterations):
+            self.rates_matrices = self.rate_matrix_solver.solve(
+                radiation_field,
+                new_electron_energy_distribution,
+                lte_level_population.loc[lower_ion_level_index],
+                estimated_level_population.loc[lower_ion_level_index],
+                lte_ion_population.loc[upper_ion_population_index],
+                estimated_ion_population.loc[upper_ion_population_index],
+                partition_function,
+                boltzmann_factor,
+                charge_conservation,
+            )
+            solved_matrices = pd.DataFrame(
+                index=self.rates_matrices.index,
+                columns=self.rates_matrices.columns,
+            )
+            for cell in elemental_number_density.columns:
+                balance_vector = self.__calculate_balance_vector(
+                    elemental_number_density[cell],
+                    self.rates_matrices.index,
+                    charge_conservation,
+                )
+                solved_matrix = self.rates_matrices[cell].apply(
+                    np.linalg.solve, args=(balance_vector,)
+                )
+                solved_matrices[cell] = solved_matrix
+
+            ion_population_solution = pd.DataFrame(
+                np.vstack(solved_matrices.values[0]).T,
+                index=estimated_ion_population.index,
+                columns=self.rates_matrices.columns,
+            )
+
+            if (ion_population_solution &lt; 0).any().any():
+                ion_population_solution[ion_population_solution &lt; 0] = 0.0
+
+            electron_population_solution = (
+                ion_population_solution
+                * ion_population_solution.index.get_level_values(&quot;ion_number&quot;)
+                .values[np.newaxis]
+                .T
+            ).sum()
+
+            delta_ion = (
+                estimated_ion_population - ion_population_solution
+            ) / ion_population_solution
+            delta_electron = (
+                new_electron_energy_distribution.number_density.value
+                - electron_population_solution
+            ) / electron_population_solution
+
+            if (
+                np.all(np.abs(delta_ion) &lt; tolerance).any().any()
+                and (np.abs(delta_electron) &lt; tolerance).any().any()
+            ):
+                logger.info(
+                    &quot;Ion population solver converged after %d iterations.&quot;,
+                    iteration + 1,
+                )
+                break
+
+            estimated_ion_population = ion_population_solution
+            new_electron_energy_distribution.number_density = (
+                electron_population_solution.values * u.cm**-3
+            )
+        else:
+            logger.warning(
+                &quot;Ion population solver did not converge after %d iterations.&quot;,
+                iteration,
+            )
+
+        return ion_population_solution, electron_population_solution</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

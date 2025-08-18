@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=600d1dbd"></script>
+      <script src="../../../../../_static/documentation_options.js?v=d010c3c6"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -139,18 +139,11 @@ from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.plasma.properties.continuum_processes.rates import (
-    PhotoIonBoltzmannFactor,
-)
-from tardis.plasma.radiation_field.planck_rad_field import (
-    DilutePlanckianRadiationField,
-)
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
-    integrate_array_by_blocks,
 )
 
 H = const.h.cgs.value
@@ -211,179 +204,13 @@ class MCContinuumPropertiesSolver:
 
 
 
-<div class="viewcode-block" id="DiluteBlackBodyContinuumPropertiesSolver">
-<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver">[docs]</a>
-class DiluteBlackBodyContinuumPropertiesSolver:
-    def __init__(self, atom_data: AtomData) -&gt; None:
-        self.atom_data = atom_data
-
-<div class="viewcode-block" id="DiluteBlackBodyContinuumPropertiesSolver.solve">
-<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver.solve">[docs]</a>
-    def solve(
-        self,
-        dilute_blackbody_radiationfield_state: DilutePlanckianRadiationField,
-        t_electrons: u.Quantity,
-    ):
-        &quot;&quot;&quot;
-        Solve for the continuum properties.
-
-        Parameters
-        ----------
-        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
-            The state of the dilute blackbody radiation field.
-        t_electrons : u.Quantity
-            The temperature of the electrons.
-
-        Returns
-        -------
-        ContinuumProperties
-            The calculated continuum properties.
-
-        &quot;&quot;&quot;
-        photo_ion_boltzmann_factor = PhotoIonBoltzmannFactor.calculate(
-            self.atom_data.photoionization_data, t_electrons
-        )
-        mean_intensity_photo_ion_df = (
-            self.calculate_mean_intensity_photo_ion_table(
-                dilute_blackbody_radiationfield_state
-            )
-        )
-
-        photo_ion_rate_coeff = self.calculate_photo_ionization_rate_coefficient(
-            mean_intensity_photo_ion_df
-        )
-        stimulated_recomb_rate_factor = (
-            self.calculate_stimulated_recomb_rate_factor(
-                mean_intensity_photo_ion_df,
-                photo_ion_boltzmann_factor,
-            )
-        )
-
-        return ContinuumProperties(
-            stimulated_recomb_rate_factor, photo_ion_rate_coeff
-        )</div>
-
-
-<div class="viewcode-block" id="DiluteBlackBodyContinuumPropertiesSolver.calculate_photo_ionization_rate_coefficient">
-<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver.calculate_photo_ionization_rate_coefficient">[docs]</a>
-    def calculate_photo_ionization_rate_coefficient(
-        self,
-        mean_intensity_photo_ion_df: pd.DataFrame,
-    ):
-        &quot;&quot;&quot;
-        Calculate the photoionization rate coefficient.
-
-        Parameters
-        ----------
-        mean_intensity_photo_ion_df : pd.DataFrame
-            The mean intensity of the radiation field at the frequencies of the photoionization table.
-
-        Returns
-        -------
-        pd.DataFrame
-            The calculated photoionization rate coefficient.
-
-        Notes
-        -----
-        Equation 16 in Lucy 2003.
-        &quot;&quot;&quot;
-        photo_ion_rate_coefficient = mean_intensity_photo_ion_df.multiply(
-            4.0
-            * np.pi
-            * self.atom_data.photoionization_data.x_sect
-            / (self.atom_data.photoionization_data.nu * H),
-            axis=0,
-        )
-        photo_ion_rate_coefficient = integrate_array_by_blocks(
-            photo_ion_rate_coefficient.values,
-            self.atom_data.photoionization_data.nu.values,
-            self.atom_data.photo_ion_block_references,
-        )
-        photo_ion_rate_coefficient = pd.DataFrame(
-            photo_ion_rate_coefficient,
-            index=self.atom_data.photo_ion_unique_index,
-        )
-        return photo_ion_rate_coefficient</div>
-
-
-<div class="viewcode-block" id="DiluteBlackBodyContinuumPropertiesSolver.calculate_stimulated_recomb_rate_factor">
-<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver.calculate_stimulated_recomb_rate_factor">[docs]</a>
-    def calculate_stimulated_recomb_rate_factor(
-        self,
-        mean_intensity_photo_ion_df: pd.DataFrame,
-        photo_ion_boltzmann_factor: np.ndarray,
-    ):
-        &quot;&quot;&quot;
-        Calculate the stimulated recombination rate factor (the phi_ik are multiplied in the plasma).
-
-        Parameters
-        ----------
-        mean_intensity_photo_ion_df : pd.DataFrame
-            The mean intensity of the radiation field at the frequencies of the photoionization table.
-        photo_ion_boltzmann_factor: np.ndarray
-            The Boltzmann factor for the photoionization table.
-
-        Returns
-        -------
-        pd.DataFrame
-            The calculated stimulated recombination rate factor.
-
-        Notes
-        -----
-        Equation 15 in Lucy 2003.
-        &quot;&quot;&quot;
-        alpha_stim_factor = (
-            mean_intensity_photo_ion_df * photo_ion_boltzmann_factor
-        )
-        alpha_stim_factor = alpha_stim_factor.multiply(
-            4.0
-            * np.pi
-            * self.atom_data.photoionization_data.x_sect
-            / (self.atom_data.photoionization_data.nu * H),
-            axis=0,
-        )
-        alpha_stim_factor = integrate_array_by_blocks(
-            alpha_stim_factor.values,
-            self.atom_data.photoionization_data.nu.values,
-            self.atom_data.photo_ion_block_references,
-        )
-
-        alpha_stim_factor = pd.DataFrame(
-            alpha_stim_factor, index=self.atom_data.photo_ion_unique_index
-        )
-
-        return alpha_stim_factor</div>
-
-
-<div class="viewcode-block" id="DiluteBlackBodyContinuumPropertiesSolver.calculate_mean_intensity_photo_ion_table">
-<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.DiluteBlackBodyContinuumPropertiesSolver.calculate_mean_intensity_photo_ion_table">[docs]</a>
-    def calculate_mean_intensity_photo_ion_table(
-        self,
-        dilute_blackbody_radiationfield_state: DilutePlanckianRadiationField,
-    ):
-        mean_intensity = (
-            dilute_blackbody_radiationfield_state.calculate_mean_intensity(
-                self.atom_data.photoionization_data.nu.values
-            )
-        )
-        return pd.DataFrame(
-            mean_intensity,
-            index=self.atom_data.photoionization_data.index,
-            columns=np.arange(
-                len(dilute_blackbody_radiationfield_state.temperature)
-            ),
-        )</div>
-</div>
-
-
-
 <div class="viewcode-block" id="ContinuumProperties">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.ContinuumProperties">[docs]</a>
 @dataclass
 class ContinuumProperties:
+    photo_ionization_rate_coefficient: pd.DataFrame
     # this is not the rate coefficient but misses Phi I_K
-    stimulated_recombination_rate_factor: pd.DataFrame
-    photo_ionization_rate_coefficient: pd.DataFrame</div>
+    stimulated_recombination_rate_factor: pd.DataFrame</div>
 
 </pre></div>
 
@@ -395,7 +222,7 @@ class ContinuumProperties:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Aug 2025.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
       </span></p>
   </div>
 
