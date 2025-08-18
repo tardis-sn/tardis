@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.opacities.tau_sobolev &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=1c65e5a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration (Required Input)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/model/index.html">Reading Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/code_comparison/index.html">Code Comparison</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">References and Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.opacities.tau_sobolev</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.opacities.tau_sobolev</h1><div class="highlight"><pre>
+<span></span>import numpy as np
+import pandas as pd
+from astropy import units as u
+from numba import jit, prange
+
+from tardis import constants as const
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
+
+SOBOLEV_COEFFICIENT = (
+    (
+        ((np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs))
+        * u.cm
+        * u.s
+        / u.cm**3
+    )
+    .to(1)
+    .value
+)
+
+
+<div class="viewcode-block" id="calculate_sobolev_line_opacity">
+<a class="viewcode-back" href="../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.calculate_sobolev_line_opacity">[docs]</a>
+def calculate_sobolev_line_opacity(
+    lines,
+    level_number_density,
+    time_explosion,
+    stimulated_emission_factor,
+):
+    &quot;&quot;&quot;
+    Calculates the Sobolev line opacity based on the provided parameters.
+
+    Parameters
+    ----------
+    lines : pandas.DataFrame
+        DataFrame containing information about spectral lines.
+    level_number_density : pandas.DataFrame
+        DataFrame with level number densities.
+    time_explosion : astropy.units.Quantity
+        Time since explosion.
+    stimulated_emission_factor : float
+        Factor for stimulated emission.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Calculated Sobolev line opacity values.
+
+    Raises
+    ------
+    ValueError
+        If any calculated tau_sobolevs are nan or inf.
+
+    Examples
+    --------
+    &gt;&gt;&gt; calculate_sobolev_line_opacity(lines_data, level_density_data, time_exp, stim_factor)
+    &quot;&quot;&quot;
+    tau_sobolevs = (
+        (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
+        * SOBOLEV_COEFFICIENT
+        * time_explosion.to(u.s).value
+        * stimulated_emission_factor
+        * level_number_density.reindex(lines.droplevel(-1).index).values
+    )
+
+    if np.any(np.isnan(tau_sobolevs)) or np.any(np.isinf(np.abs(tau_sobolevs))):
+        raise ValueError(
+            &quot;Some tau_sobolevs are nan, inf, -inf in tau_sobolevs.&quot;
+            &quot; Something went wrong!&quot;
+        )
+
+    return pd.DataFrame(
+        tau_sobolevs,
+        index=lines.index,
+        columns=np.array(level_number_density.columns),
+    )</div>
+
+
+
+<div class="viewcode-block" id="calculate_beta_sobolev">
+<a class="viewcode-back" href="../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.calculate_beta_sobolev">[docs]</a>
+def calculate_beta_sobolev(tau_sobolevs):
+    &quot;&quot;&quot;Calculate the beta Sobolev values based on the provided tau_sobolevs.
+    Values from the previous iteration can be provided.
+
+    Parameters
+    ----------
+    tau_sobolevs : pd.DataFrame
+        Tau Sobolev opacities.
+
+    Returns
+    -------
+    pd.DataFrame
+        The latest Beta Sobolev opacities.
+    &quot;&quot;&quot;
+
+    @jit(nopython=True, parallel=True)
+    def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
+        for i in prange(len(tau_sobolevs)):
+            if tau_sobolevs[i] &gt; 1e3:
+                beta_sobolevs[i] = tau_sobolevs[i] ** -1
+            elif tau_sobolevs[i] &lt; 1e-4:
+                beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
+            else:
+                beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
+                    tau_sobolevs[i]
+                )
+        return beta_sobolevs
+
+    beta_sobolev = pd.DataFrame(
+        0.0, index=tau_sobolevs.index, columns=tau_sobolevs.columns
+    )
+
+    numba_calculate_beta_sobolev(
+        tau_sobolevs.values.ravel(), beta_sobolev.values.ravel()
+    )
+
+    return beta_sobolev</div>
+
+
+
+<div class="viewcode-block" id="TauSobolev">
+<a class="viewcode-back" href="../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.TauSobolev">[docs]</a>
+class TauSobolev(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    tau_sobolev : Pandas DataFrame, dtype float
+          Sobolev optical depth for each line. Indexed by line.
+          Columns as zones.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;tau_sobolevs&quot;,)
+    latex_name = (r&quot;\tau_{\textrm{sobolev}}&quot;,)
+    latex_formula = (
+        r&quot;\dfrac{\pi e^{2}}{m_{e} c}f_{lu}\lambda t_{exp}\
+        n_{lower} \Big(1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\Big)&quot;,
+    )
+
+<div class="viewcode-block" id="TauSobolev.calculate">
+<a class="viewcode-back" href="../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.TauSobolev.calculate">[docs]</a>
+    def calculate(
+        self,
+        lines,
+        level_number_density,
+        time_explosion,
+        stimulated_emission_factor,
+    ):
+        &quot;&quot;&quot;
+        Calculate Sobolev line opacity.
+
+        Calculates the Sobolev line opacity based on the provided parameters.
+
+        Parameters
+        ----------
+        lines : pandas.DataFrame
+            DataFrame containing information about spectral lines.
+        level_number_density : pandas.DataFrame
+            DataFrame with level number densities.
+        time_explosion : astropy.units.Quantity
+            Time since explosion.
+        stimulated_emission_factor : float
+            Factor for stimulated emission.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Calculated Sobolev line opacity values.
+
+        Raises
+        ------
+        ValueError
+            If any calculated tau_sobolevs are nan or inf.
+        &quot;&quot;&quot;
+        return calculate_sobolev_line_opacity(
+            lines,
+            level_number_density,
+            time_explosion,
+            stimulated_emission_factor,
+        )</div>
+</div>
+
+
+
+<div class="viewcode-block" id="BetaSobolev">
+<a class="viewcode-back" href="../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.BetaSobolev">[docs]</a>
+class BetaSobolev(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    beta_sobolev : Numpy Array, dtype float
+    &quot;&quot;&quot;
+
+    outputs = (&quot;beta_sobolev&quot;,)
+    latex_name = (r&quot;\beta_{\textrm{sobolev}}&quot;,)
+
+<div class="viewcode-block" id="BetaSobolev.calculate">
+<a class="viewcode-back" href="../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.BetaSobolev.calculate">[docs]</a>
+    def calculate(self, tau_sobolevs):
+        return calculate_beta_sobolev(tau_sobolevs)</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 18 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
