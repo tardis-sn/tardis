@@ -90,7 +90,7 @@ def test_standard_tardis_workflow_against_run_tardis(
             attr_data = attr_data.value
         attr_data = pd.Series(attr_data)
         pd.testing.assert_series_equal(
-            attr_data, ref_data, check_exact=False, rtol=1e-6
+            attr_data, ref_data, check_exact=False, rtol=1e-14
         )
     elif attr_type == "plasma_state_iterations":
         attr_data = getattr(standard_workflow_one_loop, attr)
@@ -146,4 +146,4 @@ def test_v_inner_solver_workflow(v_inner_workflow, attr, regression_data):
         attr_data = attr_data.value
     attr_data = pd.DataFrame(attr_data)
     ref_data = regression_data.sync_dataframe(attr_data)
-    pd.testing.assert_frame_equal(attr_data, ref_data, atol=1e-3, rtol=1e-6)
+    pd.testing.assert_frame_equal(attr_data, ref_data, atol=0, rtol=1e-12)

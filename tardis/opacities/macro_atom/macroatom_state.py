@@ -230,6 +230,6 @@ class MacroAtomState:
         legacy_macro_atom.line2macro_level_upper = (
             legacy_state.line2macro_level_upper
         )
-        legacy_macro_atom.destination_level_id = legacy_state.destination_level_id  # I'm also not sure how to recreate this because it doesn't quite make sense to me.
+        legacy_macro_atom.destination_level_id = legacy_state.destination_level_id 
 
         return legacy_macro_atom
