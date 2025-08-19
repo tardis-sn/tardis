@@ -8,12 +8,16 @@ import pytest
 import jax
 import jax.numpy as jnp
 
-from tardis.spectrum.formal_integral.formal_integral_jax import reverse_binary_search_jax, line_search_jax, intensity_black_body_jax, populate_z_jax, calculate_z_jax
 from tardis.util.base import intensity_black_body
 from tardis.spectrum.formal_integral.base import C_INV
 from tardis.spectrum.formal_integral.formal_integral_numba import populate_z as populate_z_numba
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
+from tardis.spectrum.formal_integral.formal_integral_jax import reverse_binary_search_jax, line_search_jax, intensity_black_body_jax, populate_z_jax, calculate_z_jax
+import tardis.spectrum.formal_integral.formal_integral_jax as formal_integral_jax
+
 
 TESTDATA = [
     {
@@ -174,3 +178,45 @@ def test_populate_z(ps, tau_sizes, texp, formal_integral_geometry):
     npt.assert_allclose(zs_n, zs_j, rtol=1e-14, atol=0)
     npt.assert_allclose(shell_ids_n, shell_ids_j, rtol=1e-14, atol=0)
     npt.assert_allclose(sizes_n, sizes_j, rtol=1e-14, atol=0)
+
+def test_full_formal_integral(simulation_verysimple):
+    """
+    repeating the same test from test_cuda_formal_integral, but with jax implementation
+    """
+
+    sim = simulation_verysimple
+
+    formal_integrator_numba = FormalIntegralSolver(
+        sim.spectrum_solver.integrator_settings
+    )
+    formal_integrator_numba.method = 'numba'
+
+    formal_integrator_jax = FormalIntegralSolver(
+        sim.spectrum_solver.integrator_settings
+    )
+    formal_integrator_jax.method = 'jax'
+
+
+    formal_integrator_numba.integrator_settings.interpolate_shells = max(
+        2 * sim.simulation_state.no_of_shells, 80
+    )
+
+    formal_integrator_jax.integrator_settings.interpolate_shells = max(
+        2 * sim.simulation_state.no_of_shells, 80
+    )
+
+    L_numba = formal_integrator_numba.solve(
+        sim.spectrum_solver.spectrum_real_packets.frequency,
+        sim.simulation_state,
+        sim.transport,
+        sim.plasma
+    ).luminosity
+
+    L_jax = formal_integrator_jax.solve(
+        sim.spectrum_solver.spectrum_real_packets.frequency,
+        sim.simulation_state,
+        sim.transport,
+        sim.plasma
+    ).luminosity
+
+    npt.assert_allclose(L_jax, L_numba, rtol=1e-14, atol=0.)

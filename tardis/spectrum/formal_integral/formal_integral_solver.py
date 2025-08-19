@@ -16,6 +16,11 @@ from tardis.spectrum.formal_integral.formal_integral_numba import (
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
+from tardis.spectrum.formal_integral.formal_integral_jax import (
+    JaxFormalIntegrator,
+)
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +70,7 @@ class FormalIntegralSolver:
             None,
             "numba",
             "cuda",
+            "jax"
         ]:  # TODO: better way to handle this
             # use GPU if available
             if transport.use_gpu:
@@ -119,6 +125,13 @@ class FormalIntegralSolver:
 
         if self.method == "cuda":
             self.integrator = CudaFormalIntegrator(
+                numba_radial_1d_geometry,
+                time_explosion.cgs.value,
+                opacity_state,
+                self.integrator_settings.points,
+            )
+        elif self.method == "jax":
+            self.integrator = JaxFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
                 opacity_state,
