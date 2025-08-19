@@ -343,11 +343,11 @@ def calc_Inup(
     )  # ensure this computes all plines
     offset = shell_id[0] * size_line
     pline_offset = pline + offset
+    pline_offset_red = pline + offset
 
     nu_ends = nu * z[1:]
     nu_ends_idxs = (
         size_line
-        - 1
         - jnp.searchsorted(line_list_nu[::-1], nu_ends, side="right")
     )
 
@@ -355,121 +355,125 @@ def calc_Inup(
     def calc_escat(i, escat_params):
         # first contribution to integration
         def first_contrib(cond_state):
-            escat_contrib, zdiff, escat_op, Inup, pline_offset = cond_state
+            escat_contrib, zdiff, escat_op, Inup, pline_offset, pline_offset_red = cond_state
             escat_contrib += zdiff * escat_op * (Jblue_lu[pline_offset] - Inup)
-            return escat_contrib, 0
+            return escat_contrib, 0, pline_offset_red
 
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
         def otherwise(cond_state):
-            escat_contrib, zdiff, escat_op, Inup, pline_offset = cond_state
-
-            Jkkp = 0.5 * (Jred_lu[pline_offset - 1] + Jblue_lu[pline_offset])
+            escat_contrib, zdiff, escat_op, Inup, pline_offset, pline_offset_red = cond_state
+            Jkkp = 0.5 * (Jred_lu[pline_offset_red] + Jblue_lu[pline_offset])
             escat_contrib += (zdiff) * escat_op * (Jkkp - Inup)
-            return escat_contrib, 0
+            pline_offset_red += 1
+            return escat_contrib, 0, pline_offset_red
 
-        Inup, pline, pline_offset, escat_contrib, escat_op, zstart, first = (
+        Inup, pline, pline_offset, pline_offset_red, escat_contrib, escat_op, zstart, first = (
             escat_params
         )
         zend = time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
         zdiff = zend - zstart
-        escat_contrib, first = jax.lax.cond(
+        escat_contrib, first, pline_offset_red = jax.lax.cond(
             first == 1,
             first_contrib,
             otherwise,
-            (0, zdiff, escat_op, Inup, pline_offset),
+            (escat_contrib, zdiff, escat_op, Inup, pline_offset, pline_offset_red),
         )
-
+        
         Inup += escat_contrib
         Inup *= exp_tau[pline_offset]
         Inup += att_S_ul[pline_offset]
 
-        # increment indexed and reset zstart
+        # increment indexes and reset zstart and escat_contrib
         return (
             Inup,
             pline + 1,
             pline_offset + 1,
-            escat_contrib,
+            pline_offset_red, 
+            0.,
             escat_op,
             zend,
             first,
         )
 
     def loop_interactions(i, loop_params):
-        Inup, pline, pline_offset, escat_contrib, zstart = loop_params
+        Inup, pline, pline_offset, pline_offset_red, escat_contrib, zstart, first = loop_params
         escat_op = electron_density[shell_id[i]] * SIGMA_THOMSON
         nu_end = nu_ends[i]
         nu_end_idx = nu_ends_idxs[i]
 
         # escat loop
-        Inup, pline, pline_offset, _, _, zstart, _ = jax.lax.fori_loop(
+        Inup, pline, pline_offset, pline_offset_red, escat_contrib, _, zstart, first = jax.lax.fori_loop(
             0,
             jnp.maximum(nu_end_idx - pline, 0),
             calc_escat,
-            (Inup, pline, pline_offset, escat_contrib, escat_op, zstart, 1),
+            (Inup, pline, pline_offset, pline_offset_red, escat_contrib, escat_op, zstart, first),
         )
 
         # calculate e-scattering optical depth to grid cell boundary
-        Jkkp = 0.5 * (Jred_lu[pline_offset - 1] + Jblue_lu[pline_offset])
+        Jkkp = 0.5 * (Jred_lu[pline_offset_red] + Jblue_lu[pline_offset])
         zend = time_explosion / C_INV * (1.0 - nu_end / nu)
+        
         escat_contrib += (zend - zstart) * escat_op * (Jkkp - Inup)
-        dir = (
+        direction = (
             (shell_id[i + 1] - shell_id[i]) * size_line
         )  # TODO: replace since flattened need to move by sizeline, but if not flat then just diff axis
 
-        return (Inup, pline + dir, pline_offset + dir, escat_contrib, zend)
+        return (Inup, pline, pline_offset + direction, pline_offset_red + direction, escat_contrib, zend, first)
 
     # run the inner loop for i in range(size_z - 1):
     zstart = time_explosion / C_INV * (1.0 - z[0])
-    Inup, _, _, _, _ = jax.lax.fori_loop(
+    Inup, _, _, _, _, _, _= jax.lax.fori_loop(
         0,
         size_z - 1,
         loop_interactions,
-        (Inup, pline, pline_offset, 0.0, zstart),
+        (Inup, pline, pline_offset, pline_offset_red, 0.0, zstart, 1),
     )
-
     Inup *= p
     return Inup
 
 
-# TODO: determine how static variables work
-calc_Inup_jax = jax.jit(
-    jax.vmap(  # vectorize over nu
-        jax.vmap(  # vectorize over p
-            calc_Inup,
-            in_axes=(
-                0,
-                None,
-                0,
-                0,
-                0,
-                0,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ),
-        ),
-        in_axes=(
-            0,
-            0,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        ),
-    )
-)
-# p_jax = jax.jit(calc_Inup_vmapped)
+# Explicit loop version: outer loop over frequency, inner loop over impact parameter
+def calc_Inup_jax(Inup, inu, ps, zs, size_zs, shellids, line_list_nu, time_explosion, electron_density, exp_tau, att_S_ul, Jred_lu, Jblue_lu):
+    """
+    Compute updated Inup array using explicit loops over frequency and impact parameter.
+    Inup: shape (n_nu, n_p)
+    inu: shape (n_nu,)
+    ps: shape (n_p,)
+    zs, shellids, size_zs: shape (n_p, ...)
+    """
+    n_nu = Inup.shape[0]
+    n_p = Inup.shape[1]
+
+    def loop_over_nu(nu_idx, Inup_out):
+        def loop_over_p(p_idx, Inup_row):
+            Inup_row = Inup_row.at[p_idx].set(
+                calc_Inup(
+                    Inup_out[nu_idx, p_idx],
+                    inu[nu_idx],
+                    ps[p_idx],
+                    zs[p_idx],
+                    size_zs[p_idx],
+                    shellids[p_idx],
+                    line_list_nu,
+                    time_explosion,
+                    electron_density,
+                    exp_tau,
+                    att_S_ul,
+                    Jred_lu,
+                    Jblue_lu,
+                )
+            )
+            return Inup_row
+        Inup_row = Inup_out[nu_idx]
+        Inup_row = jax.lax.fori_loop(0, n_p, loop_over_p, Inup_row)
+        Inup_out = Inup_out.at[nu_idx].set(Inup_row)
+        return Inup_out
+
+    Inup_new = jax.lax.fori_loop(0, n_nu, loop_over_nu, Inup)
+    return Inup_new
+
+
+
 
 def formal_integral_jax(
     r_inner,
@@ -542,25 +546,24 @@ def formal_integral_jax(
     # init Inup with the photopshere
     Inup = init_Inup_jax(inu, ps, zs[:, 0], iT, r_inner[0])
 
-    # calculate the final intensity
-        # skip p = 0, so Inup = initialized Inup
-    Inup = Inup.at[:, 1:].set(
-        calc_Inup_jax(
-            Inup[:, 1:],
-            inu,
-            ps[1:],
-            zs[1:],
-            size_zs[1:],
-            shellids[1:],
-            line_list_nu,
-            time_explosion,
-            electron_density,
-            exp_tau,
-            att_S_ul, # pre-raveled from solver
-            Jred_lu,
-            Jblue_lu,
-        )
+
+    # calculate the final intensity (skip p = 0, so Inup = initialized Inup)
+    Inup_update = calc_Inup_jax(
+        Inup[:, 1:],
+        inu,
+        ps[1:],
+        zs[1:],
+        size_zs[1:],
+        shellids[1:],
+        line_list_nu,
+        time_explosion,
+        electron_density,
+        exp_tau,
+        att_S_ul, # pre-raveled from solver
+        Jred_lu,
+        Jblue_lu,
     )
+    Inup = Inup.at[:, 1:].set(Inup_update)
 
     # compute the luminosity
     L = 8 * jnp.pi * jnp.pi * jnp.trapezoid(Inup, dx=rmax/N, axis=1)    
@@ -580,6 +583,7 @@ def formal_integral_jax_batch(
     Jblue_lu,
     electron_density,
     N,
+    n_sections
 ):
     """
     Computes the formal integral
@@ -610,7 +614,8 @@ def formal_integral_jax_batch(
         electron densities in each shell
     N : int
         number of impact parameters
-
+    n_sections: int
+        number of sections to batch over frequency and impact parameter
 
     Returns
     -------
@@ -638,8 +643,8 @@ def formal_integral_jax_batch(
     # init Inup with the photopshere
     Inup = init_Inup_jax(inu, ps, zs[:, 0], iT, r_inner[0])
 
+
     # Batch the calc_Inup_jax call over both frequency (nu) and impact parameter (p) axes
-    n_sections = 4  # You can make this a parameter if desired
     n_freq, n_p = Inup.shape[0], Inup.shape[1] - 1
     freq_section_size = (n_freq + n_sections - 1) // n_sections
     p_section_size = (n_p + n_sections - 1) // n_sections
@@ -703,7 +708,7 @@ class JaxFormalIntegrator:
         tau_sobolevs,
         electron_densities,
         points, 
-        batch=False
+        batch=0
     ):
         # get all necessary parameters and put them in jax arrays
         r_inner_i = jnp.array(self.geometry.r_inner)
@@ -717,24 +722,36 @@ class JaxFormalIntegrator:
         electron_densities = jnp.array(electron_densities)
 
         # compute formal integral
-        if batch:
-            f = formal_integral_jax_batch
+        if batch > 1:
+            L, Inup = formal_integral_jax_batch(
+                r_inner_i,
+                r_outer_i,
+                self.time_explosion.value,
+                tau_sobolevs,
+                line_list_nu,
+                iT,
+                frequencies,
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                electron_densities,
+                points, 
+                n_sections=batch
+            )
         else:
-            f = formal_integral_jax
-
-        L, Inup = f(
-            r_inner_i,
-            r_outer_i,
-            self.time_explosion.value,
-            tau_sobolevs,
-            line_list_nu,
-            iT,
-            frequencies,
-            att_S_ul,
-            Jred_lu,
-            Jblue_lu,
-            electron_densities,
-            points
-        )
+            L, Inup = formal_integral_jax(
+                r_inner_i,
+                r_outer_i,
+                self.time_explosion.value,
+                tau_sobolevs,
+                line_list_nu,
+                iT,
+                frequencies,
+                att_S_ul,
+                Jred_lu,
+                Jblue_lu,
+                electron_densities,
+                points
+            )
 
         return L, Inup
