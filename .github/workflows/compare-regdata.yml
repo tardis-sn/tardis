@@ -13,6 +13,7 @@ on:
       - reopened
       - synchronize
       - labeled
+
   workflow_call:
     inputs:
       pip_git:
@@ -77,6 +78,43 @@ jobs:
           haskell: true
           large-packages: true
           swap-storage: true
+      
+      - name: Free up disk space on macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          echo "Initial disk usage:"
+          df -h
+          
+          # Remove unnecessary Xcode versions (if any)
+          if ls /Applications/Xcode_*.app 1> /dev/null 2>&1; then
+            echo "Removing old Xcode versions..."
+            sudo rm -rf /Applications/Xcode_*.app
+          else
+            echo "No additional Xcode versions found"
+          fi
+          
+          # Clean Homebrew cache
+          echo "Cleaning Homebrew cache..."
+          brew cleanup --prune=all || true
+          
+          # Remove iOS simulators (only if simctl is available)
+          if command -v xcrun simctl &> /dev/null; then
+            echo "Cleaning iOS simulators..."
+            xcrun simctl delete unavailable || true
+          else
+            echo "simctl not available, skipping iOS simulator cleanup"
+          fi
+          
+          # Clear system caches (be more selective)
+          echo "Clearing system caches..."
+          rm -rf ~/Library/Caches/* 2>/dev/null || true
+          
+          # Optional: Remove other large files
+          # sudo rm -rf /usr/local/lib/android 2>/dev/null || true
+          # sudo rm -rf /usr/local/share/dotnet 2>/dev/null || true
+          
+          echo "Final disk usage:"
+          df -h
 
       - uses: actions/checkout@v4
       
@@ -97,26 +135,41 @@ jobs:
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
         run: |
-          pip install -e ".[tardisbase]" 
+          pip install -e . 
+      
+      - name: Install tardisbase editable
+        run: pip install -e .
+        working-directory: tardisbase
 
       - name: Install tardis git
         if: ${{ matrix.pip_git }}
         run: |
-          pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@master"
+          pip install "tardis @ git+https://github.com/tardis-sn/tardis.git@master"
 
       - name: Install qgridnext and lineid_plot
         run: |
           pip install --no-deps qgridnext lineid_plot
 
+      # installation doesnt work with no-deps
+      - name: Install GitPython
+        run: |
+          pip install GitPython
+
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
       
       - name: Commit regression data
+        id: commit
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add tardis
-          git commit -m "Update regression data for commit ${GITHUB_SHA}"
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "Update regression data for commit ${GITHUB_SHA}"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
         working-directory: ${{ github.workspace }}/tardis-regression-data
 
       - name: Add environment variable to save plots
@@ -124,10 +177,12 @@ jobs:
           echo "SAVE_COMP_IMG=1" >> $GITHUB_ENV
       
       - name: Install Kaleido
+        if: steps.commit.outputs.has_changes == 'true'
         run: |
-          pip install kaleido
+          pip install --no-deps kaleido==0.2.1
 
       - name: Run comparison notebook
+        if: steps.commit.outputs.has_changes == 'true'
         run: |
           jupyter nbconvert --execute ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data.ipynb \
             --to html \
@@ -137,6 +192,7 @@ jobs:
           REGRESSION_DATA_REPO: ${{ github.workspace }}/tardis-regression-data
   
       - name: Upload comparison notebook
+        if: steps.commit.outputs.has_changes == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}.html
