@@ -99,7 +99,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         else:
             self.old_macro_atom_solver = LegacyMacroAtomSolver()
             self.macro_atom_solver = BoundBoundMacroAtomSolver(
-                atom_data.levels, atom_data.lines
+                atom_data.levels,
+                atom_data.lines,
+                line_interaction_type,
             )
 
         self.transport_state = None

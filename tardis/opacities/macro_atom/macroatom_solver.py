@@ -163,9 +163,10 @@ class BoundBoundMacroAtomSolver:
     levels: pd.DataFrame
     lines: pd.DataFrame
 
-    def __init__(self, levels, lines):
+    def __init__(self, levels, lines, line_interaction_type="macroatom"):
         self.levels = levels
         self.lines = lines
+        self.line_interaction_type = line_interaction_type
 
     def solve(
         self,
@@ -221,45 +222,59 @@ class BoundBoundMacroAtomSolver:
 
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
 
-        p_emission_down, emission_down_metadata = line_transition_emission_down(
-            oscillator_strength_ul,
-            nus,
-            energies_upper,
-            energies_lower,
-            beta_sobolevs,
-            transition_a_i_l_u_array,
-            line_ids,
-        )
-        p_internal_down, internal_down_metadata = line_transition_internal_down(
-            oscillator_strength_ul,
-            nus,
-            energies_lower,
-            beta_sobolevs,
-            transition_a_i_l_u_array,
-            line_ids,
-        )
-        p_internal_up, internal_up_metadata = line_transition_internal_up(
-            oscillator_strength_lu,
-            nus,
-            energies_lower,
-            mean_intensities_blue_wing,
-            beta_sobolevs,
-            stimulated_emission_factors,
-            transition_a_i_l_u_array,
-            line_ids,
-        )
+        if (
+            self.line_interaction_type == "downbranch"
+            or self.line_interaction_type == "macroatom"
+        ):
+            p_emission_down, emission_down_metadata = (
+                line_transition_emission_down(
+                    oscillator_strength_ul,
+                    nus,
+                    energies_upper,
+                    energies_lower,
+                    beta_sobolevs,
+                    transition_a_i_l_u_array,
+                    line_ids,
+                )
+            )
+        else:
+            raise ValueError(
+                f"Unknown line interaction type: {self.line_interaction_type}"
+            )
+        probabilities_df = p_emission_down
+        macro_atom_transition_metadata = emission_down_metadata
 
-        probabilities_df = pd.concat(
-            [p_emission_down, p_internal_down, p_internal_up]
-        )
-
-        macro_atom_transition_metadata = pd.concat(
-            [
-                emission_down_metadata,
-                internal_down_metadata,
-                internal_up_metadata,
-            ]
-        )
+        if self.line_interaction_type == "macroatom":
+            p_internal_down, internal_down_metadata = (
+                line_transition_internal_down(
+                    oscillator_strength_ul,
+                    nus,
+                    energies_lower,
+                    beta_sobolevs,
+                    transition_a_i_l_u_array,
+                    line_ids,
+                )
+            )
+            p_internal_up, internal_up_metadata = line_transition_internal_up(
+                oscillator_strength_lu,
+                nus,
+                energies_lower,
+                mean_intensities_blue_wing,
+                beta_sobolevs,
+                stimulated_emission_factors,
+                transition_a_i_l_u_array,
+                line_ids,
+            )
+            probabilities_df = pd.concat(
+                [p_emission_down, p_internal_down, p_internal_up]
+            )
+            macro_atom_transition_metadata = pd.concat(
+                [
+                    emission_down_metadata,
+                    internal_down_metadata,
+                    internal_up_metadata,
+                ]
+            )
 
         # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS. This also removes the source column from the probabilities DataFrame.
         normalized_probabilities = normalize_transition_probabilities(
@@ -294,7 +309,9 @@ class BoundBoundMacroAtomSolver:
             )
         }
         macro_atom_transition_metadata["destination_level_idx"] = (
-            macro_atom_transition_metadata.destination.map(source_to_index)
+            (macro_atom_transition_metadata.destination.map(source_to_index))
+            .fillna(-99)
+            .astype(np.int64)
         )
 
         return MacroAtomState(
