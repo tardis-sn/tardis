@@ -99,7 +99,7 @@ intersphinx_mapping = {
     "python": ("http://docs.python.org/", None),
     "numpy": ("http://docs.scipy.org/doc/numpy/", None),
     "scipy": ("http://docs.scipy.org/doc/scipy/reference/", None),
-    "matplotlib": ("http://matplotlib.sourceforge.net/", None),
+    "matplotlib": ("http://matplotlib.org/", None),
     "astropy": ("http://docs.astropy.org/en/stable/", None),
     "h5py": ("http://docs.h5py.org/en/latest/", None),
     "pandas": ("http://pandas.pydata.org/pandas-docs/dev/", None),
@@ -128,8 +128,6 @@ mathjax2_config = {
         "processClass": "math|output_area",
     }
 }
-
-nbsphinx_allow_errors = False
 
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
@@ -391,7 +389,7 @@ def generate_how_to_guides_page(app):
         if "how_to_" in notebook.name and "checkpoint" not in notebook.name:
             notebooks += f"\n* :doc:`{notebook.parent}/{notebook.stem}`"
 
-    title = "How-To Guides\n*********\n"
+    title = "How-To Guides\n*************\n"
     description = "The following pages contain the TARDIS how-to guides:"
 
     with open("how_to_guides.rst", mode="wt", encoding="utf-8") as f:
