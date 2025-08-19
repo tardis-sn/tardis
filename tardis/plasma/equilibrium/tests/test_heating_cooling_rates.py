@@ -1,4 +1,5 @@
 import astropy.units as u
+import numpy as np
 import pytest
 from numpy.testing import (
     assert_almost_equal,
@@ -14,12 +15,20 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     CollisionalIonizationThermalRates,
     FreeFreeThermalRates,
 )
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 
 @pytest.fixture
 def thermal_electron_distribution():
     return ThermalElectronEnergyDistribution(
         0 * u.erg, 9992.2722969523056 * u.K, 2.20676447e09 * u.cm**-3
+    )
+
+
+@pytest.fixture
+def radiation_field():
+    return DilutePlanckianRadiationField(
+        np.ones(1) * 10000 * u.K, np.array([0.5]), geometry=None
     )
 
 

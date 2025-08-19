@@ -15,7 +15,7 @@ class BoundFreeThermalRates:
 
     def __init__(self, photoionization_cross_sections):
         self.photoionization_cross_sections = photoionization_cross_sections
-        self.nu = photoionization_cross_sections["nu"]
+        self.nu = photoionization_cross_sections.nu
         self.photoionization_block_references = np.pad(
             self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
             .count()
@@ -57,17 +57,13 @@ class BoundFreeThermalRates:
         pd.DataFrame, pd.DataFrame
             Heating and cooling rates for the bound-free process.
         """
-        nu_i = (
-            self.photoionization_cross_sections["nu"]
-            .groupby(level=[0, 1, 2])
-            .first()
-        )
+        nu_i = self.nu.groupby(level=[0, 1, 2]).first()
         nu_is = nu_i.loc[self.photoionization_cross_sections.index]
 
         if bound_free_heating_estimator is not None:
             # TODO: check if this is correct
             integrated_heating_coefficient = bound_free_heating_estimator
-        else:
+        elif radiation_field is not None:
             mean_intensities = radiation_field.calculate_mean_intensity(self.nu)
 
             heating_coefficient = (
@@ -91,6 +87,10 @@ class BoundFreeThermalRates:
                 ),
                 index=heating_coefficient.index,
                 columns=heating_coefficient.columns,
+            )
+        else:
+            raise ValueError(
+                "Either bound_free_heating_estimator or radiation_field must be provided."
             )
 
         boltzmann_factor = np.exp(
@@ -138,7 +138,7 @@ class BoundFreeThermalRates:
                 stimulated_recombination_estimator
                 * saha_factor.loc[stimulated_recombination_estimator.index]
                 * thermal_electron_distribution.number_density.value
-                * ion_population.loc[(1, 1)]
+                * ion_population.loc[(1, 1)]  # Hydrogen ion population
             )
         else:
             stimulated_recombination_cooling_rate = np.zeros(1)
@@ -185,7 +185,7 @@ class FreeFreeThermalRates:
         thermal_electron_distribution,
         ion_population,
     ):
-        """_summary_
+        """Compute the free-free heating and cooling rates for the input plasma conditions.
 
         Parameters
         ----------
@@ -358,7 +358,7 @@ class AdiabaticThermalRates:
         Returns
         -------
         Quantity
-            The adiabatic cooling rate in TODO: add unit.
+            The adiabatic cooling rate in erg cm^-3 s^-1.
         """
         return (
             3
