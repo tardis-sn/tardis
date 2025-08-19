@@ -170,6 +170,15 @@ class FormalIntegralSolver:
 
         points = self.integrator_settings.points
         interpolate_shells = self.integrator_settings.interpolate_shells
+
+        if interpolate_shells == 0:  # Default Value
+            interpolate_shells = max(2 * simulation_state.no_of_shells, 80)
+            warnings.warn(
+                "The number of interpolate_shells was not "
+                f"specified. The value was set to {interpolate_shells}."
+            )
+        self.integrator_settings.interpolate_shells = interpolate_shells
+
         line_interaction_type = transport.line_interaction_type
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
@@ -220,7 +229,6 @@ class FormalIntegralSolver:
         L = np.array(L, dtype=np.float64)
         luminosity = u.Quantity(L, "erg") * (nu[1] - nu[0])
 
-        self.interpolate_shells = interpolate_shells
         frequency = nu.to("Hz", u.spectral())
 
         # Ugly hack to convert to 'bin edges'
