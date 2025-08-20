@@ -67,6 +67,8 @@ Mission Statement
 
     getting_started/installation
     quickstart
+    quickstart_def
+    quickstart_ipy
     resources/credits
 
 .. toctree::
