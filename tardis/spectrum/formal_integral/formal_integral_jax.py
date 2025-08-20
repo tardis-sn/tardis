@@ -284,6 +284,7 @@ init_Inup_jax = jax.jit(
 
 
 # inner for loop:
+@jax.jit
 def calc_Inup(
     Inup,
     nu,
@@ -433,47 +434,113 @@ def calc_Inup(
 
 
 # Explicit loop version: outer loop over frequency, inner loop over impact parameter
-def calc_Inup_jax(Inup, inu, ps, zs, size_zs, shellids, line_list_nu, time_explosion, electron_density, exp_tau, att_S_ul, Jred_lu, Jblue_lu):
+# def calc_Inup_jax(Inup, inu, ps, zs, size_zs, shellids, line_list_nu, time_explosion, electron_density, exp_tau, att_S_ul, Jred_lu, Jblue_lu):
+#     """
+#     Compute updated Inup array using explicit loops over frequency and impact parameter.
+#     Inup: shape (n_nu, n_p)
+#     inu: shape (n_nu,)
+#     ps: shape (n_p,)
+#     zs, shellids, size_zs: shape (n_p, ...)
+#     """
+#     n_nu = Inup.shape[0]
+#     n_p = Inup.shape[1]
+
+#     def loop_over_nu(nu_idx, Inup_out):
+#         def loop_over_p(p_idx, Inup_row):
+#             Inup_row = Inup_row.at[p_idx].set(
+#                 calc_Inup(
+#                     Inup_out[nu_idx, p_idx],
+#                     inu[nu_idx],
+#                     ps[p_idx],
+#                     zs[p_idx],
+#                     size_zs[p_idx],
+#                     shellids[p_idx],
+#                     line_list_nu,
+#                     time_explosion,
+#                     electron_density,
+#                     exp_tau,
+#                     att_S_ul,
+#                     Jred_lu,
+#                     Jblue_lu,
+#                 )
+#             )
+#             return Inup_row
+#         Inup_row = Inup_out[nu_idx]
+#         Inup_row = jax.lax.fori_loop(0, n_p, loop_over_p, Inup_row)
+#         Inup_out = Inup_out.at[nu_idx].set(Inup_row)
+#         return Inup_out
+
+#     Inup_new = jax.lax.fori_loop(0, n_nu, loop_over_nu, Inup)
+#     return Inup_new
+
+calc_Inup_vmap = jax.vmap(
+        calc_Inup, 
+        in_axes=(0,      # Inup_row[p_idx] 
+                 None,   # nu_val (same for all p)
+                 0,      # ps[p_idx]
+                 0,      # zs[p_idx]
+                 0,      # size_zs[p_idx] 
+                 0,      # shellids[p_idx]
+                 None,   # line_list_nu (same for all)
+                 None,   # time_explosion (same for all)
+                 None,   # electron_density (same for all)
+                 None,   # exp_tau (same for all)
+                 None,   # att_S_ul (same for all) 
+                 None,   # Jred_lu (same for all)
+                 None)   # Jblue_lu (same for all)
+    )
+@jax.jit
+def calc_Inup_jax(Inup, inu, ps, zs, size_zs, shellids, line_list_nu, time_explosion, 
+                  electron_density, exp_tau, att_S_ul, Jred_lu, Jblue_lu):
     """
-    Compute updated Inup array using explicit loops over frequency and impact parameter.
-    Inup: shape (n_nu, n_p)
-    inu: shape (n_nu,)
-    ps: shape (n_p,)
-    zs, shellids, size_zs: shape (n_p, ...)
+    Compute updated Inup array using vmap over p dimension and loop over nu.
+    This is memory-efficient and much faster than nested loops.
+    
+    Parameters:
+    -----------
+    Inup: array, shape (n_nu, n_p)
+    inu: array, shape (n_nu,)
+    ps: array, shape (n_p,)
+    zs: array, shape (n_p, n_z) - z arrays for each p
+    size_zs: array, shape (n_p,) - size_z for each p  
+    shellids: array, shape (n_p, n_z) - shell_id arrays for each p
+    ... : other parameters (same for all rays)
+    
+    Returns:
+    --------
+    Updated Inup: array, shape (n_nu, n_p)
     """
     n_nu = Inup.shape[0]
-    n_p = Inup.shape[1]
-
-    def loop_over_nu(nu_idx, Inup_out):
-        def loop_over_p(p_idx, Inup_row):
-            Inup_row = Inup_row.at[p_idx].set(
-                calc_Inup(
-                    Inup_out[nu_idx, p_idx],
-                    inu[nu_idx],
-                    ps[p_idx],
-                    zs[p_idx],
-                    size_zs[p_idx],
-                    shellids[p_idx],
-                    line_list_nu,
-                    time_explosion,
-                    electron_density,
-                    exp_tau,
-                    att_S_ul,
-                    Jred_lu,
-                    Jblue_lu,
-                )
-            )
-            return Inup_row
-        Inup_row = Inup_out[nu_idx]
-        Inup_row = jax.lax.fori_loop(0, n_p, loop_over_p, Inup_row)
-        Inup_out = Inup_out.at[nu_idx].set(Inup_row)
+    
+    def process_nu_row(nu_idx, Inup_out):
+        """Process all p values for a single nu value using vmap"""
+        # Get the row of initial intensities for this nu
+        Inup_row = Inup_out[nu_idx]  # shape (n_p,)
+        
+        # Process all p values simultaneously using vmap
+        updated_row = calc_Inup_vmap(
+            Inup_row,           
+            inu[nu_idx],        
+            ps,                 
+            zs,                 
+            size_zs,            
+            shellids,           
+            line_list_nu,       
+            time_explosion,     
+            electron_density,   
+            exp_tau,            
+            att_S_ul,           
+            Jred_lu,            
+            Jblue_lu            
+        )
+        
+        # Update the output array
+        Inup_out = Inup_out.at[nu_idx].set(updated_row)
         return Inup_out
-
-    Inup_new = jax.lax.fori_loop(0, n_nu, loop_over_nu, Inup)
+    
+    # Loop over nu dimension, vectorize over p dimension
+    Inup_new = jax.lax.fori_loop(0, n_nu, process_nu_row, Inup)
     return Inup_new
-
-
-
 
 def formal_integral_jax(
     r_inner,
