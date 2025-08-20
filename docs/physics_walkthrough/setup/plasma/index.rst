@@ -42,7 +42,7 @@ If the necessary Python modules (`PyGraphviz <https://pygraphviz.github.io/>`_ a
 .. toctree::
     :maxdepth: 2
 
-    ../../../io/output/plasma_graph
+    ../../../io/output/how_to_plasma_graph
 
 Updating the Plasma
 -------------------

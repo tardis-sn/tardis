@@ -56,13 +56,13 @@ jobs:
 
       - name: Statistics output read
         id: ruff_stats
-        uses: juliangruber/read-file-action@v1.0.0
+        uses: juliangruber/read-file-action@v1.1.7
         with:
           path: ruff_stats.txt
 
       - name: Entire output read
         id: ruff_complete 
-        uses: juliangruber/read-file-action@v1.0.0
+        uses: juliangruber/read-file-action@v1.1.7
         with:
           path: ruff_full.txt
       

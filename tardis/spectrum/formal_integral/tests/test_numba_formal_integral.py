@@ -5,7 +5,6 @@ import pytest
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.base import C_INV
-from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
 import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 
 

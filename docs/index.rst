@@ -16,7 +16,7 @@ TARDIS Core Package Documentation
 
 |
 
-TARDIS is an open-source Monte Carlo radiative-transfer spectral synthesis code
+TARDIS is an open-source :term:`Monte Carlo` radiative-transfer spectral synthesis code
 for 1D models of supernova ejecta. It is designed for rapid spectral modelling
 of supernovae. It is developed and maintained by a 
 `multi-disciplinary team <https://tardis-sn.github.io/people/collaboration/>`_
@@ -36,6 +36,19 @@ Please contact the TARDIS team via the `GitHub page
 <https://github.com/tardis-sn/tardis>`_ if you have questions or need
 assistance.
 
+------------------------------
+Documentation Structure Guide
+------------------------------
+
+This documentation is organized following the `Diátaxis framework <https://diataxis.fr/>`_:
+
+- **Getting Started**: Quick installation and first steps
+- **Tutorials**: Step-by-step lessons for learning TARDIS concepts
+- **How-to Guides**: Practical solutions to specific problems  
+- **Physics Walkthrough**: Deep dives into the physics and theory behind TARDIS
+- **Reference**: Technical specifications and API documentation
+
+
 -----------------
 Mission Statement
 -----------------
@@ -49,54 +62,59 @@ Mission Statement
 
 .. toctree::
     :maxdepth: 2
+    :caption: Getting Started
     :hidden:
 
-    installation
+    getting_started/installation
     quickstart
-    tutorials
+    resources/credits
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Tutorials
+    :hidden:
+
+    tutorials/high_energy/run_high_energy_workflow
+    analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization
+
+.. toctree::
+    :maxdepth: 2
+    :caption: How-to Guides
+    :hidden:
+
     how_to_guides
     workflows
-    faq
-    API <api/modules>
-
-
-.. toctree::
-    :maxdepth: 3
-    :caption: Input/Output
-    :hidden:
-    
-    io/hdf/index
-    io/configuration/index
-    io/model/index
+    analyzing_tardis/index
+    io/configuration/tutorial_read_configuration
     io/optional/index
     io/output/index
-    io/grid/TardisGridTutorial
-
-
-.. toctree::
-    :maxdepth: 3
-    :caption: Analyzing Tardis
-    :hidden:
-
-    analyzing_tardis/visualization/index
-    analyzing_tardis/spectrum/index
-    analyzing_tardis/liv_plot_notebook.ipynb
-    analyzing_tardis/rpacket_plot_notebook.ipynb
-    analyzing_tardis/analysing_convergence_plot.ipynb
-
+    how-to/code_comparison/index
 
 .. toctree::
     :maxdepth: 2
     :caption: Physics Walkthrough
     :hidden:
-    
-    physics/intro/index
-    physics/setup/index
-    physics/montecarlo/index
-    physics/update_and_conv/update_and_conv
-    physics/spectrum/index
-    physics/tardisgamma/index
 
+    physics_walkthrough/intro/index
+    physics_walkthrough/setup/index
+    physics_walkthrough/montecarlo/index
+    physics_walkthrough/update_and_conv/update_and_conv
+    physics_walkthrough/spectrum/index
+    physics_walkthrough/tardisgamma/index
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Reference
+    :hidden:
+
+    API <api/modules>
+    reference/faq
+    reference/visualization_reference
+    io/configuration/index
+    io/hdf/index
+    contributing/CHANGELOG.md 
+    resources/research_done_using_TARDIS/research_papers
+    resources/zreferences
 
 .. toctree::
     :maxdepth: 2
@@ -106,15 +124,6 @@ Mission Statement
     contributing/CONTRIBUTING.md
     contributing/development/index
     contributing/tools/index
-    contributing/CHANGELOG.md
     contributing/in_progress/index
-
-
-.. toctree::
-    :caption: Other Resources
-    :hidden:
     
-    resources/credits
-    resources/research_done_using_TARDIS/research_papers
-    resources/code_comparison/index
-    resources/zreferences
+    

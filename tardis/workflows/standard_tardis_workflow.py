@@ -5,7 +5,7 @@ from tardis.simulation.base import PlasmaStateStorerMixin
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.util.base import is_notebook
+from tardis.util.environment import Environment
 from tardis.visualization import ConvergencePlots
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 
@@ -82,7 +82,7 @@ class StandardTARDISWorkflow(
         TypeError
             Raised if export_convergence_plots is not a bool
         """
-        if not is_notebook():
+        if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
             raise RuntimeError(
                 "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                 "to False."

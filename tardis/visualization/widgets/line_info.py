@@ -9,7 +9,6 @@ from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
-    is_notebook,
     species_string_to_tuple,
     species_tuple_to_string,
 )
@@ -18,6 +17,7 @@ from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
+from tardis.util.environment import Environment
 
 
 class LineInfoWidget:
@@ -691,7 +691,7 @@ class LineInfoWidget:
         panel.Column
             Line info widget containing all component widgets
         """
-        if not is_notebook():
+        if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
             print("Please use a notebook to display the widget")
         else:
             # Panel tables handle their own sizing

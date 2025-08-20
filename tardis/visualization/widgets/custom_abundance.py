@@ -28,10 +28,10 @@ from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
 from tardis.model import SimulationState
 from tardis.util.base import (
     atomic_number2element_symbol,
-    is_notebook,
     is_valid_nuclide_or_elem,
     quantity_linspace,
 )
+from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
@@ -1291,7 +1291,7 @@ class CustomAbundanceWidget:
         ipywidgets.widgets.widget_box.VBox
             A box that contains all the widgets in the GUI.
         """
-        if not is_notebook():
+        if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
             print("Please use a notebook to display the widget")
         else:
             # --------------Combine widget components--------------
