@@ -15,12 +15,10 @@ from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
 from tardis.opacities.macro_atom.macroatom_solver import (
-    LegacyMacroAtomSolver,
     BoundBoundMacroAtomSolver,
 )
 from tardis.opacities.macro_atom.macroatom_state import (
     LegacyMacroAtomState,
-    MacroAtomState,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
@@ -465,23 +463,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma
                 )  # TODO: Impliment
             else:
-                old_macro_atom_state = LegacyMacroAtomSolver().solve(
+                macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
-                    self.plasma.atomic_data,
-                    self.opacity_state.tau_sobolev,
-                    self.plasma.stimulated_emission_factor,
                     self.opacity_state.beta_sobolev,
-                )
-                macro_atom_state = (
-                    self.macro_atom.solve(
-                        self.plasma.j_blues,
-                        self.opacity_state.beta_sobolev,
-                        self.plasma.stimulated_emission_factor,
-                    )
-                    .sort_to_legacy(
-                        old_macro_atom_state, self.plasma.atomic_data.lines
-                    )
-                    .to_legacy_format()
+                    self.plasma.stimulated_emission_factor,
                 )
 
         transport_state = self.transport.initialize_transport_state(

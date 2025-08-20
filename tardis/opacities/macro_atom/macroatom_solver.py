@@ -313,12 +313,49 @@ class BoundBoundMacroAtomSolver:
             .fillna(-99)
             .astype(np.int64)
         )
+        macro_block_references = create_macro_block_references(
+            macro_atom_transition_metadata
+        )
 
         return MacroAtomState(
             normalized_probabilities,
             macro_atom_transition_metadata,
             line2macro_level_upper,
+            macro_block_references,
         )
+
+
+def create_macro_block_references(macro_atom_transition_metadata):
+    """
+    Create macro block references from the macro atom transition metadata.
+    This method creates a mapping from unique source levels to their first occurrence index in the metadata.
+
+    Parameters
+    ----------
+    macro_atom_transition_metadata : pandas.DataFrame
+        DataFrame containing metadata for macro atom transitions.
+
+    Returns
+    -------
+    pandas.Series
+        Series with unique source levels as index and their first occurrence index in the metadata as values.
+    """
+    unique_source_multi_index = pd.MultiIndex.from_tuples(
+        macro_atom_transition_metadata.source.unique(),
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    macro_data = (
+        macro_atom_transition_metadata.reset_index()
+        .groupby("source")
+        .apply(lambda x: x.index[0])
+    )
+    macro_block_references = pd.Series(
+        data=macro_data.values,
+        index=unique_source_multi_index,
+        name="macro_block_references",
+    )
+
+    return macro_block_references
 
 
 def create_line2macro_level_upper(

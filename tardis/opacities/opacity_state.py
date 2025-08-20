@@ -32,6 +32,7 @@ opacity_state_spec = [
     ("k_packet_idx", int64),
 ]
 
+
 @jitclass(opacity_state_spec)
 class OpacityStateNumba:
     def __init__(
@@ -141,6 +142,7 @@ class OpacityStateNumba:
             self.photo_ion_activation_idx,
             self.k_packet_idx,
         )
+
 
 class OpacityState:
     def __init__(
@@ -256,9 +258,7 @@ class OpacityState:
         line_list_nu = self.line_list_nu.values
 
         # NOTE: Disabled line scattering is handled by the opacitystate solver
-        tau_sobolev = np.ascontiguousarray(
-            self.tau_sobolev, dtype=np.float64
-        )
+        tau_sobolev = np.ascontiguousarray(self.tau_sobolev, dtype=np.float64)
 
         if line_interaction_type == "scatter":
             # to adhere to data types, we must have an array of minimum size 1
@@ -276,7 +276,9 @@ class OpacityState:
                 macro_atom_state.transition_probabilities.values.copy(),
                 dtype=np.float64,
             )
-            line2macro_level_upper = macro_atom_state.line2macro_level_upper
+            line2macro_level_upper = (
+                macro_atom_state.line2macro_level_upper.values
+            )
 
             # TODO: Fix setting of block references for non-continuum mode
 
@@ -284,11 +286,15 @@ class OpacityState:
                 macro_atom_state.macro_block_references
             )
 
-            transition_type = macro_atom_state.transition_type.values
+            transition_type = (
+                macro_atom_state.transition_metadata.transition_type.values
+            )
 
             # Destination level is not needed and/or generated for downbranch
-            destination_level_id = macro_atom_state.destination_level_id.values
-            transition_line_id = macro_atom_state.transition_line_id.values
+            destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.values
+            transition_line_id = (
+                macro_atom_state.transition_metadata.transition_line_id.values
+            )
 
         if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             bf_threshold_list_nu = (
@@ -315,8 +321,7 @@ class OpacityState:
 
             phot_nus = phot_nus.values
             ff_opacity_factor = (
-                self.continuum_state.ff_cooling_factor
-                / np.sqrt(t_electrons)
+                self.continuum_state.ff_cooling_factor / np.sqrt(t_electrons)
             ).astype(np.float64)
             emissivities = self.continuum_state.emissivities.values
             photo_ion_activation_idx = (
