@@ -113,6 +113,16 @@
    "metadata": {},
    "outputs": [],
    "source": [
+    "from tardis.util.environment import Environment\n",
+    "Environment.get_current_environment()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
     "import panel as pn\n",
     "pn.extension(\"ipywidgets\")"
    ]
