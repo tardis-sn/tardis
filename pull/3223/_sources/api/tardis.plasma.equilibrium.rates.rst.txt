@@ -14,6 +14,7 @@ Submodules
    tardis.plasma.equilibrium.rates.photoionization_rates
    tardis.plasma.equilibrium.rates.photoionization_strengths
    tardis.plasma.equilibrium.rates.radiative_rates
+   tardis.plasma.equilibrium.rates.util
 
 Module contents
 ---------------

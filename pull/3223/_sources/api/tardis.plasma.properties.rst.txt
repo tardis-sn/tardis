@@ -19,6 +19,7 @@ Submodules
    tardis.plasma.properties.base
    tardis.plasma.properties.general
    tardis.plasma.properties.helium_nlte
+   tardis.plasma.properties.hydrogen_continuum
    tardis.plasma.properties.ion_population
    tardis.plasma.properties.legacy_property_collections
    tardis.plasma.properties.level_population
