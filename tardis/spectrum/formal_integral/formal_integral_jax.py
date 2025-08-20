@@ -726,7 +726,7 @@ class JaxFormalIntegrator:
             L, Inup = formal_integral_jax_batch(
                 r_inner_i,
                 r_outer_i,
-                self.time_explosion.value,
+                self.time_explosion,
                 tau_sobolevs,
                 line_list_nu,
                 iT,
@@ -742,7 +742,7 @@ class JaxFormalIntegrator:
             L, Inup = formal_integral_jax(
                 r_inner_i,
                 r_outer_i,
-                self.time_explosion.value,
+                self.time_explosion,
                 tau_sobolevs,
                 line_list_nu,
                 iT,

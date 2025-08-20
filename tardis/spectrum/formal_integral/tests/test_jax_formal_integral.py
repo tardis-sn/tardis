@@ -10,13 +10,26 @@ import jax.numpy as jnp
 
 from tardis.util.base import intensity_black_body
 from tardis.spectrum.formal_integral.base import C_INV
-from tardis.spectrum.formal_integral.formal_integral_numba import populate_z as populate_z_numba
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    populate_z as populate_z_numba,
+)
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 
-from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
-from tardis.spectrum.formal_integral.formal_integral_jax import reverse_binary_search_jax, line_search_jax, intensity_black_body_jax, populate_z_jax, calculate_z_jax
-import tardis.spectrum.formal_integral.formal_integral_jax as formal_integral_jax
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    NumbaFormalIntegrator,
+)
+from tardis.spectrum.formal_integral.formal_integral_jax import (
+    reverse_binary_search_jax,
+    line_search_jax,
+    intensity_black_body_jax,
+    populate_z_jax,
+    calculate_z_jax,
+    JaxFormalIntegrator
+)
 
 
 TESTDATA = [
@@ -25,8 +38,10 @@ TESTDATA = [
     },
     {
         "r": np.linspace(0, 1, 3),
-    }
+    },
 ]
+
+
 @pytest.fixture(scope="function", params=TESTDATA)
 def formal_integral_geometry(request):
     r = request.param["r"]
@@ -38,30 +53,37 @@ def formal_integral_geometry(request):
     )
     return geometry
 
+
 @pytest.fixture
 def geom(simulation_verysimple):
     # store the r_inner/p
     return simulation_verysimple.simulation_state.geometry
 
+
 @pytest.fixture
 def texp(simulation_verysimple):
     return simulation_verysimple.simulation_state.time_explosion.value
+
 
 @pytest.fixture
 def tau_sobolev(simulation_verysimple):
     return simulation_verysimple.transport.transport_state.opacity_state.tau_sobolev
 
+
 @pytest.fixture
 def tau_sizes(tau_sobolev):
     return tau_sobolev.shape
+
 
 @pytest.fixture
 def line_list_nu(simulation_verysimple):
     return simulation_verysimple.transport.transport_state.opacity_state.line_list_nu
 
+
 @pytest.fixture
 def mct_state(simulation_verysimple):
     return simulation_verysimple.transport.transport_state.montecarlo_state
+
 
 @pytest.fixture
 def electron_densities(simulation_verysimple):
@@ -88,10 +110,8 @@ def electron_densities(simulation_verysimple):
     ],
 )
 def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
-    actual = reverse_binary_search_jax(
-        x, x_insert, imin, imax
-    )
-    expected = expected_params['result']
+    actual = reverse_binary_search_jax(x, x_insert, imin, imax)
+    expected = expected_params["result"]
     npt.assert_almost_equal(actual, expected, decimal=7)
 
 
@@ -116,9 +136,7 @@ def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
     ],
 )
 def test_line_search(nu, nu_insert, expected_params):
-    actual = line_search_jax(
-        nu, nu_insert
-    )
+    actual = line_search_jax(nu, nu_insert)
     expected = expected_params["result"]
     npt.assert_almost_equal(actual, expected, decimal=7)
 
@@ -136,12 +154,12 @@ def test_intensity_black_body(nu, temperature):
     expected = intensity_black_body(nu, temperature)
     npt.assert_almost_equal(actual, expected, decimal=7)
 
+
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
 def test_calculate_z(formal_integral_geometry, texp, p):
-
     inv_t = 1.0 / texp
     r_outer = formal_integral_geometry.r_outer
-    
+
     for r in r_outer:
         actual = calculate_z_jax(r, p, inv_t)
         if p >= r:
@@ -151,33 +169,44 @@ def test_calculate_z(formal_integral_geometry, texp, p):
             npt.assert_almost_equal(actual, desired, decimal=7)
 
 
-@pytest.mark.parametrize("ps", [
-                                [0, 0.5, 1], # in photosphere
-                                [1e-5, 0.5, 0.99, 1] # outside photosphere
-                                ])
+@pytest.mark.parametrize(
+    "ps",
+    [
+        [0, 0.5, 1],  # in photosphere
+        [1e-5, 0.5, 0.99, 1],  # outside photosphere
+    ],
+)
 def test_populate_z(ps, tau_sizes, texp, formal_integral_geometry):
-
     _, size_shell = tau_sizes
 
     # populate z with the Numba formal integral
     zs_n = np.zeros((len(ps), 2 * size_shell), dtype=np.float64)
     shell_ids_n = np.zeros((len(ps), 2 * size_shell), dtype=np.int64)
     sizes_n = np.zeros(len(ps), dtype=np.int64)
-    for i, p in enumerate(ps): 
-        z = np.zeros(2 * size_shell, dtype=np.float64)  
+    for i, p in enumerate(ps):
+        z = np.zeros(2 * size_shell, dtype=np.float64)
         shell_id = np.zeros(2 * size_shell, dtype=np.int64)
-        size_z = populate_z_numba(formal_integral_geometry, texp, p, z, shell_id)
+        size_z = populate_z_numba(
+            formal_integral_geometry, texp, p, z, shell_id
+        )
         # print(p, z)
         zs_n[i] = z
         sizes_n[i] = size_z
         shell_ids_n[i] = shell_id
 
     # populate zs with the JAX formal integral
-    zs_j, shell_ids_j, sizes_j = populate_z_jax(jnp.array(ps), jnp.array(formal_integral_geometry.r_inner), jnp.array(formal_integral_geometry.r_outer), texp, size_shell)
+    zs_j, shell_ids_j, sizes_j = populate_z_jax(
+        jnp.array(ps),
+        jnp.array(formal_integral_geometry.r_inner),
+        jnp.array(formal_integral_geometry.r_outer),
+        texp,
+        size_shell,
+    )
 
     npt.assert_allclose(zs_n, zs_j, rtol=1e-14, atol=0)
     npt.assert_allclose(shell_ids_n, shell_ids_j, rtol=1e-14, atol=0)
     npt.assert_allclose(sizes_n, sizes_j, rtol=1e-14, atol=0)
+
 
 def test_full_formal_integral(simulation_verysimple):
     """
@@ -189,34 +218,41 @@ def test_full_formal_integral(simulation_verysimple):
     formal_integrator_numba = FormalIntegralSolver(
         sim.spectrum_solver.integrator_settings
     )
-    formal_integrator_numba.method = 'numba'
+    formal_integrator_numba.method = "numba"
 
     formal_integrator_jax = FormalIntegralSolver(
         sim.spectrum_solver.integrator_settings
     )
-    formal_integrator_jax.method = 'jax'
+    formal_integrator_jax.method = "jax"
 
+    # formal_integrator_numba.integrator_settings.interpolate_shells = max(
+    #     2 * sim.simulation_state.no_of_shells, 80
+    # )
 
-    formal_integrator_numba.integrator_settings.interpolate_shells = max(
-        2 * sim.simulation_state.no_of_shells, 80
-    )
-
-    formal_integrator_jax.integrator_settings.interpolate_shells = max(
-        2 * sim.simulation_state.no_of_shells, 80
-    )
+    # formal_integrator_jax.integrator_settings.interpolate_shells = max(
+    #     2 * sim.simulation_state.no_of_shells, 80
+    # )
+    formal_integrator_numba.integrator_settings.interpolate_shells = 20
+    formal_integrator_jax.integrator_settings.interpolate_shells = 20
+    
+    formal_integrator_numba.integrator_settings.points = 10
+    formal_integrator_jax.integrator_settings.points = 10
 
     L_numba = formal_integrator_numba.solve(
         sim.spectrum_solver.spectrum_real_packets.frequency,
         sim.simulation_state,
         sim.transport,
-        sim.plasma
+        sim.plasma,
     ).luminosity
 
     L_jax = formal_integrator_jax.solve(
         sim.spectrum_solver.spectrum_real_packets.frequency,
         sim.simulation_state,
         sim.transport,
-        sim.plasma
+        sim.plasma,
     ).luminosity
 
-    npt.assert_allclose(L_jax, L_numba, rtol=1e-14, atol=0.)
+    assert type(formal_integrator_jax) == JaxFormalIntegrator
+    assert type(formal_integrator_numba) == NumbaFormalIntegrator
+
+    npt.assert_allclose(L_jax, L_numba, rtol=1e-14, atol=0.0)
