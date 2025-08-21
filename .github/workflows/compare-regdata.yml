@@ -117,6 +117,13 @@ jobs:
           df -h
 
       - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request_target'
+
+      - name: Checkout pull/${{ github.event.number }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+        if: github.event_name == 'pull_request_target'
       
       - name: Checkout tardisbase repository
         uses: actions/checkout@v4
