@@ -22,6 +22,11 @@ on:
         required: false
         type: boolean
         default: false
+      generation_tests:
+        description: "Whether or not to run regression data generation tests"
+        required: false
+        type: boolean
+        default: false
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -54,7 +59,7 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
-        pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
+        pip_git: ${{ (inputs.pip_git || contains(github.event.pull_request.labels.*.name, 'pip-git-tests')) && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
             os: macos-latest
@@ -93,7 +98,7 @@ jobs:
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
-        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
+        if: inputs.generation_tests || contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
 
       - run: mv .coverage .coverage.${{ strategy.job-index }}
 
