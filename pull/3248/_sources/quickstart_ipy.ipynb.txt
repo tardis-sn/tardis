@@ -94,6 +94,16 @@
    ]
   },
   {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "print(os.environ)"
+   ]
+  },
+  {
    "attachments": {},
    "cell_type": "markdown",
    "metadata": {},
