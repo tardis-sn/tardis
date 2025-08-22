@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=a90c1744"></script>
+      <script src="../../../_static/documentation_options.js?v=efcc25a5"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -60,8 +60,6 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart_def.html">Quickstart for TARDIS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../quickstart_ipy.html">Quickstart for TARDIS</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
 <ul>
@@ -112,6 +110,7 @@ class Environment(StrEnum):
     JUPYTER = &#39;jupyter&#39;
     TERMINAL = &#39;terminal&#39;
     SSH_JH = &#39;ssh_jh&#39;
+    SPHINX = &#39;sphinx&#39;
     
 <div class="viewcode-block" id="Environment.get_current_environment">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.get_current_environment">[docs]</a>
@@ -130,6 +129,8 @@ class Environment(StrEnum):
             return cls.JUPYTER
         elif cls.is_sshjh():
             return cls.SSH_JH
+        elif cls.is_sphinx():
+            return cls.SPHINX
         elif cls.is_terminal():
             return cls.TERMINAL
         else:
@@ -215,6 +216,21 @@ class Environment(StrEnum):
         False : if the shell environment is Terminal or anything else
         &quot;&quot;&quot;
         return Environment._detect_jupyter_shell() and not any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys())</div>
+
+
+<div class="viewcode-block" id="Environment.is_sphinx">
+<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_sphinx">[docs]</a>
+    @staticmethod
+    def is_sphinx() -&gt; bool:
+        &quot;&quot;&quot;
+        Checking if the current environment is Sphinx documentation build
+        
+        Returns
+        -------
+        True : if running in Sphinx build environment
+        False : otherwise
+        &quot;&quot;&quot;
+        return os.environ.get(&#39;TARDIS_SPHINX_BUILD&#39;) == &#39;1&#39;</div>
 </div>
 
 
