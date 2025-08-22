@@ -124,7 +124,7 @@
    "outputs": [],
    "source": [
     "import panel as pn\n",
-    "pn.extension(\"ipywidgets\")"
+    "pn.extension(\"ipywidgets\", comms=\"ipywidgets\")"
    ]
   },
   {
