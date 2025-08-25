@@ -75,7 +75,7 @@ jobs:
           echo "NEW_TAG=$(python .ci-helpers/get_next_version.py)" >> $GITHUB_ENV
 
       - name: Initialize release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: TARDIS v${{ env.NEW_TAG }}
           tag_name: release-${{ env.NEW_TAG }}
@@ -116,7 +116,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Update release with changelog and DOI
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: release-${{ env.NEW_TAG }}
           token: ${{ secrets.BOT_TOKEN }}
