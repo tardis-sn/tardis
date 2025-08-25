@@ -15,12 +15,6 @@ on:
       - labeled
 
   workflow_call:
-    inputs:
-      pip_git:
-        description: "Whether or not to install tardis using git"
-        required: false
-        type: boolean
-        default: false
 
 env:
   CACHE_NUMBER: 0  # increase to reset cache manually
@@ -45,7 +39,7 @@ jobs:
       allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
+    name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }}
     if: (github.repository_owner == 'tardis-sn') && contains(github.event.pull_request.labels.*.name, 'run-regression-comparison')
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -54,7 +48,6 @@ jobs:
       matrix:
         label: [osx-arm64, linux-64]
         continuum: ['not', '']
-        pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
             os: macos-latest
@@ -117,6 +110,13 @@ jobs:
           df -h
 
       - uses: actions/checkout@v4
+        if: github.event_name != 'pull_request_target'
+
+      - name: Checkout pull/${{ github.event.number }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+        if: github.event_name == 'pull_request_target'
       
       - name: Checkout tardisbase repository
         uses: actions/checkout@v4
@@ -133,18 +133,12 @@ jobs:
           os-label: ${{ matrix.label }}
 
       - name: Install tardis editable
-        if: ${{ !matrix.pip_git }}
         run: |
-          pip install -e . 
+          pip install -e .
       
       - name: Install tardisbase editable
         run: pip install -e .
         working-directory: tardisbase
-
-      - name: Install tardis git
-        if: ${{ matrix.pip_git }}
-        run: |
-          pip install "tardis @ git+https://github.com/tardis-sn/tardis.git@master"
 
       - name: Install qgridnext and lineid_plot
         run: |
@@ -195,7 +189,7 @@ jobs:
         if: steps.commit.outputs.has_changes == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}.html
+          name: compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
           include-hidden-files: true
           path: |
             ${{ github.workspace }}/tardisbase/tardisbase/testing/regression_comparison/compare_regression_data_${{ github.sha }}_${{ matrix.continuum }}_${{ matrix.os }}.html
