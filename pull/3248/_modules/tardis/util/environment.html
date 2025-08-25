@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=efcc25a5"></script>
+      <script src="../../../_static/documentation_options.js?v=ff87c510"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -215,7 +215,7 @@ class Environment(StrEnum):
         True : if the shell environment is Jupyter Based
         False : if the shell environment is Terminal or anything else
         &quot;&quot;&quot;
-        return Environment._detect_jupyter_shell() and not any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys())</div>
+        return Environment._detect_jupyter_shell() and not any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys()) and not Environment.is_sphinx()</div>
 
 
 <div class="viewcode-block" id="Environment.is_sphinx">
@@ -231,6 +231,24 @@ class Environment(StrEnum):
         False : otherwise
         &quot;&quot;&quot;
         return os.environ.get(&#39;TARDIS_SPHINX_BUILD&#39;) == &#39;1&#39;</div>
+
+    
+<div class="viewcode-block" id="Environment.allows_widget_display">
+<a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.allows_widget_display">[docs]</a>
+    @staticmethod
+    def allows_widget_display() -&gt; bool:
+        &quot;&quot;&quot;
+        Checking if the current environment allows widget display
+        
+        Returns
+        -------
+        True : if the environment supports widget display (notebook, vscode, sshjh, or sphinx)
+        False : otherwise
+        &quot;&quot;&quot;
+        return (Environment.is_notebook() or 
+                Environment.is_vscode() or 
+                Environment.is_sshjh() or 
+                Environment.is_sphinx())</div>
 </div>
 
 
@@ -245,7 +263,7 @@ class Environment(StrEnum):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 22 Aug 2025.
+      <span class="lastupdated">Last updated on 25 Aug 2025.
       </span></p>
   </div>
 
