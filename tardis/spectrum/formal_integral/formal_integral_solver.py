@@ -61,16 +61,19 @@ class FormalIntegralSolver:
 
         self.montecarlo_configuration = transport.montecarlo_configuration
 
-        if self.method in [
-            None,
+        # check method selection
+        if self.method in [ # TODO: better way to handle this
             "numba",
             "cuda",
-        ]:  # TODO: better way to handle this
-            # use GPU if available
-            if transport.use_gpu:
-                self.method = "cuda"
-            else:
-                self.method = "numba"
+        ]:
+            pass
+        elif self.method is None:
+            logger.warning(
+                f"The formal integral implementation was not specified. "
+                "Please run with config option numba or cuda"
+                "Defaulting to numba implementation"
+            )
+            self.method = "numba"
         else:
             logger.warning(
                 f"Computing formal integral via the {self.method} method isn't supported"

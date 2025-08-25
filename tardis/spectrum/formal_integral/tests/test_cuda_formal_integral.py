@@ -316,7 +316,7 @@ def test_full_formal_integral(simulation_verysimple):
     formal_integrator_cuda = FormalIntegralSolver(
         sim.spectrum_solver.integrator_settings
     )
-    formal_integrator_numba.method = 'cuda'
+    formal_integrator_cuda.method = 'cuda'
 
     # The function calculate_spectrum sets this property, but in order to test the CUDA.
     # version it is done manually, as well as to speed up the test.
