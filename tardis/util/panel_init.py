@@ -1,6 +1,7 @@
 import panel as pn
 from tardis.util.environment import Environment
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,11 @@ def vscode_noipy():
     print("Initializing panel with vscode comms for VSCode (no ipywidgets)")
     pn.extension(comms="vscode")
 
+def sphinx():
+    """Initialize panel for Sphinx documentation builds"""
+    print("Sphinx build detected, using ipywidgets panel extension")
+    pn.extension("ipywidgets")
+
 def auto():
     """Auto-detect environment and initialize panel"""
     # Use preferred mode if set
@@ -50,7 +56,10 @@ def auto():
     elif Environment.is_notebook():
         print("Auto-detected Jupyter notebook environment")
         notebook()
+    elif Environment.is_sphinx():
+        print("Auto-detected Sphinx build environment")
+        sphinx()
     else:
         print("Defaulting to default panel comms.")
-        notebook()
+        pn.extension()
 
