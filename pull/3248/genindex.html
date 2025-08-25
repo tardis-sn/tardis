@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=cf490343"></script>
+      <script src="_static/documentation_options.js?v=e1a41ac7"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -59,16 +59,51 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="how_to_guides.html">How-To Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/in_progress/index.html">Features In-Progress</a></li>
 </ul>
 
         </div>
@@ -553,14 +588,14 @@
 </li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.calculate_tau_electron">calculate_tau_electron() (in module tardis.opacities.opacities)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.calculate_total_decays">calculate_total_decays() (in module tardis.energy_input.gamma_ray_channel)</a>
 
       <ul>
         <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow.calculate_total_decays">(tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.equilibrium.rates.collision_strengths.html#tardis.plasma.equilibrium.rates.collision_strengths.calculate_upsilon_g_2_collisional_rates">calculate_upsilon_g_2_collisional_rates() (in module tardis.plasma.equilibrium.rates.collision_strengths)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate_with_n_electron">calculate_with_n_electron() (tardis.plasma.properties.ion_population.IonNumberDensity static method)</a>
@@ -594,6 +629,8 @@
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.chi_electron_calculator">chi_electron_calculator() (in module tardis.opacities.opacities)</a>
 </li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.chi_ff_calculator">chi_ff_calculator() (in module tardis.opacities.opacities)</a>
+</li>
+      <li><a href="resources/zreferences.html#term-Chianti"><strong>Chianti</strong></a>
 </li>
       <li><a href="api/tardis.io.atom_data.collision_data.html#tardis.io.atom_data.collision_data.ChiantiCollisionData">ChiantiCollisionData (class in tardis.io.atom_data.collision_data)</a>
 </li>
@@ -1005,6 +1042,8 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.base.html#tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties">EstimatedRadiationFieldProperties (class in tardis.transport.montecarlo.estimators.base)</a>
 </li>
+      <li><a href="resources/zreferences.html#term-Estimator"><strong>Estimator</strong></a>
+</li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.euler_rodrigues">euler_rodrigues() (in module tardis.energy_input.util)</a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.excitation_analytical_approximation">excitation_analytical_approximation (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
@@ -1365,6 +1404,8 @@
       </ul></li>
       <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.PhiSahaNebular.get_zeta_values">get_zeta_values() (tardis.plasma.properties.ion_population.PhiSahaNebular static method)</a>
 </li>
+      <li><a href="resources/zreferences.html#term-Grey-Opacity"><strong>Grey Opacity</strong></a>
+</li>
       <li><a href="api/tardis.grid.base.html#tardis.grid.base.TardisGrid.grid_row_to_config">grid_row_to_config() (tardis.grid.base.TardisGrid method)</a>
 </li>
       <li><a href="api/tardis.grid.base.html#tardis.grid.base.TardisGrid.grid_row_to_simulation_state">grid_row_to_simulation_state() (tardis.grid.base.TardisGrid method)</a>
@@ -1389,6 +1430,8 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="resources/zreferences.html#term-HDF-Hierarchical-Data-Format"><strong>HDF (Hierarchical Data Format)</strong></a>
+</li>
       <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.hdf_name">hdf_name (tardis.io.configuration.config_reader.Configuration attribute)</a>
 
       <ul>
@@ -1643,9 +1686,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.kappa_calculation">kappa_calculation() (in module tardis.opacities.opacities)</a>
 </li>
+      <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.klein_nishina">klein_nishina() (in module tardis.energy_input.util)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.klein_nishina">klein_nishina() (in module tardis.energy_input.util)</a>
+      <li><a href="resources/zreferences.html#term-Kurucz"><strong>Kurucz</strong></a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.kwargs">kwargs (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
@@ -1992,6 +2037,8 @@
       <li><a href="api/tardis.io.model.readers.artis.html#tardis.io.model.readers.artis.ArtisModelData.mean_density">mean_density (tardis.io.model.readers.artis.ArtisModelData attribute)</a>
 </li>
       <li><a href="api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction.merge">merge() (tardis.model.matter.decay.IsotopicMassFraction method)</a>
+</li>
+      <li><a href="resources/zreferences.html#term-Meta-Stable"><strong>Meta-Stable</strong></a>
 </li>
       <li><a href="api/tardis.io.model.readers.cmfgen.html#tardis.io.model.readers.cmfgen.CMFGENModel.metadata">metadata (tardis.io.model.readers.cmfgen.CMFGENModel attribute)</a>
 
@@ -2418,6 +2465,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.MoleculeData">MoleculeData (class in tardis.io.atom_data.base)</a>
 </li>
+      <li><a href="resources/zreferences.html#term-Monte-Carlo"><strong>Monte Carlo</strong></a>
+</li>
       <li><a href="api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.montecarlo_emitted_luminosity">montecarlo_emitted_luminosity (tardis.spectrum.base.SpectrumSolver property)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.montecarlo_main_loop.html#tardis.transport.montecarlo.montecarlo_main_loop.montecarlo_main_loop">montecarlo_main_loop() (in module tardis.transport.montecarlo.montecarlo_main_loop)</a>
@@ -2449,6 +2498,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty.name">name (tardis.plasma.properties.base.BasePlasmaProperty property)</a>
+</li>
+      <li><a href="resources/zreferences.html#term-Nebular"><strong>Nebular</strong></a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.nebular_ionization_delta_treatment">nebular_ionization_delta_treatment (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
@@ -2541,6 +2592,8 @@
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.on_btn_output">on_btn_output() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.on_btn_prev">on_btn_prev() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
+</li>
+      <li><a href="resources/zreferences.html#term-Opacity"><strong>Opacity</strong></a>
 </li>
       <li><a href="api/tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.opacity_state_initialize">opacity_state_initialize() (in module tardis.opacities.opacity_state)</a>
 
@@ -2779,6 +2832,8 @@
       <li><a href="api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.packet_luminosity">packet_luminosity (tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState property)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packet_collections.html#tardis.transport.montecarlo.packet_collections.PacketCollection">PacketCollection (class in tardis.transport.montecarlo.packet_collections)</a>
+</li>
+      <li><a href="resources/zreferences.html#term-Packets"><strong>Packets</strong></a>
 </li>
       <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.packets_escaped">packets_escaped (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult attribute)</a>
 </li>
@@ -3174,6 +3229,8 @@
 </li>
       <li><a href="api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter">SDECPlotter (class in tardis.visualization.tools.sdec_plot)</a>
 </li>
+      <li><a href="resources/zreferences.html#term-Seed"><strong>Seed</strong></a>
+</li>
       <li><a href="api/tardis.plasma.properties.general.html#tardis.plasma.properties.general.SelectedAtoms">SelectedAtoms (class in tardis.plasma.properties.general)</a>
 </li>
       <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationNameSpace.set_config_item">set_config_item() (tardis.io.configuration.config_reader.ConfigurationNameSpace method)</a>
@@ -3375,6 +3432,8 @@
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.PlasmaStateStorerMixin.store_plasma_state">store_plasma_state() (tardis.simulation.base.PlasmaStateStorerMixin method)</a>
 </li>
       <li><a href="api/tardis.plasma.base.html#tardis.plasma.base.BasePlasma.store_previous_properties">store_previous_properties() (tardis.plasma.base.BasePlasma method)</a>
+</li>
+      <li><a href="resources/zreferences.html#term-Synapps"><strong>Synapps</strong></a>
 </li>
   </ul></td>
 </tr></table>
@@ -4207,8 +4266,6 @@
         <li><a href="api/tardis.plasma.properties.legacy_property_collections.html#module-tardis.plasma.properties.legacy_property_collections">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.level_population
 
@@ -4216,6 +4273,8 @@
         <li><a href="api/tardis.plasma.properties.level_population.html#module-tardis.plasma.properties.level_population">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.nlte
 
@@ -4902,6 +4961,8 @@
         <li><a href="api/tardis.io.model.readers.snec.xg_files.html#tardis.io.model.readers.snec.xg_files.XGData.to_xr_dataset">(tardis.io.model.readers.snec.xg_files.XGData method)</a>
 </li>
       </ul></li>
+      <li><a href="resources/zreferences.html#term-TOML"><strong>TOML</strong></a>
+</li>
       <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.total_deposited_energy">total_deposited_energy (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult attribute)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.r_packet_transport.html#tardis.transport.montecarlo.r_packet_transport.trace_packet">trace_packet() (in module tardis.transport.montecarlo.r_packet_transport)</a>
@@ -5158,10 +5219,12 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.Y_SCALE_OPTION">Y_SCALE_OPTION (tardis.visualization.widgets.grotrian.GrotrianPlot attribute)</a>
 </li>
-      <li><a href="api/tardis.io.util.html#tardis.io.util.yaml_load_file">yaml_load_file() (in module tardis.io.util)</a>
+      <li><a href="resources/zreferences.html#term-YAML"><strong>YAML</strong></a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.io.util.html#tardis.io.util.yaml_load_file">yaml_load_file() (in module tardis.io.util)</a>
+</li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.YAMLLoader">YAMLLoader (class in tardis.io.util)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData">YgData (class in tardis.plasma.properties.atomic)</a>
