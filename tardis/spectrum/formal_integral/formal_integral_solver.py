@@ -291,7 +291,6 @@ class FormalIntegralSolver:
 
         return TARDISSpectrum(frequencies, luminosity)
 
-    # TODO: rewrite interpolate_integrator_quantities
     def interpolate_integrator_quantities(
         self,
         r_inner_original: np.ndarray,
