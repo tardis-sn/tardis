@@ -118,7 +118,6 @@ def run_tardis(
 
     workflow = StandardTARDISWorkflow(
         configuration=tardis_config,
-        atom_data=atom_data,
         enable_virtual_packet_logging=virtual_packet_logging,
         log_level=log_level,
         specific_log_level=specific_log_level,
