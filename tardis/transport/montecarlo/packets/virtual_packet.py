@@ -22,7 +22,7 @@ from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
     SIGMA_THOMSON,
 )
-from tardis.transport.montecarlo.r_packet import (
+from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
 )
 from tardis.transport.montecarlo.r_packet_transport import (
