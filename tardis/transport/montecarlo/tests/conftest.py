@@ -10,8 +10,8 @@ from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.numba_interface import (
-    opacity_state_initialize,
+from tardis.opacities.opacity_state_numba import (
+    opacity_state_numba_initialize,
 )
 from tardis.transport.montecarlo.packet_collections import (
     VPacketCollection,
@@ -53,7 +53,7 @@ def simple_weighted_packet_source():
 
 @pytest.fixture(scope="package")
 def verysimple_opacity_state(nb_simulation_verysimple):
-    return opacity_state_initialize(
+    return opacity_state_numba_initialize(
         nb_simulation_verysimple.plasma,
         line_interaction_type="macroatom",
         disable_line_scattering=False,

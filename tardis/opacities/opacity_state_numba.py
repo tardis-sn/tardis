@@ -9,7 +9,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
-opacity_state_spec = [
+opacity_state_numba_spec = [
     ("electron_density", float64[:]),
     ("t_electrons", float64[:]),
     ("line_list_nu", float64[:]),
@@ -35,8 +35,8 @@ opacity_state_spec = [
 ]
 
 
-@jitclass(opacity_state_spec)
-class OpacityState:
+@jitclass(opacity_state_numba_spec)
+class OpacityStateNumba:
     def __init__(
         self,
         electron_density,
@@ -121,7 +121,7 @@ class OpacityState:
             OpacityState : a shallow copy of the current instance
         """
         # NOTE: This currently will not work with continuum processes since it does not slice those arrays
-        return OpacityState(
+        return OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],
             self.line_list_nu,
@@ -147,7 +147,7 @@ class OpacityState:
         )
 
 
-def opacity_state_initialize(
+def opacity_state_numba_initialize(
     plasma,
     line_interaction_type,
     disable_line_scattering,
@@ -256,7 +256,7 @@ def opacity_state_initialize(
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
 
-    return OpacityState(
+    return OpacityStateNumba(
         electron_densities,
         t_electrons,
         line_list_nu,
