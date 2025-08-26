@@ -138,8 +138,43 @@ def trapezoid_integration(array, h):
 calculate_p_values = njit(calculate_p_values, **njit_dict_no_parallel)
 intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 
+# @njit(**njit_dict_no_parallel)
+def increment_escat_contrib(
+        escat_contrib,
+        first,
+        zend,
+        zstart,
+        escat_op,
+        pJred_lu,
+        Jblue_lu, 
+        Jred_lu,
+        I_nu_p
+    ):
 
-@njit(**njit_dict)
+    if first == 1:
+        # first contribution to integration
+        # NOTE: this treatment of I_nu_b (given
+        #   by boundary conditions) is not in Lucy 1999;
+        #   should be re-examined carefully
+        escat_contrib += (
+            (zend - zstart)
+            * escat_op
+            * (Jblue_lu - I_nu_p)
+        )
+        first = 0
+    else:
+        # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
+        Jkkp = 0.5 * (Jred_lu + Jblue_lu)
+        escat_contrib += (
+            (zend - zstart) * escat_op * (Jkkp - I_nu_p)
+        )
+        # this introduces the necessary ffset of one element between
+        # pJblue_lu and pJred_lu
+        pJred_lu += 1
+
+    return escat_contrib, first, pJred_lu
+
+# @njit(**njit_dict_no_parallel)
 def numba_formal_integral(
     geometry,
     time_explosion,
@@ -250,29 +285,21 @@ def numba_formal_integral(
                     zend = (
                         time_explosion
                         / C_INV
-                        * (1.0 - line_list_nu[pline] / nu)
+                        * (1.0 - line_list_nu[pline] / nu.value)
                     )  # check
 
-                    if first == 1:
-                        # first contribution to integration
-                        # NOTE: this treatment of I_nu_b (given
-                        #   by boundary conditions) is not in Lucy 1999;
-                        #   should be re-examined carefully
-                        escat_contrib += (
-                            (zend - zstart)
-                            * escat_op
-                            * (Jblue_lu[pJblue_lu] - I_nu[p_idx])
-                        )
-                        first = 0
-                    else:
-                        # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                        Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-                        escat_contrib += (
-                            (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
-                        )
-                        # this introduces the necessary ffset of one element between
-                        # pJblue_lu and pJred_lu
-                        pJred_lu += 1
+                    escat_contrib, first, pJred_lu = increment_escat_contrib(
+                        escat_contrib, 
+                        first,
+                        pJred_lu,
+                        zend,
+                        zstart,
+                        escat_op,
+                        Jblue_lu[pJblue_lu],
+                        Jred_lu[pJred_lu],
+                        I_nu[p_idx]
+                    )
+
                     I_nu[p_idx] += escat_contrib
                     # // Lucy 1999, Eq 26
                     I_nu[p_idx] *= exp_tau[pexp_tau]
