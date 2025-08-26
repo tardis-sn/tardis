@@ -344,34 +344,29 @@ class CollisionalBoundThermalRates:
         lower_level_number_density = level_population.loc[lower_index]
         upper_level_number_density = level_population.loc[upper_index]
 
-        # For now, let's handle this similar to the original approach
-        # to maintain compatibility, we'll loop through cells
-        n_cells = level_population.columns
-        heating_rates = []
-        cooling_rates = []
+        heating_rate = (
+            electron_density.cgs.value
+            * (
+                collisional_deexcitation_rate_coefficient.values
+                * upper_level_number_density.values
+                * self.nu.reshape(-1, 1)  # handle broadcasting
+                * const.h.cgs.value
+            )
+        ).sum(axis=0)
 
-        for cell in n_cells:
-            heating_cell = (
-                electron_density
-                * collisional_deexcitation_rate_coefficient[cell]
-                * upper_level_number_density[cell].values
-                * self.nu
-                * const.h.cgs
-            ).sum()
+        cooling_rate = (
+            electron_density.cgs.value
+            * (
+                collisional_excitation_rate_coefficient.values
+                * lower_level_number_density.values
+                * self.nu.reshape(-1, 1)  # handle broadcasting
+                * const.h.cgs.value
+            )
+        ).sum(axis=0)
 
-            cooling_cell = (
-                electron_density
-                * collisional_excitation_rate_coefficient[cell]
-                * lower_level_number_density[cell].values
-                * self.nu
-                * const.h.cgs
-            ).sum()
-
-            heating_rates.append(heating_cell)
-            cooling_rates.append(cooling_cell)
-
-        heating_rate = pd.Series(heating_rates, index=n_cells)
-        cooling_rate = pd.Series(cooling_rates, index=n_cells)
+        # Convert to Series with proper index
+        heating_rate = pd.Series(heating_rate, index=level_population.columns)
+        cooling_rate = pd.Series(cooling_rate, index=level_population.columns)
 
         return heating_rate, cooling_rate
 
