@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=697173b6"></script>
+      <script src="../../../../_static/documentation_options.js?v=70dcb0cb"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -543,7 +543,7 @@ class ShellInfoWidget:
         panel.Column
             Shell info widget containing all component widgets
         &quot;&quot;&quot;
-        if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
+        if not Environment.allows_widget_display():
             print(&quot;Please use a notebook to display the widget&quot;)
         else:
             # Panel tables handle their own sizing automatically
@@ -631,7 +631,7 @@ def shell_info_from_hdf(hdf_fpath):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Aug 2025.
+      <span class="lastupdated">Last updated on 26 Aug 2025.
       </span></p>
   </div>
 

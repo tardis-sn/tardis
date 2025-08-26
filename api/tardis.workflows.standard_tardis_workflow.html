@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=697173b6"></script>
+      <script src="../_static/documentation_options.js?v=70dcb0cb"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -161,100 +161,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-tardis.workflows.standard_tardis_workflow">
-<span id="tardis-workflows-standard-tardis-workflow-module"></span><h1>tardis.workflows.standard_tardis_workflow module<a class="headerlink" href="#module-tardis.workflows.standard_tardis_workflow" title="Link to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.workflows.standard_tardis_workflow.</span></span><span class="sig-name descname"><span class="pre">StandardTARDISWorkflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/workflows/standard_tardis_workflow.html#StandardTARDISWorkflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="tardis.workflows.simple_tardis_workflow.html#tardis.workflows.simple_tardis_workflow.SimpleTARDISWorkflow" title="tardis.workflows.simple_tardis_workflow.SimpleTARDISWorkflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleTARDISWorkflow</span></code></a>, <a class="reference internal" href="tardis.simulation.base.html#tardis.simulation.base.PlasmaStateStorerMixin" title="tardis.simulation.base.PlasmaStateStorerMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlasmaStateStorerMixin</span></code></a>, <a class="reference internal" href="tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin" title="tardis.io.hdf_writer_mixin.HDFWriterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code></a></p>
-<p>A simple TARDIS workflow that runs a simulation to convergence</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>configuration</strong><span class="classifier">Configuration</span></dt><dd><p>Configuration object for the simulation</p>
-</dd>
-<dt><strong>csvy</strong><span class="classifier">bool, optional</span></dt><dd><p>Set true if the configuration uses CSVY, by default False</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.convergence_plots">
-<span class="sig-name descname"><span class="pre">convergence_plots</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.convergence_plots" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.export_convergence_plots">
-<span class="sig-name descname"><span class="pre">export_convergence_plots</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.export_convergence_plots" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.get_convergence_estimates">
-<span class="sig-name descname"><span class="pre">get_convergence_estimates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/workflows/standard_tardis_workflow.html#StandardTARDISWorkflow.get_convergence_estimates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.get_convergence_estimates" title="Link to this definition">¶</a></dt>
-<dd><p>Compute convergence estimates from the transport state</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>dict</dt><dd><p>Convergence estimates</p>
-</dd>
-<dt>EstimatedRadiationFieldProperties</dt><dd><p>Dilute radiation file and j_blues dataclass</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.hdf_properties">
-<span class="sig-name descname"><span class="pre">hdf_properties</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['simulation_state',</span> <span class="pre">'plasma_solver',</span> <span class="pre">'transport_solver',</span> <span class="pre">'iterations_w',</span> <span class="pre">'iterations_t_rad',</span> <span class="pre">'iterations_electron_densities',</span> <span class="pre">'iterations_t_inner',</span> <span class="pre">'spectrum_solver']</span></em><a class="headerlink" href="#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.hdf_properties" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.initialize_convergence_plots">
-<span class="sig-name descname"><span class="pre">initialize_convergence_plots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/workflows/standard_tardis_workflow.html#StandardTARDISWorkflow.initialize_convergence_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.initialize_convergence_plots" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize the convergence plot attributes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>ConvergencePlots</dt><dd><p>The convergence plot instance</p>
-</dd>
-<dt>bool</dt><dd><p>If convergence plots are to be exported</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>RuntimeError</dt><dd><p>Raised if run outside a notebook</p>
-</dd>
-<dt>TypeError</dt><dd><p>Raised if export_convergence_plots is not a bool</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/workflows/standard_tardis_workflow.html#StandardTARDISWorkflow.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.run" title="Link to this definition">¶</a></dt>
-<dd><p>Run the TARDIS simulation until convergence is reached</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.update_convergence_plot_data">
-<span class="sig-name descname"><span class="pre">update_convergence_plot_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plot_data_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/workflows/standard_tardis_workflow.html#StandardTARDISWorkflow.update_convergence_plot_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow.update_convergence_plot_data" title="Link to this definition">¶</a></dt>
-<dd><p>Updates convergence plotting data</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>plot_data_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of data to update of the form {“name”: [value, item_type]}</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+  <section id="tardis-workflows-standard-tardis-workflow-module">
+<h1>tardis.workflows.standard_tardis_workflow module<a class="headerlink" href="#tardis-workflows-standard-tardis-workflow-module" title="Link to this heading">¶</a></h1>
 </section>
 
 
@@ -269,7 +177,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Aug 2025.
+      <span class="lastupdated">Last updated on 26 Aug 2025.
       </span></p>
   </div>
 
