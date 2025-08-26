@@ -13,7 +13,7 @@ jobs:
   changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: tardis-sn/tardis
           fetch-depth: 0
@@ -34,7 +34,7 @@ jobs:
   citation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Wait for Zenodo webhook
         run: sleep 180
@@ -60,7 +60,7 @@ jobs:
   credits:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Wait for Zenodo webhook
         run: sleep 180
@@ -96,9 +96,9 @@ jobs:
     needs: [changelog, citation, credits]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: /tmp
 

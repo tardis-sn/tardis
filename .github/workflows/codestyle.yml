@@ -21,14 +21,14 @@ jobs:
   ruff: 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: github.event_name == 'push'
         with:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
         if: github.event_name == 'pull_request_target'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -56,13 +56,13 @@ jobs:
 
       - name: Statistics output read
         id: ruff_stats
-        uses: juliangruber/read-file-action@v1.0.0
+        uses: juliangruber/read-file-action@v1.1.7
         with:
           path: ruff_stats.txt
 
       - name: Entire output read
         id: ruff_complete 
-        uses: juliangruber/read-file-action@v1.0.0
+        uses: juliangruber/read-file-action@v1.1.7
         with:
           path: ruff_full.txt
       

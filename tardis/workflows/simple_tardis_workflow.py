@@ -13,12 +13,12 @@ from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
-from tardis.util.base import is_notebook
+from tardis.util.environment import Environment
 from tardis.workflows.workflow_logging import WorkflowLogging
 
 # logging support
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class SimpleTARDISWorkflow(WorkflowLogging):
-    show_progress_bars = is_notebook()
+    show_progress_bars = Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
@@ -450,12 +450,16 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.spectrum_solver.integrator_settings = (
                 self.integrated_spectrum_settings
             )
-            self.spectrum_solver._integrator = FormalIntegrator(
-                self.simulation_state,
-                self.plasma_solver,
-                self.transport_solver,
-                opacity_states["opacity_state"],
-                opacity_states["macro_atom_state"],
+            formal_integrator = FormalIntegralSolver(self.spectrum_solver.integrator_settings)
+            self.spectrum_solver.setup_optional_spectra(
+                self.transport_state,
+                virtual_packet_luminosity=None,
+                integrator=formal_integrator,
+                simulation_state=self.simulation_state,
+                transport=self.transport_solver,
+                plasma=self.plasma_solver,
+                opacity_state=opacity_states["opacity_state"],
+                macro_atom_state=opacity_states["macro_atom_state"]
             )
 
     def run(self):
@@ -466,10 +470,10 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
 
-            opacity_states = self.solve_opacity()
+            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -493,13 +497,14 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
+        self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
-            opacity_states,
+            self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
 
         self.initialize_spectrum_solver(
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )

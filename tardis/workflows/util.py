@@ -25,7 +25,7 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     """
     index = plasma.atomic_data.lines.nu.index
     freqs = plasma.atomic_data.lines.nu.values * u.Hz
-    order = np.argsort(freqs)
+    order = np.argsort(freqs, kind="stable")
     freqs = freqs[order]
     taus = opacity_state.tau_sobolev.values[order]
 

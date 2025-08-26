@@ -16,6 +16,7 @@ from radioactivedecay.utils import Z_DICT, parse_nuclide
 import tardis
 from tardis import constants
 from tardis.io.util import get_internal_data_path
+from tardis.util.environment import Environment
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value

@@ -16,7 +16,7 @@ jobs:
     research-using-tardis:
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
 
         - name: Setup micromamba
           uses: mamba-org/setup-micromamba@v2
@@ -41,9 +41,9 @@ jobs:
       needs: [research-using-tardis]
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
 
-        - uses: actions/download-artifact@v4
+        - uses: actions/download-artifact@v5
           with:
             path: /tmp
 
