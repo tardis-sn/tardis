@@ -16,6 +16,11 @@ from tardis.spectrum.formal_integral.formal_integral_numba import (
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
+from tardis.spectrum.formal_integral.formal_integral_jax import (
+    JaxFormalIntegrator,
+)
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -61,16 +66,20 @@ class FormalIntegralSolver:
 
         self.montecarlo_configuration = transport.montecarlo_configuration
 
-        if self.method in [
-            None,
+        # check method selection
+        if self.method in [ # TODO: better way to handle this
             "numba",
             "cuda",
-        ]:  # TODO: better way to handle this
-            # use GPU if available
-            if transport.use_gpu:
-                self.method = "cuda"
-            else:
-                self.method = "numba"
+            "jax"
+        ]:
+            pass
+        elif self.method is None:
+            logger.warning(
+                f"The formal integral implementation was not specified. "
+                "Please run with config option numba or cuda"
+                "Defaulting to numba implementation"
+            )
+            self.method = "numba"
         else:
             logger.warning(
                 f"Computing formal integral via the {self.method} method isn't supported"
@@ -119,6 +128,13 @@ class FormalIntegralSolver:
 
         if self.method == "cuda":
             self.integrator = CudaFormalIntegrator(
+                numba_radial_1d_geometry,
+                time_explosion.cgs.value,
+                opacity_state,
+                self.integrator_settings.points,
+            )
+        elif self.method == "jax":
+            self.integrator = JaxFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
                 opacity_state,
