@@ -12,27 +12,22 @@ preferred_mode = None
 
 def ssh_jh():
     """Initialize panel for JupyterHub (colab comms)"""
-    print("Initializing panel with ipywidgets comms for JupyterHub")
     pn.extension(comms="ipywidgets")
 
 def notebook():
     """Initialize panel for standard Jupyter notebook (default comms)"""
-    print("Initializing panel with ipywidgets comms for Jupyter notebook")
     pn.extension(comms="ipywidgets")
 
 def vscode():
     """Initialize panel for VSCode (ipywidgets comms)"""
-    print("Initializing panel with ipywidgets comms for VSCode")
     pn.extension(comms="ipywidgets")
 
 def vscode_noipy():
     """Initialize panel for VSCode without ipywidgets (vscode comms)"""
-    print("Initializing panel with vscode comms for VSCode (no ipywidgets)")
     pn.extension(comms="vscode")
 
 def sphinx():
     """Initialize panel for Sphinx documentation builds"""
-    print("Sphinx build detected, using ipywidgets panel extension")
     pn.extension("ipywidgets")
 
 def auto():
