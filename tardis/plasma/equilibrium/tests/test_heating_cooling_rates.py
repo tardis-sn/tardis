@@ -169,14 +169,16 @@ def test_bound_free_thermal_rates_solve(
         nlte_atom_data.photoionization_data.query("atomic_number == 1")
     )
     heating, cooling = rates.solve(
-        level_population[0],
-        ion_population[0],
+        level_population,
+        ion_population,
         thermal_electron_distribution,
-        level_population_ratio[0],
+        level_population_ratio,
         radiation_field,
     )
     assert heating is not None
     assert cooling is not None
+    assert isinstance(heating, pd.Series)
+    assert isinstance(cooling, pd.Series)
 
 
 @pytest.mark.parametrize(
@@ -198,18 +200,16 @@ def test_bound_free_thermal_rates_solve_with_estimators(
         nlte_atom_data.photoionization_data.query("atomic_number == 1")
     )
     heating, cooling = rates.solve(
-        level_population[0],
-        ion_population[0],
+        level_population,
+        ion_population,
         thermal_electron_distribution,
-        level_population_ratio[0],
-        bound_free_heating_estimator=bound_free_heating_estimator[0],
-        stimulated_recombination_estimator=stimulated_recombination_estimator[
-            0
-        ],
+        level_population_ratio,
+        bound_free_heating_estimator=bound_free_heating_estimator,
+        stimulated_recombination_estimator=stimulated_recombination_estimator,
     )
 
-    assert_almost_equal(heating, heating_rate)
-    assert_almost_equal(cooling, cooling_rate)
+    assert_almost_equal(heating[0], heating_rate, decimal=10)
+    assert_almost_equal(cooling[0], cooling_rate, decimal=10)
 
 
 def test_free_free_thermal_rates_heating_factor(
@@ -218,12 +218,12 @@ def test_free_free_thermal_rates_heating_factor(
 ):
     rates = FreeFreeThermalRates()
     factor = rates.heating_factor(
-        ion_population[0],
+        ion_population,
         thermal_electron_distribution.number_density.cgs.value,
     )
     expected_factor = 4.869809426186787e18
 
-    assert_almost_equal(factor, expected_factor)
+    assert_almost_equal(factor[0], expected_factor, decimal=10)
 
 
 @pytest.mark.parametrize(
@@ -241,10 +241,14 @@ def test_free_free_thermal_rates_solve(
     actual_heating_rate, actual_cooling_rate = rates.solve(
         ff_heating_estimator,
         thermal_electron_distribution,
-        ion_population[0],  # only one cell
+        ion_population,
     )
-    assert_almost_equal(actual_heating_rate, expected_heating_rate)
-    assert_almost_equal(actual_cooling_rate, expected_cooling_rate)
+    assert_almost_equal(
+        actual_heating_rate[0], expected_heating_rate, decimal=10
+    )
+    assert_almost_equal(
+        actual_cooling_rate[0], expected_cooling_rate, decimal=10
+    )
 
 
 @pytest.mark.parametrize(
@@ -266,13 +270,13 @@ def test_collisional_ionization_thermal_rates_solve(
     )
     heating, cooling = rates.solve(
         thermal_electron_distribution.number_density,
-        ion_population[0],
-        level_population[0],
-        collisional_ionization_rate_coefficient[0],
-        level_population_ratio[0],
+        ion_population,
+        level_population,
+        collisional_ionization_rate_coefficient,
+        level_population_ratio,
     )
-    assert_almost_equal(heating, heating_rate)
-    assert_almost_equal(cooling, cooling_rate)
+    assert_almost_equal(heating[0], heating_rate)
+    assert_almost_equal(cooling[0], cooling_rate)
 
 
 @pytest.mark.parametrize(
@@ -291,12 +295,12 @@ def test_collisional_bound_thermal_rates_solve(
     rates = CollisionalBoundThermalRates(ctardis_lines)
     heating, cooling = rates.solve(
         thermal_electron_distribution.number_density,
-        collisional_deexcitation_rate_coefficient[0],
-        collisional_excitation_rate_coefficient[0],
-        level_population[0],
+        collisional_deexcitation_rate_coefficient,
+        collisional_excitation_rate_coefficient,
+        level_population,
     )
-    assert_almost_equal(heating, heating_rate)
-    assert_almost_equal(cooling, cooling_rate)
+    assert_almost_equal(heating[0], heating_rate, decimal=8)
+    assert_almost_equal(cooling[0], cooling_rate, decimal=8)
 
 
 @pytest.mark.parametrize(
