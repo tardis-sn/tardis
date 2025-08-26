@@ -17,6 +17,7 @@ from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
     CollisionalIonizationThermalRates,
     FreeFreeThermalRates,
 )
+from tardis.plasma.equilibrium.thermal_balance import ThermalBalanceSolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 
@@ -317,4 +318,63 @@ def test_adiabatic_thermal_rates_solve(
     )
     assert_quantity_allclose(
         actual_cooling_rate, expected_cooling_rate, rtol=1e-14
+    )
+
+
+def test_thermal_balance_solver(
+    thermal_electron_distribution,
+    radiation_field,
+    level_population,
+    ion_population,
+    collisional_ionization_rate_coefficient,
+    collisional_deexcitation_rate_coefficient,
+    collisional_excitation_rate_coefficient,
+    stimulated_recombination_estimator,
+    bound_free_heating_estimator,
+    level_population_ratio,
+    ctardis_lines,
+    nlte_atom_data,
+):
+    bound_free_rates_solver = BoundFreeThermalRates(
+        nlte_atom_data.photoionization_data.query("atomic_number == 1")
+    )
+    free_free_rates_solver = FreeFreeThermalRates()
+    collisional_ionization_rates_solver = CollisionalIonizationThermalRates(
+        nlte_atom_data.photoionization_data.query("atomic_number == 1")
+    )
+    collisional_bound_rates_solver = CollisionalBoundThermalRates(ctardis_lines)
+
+    thermal_rates = {
+        "bound_free": bound_free_rates_solver,
+        "free_free": free_free_rates_solver,
+        "collisional_ionization": collisional_ionization_rates_solver,
+        "collisional_bound": collisional_bound_rates_solver,
+    }
+
+    ff_heating_estimator = 4.89135279e-24  # from chvogl's code
+
+    thermal_balance_solver = ThermalBalanceSolver(thermal_rates)
+
+    total_heating_rate, fractional_heating_rate = thermal_balance_solver.solve(
+        thermal_electron_distribution,
+        level_population,
+        ion_population,
+        collisional_ionization_rate_coefficient,
+        collisional_deexcitation_rate_coefficient,
+        collisional_excitation_rate_coefficient,
+        ff_heating_estimator,
+        level_population_ratio,
+        radiation_field,
+        bound_free_heating_estimator,
+        stimulated_recombination_estimator,
+    )
+
+    expected_total_heating_rate = -1.2538460229470125e-06
+    expected_fractional_heating_rate = -0.10970816086384574
+
+    assert_almost_equal(
+        total_heating_rate[0], expected_total_heating_rate, decimal=14
+    )
+    assert_almost_equal(
+        fractional_heating_rate[0], expected_fractional_heating_rate, decimal=14
     )

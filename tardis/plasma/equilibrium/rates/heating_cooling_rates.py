@@ -1,16 +1,21 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import astropy.units as u
 import numpy as np
 import pandas as pd
 
 from tardis import constants as const
-from tardis.plasma.electron_energy_distribution import (
-    ThermalElectronEnergyDistribution,
-)
 from tardis.transport.montecarlo.estimators.util import (
     integrate_array_by_blocks,
 )
+
+if TYPE_CHECKING:
+    from tardis.plasma.electron_energy_distribution import (
+        ThermalElectronEnergyDistribution,
+    )
+    from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 
 class BoundFreeThermalRates:
@@ -38,7 +43,7 @@ class BoundFreeThermalRates:
         ion_population: pd.DataFrame,
         thermal_electron_distribution: ThermalElectronEnergyDistribution,
         level_population_ratio: pd.DataFrame,
-        radiation_field=None,
+        radiation_field: DilutePlanckianRadiationField | None = None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
     ) -> tuple[pd.Series, pd.Series]:
