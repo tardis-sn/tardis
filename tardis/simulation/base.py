@@ -30,7 +30,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
-from tardis.util.base import is_notebook
+from tardis.util.environment import Environment
 from tardis.visualization import ConvergencePlots
 
 logger = logging.getLogger(__name__)
@@ -180,7 +180,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         if show_convergence_plots:
-            if not is_notebook():
+            if not Environment.allows_widget_display():
                 raise RuntimeError(
                     "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                     "to False."

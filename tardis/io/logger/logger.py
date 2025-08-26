@@ -1,78 +1,18 @@
 import logging
-import os
-import re
 import sys
 from dataclasses import dataclass, field
 import panel as pn
 from IPython.display import display
-from functools import lru_cache
 import pandas as pd
 from tardis.io.logger.colored_logger import ColoredFormatter
+from tardis.util.environment import Environment
+from tardis.io.logger.logger_widget import create_logger_columns, PanelWidgetLogHandler
+import tardis.util.panel_init as panel_init
+panel_init.auto()
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
-# During the sphinx build, we don't need the ipywidgets comms.
-if 'GITHUB_ACTIONS' not in os.environ:
-    pn.extension(comms="ipywidgets")
-else:
-    pn.extension()
-
-
-def get_environment():
-    """Determine the execution environment.
-    
-    Panel behaves differently in vscode and jupyter. In jupyter, the logger widget's display handle
-    has to be updated after each log entry. In vscode, this is not needed.
-
-    Returns
-    -------
-    str
-        The environment name.
-    """
-    if any(x for x in ('VSCODE_PID', 'VSCODE') if x in os.environ):
-        return 'vscode'
-    return 'jupyter'
-
-def create_output_widget(height=300):
-    """Create an HTML pane for logging output.
-    
-    Parameters
-    ----------
-    height : int, optional
-        The height of the pane in pixels.
-        
-    Returns
-    -------
-    panel.pane.HTML
-        A Panel HTML pane configured for logging output.
-    """
-    return pn.pane.HTML(
-        "",
-        height=height,
-        styles={
-            'overflow-y': 'auto',
-            'overflow-x': 'auto',
-            'border': '1px solid #ddd',
-            'width': '100%',
-            'font-family': 'monospace',
-            'padding': '8px',
-            'background-color': 'white'
-        }
-    )
-
-ENVIRONMENT = get_environment()
-LOG_OUTPUTS = {
-    "WARNING/ERROR": create_output_widget(),
-    "INFO": create_output_widget(),
-    "DEBUG": create_output_widget(),
-    "ALL": create_output_widget(),
-}
-TAB_ORDER = ["ALL", "WARNING/ERROR", "INFO", "DEBUG"]
-LOGGER_WIDGET = pn.Tabs(
-    *[(title, LOG_OUTPUTS[title]) for title in TAB_ORDER],
-    height=350,
-    sizing_mode='stretch_width'
-)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class LoggingConfig:
@@ -112,163 +52,23 @@ class LoggingConfig:
 
 LOGGING_LEVELS = LoggingConfig().LEVELS
 
-class PanelWidgetLogHandler(logging.Handler):
-    """Log handler for logging to a widget.
-    
-    Handles the formatting and display of log messages in Panel widgets.
-    
-    Parameters
-    ----------
-    log_outputs : dict
-        Dictionary of Panel HTML panes for different log levels.
-    colors : dict
-        Dictionary mapping log levels to display colors.
-    display_widget : bool, optional
-        Whether to display logs in the widget. Defaults to True.
-    display_handle : IPython.display.DisplayHandle, optional
-        Handle for updating the display in Jupyter environment.
-    logger_widget : panel.Tabs, optional
-        The Panel Tabs widget containing the log outputs.
-    """
-    def __init__(self, log_outputs, colors, display_widget=True, display_handle=None, logger_widget=None):
-        super().__init__()
-        self.log_outputs = log_outputs
-        self.colors = colors
-        self.environment = get_environment()
-        self.display_widget = display_widget
-        self.display_handle = display_handle
-        self.logger_widget = logger_widget
-        self.stream_handler = None
-        if not self.display_widget or self.display_handle is None:
-            self.stream_handler = logging.StreamHandler()
-            self.stream_handler.setFormatter(logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
-
-    def emit(self, record):
-        """Process and emit a log record.
-        
-        Parameters
-        ----------
-        record : logging.LogRecord
-            The log record to process and display.
-        """
-        if not self.display_widget or self.display_handle is None:
-            self.stream_handler.emit(record)
-            return
-
-        if isinstance(record.msg, pd.DataFrame):
-            df_str = record.msg.to_string(index=True)
-            html_output = f'<pre style="white-space: pre; margin: 0;">{df_str}</pre>'
-        else:
-            log_entry = self.format(record)
-            clean_log_entry = self._remove_ansi_escape_sequences(log_entry)
-            html_output = self._format_html_output(clean_log_entry, record)
-        self._emit_to_widget(record.levelno, html_output)
-
-    @staticmethod
-    def _remove_ansi_escape_sequences(text):
-        """Remove ANSI escape sequences from string.
-        
-        Parameters
-        ----------
-        text : str
-            The text containing ANSI escape sequences.
-            
-        Returns
-        -------
-        str
-            Cleaned text with ANSI escape sequences removed.
-        """
-        ansi_escape = re.compile(r"\x1B[@-_][0-?]*[ -/]*[@-~]")
-        return ansi_escape.sub("", text)
-
-    def _format_html_output(self, log_entry, record):
-        """Format log entry as HTML with appropriate styling.
-        
-        Parameters
-        ----------
-        log_entry : str
-            The log entry text to format.
-        record : logging.LogRecord
-            The log record containing level information.
-            
-        Returns
-        -------
-        str
-            HTML-formatted log entry.
-        """
-        color = self.colors.get(record.levelno, self.colors["default"])
-        parts = log_entry.split(" ", 2)
-        if len(parts) > 2:
-            prefix, levelname, message = parts
-            return f'<span>{prefix}</span> <span style="color: {color}; font-weight: bold;">{levelname}</span> {message}'
-        return log_entry
-
-    def _emit_to_widget(self, level, html_output):
-        """Handles the widget updates.
-        
-        Updates the appropriate log output widgets based on the log level
-        and updates the display handle in Jupyter environments. Updates happen automatically
-        in the vscode environment.
-        
-        Parameters
-        ----------
-        level : int
-            The logging level (e.g., logging.INFO, logging.ERROR).
-        html_output : str
-            The HTML-formatted log message.
-        """
-        level_to_output = {
-            logging.WARNING: "WARNING/ERROR",
-            logging.ERROR: "WARNING/ERROR",
-            logging.INFO: "INFO",
-            logging.DEBUG: "DEBUG"
-        }
-
-        html_wrapped = f"<div style='margin: 0;'>{html_output}</div>"
-
-        # Update specific level output
-        output_key = level_to_output.get(level)
-        if output_key:
-            current = self.log_outputs[output_key].object or ""
-            self.log_outputs[output_key].object = current + "\n" + html_wrapped if current else html_wrapped
-        # Update ALL output
-        current_all = self.log_outputs["ALL"].object or ""
-        self.log_outputs["ALL"].object = current_all + "\n" + html_wrapped if current_all else html_wrapped
-
-        # Update Jupyter display if in jupyter environment
-        if self.environment == 'jupyter' and self.display_handle is not None:
-            self.display_handle.update(self.logger_widget)
-    
-    def close(self):
-        """Close the log handler.
-        """
-        super().close()
-        if self.stream_handler:
-            self.stream_handler.flush()
-            self.stream_handler.close()
-            self.stream_handler = None
-
-
 class TARDISLogger:
     """Main logger class for TARDIS.
     
-    Handles configuration of logging levels, filters, and outputs.
-    
     Parameters
     ----------
-    display_handle : IPython.display.DisplayHandle, optional
-        Handle for updating the display in Jupyter environment.
-    logger_widget : panel.Tabs, optional
-        The Panel Tabs widget containing the log outputs.
-    log_outputs : dict, optional
-        Dictionary of Panel HTML panes for different log levels.
+    log_columns : dict
+        Dictionary of scroll columns for each log level.
+    display_handles : dict, optional
+        Dictionary of display handles for each column (jupyter environment).
     """
-    def __init__(self, display_handle=None, logger_widget=None, log_outputs=None):
+    def __init__(self, log_columns=None, display_handles=None, batch_size=10):
         self.config = LoggingConfig()
         self.logger = logging.getLogger("tardis")
-        self.display_handle = display_handle
-        self.logger_widget = logger_widget
-        self.log_outputs = log_outputs
+        self.log_columns = log_columns
+        self.display_handles = display_handles
+        self.display_ids = {}
+        self.batch_size = batch_size
 
     def configure_logging(self, log_level, tardis_config, specific_log_level=None):
         """Configure the logging level and filtering for TARDIS loggers.
@@ -344,11 +144,11 @@ class TARDISLogger:
             Whether to display the widget in GUI environments. Default is True.
         """
         self.widget_handler = PanelWidgetLogHandler(
-            log_outputs=self.log_outputs,
+            log_columns=self.log_columns,
             colors=self.config.COLORS,
             display_widget=display_widget,
-            display_handle=self.display_handle,
-            logger_widget=self.logger_widget
+            display_handles=self.display_handles,
+            batch_size=self.batch_size
         )
         self.widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
@@ -370,6 +170,18 @@ class TARDISLogger:
 
         self.logger.addHandler(self.widget_handler)
         PYTHON_WARNINGS_LOGGER.addHandler(self.widget_handler)
+    
+    def finalize_widget_logging(self):
+        """Finalize widget logging by embedding the final state.
+        """
+        # Embed the final state for Jupyter environments
+        if (Environment.allows_widget_display() and hasattr(self, 'display_handles') 
+            and hasattr(self, 'display_ids') and self.display_handles and self.display_ids):
+            print("Embedding the final state for Jupyter environments")
+            for level, column in self.log_columns.items():
+                if (level in self.display_handles and level in self.display_ids 
+                    and self.display_handles[level] is not None):
+                    self.display_handles[level].update(column.embed())
     
     def remove_widget_handler(self):
         """Remove the widget handler from the logger.
@@ -413,11 +225,8 @@ class LogFilter:
         """
         return log_record.levelno in self.log_levels
 
-def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True):
+def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True, widget_start_height=10, widget_max_height=300, batch_size=10):
     """Configure and initialize the TARDIS logging system.
-    
-    Sets up the logging environment, configures log levels, and displays
-    the logging widget if requested.
     
     Parameters
     ----------
@@ -429,20 +238,47 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         Whether to enable specific log level filtering.
     display_logging_widget : bool, optional
         Whether to display the logging widget. Default is True.
+    widget_start_height : int, optional
+        Starting height for widget columns. Default is 10.
+    widget_max_height : int, optional
+        Maximum height for widget columns. Default is 300.
+    batch_size : int, optional
+        Number of logs to batch before updating widget. Default is 10.
         
     Returns
     -------
-    panel.Tabs or None
-        The logger widget if display_logging_widget is True and in a
-        supported environment, otherwise None.
+    dict
+        Dictionary of log columns if display_logging_widget is True, otherwise None.
     """
-    if display_logging_widget and ENVIRONMENT == 'jupyter':
-        display_handle = display(LOGGER_WIDGET.embed(), display_id="logger_widget")
-    elif display_logging_widget:
-        display_handle = display(LOGGER_WIDGET, display_id="logger_widget")
-    else:
-        display_handle = None
-    tardislogger = TARDISLogger(display_handle=display_handle, logger_widget=LOGGER_WIDGET, log_outputs=LOG_OUTPUTS)
+    log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
+    tardislogger = TARDISLogger(log_columns=log_columns, batch_size=batch_size)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
+    use_widget = display_logging_widget and Environment.allows_widget_display()
+    
+    if Environment.is_notebook() or Environment.is_sshjh() or Environment.is_sphinx():
+        display_handles = {}
+        display_ids = {}
+        for level, column in log_columns.items():
+            display_id = f"logger_column_{level.lower().replace('/', '_')}"
+            display_handles[level] = display(column, display_id=display_id)
+            display_ids[level] = display_id
+        
+        # Update tardislogger with display handles and IDs
+        tardislogger.display_handles = display_handles
+        tardislogger.display_ids = display_ids
+    elif Environment.is_vscode():
+        # Use direct display for vscode (no change)
+        for level, column in log_columns.items():
+            display(column)
+    elif Environment.is_terminal():
+        logger.warning("Terminal environment detected, skipping logger widget")
+    else:
+        logger.warning("Unknown environment, skipping logger widget")
+
+    # Setup widget logging once after display handles are configured
     tardislogger.setup_widget_logging(display_widget=display_logging_widget)
-    return LOGGER_WIDGET, tardislogger if (display_logging_widget and ENVIRONMENT in ['jupyter', 'vscode']) else None
+    
+    if use_widget:
+        return log_columns, tardislogger
+    else:
+        return None, tardislogger

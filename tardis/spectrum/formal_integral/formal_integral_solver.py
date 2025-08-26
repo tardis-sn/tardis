@@ -204,6 +204,15 @@ class FormalIntegralSolver:
         interpolate_shells = self.interpolate_shells
         line_interaction_type = transport_solver.line_interaction_type
 
+        if interpolate_shells == 0:  # Default Value
+            interpolate_shells = max(2 * simulation_state.no_of_shells, 80)
+            logger.warning(
+                "The number of interpolate_shells was not "
+                "specified. The value was set to %d.",
+                interpolate_shells
+            )
+        self.interpolate_shells = interpolate_shells
+
         source_function_solver = SourceFunctionSolver(line_interaction_type)
         source_function_state = source_function_solver.solve(
             simulation_state, opacity_state_numba, transport_state, atomic_data
@@ -275,8 +284,12 @@ class FormalIntegralSolver:
 
         luminosity = u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
 
+<<<<<<< HEAD
         self.interpolate_shells = interpolate_shells
         frequencies = frequencies.to("Hz", u.spectral())
+=======
+        frequency = nu.to("Hz", u.spectral())
+>>>>>>> master
 
         # Ugly hack to convert to 'bin edges'
         frequencies = u.Quantity(
