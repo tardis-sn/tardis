@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e4f0d8eb"></script>
+      <script src="../_static/documentation_options.js?v=6b270324"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,7 +35,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="tardis.spectrum.formal_integral.formal_integral module" href="tardis.spectrum.formal_integral.formal_integral.html" />
+    <link rel="next" title="tardis.spectrum.formal_integral.formal_integral_cuda module" href="tardis.spectrum.formal_integral.formal_integral_cuda.html" />
     <link rel="prev" title="tardis.spectrum.formal_integral package" href="tardis.spectrum.formal_integral.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
@@ -60,13 +60,38 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="tardis.html#subpackages">Subpackages</a><ul class="current">
@@ -93,46 +118,20 @@
 </li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Input/Output</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration (Required Input)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../io/model/index.html">Reading Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Analyzing Tardis</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/index.html">Visualization Tools &amp; Widgets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/spectrum/index.html">Analyzing TARDIS Spectra</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/liv_plot_notebook.html">Analyzing Last Interaction Velocity (LIV) Distribution</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/rpacket_plot_notebook.html">Analysing Montecarlo Packets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/analysing_convergence_plot.html">Convergence Plots</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../physics/intro/index.html">Physics Walkthrough Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/setup/index.html">Setting Up the Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/montecarlo/index.html">Monte Carlo Iteration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/spectrum/index.html">Spectrum Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../physics/tardisgamma/index.html">TARDIS-High Energy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Other Resources</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../resources/code_comparison/index.html">Code Comparison</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">References and Glossary</a></li>
 </ul>
 
         </div>
@@ -229,56 +228,25 @@ IntegrationError is raised instead</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.interpolate_integrator_quantities">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">interpolate_integrator_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jredlu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jbluelu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#interpolate_integrator_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">interpolate_integrator_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_function_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#interpolate_integrator_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities" title="Link to this definition">¶</a></dt>
 <dd><p>Interpolate the integrator quantities to interpolate_shells.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>att_S_ul</strong><span class="classifier">np.ndarray</span></dt><dd><p>attenuated source function for each line in each shell</p>
-</dd>
-<dt><strong>Jredlu</strong><span class="classifier">np.ndarray</span></dt><dd><p>J estimator from the red end of the line from lower to upper level</p>
-</dd>
-<dt><strong>Jbluelu</strong><span class="classifier">np.ndarray</span></dt><dd><p>J estimator from the blue end of the line from lower to upper level</p>
-</dd>
-<dt><strong>e_dot_u</strong><span class="classifier">np.ndarray</span></dt><dd><p>Line estimator for the rate of energy density absorption from lower to upper level</p>
+<dt><strong>source_function_state: SourceFunctionState</strong></dt><dd><p>Data class to hold the computed source function values</p>
 </dd>
 <dt><strong>interpolate_shells</strong><span class="classifier">int</span></dt><dd><p>number of shells to interpolate to</p>
 </dd>
-<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd></dd>
 <dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd></dd>
+<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd></dd>
 <dt><strong>opacity_state</strong><span class="classifier">OpacityStateNumba</span></dt><dd></dd>
-<dt><strong>plasma</strong><span class="classifier">tardis.plasma.BasePlasma</span></dt><dd></dd>
+<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>tuple</dt><dd><p>Interpolated values of att_S_ul, Jredlu, Jbluelu, and e_dot_u</p>
+<dt>tuple</dt><dd><p>Interpolated values of att_S_ul, Jred_lu, Jbluelu, and e_dot_u</p>
 </dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.make_source_function">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">make_source_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#make_source_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.make_source_function" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates the source function using the line absorption rate estimator <code class="xref py py-obj docutils literal notranslate"><span class="pre">Edotlu_estimator</span></code></p>
-<p>Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
-so there is no need to factor out the source function explicitly.
-Parameters
-———-
-simulation_state : tardis.model.SimulationState
-opacity_state : tardis.opacity.OpacityStateNumba
-transport : tardis.transport.montecarlo.MonteCarloTransportSolver
-plasma : tardis.plasma.BasePlasma
-interpolate_shells : int</p>
-<blockquote>
-<div><p>Number of shells to interpolate to. If set to 0, no interpolation is performed.</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -&gt; l</dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -291,14 +259,14 @@ interpolate_shells : int</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tardis.spectrum.formal_integral.html" class="btn btn-neutral float-left" title="tardis.spectrum.formal_integral package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tardis.spectrum.formal_integral.formal_integral.html" class="btn btn-neutral float-right" title="tardis.spectrum.formal_integral.formal_integral module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tardis.spectrum.formal_integral.formal_integral_cuda.html" class="btn btn-neutral float-right" title="tardis.spectrum.formal_integral.formal_integral_cuda module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Jul 2025.
+      <span class="lastupdated">Last updated on 26 Aug 2025.
       </span></p>
   </div>
 
