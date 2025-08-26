@@ -88,6 +88,19 @@
    ]
   },
   {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note for Documentation Viewers**\n",
+    "\n",
+    "The interactive widget below will not function in the published documentation. To use this widget, please run this notebook locally in a Jupyter environment with TARDIS installed.\n",
+    "\n",
+    "</div>"
+   ]
+  },
+  {
    "cell_type": "code",
    "execution_count": null,
    "metadata": {
@@ -152,6 +165,19 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note for Documentation Viewers**\n",
+    "\n",
+    "The interactive widget below will not function in the published documentation. To use this widget, please run this notebook locally in a Jupyter environment with TARDIS installed.\n",
+    "\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
     "To generate line info widget, we will again use the simulation object `sim` and then display the widget:\n"
    ]
   },
@@ -206,6 +232,19 @@
     "- The arrows represent the line interactions between levels, with the arrow direction giving the direction of the transition. The thickness of each arrow also shows the number of packets that underwent the transition while the wavelength is given by the color.\n",
     "\n",
     "In addition, you can also select between linear- and log-scaling for the y-axis (which represents the energy of each level) and the maximum number of levels to display, beginning from the lowest energy levels.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info\">\n",
+    "\n",
+    "**Note for Documentation Viewers**\n",
+    "\n",
+    "The interactive widget below will not function in the published documentation. To use this widget, please run this notebook locally in a Jupyter environment with TARDIS installed.\n",
+    "\n",
+    "</div>"
    ]
   },
   {

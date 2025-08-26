@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=1cfbab9a"></script>
+      <script src="../../../_static/documentation_options.js?v=fbe7c0a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -147,7 +147,6 @@ preferred_mode = None
 <a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.ssh_jh">[docs]</a>
 def ssh_jh():
     &quot;&quot;&quot;Initialize panel for JupyterHub (colab comms)&quot;&quot;&quot;
-    print(&quot;Initializing panel with ipywidgets comms for JupyterHub&quot;)
     pn.extension(comms=&quot;ipywidgets&quot;)</div>
 
 
@@ -155,7 +154,6 @@ def ssh_jh():
 <a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.notebook">[docs]</a>
 def notebook():
     &quot;&quot;&quot;Initialize panel for standard Jupyter notebook (default comms)&quot;&quot;&quot;
-    print(&quot;Initializing panel with ipywidgets comms for Jupyter notebook&quot;)
     pn.extension(comms=&quot;ipywidgets&quot;)</div>
 
 
@@ -163,7 +161,6 @@ def notebook():
 <a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.vscode">[docs]</a>
 def vscode():
     &quot;&quot;&quot;Initialize panel for VSCode (ipywidgets comms)&quot;&quot;&quot;
-    print(&quot;Initializing panel with ipywidgets comms for VSCode&quot;)
     pn.extension(comms=&quot;ipywidgets&quot;)</div>
 
 
@@ -171,7 +168,6 @@ def vscode():
 <a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.vscode_noipy">[docs]</a>
 def vscode_noipy():
     &quot;&quot;&quot;Initialize panel for VSCode without ipywidgets (vscode comms)&quot;&quot;&quot;
-    print(&quot;Initializing panel with vscode comms for VSCode (no ipywidgets)&quot;)
     pn.extension(comms=&quot;vscode&quot;)</div>
 
 
@@ -179,7 +175,6 @@ def vscode_noipy():
 <a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.sphinx">[docs]</a>
 def sphinx():
     &quot;&quot;&quot;Initialize panel for Sphinx documentation builds&quot;&quot;&quot;
-    print(&quot;Sphinx build detected, using ipywidgets panel extension&quot;)
     pn.extension(&quot;ipywidgets&quot;)</div>
 
 
@@ -224,7 +219,7 @@ def auto():
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Aug 2025.
+      <span class="lastupdated">Last updated on 26 Aug 2025.
       </span></p>
   </div>
 
