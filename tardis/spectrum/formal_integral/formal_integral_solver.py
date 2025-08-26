@@ -284,12 +284,7 @@ class FormalIntegralSolver:
 
         luminosity = u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
 
-<<<<<<< HEAD
-        self.interpolate_shells = interpolate_shells
         frequencies = frequencies.to("Hz", u.spectral())
-=======
-        frequency = nu.to("Hz", u.spectral())
->>>>>>> master
 
         # Ugly hack to convert to 'bin edges'
         frequencies = u.Quantity(

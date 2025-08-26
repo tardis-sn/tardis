@@ -331,14 +331,20 @@ def test_full_formal_integral(simulation_verysimple):
         sim.spectrum_solver.spectrum_real_packets.frequency,
         sim.simulation_state,
         sim.transport,
-        sim.plasma
+        sim.opacity_state,
+        sim.plasma.atomic_data,
+        sim.plasma.electron_densities,
+        sim.macro_atom_state
     ).luminosity
 
     L_cuda = formal_integrator_cuda.solve(
         sim.spectrum_solver.spectrum_real_packets.frequency,
         sim.simulation_state,
         sim.transport,
-        sim.plasma
+        sim.opacity_state,
+        sim.plasma.atomic_data,
+        sim.plasma.electron_densities,
+        sim.macro_atom_state
     ).luminosity
 
     ntest.assert_allclose(L_cuda, L_numba, rtol=1e-14)
