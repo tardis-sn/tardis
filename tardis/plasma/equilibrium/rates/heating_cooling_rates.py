@@ -28,6 +28,10 @@ class BoundFreeThermalRates:
             [1, 0],
         )
 
+        self.photoionization_index = (
+            self.photoionization_cross_sections.index.unique()
+        )
+
     def solve(
         self,
         level_population: pd.Series,
@@ -88,20 +92,19 @@ class BoundFreeThermalRates:
 
             integrated_heating_coefficient = pd.DataFrame(
                 integrate_array_by_blocks(
-                    heating_coefficient.values,
+                    heating_coefficient.values[:, np.newaxis],
                     self.nu.values,
                     self.photoionization_block_references,
                 ),
-                index=heating_coefficient.index,
-                columns=heating_coefficient.columns,
-            )
+                index=self.photoionization_index,
+            )[0]
         else:
             raise ValueError(
                 "Either bound_free_heating_estimator or radiation_field must be provided."
             )
 
         boltzmann_factor = np.exp(
-            -self.nu
+            -self.nu.values
             * u.Hz
             / thermal_electron_distribution.temperature
             * (const.h.cgs / const.k_B.cgs)
@@ -113,11 +116,11 @@ class BoundFreeThermalRates:
                 * np.pi
                 * self.photoionization_cross_sections["x_sect"]
                 * self.nu**3
-                * const.h.cgs
-                / const.c.cgs**2
+                * const.h.cgs.value
+                / const.c.cgs.value**2
             )
             * (1 - nu_i / self.nu)
-            * boltzmann_factor
+            * boltzmann_factor.value
         )
 
         spontaneous_recombination_cooling_coefficient.insert(0, "nu", self.nu)
@@ -127,11 +130,6 @@ class BoundFreeThermalRates:
                 level=[0, 1, 2]
             ).apply(lambda sub: np.trapezoid(sub[0], sub["nu"]))
         )
-
-        heating_rate = (
-            integrated_heating_coefficient
-            * level_population.loc[integrated_heating_coefficient.index]
-        ).sum()
 
         spontaneous_recombination_cooling_rate = (
             integrated_cooling_coefficient
@@ -150,10 +148,15 @@ class BoundFreeThermalRates:
         else:
             stimulated_recombination_cooling_rate = np.zeros(1)
 
+        heating_rate = (
+            integrated_heating_coefficient
+            * level_population.loc[integrated_heating_coefficient.index]
+        ).sum()
+
         cooling_rate = (
-            spontaneous_recombination_cooling_rate.sum()
-            + stimulated_recombination_cooling_rate.sum()
-        )
+            spontaneous_recombination_cooling_rate
+            + stimulated_recombination_cooling_rate
+        ).sum()
 
         return heating_rate, cooling_rate
 
