@@ -1,4 +1,3 @@
-from enum import IntEnum
 
 import numpy as np
 from numba import float64, int64
@@ -283,7 +282,3 @@ def opacity_state_initialize(
     )
 
 
-class LineInteractionType(IntEnum):
-    SCATTER = 0
-    DOWNBRANCH = 1
-    MACROATOM = 2
