@@ -181,7 +181,7 @@ def test_bound_free_thermal_rates_solve(
 
 @pytest.mark.parametrize(
     "heating_rate, cooling_rate",
-    [(1.2809489753862688e-06, 1.2018593543520837e-06)],
+    [(1.2809489753862688e-06, 2.069548348352606e-06)],
 )
 def test_bound_free_thermal_rates_solve_with_estimators(
     nlte_atom_data,

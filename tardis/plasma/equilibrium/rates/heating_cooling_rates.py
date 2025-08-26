@@ -105,9 +105,8 @@ class BoundFreeThermalRates:
 
         boltzmann_factor = np.exp(
             -self.nu.values
-            * u.Hz
-            / thermal_electron_distribution.temperature
-            * (const.h.cgs / const.k_B.cgs)
+            / thermal_electron_distribution.temperature.value
+            * (const.h.cgs.value / const.k_B.cgs.value)
         )
 
         spontaneous_recombination_cooling_coefficient = pd.DataFrame(
@@ -120,7 +119,7 @@ class BoundFreeThermalRates:
                 / const.c.cgs.value**2
             )
             * (1 - nu_i / self.nu)
-            * boltzmann_factor.value
+            * boltzmann_factor
         )
 
         spontaneous_recombination_cooling_coefficient.insert(0, "nu", self.nu)
@@ -131,19 +130,22 @@ class BoundFreeThermalRates:
             ).apply(lambda sub: np.trapezoid(sub[0], sub["nu"]))
         )
 
+        ion_cooling_factor = (
+            thermal_electron_distribution.number_density.value
+            * ion_population.loc[(1, 1)]
+        )  # Hydrogen ion population
+
         spontaneous_recombination_cooling_rate = (
             integrated_cooling_coefficient
             * saha_factor.loc[integrated_cooling_coefficient.index]
-            * thermal_electron_distribution.number_density.value
-            * ion_population.loc[(1, 1)]  # Hydrogen ion population
+            * ion_cooling_factor  # Hydrogen ion population
         )
 
         if stimulated_recombination_estimator is not None:
             stimulated_recombination_cooling_rate = (
                 stimulated_recombination_estimator
                 * saha_factor.loc[stimulated_recombination_estimator.index]
-                * thermal_electron_distribution.number_density.value
-                * ion_population.loc[(1, 1)]  # Hydrogen ion population
+                * ion_cooling_factor
             )
         else:
             stimulated_recombination_cooling_rate = np.zeros(1)
