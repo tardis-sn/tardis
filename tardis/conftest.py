@@ -291,7 +291,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset, atomic_
     config_rpacket_tracking.montecarlo.last_no_of_packets = -1
 
     config_rpacket_tracking.montecarlo.tracking.track_rpacket = True
-    config_rpacket_tracking["atom_data"] = atomic_data_fname
+    # config_rpacket_tracking["atom_data"] = atomic_data_fname
 
     atomic_data = deepcopy(atomic_dataset)
     sim = run_tardis(
