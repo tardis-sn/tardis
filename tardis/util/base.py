@@ -559,24 +559,6 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     return df
 
 
-def is_notebook():
-    """
-    Check if running in a Jupyter notebook environment.
-    """
-    try:
-        from IPython.core.getipython import get_ipython
-
-        shell = get_ipython().__class__.__name__
-    except (NameError, AttributeError):
-        return False  # Probably standard Python interpreter
-    else:
-        if shell == "ZMQInteractiveShell":
-            return True  # Jupyter notebook or qtconsole
-        if shell == "TerminalInteractiveShell":
-            return False  # Terminal running IPython
-        return False  # Other type (?)
-
-
 def deprecated(func):
     """
     A decorator to add a deprecation warning to a function that is no longer used
