@@ -1,6 +1,4 @@
-from tardis.base import run_tardis
 import pytest
-from copy import deepcopy
 from tardis.base import run_tardis
 
 @pytest.fixture(scope="module")
@@ -30,10 +28,8 @@ def simulation_simple(config_verysimple, atomic_dataset, atomic_data_fname):
     config_verysimple.spectrum.num = 2000
     config_verysimple.atom_data = atomic_data_fname
     
-    atomic_data = deepcopy(atomic_dataset)
     sim = run_tardis(
         config_verysimple,
-        atom_data=atomic_data,
         show_convergence_plots=False,
         log_level="CRITICAl",
     )

@@ -293,10 +293,8 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset, atomic_
     config_rpacket_tracking.montecarlo.tracking.track_rpacket = True
     # config_rpacket_tracking["atom_data"] = atomic_data_fname
 
-    atomic_data = deepcopy(atomic_dataset)
     sim = run_tardis(
         config_rpacket_tracking,
-        atom_data=atomic_data,
         show_convergence_plots=False,
     )
     return sim
