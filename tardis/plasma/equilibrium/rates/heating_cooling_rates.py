@@ -37,7 +37,7 @@ class BoundFreeThermalRates:
         level_population: pd.DataFrame,
         ion_population: pd.DataFrame,
         thermal_electron_distribution: ThermalElectronEnergyDistribution,
-        saha_factor: pd.DataFrame,
+        level_population_ratio: pd.DataFrame,
         radiation_field=None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
@@ -52,7 +52,7 @@ class BoundFreeThermalRates:
             Estimated ion number density. Columns represent cells.
         thermal_electron_distribution : ThermalElectronEnergyDistribution
             Electron energy distribution containing the number density, temperature and energy.
-        saha_factor : pd.DataFrame
+        level_population_ratio : pd.DataFrame
             Saha factor for the ion populations as defined in Lucy 03 equation 14. Columns represent cells.
         radiation_field : RadiationField, optional
             A radiation field that can compute its mean intensity.
@@ -78,22 +78,23 @@ class BoundFreeThermalRates:
                 self.nu.values * u.Hz
             )
 
+            basic_coeff = (
+                4
+                * np.pi
+                * self.photoionization_cross_sections["x_sect"]
+                * self.nu**3
+                * const.h.cgs
+                / const.c.cgs**2
+            ) * (1 - nu_is / self.nu)
+
+            # Create the heating coefficient DataFrame directly
             heating_coefficient = (
-                (
-                    4
-                    * np.pi
-                    * self.photoionization_cross_sections["x_sect"]
-                    * self.nu**3
-                    * const.h.cgs
-                    / const.c.cgs**2
-                )
-                * (1 - nu_is / self.nu)
-                * mean_intensities
+                basic_coeff.values[:, np.newaxis] * mean_intensities
             )
 
             integrated_heating_coefficient = pd.DataFrame(
                 integrate_array_by_blocks(
-                    heating_coefficient.values[:, np.newaxis],
+                    heating_coefficient,
                     self.nu.values,
                     self.photoionization_block_references,
                 ),
@@ -139,14 +140,16 @@ class BoundFreeThermalRates:
 
         spontaneous_recombination_cooling_rate = (
             integrated_cooling_coefficient
-            * saha_factor.loc[integrated_cooling_coefficient.index]
+            * level_population_ratio.loc[integrated_cooling_coefficient.index]
             * ion_cooling_factor  # Hydrogen ion population
         )
 
         if stimulated_recombination_estimator is not None:
             stimulated_recombination_cooling_rate = (
                 stimulated_recombination_estimator
-                * saha_factor.loc[stimulated_recombination_estimator.index]
+                * level_population_ratio.loc[
+                    stimulated_recombination_estimator.index
+                ]
                 * ion_cooling_factor
             )
         else:
@@ -257,7 +260,7 @@ class CollisionalIonizationThermalRates:
         ion_population: pd.DataFrame,
         level_population: pd.DataFrame,
         collisional_ionization_rate_coefficient: pd.DataFrame,
-        saha_factor: pd.DataFrame,
+        level_population_ratio: pd.DataFrame,
     ) -> tuple[pd.Series, pd.Series]:
         """Compute the collisional ionization heating and cooling rates.
 
@@ -271,7 +274,7 @@ class CollisionalIonizationThermalRates:
             Level number density. Columns represent cells.
         collisional_ionization_rate_coefficient : pd.DataFrame
             Collisional ionization rate coefficients. Columns represent cells.
-        saha_factor : pd.DataFrame
+        level_population_ratio : pd.DataFrame
             Saha factor for the ion populations as defined in Lucy 03 equation 14. Columns represent cells.
 
         Returns
@@ -290,7 +293,7 @@ class CollisionalIonizationThermalRates:
         heating_rate = (
             electron_density.cgs.value
             * ion_population.loc[(1, 1)]
-            * saha_factor
+            * level_population_ratio
             * rate_factor
         ).sum()
 
