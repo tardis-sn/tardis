@@ -142,10 +142,10 @@ intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 def increment_escat_contrib(
         escat_contrib,
         first,
+        pJred_lu,
         zend,
         zstart,
         escat_op,
-        pJred_lu,
         Jblue_lu, 
         Jred_lu,
         I_nu_p
@@ -173,6 +173,27 @@ def increment_escat_contrib(
         pJred_lu += 1
 
     return escat_contrib, first, pJred_lu
+
+# initialize I_nu_p with the blackbody intensities (as necessary)
+# @njit(**njit_dict)
+# def init_Inup_numba(inu, ps, zs, iT, Rph, N, size_shell):
+#     inu_size = len(inu)
+#     I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
+    
+#     for nu_idx in prange(inu_size):
+#         I_nu = I_nu_p[nu_idx]
+#         z = np.zeros(2 * size_shell, dtype=np.float64)
+#         nu = inu[nu_idx]
+#         for p_idx in range(1, N):
+#             p = ps[p_idx]
+#             z = zs[p_idx]
+#             if p <= Rph:
+#                 I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
+#             else:
+#                 I_nu[p_idx] = 0
+    
+#     return I_nu_p
+
 
 # @njit(**njit_dict_no_parallel)
 def numba_formal_integral(
@@ -288,6 +309,9 @@ def numba_formal_integral(
                         * (1.0 - line_list_nu[pline] / nu.value)
                     )  # check
 
+                    Jblue_lu_i = Jblue_lu[pJblue_lu]
+                    Jred_lu_i = Jred_lu[pJred_lu]
+                    I_nu_i = I_nu[p_idx]
                     escat_contrib, first, pJred_lu = increment_escat_contrib(
                         escat_contrib, 
                         first,
@@ -295,9 +319,9 @@ def numba_formal_integral(
                         zend,
                         zstart,
                         escat_op,
-                        Jblue_lu[pJblue_lu],
-                        Jred_lu[pJred_lu],
-                        I_nu[p_idx]
+                        Jblue_lu_i,
+                        Jred_lu_i,
+                        I_nu_i
                     )
 
                     I_nu[p_idx] += escat_contrib
