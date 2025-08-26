@@ -1,15 +1,11 @@
-from enum import IntEnum
-
+import numba as nb
 import numpy as np
-from numba import float64, int64, njit, objmode
+from enum import IntEnum
+from numba import njit, objmode
 from numba.experimental import jitclass
 
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-)
-from tardis.transport.montecarlo import (
-    njit_dict_no_parallel,
-)
+from tardis.transport.frame_transformations import get_doppler_factor
+from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 class InteractionType(IntEnum):
@@ -26,28 +22,51 @@ class PacketStatus(IntEnum):
     ADIABATIC_COOLING = 4
 
 
-rpacket_spec = [
-    ("r", float64),
-    ("mu", float64),
-    ("nu", float64),
-    ("energy", float64),
-    ("next_line_id", int64),
-    ("current_shell_id", int64),
-    ("status", int64),
-    ("seed", int64),
-    ("index", int64),
-    ("last_interaction_type", int64),
-    ("last_interaction_in_nu", float64),
-    ("last_interaction_in_r", float64),
-    ("last_line_interaction_in_id", int64),
-    ("last_line_interaction_out_id", int64),
-    ("last_line_interaction_shell_id", int64),
-]
-
-
-@jitclass(rpacket_spec)
+@jitclass
 class RPacket:
-    def __init__(self, r, mu, nu, energy, seed, index=0):
+    r: nb.float64  # type: ignore[misc]
+    mu: nb.float64  # type: ignore[misc]
+    nu: nb.float64  # type: ignore[misc]
+    energy: nb.float64  # type: ignore[misc]
+    next_line_id: nb.int64  # type: ignore[misc]
+    current_shell_id: nb.int64  # type: ignore[misc]
+    status: nb.int64  # type: ignore[misc]
+    seed: nb.int64  # type: ignore[misc]
+    index: nb.int64  # type: ignore[misc]
+    last_interaction_type: nb.int64  # type: ignore[misc]
+    last_interaction_in_nu: nb.float64  # type: ignore[misc]
+    last_interaction_in_r: nb.float64  # type: ignore[misc]
+    last_line_interaction_in_id: nb.int64  # type: ignore[misc]
+    last_line_interaction_out_id: nb.int64  # type: ignore[misc]
+    last_line_interaction_shell_id: nb.int64  # type: ignore[misc]
+
+    def __init__(
+        self,
+        r: float,
+        mu: float,
+        nu: float,
+        energy: float,
+        seed: int,
+        index: int = 0,
+    ) -> None:
+        """
+        Initialize radiative packet for Monte Carlo transport.
+
+        Parameters
+        ----------
+        r : float
+            Initial radius [cm].
+        mu : float
+            Initial directional cosine.
+        nu : float
+            Initial frequency [Hz].
+        energy : float
+            Initial energy [erg].
+        seed : int
+            Random number seed.
+        index : int, optional
+            Packet index, by default 0.
+        """
         self.r = r
         self.mu = mu
         self.nu = nu
@@ -82,20 +101,29 @@ class RPacket:
 @njit(**njit_dict_no_parallel)
 def print_r_packet_properties(r_packet):
     """
-    Print all packet information
+    Print all packet information.
 
     Parameters
     ----------
     r_packet : RPacket
-        RPacket object
+        RPacket object.
     """
     print("-" * 80)
     print("R-Packet information:")
     with objmode:
-        for r_packet_attribute_name, _ in rpacket_spec:
-            print(
-                r_packet_attribute_name,
-                "=",
-                str(getattr(r_packet, r_packet_attribute_name)),
-            )
+        print("r =", str(r_packet.r))
+        print("mu =", str(r_packet.mu))
+        print("nu =", str(r_packet.nu))
+        print("energy =", str(r_packet.energy))
+        print("next_line_id =", str(r_packet.next_line_id))
+        print("current_shell_id =", str(r_packet.current_shell_id))
+        print("status =", str(r_packet.status))
+        print("seed =", str(r_packet.seed))
+        print("index =", str(r_packet.index))
+        print("last_interaction_type =", str(r_packet.last_interaction_type))
+        print("last_interaction_in_nu =", str(r_packet.last_interaction_in_nu))
+        print("last_interaction_in_r =", str(r_packet.last_interaction_in_r))
+        print("last_line_interaction_in_id =", str(r_packet.last_line_interaction_in_id))
+        print("last_line_interaction_out_id =", str(r_packet.last_line_interaction_out_id))
+        print("last_line_interaction_shell_id =", str(r_packet.last_line_interaction_shell_id))
     print("-" * 80)

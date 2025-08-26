@@ -18,7 +18,7 @@ from tardis.transport.montecarlo.interaction import (
     line_scatter,
     thomson_scatter,
 )
-from tardis.transport.montecarlo.r_packet import (
+from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
     RPacket,
@@ -28,7 +28,7 @@ from tardis.transport.montecarlo.r_packet_transport import (
     move_r_packet,
     trace_packet,
 )
-from tardis.transport.montecarlo.vpacket import trace_vpacket_volley
+from tardis.transport.montecarlo.packets.virtual_packet import trace_vpacket_volley
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 

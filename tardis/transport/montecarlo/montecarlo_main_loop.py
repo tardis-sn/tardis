@@ -5,12 +5,12 @@ from numba.typed import List
 
 from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.transport.montecarlo.packet_collections import (
+from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
     consolidate_vpacket_tracker,
     initialize_last_interaction_tracker,
 )
-from tardis.transport.montecarlo.r_packet import (
+from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
 )

@@ -15,7 +15,7 @@ from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
     macro_atom_interaction,
 )
-from tardis.transport.montecarlo.r_packet import (
+from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
 )
 from tardis.transport.montecarlo.utils import get_random_mu
