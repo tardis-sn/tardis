@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class SimpleTARDISWorkflow(WorkflowLogging):
-    show_progress_bars = Environment.is_notebook()
+    show_progress_bars = Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None

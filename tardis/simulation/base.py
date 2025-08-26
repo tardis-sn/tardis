@@ -180,7 +180,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         if show_convergence_plots:
-            if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
+            if not Environment.allows_widget_display():
                 raise RuntimeError(
                     "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                     "to False."
