@@ -1,6 +1,8 @@
 import astropy.units as u
 import numpy as np
+import pandas as pd
 import pytest
+from astropy.tests.helper import assert_quantity_allclose
 from numpy.testing import (
     assert_almost_equal,
 )
@@ -33,43 +35,126 @@ def radiation_field():
 
 
 @pytest.fixture()
-def level_population():
-    return None
+def level_population(regression_data):
+    df = pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_level_number_density.csv",
+        index_col=(0, 1, 2),
+    )
+
+    df.columns = [int(col) if col.isdigit() else col for col in df.columns]
+    return df
 
 
 @pytest.fixture()
-def ion_population():
-    return None
+def ion_population(regression_data):
+    df = pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_ion_number_density.csv",
+        index_col=(0, 1),
+    )
+
+    df.columns = [int(col) if col.isdigit() else col for col in df.columns]
+    return df
 
 
 @pytest.fixture()
-def saha_factor():
-    return None
+def level_population_ratio(regression_data):
+    df = pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_level_pop_ratio.csv",
+        index_col=(0, 1, 2),
+    )
+
+    df.columns = [int(col) if col.isdigit() else col for col in df.columns]
+    return df
 
 
 @pytest.fixture()
-def bound_free_heating_estimator():
-    return None
+def bound_free_heating_estimator(regression_data):
+    df = pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_bf_heating_est.csv",
+        index_col=(0, 1, 2),
+    )
+
+    df.columns = [int(col) if col.isdigit() else col for col in df.columns]
+    return df
 
 
 @pytest.fixture()
-def stimulated_recombination_estimator():
-    return None
+def stimulated_recombination_estimator(regression_data):
+    df = pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_stim_cooling_est.csv",
+        index_col=(0, 1, 2),
+    )
+
+    df.columns = [int(col) if col.isdigit() else col for col in df.columns]
+    return df
 
 
 @pytest.fixture()
-def collisional_ionization_rate_coefficient():
-    return None
+def collisional_ionization_rate_coefficient(regression_data):
+    df = pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_coll_ion_rate_coeff.csv",
+        index_col=(0, 1, 2),
+    )
+
+    df.columns = [int(col) if col.isdigit() else col for col in df.columns]
+    return df
 
 
 @pytest.fixture()
-def collisional_excitation_rate_coefficient():
-    return None
+def collisional_excitation_rate_coefficient(regression_data):
+    df = pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_coll_exc_coeff.csv",
+        index_col=(0, 1, 2, 3),
+    )
+
+    df.columns = [int(col) if col.isdigit() else col for col in df.columns]
+    return df
 
 
 @pytest.fixture()
-def collisional_deexcitation_rate_coefficient():
-    return None
+def collisional_deexcitation_rate_coefficient(regression_data):
+    df = pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_coll_deexc_coeff.csv",
+        index_col=(0, 1, 2, 3),
+    )
+
+    df.columns = [int(col) if col.isdigit() else col for col in df.columns]
+    return df
+
+
+@pytest.fixture()
+def ctardis_lines(regression_data):
+    return pd.read_csv(
+        regression_data.regression_data_path
+        / "testdata"
+        / "thermal_data"
+        / "thermal_lines.csv",
+        index_col=0,
+    )
 
 
 def test_bound_free_thermal_rates_solve(
@@ -78,14 +163,16 @@ def test_bound_free_thermal_rates_solve(
     ion_population,
     thermal_electron_distribution,
     radiation_field,
-    saha_factor,
+    level_population_ratio,
 ):
-    rates = BoundFreeThermalRates(nlte_atom_data.photoionization_data)
+    rates = BoundFreeThermalRates(
+        nlte_atom_data.photoionization_data.query("atomic_number == 1")
+    )
     heating, cooling = rates.solve(
-        level_population,
-        ion_population,
+        level_population[0],
+        ion_population[0],
         thermal_electron_distribution,
-        saha_factor,
+        level_population_ratio[0],
         radiation_field,
     )
     assert heating is not None
@@ -101,20 +188,24 @@ def test_bound_free_thermal_rates_solve_with_estimators(
     level_population,
     ion_population,
     thermal_electron_distribution,
-    saha_factor,
+    level_population_ratio,
     bound_free_heating_estimator,
     stimulated_recombination_estimator,
     heating_rate,
     cooling_rate,
 ):
-    rates = BoundFreeThermalRates(nlte_atom_data.photoionization_data)
+    rates = BoundFreeThermalRates(
+        nlte_atom_data.photoionization_data.query("atomic_number == 1")
+    )
     heating, cooling = rates.solve(
-        level_population,
-        ion_population,
+        level_population[0],
+        ion_population[0],
         thermal_electron_distribution,
-        saha_factor,
-        bound_free_heating_estimator=bound_free_heating_estimator,
-        stimulated_recombination_estimator=stimulated_recombination_estimator,
+        level_population_ratio[0],
+        bound_free_heating_estimator=bound_free_heating_estimator[0],
+        stimulated_recombination_estimator=stimulated_recombination_estimator[
+            0
+        ],
     )
 
     assert_almost_equal(heating, heating_rate)
@@ -127,30 +218,33 @@ def test_free_free_thermal_rates_heating_factor(
 ):
     rates = FreeFreeThermalRates()
     factor = rates.heating_factor(
-        ion_population, thermal_electron_distribution.number_density
+        ion_population[0],
+        thermal_electron_distribution.number_density.cgs.value,
     )
-    assert factor is not None
+    expected_factor = 4.869809426186787e18
+
+    assert_almost_equal(factor, expected_factor)
 
 
 @pytest.mark.parametrize(
-    "heating_rate, cooling_rate",
-    [(2.3829164962085199e-07, 6.941664530316456e-07)],
+    "ff_heating_estimator, expected_heating_rate, expected_cooling_rate",
+    [(4.89135279e-24, 2.3829164962085199e-07, 6.941664530316456e-07)],
 )
 def test_free_free_thermal_rates_solve(
-    heating_estimator,
     thermal_electron_distribution,
     ion_population,
-    heating_rate,
-    cooling_rate,
+    ff_heating_estimator,
+    expected_heating_rate,
+    expected_cooling_rate,
 ):
     rates = FreeFreeThermalRates()
-    heating, cooling = rates.solve(
-        heating_estimator,
+    actual_heating_rate, actual_cooling_rate = rates.solve(
+        ff_heating_estimator,
         thermal_electron_distribution,
-        ion_population,
+        ion_population[0],  # only one cell
     )
-    assert_almost_equal(heating, heating_rate)
-    assert_almost_equal(cooling, cooling_rate)
+    assert_almost_equal(actual_heating_rate, expected_heating_rate)
+    assert_almost_equal(actual_cooling_rate, expected_cooling_rate)
 
 
 @pytest.mark.parametrize(
@@ -163,7 +257,7 @@ def test_collisional_ionization_thermal_rates_solve(
     ion_population,
     level_population,
     collisional_ionization_rate_coefficient,
-    saha_factor,
+    level_population_ratio,
     heating_rate,
     cooling_rate,
 ):
@@ -172,10 +266,10 @@ def test_collisional_ionization_thermal_rates_solve(
     )
     heating, cooling = rates.solve(
         thermal_electron_distribution.number_density,
-        ion_population,
-        level_population,
-        collisional_ionization_rate_coefficient,
-        saha_factor,
+        ion_population[0],
+        level_population[0],
+        collisional_ionization_rate_coefficient[0],
+        level_population_ratio[0],
     )
     assert_almost_equal(heating, heating_rate)
     assert_almost_equal(cooling, cooling_rate)
@@ -186,7 +280,7 @@ def test_collisional_ionization_thermal_rates_solve(
     [(8.49837495539e-06, 8.5059159013e-06)],
 )
 def test_collisional_bound_thermal_rates_solve(
-    lines,
+    ctardis_lines,
     thermal_electron_distribution,
     collisional_deexcitation_rate_coefficient,
     collisional_excitation_rate_coefficient,
@@ -194,24 +288,29 @@ def test_collisional_bound_thermal_rates_solve(
     heating_rate,
     cooling_rate,
 ):
-    rates = CollisionalBoundThermalRates(lines)
+    rates = CollisionalBoundThermalRates(ctardis_lines)
     heating, cooling = rates.solve(
         thermal_electron_distribution.number_density,
-        collisional_deexcitation_rate_coefficient,
-        collisional_excitation_rate_coefficient,
-        level_population,
+        collisional_deexcitation_rate_coefficient[0],
+        collisional_excitation_rate_coefficient[0],
+        level_population[0],
     )
     assert_almost_equal(heating, heating_rate)
     assert_almost_equal(cooling, cooling_rate)
 
 
+@pytest.mark.parametrize(
+    "time, expected_cooling_rate",
+    [(1 * u.s, 0.009133236799630136 * u.erg / (u.s * u.cm**3))],
+)
 def test_adiabatic_thermal_rates_solve(
-    thermal_electron_distribution,
-    time,
+    thermal_electron_distribution, time, expected_cooling_rate
 ):
     rates = AdiabaticThermalRates()
-    cooling = rates.solve(
+    actual_cooling_rate = rates.solve(
         thermal_electron_distribution,
         time,
     )
-    assert cooling is not None
+    assert_quantity_allclose(
+        actual_cooling_rate, expected_cooling_rate, rtol=1e-14
+    )
