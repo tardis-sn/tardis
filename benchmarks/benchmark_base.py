@@ -12,13 +12,14 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_MD5
-from tardis.transport.montecarlo import RPacket, packet_trackers
+from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
 from tardis.transport.montecarlo.estimators import radfield_mc_estimators
 from tardis.opacities.opacity_state_numba import opacity_state_numba_initialize
-from tardis.transport.montecarlo.packet_collections import VPacketCollection
+from tardis.transport.montecarlo.packets.packet_collections import VPacketCollection
+from tardis.transport.montecarlo.packets import packet_trackers
 
 
 class BenchmarkBase:

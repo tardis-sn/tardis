@@ -13,7 +13,7 @@ from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
 from tardis.opacities.opacity_state_numba import (
     opacity_state_numba_initialize,
 )
-from tardis.transport.montecarlo.packet_collections import (
+from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
 from tardis.transport.montecarlo.weighted_packet_source import (

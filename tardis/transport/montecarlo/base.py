@@ -27,7 +27,7 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.transport.montecarlo.packet_trackers import (
+from tardis.transport.montecarlo.packets.packet_trackers import (
     generate_rpacket_last_interaction_tracker_list,
     generate_rpacket_tracker_list,
     rpacket_trackers_to_dataframe,

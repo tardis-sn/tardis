@@ -1,35 +1,49 @@
+import numba as nb
 import numpy as np
-from numba import float64, int64, njit
+from numba import njit
 from numba.experimental import jitclass
 
-from tardis.transport.montecarlo import (
-    njit_dict_no_parallel,
-)
+from tardis.transport.montecarlo import njit_dict_no_parallel
 
-packet_collection_spec = [
-    ("initial_radii", float64[:]),
-    ("initial_nus", float64[:]),
-    ("initial_mus", float64[:]),
-    ("initial_energies", float64[:]),
-    ("packet_seeds", int64[:]),
-    ("time_of_simulation", float64),
-    ("radiation_field_luminosity", float64),
-    ("output_nus", float64[:]),
-    ("output_energies", float64[:]),
-]
-
-
-@jitclass(packet_collection_spec)
+@jitclass
 class PacketCollection:
+    initial_radii: nb.float64[:]  # type: ignore[misc]
+    initial_nus: nb.float64[:]  # type: ignore[misc]
+    initial_mus: nb.float64[:]  # type: ignore[misc]
+    initial_energies: nb.float64[:]  # type: ignore[misc]
+    packet_seeds: nb.int64[:]  # type: ignore[misc]
+    time_of_simulation: nb.float64  # type: ignore[misc]
+    radiation_field_luminosity: nb.float64  # type: ignore[misc]
+    output_nus: nb.float64[:]  # type: ignore[misc]
+    output_energies: nb.float64[:]  # type: ignore[misc]
+
     def __init__(
         self,
-        initial_radii,
-        initial_nus,
-        initial_mus,
-        initial_energies,
-        packet_seeds,
-        radiation_field_luminosity,
-    ):
+        initial_radii: np.ndarray,
+        initial_nus: np.ndarray,
+        initial_mus: np.ndarray,
+        initial_energies: np.ndarray,
+        packet_seeds: np.ndarray,
+        radiation_field_luminosity: float,
+    ) -> None:
+        """
+        Initialize Numba-compatible packet collection for Monte Carlo transport.
+
+        Parameters
+        ----------
+        initial_radii : numpy.ndarray
+            Initial radii of packets [cm].
+        initial_nus : numpy.ndarray
+            Initial frequencies of packets [Hz].
+        initial_mus : numpy.ndarray
+            Initial directional cosines of packets.
+        initial_energies : numpy.ndarray
+            Initial energies of packets [erg].
+        packet_seeds : numpy.ndarray
+            Random number seeds for packets.
+        radiation_field_luminosity : float
+            Luminosity of the radiation field [erg/s].
+        """
         self.initial_radii = initial_radii
         self.initial_nus = initial_nus
         self.initial_mus = initial_mus
@@ -45,7 +59,15 @@ class PacketCollection:
         )
 
     @property
-    def number_of_packets(self):
+    def number_of_packets(self) -> int:
+        """
+        Get the number of packets in the collection.
+
+        Returns
+        -------
+        int
+            Number of packets.
+        """
         return len(self.initial_radii)
 
 
@@ -70,27 +92,42 @@ def initialize_last_interaction_tracker(no_of_packets):
     )
 
 
-last_interaction_tracker_spec = [
-    ("types", int64[:]),
-    ("in_nus", float64[:]),
-    ("in_rs", float64[:]),
-    ("in_ids", int64[:]),
-    ("out_ids", int64[:]),
-    ("shell_ids", int64[:]),
-]
-
-
-@jitclass(last_interaction_tracker_spec)
+@jitclass
 class LastInteractionTracker:
+    types: nb.int64[:]  # type: ignore[misc]
+    in_nus: nb.float64[:]  # type: ignore[misc]
+    in_rs: nb.float64[:]  # type: ignore[misc]
+    in_ids: nb.int64[:]  # type: ignore[misc]
+    out_ids: nb.int64[:]  # type: ignore[misc]
+    shell_ids: nb.int64[:]  # type: ignore[misc]
+
     def __init__(
         self,
-        types,
-        in_nus,
-        in_rs,
-        in_ids,
-        out_ids,
-        shell_ids,
-    ):
+        types: np.ndarray,
+        in_nus: np.ndarray,
+        in_rs: np.ndarray,
+        in_ids: np.ndarray,
+        out_ids: np.ndarray,
+        shell_ids: np.ndarray,
+    ) -> None:
+        """
+        Initialize last interaction tracker for Monte Carlo packets.
+
+        Parameters
+        ----------
+        types : numpy.ndarray
+            Types of last interactions.
+        in_nus : numpy.ndarray
+            Incoming frequencies of last interactions [Hz].
+        in_rs : numpy.ndarray
+            Radii of last interactions [cm].
+        in_ids : numpy.ndarray
+            Input line IDs for last interactions.
+        out_ids : numpy.ndarray
+            Output line IDs for last interactions.
+        shell_ids : numpy.ndarray
+            Shell IDs where last interactions occurred.
+        """
         self.types = types
         self.in_nus = in_nus
         self.in_rs = in_rs
@@ -98,7 +135,17 @@ class LastInteractionTracker:
         self.out_ids = out_ids
         self.shell_ids = shell_ids
 
-    def update_last_interaction(self, r_packet, i):
+    def update_last_interaction(self, r_packet, i: int) -> None:
+        """
+        Update the last interaction information for a packet.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet with interaction information.
+        i : int
+            Index of the packet to update.
+        """
         self.types[i] = r_packet.last_interaction_type
         self.in_nus[i] = r_packet.last_interaction_in_nu
         self.in_rs[i] = r_packet.last_interaction_in_r
@@ -107,38 +154,53 @@ class LastInteractionTracker:
         self.shell_ids[i] = r_packet.last_line_interaction_shell_id
 
 
-vpacket_collection_spec = [
-    ("source_rpacket_index", int64),
-    ("spectrum_frequency_grid", float64[:]),
-    ("v_packet_spawn_start_frequency", float64),
-    ("v_packet_spawn_end_frequency", float64),
-    ("nus", float64[:]),
-    ("energies", float64[:]),
-    ("initial_mus", float64[:]),
-    ("initial_rs", float64[:]),
-    ("idx", int64),
-    ("number_of_vpackets", int64),
-    ("length", int64),
-    ("last_interaction_in_nu", float64[:]),
-    ("last_interaction_in_r", float64[:]),
-    ("last_interaction_type", int64[:]),
-    ("last_interaction_in_id", int64[:]),
-    ("last_interaction_out_id", int64[:]),
-    ("last_interaction_shell_id", int64[:]),
-]
-
-
-@jitclass(vpacket_collection_spec)
+@jitclass
 class VPacketCollection:
+    source_rpacket_index: nb.int64  # type: ignore[misc]
+    spectrum_frequency_grid: nb.float64[:]  # type: ignore[misc]
+    v_packet_spawn_start_frequency: nb.float64  # type: ignore[misc]
+    v_packet_spawn_end_frequency: nb.float64  # type: ignore[misc]
+    nus: nb.float64[:]  # type: ignore[misc]
+    energies: nb.float64[:]  # type: ignore[misc]
+    initial_mus: nb.float64[:]  # type: ignore[misc]
+    initial_rs: nb.float64[:]  # type: ignore[misc]
+    idx: nb.int64  # type: ignore[misc]
+    number_of_vpackets: nb.int64  # type: ignore[misc]
+    length: nb.int64  # type: ignore[misc]
+    last_interaction_in_nu: nb.float64[:]  # type: ignore[misc]
+    last_interaction_in_r: nb.float64[:]  # type: ignore[misc]
+    last_interaction_type: nb.int64[:]  # type: ignore[misc]
+    last_interaction_in_id: nb.int64[:]  # type: ignore[misc]
+    last_interaction_out_id: nb.int64[:]  # type: ignore[misc]
+    last_interaction_shell_id: nb.int64[:]  # type: ignore[misc]
+
     def __init__(
         self,
-        source_rpacket_index,
-        spectrum_frequency_grid,
-        v_packet_spawn_start_frequency,
-        v_packet_spawn_end_frequency,
-        number_of_vpackets,
-        temporary_v_packet_bins,
-    ):
+        source_rpacket_index: int,
+        spectrum_frequency_grid: np.ndarray,
+        v_packet_spawn_start_frequency: float,
+        v_packet_spawn_end_frequency: float,
+        number_of_vpackets: int,
+        temporary_v_packet_bins: int,
+    ) -> None:
+        """
+        Initialize virtual packet collection for Monte Carlo transport.
+
+        Parameters
+        ----------
+        source_rpacket_index : int
+            Index of the source R-packet.
+        spectrum_frequency_grid : numpy.ndarray
+            Frequency grid for spectrum calculation [Hz].
+        v_packet_spawn_start_frequency : float
+            Start frequency for virtual packet spawning [Hz].
+        v_packet_spawn_end_frequency : float
+            End frequency for virtual packet spawning [Hz].
+        number_of_vpackets : int
+            Number of virtual packets to generate.
+        temporary_v_packet_bins : int
+            Initial size of temporary storage arrays.
+        """
         self.spectrum_frequency_grid = spectrum_frequency_grid
         self.v_packet_spawn_start_frequency = v_packet_spawn_start_frequency
         self.v_packet_spawn_end_frequency = v_packet_spawn_end_frequency
@@ -171,17 +233,17 @@ class VPacketCollection:
 
     def add_packet(
         self,
-        nu,
-        energy,
-        initial_mu,
-        initial_r,
-        last_interaction_in_nu,
-        last_interaction_in_r,
-        last_interaction_type,
-        last_interaction_in_id,
-        last_interaction_out_id,
-        last_interaction_shell_id,
-    ):
+        nu: float,
+        energy: float,
+        initial_mu: float,
+        initial_r: float,
+        last_interaction_in_nu: float,
+        last_interaction_in_r: float,
+        last_interaction_type: int,
+        last_interaction_in_id: int,
+        last_interaction_out_id: int,
+        last_interaction_shell_id: int,
+    ) -> None:
         """
         Add a packet to the vpacket collection and potentially resizing the arrays.
 
@@ -277,7 +339,7 @@ class VPacketCollection:
         self.last_interaction_shell_id[self.idx] = last_interaction_shell_id
         self.idx += 1
 
-    def finalize_arrays(self):
+    def finalize_arrays(self) -> None:
         """
         Finalize the arrays by truncating them based on the current index.
 
@@ -302,8 +364,11 @@ class VPacketCollection:
 
 @njit(**njit_dict_no_parallel)
 def consolidate_vpacket_tracker(
-    vpacket_collections, spectrum_frequency_grid, start_frequency, end_frequency
-):
+    vpacket_collections,
+    spectrum_frequency_grid: np.ndarray,
+    start_frequency: float,
+    end_frequency: float,
+) -> "VPacketCollection":
     """
     Consolidate the vpacket trackers from multiple collections into a single vpacket tracker.
 
