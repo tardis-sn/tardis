@@ -9,7 +9,7 @@ on:
     branches:
       - master
 
-  pull_request_target:
+  pull_request:
     branches:
       - master
 
@@ -51,18 +51,18 @@ jobs:
       docs-check-outcome: ${{ steps.docs_check.outcome }}
     steps:
       - uses: actions/checkout@v5
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Check for trigger by push event, manual dispatch, build-docs label on a PR
         id: trigger_check
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request_target' && contains(github.event.pull_request.labels.*.name, 'build-docs')
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'build-docs')
         run: |
           echo "Building docs as a test."
           exit 0
@@ -88,7 +88,7 @@ jobs:
     if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
       - uses: actions/checkout@v5
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Free Disk Space (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
@@ -109,7 +109,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
 
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
@@ -150,7 +150,7 @@ jobs:
               echo "DEST_DIR=branch/$BRANCH" >> $GITHUB_ENV
             fi
 
-          elif [[ $EVENT == pull_request_target ]]; then
+          elif [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
 
           else
@@ -197,7 +197,7 @@ jobs:
         with:
           issue-number: ${{ github.event.number }}
           body-includes: Hi, human.
-        if: always() && github.event_name == 'pull_request_target'
+        if: always() && github.event_name == 'pull_request'
 
       - name: Post comment (success)
         uses: peter-evans/create-or-update-comment@v1
@@ -216,7 +216,7 @@ jobs:
             [**Click here**](${{ env.URL }}) to see your results.
         env:
           URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pull/${{ github.event.number }}/index.html
-        if: success() && github.event_name == 'pull_request_target'
+        if: success() && github.event_name == 'pull_request'
 
       - name: Post comment (failure)
         uses: peter-evans/create-or-update-comment@v1
@@ -235,4 +235,4 @@ jobs:
             [**Click here**](${{ env.URL }}) to see the build log.
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
-        if: failure() && github.event_name == 'pull_request_target'
+        if: failure() && github.event_name == 'pull_request'
