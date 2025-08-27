@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=6b270324"></script>
+      <script src="../../../../_static/documentation_options.js?v=6cd0b38f"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -134,18 +134,23 @@
 <span></span>&quot;&quot;&quot;Convergence Plots to see the convergence of the simulation in real time.&quot;&quot;&quot;
 
 from collections import defaultdict
+import warnings
 
 import ipywidgets as widgets
 import numpy as np
+from astropy import units as u
+from IPython.display import HTML, display
 
 # Added the below as a (temporary) workaround to the latex
 # labels on the convergence plots not rendering correctly.
 import plotly
 import plotly.graph_objects as go
-from astropy import units as u
-from IPython.display import HTML, display
 
 import tardis.visualization.plot_util as pu
+
+plotly.offline.init_notebook_mode(connected=True)
+# mathjax needs to be loaded for latex labels to render correctly
+# see https://github.com/tardis-sn/tardis/issues/2446
 
 plotly.offline.init_notebook_mode(connected=True)
 # mathjax needs to be loaded for latex labels to render correctly
@@ -590,9 +595,14 @@ class ConvergencePlots:
             try:
                 self.plasma_plot.show(renderer=&quot;notebook_connected&quot;)
                 self.t_inner_luminosities_plot.show(renderer=&quot;notebook_connected&quot;)
-            except Exception:
-                # Fallback if notebook_connected renderer is not available
-                pass</div>
+            except ValueError as e:
+                # Fallback if notebook_connected renderer is not available or invalid
+                warnings.warn(
+                    f&quot;Could not display plots with notebook_connected renderer: {e}. &quot;
+                    &quot;Plots may not display properly in static notebook viewers.&quot;,
+                    UserWarning,
+                    stacklevel=2,
+                )</div>
 </div>
 
 </pre></div>
@@ -605,7 +615,7 @@ class ConvergencePlots:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 26 Aug 2025.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
       </span></p>
   </div>
 
