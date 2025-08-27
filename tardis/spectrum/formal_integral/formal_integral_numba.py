@@ -184,15 +184,19 @@ def init_Inup_numba(inu, ps, iT, Rph, N, size_shell, geometry, time_explosion):
     shell_ids = np.zeros((N, 2 * size_shell), dtype=np.int64)
     size_zs = np.zeros(N, dtype=np.int64)
 
+    # loop over nu and p
     for nu_idx in prange(inu_size):
         I_nu = I_nu_p[nu_idx]
         nu = inu[nu_idx]
         for p_idx in range(1, N):
             p = ps[p_idx]
 
+            # get zs
             size_z = populate_z(geometry, time_explosion, p, zs[p_idx], shell_ids[p_idx])
             size_zs[p_idx] = size_z
 
+            # if inside the photosphere, set to black body intensity
+            # otherwise zero
             if p <= Rph:
                 I_nu[p_idx] = intensity_black_body(nu * zs[p_idx][0], iT)
             else:
@@ -225,7 +229,6 @@ def numba_formal_integral(
         intensities at each p-ray multiplied by p
         frequency x p-ray grid
     """
-    # TODO: add all the original todos
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
     # global read-only values
@@ -238,18 +241,16 @@ def numba_formal_integral(
     exp_tau = np.exp(-tau_sobolev.T.ravel())  # maybe make this 2D?
     pp[::] = calculate_p_values(R_max, N)
     line_list_nu = plasma.line_list_nu
-    # done with instantiation
-    # now loop over wavelength in spectrum
-    # I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
-
     I_nu_p, zs, shell_ids, size_zs = init_Inup_numba(
         inu, pp, iT, R_ph, N, size_shell, geometry, time_explosion
     )
 
+    # done with instantiation
+    # now loop over wavelength in spectrum
     for nu_idx in prange(inu_size):
         I_nu = I_nu_p[nu_idx]
-
         nu = inu[nu_idx]
+
         # now loop over discrete values along line
         for p_idx in range(1, N):
             escat_contrib = 0
@@ -258,15 +259,13 @@ def numba_formal_integral(
             shell_id = shell_ids[p_idx]
             size_z = size_zs[p_idx]
 
-            # init black_body moved up
-
             # find first contributing lines
             nu_start = nu * z[0]
-            nu_end = nu * z[1]
             idx_nu_start = line_search(plasma.line_list_nu, nu_start, size_line)
             offset = shell_id[0] * size_line
             # start tracking accumulated e-scattering optical depth
             zstart = time_explosion / C_INV * (1.0 - z[0])
+            
             # Initialize "pointers"
             pline = int(idx_nu_start)
             pline_offset = int(offset + idx_nu_start)
@@ -316,7 +315,6 @@ def numba_formal_integral(
                     pline_offset += 1
 
                 # calculate e-scattering optical depth to grid cell boundary
-
                 Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pline_offset])
                 zend = time_explosion / C_INV * (1.0 - nu_end / nu)  # check
                 escat_contrib += (
@@ -334,14 +332,6 @@ def numba_formal_integral(
     return L, I_nu_p
 
 
-# integrator_spec = [
-#    ("model", NumbaModel.class_type.instance_type),
-#    ("plasma", OpacityState.class_type.instance_type),
-#    ("points", int64),
-# ]
-
-
-# @jitclass(integrator_spec)
 class NumbaFormalIntegrator:
     """
     Helper class for performing the formal integral
