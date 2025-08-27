@@ -2,9 +2,9 @@
 Progress bar utilities for Monte Carlo transport calculations.
 """
 
-from typing import Optional
-
 from tqdm.auto import tqdm
+
+from tardis.util.environment import Environment
 
 # Global progress bar instances - initialized at import time for thread safety
 # Use tqdm.auto which automatically detects environment
@@ -90,13 +90,13 @@ def update_iterations_pbar(i: int) -> None:
 
 
 def fix_bar_layout(
-    bar, no_of_packets: Optional[int] = None, total_iterations: Optional[int] = None
+    bar, no_of_packets: int | None = None, total_iterations: int | None = None
 ) -> None:
     """
     Fix the layout of progress bars.
 
     This function handles the visual layout and configuration of progress bars,
-    with automatic detection of notebook vs terminal environments via tqdm.auto.
+    with proper environment detection for notebook vs terminal environments.
 
     Parameters
     ----------
@@ -107,7 +107,8 @@ def fix_bar_layout(
     total_iterations : int, optional
         Total number of iterations, by default None.
     """
-    if type(bar).__name__ == "tqdm_notebook":
+    # Check if we're in an environment that allows widget display and has notebook-style progress bar
+    if Environment.allows_widget_display() and type(bar).__name__ == "tqdm_notebook":
         bar.container = bar.status_printer(
             bar.fp,
             bar.total,
@@ -127,13 +128,9 @@ def fix_bar_layout(
         bar.container.children[1].layout.width = "60%"
 
         # display the progress bar
-        try:
-            from IPython import display
+        from IPython import display
 
-            display.display(bar.container)
-        except ImportError:
-            # Not in a notebook environment
-            pass
+        display.display(bar.container)
     else:
         if no_of_packets is not None:
             bar.reset(total=no_of_packets)
