@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fd7535b9"></script>
+      <script src="../_static/documentation_options.js?v=4fb77e34"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -192,6 +192,11 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.estimators.html#module-tardis.transport.montecarlo.estimators">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.packets.html">tardis.transport.montecarlo.packets package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packets.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packets.html#module-tardis.transport.montecarlo.packets">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.montecarlo.html#submodules">Submodules</a><ul>
@@ -237,33 +242,10 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.nonhomologous_grid.html#tardis.transport.montecarlo.nonhomologous_grid.velocity_dvdr"><code class="docutils literal notranslate"><span class="pre">velocity_dvdr()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.packet_collections.html">tardis.transport.montecarlo.packet_collections module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_collections.html#tardis.transport.montecarlo.packet_collections.LastInteractionTracker"><code class="docutils literal notranslate"><span class="pre">LastInteractionTracker</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_collections.html#tardis.transport.montecarlo.packet_collections.PacketCollection"><code class="docutils literal notranslate"><span class="pre">PacketCollection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_collections.html#tardis.transport.montecarlo.packet_collections.VPacketCollection"><code class="docutils literal notranslate"><span class="pre">VPacketCollection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_collections.html#tardis.transport.montecarlo.packet_collections.consolidate_vpacket_tracker"><code class="docutils literal notranslate"><span class="pre">consolidate_vpacket_tracker()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_collections.html#tardis.transport.montecarlo.packet_collections.initialize_last_interaction_tracker"><code class="docutils literal notranslate"><span class="pre">initialize_last_interaction_tracker()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.packet_source.html">tardis.transport.montecarlo.packet_source module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BasePacketSource"><code class="docutils literal notranslate"><span class="pre">BasePacketSource</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource"><code class="docutils literal notranslate"><span class="pre">BlackBodySimpleSource</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSourceRelativistic"><code class="docutils literal notranslate"><span class="pre">BlackBodySimpleSourceRelativistic</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.packet_trackers.html">tardis.transport.montecarlo.packet_trackers module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_trackers.html#tardis.transport.montecarlo.packet_trackers.RPacketLastInteractionTracker"><code class="docutils literal notranslate"><span class="pre">RPacketLastInteractionTracker</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_trackers.html#tardis.transport.montecarlo.packet_trackers.RPacketTracker"><code class="docutils literal notranslate"><span class="pre">RPacketTracker</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_trackers.html#tardis.transport.montecarlo.packet_trackers.generate_rpacket_last_interaction_tracker_list"><code class="docutils literal notranslate"><span class="pre">generate_rpacket_last_interaction_tracker_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_trackers.html#tardis.transport.montecarlo.packet_trackers.generate_rpacket_tracker_list"><code class="docutils literal notranslate"><span class="pre">generate_rpacket_tracker_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_trackers.html#tardis.transport.montecarlo.packet_trackers.rpacket_trackers_to_dataframe"><code class="docutils literal notranslate"><span class="pre">rpacket_trackers_to_dataframe()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.r_packet.html">tardis.transport.montecarlo.r_packet module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.r_packet.html#tardis.transport.montecarlo.r_packet.InteractionType"><code class="docutils literal notranslate"><span class="pre">InteractionType</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.r_packet.html#tardis.transport.montecarlo.r_packet.PacketStatus"><code class="docutils literal notranslate"><span class="pre">PacketStatus</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.r_packet.html#tardis.transport.montecarlo.r_packet.RPacket"><code class="docutils literal notranslate"><span class="pre">RPacket</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.r_packet.html#tardis.transport.montecarlo.r_packet.print_r_packet_properties"><code class="docutils literal notranslate"><span class="pre">print_r_packet_properties()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.r_packet_transport.html">tardis.transport.montecarlo.r_packet_transport module</a><ul>
@@ -281,13 +263,6 @@
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.utils.html">tardis.transport.montecarlo.utils module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.utils.html#tardis.transport.montecarlo.utils.MonteCarloException"><code class="docutils literal notranslate"><span class="pre">MonteCarloException</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.utils.html#tardis.transport.montecarlo.utils.get_random_mu"><code class="docutils literal notranslate"><span class="pre">get_random_mu()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.vpacket.html">tardis.transport.montecarlo.vpacket module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.vpacket.html#tardis.transport.montecarlo.vpacket.VPacket"><code class="docutils literal notranslate"><span class="pre">VPacket</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.vpacket.html#tardis.transport.montecarlo.vpacket.trace_vpacket"><code class="docutils literal notranslate"><span class="pre">trace_vpacket()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.vpacket.html#tardis.transport.montecarlo.vpacket.trace_vpacket_volley"><code class="docutils literal notranslate"><span class="pre">trace_vpacket_volley()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.vpacket.html#tardis.transport.montecarlo.vpacket.trace_vpacket_within_shell"><code class="docutils literal notranslate"><span class="pre">trace_vpacket_within_shell()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.weighted_packet_source.html">tardis.transport.montecarlo.weighted_packet_source module</a><ul>

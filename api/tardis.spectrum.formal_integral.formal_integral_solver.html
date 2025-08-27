@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fd7535b9"></script>
+      <script src="../_static/documentation_options.js?v=4fb77e34"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -166,90 +166,107 @@
 <span id="tardis-spectrum-formal-integral-formal-integral-solver-module"></span><h1>tardis.spectrum.formal_integral.formal_integral_solver module<a class="headerlink" href="#module-tardis.spectrum.formal_integral.formal_integral_solver" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_solver.</span></span><span class="sig-name descname"><span class="pre">FormalIntegralSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integrator_settings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_solver.</span></span><span class="sig-name descname"><span class="pre">FormalIntegralSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Formal integral solver for TARDIS spectra.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>points</strong><span class="classifier">int</span></dt><dd><p>Number of points for the formal integral calculation</p>
+</dd>
+<dt><strong>interpolate_shells</strong><span class="classifier">int</span></dt><dd><p>Number of shells to interpolate to. If &gt; 0, interpolation is performed
+to the specified number of shells. If &lt;= 0, no interpolation is performed
+and original shell structure is used.</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">str or None</span></dt><dd><p>Method to use for the formal integral solver (‘numba’ or ‘cuda’)</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p>Initialize the formal integral solver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>integrator_settings</strong><span class="classifier">IntegratorSettings</span></dt><dd><dl class="simple">
-<dt>The settings to use for the integrator, such as:</dt><dd><p>points (int): Number of points
-interpolate_shells (int): Number of shells to interpolate to
-method (str): Method to use for the formal integral solver (‘numba’ or ‘cuda’)</p>
+<dt><strong>points</strong><span class="classifier">int</span></dt><dd><p>Number of points for the formal integral calculation</p>
+</dd>
+<dt><strong>interpolate_shells</strong><span class="classifier">int</span></dt><dd><p>Number of shells to interpolate to. If &gt; 0, interpolation is performed
+to the specified number of shells. If &lt;= 0, no interpolation is performed
+and original shell structure is used.</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">str, optional</span></dt><dd><p>Method to use for the formal integral solver (‘numba’ or ‘cuda’).
+If None, will be determined based on GPU availability.</p>
 </dd>
 </dl>
 </dd>
 </dl>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.get_interpolated_quantities">
-<span class="sig-name descname"><span class="pre">get_interpolated_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_function_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.get_interpolated_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.get_interpolated_quantities" title="Link to this definition">¶</a></dt>
-<dd><p>If needed, interpolate the quantities from the source function state, and prepare the results for use in the formal integral.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>source_function_state</strong><span class="classifier">tardis.spectrum.formal_integral.source_function.SourceFunctionState</span></dt><dd><p>Data class that hold the computed source function values which will be interpolated, if needed</p>
-</dd>
-<dt><strong>interpolate_shells</strong><span class="classifier">int</span></dt><dd><p>The number of shells to interpolate to.</p>
-</dd>
-<dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd></dd>
-<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd></dd>
-<dt><strong>opacity_state</strong><span class="classifier">tardis.opacities.opacity_state.OpacityStateNumba</span></dt><dd></dd>
-<dt><strong>plasma</strong><span class="classifier">tardis.plasma.Plasma</span></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>tuple</dt><dd><p>(possibly interpolated) att_S_ul, Jred_lu, Jblue_lu, e_dot_u, r_inner, r_outer, tau_sobolevs, electron_densities</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.interpolate_integrator_quantities">
-<span class="sig-name descname"><span class="pre">interpolate_integrator_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jredlu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jbluelu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.interpolate_integrator_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.interpolate_integrator_quantities" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">interpolate_integrator_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_inner_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_outer_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_inner_interpolated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_outer_interpolated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_function_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.interpolate_integrator_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.interpolate_integrator_quantities" title="Link to this definition">¶</a></dt>
 <dd><p>Interpolate the integrator quantities to interpolate_shells.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>source_function_state</strong><span class="classifier">tardis.spectrum.formal_integral.source_function.SourceFunctionState</span></dt><dd><p>Data class that hold the computed source function values</p>
+<dt><strong>r_inner_original</strong><span class="classifier">np.ndarray</span></dt><dd><p>Original inner radii of the shells</p>
 </dd>
-<dt><strong>interpolate_shells</strong><span class="classifier">int</span></dt><dd><p>number of shells to interpolate to</p>
+<dt><strong>r_outer_original</strong><span class="classifier">np.ndarray</span></dt><dd><p>Original outer radii of the shells</p>
 </dd>
-<dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd></dd>
-<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd></dd>
-<dt><strong>opacity_state</strong><span class="classifier">tardis.opacities.opacity_state.OpacityStateNumba</span></dt><dd></dd>
-<dt><strong>electron_densities</strong><span class="classifier">np.ndarray</span></dt><dd></dd>
+<dt><strong>r_inner_interpolated</strong><span class="classifier">np.ndarray</span></dt><dd><p>Pre-computed inner radii for interpolation</p>
+</dd>
+<dt><strong>r_outer_interpolated</strong><span class="classifier">np.ndarray</span></dt><dd><p>Pre-computed outer radii for interpolation</p>
+</dd>
+<dt><strong>source_function_state</strong><span class="classifier">tardis.spectrum.formal_integral.source_function.SourceFunctionState</span></dt><dd><p>Data class that holds the computed source function values which will be interpolated</p>
+</dd>
+<dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd><p>The simulation state object</p>
+</dd>
+<dt><strong>opacity_state</strong><span class="classifier">tardis.opacities.opacity_state.OpacityState</span></dt><dd><p>The opacity state object (regular, non-numba)</p>
+</dd>
+<dt><strong>electron_densities</strong><span class="classifier">pd.Series</span></dt><dd><p>Electron densities for each shell</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>tuple</dt><dd><p>Interpolated values of att_S_ul, Jredlu, Jbluelu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, and electron_densities_integ</p>
+<dt>tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]</dt><dd><p>Interpolated values of att_S_ul_interpolated, Jred_lu_interpolated, Jblue_lu_interpolated, r_inner_interpolated, r_outer_interpolated, tau_sobolevs_interpolated, and electron_densities_interpolated</p>
 </dd>
 </dl>
 </dd>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.interpolate_shells">
+<span class="sig-name descname"><span class="pre">interpolate_shells</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.interpolate_shells" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.method">
+<span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></em><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.method" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.points">
+<span class="sig-name descname"><span class="pre">points</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></em><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.points" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup">
-<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup" title="Link to this definition">¶</a></dt>
-<dd><p>Prepares the necessary data for the formal integral solver.</p>
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><span class="pre">object</span></a></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup" title="Link to this definition">¶</a></dt>
+<dd><p>Prepare the necessary data for the formal integral solver.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>plasma</strong><span class="classifier">tardis.plasma.BasePlasma</span></dt><dd></dd>
-<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MontecarloTransport</span></dt><dd></dd>
+<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MontecarloTransport</span></dt><dd><p>The transport configuration object</p>
+</dd>
+<dt><strong>opacity_state</strong><span class="classifier">tardis.opacities.opacity_state.OpacityState</span></dt><dd><p>The regular (non-numba) opacity state object to be converted</p>
+</dd>
+<dt><strong>macro_atom_state</strong><span class="classifier">tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional</span></dt><dd><p>The macro atom state object</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>atomic_data</strong><span class="classifier">AtomicData</span></dt><dd></dd>
-<dt><strong>levels_index</strong><span class="classifier">np.ndarray</span></dt><dd></dd>
-<dt><strong>opacity_state</strong><span class="classifier">OpacityStateNumba</span></dt><dd></dd>
+<dt><strong>opacity_state_numba</strong><span class="classifier">tardis.opacities.opacity_state.OpacityStateNumba</span></dt><dd><p>The opacity state converted to numba format</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -257,12 +274,12 @@ method (str): Method to use for the formal integral solver (‘numba’ or ‘cu
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup_integrator">
-<span class="sig-name descname"><span class="pre">setup_integrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_outer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.setup_integrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup_integrator" title="Link to this definition">¶</a></dt>
-<dd><p>Setup the integrator depending on the choice of method</p>
+<span class="sig-name descname"><span class="pre">setup_integrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opacity_state_numba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_inner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_outer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.setup_integrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup_integrator" title="Link to this definition">¶</a></dt>
+<dd><p>Set up the integrator depending on the choice of method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>opacity_state</strong><span class="classifier">tardis.opacities.opacity_state.OpacityStateNumba</span></dt><dd><p>The opacity state to use for the formal integral</p>
+<dt><strong>opacity_state_numba</strong><span class="classifier">tardis.opacities.opacity_state.OpacityStateNumba</span></dt><dd><p>The opacity state (numba format) to use for the formal integral</p>
 </dd>
 <dt><strong>time_explosion</strong><span class="classifier">u.Quantity</span></dt><dd><p>The time of the explosion</p>
 </dd>
@@ -277,26 +294,30 @@ method (str): Method to use for the formal integral solver (‘numba’ or ‘cu
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.solve" title="Link to this definition">¶</a></dt>
-<dd><p>Solve the formal integral</p>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_solver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tardis.spectrum.spectrum.html#tardis.spectrum.spectrum.TARDISSpectrum" title="tardis.spectrum.spectrum.TARDISSpectrum"><span class="pre">TARDISSpectrum</span></a></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_solver.html#FormalIntegralSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Solve the formal integral.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>nu</strong><span class="classifier">u.Quantity</span></dt><dd><p>The frequency grid for the formal integral.</p>
+<dt><strong>frequencies</strong><span class="classifier">u.Quantity</span></dt><dd><p>The frequency grid for the formal integral</p>
 </dd>
-<dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd><p>State which hold information about each shell</p>
+<dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd><p>State which holds information about each shell</p>
 </dd>
-<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd></dd>
-<dt><strong>plasma</strong><span class="classifier">tardis.plasma.BasePlasma</span></dt><dd></dd>
-<dt><strong>opacity_state</strong><span class="classifier">tardis.opacities.opacity_state.OpacityState or None</span></dt><dd><p>State of the line opacities</p>
+<dt><strong>transport_solver</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd><p>The transport solver</p>
 </dd>
-<dt><strong>macro_atom_state</strong><span class="classifier">tardis.opacities.macro_atom.macroatom_state.MacroAtomState or None</span></dt><dd><p>State of the macro atom</p>
+<dt><strong>opacity_state</strong><span class="classifier">tardis.opacities.opacity_state.OpacityState</span></dt><dd><p>Regular (non-numba) opacity state; will be converted to numba via <a class="reference internal" href="#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup" title="tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></a></p>
+</dd>
+<dt><strong>atomic_data</strong><span class="classifier">tardis.atomic.AtomicData</span></dt><dd><p>Atomic data containing atomic properties</p>
+</dd>
+<dt><strong>electron_densities</strong><span class="classifier">pd.Series</span></dt><dd><p>Electron densities for each shell</p>
+</dd>
+<dt><strong>macro_atom_state</strong><span class="classifier">tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional</span></dt><dd><p>State of the macro atom (required for converting opacity_state to numba)</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>TARDISSpectrum</dt><dd><p>the formal integral spectrum</p>
+<dt>TARDISSpectrum</dt><dd><p>The formal integral spectrum</p>
 </dd>
 </dl>
 </dd>
