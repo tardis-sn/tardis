@@ -1,35 +1,68 @@
-from tardis import constants as const
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
-from tardis.transport.montecarlo.packet_source.base import BasePacketSource
 
+
+from typing import Any
 
 import numexpr as ne
 import numpy as np
 from astropy import units as u
 
+from tardis import constants as const
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
+from tardis.transport.montecarlo.packets.packet_collections import (
+    PacketCollection,
+)
+
 
 class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
     """
-    Simple packet source that generates Blackbody packets for the Montecarlo
-    part.
+    Simple packet source that generates blackbody packets for Monte Carlo simulations.
+
+    This class creates packets with properties derived from blackbody radiation,
+    including appropriate frequency distribution, uniform radii, and cosine-weighted
+    direction distribution.
 
     Parameters
     ----------
+    radius : astropy.units.Quantity, optional
+        Initial packet radius. Default is None.
+    temperature : astropy.units.Quantity, optional
+        Blackbody temperature. Default is None.
+    **kwargs
+        Additional keyword arguments passed to the parent class.
+
+    Attributes
+    ----------
     radius : astropy.units.Quantity
-        Initial packet radius
+        Initial packet radius.
     temperature : astropy.units.Quantity
-        Absolute Temperature.
-    base_seed : int
-        Base Seed for random number generator
-    legacy_secondary_seed : int
-        Secondary seed for global numpy rng (Deprecated: Legacy reasons only)
+        Blackbody temperature.
     """
 
     hdf_properties = ["radius", "temperature", "base_seed"]
     hdf_name = "black_body_simple_source"
 
     @classmethod
-    def from_simulation_state(cls, simulation_state, *args, **kwargs):
+    def from_simulation_state(
+        cls, simulation_state, *args: Any, **kwargs: Any
+    ) -> "BlackBodySimpleSource":
+        """
+        Create BlackBodySimpleSource from simulation state.
+
+        Parameters
+        ----------
+        simulation_state : SimulationState
+            The simulation state object containing inner radius and temperature.
+        *args
+            Additional positional arguments.
+        **kwargs
+            Additional keyword arguments.
+
+        Returns
+        -------
+        BlackBodySimpleSource
+            New instance initialized with simulation state parameters.
+        """
         return cls(
             simulation_state.r_inner[0],
             simulation_state.t_inner,
@@ -37,33 +70,74 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
             **kwargs,
         )
 
-    def __init__(self, radius=None, temperature=None, **kwargs):
+    def __init__(
+        self,
+        radius: "u.Quantity | None" = None,
+        temperature: "u.Quantity | None" = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Initialize BlackBodySimpleSource.
+
+        Parameters
+        ----------
+        radius : astropy.units.Quantity, optional
+            Initial packet radius. Default is None.
+        temperature : astropy.units.Quantity, optional
+            Absolute temperature. Default is None.
+        **kwargs : Any
+            Additional keyword arguments passed to parent class.
+        """
         self.radius = radius
         self.temperature = temperature
         super().__init__(**kwargs)
 
-    def create_packets(self, no_of_packets, *args, **kwargs):
-        if self.radius is None or self.temperature is None:
-            raise ValueError("Black body Radius or Temperature isn't set")
-        return super().create_packets(no_of_packets, *args, **kwargs)
-
-    def create_packet_radii(self, no_of_packets):
+    def create_packets(self, no_of_packets: int, *args: Any, **kwargs: Any) -> PacketCollection:
         """
-        Create packet radii
+        Create packet collection.
 
         Parameters
         ----------
         no_of_packets : int
-            number of packets to be created
+            Number of packets to create.
+        *args : Any
+            Additional positional arguments.
+        **kwargs : Any
+            Additional keyword arguments.
 
         Returns
         -------
-        Radii for packets
-            numpy.ndarray
+        PacketCollection
+            Collection of packets.
+
+        Raises
+        ------
+        ValueError
+            If radius or temperature is not set.
+        """
+        if self.radius is None or self.temperature is None:
+            raise ValueError("Black body Radius or Temperature isn't set")
+        return super().create_packets(no_of_packets, *args, **kwargs)
+
+    def create_packet_radii(self, no_of_packets: int) -> u.Quantity:
+        """
+        Create packet radii.
+
+        All packets are created at the same radius (inner boundary).
+
+        Parameters
+        ----------
+        no_of_packets : int
+            Number of packets to create.
+
+        Returns
+        -------
+        astropy.units.Quantity
+            Array of packet radii in CGS units.
         """
         return np.ones(no_of_packets) * self.radius.cgs
 
-    def create_packet_nus(self, no_of_packets, l_samples=1000):
+    def create_packet_nus(self, no_of_packets: int, l_samples: int = 1000) -> u.Quantity:
         """
         Create packet :math:`\\nu` distributed using the algorithm described in
         Bjorkman & Wood 2001 (page 4) which references
@@ -106,52 +180,58 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
         return (x * (const.k_B * self.temperature) / const.h).cgs
 
-    def create_packet_mus(self, no_of_packets):
+    def create_packet_mus(self, no_of_packets: int) -> np.ndarray:
         """
-        Create zero-limb-darkening packet :math:`\\mu` distributed
-        according to :math:`\\mu=\\sqrt{z}, z \\isin [0, 1]`
+        Create zero-limb-darkening packet direction cosines.
+
+        Direction cosines are distributed according to :math:`\\mu=\\sqrt{z}`,
+        where :math:`z \\in [0, 1]` is uniformly distributed.
 
         Parameters
         ----------
         no_of_packets : int
-            number of packets to be created
+            Number of packets to create.
 
         Returns
         -------
-        Directions for packets
-            numpy.ndarray
+        numpy.ndarray
+            Array of direction cosines for packets.
         """
         # For testing purposes
         if self.legacy_mode_enabled:
             return np.sqrt(np.random.random(no_of_packets))
-        else:
-            return np.sqrt(self.rng.random(no_of_packets))
+        return np.sqrt(self.rng.random(no_of_packets))
 
-    def create_packet_energies(self, no_of_packets):
+    def create_packet_energies(self, no_of_packets: int) -> u.Quantity:
         """
+        Create packet energies with uniform distribution.
+
         Uniformly distribute energy in arbitrary units where the ensemble of
-        packets has energy of 1.
+        packets has total energy of 1 erg.
 
         Parameters
         ----------
         no_of_packets : int
-            number of packets
+            Number of packets to create.
 
         Returns
         -------
-        energies for packets
-            numpy.ndarray
+        astropy.units.Quantity
+            Array of packet energies in erg.
         """
         return np.ones(no_of_packets) / no_of_packets * u.erg
 
-    def set_temperature_from_luminosity(self, luminosity: u.Quantity):
+    def set_temperature_from_luminosity(self, luminosity: u.Quantity) -> None:
         """
-        Set blackbody packet source temperature from luminosity
+        Set blackbody packet source temperature from luminosity.
+
+        Uses the Stefan-Boltzmann law to derive temperature from the given
+        luminosity and the source radius.
 
         Parameters
         ----------
-        luminosity : u.Quantity
-
+        luminosity : astropy.units.Quantity
+            Total luminosity to match.
         """
         self.temperature = (
             (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))

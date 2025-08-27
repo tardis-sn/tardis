@@ -5,7 +5,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 
-from tardis.transport.montecarlo.packet_source.gamma_ray_packet_source import (
+from tardis.transport.montecarlo.packet_source.high_energy import (
     GammaRayPacketSource,
     legacy_calculate_positron_fraction,
 )
