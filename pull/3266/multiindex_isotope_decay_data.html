@@ -1,0 +1,527 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=aba67296"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link href="_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/multiindex_isotope_decay_data.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/multiindex_isotope_decay_data.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># general imports</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># TARDIS imports for the gamma-ray code</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePlasma</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration</span><span class="w"> </span><span class="kn">import</span> <span class="n">config_reader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_atom_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.energy_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_nuclear_lines_database</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.gamma_ray_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_isotope_dicts</span><span class="p">,</span> <span class="n">create_inventories_dict</span><span class="p">,</span> <span class="n">calculate_total_decays</span><span class="p">,</span> <span class="n">create_isotope_decay_df</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties</span><span class="w"> </span><span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> \
+    <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> \
+    <span class="n">SelectedAtoms</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "c2a689492f444a09a1641707600dbbae", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "c485612f1f674a699550f3ec2237cc86", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download the atom data file from tardis-regression-data repo to run this cell.</span>
+<span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He_latest&#39;</span><span class="p">)</span>
+<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s1">&#39;kurucz_cd23_chianti_H_He_latest.h5&#39;</span>
+<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">atom_data_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:tardis.io.atom_data.atom_web_download:Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /Users/anirbandutta/Downloads/tardis-data/kurucz_cd23_chianti_H_He_latest.h5. Will not download - override with force_download=True.
+INFO:tardis.io.atom_data.base:Reading Atom Data with: UUID = 6f7b09e887a311e7a06b246e96350010 MD5  = 864f1753714343c41f99cb065710cace
+INFO:tardis.io.atom_data.base:Non provided Atomic Data: synpp_refs, photoionization_data, yg_data, two_photon_data, linelist
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read the config file and create a configuration object</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">config_reader</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;tardis_configv1_density_exponential_nebular.yml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_csvy</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:tardis.model.parse_input:Abundances have not been normalized to 1. - normalizing
+INFO:tardis.model.matter.decay:Decaying abundances for 2600540.0352 seconds
+/Users/anirbandutta/Software/tardis/tardis/model/matter/composition.py:101: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise in a future error of pandas. Value &#39;7.961942738176252e-23&#39; has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+  isotope_mass_df[isotope_tuple] = isotope_mass
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gamma_ray_lines</span> <span class="o">=</span> <span class="n">get_nuclear_lines_database</span><span class="p">(</span><span class="n">atom_data_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">raw_isotope_abundance</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">raw_isotope_abundance</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Construct the Plasma</span>
+
+<span class="nb">input</span> <span class="o">=</span> <span class="p">[</span><span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">]</span>
+
+<span class="n">plasma</span> <span class="o">=</span> <span class="n">BasePlasma</span><span class="p">(</span><span class="n">plasma_properties</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span> <span class="n">density</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+                    <span class="n">abundance</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">abundance</span><span class="p">,</span> <span class="n">isotope_abundance</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">raw_isotope_abundance</span><span class="p">,</span>
+                    <span class="n">atomic_data</span> <span class="o">=</span> <span class="n">atom_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shell_masses</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">density</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">isotope_dict</span> <span class="o">=</span> <span class="n">create_isotope_dicts</span><span class="p">(</span><span class="n">raw_isotope_abundance</span><span class="p">,</span> <span class="n">shell_masses</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inventories_dict</span> <span class="o">=</span> <span class="n">create_inventories_dict</span><span class="p">(</span><span class="n">isotope_dict</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_decays</span> <span class="o">=</span> <span class="n">calculate_total_decays</span><span class="p">(</span><span class="n">inventories_dict</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">create_isotope_decay_df</span><span class="p">(</span><span class="n">total_decays</span><span class="p">,</span> <span class="n">gamma_ray_lines</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>number_of_decays</th>
+      <th>decay_mode</th>
+      <th>radiation</th>
+      <th>radiation_energy_keV</th>
+      <th>radiation_intensity</th>
+      <th>energy_per_channel_keV</th>
+      <th>decay_energy_keV</th>
+    </tr>
+    <tr>
+      <th>shell_number</th>
+      <th>isotope</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th>Fe52</th>
+      <td>4.075312e+34</td>
+      <td>EC</td>
+      <td>bp</td>
+      <td>340.000000</td>
+      <td>55.4900</td>
+      <td>188.666000</td>
+      <td>7.688728e+36</td>
+    </tr>
+    <tr>
+      <th>Fe52</th>
+      <td>4.075312e+34</td>
+      <td>EC</td>
+      <td>bp av</td>
+      <td>340.000001</td>
+      <td>55.4900</td>
+      <td>188.666000</td>
+      <td>7.688728e+36</td>
+    </tr>
+    <tr>
+      <th>Fe52</th>
+      <td>4.075312e+34</td>
+      <td>EC</td>
+      <td>e</td>
+      <td>5.190000</td>
+      <td>26.9000</td>
+      <td>1.396110</td>
+      <td>5.689584e+34</td>
+    </tr>
+    <tr>
+      <th>Fe52</th>
+      <td>4.075312e+34</td>
+      <td>EC</td>
+      <td>e</td>
+      <td>0.610000</td>
+      <td>62.5000</td>
+      <td>0.381250</td>
+      <td>1.553713e+34</td>
+    </tr>
+    <tr>
+      <th>Fe52</th>
+      <td>4.075312e+34</td>
+      <td>EC</td>
+      <td>e</td>
+      <td>162.149000</td>
+      <td>0.6990</td>
+      <td>1.133422</td>
+      <td>4.619046e+34</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">65</th>
+      <th>V48</th>
+      <td>0.000000e+00</td>
+      <td>EC</td>
+      <td>g</td>
+      <td>1312.105000</td>
+      <td>98.2000</td>
+      <td>1288.487110</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>V48</th>
+      <td>0.000000e+00</td>
+      <td>EC</td>
+      <td>g</td>
+      <td>1437.521000</td>
+      <td>0.1200</td>
+      <td>1.725025</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>V48</th>
+      <td>0.000000e+00</td>
+      <td>EC</td>
+      <td>g</td>
+      <td>2240.396000</td>
+      <td>2.3330</td>
+      <td>52.268439</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>V48</th>
+      <td>0.000000e+00</td>
+      <td>EC</td>
+      <td>g</td>
+      <td>2375.200000</td>
+      <td>0.0087</td>
+      <td>0.206642</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>V48</th>
+      <td>0.000000e+00</td>
+      <td>EC</td>
+      <td>g</td>
+      <td>2420.940000</td>
+      <td>0.0067</td>
+      <td>0.162203</td>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+<p>18744 rows × 7 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
