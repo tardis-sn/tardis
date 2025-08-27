@@ -3,9 +3,9 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
 
-from tardis.transport.montecarlo.packet_source import (
+from tardis.transport.montecarlo.packet_source.black_body_relativistic import BlackBodySimpleSourceRelativistic
+from tardis.transport.montecarlo.packet_source.black_body import (
     BlackBodySimpleSource,
-    BlackBodySimpleSourceRelativistic,
 )
 
 

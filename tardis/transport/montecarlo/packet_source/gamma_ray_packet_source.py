@@ -14,7 +14,7 @@ from tardis.energy_input.util import (
     doppler_factor_3D_all_packets,
     get_random_unit_vectors,
 )
-from tardis.transport.montecarlo.packet_source import BasePacketSource
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 from astropy import units as u
 
-from tardis.transport.montecarlo.packet_source import (
+from tardis.transport.montecarlo.packet_source.black_body import (
     BlackBodySimpleSource,
 )
 from tardis.util.base import intensity_black_body

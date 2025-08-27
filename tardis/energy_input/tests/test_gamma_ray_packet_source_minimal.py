@@ -15,7 +15,7 @@ from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     time_evolve_cumulative_decay,
 )
-from tardis.energy_input.gamma_ray_packet_source import GammaRayPacketSource
+from tardis.transport.montecarlo.packet_source.gamma_ray_packet_source import GammaRayPacketSource
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
