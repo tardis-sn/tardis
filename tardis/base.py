@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 def run_tardis(
     config,
     atom_data=None,
-    packet_source=None,
     simulation_callbacks=None,
     virtual_packet_logging=False,
     show_convergence_plots=False,
@@ -73,10 +72,12 @@ def run_tardis(
     -----
     Please see the `logging tutorial <https://tardis-sn.github.io/tardis/io/optional/logging_configuration.html>`_ to know more about `log_level` and `specific` options.
     """
-    from tardis.io.atom_data.base import AtomData
     from tardis.io.configuration.config_reader import Configuration
     from tardis.io.logger.logger import logging_state
-    from tardis.simulation import Simulation
+    from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
+    from tardis.io.atom_data.util import resolve_atom_data_fname
+    from tardis.io.atom_data import download_atom_data
+    from tardis.io.atom_data import AtomData
 
     if simulation_callbacks is None:
         simulation_callbacks = []
@@ -90,12 +91,6 @@ def run_tardis(
                 "TARDIS Config not available via YAML. Reading through TARDIS Config Dictionary"
             )
             tardis_config = Configuration.from_config_dict(config)
-
-    if not isinstance(show_convergence_plots, bool):
-        raise TypeError("Expected bool in show_convergence_plots argument")
-
-    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
-
     if atom_data is not None:
         try:
             atom_data = AtomData.from_hdf(atom_data)
@@ -104,23 +99,36 @@ def run_tardis(
                 "Atom Data Cannot be Read from HDF. Setting to Default Atom Data"
             )
             atom_data = atom_data
+            
+    if not isinstance(show_convergence_plots, bool):
+        raise TypeError("Expected bool in show_convergence_plots argument")
 
-    simulation = Simulation.from_config(
-        tardis_config,
-        packet_source=packet_source,
-        atom_data=atom_data,
-        virtual_packet_logging=virtual_packet_logging,
-        show_convergence_plots=show_convergence_plots,
+    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
+
+    convergence_plots_config_options = [
+        "plasma_plot_config",
+        "t_inner_luminosities_config",
+        "plasma_cmap",
+        "t_inner_luminosities_colors",
+        "export_convergence_plots",
+    ]
+    convergence_plots_kwargs = {}
+    for item in set(convergence_plots_config_options).intersection(kwargs.keys()):
+        convergence_plots_kwargs[item] = kwargs[item]
+
+    workflow = StandardTARDISWorkflow(
+        configuration=tardis_config,
+        enable_virtual_packet_logging=virtual_packet_logging,
+        log_level=log_level,
+        specific_log_level=specific_log_level,
         show_progress_bars=show_progress_bars,
-        **kwargs,
+        show_convergence_plots=show_convergence_plots,
+        convergence_plots_kwargs=convergence_plots_kwargs,
     )
-    for cb in simulation_callbacks:
-        simulation.add_callback(*cb)
 
-    simulation.run_convergence()
-    simulation.run_final()
+    workflow.run()
     if logger_widget:
         tardislogger.finalize_widget_logging()
         tardislogger.remove_widget_handler()
         tardislogger.setup_stream_handler()
-    return simulation
+    return workflow
