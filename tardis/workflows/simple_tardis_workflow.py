@@ -450,7 +450,12 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.spectrum_solver.integrator_settings = (
                 self.integrated_spectrum_settings
             )
-            formal_integrator = FormalIntegralSolver(self.spectrum_solver.integrator_settings)
+            integrator_settings = self.spectrum_solver.integrator_settings
+            formal_integrator = FormalIntegralSolver(
+                integrator_settings.points,
+                integrator_settings.interpolate_shells,
+                getattr(integrator_settings, "method", None),
+            )
             self.spectrum_solver.setup_optional_spectra(
                 self.transport_state,
                 virtual_packet_luminosity=None,
