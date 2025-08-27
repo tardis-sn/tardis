@@ -1,0 +1,7 @@
+tardis.opacities.macro\_atom.macroatom\_transitions module
+==========================================================
+
+.. automodule:: tardis.opacities.macro_atom.macroatom_transitions
+   :members:
+   :show-inheritance:
+   :undoc-members:
