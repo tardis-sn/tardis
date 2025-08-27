@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.transport.montecarlo.estimators.radfield_mc_estimators &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=36a65cac"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.transport.montecarlo.estimators.radfield_mc_estimators</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.transport.montecarlo.estimators.radfield_mc_estimators</h1><div class="highlight"><pre>
+<span></span>import numpy as np
+from numba import float64, int64
+from numba.experimental import jitclass
+from numba.typed import List
+
+
+<div class="viewcode-block" id="initialize_estimator_statistics">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.initialize_estimator_statistics">[docs]</a>
+def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
+    &quot;&quot;&quot;
+    Initializes the estimators used in the Monte Carlo simulation.
+
+    Parameters
+    ----------
+    tau_sobolev_shape : tuple
+        Shape of the array with the Sobolev optical depth.
+    gamma_shape : tuple
+        Shape of the array with the photoionization rate coefficients.
+
+    Returns
+    -------
+    Estimators
+        The initialized estimators.
+
+    Examples
+    --------
+    &gt;&gt;&gt; tau_sobolev_shape = (10, 20)
+    &gt;&gt;&gt; gamma_shape = (5, 5)
+    &gt;&gt;&gt; initialize_estimators(tau_sobolev_shape, gamma_shape)
+    &lt;Estimators object at 0x...&gt;
+    &quot;&quot;&quot;
+    j_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
+    nu_bar_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
+    j_blue_estimator = np.zeros(tau_sobolev_shape)
+    Edotlu_estimator = np.zeros(tau_sobolev_shape)
+
+    photo_ion_estimator = np.zeros(gamma_shape, dtype=np.float64)
+    stim_recomb_estimator = np.zeros(gamma_shape, dtype=np.float64)
+    stim_recomb_cooling_estimator = np.zeros(gamma_shape, dtype=np.float64)
+    bf_heating_estimator = np.zeros(gamma_shape, dtype=np.float64)
+
+    stim_recomb_cooling_estimator = np.zeros(gamma_shape, dtype=np.float64)
+
+    photo_ion_estimator_statistics = np.zeros(gamma_shape, dtype=np.int64)
+    return RadiationFieldMCEstimators(
+        j_estimator,
+        nu_bar_estimator,
+        j_blue_estimator,
+        Edotlu_estimator,
+        photo_ion_estimator,
+        stim_recomb_estimator,
+        bf_heating_estimator,
+        stim_recomb_cooling_estimator,
+        photo_ion_estimator_statistics,
+    )</div>
+
+
+
+base_estimators_spec = [
+    (&quot;j_estimator&quot;, float64[:]),
+    (&quot;nu_bar_estimator&quot;, float64[:]),
+    (&quot;j_blue_estimator&quot;, float64[:, :]),
+    (&quot;Edotlu_estimator&quot;, float64[:, :]),
+]
+
+continuum_estimators_spec = [
+    (&quot;photo_ion_estimator&quot;, float64[:, :]),
+    (&quot;stim_recomb_estimator&quot;, float64[:, :]),
+    (&quot;bf_heating_estimator&quot;, float64[:, :]),
+    (&quot;stim_recomb_cooling_estimator&quot;, float64[:, :]),
+    (&quot;photo_ion_estimator_statistics&quot;, int64[:, :]),
+]
+
+
+<div class="viewcode-block" id="RadiationFieldMCEstimators">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators">[docs]</a>
+@jitclass(base_estimators_spec + continuum_estimators_spec)
+class RadiationFieldMCEstimators:
+    def __init__(
+        self,
+        j_estimator,
+        nu_bar_estimator,
+        j_blue_estimator,
+        Edotlu_estimator,
+        photo_ion_estimator,
+        stim_recomb_estimator,
+        bf_heating_estimator,
+        stim_recomb_cooling_estimator,
+        photo_ion_estimator_statistics,
+    ):
+        self.j_estimator = j_estimator
+        self.nu_bar_estimator = nu_bar_estimator
+        self.j_blue_estimator = j_blue_estimator
+        self.Edotlu_estimator = Edotlu_estimator
+        self.photo_ion_estimator = photo_ion_estimator
+        self.stim_recomb_estimator = stim_recomb_estimator
+        self.bf_heating_estimator = bf_heating_estimator
+        self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
+        self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
+
+    def increment(self, other):
+        &quot;&quot;&quot;
+        Increments each estimator with the corresponding estimator from another instance of the class.
+
+        Parameters
+        ----------
+        other : RadiationFieldMCEstimators
+            Another instance of the RadiationFieldMCEstimators class.
+
+        Returns
+        -------
+        None
+        &quot;&quot;&quot;
+        self.j_estimator += other.j_estimator
+        self.nu_bar_estimator += other.nu_bar_estimator
+        self.j_blue_estimator += other.j_blue_estimator
+        self.Edotlu_estimator += other.Edotlu_estimator
+        self.photo_ion_estimator += other.photo_ion_estimator
+        self.stim_recomb_estimator += other.stim_recomb_estimator
+        self.bf_heating_estimator += other.bf_heating_estimator
+        self.stim_recomb_cooling_estimator += (
+            other.stim_recomb_cooling_estimator
+        )
+        self.photo_ion_estimator_statistics += (
+            other.photo_ion_estimator_statistics
+        )
+
+    def create_estimator_list(self, number):
+        estimator_list = List()
+
+        for i in range(number):
+            estimator_list.append(
+                RadiationFieldMCEstimators(
+                    np.copy(self.j_estimator),
+                    np.copy(self.nu_bar_estimator),
+                    np.copy(self.j_blue_estimator),
+                    np.copy(self.Edotlu_estimator),
+                    np.copy(self.photo_ion_estimator),
+                    np.copy(self.stim_recomb_estimator),
+                    np.copy(self.bf_heating_estimator),
+                    np.copy(self.stim_recomb_cooling_estimator),
+                    np.copy(self.photo_ion_estimator_statistics),
+                )
+            )
+        return estimator_list</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
