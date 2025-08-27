@@ -3,7 +3,7 @@
 import pytest
 from astropy import units as u
 
-from tardis.transport.montecarlo.packet_source.weighted import (
+from tardis.transport.montecarlo.packet_source.black_body_weighted import (
     BlackBodyWeightedSource,
 )
 
