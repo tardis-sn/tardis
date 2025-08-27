@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=36a65cac"></script>
+      <script src="../../../../_static/documentation_options.js?v=9717589c"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -131,7 +131,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.transport.montecarlo.interaction</h1><div class="highlight"><pre>
-<span></span>import numpy as np
+<span></span>from enum import IntEnum
+
+import numpy as np
 from numba import njit
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
@@ -146,10 +148,7 @@ from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
     macro_atom_interaction,
 )
-from tardis.transport.montecarlo.numba_interface import (
-    LineInteractionType,
-)
-from tardis.transport.montecarlo.r_packet import (
+from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
 )
 from tardis.transport.montecarlo.utils import get_random_mu
@@ -585,6 +584,15 @@ def thomson_scatter(r_packet, time_explosion, enable_full_relativity):
     temp_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )</div>
+
+
+
+<div class="viewcode-block" id="LineInteractionType">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType">[docs]</a>
+class LineInteractionType(IntEnum):
+    SCATTER = 0
+    DOWNBRANCH = 1
+    MACROATOM = 2</div>
 
 
 
