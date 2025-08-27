@@ -20,10 +20,17 @@ if TYPE_CHECKING:
 
 class BoundFreeThermalRates:
     """
-    Class to represent the bound-free heating rate.
+    Class to solve the bound-free heating and cooling rates.
     """
 
     def __init__(self, photoionization_cross_sections: pd.DataFrame) -> None:
+        """Initialize the solver.
+
+        Parameters
+        ----------
+        photoionization_cross_sections : pd.DataFrame
+            Photoionization cross section data.
+        """
         self.photoionization_cross_sections = photoionization_cross_sections
         self.nu = photoionization_cross_sections.nu
         self.photoionization_block_references = np.pad(
@@ -180,6 +187,10 @@ class BoundFreeThermalRates:
 
 
 class FreeFreeThermalRates:
+    """
+    Class to solve the free-free heating and cooling rates.
+    """
+
     def __init__(self) -> None:
         self.cooling_constant = 1.426e-27  # in cgs units (see Osterbrock 1974)
 
@@ -252,7 +263,18 @@ class FreeFreeThermalRates:
 
 
 class CollisionalIonizationThermalRates:
+    """
+    Class to solve the collisional ionization heating and cooling rates.
+    """
+
     def __init__(self, photoionization_cross_sections: pd.DataFrame) -> None:
+        """Initialize the solver.
+
+        Parameters
+        ----------
+        photoionization_cross_sections : pd.DataFrame
+            Photoionization cross section data.
+        """
         self.nu_i = (
             photoionization_cross_sections["nu"]
             .groupby(level=[0, 1, 2])
@@ -311,7 +333,18 @@ class CollisionalIonizationThermalRates:
 
 
 class CollisionalBoundThermalRates:
+    """
+    Class to solve the collisional bound heating and cooling rates.
+    """
+
     def __init__(self, lines: pd.DataFrame) -> None:
+        """Initialize the solver.
+
+        Parameters
+        ----------
+        lines : pd.DataFrame
+            Atomic line data.
+        """
         self.nu = lines["nu"].values
 
     def solve(
@@ -378,7 +411,7 @@ class CollisionalBoundThermalRates:
 
 class AdiabaticThermalRates:
     """
-    Class to represent the adiabatic cooling rate.
+    Class to solve the adiabatic cooling rate.
     """
 
     def __init__(self) -> None:

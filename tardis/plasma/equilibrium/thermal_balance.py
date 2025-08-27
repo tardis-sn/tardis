@@ -12,7 +12,9 @@ if TYPE_CHECKING:
 
 
 class ThermalBalanceSolver:
-    thermal_rates: dict
+    """Class to solve the thermal balance equation using all available
+    heating and cooling processes. See section 6.4 in Lucy 03.
+    """
 
     def __init__(self, thermal_rates: dict) -> None:
         """Initialize with thermal rates.
