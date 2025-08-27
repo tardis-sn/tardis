@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=70dcb0cb"></script>
+      <script src="_static/documentation_options.js?v=fd7535b9"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -641,11 +641,11 @@
 </li>
         <li><a href="api/tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.OpacityStateNumba.class_type">(tardis.opacities.opacity_state.OpacityStateNumba attribute)</a>
 </li>
+        <li><a href="api/tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.OpacityStateNumba.class_type">(tardis.opacities.opacity_state_numba.OpacityStateNumba attribute)</a>
+</li>
         <li><a href="api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration.class_type">(tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration attribute)</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators.class_type">(tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators attribute)</a>
-</li>
-        <li><a href="api/tardis.transport.montecarlo.numba_interface.html#tardis.transport.montecarlo.numba_interface.OpacityState.class_type">(tardis.transport.montecarlo.numba_interface.OpacityState attribute)</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.packet_collections.html#tardis.transport.montecarlo.packet_collections.LastInteractionTracker.class_type">(tardis.transport.montecarlo.packet_collections.LastInteractionTracker attribute)</a>
 </li>
@@ -960,7 +960,7 @@
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.doppler_factor_3D_all_packets">doppler_factor_3D_all_packets() (in module tardis.energy_input.util)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.numba_interface.html#tardis.transport.montecarlo.numba_interface.LineInteractionType.DOWNBRANCH">DOWNBRANCH (tardis.transport.montecarlo.numba_interface.LineInteractionType attribute)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType.DOWNBRANCH">DOWNBRANCH (tardis.transport.montecarlo.interaction.LineInteractionType attribute)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.atom_web_download.html#tardis.io.atom_data.atom_web_download.download_atom_data">download_atom_data() (in module tardis.io.atom_data.atom_web_download)</a>
 </li>
@@ -1928,7 +1928,7 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget">LineInfoWidget (class in tardis.visualization.widgets.line_info)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.numba_interface.html#tardis.transport.montecarlo.numba_interface.LineInteractionType">LineInteractionType (class in tardis.transport.montecarlo.numba_interface)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType">LineInteractionType (class in tardis.transport.montecarlo.interaction)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Lines">Lines (class in tardis.plasma.properties.atomic)</a>
 </li>
@@ -1984,7 +1984,7 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.macro_atom_interaction">macro_atom_interaction() (in module tardis.transport.montecarlo.macro_atom)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.numba_interface.html#tardis.transport.montecarlo.numba_interface.LineInteractionType.MACROATOM">MACROATOM (tardis.transport.montecarlo.numba_interface.LineInteractionType attribute)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType.MACROATOM">MACROATOM (tardis.transport.montecarlo.interaction.LineInteractionType attribute)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.macro_atom_data.html#tardis.io.atom_data.macro_atom_data.MacroAtomData">MacroAtomData (class in tardis.io.atom_data.macro_atom_data)</a>
 
@@ -2220,6 +2220,8 @@
 </li>
         <li><a href="api/tardis.opacities.opacity_state.html#module-tardis.opacities.opacity_state">tardis.opacities.opacity_state</a>
 </li>
+        <li><a href="api/tardis.opacities.opacity_state_numba.html#module-tardis.opacities.opacity_state_numba">tardis.opacities.opacity_state_numba</a>
+</li>
         <li><a href="api/tardis.opacities.tau_sobolev.html#module-tardis.opacities.tau_sobolev">tardis.opacities.tau_sobolev</a>
 </li>
         <li><a href="api/tardis.plasma.html#module-tardis.plasma">tardis.plasma</a>
@@ -2391,8 +2393,6 @@
         <li><a href="api/tardis.transport.montecarlo.montecarlo_transport_state.html#module-tardis.transport.montecarlo.montecarlo_transport_state">tardis.transport.montecarlo.montecarlo_transport_state</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.nonhomologous_grid.html#module-tardis.transport.montecarlo.nonhomologous_grid">tardis.transport.montecarlo.nonhomologous_grid</a>
-</li>
-        <li><a href="api/tardis.transport.montecarlo.numba_interface.html#module-tardis.transport.montecarlo.numba_interface">tardis.transport.montecarlo.numba_interface</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.packet_collections.html#module-tardis.transport.montecarlo.packet_collections">tardis.transport.montecarlo.packet_collections</a>
 </li>
@@ -2596,21 +2596,19 @@
       <li><a href="resources/zreferences.html#term-Opacity"><strong>Opacity</strong></a>
 </li>
       <li><a href="api/tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.opacity_state_initialize">opacity_state_initialize() (in module tardis.opacities.opacity_state)</a>
-
-      <ul>
-        <li><a href="api/tardis.transport.montecarlo.numba_interface.html#tardis.transport.montecarlo.numba_interface.opacity_state_initialize">(in module tardis.transport.montecarlo.numba_interface)</a>
 </li>
-      </ul></li>
+      <li><a href="api/tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.opacity_state_numba_initialize">opacity_state_numba_initialize() (in module tardis.opacities.opacity_state_numba)</a>
+</li>
       <li><a href="api/tardis.opacities.opacity_solver.html#tardis.opacities.opacity_solver.OpacitySolver">OpacitySolver (class in tardis.opacities.opacity_solver)</a>
 </li>
       <li><a href="api/tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.OpacityState">OpacityState (class in tardis.opacities.opacity_state)</a>
+</li>
+      <li><a href="api/tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.OpacityStateNumba">OpacityStateNumba (class in tardis.opacities.opacity_state)</a>
 
       <ul>
-        <li><a href="api/tardis.transport.montecarlo.numba_interface.html#tardis.transport.montecarlo.numba_interface.OpacityState">(class in tardis.transport.montecarlo.numba_interface)</a>
+        <li><a href="api/tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.OpacityStateNumba">(class in tardis.opacities.opacity_state_numba)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.OpacityStateNumba">OpacityStateNumba (class in tardis.opacities.opacity_state)</a>
-</li>
       <li><a href="api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.output_energy">output_energy (tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState property)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.output_nu">output_nu (tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState property)</a>
@@ -3223,7 +3221,7 @@
 </li>
       <li><a href="api/tardis.grid.base.html#tardis.grid.base.TardisGrid.save_grid">save_grid() (tardis.grid.base.TardisGrid method)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.numba_interface.html#tardis.transport.montecarlo.numba_interface.LineInteractionType.SCATTER">SCATTER (tardis.transport.montecarlo.numba_interface.LineInteractionType attribute)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType.SCATTER">SCATTER (tardis.transport.montecarlo.interaction.LineInteractionType attribute)</a>
 </li>
       <li><a href="api/tardis.energy_input.transport.gamma_ray_interactions.html#tardis.energy_input.transport.gamma_ray_interactions.scatter_type">scatter_type() (in module tardis.energy_input.transport.gamma_ray_interactions)</a>
 </li>
@@ -4022,6 +4020,13 @@
 </li>
       </ul></li>
       <li>
+    tardis.opacities.opacity_state_numba
+
+      <ul>
+        <li><a href="api/tardis.opacities.opacity_state_numba.html#module-tardis.opacities.opacity_state_numba">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.opacities.tau_sobolev
 
       <ul>
@@ -4266,6 +4271,8 @@
         <li><a href="api/tardis.plasma.properties.legacy_property_collections.html#module-tardis.plasma.properties.legacy_property_collections">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.level_population
 
@@ -4273,8 +4280,6 @@
         <li><a href="api/tardis.plasma.properties.level_population.html#module-tardis.plasma.properties.level_population">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.nlte
 
@@ -4623,13 +4628,6 @@
 
       <ul>
         <li><a href="api/tardis.transport.montecarlo.nonhomologous_grid.html#module-tardis.transport.montecarlo.nonhomologous_grid">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.transport.montecarlo.numba_interface
-
-      <ul>
-        <li><a href="api/tardis.transport.montecarlo.numba_interface.html#module-tardis.transport.montecarlo.numba_interface">module</a>
 </li>
       </ul></li>
       <li>
@@ -5252,7 +5250,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 26 Aug 2025.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
       </span></p>
   </div>
 

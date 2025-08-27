@@ -22,7 +22,6 @@ Submodules
    tardis.transport.montecarlo.montecarlo_main_loop
    tardis.transport.montecarlo.montecarlo_transport_state
    tardis.transport.montecarlo.nonhomologous_grid
-   tardis.transport.montecarlo.numba_interface
    tardis.transport.montecarlo.packet_collections
    tardis.transport.montecarlo.packet_source
    tardis.transport.montecarlo.packet_trackers
