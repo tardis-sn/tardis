@@ -7,8 +7,9 @@ from tardis.transport.montecarlo.packet_source.weighted import (
     BlackBodyWeightedSource,
 )
 
-# Import fixtures from the parent montecarlo tests directory
-pytest_plugins = ["tardis.transport.montecarlo.tests.conftest"]
+# Import all fixtures from the parent montecarlo tests conftest
+# This ensures the packet source tests have access to all necessary fixtures
+from tardis.transport.montecarlo.tests.conftest import *  # noqa: F403
 
 
 @pytest.fixture(scope="session")

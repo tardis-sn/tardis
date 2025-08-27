@@ -26,12 +26,9 @@ def test_montecarlo_main_loop_weighted(
     montecarlo_main_loop_simulation_weighted.run_final()
 
     # Get the montecarlo simple regression data
-    # Navigate up from packet_source/tests to the root tardis regression directory
-    regression_data_base = regression_data.absolute_regression_data_dir.absolute()
-    while regression_data_base.name != "tardis":
-        regression_data_base = regression_data_base.parent
+    # Directly use the regression data path to construct the path
     regression_data_dir = (
-        regression_data_base.parent
+        regression_data.regression_data_path
         / "tardis/transport/montecarlo/tests/test_montecarlo_main_loop/test_montecarlo_main_loop.h5"
     )
     expected_hdf_store = pd.HDFStore(regression_data_dir, mode="r")
