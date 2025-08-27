@@ -294,9 +294,6 @@ def numba_formal_integral(
                         * (1.0 - line_list_nu[pline] / nu)
                     )  # check
 
-                    Jblue_lu_i = Jblue_lu[pJblue_lu]
-                    Jred_lu_i = Jred_lu[pJred_lu]
-                    I_nu_i = I_nu[p_idx]
                     escat_contrib, first, pJred_lu = increment_escat_contrib(
                         escat_contrib, 
                         first,
@@ -304,9 +301,9 @@ def numba_formal_integral(
                         zend,
                         zstart,
                         escat_op,
-                        Jblue_lu_i,
-                        Jred_lu_i,
-                        I_nu_i
+                        Jblue_lu[pJblue_lu],
+                        Jred_lu[pJred_lu],
+                        I_nu[p_idx]
                     )
 
                     I_nu[p_idx] += escat_contrib
