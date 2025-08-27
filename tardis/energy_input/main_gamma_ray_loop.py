@@ -4,6 +4,9 @@ from typing import Optional
 import astropy.units as u
 import numpy as np
 import pandas as pd
+from numba import objmode, njit, prange
+
+from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 
 from tardis.energy_input.gamma_ray_packet_source import (
     GammaRayPacketSource,
@@ -13,10 +16,20 @@ from tardis.energy_input.gamma_ray_transport import (
     calculate_ejecta_velocity_volume,
     iron_group_fraction_per_shell,
 )
-from tardis.energy_input.transport.gamma_packet_loop import gamma_packet_loop
+from tardis.energy_input.transport.gamma_packet_loop import (
+    single_gamma_packet_loop,
+)
 from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import get_index
 from tardis.model.base import SimulationState
+from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
+
+from tardis.energy_input.util import (
+    C_CGS,
+    H_CGS_KEV,
+)
+
+from tardis.util.base import update_packet_pbar
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -127,7 +140,7 @@ def run_gamma_ray_loop(
     positronium_fraction,
     spectrum_bins,
     grey_opacity,
-    photoabsorption_opacity="tardis",
+    photo_absorption_opacity="tardis",
     pair_creation_opacity="tardis",
     legacy=False,
     legacy_atom_data=None,
@@ -232,7 +245,7 @@ def run_gamma_ray_loop(
         legacy_energy_per_packet = None
         energy_per_packet = None
 
-    packet_collection = packet_source.create_packets(
+    packet_collection, source_isotopes = packet_source.create_packets(
         cumulative_decays_df,
         number_of_packets,
         legacy_energy_per_packet=legacy_energy_per_packet,
@@ -246,182 +259,269 @@ def run_gamma_ray_loop(
 
     total_energy = np.zeros((number_of_shells, len(times) - 1))
 
-    logger.info("Creating packet list")
-    packets = []
-    # This for loop is expensive. Need to rewrite GX packet to handle arrays
-    packets = [
-        GXPacket(
-            packet_collection.location[:, i],
-            packet_collection.direction[:, i],
-            packet_collection.energy_rf[i],
-            packet_collection.energy_cmf[i],
-            packet_collection.nu_rf[i],
-            packet_collection.nu_cmf[i],
-            packet_collection.status[i],
-            packet_collection.shell[i],
-            packet_collection.time_start[i],
-            packet_collection.time_index[i],
-        )
-        for i in range(number_of_packets)
-    ]
+    #logger.info("Creating packet list")
+    #packets = []
+    ## This for loop is expensive. Need to rewrite GX packet to handle arrays
 
-    # Calculate isotope positron fraction separately
-    isotope_positron_fraction = legacy_calculate_positron_fraction(
-        legacy_isotope_decacy_df, packet_collection.source_isotopes, number_of_packets
-    )
-    for i, p in enumerate(packets):
-        total_energy[p.shell, p.time_index] += isotope_positron_fraction[i] * energy_per_packet
+#    #packets = get_packet_properties_parallel(
+    #    packet_collection, number_of_packets)
 
-    logger.info(
-        "Total energy deposited by the positrons is %s", total_energy.sum().sum()
-    )
+#    ## Calculate isotope positron fraction separately
+    #isotope_positron_fraction = legacy_calculate_positron_fraction(
+    #    legacy_isotope_decacy_df, packet_collection.source_isotopes, number_of_packets
+    #)
+    #for i, p in enumerate(packets):
+    #    total_energy[p.shell, p.time_index] += isotope_positron_fraction[i] * energy_per_packet
+
+#    #logger.info(
+    #    "Total energy deposited by the positrons is %s", total_energy.sum().sum()
+    # )
 
     # positron_energy = total_energy
 
     # Copy the positron energy to a new dataframe
-    positron_energy_df = pd.DataFrame(data=total_energy.copy(), columns=times[:-1])
+    #positron_energy_df = pd.DataFrame(data=total_energy.copy(), columns=times[:-1])
 
+    number_of_threads = get_num_threads()
+
+    #for packet_index in range(number_of_packets):
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
-    energy_out = np.zeros((len(energy_bins - 1), len(times) - 1))
-    energy_out_cosi = np.zeros((len(energy_bins - 1), len(times) - 1))
-    energy_deposited = np.zeros((number_of_shells, len(times) - 1))
+    energy_out = np.zeros((number_of_threads, len(energy_bins) - 1, len(times) - 1))
+    energy_out_cosi = np.zeros((len(energy_bins) - 1, len(times) - 1))
+    energy_deposited = np.zeros((number_of_threads, number_of_shells , len(times) - 1))
     packets_info_array = np.zeros((int(number_of_packets), 8))
-    iron_group_fraction = iron_group_fraction_per_shell(simulation_state)
+    iron_group_fraction = iron_group_fraction_per_shell(simulation_state).to_numpy()
 
     logger.info("Entering the main gamma-ray loop")
 
     total_cmf_energy = 0
     total_rf_energy = 0
 
-    for p in packets:
-        total_cmf_energy += p.energy_cmf
-        total_rf_energy += p.energy_rf
+    (energy_out,
+    energy_deposited_gamma) = run_gamma_ray_loop_parallel(packet_collection,
+                                number_of_packets,
+                                grey_opacity,
+                                photo_absorption_opacity,
+                                pair_creation_opacity,
+                                electron_number_density_time,
+                                mass_density_time,
+                                iron_group_fraction,
+                                inner_velocities,
+                                outer_velocities,
+                                dt_array,
+                                times,
+                                effective_time_array,
+                                energy_bins,
+                                energy_out,
+                                energy_out_cosi,
+                                total_energy,
+                                energy_deposited,
+                                )
+    return (energy_out,
+            energy_deposited_gamma
+           )
 
-    logger.info("Total CMF energy is %s", total_cmf_energy)
-    logger.info("Total RF energy is %s", total_rf_energy)
 
-    (
-        energy_out,
-        energy_out_cosi,
-        packets_array,
+
+    #for p in packets:
+    #    total_cmf_energy += p.energy_cmf
+    #    total_rf_energy += p.energy_rf
+
+    #logger.info("Total CMF energy is %s", total_cmf_energy)
+    #logger.info("Total RF energy is %s", total_rf_energy)
+
+    #(
+    #    energy_out,
+    #    energy_out_cosi
+
+    # Run the gamma-ray loop in parallel    (
+
+    #    packets_array,
+    #    energy_deposited_gamma,
+    #    total_energy,
+    #) = gamma_packet_loop(
+    #    packets,
+    #    grey_opacity,
+    #    photoabsorption_opacity,
+    #    pair_creation_opacity,
+    #     electron_number_density_time,
+    #     mass_density_time,
+    #     iron_group_fraction.to_numpy(),
+    #     inner_velocities,
+    #     outer_velocities,
+    #     dt_array,
+    #     times,
+    #     effective_time_array,
+    #     energy_bins,
+    #     energy_out,
+    #     energy_out_cosi,
+    #     total_energy,
+    #     energy_deposited,
+    #     packets_info_array,
+    # )
+
+#     # packets_df_escaped = pd.DataFrame(
+    #     data=packets_array,
+    #     columns=[
+    #         "packet_index",
+    #         "status",
+    #         "nu_cmf",
+    #         "nu_rf",
+    #         "energy_cmf",
+    #         "luminosity",
+    #         "energy_rf",
+    #        "shell_number",
+    #     ],
+    # )
+
+#     # escape_energy = pd.DataFrame(
+    #     data=energy_out, columns=times[:-1], index=energy_bins
+    # )
+
+#     # escape_energy_cosi = pd.DataFrame(
+    #     data=energy_out_cosi, columns=times[:-1], index=energy_bins
+    # )
+
+#     # # deposited energy by gamma-rays in ergs
+    # gamma_ray_deposited_energy = pd.DataFrame(
+    #    data=energy_deposited_gamma, columns=times[:-1]
+    # )
+    # # deposited energy by positrons and gamma-rays in ergs
+    # total_energy = pd.DataFrame(
+    #    data=total_energy, columns=times[:-1]
+    # )
+
+#     # logger.info(
+    #    "Total energy deposited by gamma rays and positrons is %s",
+    #     total_energy.sum().sum(),
+    # )
+
+#     # total_deposited_energy = total_energy / dt_array
+
+#     # return (
+    #     escape_energy,
+    #     escape_energy_cosi,
+    #    packets_df_escaped,
+    #     gamma_ray_deposited_energy,
+    #     total_deposited_energy,
+    #     positron_energy_df
+    # )
+
+
+# def get_packet_properties(number_of_shells, times, time_steps, packets):
+    # """
+    # Function to get the properties of the packets.
+
+#     # Parameters
+    # ----------
+    # packets : list
+    #     List of packets.
+
+
+# 
+
+@njit(**njit_dict_no_parallel)
+def run_gamma_ray_loop_parallel(packet_collection,
+                                number_of_packets,
+                                grey_opacity,
+                                photo_absorption_opacity,
+                                pair_creation_opacity,
+                                electron_number_density_time,
+                                mass_density_time,
+                                iron_group_fraction,
+                                inner_velocities,
+                                outer_velocities,
+                                dt_array,
+                                times,
+                                effective_time_array,
+                                energy_bins,
+                                energy_out,
+                                energy_out_cosi,
+                                total_energy,
+                                energy_deposited_gamma,
+                                show_progress_bars=True
+                                ):
+    
+    """    
+    Function to run the gamma-ray loop in parallel.
+    """
+
+    main_thread_id = get_thread_id()
+    n_threads = get_num_threads()
+
+    for i in prange(number_of_packets):
+        thread_id = get_thread_id()
+        if show_progress_bars:
+            if thread_id == main_thread_id:
+                with objmode:
+                    update_amount = 1 * n_threads
+                    update_packet_pbar(
+                        update_amount,
+                        current_iteration=1,
+                        no_of_packets=number_of_packets,
+                        total_iterations=1,
+                    )
+
+
+        gx_packet = GXPacket(
+           packet_collection.location[:, i],
+           packet_collection.direction[:, i],
+           packet_collection.energy_rf[i],
+           packet_collection.energy_cmf[i],
+           packet_collection.nu_rf[i],
+           packet_collection.nu_cmf[i],
+           packet_collection.status[i],
+           packet_collection.shell[i],
+           packet_collection.time_start[i],
+           packet_collection.time_index[i],
+       )
+        
+        (
+        packet_info, 
+        ejecta_energy_gained, 
+        ) = single_gamma_packet_loop(
+            gx_packet,
+            grey_opacity,
+            photo_absorption_opacity,
+            pair_creation_opacity,
+            electron_number_density_time,
+            mass_density_time,
+            iron_group_fraction,
+            inner_velocities,
+            outer_velocities,
+            dt_array,
+            times,
+            effective_time_array,
+            energy_bins,
+            energy_out,
+            energy_out_cosi,
+            total_energy,
+            energy_deposited_gamma,
+        )
+        # print (gx_packet.shell)
+        if gx_packet.status != 5:
+            energy_deposited_gamma[thread_id, gx_packet.shell, gx_packet.time_index] += ejecta_energy_gained
+        else:
+            pass
+
+
+
+        rest_energy = gx_packet.nu_rf * H_CGS_KEV
+        bin_index = get_index(rest_energy, energy_bins)
+        bin_width = energy_bins[bin_index + 1] - energy_bins[bin_index]
+        freq_bin_width = bin_width / H_CGS_KEV
+        energy_out[thread_id, bin_index, gx_packet.time_index] += (
+            gx_packet.energy_rf
+                    / dt_array[gx_packet.time_index]
+                    / freq_bin_width
+                )
+        #total_energy[i, gx_packet.shell, time_index] = ejecta_energy_gained
+    
+    energy_deposited_gamma = energy_deposited_gamma.sum(axis=0)
+    energy_out = energy_out.sum(axis=0)
+    # Fix with positrons energy later
+    #total_energy = energy_deposited_gamma
+
+    return (energy_out,
         energy_deposited_gamma,
-        total_energy,
-    ) = gamma_packet_loop(
-        packets,
-        grey_opacity,
-        photoabsorption_opacity,
-        pair_creation_opacity,
-        electron_number_density_time,
-        mass_density_time,
-        iron_group_fraction.to_numpy(),
-        inner_velocities,
-        outer_velocities,
-        dt_array,
-        times,
-        effective_time_array,
-        energy_bins,
-        energy_out,
-        energy_out_cosi,
-        total_energy,
-        energy_deposited,
-        packets_info_array,
-    )
-
-    packets_df_escaped = pd.DataFrame(
-        data=packets_array,
-        columns=[
-            "packet_index",
-            "status",
-            "nu_cmf",
-            "nu_rf",
-            "energy_cmf",
-            "luminosity",
-            "energy_rf",
-            "shell_number",
-        ],
-    )
-
-    escape_energy = pd.DataFrame(
-        data=energy_out, columns=times[:-1], index=energy_bins
-    )
-
-    escape_energy_cosi = pd.DataFrame(
-        data=energy_out_cosi, columns=times[:-1], index=energy_bins
-    )
-
-    # deposited energy by gamma-rays in ergs
-    gamma_ray_deposited_energy = pd.DataFrame(
-        data=energy_deposited_gamma, columns=times[:-1]
-    )
-    # deposited energy by positrons and gamma-rays in ergs
-    total_energy = pd.DataFrame(
-        data=total_energy, columns=times[:-1]
-    )
-
-    logger.info(
-        "Total energy deposited by gamma rays and positrons is %s",
-        total_energy.sum().sum(),
-    )
-
-    total_deposited_energy = total_energy / dt_array
-
-    return (
-        escape_energy,
-        escape_energy_cosi,
-        packets_df_escaped,
-        gamma_ray_deposited_energy,
-        total_deposited_energy,
-        positron_energy_df
-    )
-
-
-def get_packet_properties(number_of_shells, times, time_steps, packets):
-    """
-    Function to get the properties of the packets.
-
-    Parameters
-    ----------
-    packets : list
-        List of packets.
-
-    Returns
-    -------
-    packets_nu_cmf_array : np.ndarray
-        Array of packets in cmf.
-    packets_nu_rf_array : np.ndarray
-        Array of packets in rf.
-    packets_energy_cmf_array : np.ndarray
-        Array of packets energy in cmf.
-    packets_energy_rf_array : np.ndarray
-        Array of packets energy in rf.
-    packets_positron_energy_array : np.ndarray
-        Array of packets positron energy.
-    """
-    shell_number = []
-    time_current = []
-
-    # Bin the frequency of the packets in shell and time
-
-    packets_nu_cmf_array = np.zeros((number_of_shells, time_steps))
-    packets_nu_rf_array = np.zeros((number_of_shells, time_steps))
-    packets_energy_cmf_array = np.zeros((number_of_shells, time_steps))
-    packets_energy_rf_array = np.zeros((number_of_shells, time_steps))
-    packets_positron_energy_array = np.zeros((number_of_shells, time_steps))
-
-    for p in packets:
-        time_index = get_index(p.time_current, times)
-        shell_number.append(p.shell)
-        time_current.append(p.time_current)
-        packets_nu_cmf_array[p.shell, time_index] += p.nu_cmf
-        packets_nu_rf_array[p.shell, time_index] += p.nu_rf
-        packets_energy_cmf_array[p.shell, time_index] += p.energy_cmf
-        packets_energy_rf_array[p.shell, time_index] += p.energy_rf
-        packets_positron_energy_array[p.shell, time_index] += p.positron_energy
-
-    return (
-        packets_nu_cmf_array,
-        packets_nu_rf_array,
-        packets_energy_cmf_array,
-        packets_energy_rf_array,
-        packets_positron_energy_array,
-    )
+        )
