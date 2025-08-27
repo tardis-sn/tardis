@@ -175,30 +175,30 @@ def increment_escat_contrib(
     return escat_contrib, first, pJred_lu
 
 # initialize I_nu_p with the blackbody intensities (as necessary)
-# @njit(**njit_dict)
-# def init_Inup_numba(inu, ps, iT, Rph, N, size_shell, geometry, time_explosion):
-#     inu_size = len(inu)
+@njit(**njit_dict)
+def init_Inup_numba(inu, ps, iT, Rph, N, size_shell, geometry, time_explosion):
+    inu_size = len(inu)
 
-#     I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
-#     zs = np.zeros((N, 2 * size_shell), dtype=np.float64)
-#     shell_ids = np.zeros((N, 2 * size_shell), dtype=np.int64)
-#     size_zs = np.zeros(N, dtype=np.int64)
+    I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
+    zs = np.zeros((N, 2 * size_shell), dtype=np.float64)
+    shell_ids = np.zeros((N, 2 * size_shell), dtype=np.int64)
+    size_zs = np.zeros(N, dtype=np.int64)
 
-#     for nu_idx in prange(inu_size):
-#         I_nu = I_nu_p[nu_idx]
-#         nu = inu[nu_idx]
-#         for p_idx in range(1, N):
-#             p = ps[p_idx]
+    for nu_idx in prange(inu_size):
+        I_nu = I_nu_p[nu_idx]
+        nu = inu[nu_idx]
+        for p_idx in range(1, N):
+            p = ps[p_idx]
 
-#             size_z = populate_z(geometry, time_explosion, p, zs[p_idx], shell_ids[p_idx])
-#             size_zs[p_idx] = size_z
+            size_z = populate_z(geometry, time_explosion, p, zs[p_idx], shell_ids[p_idx])
+            size_zs[p_idx] = size_z
 
-#             if p <= Rph:
-#                 I_nu[p_idx] = intensity_black_body(nu * zs[p_idx][0], iT)
-#             else:
-#                 I_nu[p_idx] = 0
+            if p <= Rph:
+                I_nu[p_idx] = intensity_black_body(nu * zs[p_idx][0], iT)
+            else:
+                I_nu[p_idx] = 0
     
-#     return I_nu_p, zs, shell_ids, size_zs
+    return I_nu_p, zs, shell_ids, size_zs
 
 
 @njit(**njit_dict_no_parallel)
@@ -240,17 +240,14 @@ def numba_formal_integral(
     line_list_nu = plasma.line_list_nu
     # done with instantiation
     # now loop over wavelength in spectrum
-    I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
+    # I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
 
-    # I_nu_p, zs, shell_ids, size_zs = init_Inup_numba(
-    #     inu, pp, iT, R_ph, N, size_shell, geometry, time_explosion
-    # )
-
+    I_nu_p, zs, shell_ids, size_zs = init_Inup_numba(
+        inu, pp, iT, R_ph, N, size_shell, geometry, time_explosion
+    )
 
     for nu_idx in prange(inu_size):
         I_nu = I_nu_p[nu_idx]
-        z = np.zeros(2 * size_shell, dtype=np.float64)
-        shell_id = np.zeros(2 * size_shell, dtype=np.int64)
         first = 0
 
         nu = inu[nu_idx]
@@ -258,16 +255,11 @@ def numba_formal_integral(
         for p_idx in range(1, N):
             escat_contrib = 0
             p = pp[p_idx]
+            z = zs[p_idx]
+            shell_id = shell_ids[p_idx]
+            size_z = size_zs[p_idx]
 
-            # initialize z intersections for p values
-            size_z = populate_z(
-                geometry, time_explosion, p, z, shell_id
-            )  # check returns
-            # initialize I_nu
-            if p <= R_ph:
-                I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
-            else:
-                I_nu[p_idx] = 0
+            # init black_body moved up
 
             # find first contributing lines
             nu_start = nu * z[0]
