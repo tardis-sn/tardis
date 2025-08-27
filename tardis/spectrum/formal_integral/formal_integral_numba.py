@@ -248,7 +248,6 @@ def numba_formal_integral(
 
     for nu_idx in prange(inu_size):
         I_nu = I_nu_p[nu_idx]
-        first = 0
 
         nu = inu[nu_idx]
         # now loop over discrete values along line
@@ -270,10 +269,8 @@ def numba_formal_integral(
             zstart = time_explosion / C_INV * (1.0 - z[0])
             # Initialize "pointers"
             pline = int(idx_nu_start)
-            pexp_tau = int(offset + idx_nu_start)
-            patt_S_ul = int(offset + idx_nu_start)
+            pline_offset = int(offset + idx_nu_start)
             pJred_lu = int(offset + idx_nu_start)
-            pJblue_lu = int(offset + idx_nu_start)
 
             # flag for first contribution to integration on current p-ray
             first = 1
@@ -301,28 +298,26 @@ def numba_formal_integral(
                         zend,
                         zstart,
                         escat_op,
-                        Jblue_lu[pJblue_lu],
+                        Jblue_lu[pline_offset],
                         Jred_lu[pJred_lu],
                         I_nu[p_idx]
                     )
 
                     I_nu[p_idx] += escat_contrib
                     # // Lucy 1999, Eq 26
-                    I_nu[p_idx] *= exp_tau[pexp_tau]
-                    I_nu[p_idx] += att_S_ul[patt_S_ul]
+                    I_nu[p_idx] *= exp_tau[pline_offset]
+                    I_nu[p_idx] += att_S_ul[pline_offset]
 
                     # // reset e-scattering opacity
                     escat_contrib = 0
                     zstart = zend
 
                     pline += 1
-                    pexp_tau += 1
-                    patt_S_ul += 1
-                    pJblue_lu += 1
+                    pline_offset += 1
 
                 # calculate e-scattering optical depth to grid cell boundary
 
-                Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
+                Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pline_offset])
                 zend = time_explosion / C_INV * (1.0 - nu_end / nu)  # check
                 escat_contrib += (
                     (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
@@ -331,10 +326,8 @@ def numba_formal_integral(
 
                 # advance pointers
                 direction = int((shell_id[i + 1] - shell_id[i]) * size_line)
-                pexp_tau += direction
-                patt_S_ul += direction
+                pline_offset += direction
                 pJred_lu += direction
-                pJblue_lu += direction
             I_nu[p_idx] *= p
         L[nu_idx] = 8 * np.pi * np.pi * trapezoid_integration(I_nu, R_max / N)
 
