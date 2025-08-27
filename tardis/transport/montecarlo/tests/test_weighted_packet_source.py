@@ -2,7 +2,7 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
 
-from tardis.transport.montecarlo.weighted_packet_source import (
+from tardis.transport.montecarlo.packet_source import (
     BlackBodyWeightedSource,
 )
 
