@@ -302,41 +302,20 @@ def numba_formal_integral(
                         * (1.0 - line_list_nu[pline] / nu)
                     )  # check
 
-                    # Jblue_lu_i = Jblue_lu[pJblue_lu]
-                    # Jred_lu_i = Jred_lu[pJred_lu]
-                    # I_nu_i = I_nu[p_idx]
-                    # escat_contrib, first, pJred_lu = increment_escat_contrib(
-                    #     escat_contrib, 
-                    #     first,
-                    #     pJred_lu,
-                    #     zend,
-                    #     zstart,
-                    #     escat_op,
-                    #     Jblue_lu_i,
-                    #     Jred_lu_i,
-                    #     I_nu_i
-                    # )
-
-                    if first == 1:
-                        # first contribution to integration
-                        # NOTE: this treatment of I_nu_b (given
-                        #   by boundary conditions) is not in Lucy 1999;
-                        #   should be re-examined carefully
-                        escat_contrib += (
-                            (zend - zstart)
-                            * escat_op
-                            * (Jblue_lu[pJblue_lu] - I_nu[p_idx])
-                        )
-                        first = 0
-                    else:
-                        # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-                        Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-                        escat_contrib += (
-                            (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
-                        )
-                        # this introduces the necessary ffset of one element between
-                        # pJblue_lu and pJred_lu
-                        pJred_lu += 1
+                    Jblue_lu_i = Jblue_lu[pJblue_lu]
+                    Jred_lu_i = Jred_lu[pJred_lu]
+                    I_nu_i = I_nu[p_idx]
+                    escat_contrib, first, pJred_lu = increment_escat_contrib(
+                        escat_contrib, 
+                        first,
+                        pJred_lu,
+                        zend,
+                        zstart,
+                        escat_op,
+                        Jblue_lu_i,
+                        Jred_lu_i,
+                        I_nu_i
+                    )
 
                     I_nu[p_idx] += escat_contrib
                     # // Lucy 1999, Eq 26
