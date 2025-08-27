@@ -138,41 +138,36 @@ def trapezoid_integration(array, h):
 calculate_p_values = njit(calculate_p_values, **njit_dict_no_parallel)
 intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 
+
 @njit(**njit_dict_no_parallel)
 def increment_escat_contrib(
-        escat_contrib,
-        first,
-        pJred_lu,
-        zend,
-        zstart,
-        escat_op,
-        Jblue_lu, 
-        Jred_lu,
-        I_nu_p
-    ):
-
+    escat_contrib,
+    first,
+    pJred_lu,
+    zend,
+    zstart,
+    escat_op,
+    Jblue_lu,
+    Jred_lu,
+    I_nu_p,
+):
     if first == 1:
         # first contribution to integration
         # NOTE: this treatment of I_nu_b (given
         #   by boundary conditions) is not in Lucy 1999;
         #   should be re-examined carefully
-        escat_contrib += (
-            (zend - zstart)
-            * escat_op
-            * (Jblue_lu - I_nu_p)
-        )
+        escat_contrib += (zend - zstart) * escat_op * (Jblue_lu - I_nu_p)
         first = 0
     else:
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
         Jkkp = 0.5 * (Jred_lu + Jblue_lu)
-        escat_contrib += (
-            (zend - zstart) * escat_op * (Jkkp - I_nu_p)
-        )
+        escat_contrib += (zend - zstart) * escat_op * (Jkkp - I_nu_p)
         # this introduces the necessary ffset of one element between
         # pJblue_lu and pJred_lu
         pJred_lu += 1
 
     return escat_contrib, first, pJred_lu
+
 
 # initialize I_nu_p with the blackbody intensities (as necessary)
 @njit(**njit_dict)
@@ -192,7 +187,9 @@ def init_Inup_numba(inu, ps, iT, Rph, N, size_shell, geometry, time_explosion):
             p = ps[p_idx]
 
             # get zs
-            size_z = populate_z(geometry, time_explosion, p, zs[p_idx], shell_ids[p_idx])
+            size_z = populate_z(
+                geometry, time_explosion, p, zs[p_idx], shell_ids[p_idx]
+            )
             size_zs[p_idx] = size_z
 
             # if inside the photosphere, set to black body intensity
@@ -201,7 +198,7 @@ def init_Inup_numba(inu, ps, iT, Rph, N, size_shell, geometry, time_explosion):
                 I_nu[p_idx] = intensity_black_body(nu * zs[p_idx][0], iT)
             else:
                 I_nu[p_idx] = 0
-    
+
     return I_nu_p, zs, shell_ids, size_zs
 
 
@@ -265,7 +262,7 @@ def numba_formal_integral(
             offset = shell_id[0] * size_line
             # start tracking accumulated e-scattering optical depth
             zstart = time_explosion / C_INV * (1.0 - z[0])
-            
+
             # Initialize "pointers"
             pline = int(idx_nu_start)
             pline_offset = int(offset + idx_nu_start)
@@ -291,7 +288,7 @@ def numba_formal_integral(
                     )  # check
 
                     escat_contrib, first, pJred_lu = increment_escat_contrib(
-                        escat_contrib, 
+                        escat_contrib,
                         first,
                         pJred_lu,
                         zend,
@@ -299,7 +296,7 @@ def numba_formal_integral(
                         escat_op,
                         Jblue_lu[pline_offset],
                         Jred_lu[pJred_lu],
-                        I_nu[p_idx]
+                        I_nu[p_idx],
                     )
 
                     I_nu[p_idx] += escat_contrib
