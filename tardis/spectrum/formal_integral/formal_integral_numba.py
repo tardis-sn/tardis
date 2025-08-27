@@ -138,7 +138,7 @@ def trapezoid_integration(array, h):
 calculate_p_values = njit(calculate_p_values, **njit_dict_no_parallel)
 intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 
-# @njit(**njit_dict_no_parallel)
+@njit(**njit_dict_no_parallel)
 def increment_escat_contrib(
         escat_contrib,
         first,
@@ -176,26 +176,32 @@ def increment_escat_contrib(
 
 # initialize I_nu_p with the blackbody intensities (as necessary)
 # @njit(**njit_dict)
-# def init_Inup_numba(inu, ps, zs, iT, Rph, N, size_shell):
+# def init_Inup_numba(inu, ps, iT, Rph, N, size_shell, geometry, time_explosion):
 #     inu_size = len(inu)
+
 #     I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
-    
+#     zs = np.zeros((N, 2 * size_shell), dtype=np.float64)
+#     shell_ids = np.zeros((N, 2 * size_shell), dtype=np.int64)
+#     size_zs = np.zeros(N, dtype=np.int64)
+
 #     for nu_idx in prange(inu_size):
 #         I_nu = I_nu_p[nu_idx]
-#         z = np.zeros(2 * size_shell, dtype=np.float64)
 #         nu = inu[nu_idx]
 #         for p_idx in range(1, N):
 #             p = ps[p_idx]
-#             z = zs[p_idx]
+
+#             size_z = populate_z(geometry, time_explosion, p, zs[p_idx], shell_ids[p_idx])
+#             size_zs[p_idx] = size_z
+
 #             if p <= Rph:
-#                 I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
+#                 I_nu[p_idx] = intensity_black_body(nu * zs[p_idx][0], iT)
 #             else:
 #                 I_nu[p_idx] = 0
     
-#     return I_nu_p
+#     return I_nu_p, zs, shell_ids, size_zs
 
 
-# @njit(**njit_dict_no_parallel)
+@njit(**njit_dict_no_parallel)
 def numba_formal_integral(
     geometry,
     time_explosion,
@@ -235,30 +241,17 @@ def numba_formal_integral(
     # done with instantiation
     # now loop over wavelength in spectrum
     I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
+
+    # I_nu_p, zs, shell_ids, size_zs = init_Inup_numba(
+    #     inu, pp, iT, R_ph, N, size_shell, geometry, time_explosion
+    # )
+
+
     for nu_idx in prange(inu_size):
         I_nu = I_nu_p[nu_idx]
         z = np.zeros(2 * size_shell, dtype=np.float64)
         shell_id = np.zeros(2 * size_shell, dtype=np.int64)
-        offset = 0
-        size_z = 0
-        idx_nu_start = 0
-        direction = 0
         first = 0
-        i = 0
-        p = 0.0
-        nu_start = 0.0
-        nu_end = 0.0
-        nu = 0.0
-        zstart = 0.0
-        zend = 0.0
-        escat_contrib = 0.0
-        escat_op = 0.0
-        Jkkp = 0.0
-        pexp_tau = 0
-        patt_S_ul = 0
-        pJred_lu = 0
-        pJblue_lu = 0
-        pline = 0
 
         nu = inu[nu_idx]
         # now loop over discrete values along line
@@ -306,23 +299,44 @@ def numba_formal_integral(
                     zend = (
                         time_explosion
                         / C_INV
-                        * (1.0 - line_list_nu[pline] / nu.value)
+                        * (1.0 - line_list_nu[pline] / nu)
                     )  # check
 
-                    Jblue_lu_i = Jblue_lu[pJblue_lu]
-                    Jred_lu_i = Jred_lu[pJred_lu]
-                    I_nu_i = I_nu[p_idx]
-                    escat_contrib, first, pJred_lu = increment_escat_contrib(
-                        escat_contrib, 
-                        first,
-                        pJred_lu,
-                        zend,
-                        zstart,
-                        escat_op,
-                        Jblue_lu_i,
-                        Jred_lu_i,
-                        I_nu_i
-                    )
+                    # Jblue_lu_i = Jblue_lu[pJblue_lu]
+                    # Jred_lu_i = Jred_lu[pJred_lu]
+                    # I_nu_i = I_nu[p_idx]
+                    # escat_contrib, first, pJred_lu = increment_escat_contrib(
+                    #     escat_contrib, 
+                    #     first,
+                    #     pJred_lu,
+                    #     zend,
+                    #     zstart,
+                    #     escat_op,
+                    #     Jblue_lu_i,
+                    #     Jred_lu_i,
+                    #     I_nu_i
+                    # )
+
+                    if first == 1:
+                        # first contribution to integration
+                        # NOTE: this treatment of I_nu_b (given
+                        #   by boundary conditions) is not in Lucy 1999;
+                        #   should be re-examined carefully
+                        escat_contrib += (
+                            (zend - zstart)
+                            * escat_op
+                            * (Jblue_lu[pJblue_lu] - I_nu[p_idx])
+                        )
+                        first = 0
+                    else:
+                        # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
+                        Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
+                        escat_contrib += (
+                            (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
+                        )
+                        # this introduces the necessary ffset of one element between
+                        # pJblue_lu and pJred_lu
+                        pJred_lu += 1
 
                     I_nu[p_idx] += escat_contrib
                     # // Lucy 1999, Eq 26
