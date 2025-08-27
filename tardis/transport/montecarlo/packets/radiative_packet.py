@@ -61,7 +61,8 @@ class RPacket:
         nu : float
             Initial frequency [Hz].
         energy : float
-            Initial energy [erg].
+            Initial energy. Energy units are scaled with time_simulation.
+            Adds all up to 1 in a single run.
         seed : int
             Random number seed.
         index : int, optional
