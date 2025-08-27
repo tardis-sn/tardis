@@ -283,7 +283,7 @@ def opacity_state_numba_initialize(
         photo_ion_activation_idx = plasma.photo_ion_idx.loc[
             plasma.level2continuum_idx.index, "destination_level_idx"
         ].values
-        k_packet_idx = int(plasma.k_packet_idx)
+        k_packet_idx = plasma.k_packet_idx
     else:
         bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
         p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
