@@ -32,6 +32,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: "linux-64"
+          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardis/master"
 
       - name: Dump Secret Key
         run: echo "$KEY_SECRET_JSON" > key_secret.json
