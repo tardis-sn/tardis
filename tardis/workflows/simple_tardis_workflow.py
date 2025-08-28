@@ -13,11 +13,14 @@ from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
 from tardis.workflows.workflow_logging import WorkflowLogging
 
@@ -414,8 +417,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         virtual_packet_energies = self.transport_solver.run(
             self.transport_state,
-            iteration=self.completed_iterations,
-            total_iterations=self.total_iterations,
             show_progress_bars=self.show_progress_bars,
         )
 
@@ -464,11 +465,15 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 transport=self.transport_solver,
                 plasma=self.plasma_solver,
                 opacity_state=opacity_states["opacity_state"],
-                macro_atom_state=opacity_states["macro_atom_state"]
+                macro_atom_state=opacity_states["macro_atom_state"],
             )
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
+        # Initialize iterations progress bar if showing progress bars
+        if self.show_progress_bars:
+            initialize_iterations_pbar(self.total_iterations)
+
         self.converged = False
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
