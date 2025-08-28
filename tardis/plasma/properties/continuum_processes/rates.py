@@ -18,6 +18,7 @@ from tardis.plasma.properties.continuum_processes.fast_array_util import (
 from tardis.transport.montecarlo.estimators.util import (
     integrate_array_by_blocks,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 __all__ = [
     "CorrPhotoIonRateCoeff",
@@ -683,7 +684,7 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         continuum_idx = level2continuum_idx.loc[p_fb_deactivation.index].values
         p_fb_deactivation = p_fb_deactivation.set_index(
             continuum_idx
-        ).sort_index(ascending=True)
+        ).sort_index(ascending=True, kind=SORTING_ALGORITHM)
         p_fb_deactivation.index.name = "continuum_idx"
         return cool_rate_fb_tot, cool_rate_fb, p_fb_deactivation
 

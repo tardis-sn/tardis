@@ -21,6 +21,7 @@ from tardis.util.base import (
     int_to_roman,
 )
 from tardis.visualization import plot_util as pu
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 logger = logging.getLogger(__name__)
 
@@ -338,7 +339,7 @@ class SDECPlotter:
 
         # Sort the element list based on the total contribution
         sorted_list = self.total_luminosities_df.sum().sort_values(
-            ascending=False
+            ascending=False, kind=SORTING_ALGORITHM
         )
 
         if nelements is None and self._species_list is None:
@@ -370,7 +371,9 @@ class SDECPlotter:
                 )
                 setattr(self, df_name, processed_df)
 
-            self.species = np.sort(self.total_luminosities_df.columns[1:])
+            self.species = np.sort(
+                self.total_luminosities_df.columns[1:], kind=SORTING_ALGORITHM
+            )
 
         else:  # nelements is not None
             top_n_keys = sorted_list.keys()[:nelements]
@@ -396,7 +399,9 @@ class SDECPlotter:
                 )
                 setattr(self, df_name, processed_df)
 
-            self.species = np.sort(self.total_luminosities_df.columns[1:])
+            self.species = np.sort(
+                self.total_luminosities_df.columns[1:], kind=SORTING_ALGORITHM
+            )
 
         # Final calculations
         self.photosphere_luminosity = self._calculate_photosphere_luminosity()

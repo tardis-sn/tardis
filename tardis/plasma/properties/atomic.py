@@ -21,6 +21,7 @@ from tardis.plasma.properties.continuum_processes.rates import (
     H,
     get_ground_state_multi_index,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 logger = logging.getLogger(__name__)
 
@@ -204,7 +205,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
 
         level2continuum_edge_idx = pd.Series(
             np.arange(len(nu_i)),
-            nu_i.sort_values(ascending=False).index,
+            nu_i.sort_values(ascending=False, kind=SORTING_ALGORITHM).index,
             name="continuum_idx",
         )
 

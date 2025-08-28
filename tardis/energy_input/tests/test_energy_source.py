@@ -5,6 +5,7 @@ import pytest
 from tardis.energy_input.samplers import (
     create_energy_cdf,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 @pytest.mark.parametrize(
@@ -23,7 +24,7 @@ def test_create_energy_cdf(energy, intensity, expected_cdf):
     expected_cdf : One-dimensional Numpy Array, dtype float
     """
     actual_energy, actual_cdf = create_energy_cdf(energy, intensity)
-    expected_energy = np.sort(energy)
+    expected_energy = np.sort(energy, kind=SORTING_ALGORITHM)
 
     npt.assert_array_almost_equal_nulp(actual_cdf, expected_cdf)
     npt.assert_array_almost_equal_nulp(actual_energy, expected_energy)
