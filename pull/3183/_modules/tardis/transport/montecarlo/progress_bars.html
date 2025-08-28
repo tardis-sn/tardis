@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=e3bb0ef8"></script>
+      <script src="../../../../_static/documentation_options.js?v=a3453da1"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -152,58 +152,6 @@ packet_pbar = tqdm(
     postfix=&quot;0&quot;,
     bar_format=&quot;{desc:&lt;}{bar}{n_fmt}/{total_fmt} [{elapsed}&lt;{remaining}, {rate_fmt}]&quot;,
 )
-
-
-<div class="viewcode-block" id="update_packet_pbar">
-<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.update_packet_pbar">[docs]</a>
-def update_packet_pbar(
-    i: int, current_iteration: int, no_of_packets: int, total_iterations: int
-) -&gt; None:
-    &quot;&quot;&quot;
-    Update progress bars as each packet is propagated.
-
-    Parameters
-    ----------
-    i : int
-        Amount by which the progress bar needs to be updated.
-    current_iteration : int
-        Current iteration number.
-    no_of_packets : int
-        Total number of packets in one iteration.
-    total_iterations : int
-        Total number of iterations.
-    &quot;&quot;&quot;
-    if packet_pbar.postfix == &quot;&quot;:
-        packet_pbar.postfix = &quot;0&quot;
-    bar_iteration = int(packet_pbar.postfix) - 1
-
-    # fix bar layout when run_tardis is called for the first time
-    if iterations_pbar.total == None:
-        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
-    if packet_pbar.total == None:
-        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
-
-    # display and reset progress bar when run_tardis is called again
-    if iterations_pbar.n == total_iterations:
-        if type(iterations_pbar).__name__ == &quot;tqdm_notebook&quot;:
-            iterations_pbar.container.close()
-        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
-
-    if bar_iteration &gt; current_iteration:
-        packet_pbar.postfix = current_iteration
-        if type(packet_pbar).__name__ == &quot;tqdm_notebook&quot;:
-            # stop displaying last container
-            packet_pbar.container.close()
-        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
-
-    # reset progress bar with each iteration
-    if bar_iteration &lt; current_iteration:
-        packet_pbar.reset(total=no_of_packets)
-        packet_pbar.postfix = str(current_iteration + 1)
-
-    packet_pbar.update(i)</div>
-
-
 
 <div class="viewcode-block" id="update_packets_pbar">
 <a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.update_packets_pbar">[docs]</a>
