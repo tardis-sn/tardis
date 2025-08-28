@@ -91,7 +91,6 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
         self.formal_integral_solver.integrator.formal_integral(
             sim_state.t_inner,
             nu,
-            nu.shape[0],
             att_S_ul,
             Jred_lu,
             Jblue_lu,
