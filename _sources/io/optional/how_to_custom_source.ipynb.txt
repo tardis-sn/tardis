@@ -44,7 +44,7 @@
     "\n",
     "from tardis import run_tardis\n",
     "from tardis.io.atom_data import download_atom_data\n",
-    "from tardis.transport.montecarlo.packet_source import BlackBodySimpleSource\n",
+    "from tardis.transport.montecarlo.packet_source.black_body import BlackBodySimpleSource\n",
     "from tardis.transport.montecarlo.packets.packet_collections import (\n",
     "    PacketCollection,\n",
     ")"
