@@ -17,6 +17,7 @@ from tardis.energy_input.transport.gamma_packet_loop import gamma_packet_loop
 from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import get_index
 from tardis.model.base import SimulationState
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -191,7 +192,9 @@ def run_gamma_ray_loop(
     # TODO: decaying upto times[0]. raw_isotope_abundance is possibly not the best name
     isotopic_mass_fraction = (
         simulation_state.composition.isotopic_mass_fraction.sort_values(
-            by=["atomic_number", "mass_number"], ascending=False, kind="stable"
+            by=["atomic_number", "mass_number"],
+            ascending=False,
+            kind=SORTING_ALGORITHM,
         )
     )
 

@@ -18,6 +18,7 @@ from tardis.visualization.widgets.util import (
     create_table_widget,
 )
 from tardis.util.environment import Environment
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class LineInfoWidget:
@@ -224,7 +225,7 @@ class LineInfoWidget:
         )
         fractional_species_interactions.name = "Fraction of packets interacting"
         return fractional_species_interactions.sort_values(
-            ascending=False, kind="stable"
+            ascending=False, kind=SORTING_ALGORITHM
         ).to_frame()
 
     def get_last_line_counts(
@@ -398,7 +399,7 @@ class LineInfoWidget:
             last_line_interaction_string, name="Last Line Interaction"
         )
         return last_line_counts.sort_values(
-            ascending=False, kind="stable"
+            ascending=False, kind=SORTING_ALGORITHM
         ).to_frame()
 
     @staticmethod
@@ -414,7 +415,7 @@ class LineInfoWidget:
         -------
         list
         """
-        arr = np.sort(arr, kind="stable")
+        arr = np.sort(arr, kind=SORTING_ALGORITHM)
         return [
             (arr[-1] - arr[0]) / 4 + arr[1],
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],

@@ -4,6 +4,7 @@ import pandas as pd
 from astropy import units as u
 from radioactivedecay import Inventory, Nuclide
 from radioactivedecay.utils import Z_to_elem, elem_to_Z
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +111,7 @@ class IsotopicMassFraction(pd.DataFrame):
             item.decay(t_second, "s") for item in inventories
         ]
         df = IsotopicMassFraction.from_inventories(decayed_inventories)
-        df = df.sort_index(kind="stable")
+        df = df.sort_index(kind=SORTING_ALGORITHM)
         assert df.ge(0.0).all().all(), (
             "Negative abundances detected. Please make sure your input abundances are correct."
         )

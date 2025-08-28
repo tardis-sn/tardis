@@ -5,6 +5,7 @@ from astropy import units as u
 from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 
 from tardis.model.matter.decay import IsotopicMassFraction
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 def compile_rd_isotope_masses():
@@ -34,7 +35,7 @@ def compile_rd_isotope_masses():
     )
     isotope_masses = pd.Series(
         index=isotope_mass_index, data=nuclide_masses
-    ).sort_index(kind="stable")
+    ).sort_index(kind=SORTING_ALGORITHM)
     # there are duplicates that are likely due to excited states
     # dropping them for now
 

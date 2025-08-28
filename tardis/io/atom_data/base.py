@@ -16,6 +16,7 @@ from tardis.io.atom_data.util import resolve_atom_data_fname
 from tardis.plasma.properties.continuum_processes.rates import (
     get_ground_state_multi_index,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class AtomDataNotPreparedError(Exception):
@@ -453,7 +454,7 @@ class AtomData:
         # this is important especially after numpy v2 release
         # https://numpy.org/doc/stable/release/2.0.0-notes.html#minor-changes-in-behavior-of-sorting-functions
         self.lines = self.lines.sort_values(
-            by=["wavelength", "line_id"], kind="stable"
+            by=["wavelength", "line_id"], kind=SORTING_ALGORITHM
         )
 
     def prepare_line_level_indexes(self):
@@ -524,7 +525,7 @@ class AtomData:
 
         self.level2continuum_edge_idx = pd.Series(
             np.arange(len(nu_ion_threshold)),
-            nu_ion_threshold.sort_values(ascending=False, kind="stable").index,
+            nu_ion_threshold.sort_values(ascending=False, kind=SORTING_ALGORITHM).index,
             name="continuum_idx",
         )
 

@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class RadiativeRatesSolver:
@@ -22,7 +23,7 @@ class RadiativeRatesSolver:
             < einstein_coefficients.index.get_level_values("level_number_upper")
         )
         self.einstein_coefficients = einstein_coefficients.sort_index(
-            kind="stable"
+            kind=SORTING_ALGORITHM
         )
 
     def solve(self, radiation_field):

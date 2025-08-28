@@ -3,6 +3,7 @@ from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis import constants as const
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 @pytest.fixture
@@ -48,7 +49,7 @@ def test_atom_data_levels(levels):
 
 
 def test_atom_data_lines(lines):
-    sorted_lines = lines.sort_index(kind="stable")
+    sorted_lines = lines.sort_index(kind=SORTING_ALGORITHM)
     assert_quantity_allclose(
         sorted_lines.loc[(2, 0, 0, 6), "wavelength_cm"].values[0]
         * u.Unit("cm"),

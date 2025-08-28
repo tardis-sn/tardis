@@ -33,6 +33,7 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
@@ -176,7 +177,7 @@ class CustomAbundanceWidgetData:
         abundance["mass_number"] = ""
         abundance = abundance.set_index("mass_number", append=True)
         abundance = pd.concat([abundance, isotope_abundance])
-        abundance = abundance.sort_index(kind="stable")
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         return cls(
             density_t_0=time_0,
@@ -223,7 +224,7 @@ class CustomAbundanceWidgetData:
         abundance["mass_number"] = ""
         abundance = abundance.set_index("mass_number", append=True)
         abundance = pd.concat([abundance, isotopic_mass_fraction])
-        abundance = abundance.sort_index(kind="stable")
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         return cls(
             density_t_0=density_t_0,
@@ -289,7 +290,7 @@ class CustomAbundanceWidgetData:
         abundance["mass_number"] = ""
         abundance = abundance.set_index("mass_number", append=True)
         abundance = pd.concat([abundance, isotope_abundance])
-        abundance = abundance.sort_index(kind="stable")
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         velocity = sim.simulation_state.velocity
         density_t_0 = sim.simulation_state.time_explosion
@@ -1047,7 +1048,7 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index(kind="stable")
+        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new BoundedFloatText control and Checkbox control.
         item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
@@ -1467,7 +1468,7 @@ class CustomAbundanceWidget:
             first_row = [0] * self.no_of_elements
             data.loc[-1] = first_row
             data.index += 1  # shifting index
-            data = data.sort_index(kind="stable")
+            data = data.sort_index(kind=SORTING_ALGORITHM)
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
                 lambda x: f"{x:.3e}"
