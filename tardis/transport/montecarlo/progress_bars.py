@@ -20,55 +20,6 @@ packet_pbar = tqdm(
     bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
 )
 
-
-def update_packet_pbar(
-    i: int, current_iteration: int, no_of_packets: int, total_iterations: int
-) -> None:
-    """
-    Update progress bars as each packet is propagated.
-
-    Parameters
-    ----------
-    i : int
-        Amount by which the progress bar needs to be updated.
-    current_iteration : int
-        Current iteration number.
-    no_of_packets : int
-        Total number of packets in one iteration.
-    total_iterations : int
-        Total number of iterations.
-    """
-    if packet_pbar.postfix == "":
-        packet_pbar.postfix = "0"
-    bar_iteration = int(packet_pbar.postfix) - 1
-
-    # fix bar layout when run_tardis is called for the first time
-    if iterations_pbar.total == None:
-        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
-    if packet_pbar.total == None:
-        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
-
-    # display and reset progress bar when run_tardis is called again
-    if iterations_pbar.n == total_iterations:
-        if type(iterations_pbar).__name__ == "tqdm_notebook":
-            iterations_pbar.container.close()
-        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
-
-    if bar_iteration > current_iteration:
-        packet_pbar.postfix = current_iteration
-        if type(packet_pbar).__name__ == "tqdm_notebook":
-            # stop displaying last container
-            packet_pbar.container.close()
-        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
-
-    # reset progress bar with each iteration
-    if bar_iteration < current_iteration:
-        packet_pbar.reset(total=no_of_packets)
-        packet_pbar.postfix = str(current_iteration + 1)
-
-    packet_pbar.update(i)
-
-
 def update_packets_pbar(i: int, no_of_packets: int) -> None:
     """
     Update packet progress bar with packet count updates only.
