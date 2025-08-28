@@ -163,17 +163,18 @@ def setup_formal_integral_inputs(
     size_line, size_shell = tau_sobolev.shape
     exp_tau = np.exp(-tau_sobolev.T.ravel())
     R_max = geometry.r_outer[size_shell - 1]
-    Rph = geometry.r_inner[0]
+    R_photosphere = geometry.r_inner[0]
 
     ps = np.zeros(points, dtype=np.float64)
     ps[::] = calculate_p_values(R_max, points)
 
-    I_nu_p = np.zeros((n_frequencies, points), dtype=np.float64)
+    # prepare arrays for returned parameters
+    intensities_nu_p = np.zeros((n_frequencies, points), dtype=np.float64)
     zs = np.zeros((points, 2 * size_shell), dtype=np.float64)
     shell_ids = np.zeros((points, 2 * size_shell), dtype=np.int64)
     size_zs = np.zeros(points, dtype=np.int64)
 
-    # nu start and nu_start idx not needed other than to compute internal values
+
     lines_idx = np.zeros((n_frequencies, points), dtype=np.int64)
     lines_idx_offset = np.zeros((n_frequencies, points), dtype=np.int64)
     
@@ -187,7 +188,7 @@ def setup_formal_integral_inputs(
 
     # loop over nu and p
     for nu_idx in prange(n_frequencies):
-        I_nu = I_nu_p[nu_idx]
+        intensities_nu = intensities_nu_p[nu_idx]
         nu = frequencies[nu_idx]
         for p_idx in range(1, points):
             p = ps[p_idx]
@@ -202,10 +203,10 @@ def setup_formal_integral_inputs(
 
             # if inside the photosphere, set to black body intensity
             # otherwise zero
-            if p <= Rph:
-                I_nu[p_idx] = intensity_black_body(nu * z[0], inner_temperature)
+            if p <= R_photosphere:
+                intensities_nu[p_idx] = intensity_black_body(nu * z[0], inner_temperature)
             else:
-                I_nu[p_idx] = 0
+                intensities_nu[p_idx] = 0
 
             # compute quantities for line interactions
             nu_start = nu * z[0]
@@ -228,7 +229,7 @@ def setup_formal_integral_inputs(
                 directions[nu_idx, p_idx, i] = int((shell_ids[p_idx][i + 1] - shell_ids[p_idx][i]) * size_line)
 
 
-    return I_nu_p, ps, size_zs, lines_idx, lines_idx_offset, nu_ends, nu_ends_idxs, zstarts, escat_ops, directions, exp_tau
+    return intensities_nu_p, ps, size_zs, lines_idx, lines_idx_offset, nu_ends, nu_ends_idxs, zstarts, escat_ops, directions, exp_tau
 
 @njit(**njit_dict_no_parallel)
 def increment_escat_contrib(
@@ -240,7 +241,7 @@ def increment_escat_contrib(
     escat_op,
     Jblue_lu,
     Jred_lu,
-    I_nu_p,
+    intensities_nu_p,
 ):
 
     if first == 1:
@@ -248,12 +249,12 @@ def increment_escat_contrib(
         # NOTE: this treatment of I_nu_b (given
         #   by boundary conditions) is not in Lucy 1999;
         #   should be re-examined carefully
-        escat_contrib += (zend - zstart) * escat_op * (Jblue_lu - I_nu_p)
+        escat_contrib += (zend - zstart) * escat_op * (Jblue_lu - intensities_nu_p)
         first = 0
     else:
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
         Jkkp = 0.5 * (Jred_lu + Jblue_lu)
-        escat_contrib += (zend - zstart) * escat_op * (Jkkp - I_nu_p)
+        escat_contrib += (zend - zstart) * escat_op * (Jkkp - intensities_nu_p)
         # this introduces the necessary offset of one element between
         # pJblue_lu and pJred_lu
         pJred_lu += 1
@@ -279,7 +280,7 @@ def numba_formal_integral(
     -------
     L : float64 array
         integrated luminosities
-    I_nu_p : float64 2D array
+    intensities_nu_p : float64 2D array
         intensities at each p-ray multiplied by p
         frequency x p-ray grid
     """
@@ -291,12 +292,12 @@ def numba_formal_integral(
     line_list_nu = plasma.line_list_nu
 
     # prepare all of the quantities needed for the loops
-    (I_nu_p, ps, size_zs, lines_idx, lines_idx_offset, nu_ends, nu_ends_idxs, zstarts, escat_ops, directions, exp_tau ) = setup_formal_integral_inputs(
+    (intensities_nu_p, ps, size_zs, lines_idx, lines_idx_offset, nu_ends, nu_ends_idxs, zstarts, escat_ops, directions, exp_tau ) = setup_formal_integral_inputs(
             frequencies, inner_temperature, points, geometry, time_explosion, line_list_nu, tau_sobolev, electron_density)
 
     # now loop over wavelength in spectrum
     for nu_idx in prange(n_frequencies):
-        I_nu = I_nu_p[nu_idx]
+        intensities_nu = intensities_nu_p[nu_idx]
         nu = frequencies[nu_idx]
 
         # now loop over discrete values along line
@@ -339,13 +340,13 @@ def numba_formal_integral(
                         escat_op,
                         Jblue_lu[line_idx_offset],
                         Jred_lu[line_Jred_lu_idx],
-                        I_nu[p_idx],
+                        intensities_nu[p_idx],
                     )
 
-                    I_nu[p_idx] += escat_contrib
+                    intensities_nu[p_idx] += escat_contrib
                     # Lucy 1999, Eq 26
-                    I_nu[p_idx] *= exp_tau[line_idx_offset]
-                    I_nu[p_idx] += att_S_ul[line_idx_offset]
+                    intensities_nu[p_idx] *= exp_tau[line_idx_offset]
+                    intensities_nu[p_idx] += att_S_ul[line_idx_offset]
 
                     # reset e-scattering opacity
                     escat_contrib = 0
@@ -358,7 +359,7 @@ def numba_formal_integral(
                 Jkkp = 0.5 * (Jred_lu[line_Jred_lu_idx] + Jblue_lu[line_idx_offset])
                 zend = time_explosion / C_INV * (1.0 - nu_end / nu)
                 escat_contrib += (
-                    (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
+                    (zend - zstart) * escat_op * (Jkkp - intensities_nu[p_idx])
                 )
                 zstart = zend
 
@@ -366,10 +367,10 @@ def numba_formal_integral(
                 direction = directions[nu_idx, p_idx, i]
                 line_idx_offset += direction
                 line_Jred_lu_idx += direction
-            I_nu[p_idx] *= p
-        L[nu_idx] = 8 * np.pi * np.pi * trapezoid_integration(I_nu, R_max / points)
+            intensities_nu[p_idx] *= p
+        L[nu_idx] = 8 * np.pi * np.pi * trapezoid_integration(intensities_nu, R_max / points)
 
-    return L, I_nu_p
+    return L, intensities_nu_p
 
 
 class NumbaFormalIntegrator:
