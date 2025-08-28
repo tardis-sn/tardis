@@ -474,7 +474,6 @@ class CudaFormalIntegrator:
         self,
         iT,
         inu,
-        inu_size,
         att_S_ul,
         Jred_lu,
         Jblue_lu,
@@ -488,6 +487,7 @@ class CudaFormalIntegrator:
         # global read-only values
         size_line, size_shell = tau_sobolev.shape  # int64, int64
         size_tau = size_line * size_shell  # int64
+        inu_size = len(inu)
 
         pp = np.zeros(N, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.zeros(size_tau, dtype=np.float64)  # array(float64, 1d, C)

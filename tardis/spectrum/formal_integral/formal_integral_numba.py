@@ -138,9 +138,9 @@ intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 
 @njit(**njit_dict)
 def setup_formal_integral_inputs(
-        inu,
-        iT,
-        N, 
+        frequencies,
+        inner_temperature,
+        points, 
         geometry, 
         time_explosion,
         line_list_nu,
@@ -159,37 +159,37 @@ def setup_formal_integral_inputs(
         direction (?) can also be precomputed
     """
 
-    inu_size = len(inu)
+    n_frequencies = len(frequencies)
     size_line, size_shell = tau_sobolev.shape
     exp_tau = np.exp(-tau_sobolev.T.ravel())
     R_max = geometry.r_outer[size_shell - 1]
     Rph = geometry.r_inner[0]
 
-    ps = np.zeros(N, dtype=np.float64)
-    ps[::] = calculate_p_values(R_max, N)
+    ps = np.zeros(points, dtype=np.float64)
+    ps[::] = calculate_p_values(R_max, points)
 
-    I_nu_p = np.zeros((inu_size, N), dtype=np.float64)
-    zs = np.zeros((N, 2 * size_shell), dtype=np.float64)
-    shell_ids = np.zeros((N, 2 * size_shell), dtype=np.int64)
-    size_zs = np.zeros(N, dtype=np.int64)
+    I_nu_p = np.zeros((n_frequencies, points), dtype=np.float64)
+    zs = np.zeros((points, 2 * size_shell), dtype=np.float64)
+    shell_ids = np.zeros((points, 2 * size_shell), dtype=np.int64)
+    size_zs = np.zeros(points, dtype=np.int64)
 
     # nu start and nu_start idx not needed other than to compute internal values
-    lines_idx = np.zeros((inu_size, N), dtype=np.int64)
-    lines_idx_offset = np.zeros((inu_size, N), dtype=np.int64)
+    lines_idx = np.zeros((n_frequencies, points), dtype=np.int64)
+    lines_idx_offset = np.zeros((n_frequencies, points), dtype=np.int64)
     
-    zstarts = np.zeros(N, dtype=np.float64)
+    zstarts = np.zeros(points, dtype=np.float64)
 
-    nu_ends = np.zeros((inu_size, N, 2 * size_shell-1), dtype=np.float64)
-    nu_ends_idxs = np.zeros((inu_size, N, 2 * size_shell-1), dtype=np.int64)
+    nu_ends = np.zeros((n_frequencies, points, 2 * size_shell-1), dtype=np.float64)
+    nu_ends_idxs = np.zeros((n_frequencies, points, 2 * size_shell-1), dtype=np.int64)
 
-    escat_ops = np.zeros((inu_size, N, 2 * size_shell), dtype=np.float64)
-    directions = np.zeros((inu_size, N, 2 * size_shell), dtype=np.int64)
+    escat_ops = np.zeros((n_frequencies, points, 2 * size_shell), dtype=np.float64)
+    directions = np.zeros((n_frequencies, points, 2 * size_shell), dtype=np.int64)
 
     # loop over nu and p
-    for nu_idx in prange(inu_size):
+    for nu_idx in prange(n_frequencies):
         I_nu = I_nu_p[nu_idx]
-        nu = inu[nu_idx]
-        for p_idx in range(1, N):
+        nu = frequencies[nu_idx]
+        for p_idx in range(1, points):
             p = ps[p_idx]
 
             # get zs
@@ -203,7 +203,7 @@ def setup_formal_integral_inputs(
             # if inside the photosphere, set to black body intensity
             # otherwise zero
             if p <= Rph:
-                I_nu[p_idx] = intensity_black_body(nu * z[0], iT)
+                I_nu[p_idx] = intensity_black_body(nu * z[0], inner_temperature)
             else:
                 I_nu[p_idx] = 0
 
@@ -265,15 +265,14 @@ def numba_formal_integral(
     geometry,
     time_explosion,
     plasma,
-    iT,
-    inu,
-    inu_size,
+    inner_temperature,
+    frequencies,
     att_S_ul,
     Jred_lu,
     Jblue_lu,
     tau_sobolev,
     electron_density,
-    N,
+    points,
 ):
     """
     Returns
@@ -285,22 +284,23 @@ def numba_formal_integral(
         frequency x p-ray grid
     """
     # Initialize the output which is shared among threads
-    L = np.zeros(inu_size, dtype=np.float64)
+    n_frequencies = len(frequencies)
+    L = np.zeros(n_frequencies, dtype=np.float64)
 
     R_max = geometry.r_outer[-1]
-    line_list_nu = plasma.line_list.nu
+    line_list_nu = plasma.line_list_nu
 
     # prepare all of the quantities needed for the loops
     (I_nu_p, ps, size_zs, lines_idx, lines_idx_offset, nu_ends, nu_ends_idxs, zstarts, escat_ops, directions, exp_tau ) = setup_formal_integral_inputs(
-            inu, iT, N, geometry, time_explosion, line_list_nu, tau_sobolev, electron_density)
+            frequencies, inner_temperature, points, geometry, time_explosion, line_list_nu, tau_sobolev, electron_density)
 
     # now loop over wavelength in spectrum
-    for nu_idx in prange(inu_size):
+    for nu_idx in prange(n_frequencies):
         I_nu = I_nu_p[nu_idx]
-        nu = inu[nu_idx]
+        nu = frequencies[nu_idx]
 
         # now loop over discrete values along line
-        for p_idx in range(1, N):
+        for p_idx in range(1, points):
             escat_contrib = 0
             p = ps[p_idx]
             size_z = size_zs[p_idx]
@@ -367,7 +367,7 @@ def numba_formal_integral(
                 line_idx_offset += direction
                 line_Jred_lu_idx += direction
             I_nu[p_idx] *= p
-        L[nu_idx] = 8 * np.pi * np.pi * trapezoid_integration(I_nu, R_max / N)
+        L[nu_idx] = 8 * np.pi * np.pi * trapezoid_integration(I_nu, R_max / points)
 
     return L, I_nu_p
 
@@ -386,15 +386,14 @@ class NumbaFormalIntegrator:
 
     def formal_integral(
         self,
-        iT,
-        inu,
-        inu_size,
+        inner_temperature,
+        frequencies,
         att_S_ul,
         Jred_lu,
         Jblue_lu,
         tau_sobolev,
         electron_density,
-        N,
+        points,
     ):
         """
         Simple wrapper for the numba implementation of the formal integral
@@ -403,13 +402,12 @@ class NumbaFormalIntegrator:
             self.geometry,
             self.time_explosion,
             self.plasma,
-            iT,
-            inu,
-            inu_size,
+            inner_temperature,
+            frequencies,
             att_S_ul,
             Jred_lu,
             Jblue_lu,
             tau_sobolev,
             electron_density,
-            N,
+            points,
         )

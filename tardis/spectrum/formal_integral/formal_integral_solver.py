@@ -217,7 +217,6 @@ class FormalIntegralSolver:
         L, I_nu_p = self.integrator.formal_integral(
             simulation_state.t_inner,
             nu,
-            nu.shape[0],
             att_S_ul,
             Jred_lu,
             Jblue_lu,
