@@ -5,19 +5,16 @@ import pytest
 from numba import njit
 
 from tardis.opacities.opacity_state import opacity_state_initialize
+from tardis.opacities.opacity_state_numba import (
+    opacity_state_numba_initialize,
+)
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.opacities.opacity_state_numba import (
-    opacity_state_numba_initialize,
-)
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
-)
-from tardis.transport.montecarlo.weighted_packet_source import (
-    BlackBodyWeightedSource,
 )
 
 
@@ -42,13 +39,6 @@ def nb_simulation_verysimple(config_verysimple, atomic_dataset):
     sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(10)
     return sim
-
-
-@pytest.fixture(scope="package")
-def simple_weighted_packet_source():
-    packet_source = BlackBodyWeightedSource(base_seed=1963)
-
-    return packet_source
 
 
 @pytest.fixture(scope="package")
