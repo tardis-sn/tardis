@@ -44,7 +44,7 @@ def populate_z(geometry, time_explosion, p, oz, oshell_id):
     """
     # abbreviations
     r = geometry.r_outer
-    N = len(geometry.r_inner)  # check
+    N = len(geometry.r_inner)
     inv_t = 1 / time_explosion
     z = 0
     offset = N
@@ -68,7 +68,6 @@ def populate_z(geometry, time_explosion, p, oz, oshell_id):
             i_low = N - i - 1  # the far intersection with the shell
             i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
-            # setting the arrays; check return them?
             oz[i_low] = 1 + z
             oshell_id[i_low] = i
             oz[i_up] = 1 - z
@@ -89,9 +88,9 @@ def reverse_binary_search(x, x_insert, imin, imax):
     Outputs:
         index of the next boundary to the left
     """
-    # ret_val = TARDIS_ERROR_OK # check
+
     if (x_insert > x[imin]) or (x_insert < x[imax]):
-        raise BoundsError  # check
+        raise BoundsError
     return len(x) - 1 - np.searchsorted(x[::-1], x_insert, side="right")
 
 
@@ -110,8 +109,7 @@ def line_search(nu, nu_insert, number_of_lines):
                 If the key value is redder
                  than the reddest line returns number_of_lines.
     """
-    # TODO: fix the TARDIS_ERROR_OK
-    # tardis_error_t ret_val = TARDIS_ERROR_OK # check
+
     imin = 0
     imax = number_of_lines - 1
     if nu_insert > nu[imin]:
@@ -209,6 +207,7 @@ def setup_formal_integral_inputs(
             else:
                 I_nu[p_idx] = 0
 
+            # compute quantities for line interactions
             nu_start = nu * z[0]
 
             idx_nu_start = line_search(line_list_nu, nu_start, size_line)
@@ -226,7 +225,6 @@ def setup_formal_integral_inputs(
                 escat_ops[nu_idx, p_idx, i] = (
                     electron_densities[int(shell_ids[p_idx][i])] * SIGMA_THOMSON
                 )
-                # compute nu_end_idx - line_idx
                 directions[nu_idx, p_idx, i] = int((shell_ids[p_idx][i + 1] - shell_ids[p_idx][i]) * size_line)
 
 
@@ -256,7 +254,7 @@ def increment_escat_contrib(
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
         Jkkp = 0.5 * (Jred_lu + Jblue_lu)
         escat_contrib += (zend - zstart) * escat_op * (Jkkp - I_nu_p)
-        # this introduces the necessary ffset of one element between
+        # this introduces the necessary offset of one element between
         # pJblue_lu and pJred_lu
         pJred_lu += 1
 
@@ -288,26 +286,14 @@ def numba_formal_integral(
     """
     # Initialize the output which is shared among threads
     L = np.zeros(inu_size, dtype=np.float64)
-    # global read-only values
-    # size_line, size_shell = tau_sobolev.shape
-    # size_tau = size_line * size_shell
-    # R_ph = geometry.r_inner[0]  # make sure these are cgs
-    # R_max = geometry.r_outer[size_shell - 1]
-    # pp = np.zeros(N, dtype=np.float64)  # check
-    # exp_tau = np.zeros(size_tau, dtype=np.float64)
-    # exp_tau = np.exp(-tau_sobolev.T.ravel())  # maybe make this 2D?
-    # pp[::] = calculate_p_values(R_max, N)
-    line_list_nu = plasma.line_list_nu
-    
-    # I_nu_p, zs, shell_ids, size_zs = init_Inup_numba(
-    #     inu, pp, iT, R_ph, N, size_shell, geometry, time_explosion
-    # )
+
     R_max = geometry.r_outer[-1]
+    line_list_nu = plasma.line_list.nu
+
+    # prepare all of the quantities needed for the loops
     (I_nu_p, ps, size_zs, lines_idx, lines_idx_offset, nu_ends, nu_ends_idxs, zstarts, escat_ops, directions, exp_tau ) = setup_formal_integral_inputs(
             inu, iT, N, geometry, time_explosion, line_list_nu, tau_sobolev, electron_density)
 
-
-    # done with instantiation
     # now loop over wavelength in spectrum
     for nu_idx in prange(inu_size):
         I_nu = I_nu_p[nu_idx]
@@ -317,22 +303,12 @@ def numba_formal_integral(
         for p_idx in range(1, N):
             escat_contrib = 0
             p = ps[p_idx]
-            # z = zs[p_idx]
-            # shell_id = shell_ids[p_idx]
             size_z = size_zs[p_idx]
 
             # find first contributing lines
-            # nu_start = nu * z[0]
-            # idx_nu_start = line_search(plasma.line_list_nu, nu_start, size_line)
-            # offset = shell_id[0] * size_line
-            # start tracking accumulated e-scattering optical depth
-            # zstart = time_explosion / C_INV * (1.0 - z[0])
             zstart = zstarts[p_idx]
 
             # Initialize "pointers"
-            # pline = int(idx_nu_start)
-            # pline_offset = int(offset + idx_nu_start)
-            # pJred_lu = int(offset + idx_nu_start)
             line_idx = lines_idx[nu_idx, p_idx]
             line_idx_offset = lines_idx_offset[nu_idx, p_idx]
             line_Jred_lu_idx = lines_idx_offset[nu_idx, p_idx]
@@ -340,16 +316,9 @@ def numba_formal_integral(
 
             # flag for first contribution to integration on current p-ray
             first = 1
-            # nu_ends = nu * z[1:]
-            # nu_ends = nu_ends
-            # nu_ends_idxs = size_line - np.searchsorted(
-            #     line_list_nu[::-1], nu_ends, side="right"
-            # )
-            # nu_ends_idxs = nu_ends_idxs[nu_idx, p_idx]
 
             # loop over all interactions
             for i in range(size_z - 1):
-                # escat_op = electron_density[int(shell_id[i])] * SIGMA_THOMSON
                 escat_op = escat_ops[nu_idx, p_idx, i]
                 nu_end = nu_ends[nu_idx, p_idx, i]
                 nu_end_idx = nu_ends_idxs[nu_idx, p_idx, i]
@@ -359,7 +328,7 @@ def numba_formal_integral(
                         time_explosion
                         / C_INV
                         * (1.0 - line_list_nu[line_idx] / nu)
-                    )  # check
+                    )
 
                     escat_contrib, first, line_Jred_lu_idx = increment_escat_contrib(
                         escat_contrib,
@@ -374,11 +343,11 @@ def numba_formal_integral(
                     )
 
                     I_nu[p_idx] += escat_contrib
-                    # // Lucy 1999, Eq 26
+                    # Lucy 1999, Eq 26
                     I_nu[p_idx] *= exp_tau[line_idx_offset]
                     I_nu[p_idx] += att_S_ul[line_idx_offset]
 
-                    # // reset e-scattering opacity
+                    # reset e-scattering opacity
                     escat_contrib = 0
                     zstart = zend
 
@@ -387,13 +356,13 @@ def numba_formal_integral(
 
                 # calculate e-scattering optical depth to grid cell boundary
                 Jkkp = 0.5 * (Jred_lu[line_Jred_lu_idx] + Jblue_lu[line_idx_offset])
-                zend = time_explosion / C_INV * (1.0 - nu_end / nu)  # check
+                zend = time_explosion / C_INV * (1.0 - nu_end / nu)
                 escat_contrib += (
                     (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx])
-                ) # check if cant use increment function here
+                )
                 zstart = zend
 
-                # advance pointers
+                # advance "pointers"
                 direction = directions[nu_idx, p_idx, i]
                 line_idx_offset += direction
                 line_Jred_lu_idx += direction
