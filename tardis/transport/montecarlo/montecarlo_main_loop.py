@@ -10,7 +10,7 @@ from tardis.transport.montecarlo.packet_collections import (
     consolidate_vpacket_tracker,
     initialize_last_interaction_tracker,
 )
-from tardis.transport.montecarlo.progress_bars import update_packet_pbar
+from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 from tardis.transport.montecarlo.r_packet import (
     PacketStatus,
     RPacket,
@@ -31,9 +31,7 @@ def montecarlo_main_loop(
     spectrum_frequency_grid,
     rpacket_trackers,
     number_of_vpackets,
-    iteration,
     show_progress_bars,
-    total_iterations,
 ):
     """This is the main loop of the MonteCarlo routine that generates packets
     and sends them through the ejecta.
@@ -53,16 +51,14 @@ def montecarlo_main_loop(
         Frequency bins
     number_of_vpackets : int
         VPackets released per interaction
-    iteration : int
-        Current iteration number
     show_progress_bars : bool
         Display progress bars
-    total_iterations : int
-        Maximum number of iterations
     """
     no_of_packets = len(packet_collection.initial_nus)
 
-    last_interaction_tracker = initialize_last_interaction_tracker(no_of_packets)
+    last_interaction_tracker = initialize_last_interaction_tracker(
+        no_of_packets
+    )
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
     delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
@@ -96,11 +92,9 @@ def montecarlo_main_loop(
             if thread_id == main_thread_id:
                 with objmode:
                     update_amount = 1 * n_threads
-                    update_packet_pbar(
+                    update_packets_pbar(
                         update_amount,
-                        current_iteration=iteration,
-                        no_of_packets=no_of_packets,
-                        total_iterations=total_iterations,
+                        no_of_packets,
                     )
 
         r_packet = RPacket(

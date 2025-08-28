@@ -30,6 +30,7 @@ from tardis.transport.montecarlo.packet_trackers import (
 )
 from tardis.transport.montecarlo.progress_bars import (
     refresh_packet_pbar,
+    reset_packet_pbar,
     update_iterations_pbar,
 )
 from tardis.util.base import (
@@ -146,8 +147,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
     def run(
         self,
         transport_state,
-        iteration=0,
-        total_iterations=0,
         show_progress_bars=True,
     ):
         """
@@ -155,16 +154,15 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         Parameters
         ----------
-        model : tardis.model.SimulationState
-        plasma : tardis.plasma.BasePlasma
-        no_of_packets : int
-        no_of_virtual_packets : int
-        total_iterations : int
-            The total number of iterations in the simulation.
+        transport_state : tardis.transport.montecarlo.transport_state.TransportState
+            Transport state containing all the data needed for the Monte Carlo simulation
+        show_progress_bars : bool
+            Show progress bars
 
         Returns
         -------
-        None
+        v_packets_energy_hist : ndarray
+            Histogram of energy from virtual packets
         """
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
@@ -179,8 +177,14 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             transport_state.rpacket_tracker = (
-                generate_rpacket_last_interaction_tracker_list(number_of_rpackets)
+                generate_rpacket_last_interaction_tracker_list(
+                    number_of_rpackets
+                )
             )
+
+        # Reset packet progress bar for this iteration
+        if show_progress_bars:
+            reset_packet_pbar(number_of_rpackets)
 
         (
             v_packets_energy_hist,
@@ -196,16 +200,18 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.spectrum_frequency_grid.value,
             transport_state.rpacket_tracker,
             number_of_vpackets,
-            iteration=iteration,
             show_progress_bars=show_progress_bars,
-            total_iterations=total_iterations,
         )
 
         transport_state.last_interaction_type = last_interaction_tracker.types
         transport_state.last_interaction_in_nu = last_interaction_tracker.in_nus
         transport_state.last_interaction_in_r = last_interaction_tracker.in_rs
-        transport_state.last_line_interaction_in_id = last_interaction_tracker.in_ids
-        transport_state.last_line_interaction_out_id = last_interaction_tracker.out_ids
+        transport_state.last_line_interaction_in_id = (
+            last_interaction_tracker.in_ids
+        )
+        transport_state.last_line_interaction_out_id = (
+            last_interaction_tracker.out_ids
+        )
         transport_state.last_line_interaction_shell_id = (
             last_interaction_tracker.shell_ids
         )
@@ -222,8 +228,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # Such that it also takes of the case of
         # RPacketLastInteractionTracker
         if self.enable_rpacket_tracking:
-            self.transport_state.rpacket_tracker_df = rpacket_trackers_to_dataframe(
-                self.transport_state.rpacket_tracker
+            self.transport_state.rpacket_tracker_df = (
+                rpacket_trackers_to_dataframe(
+                    self.transport_state.rpacket_tracker
+                )
             )
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
@@ -232,7 +240,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         return v_packets_energy_hist
 
     @classmethod
-    def from_config(cls, config, packet_source, enable_virtual_packet_logging=False):
+    def from_config(
+        cls, config, packet_source, enable_virtual_packet_logging=False
+    ):
         """
         Create a new MontecarloTransport instance from a Configuration object.
 
@@ -295,7 +305,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             config.montecarlo.tracking.initial_array_length
         )
 
-        radfield_prop_solver = MCRadiationFieldPropertiesSolver(config.plasma.w_epsilon)
+        radfield_prop_solver = MCRadiationFieldPropertiesSolver(
+            config.plasma.w_epsilon
+        )
 
         return cls(
             radfield_prop_solver=radfield_prop_solver,

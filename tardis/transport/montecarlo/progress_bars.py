@@ -2,6 +2,8 @@
 Progress bar utilities for Monte Carlo transport calculations.
 """
 
+from __future__ import annotations
+
 from tqdm.auto import tqdm
 
 from tardis.util.environment import Environment
@@ -67,6 +69,39 @@ def update_packet_pbar(
     packet_pbar.update(i)
 
 
+def update_packets_pbar(i: int, no_of_packets: int) -> None:
+    """
+    Update packet progress bar with packet count updates only.
+
+    This function only handles packet progress without iteration logic,
+    suitable for use within the montecarlo main loop.
+
+    Parameters
+    ----------
+    i : int
+        Amount by which the progress bar needs to be updated.
+    no_of_packets : int
+        Total number of packets in one iteration.
+    """
+    # Initialize packet progress bar if needed
+    if packet_pbar.total is None:
+        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
+
+    packet_pbar.update(i)
+
+
+def reset_packet_pbar(no_of_packets: int) -> None:
+    """
+    Reset the packet progress bar for a new iteration.
+
+    Parameters
+    ----------
+    no_of_packets : int
+        Total number of packets in the iteration.
+    """
+    packet_pbar.reset(total=no_of_packets)
+
+
 def refresh_packet_pbar() -> None:
     """
     Refresh packet progress bar after each iteration.
@@ -89,6 +124,19 @@ def update_iterations_pbar(i: int) -> None:
     iterations_pbar.update(i)
 
 
+def initialize_iterations_pbar(total_iterations: int) -> None:
+    """
+    Initialize the iterations progress bar with the total number of iterations.
+
+    Parameters
+    ----------
+    total_iterations : int
+        Total number of iterations.
+    """
+    if iterations_pbar.total is None:
+        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
+
+
 def fix_bar_layout(
     bar, no_of_packets: int | None = None, total_iterations: int | None = None
 ) -> None:
@@ -108,7 +156,10 @@ def fix_bar_layout(
         Total number of iterations, by default None.
     """
     # Check if we're in an environment that allows widget display and has notebook-style progress bar
-    if Environment.allows_widget_display() and type(bar).__name__ == "tqdm_notebook":
+    if (
+        Environment.allows_widget_display()
+        and type(bar).__name__ == "tqdm_notebook"
+    ):
         bar.container = bar.status_printer(
             bar.fp,
             bar.total,
