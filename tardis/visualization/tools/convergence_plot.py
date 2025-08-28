@@ -429,15 +429,5 @@ class ConvergencePlots:
             and self.plasma_plot is not None
             and self.t_inner_luminosities_plot is not None
         ):
-            # Only show at the very end to avoid multiple duplicate displays
-            try:
-                self.plasma_plot.show(renderer="notebook_connected")
-                self.t_inner_luminosities_plot.show(renderer="notebook_connected")
-            except ValueError as e:
-                # Fallback if notebook_connected renderer is not available or invalid
-                warnings.warn(
-                    f"Could not display plots with notebook_connected renderer: {e}. "
-                    "Plots may not display properly in static notebook viewers.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+            self.plasma_plot.show(renderer="notebook_connected")
+            self.t_inner_luminosities_plot.show(renderer="notebook_connected")
