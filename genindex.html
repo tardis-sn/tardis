@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=9afd9f61"></script>
+      <script src="_static/documentation_options.js?v=c4edb327"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1172,7 +1172,7 @@
         <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget.FILTER_MODES_DESC">(tardis.visualization.widgets.line_info.LineInfoWidget attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.util.base.html#tardis.util.base.fix_bar_layout">fix_bar_layout() (in module tardis.util.base)</a>
+      <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.fix_bar_layout">fix_bar_layout() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>
       <li><a href="api/tardis.spectrum.spectrum.html#tardis.spectrum.spectrum.TARDISSpectrum.flux_lambda">flux_lambda (tardis.spectrum.spectrum.TARDISSpectrum property)</a>
 </li>
@@ -1624,6 +1624,8 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.initialize_estimator_statistics">initialize_estimator_statistics() (in module tardis.transport.montecarlo.estimators.radfield_mc_estimators)</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.initialize_iterations_pbar">initialize_iterations_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
+</li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.initialize_j_blues">initialize_j_blues() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.initialize_last_interaction_tracker">initialize_last_interaction_tracker() (in module tardis.transport.montecarlo.packets.packet_collections)</a>
@@ -1676,10 +1678,10 @@
 </li>
       <li><a href="api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.intensity_ratio">intensity_ratio() (in module tardis.energy_input.energy_source)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.packets.packet_trackers.html#tardis.transport.montecarlo.packets.packet_trackers.RPacketLastInteractionTracker.interaction_type">interaction_type (tardis.transport.montecarlo.packets.packet_trackers.RPacketLastInteractionTracker attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.transport.montecarlo.packets.packet_trackers.html#tardis.transport.montecarlo.packets.packet_trackers.RPacketLastInteractionTracker.interaction_type">interaction_type (tardis.transport.montecarlo.packets.packet_trackers.RPacketLastInteractionTracker attribute)</a>
+</li>
       <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.InteractionType">InteractionType (class in tardis.transport.montecarlo.packets.radiative_packet)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.INTERNAL_DOWN">INTERNAL_DOWN (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
@@ -2518,6 +2520,8 @@
 </li>
         <li><a href="api/tardis.transport.montecarlo.packets.virtual_packet.html#module-tardis.transport.montecarlo.packets.virtual_packet">tardis.transport.montecarlo.packets.virtual_packet</a>
 </li>
+        <li><a href="api/tardis.transport.montecarlo.progress_bars.html#module-tardis.transport.montecarlo.progress_bars">tardis.transport.montecarlo.progress_bars</a>
+</li>
         <li><a href="api/tardis.transport.montecarlo.r_packet_transport.html#module-tardis.transport.montecarlo.r_packet_transport">tardis.transport.montecarlo.r_packet_transport</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.single_packet_loop.html#module-tardis.transport.montecarlo.single_packet_loop">tardis.transport.montecarlo.single_packet_loop</a>
@@ -3261,7 +3265,7 @@
 </li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.reformat_element_symbol">reformat_element_symbol() (in module tardis.util.base)</a>
 </li>
-      <li><a href="api/tardis.util.base.html#tardis.util.base.refresh_packet_pbar">refresh_packet_pbar() (in module tardis.util.base)</a>
+      <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.refresh_packet_pbar">refresh_packet_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe">reindex_ionization_rate_dataframe() (in module tardis.plasma.equilibrium.rates.util)</a>
 </li>
@@ -3272,6 +3276,8 @@
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.remove_callback">remove_callback() (tardis.simulation.base.Simulation method)</a>
 </li>
       <li><a href="api/tardis.plasma.base.html#tardis.plasma.base.BasePlasma.remove_hidden_properties">remove_hidden_properties() (tardis.plasma.base.BasePlasma method)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.reset_packet_pbar">reset_packet_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.reset_selected_plot_wavelength_range">reset_selected_plot_wavelength_range() (tardis.visualization.widgets.grotrian.GrotrianPlot method)</a>
 </li>
@@ -4409,8 +4415,6 @@
         <li><a href="api/tardis.plasma.properties.nlte.html#module-tardis.plasma.properties.nlte">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.nlte_excitation_data
 
@@ -4418,6 +4422,8 @@
         <li><a href="api/tardis.plasma.properties.nlte_excitation_data.html#module-tardis.plasma.properties.nlte_excitation_data">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.nlte_rate_equation_solver
 
@@ -4832,6 +4838,13 @@
 </li>
       </ul></li>
       <li>
+    tardis.transport.montecarlo.progress_bars
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.progress_bars.html#module-tardis.transport.montecarlo.progress_bars">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.transport.montecarlo.r_packet_transport
 
       <ul>
@@ -5210,7 +5223,7 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table">update_ion_count_table() (tardis.visualization.widgets.shell_info.ShellInfoWidget method)</a>
 </li>
-      <li><a href="api/tardis.util.base.html#tardis.util.base.update_iterations_pbar">update_iterations_pbar() (in module tardis.util.base)</a>
+      <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.update_iterations_pbar">update_iterations_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>
       <li><a href="api/tardis.analysis.html#tardis.analysis.LastLineInteraction.update_last_interaction_filter">update_last_interaction_filter() (tardis.analysis.LastLineInteraction method)</a>
 </li>
@@ -5220,7 +5233,7 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#tardis.transport.montecarlo.estimators.radfield_estimator_calcs.update_line_estimators">update_line_estimators() (in module tardis.transport.montecarlo.estimators.radfield_estimator_calcs)</a>
 </li>
-      <li><a href="api/tardis.util.base.html#tardis.util.base.update_packet_pbar">update_packet_pbar() (in module tardis.util.base)</a>
+      <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.update_packets_pbar">update_packets_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>
       <li><a href="api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.update_plasma_plots">update_plasma_plots() (tardis.visualization.tools.convergence_plot.ConvergencePlots method)</a>
 </li>
