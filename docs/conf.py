@@ -29,6 +29,9 @@ import sys
 import datetime
 import tardis  # FIXME: this import is required by astropy.constants
 
+# Set environment variable for TARDIS sphinx builds
+os.environ['TARDIS_SPHINX_BUILD'] = '1'
+
 from importlib import import_module
 import toml
 from pathlib import Path

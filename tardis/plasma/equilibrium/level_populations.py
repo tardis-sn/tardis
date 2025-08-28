@@ -33,7 +33,7 @@ class LevelPopulationSolver:
         normalized_ion_population = np.zeros(rates_matrix.shape[0])
         normalized_ion_population[0] = 1.0
         normalized_level_population = np.linalg.solve(
-            rates_matrix[:, :], normalized_ion_population
+            rates_matrix, normalized_ion_population
         )
         return normalized_level_population
 
@@ -58,9 +58,7 @@ class LevelPopulationSolver:
             # is needed
 
             solved_matrices = self.rates_matrices.loc[species_id].apply(
-                lambda rates_matrix: self.__calculate_level_population(
-                    rates_matrix
-                )
+                self.__calculate_level_population
             )
             normalized_level_populations.loc[species_id, :] = np.vstack(
                 solved_matrices.values
