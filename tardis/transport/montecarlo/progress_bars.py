@@ -2,8 +2,6 @@
 Progress bar utilities for Monte Carlo transport calculations.
 """
 
-from __future__ import annotations
-
 from tqdm.auto import tqdm
 
 from tardis.util.environment import Environment
@@ -88,9 +86,7 @@ def initialize_iterations_pbar(total_iterations: int) -> None:
         fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
 
 
-def fix_bar_layout(
-    bar, no_of_packets: int | None = None, total_iterations: int | None = None
-) -> None:
+def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
     """
     Fix the layout of progress bars.
 

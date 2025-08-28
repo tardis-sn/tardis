@@ -3,18 +3,27 @@ from numba import njit, objmode, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+)
+from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
+)
 from tardis.transport.montecarlo.packets.packet_collections import (
+    PacketCollection,
     VPacketCollection,
     consolidate_vpacket_tracker,
     initialize_last_interaction_tracker,
 )
-from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
 )
+from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 from tardis.transport.montecarlo.single_packet_loop import (
     single_packet_loop,
 )
@@ -22,37 +31,63 @@ from tardis.transport.montecarlo.single_packet_loop import (
 
 @njit(**njit_dict)
 def montecarlo_main_loop(
-    packet_collection,
-    geometry_state,
-    time_explosion,
-    opacity_state,
-    montecarlo_configuration,
-    estimators,
-    spectrum_frequency_grid,
-    rpacket_trackers,
-    number_of_vpackets,
-    show_progress_bars,
+    packet_collection: PacketCollection,
+    geometry_state_numba: NumbaRadial1DGeometry,
+    time_explosion: float,
+    opacity_state_numba: OpacityStateNumba,
+    montecarlo_configuration: MonteCarloConfiguration,
+    estimators: RadiationFieldMCEstimators,
+    spectrum_frequency_grid: np.ndarray,
+    rpacket_trackers: List,
+    number_of_vpackets: int,
+    show_progress_bars: bool,
 ):
-    """This is the main loop of the MonteCarlo routine that generates packets
-    and sends them through the ejecta.
+    """
+    Main loop of the Monte Carlo radiative transfer routine.
 
+    This function generates the packet objects from the packet collection and propagates them through the ejecta,
+    performing interactions and collecting statistics for the radiative
+    transfer simulation.
 
     Parameters
     ----------
     packet_collection : PacketCollection
-        Real packet collection
-    geometry_state : GeometryState
-        Simulation geometry
+        Collection containing initial packet properties (positions, directions,
+        frequencies, energies, and seeds)
+    geometry_state : NumbaRadial1DGeometry
+        Numba-compiled simulation geometry containing shell boundaries
+        and velocity information
     time_explosion : float
-        Time in seconds
-    opacity_state : OpacityState
-    estimators : Estimators
-    spectrum_frequency_grid :  astropy.units.Quantity
-        Frequency bins
+        Time since explosion in seconds, used for relativistic calculations
+    opacity_state : OpacityStateNumba
+        Numba-compiled opacity state containing line opacities, continuum
+        opacities, and atomic data required for interactions
+    montecarlo_configuration : MonteCarloConfiguration
+        Configuration object containing Monte Carlo simulation parameters
+        and flags for various physics modules
+    estimators : RadfieldMCEstimators
+        Estimator object for collecting radiation field statistics
+        during packet propagation
+    spectrum_frequency_grid : numpy.ndarray
+        Frequency grid array for virtual packet spectrum calculation
+    rpacket_trackers : numba.typed.List
+        List of packet trackers for detailed packet interaction logging
     number_of_vpackets : int
-        VPackets released per interaction
+        Number of virtual packets to spawn per real packet interaction
     show_progress_bars : bool
-        Display progress bars
+        Flag to enable/disable progress bar updates during simulation
+
+    Returns
+    -------
+    tuple
+        A tuple containing:
+        - v_packets_energy_hist : numpy.ndarray
+            Energy histogram of virtual packets binned by frequency
+        - last_interaction_tracker : LastInteractionTracker
+            Object tracking the last interaction properties for each packet
+        - vpacket_tracker : VPacketCollection
+            Consolidated virtual packet collection containing all virtual
+            packet information from the simulation
     """
     no_of_packets = len(packet_collection.initial_nus)
 
@@ -118,9 +153,9 @@ def montecarlo_main_loop(
 
         loop = single_packet_loop(
             r_packet,
-            geometry_state,
+            geometry_state_numba,
             time_explosion,
-            opacity_state,
+            opacity_state_numba,
             local_estimators,
             vpacket_collection,
             rpacket_tracker,
