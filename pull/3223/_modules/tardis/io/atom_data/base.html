@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=202d389e"></script>
+      <script src="../../../../_static/documentation_options.js?v=e88d2bd5"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -149,6 +149,7 @@ from tardis.io.atom_data.util import resolve_atom_data_fname
 from tardis.plasma.properties.continuum_processes.rates import (
     get_ground_state_multi_index,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 <div class="viewcode-block" id="AtomDataNotPreparedError">
@@ -602,7 +603,7 @@ class AtomData:
         # this is important especially after numpy v2 release
         # https://numpy.org/doc/stable/release/2.0.0-notes.html#minor-changes-in-behavior-of-sorting-functions
         self.lines = self.lines.sort_values(
-            by=[&quot;wavelength&quot;, &quot;line_id&quot;], kind=&quot;stable&quot;
+            by=[&quot;wavelength&quot;, &quot;line_id&quot;], kind=SORTING_ALGORITHM
         )</div>
 
 
@@ -679,7 +680,7 @@ class AtomData:
 
         self.level2continuum_edge_idx = pd.Series(
             np.arange(len(nu_ion_threshold)),
-            nu_ion_threshold.sort_values(ascending=False, kind=&quot;stable&quot;).index,
+            nu_ion_threshold.sort_values(ascending=False, kind=SORTING_ALGORITHM).index,
             name=&quot;continuum_idx&quot;,
         )
 

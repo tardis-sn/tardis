@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=202d389e"></script>
+      <script src="../../_static/documentation_options.js?v=e88d2bd5"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -142,6 +142,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 INVALID_ION_ERROR_MSG = &quot;Atomic number, ion_number pair not present in model&quot;
 
@@ -350,7 +351,7 @@ class LastLineInteraction:
         ]
         self.last_line_in_table[&quot;count&quot;] = last_line_in_count
         self.last_line_in_table = self.last_line_in_table.sort_values(
-            by=&quot;count&quot;, ascending=False, kind=&quot;stable&quot;
+            by=&quot;count&quot;, ascending=False, kind=SORTING_ALGORITHM
         )
         self.last_line_out_table = self.last_line_out.reset_index()[
             [
@@ -363,7 +364,7 @@ class LastLineInteraction:
         ]
         self.last_line_out_table[&quot;count&quot;] = last_line_out_count
         self.last_line_out_table = self.last_line_out_table.sort_values(
-            by=&quot;count&quot;, ascending=False, kind=&quot;stable&quot;
+            by=&quot;count&quot;, ascending=False, kind=SORTING_ALGORITHM
         )</div>
 
 
@@ -428,7 +429,7 @@ class TARDISHistory:
                     int(re.match(r&quot;model(\d+)&quot;, key.split(&quot;/&quot;)[1]).groups()[0])
                 )
 
-            self.iterations = np.sort(np.unique(iterations), kind=&quot;stable&quot;)
+            self.iterations = np.sort(np.unique(iterations), kind=SORTING_ALGORITHM)
             hdf_store.close()
         else:
             self.iterations = iterations

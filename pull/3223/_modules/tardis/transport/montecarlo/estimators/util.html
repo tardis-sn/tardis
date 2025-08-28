@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=202d389e"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e88d2bd5"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,7 +136,7 @@ import pandas as pd
 from numba import njit, prange
 
 from tardis.transport.montecarlo import njit_dict
-
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 <div class="viewcode-block" id="bound_free_estimator_array2frame">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.util.html#tardis.transport.montecarlo.estimators.util.bound_free_estimator_array2frame">[docs]</a>
@@ -166,7 +166,7 @@ def bound_free_estimator_array2frame(
     &quot;&quot;&quot;
     bf_estimator_frame = pd.DataFrame(
         bound_free_estimator_array, index=level2continuum_idx.index
-    ).sort_index(kind=&quot;stable&quot;)
+    ).sort_index(kind=SORTING_ALGORITHM)
     bf_estimator_frame.columns.name = &quot;Shell No.&quot;
     return bf_estimator_frame</div>
 

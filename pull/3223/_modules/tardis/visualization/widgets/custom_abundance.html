@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=202d389e"></script>
+      <script src="../../../../_static/documentation_options.js?v=e88d2bd5"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -166,6 +166,7 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = &quot;---&quot;
@@ -316,7 +317,7 @@ class CustomAbundanceWidgetData:
         abundance[&quot;mass_number&quot;] = &quot;&quot;
         abundance = abundance.set_index(&quot;mass_number&quot;, append=True)
         abundance = pd.concat([abundance, isotope_abundance])
-        abundance = abundance.sort_index(kind=&quot;stable&quot;)
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         return cls(
             density_t_0=time_0,
@@ -366,7 +367,7 @@ class CustomAbundanceWidgetData:
         abundance[&quot;mass_number&quot;] = &quot;&quot;
         abundance = abundance.set_index(&quot;mass_number&quot;, append=True)
         abundance = pd.concat([abundance, isotopic_mass_fraction])
-        abundance = abundance.sort_index(kind=&quot;stable&quot;)
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         return cls(
             density_t_0=density_t_0,
@@ -438,7 +439,7 @@ class CustomAbundanceWidgetData:
         abundance[&quot;mass_number&quot;] = &quot;&quot;
         abundance = abundance.set_index(&quot;mass_number&quot;, append=True)
         abundance = pd.concat([abundance, isotope_abundance])
-        abundance = abundance.sort_index(kind=&quot;stable&quot;)
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         velocity = sim.simulation_state.velocity
         density_t_0 = sim.simulation_state.time_explosion
@@ -1259,7 +1260,7 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index(kind=&quot;stable&quot;)
+        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new BoundedFloatText control and Checkbox control.
         item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
@@ -1712,7 +1713,7 @@ class CustomAbundanceWidget:
             first_row = [0] * self.no_of_elements
             data.loc[-1] = first_row
             data.index += 1  # shifting index
-            data = data.sort_index(kind=&quot;stable&quot;)
+            data = data.sort_index(kind=SORTING_ALGORITHM)
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
                 lambda x: f&quot;{x:.3e}&quot;

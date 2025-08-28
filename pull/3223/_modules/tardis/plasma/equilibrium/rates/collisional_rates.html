@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=202d389e"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e88d2bd5"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -141,6 +141,7 @@ from tardis.plasma.equilibrium.rates.collision_strengths import (
     UpsilonCMFGENSolver,
     UpsilonRegemorterSolver,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BETA_COLL = (
     (const.h**4 / (8 * const.k_B * const.m_e**3 * np.pi**3)) ** 0.5
@@ -320,7 +321,7 @@ class ThermalCollisionalRateSolver:
                 thermal_collision_strengths,
                 thermal_collision_strength_approximated,
             ]
-        ).sort_index(kind=&quot;stable&quot;)</div>
+        ).sort_index(kind=SORTING_ALGORITHM)</div>
 </div>
 
 </pre></div>

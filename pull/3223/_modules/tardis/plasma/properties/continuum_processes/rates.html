@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=202d389e"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e88d2bd5"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -151,6 +151,7 @@ from tardis.plasma.properties.continuum_processes.fast_array_util import (
 from tardis.transport.montecarlo.estimators.util import (
     integrate_array_by_blocks,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 __all__ = [
     &quot;CorrPhotoIonRateCoeff&quot;,
@@ -907,7 +908,7 @@ class FreeBoundCoolingRate(TransitionProbabilitiesProperty):
         continuum_idx = level2continuum_idx.loc[p_fb_deactivation.index].values
         p_fb_deactivation = p_fb_deactivation.set_index(
             continuum_idx
-        ).sort_index(ascending=True, kind=&quot;stable&quot;)
+        ).sort_index(ascending=True, kind=SORTING_ALGORITHM)
         p_fb_deactivation.index.name = &quot;continuum_idx&quot;
         return cool_rate_fb_tot, cool_rate_fb, p_fb_deactivation</div>
 </div>

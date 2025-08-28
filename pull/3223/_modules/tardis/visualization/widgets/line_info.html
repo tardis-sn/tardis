@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=202d389e"></script>
+      <script src="../../../../_static/documentation_options.js?v=e88d2bd5"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -151,6 +151,7 @@ from tardis.visualization.widgets.util import (
     create_table_widget,
 )
 from tardis.util.environment import Environment
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 <div class="viewcode-block" id="LineInfoWidget">
@@ -364,7 +365,7 @@ class LineInfoWidget:
         )
         fractional_species_interactions.name = &quot;Fraction of packets interacting&quot;
         return fractional_species_interactions.sort_values(
-            ascending=False, kind=&quot;stable&quot;
+            ascending=False, kind=SORTING_ALGORITHM
         ).to_frame()</div>
 
 
@@ -541,7 +542,7 @@ class LineInfoWidget:
             last_line_interaction_string, name=&quot;Last Line Interaction&quot;
         )
         return last_line_counts.sort_values(
-            ascending=False, kind=&quot;stable&quot;
+            ascending=False, kind=SORTING_ALGORITHM
         ).to_frame()</div>
 
 
@@ -560,7 +561,7 @@ class LineInfoWidget:
         -------
         list
         &quot;&quot;&quot;
-        arr = np.sort(arr, kind=&quot;stable&quot;)
+        arr = np.sort(arr, kind=SORTING_ALGORITHM)
         return [
             (arr[-1] - arr[0]) / 4 + arr[1],
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],
