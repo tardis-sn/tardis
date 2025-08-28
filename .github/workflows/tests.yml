@@ -164,8 +164,48 @@ jobs:
             .coverage*
             !.coveragerc
 
+  tests-self-hosted-macos:
+    name: tests self-hosted macos
+    if: github.repository_owner == 'tardis-sn'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup LFS
+        uses: tardis-sn/tardis-actions/setup-lfs@main
+
+      - name: Setup environment
+        uses: tardis-sn/tardis-actions/setup-env@main
+        with:
+          os-label: osx-arm64
+
+      - name: Install tardis editable
+        run: |
+          pip install -e ".[tardisbase]"
+
+      - name: Install qgridnext and lineid_plot
+        run: |
+          pip install --no-deps qgridnext lineid_plot
+
+      - name: Run tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "not continuum"
+
+      - name: Regression Data Generation tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "not continuum"
+        if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
+
+      - run: mv .coverage .coverage.self-hosted-macos
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-self-hosted-macos
+          include-hidden-files: true
+          path: |
+            .coverage*
+            !.coveragerc
+
   combine_coverage_reports:
-    needs: [tests]
+    needs: [tests, tests-self-hosted-macos]
     if: github.repository_owner == 'tardis-sn'
     runs-on: ubuntu-latest
     steps:
