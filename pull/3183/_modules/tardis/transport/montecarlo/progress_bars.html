@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=a3453da1"></script>
+      <script src="../../../../_static/documentation_options.js?v=15169351"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -135,8 +135,6 @@
 Progress bar utilities for Monte Carlo transport calculations.
 &quot;&quot;&quot;
 
-from __future__ import annotations
-
 from tqdm.auto import tqdm
 
 from tardis.util.environment import Environment
@@ -238,9 +236,7 @@ def initialize_iterations_pbar(total_iterations: int) -&gt; None:
 
 <div class="viewcode-block" id="fix_bar_layout">
 <a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.fix_bar_layout">[docs]</a>
-def fix_bar_layout(
-    bar, no_of_packets: int | None = None, total_iterations: int | None = None
-) -&gt; None:
+def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
     &quot;&quot;&quot;
     Fix the layout of progress bars.
 
