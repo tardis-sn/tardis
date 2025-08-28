@@ -10,6 +10,7 @@ from tardis.spectrum.formal_integral.base import (
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
+
 @njit(**njit_dict_no_parallel)
 def calculate_z(r, p, inv_t):
     """Calculate distance to p line
@@ -138,15 +139,15 @@ intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 
 @njit(**njit_dict)
 def setup_formal_integral_inputs(
-        frequencies,
-        inner_temperature,
-        points, 
-        geometry, 
-        time_explosion,
-        line_list_nu,
-        tau_sobolev, 
-        electron_densities
-    ):
+    frequencies,
+    inner_temperature,
+    points,
+    geometry,
+    time_explosion,
+    line_list_nu,
+    tau_sobolev,
+    electron_densities,
+):
     """
     Prepare all of the arrays and values needed for the loops inside the formal integral
 
@@ -174,17 +175,24 @@ def setup_formal_integral_inputs(
     shell_ids = np.zeros((points, 2 * size_shell), dtype=np.int64)
     size_zs = np.zeros(points, dtype=np.int64)
 
-
     lines_idx = np.zeros((n_frequencies, points), dtype=np.int64)
     lines_idx_offset = np.zeros((n_frequencies, points), dtype=np.int64)
-    
+
     zstarts = np.zeros(points, dtype=np.float64)
 
-    nu_ends = np.zeros((n_frequencies, points, 2 * size_shell-1), dtype=np.float64)
-    nu_ends_idxs = np.zeros((n_frequencies, points, 2 * size_shell-1), dtype=np.int64)
+    nu_ends = np.zeros(
+        (n_frequencies, points, 2 * size_shell - 1), dtype=np.float64
+    )
+    nu_ends_idxs = np.zeros(
+        (n_frequencies, points, 2 * size_shell - 1), dtype=np.int64
+    )
 
-    escat_ops = np.zeros((n_frequencies, points, 2 * size_shell), dtype=np.float64)
-    directions = np.zeros((n_frequencies, points, 2 * size_shell), dtype=np.int64)
+    escat_ops = np.zeros(
+        (n_frequencies, points, 2 * size_shell), dtype=np.float64
+    )
+    directions = np.zeros(
+        (n_frequencies, points, 2 * size_shell), dtype=np.int64
+    )
 
     # loop over nu and p
     for nu_idx in prange(n_frequencies):
@@ -204,7 +212,9 @@ def setup_formal_integral_inputs(
             # if inside the photosphere, set to black body intensity
             # otherwise zero
             if p <= R_photosphere:
-                intensities_nu[p_idx] = intensity_black_body(nu * z[0], inner_temperature)
+                intensities_nu[p_idx] = intensity_black_body(
+                    nu * z[0], inner_temperature
+                )
             else:
                 intensities_nu[p_idx] = 0
 
@@ -213,23 +223,39 @@ def setup_formal_integral_inputs(
 
             idx_nu_start = line_search(line_list_nu, nu_start, size_line)
             lines_idx[nu_idx, p_idx] = int(idx_nu_start)
-            lines_idx_offset[nu_idx, p_idx] = int(idx_nu_start + (shell_id[0] * size_line))
-            
-            zstarts[p_idx] = time_explosion / C_INV * (1.0 - z[0]) 
+            lines_idx_offset[nu_idx, p_idx] = int(
+                idx_nu_start + (shell_id[0] * size_line)
+            )
+
+            zstarts[p_idx] = time_explosion / C_INV * (1.0 - z[0])
 
             nu_ends[nu_idx, p_idx] = nu * z[1:]
             nu_ends_idxs[nu_idx, p_idx] = size_line - np.searchsorted(
                 line_list_nu[::-1], nu_ends[nu_idx, p_idx], side="right"
             )
-            
+
             for i in range(size_z - 1):
                 escat_ops[nu_idx, p_idx, i] = (
                     electron_densities[int(shell_ids[p_idx][i])] * SIGMA_THOMSON
                 )
-                directions[nu_idx, p_idx, i] = int((shell_ids[p_idx][i + 1] - shell_ids[p_idx][i]) * size_line)
+                directions[nu_idx, p_idx, i] = int(
+                    (shell_ids[p_idx][i + 1] - shell_ids[p_idx][i]) * size_line
+                )
 
+    return (
+        intensities_nu_p,
+        ps,
+        size_zs,
+        lines_idx,
+        lines_idx_offset,
+        nu_ends,
+        nu_ends_idxs,
+        zstarts,
+        escat_ops,
+        directions,
+        exp_tau,
+    )
 
-    return intensities_nu_p, ps, size_zs, lines_idx, lines_idx_offset, nu_ends, nu_ends_idxs, zstarts, escat_ops, directions, exp_tau
 
 @njit(**njit_dict_no_parallel)
 def increment_escat_contrib(
@@ -243,13 +269,14 @@ def increment_escat_contrib(
     Jred_lu,
     intensities_nu_p,
 ):
-
     if first == 1:
         # first contribution to integration
         # NOTE: this treatment of I_nu_b (given
         #   by boundary conditions) is not in Lucy 1999;
         #   should be re-examined carefully
-        escat_contrib += (zend - zstart) * escat_op * (Jblue_lu - intensities_nu_p)
+        escat_contrib += (
+            (zend - zstart) * escat_op * (Jblue_lu - intensities_nu_p)
+        )
         first = 0
     else:
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
@@ -260,6 +287,7 @@ def increment_escat_contrib(
         pJred_lu += 1
 
     return escat_contrib, first, pJred_lu
+
 
 @njit(**njit_dict)
 def numba_formal_integral(
@@ -292,8 +320,28 @@ def numba_formal_integral(
     line_list_nu = plasma.line_list_nu
 
     # prepare all of the quantities needed for the loops
-    (intensities_nu_p, ps, size_zs, lines_idx, lines_idx_offset, nu_ends, nu_ends_idxs, zstarts, escat_ops, directions, exp_tau ) = setup_formal_integral_inputs(
-            frequencies, inner_temperature, points, geometry, time_explosion, line_list_nu, tau_sobolev, electron_density)
+    (
+        intensities_nu_p,
+        ps,
+        size_zs,
+        lines_idx,
+        lines_idx_offset,
+        nu_ends,
+        nu_ends_idxs,
+        zstarts,
+        escat_ops,
+        directions,
+        exp_tau,
+    ) = setup_formal_integral_inputs(
+        frequencies,
+        inner_temperature,
+        points,
+        geometry,
+        time_explosion,
+        line_list_nu,
+        tau_sobolev,
+        electron_density,
+    )
 
     # now loop over wavelength in spectrum
     for nu_idx in prange(n_frequencies):
@@ -314,7 +362,6 @@ def numba_formal_integral(
             line_idx_offset = lines_idx_offset[nu_idx, p_idx]
             line_Jred_lu_idx = lines_idx_offset[nu_idx, p_idx]
 
-
             # flag for first contribution to integration on current p-ray
             first = 1
 
@@ -331,16 +378,18 @@ def numba_formal_integral(
                         * (1.0 - line_list_nu[line_idx] / nu)
                     )
 
-                    escat_contrib, first, line_Jred_lu_idx = increment_escat_contrib(
-                        escat_contrib,
-                        first,
-                        line_Jred_lu_idx,
-                        zend,
-                        zstart,
-                        escat_op,
-                        Jblue_lu[line_idx_offset],
-                        Jred_lu[line_Jred_lu_idx],
-                        intensities_nu[p_idx],
+                    escat_contrib, first, line_Jred_lu_idx = (
+                        increment_escat_contrib(
+                            escat_contrib,
+                            first,
+                            line_Jred_lu_idx,
+                            zend,
+                            zstart,
+                            escat_op,
+                            Jblue_lu[line_idx_offset],
+                            Jred_lu[line_Jred_lu_idx],
+                            intensities_nu[p_idx],
+                        )
                     )
 
                     intensities_nu[p_idx] += escat_contrib
@@ -356,7 +405,9 @@ def numba_formal_integral(
                     line_idx_offset += 1
 
                 # calculate e-scattering optical depth to grid cell boundary
-                Jkkp = 0.5 * (Jred_lu[line_Jred_lu_idx] + Jblue_lu[line_idx_offset])
+                Jkkp = 0.5 * (
+                    Jred_lu[line_Jred_lu_idx] + Jblue_lu[line_idx_offset]
+                )
                 zend = time_explosion / C_INV * (1.0 - nu_end / nu)
                 escat_contrib += (
                     (zend - zstart) * escat_op * (Jkkp - intensities_nu[p_idx])
@@ -368,7 +419,12 @@ def numba_formal_integral(
                 line_idx_offset += direction
                 line_Jred_lu_idx += direction
             intensities_nu[p_idx] *= p
-        L[nu_idx] = 8 * np.pi * np.pi * trapezoid_integration(intensities_nu, R_max / points)
+        L[nu_idx] = (
+            8
+            * np.pi
+            * np.pi
+            * trapezoid_integration(intensities_nu, R_max / points)
+        )
 
     return L, intensities_nu_p
 
