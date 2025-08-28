@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=011b77de"></script>
+      <script src="../_static/documentation_options.js?v=d5facf87"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,7 +138,6 @@
 <li><a href="tardis/energy_input/energy_source.html">tardis.energy_input.energy_source</a></li>
 <li><a href="tardis/energy_input/gamma_ray_channel.html">tardis.energy_input.gamma_ray_channel</a></li>
 <li><a href="tardis/energy_input/gamma_ray_estimators.html">tardis.energy_input.gamma_ray_estimators</a></li>
-<li><a href="tardis/energy_input/gamma_ray_packet_source.html">tardis.energy_input.gamma_ray_packet_source</a></li>
 <li><a href="tardis/energy_input/gamma_ray_transport.html">tardis.energy_input.gamma_ray_transport</a></li>
 <li><a href="tardis/energy_input/main_gamma_ray_loop.html">tardis.energy_input.main_gamma_ray_loop</a></li>
 <li><a href="tardis/energy_input/samplers.html">tardis.energy_input.samplers</a></li>
@@ -161,6 +160,7 @@
 <li><a href="tardis/io/logger/colored_logger.html">tardis.io.logger.colored_logger</a></li>
 <li><a href="tardis/io/logger/montecarlo_tracking.html">tardis.io.logger.montecarlo_tracking</a></li>
 <li><a href="tardis/io/model/parse_atom_data.html">tardis.io.model.parse_atom_data</a></li>
+<li><a href="tardis/io/model/parse_composition_configuration.html">tardis.io.model.parse_composition_configuration</a></li>
 <li><a href="tardis/io/model/parse_density_configuration.html">tardis.io.model.parse_density_configuration</a></li>
 <li><a href="tardis/io/model/parse_packet_source_configuration.html">tardis.io.model.parse_packet_source_configuration</a></li>
 <li><a href="tardis/io/model/parse_simulation_state.html">tardis.io.model.parse_simulation_state</a></li>
@@ -194,6 +194,7 @@
 <li><a href="tardis/opacities/opacities.html">tardis.opacities.opacities</a></li>
 <li><a href="tardis/opacities/opacity_solver.html">tardis.opacities.opacity_solver</a></li>
 <li><a href="tardis/opacities/opacity_state.html">tardis.opacities.opacity_state</a></li>
+<li><a href="tardis/opacities/opacity_state_numba.html">tardis.opacities.opacity_state_numba</a></li>
 <li><a href="tardis/opacities/tau_sobolev.html">tardis.opacities.tau_sobolev</a></li>
 <li><a href="tardis/plasma/assembly/base.html">tardis.plasma.assembly.base</a></li>
 <li><a href="tardis/plasma/assembly/legacy_assembly.html">tardis.plasma.assembly.legacy_assembly</a></li>
@@ -260,17 +261,19 @@
 <li><a href="tardis/transport/montecarlo/montecarlo_main_loop.html">tardis.transport.montecarlo.montecarlo_main_loop</a></li>
 <li><a href="tardis/transport/montecarlo/montecarlo_transport_state.html">tardis.transport.montecarlo.montecarlo_transport_state</a></li>
 <li><a href="tardis/transport/montecarlo/nonhomologous_grid.html">tardis.transport.montecarlo.nonhomologous_grid</a></li>
-<li><a href="tardis/transport/montecarlo/numba_interface.html">tardis.transport.montecarlo.numba_interface</a></li>
-<li><a href="tardis/transport/montecarlo/packet_collections.html">tardis.transport.montecarlo.packet_collections</a></li>
-<li><a href="tardis/transport/montecarlo/packet_source.html">tardis.transport.montecarlo.packet_source</a></li>
-<li><a href="tardis/transport/montecarlo/packet_trackers.html">tardis.transport.montecarlo.packet_trackers</a></li>
+<li><a href="tardis/transport/montecarlo/packet_source/base.html">tardis.transport.montecarlo.packet_source.base</a></li>
+<li><a href="tardis/transport/montecarlo/packet_source/black_body.html">tardis.transport.montecarlo.packet_source.black_body</a></li>
+<li><a href="tardis/transport/montecarlo/packet_source/black_body_relativistic.html">tardis.transport.montecarlo.packet_source.black_body_relativistic</a></li>
+<li><a href="tardis/transport/montecarlo/packet_source/black_body_weighted.html">tardis.transport.montecarlo.packet_source.black_body_weighted</a></li>
+<li><a href="tardis/transport/montecarlo/packet_source/high_energy.html">tardis.transport.montecarlo.packet_source.high_energy</a></li>
+<li><a href="tardis/transport/montecarlo/packets/packet_collections.html">tardis.transport.montecarlo.packets.packet_collections</a></li>
+<li><a href="tardis/transport/montecarlo/packets/packet_trackers.html">tardis.transport.montecarlo.packets.packet_trackers</a></li>
+<li><a href="tardis/transport/montecarlo/packets/radiative_packet.html">tardis.transport.montecarlo.packets.radiative_packet</a></li>
+<li><a href="tardis/transport/montecarlo/packets/virtual_packet.html">tardis.transport.montecarlo.packets.virtual_packet</a></li>
 <li><a href="tardis/transport/montecarlo/progress_bars.html">tardis.transport.montecarlo.progress_bars</a></li>
-<li><a href="tardis/transport/montecarlo/r_packet.html">tardis.transport.montecarlo.r_packet</a></li>
 <li><a href="tardis/transport/montecarlo/r_packet_transport.html">tardis.transport.montecarlo.r_packet_transport</a></li>
 <li><a href="tardis/transport/montecarlo/single_packet_loop.html">tardis.transport.montecarlo.single_packet_loop</a></li>
 <li><a href="tardis/transport/montecarlo/utils.html">tardis.transport.montecarlo.utils</a></li>
-<li><a href="tardis/transport/montecarlo/vpacket.html">tardis.transport.montecarlo.vpacket</a></li>
-<li><a href="tardis/transport/montecarlo/weighted_packet_source.html">tardis.transport.montecarlo.weighted_packet_source</a></li>
 <li><a href="tardis/util/base.html">tardis.util.base</a></li>
 <li><a href="tardis/util/environment.html">tardis.util.environment</a></li>
 <li><a href="tardis/util/panel_init.html">tardis.util.panel_init</a></li>
@@ -298,7 +301,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Aug 2025.
+      <span class="lastupdated">Last updated on 28 Aug 2025.
       </span></p>
   </div>
 

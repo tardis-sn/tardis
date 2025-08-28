@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=011b77de"></script>
+      <script src="../../_static/documentation_options.js?v=d5facf87"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -218,7 +218,7 @@ deriving the <a class="reference internal" href="estimators.html"><span class="d
 <div class="math notranslate nohighlight">
 \[\mu = \sqrt{z}.\]</div>
 <p>This sampling is shown in the “Code Example” section.</p>
-<p><img alt="3343d8fb5c0f43b98a6fee2d101e68a8" class="no-scaled-link" src="../../_images/propagation_direction.png" style="width: 500px;" /></p>
+<p><img alt="39e5a06c85aa4317bec1eea837f09da8" class="no-scaled-link" src="../../_images/propagation_direction.png" style="width: 500px;" /></p>
 <p>Finally, each packet is assigned an initial frequency (or more precisely, the initial frequency of its constituent photons). Note that since each packet has the same energy, each packet will represent a different number of real photons. The sampling on packet frequencies is more involved than that of the propagation direction, as it involves sampling the Planck distribution (see below). TARDIS uses the technique described in <span id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id4" title="L. L. Carter and E. Cashwell. Particle-transport simulation with the Monte Carlo method. Technical Report, Los Alamos Scientific Laboratory, 1975. URL: http://www.iaea.org/inis/collection/NCLCollectionStore/_Public/07/227/7227109.pdf.">CarterCashwell75</a>]</span> and summarized in <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id3" title="J. E. Bjorkman and K. Wood. Radiative Equilibrium and Temperature Correction in Monte Carlo Radiation Transfer. Astrophysical Journal, 554:615-623, June 2001. arXiv:astro-ph/0103249, doi:10.1086/321336.">BjorkmanWood01</a>]</span> for this
 purpose.</p>
 <p>During the simulation, the energy of the packet remains constant in the local co-moving frame (see <a class="reference internal" href="propagation.html#reference-frames"><span class="std std-ref">Reference Frames</span></a>). This naturally ensures energy conservation and constitutes the main advantage of this discretization scheme. <strong>However, while the energy of the packets is conserved in the co-moving frame, the co-moving frequency of the packet (and thus the photons represented by the packet) may vary over the course of the simulation. Thus, a packet may
@@ -227,20 +227,27 @@ represent several different numbers of real photons throughout their lifetimes.<
 <section id="Code-Example">
 <h2>Code Example<a class="headerlink" href="#Code-Example" title="Link to this heading">¶</a></h2>
 <p>We now demonstrate the TARDIS packet initialization framework:</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.packet_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlackBodySimpleSource</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.packet_collections</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">PacketCollection</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.packet_source.black_body</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlackBodySimpleSource</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/work/tardis/tardis/tardis/__init__.py:17: UserWarning: Astropy is already imported externally. Astropy should be imported after TARDIS.
+  warnings.warn(
+</pre></div></div>
 </div>
 <p>The following cell contains values that you can change to see how it affects the spectrum (in an actual simulation, the seed and number of packets are set in the <a class="reference internal" href="../../io/configuration/components/montecarlo.html"><span class="doc">Monte Carlo configuration</span></a>, and the photospheric radius is calculated as a part of the <a class="reference internal" href="../setup/model.html"><span class="doc">model</span></a>):</p>
 <div class="nbinput nblast docutils container">
@@ -269,11 +276,7 @@ represent several different numbers of real photons throughout their lifetimes.<
 <span class="n">temperature_inner</span> <span class="o">=</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span>
 
 <span class="n">luminosity_inner</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="mi">4</span>
-    <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="o">*</span> <span class="p">(</span><span class="n">r_boundary_inner</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-    <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">sigma_sb</span>
-    <span class="o">*</span> <span class="p">(</span><span class="n">temperature_inner</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span>
+    <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">r_boundary_inner</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">sigma_sb</span> <span class="o">*</span> <span class="p">(</span><span class="n">temperature_inner</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># Makes sure the luminosity is given in erg/s</span>
@@ -383,12 +386,18 @@ Luminosity per packet: [1.78140022e+38 1.78140022e+38 1.78140022e+38 ... 1.78140
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We set important quantities for making our histogram</span>
 <span class="n">bins</span> <span class="o">=</span> <span class="mi">200</span>
-<span class="n">nus_planck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">packet_collection</span><span class="o">.</span><span class="n">initial_nus</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">packet_collection</span><span class="o">.</span><span class="n">initial_nus</span><span class="p">),</span> <span class="n">bins</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+<span class="n">nus_planck</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+    <span class="nb">min</span><span class="p">(</span><span class="n">packet_collection</span><span class="o">.</span><span class="n">initial_nus</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">packet_collection</span><span class="o">.</span><span class="n">initial_nus</span><span class="p">),</span> <span class="n">bins</span>
+<span class="p">)</span><span class="o">.</span><span class="n">value</span>
 <span class="n">bin_width</span> <span class="o">=</span> <span class="n">nus_planck</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">nus_planck</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="c1"># In the histogram plot below, the weights argument is used</span>
 <span class="c1"># to make sure our plotted spectrum has the correct y-axis scale</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">packet_collection</span><span class="o">.</span><span class="n">initial_nus</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">lumin_per_packet</span> <span class="o">/</span> <span class="n">bin_width</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+    <span class="n">packet_collection</span><span class="o">.</span><span class="n">initial_nus</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+    <span class="n">weights</span><span class="o">=</span><span class="n">lumin_per_packet</span> <span class="o">/</span> <span class="n">bin_width</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># We plot the planck function for comparison</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nus_planck</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">,</span> <span class="n">planck_function</span><span class="p">(</span><span class="n">nus_planck</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">))</span>
@@ -468,7 +477,7 @@ Luminosity per packet: [1.78140022e+38 1.78140022e+38 1.78140022e+38 ... 1.78140
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Aug 2025.
+      <span class="lastupdated">Last updated on 28 Aug 2025.
       </span></p>
   </div>
 
