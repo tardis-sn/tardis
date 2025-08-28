@@ -3,8 +3,10 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
 
-from tardis.transport.montecarlo.packet_source import (
+from tardis.transport.montecarlo.packet_source.black_body import (
     BlackBodySimpleSource,
+)
+from tardis.transport.montecarlo.packet_source.black_body_relativistic import (
     BlackBodySimpleSourceRelativistic,
 )
 
@@ -19,9 +21,8 @@ class TestBlackBodySimpleSource:
         -------
         tardis.transport.montecarlo.packet_source.BlackBodySimpleSource
         """
-        cls = type(self)
         bb = BlackBodySimpleSource(
-            radius=123,
+            radius=123 * u.cm,
             temperature=10000 * u.K,
             base_seed=1963,
             legacy_second_seed=2508,
@@ -55,7 +56,7 @@ class TestBlackBodySimpleSource:
         ]
         assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
         assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
-        assert_allclose(expected_bb.radius, actual_bb.radius)
+        assert_allclose(expected_bb.radius, actual_bb.radius.value)
 
 
 class TestBlackBodySimpleSourceRel:
@@ -69,7 +70,7 @@ class TestBlackBodySimpleSourceRel:
         tardis.montecarlo.packet_source.BlackBodySimpleSourceRelativistic
         """
         bb_rel = BlackBodySimpleSourceRelativistic(
-            time_explosion=1123187,
+            time_explosion=1123187 * u.s,
             base_seed=1963,
             legacy_second_seed=2508,
             legacy_mode_enabled=True,
@@ -114,4 +115,4 @@ class TestBlackBodySimpleSourceRel:
         ]
         assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
         assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
-        assert_allclose(expected_bb.time_explosion, actual_bb.time_explosion)
+        assert_allclose(expected_bb.time_explosion, actual_bb.time_explosion.value)

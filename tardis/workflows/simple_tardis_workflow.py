@@ -22,6 +22,7 @@ from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
 from tardis.workflows.workflow_logging import WorkflowLogging
 
@@ -30,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 class SimpleTARDISWorkflow(WorkflowLogging):
-    show_progress_bars = Environment.is_notebook()
+    show_progress_bars = Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
@@ -420,8 +421,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         virtual_packet_energies = self.transport_solver.run(
             self.transport_state,
-            iteration=self.completed_iterations,
-            total_iterations=self.total_iterations,
             show_progress_bars=self.show_progress_bars,
         )
 
@@ -456,8 +455,11 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.spectrum_solver.integrator_settings = (
                 self.integrated_spectrum_settings
             )
+            integrator_settings = self.spectrum_solver.integrator_settings
             formal_integrator = FormalIntegralSolver(
-                self.spectrum_solver.integrator_settings
+                integrator_settings.points,
+                integrator_settings.interpolate_shells,
+                getattr(integrator_settings, "method", None),
             )
             self.spectrum_solver.setup_optional_spectra(
                 self.transport_state,
@@ -472,6 +474,10 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
+        # Initialize iterations progress bar if showing progress bars
+        if self.show_progress_bars:
+            initialize_iterations_pbar(self.total_iterations)
+
         self.converged = False
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
