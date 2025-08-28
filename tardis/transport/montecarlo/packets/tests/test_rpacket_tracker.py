@@ -2,11 +2,11 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from tardis.transport.montecarlo.packet_trackers import (
+from tardis.transport.montecarlo.packets.packet_trackers import (
     RPacketTracker,
     rpacket_trackers_to_dataframe,
 )
-from tardis.transport.montecarlo.r_packet import InteractionType
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 
 @pytest.fixture

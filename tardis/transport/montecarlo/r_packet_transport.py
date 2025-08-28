@@ -14,7 +14,7 @@ from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_base_estimators,
     update_line_estimators,
 )
-from tardis.transport.montecarlo.r_packet import (
+from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
 )

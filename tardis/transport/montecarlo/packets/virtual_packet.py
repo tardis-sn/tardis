@@ -1,13 +1,12 @@
 import math
 
+import numba as nb
 import numpy as np
-from numba import float64, int64, njit
+from numba import njit
 from numba.experimental import jitclass
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
-from tardis.opacities.opacities import (
-    chi_continuum_calculator,
-)
+from tardis.opacities.opacities import chi_continuum_calculator
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
     angle_aberration_LF_to_CMF,
@@ -22,37 +21,52 @@ from tardis.transport.montecarlo.configuration.constants import (
     C_SPEED_OF_LIGHT,
     SIGMA_THOMSON,
 )
-from tardis.transport.montecarlo.r_packet import (
-    PacketStatus,
-)
+from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
 from tardis.transport.montecarlo.r_packet_transport import (
     move_packet_across_shell_boundary,
 )
 
-vpacket_spec = [
-    ("r", float64),
-    ("mu", float64),
-    ("nu", float64),
-    ("energy", float64),
-    ("next_line_id", int64),
-    ("current_shell_id", int64),
-    ("status", int64),
-    ("index", int64),
-]
-
-
-@jitclass(vpacket_spec)
+@jitclass
 class VPacket:
+    r: nb.float64  # type: ignore[misc]
+    mu: nb.float64  # type: ignore[misc]
+    nu: nb.float64  # type: ignore[misc]
+    energy: nb.float64  # type: ignore[misc]
+    next_line_id: nb.int64  # type: ignore[misc]
+    current_shell_id: nb.int64  # type: ignore[misc]
+    status: nb.int64  # type: ignore[misc]
+    index: nb.int64  # type: ignore[misc]
+
     def __init__(
         self,
-        r,
-        mu,
-        nu,
-        energy,
-        current_shell_id,
-        next_line_id,
-        index=0,
-    ):
+        r: float,
+        mu: float,
+        nu: float,
+        energy: float,
+        current_shell_id: int,
+        next_line_id: int,
+        index: int = 0,
+    ) -> None:
+        """
+        Initialize virtual packet for Monte Carlo transport.
+
+        Parameters
+        ----------
+        r : float
+            Initial radius [cm].
+        mu : float
+            Initial directional cosine.
+        nu : float
+            Initial frequency [Hz].
+        energy : float
+            Initial energy [erg].
+        current_shell_id : int
+            Current shell index.
+        next_line_id : int
+            Next line interaction index.
+        index : int, optional
+            Packet index, by default 0.
+        """
         self.r = r
         self.mu = mu
         self.nu = nu
