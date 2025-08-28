@@ -239,7 +239,6 @@ html_theme_options = {
 # Custom sidebar templates, maps document names to template names.
 # html_sidebars = {}
 html_static_path = ["_static"]
-html_extra_path = ["."]  # Copy entire docs directory to build
 templates_path = ["_templates"]
 
 # The name of an image file (relative to this directory) to place at the top
