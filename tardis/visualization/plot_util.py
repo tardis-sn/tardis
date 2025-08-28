@@ -137,7 +137,7 @@ def extract_and_process_packet_data(simulation, packets_mode):
         Dictionary containing raw packet data, the full DataFrame `packets_df`,
         and a filtered `packets_df_line_interaction` with line interaction info.
     """
-    if hasattr(simulation, "transport_state"): # for workflows
+    if hasattr(simulation, "transport_state"):  # for workflows
         transport_state = simulation.transport_state
         lines = simulation.plasma_solver.atomic_data.lines
     else:
@@ -237,23 +237,24 @@ def process_line_interactions(packet_data, lines_df):
         # Add columns for the species ID of last interaction
         packet_data["packets_df_line_interaction"][
             "last_line_interaction_species"
-        ] = list(zip(
-            lines_df["atomic_number"]
-            .iloc[
-                packet_data["packets_df_line_interaction"][
-                    "last_line_interaction_out_id"
+        ] = list(
+            zip(
+                lines_df["atomic_number"]
+                .iloc[
+                    packet_data["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
                 ]
-            ]
-            .to_numpy()
-            ,
-            + lines_df["ion_number"]
-            .iloc[
-                packet_data["packets_df_line_interaction"][
-                    "last_line_interaction_out_id"
+                .to_numpy(),
+                +lines_df["ion_number"]
+                .iloc[
+                    packet_data["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
                 ]
-            ]
-            .to_numpy()
-        ))
+                .to_numpy(),
+            )
+        )
 
 
 def extract_and_process_packet_data_hdf(hdf, packets_mode):

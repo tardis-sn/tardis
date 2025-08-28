@@ -293,7 +293,7 @@ class OpacityState:
             # Destination level is not needed and/or generated for downbranch
             destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.values
             transition_line_id = (
-                macro_atom_state.transition_metadata.transition_line_id.values
+                macro_atom_state.transition_metadata.transition_line_idx.values
             )
 
         if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
