@@ -462,14 +462,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma
                 )  # TODO: Impliment
             else:
-                old_macro_atom_state = LegacyMacroAtomSolver.solve(
+                old_macro_atom_state = LegacyMacroAtomSolver().solve(
                     self.plasma.j_blues,
                     self.plasma.atomic_data,
                     self.opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
                     self.opacity_state.beta_sobolev,
                 )
-                macro_atom_state = (
+                self.macro_atom_state = (
                     self.macro_atom.solve(
                         self.plasma.j_blues,
                         self.opacity_state.beta_sobolev,
