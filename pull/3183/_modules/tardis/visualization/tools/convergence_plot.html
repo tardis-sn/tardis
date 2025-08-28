@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=a9dbba86"></script>
+      <script src="../../../../_static/documentation_options.js?v=e3bb0ef8"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -147,10 +147,6 @@ import plotly
 import plotly.graph_objects as go
 
 import tardis.visualization.plot_util as pu
-
-plotly.offline.init_notebook_mode(connected=True)
-# mathjax needs to be loaded for latex labels to render correctly
-# see https://github.com/tardis-sn/tardis/issues/2446
 
 plotly.offline.init_notebook_mode(connected=True)
 # mathjax needs to be loaded for latex labels to render correctly
@@ -591,18 +587,8 @@ class ConvergencePlots:
             and self.plasma_plot is not None
             and self.t_inner_luminosities_plot is not None
         ):
-            # Only show at the very end to avoid multiple duplicate displays
-            try:
-                self.plasma_plot.show(renderer=&quot;notebook_connected&quot;)
-                self.t_inner_luminosities_plot.show(renderer=&quot;notebook_connected&quot;)
-            except ValueError as e:
-                # Fallback if notebook_connected renderer is not available or invalid
-                warnings.warn(
-                    f&quot;Could not display plots with notebook_connected renderer: {e}. &quot;
-                    &quot;Plots may not display properly in static notebook viewers.&quot;,
-                    UserWarning,
-                    stacklevel=2,
-                )</div>
+            self.plasma_plot.show(renderer=&quot;notebook_connected&quot;)
+            self.t_inner_luminosities_plot.show(renderer=&quot;notebook_connected&quot;)</div>
 </div>
 
 </pre></div>
