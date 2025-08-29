@@ -38,13 +38,23 @@ def calculate_z(radius: float, impact_parameter: float, inv_t: float) -> float:
         Half the length of the impact parameter inside the shell, or 0 if no intersection.
     """
     if radius > impact_parameter:
-        return np.sqrt(radius * radius - impact_parameter * impact_parameter) * C_INV * inv_t
+        return (
+            np.sqrt(radius * radius - impact_parameter * impact_parameter)
+            * C_INV
+            * inv_t
+        )
     else:
         return 0
 
 
 @njit(**njit_dict_no_parallel)
-def populate_z(geometry: NumbaRadial1DGeometry,  time_explosion: float, impact_parameter: float, shell_intersections: NDArray[np.float64], shell_ids: NDArray[np.int64]) -> int:
+def populate_z(
+    geometry: NumbaRadial1DGeometry,
+    time_explosion: float,
+    impact_parameter: float,
+    shell_intersections: NDArray[np.float64],
+    shell_ids: NDArray[np.int64],
+) -> int:
     """
     Calculate the intersection points of the impact parameter with each shell.
 
@@ -76,7 +86,9 @@ def populate_z(geometry: NumbaRadial1DGeometry,  time_explosion: float, impact_p
     if impact_parameter <= geometry.r_inner[0]:
         # intersect the photosphere
         for i in range(N):
-            shell_intersections[i] = 1 - calculate_z(r[i], impact_parameter, inv_t)
+            shell_intersections[i] = 1 - calculate_z(
+                r[i], impact_parameter, inv_t
+            )
             shell_ids[i] = i
         return N
     else:
@@ -100,7 +112,9 @@ def populate_z(geometry: NumbaRadial1DGeometry,  time_explosion: float, impact_p
 
 
 @njit(**njit_dict_no_parallel)
-def reverse_binary_search(x: NDArray[np.float64], x_insert: float, imin: int, imax: int) -> int:
+def reverse_binary_search(
+    x: NDArray[np.float64], x_insert: float, imin: int, imax: int
+) -> int:
     """
     Find the insertion index for a value in an inversely sorted float array.
 
@@ -127,7 +141,9 @@ def reverse_binary_search(x: NDArray[np.float64], x_insert: float, imin: int, im
 
 
 @njit(**njit_dict_no_parallel)
-def line_search(nu: NDArray[np.float64], nu_insert: float, number_of_lines: int) -> int:
+def line_search(
+    nu: NDArray[np.float64], nu_insert: float, number_of_lines: int
+) -> int:
     """
     Find the index to insert a value into an array of line frequencies.
 
@@ -188,12 +204,24 @@ def setup_formal_integral_inputs(
     frequencies: NDArray[np.float64],
     inner_temperature: float,
     points: int,
-    geometry: NumbaRadial1DGeometry, 
+    geometry: NumbaRadial1DGeometry,
     time_explosion: float,
     line_list_nu: NDArray[np.float64],
     tau_sobolev: NDArray[np.float64],
     electron_densities: NDArray[np.float64],
-) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.int64], NDArray[np.int64], NDArray[np.int64], NDArray[np.float64], NDArray[np.int64], NDArray[np.float64], NDArray[np.float64], NDArray[np.int64], NDArray[np.float64]]:
+) -> Tuple[
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.int64],
+    NDArray[np.int64],
+    NDArray[np.int64],
+    NDArray[np.float64],
+    NDArray[np.int64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.int64],
+    NDArray[np.float64],
+]:
     """
     Prepare all arrays and values needed for the loops inside the formal integral.
 
@@ -285,7 +313,11 @@ def setup_formal_integral_inputs(
 
             # get shell intersections
             n_interactions_p = populate_z(
-                geometry, time_explosion, p, shell_intersections[p_idx], shell_ids[p_idx]
+                geometry,
+                time_explosion,
+                p,
+                shell_intersections[p_idx],
+                shell_ids[p_idx],
             )
             n_interactions[p_idx] = n_interactions_p
             intersection_point = shell_intersections[p_idx]
@@ -309,7 +341,9 @@ def setup_formal_integral_inputs(
                 idx_nu_start + (shell_id[0] * size_line)
             )
 
-            interaction_starts[p_idx] = time_explosion / C_INV * (1.0 - intersection_point[0])
+            interaction_starts[p_idx] = (
+                time_explosion / C_INV * (1.0 - intersection_point[0])
+            )
 
             nu_ends[nu_idx, p_idx] = nu * intersection_point[1:]
             nu_ends_idxs[nu_idx, p_idx] = size_line - np.searchsorted(
@@ -390,23 +424,33 @@ def get_electron_scattering_optical_depth(
         #   by boundary conditions) is not in Lucy 1999;
         #   should be re-examined carefully
         escat_optical_depth += (
-            (interaction_end - interaction_start) * escat_opacity * (mean_intensity_blue_lu - intensities_nu_p)
+            (interaction_end - interaction_start)
+            * escat_opacity
+            * (mean_intensity_blue_lu - intensities_nu_p)
         )
         first_contribution_flag = 0
     else:
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
         Jkkp = 0.5 * (mean_intensity_red_lu + mean_intensity_blue_lu)
-        escat_optical_depth += (interaction_end - interaction_start) * escat_opacity * (Jkkp - intensities_nu_p)
+        escat_optical_depth += (
+            (interaction_end - interaction_start)
+            * escat_opacity
+            * (Jkkp - intensities_nu_p)
+        )
         # this introduces the necessary offset of one element between
         # the line offset idx
         mean_intensity_red_lu_idx += 1
 
-    return escat_optical_depth, first_contribution_flag, mean_intensity_red_lu_idx
+    return (
+        escat_optical_depth,
+        first_contribution_flag,
+        mean_intensity_red_lu_idx,
+    )
 
 
 @njit(**njit_dict)
 def numba_formal_integral(
-    geometry: NumbaRadial1DGeometry, 
+    geometry: NumbaRadial1DGeometry,
     time_explosion: float,
     plasma,
     inner_temperature: float,
@@ -519,18 +563,20 @@ def numba_formal_integral(
                         * (1.0 - line_list_nu[line_idx] / nu)
                     )
 
-                    escat_optical_depth, first_contribution_flag, line_Jred_lu_idx = (
-                        get_electron_scattering_optical_depth(
-                            escat_optical_depth,
-                            first_contribution_flag,
-                            line_Jred_lu_idx,
-                            interaction_end,
-                            interaction_start,
-                            escat_opacity,
-                            mean_intensity_blue_lu[line_idx_offset],
-                            mean_intensity_red_lu[line_Jred_lu_idx],
-                            intensities_nu[p_idx],
-                        )
+                    (
+                        escat_optical_depth,
+                        first_contribution_flag,
+                        line_Jred_lu_idx,
+                    ) = get_electron_scattering_optical_depth(
+                        escat_optical_depth,
+                        first_contribution_flag,
+                        line_Jred_lu_idx,
+                        interaction_end,
+                        interaction_start,
+                        escat_opacity,
+                        mean_intensity_blue_lu[line_idx_offset],
+                        mean_intensity_red_lu[line_Jred_lu_idx],
+                        intensities_nu[p_idx],
                     )
 
                     intensities_nu[p_idx] += escat_optical_depth
@@ -547,11 +593,14 @@ def numba_formal_integral(
 
                 # calculate e-scattering optical depth to grid cell boundary
                 Jkkp = 0.5 * (
-                    mean_intensity_red_lu[line_Jred_lu_idx] + mean_intensity_blue_lu[line_idx_offset]
+                    mean_intensity_red_lu[line_Jred_lu_idx]
+                    + mean_intensity_blue_lu[line_idx_offset]
                 )
                 interaction_end = time_explosion / C_INV * (1.0 - nu_end / nu)
                 escat_optical_depth += (
-                    (interaction_end - interaction_start) * escat_opacity * (Jkkp - intensities_nu[p_idx])
+                    (interaction_end - interaction_start)
+                    * escat_opacity
+                    * (Jkkp - intensities_nu[p_idx])
                 )
                 interaction_start = interaction_end
 
@@ -586,7 +635,13 @@ class NumbaFormalIntegrator:
         Number of impact parameters
     """
 
-    def __init__(self, geometry: NumbaRadial1DGeometry,  time_explosion: float, plasma, points: int = 1000) -> None:
+    def __init__(
+        self,
+        geometry: NumbaRadial1DGeometry,
+        time_explosion: float,
+        plasma,
+        points: int = 1000,
+    ) -> None:
         self.geometry = geometry
         self.time_explosion = time_explosion
         self.plasma = plasma
