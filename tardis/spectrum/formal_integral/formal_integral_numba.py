@@ -12,38 +12,38 @@ from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_z(r, p, inv_t):
+def calculate_z(radius, impact_parameter, inv_t):
     """
-    Calculate distance to p line
+    Calculate distance to the impact parameter at radius.
 
-    Calculate half of the length of the p-line inside a shell
-    of radius r in terms of unit length (c * t_exp).
-    If shell and p-line do not intersect, return 0.
+    Calculate half of the length of the impact parameter inside a shell
+    of radius in terms of unit length (c * t_exp).
+    If shell and impact parameter do not intersect, return 0.
 
     Parameters
     ----------
-    r : float
+    radius : float
         Radius of the shell.
-    p : float
-        Distance of the p-line to the center of the supernova.
+    impact_parameter : float
+        Distance of the impact parameter to the center of the supernova.
     inv_t : float
         Inverse of the time_explosion, used to normalize to unit length.
 
     Returns
     -------
     float
-        Half the length of the p-line inside the shell, or 0 if no intersection.
+        Half the length of the impact parameter inside the shell, or 0 if no intersection.
     """
-    if r > p:
-        return np.sqrt(r * r - p * p) * C_INV * inv_t
+    if radius > impact_parameter:
+        return np.sqrt(radius * radius - impact_parameter * impact_parameter) * C_INV * inv_t
     else:
         return 0
 
 
 @njit(**njit_dict_no_parallel)
-def populate_z(geometry, time_explosion, p, zs, shell_ids):
+def populate_z(geometry, time_explosion, impact_parameter, shell_intersections, shell_ids):
     """
-    Calculate the intersection points of the p-line with each shell.
+    Calculate the intersection points of the impact parameter with each shell.
 
     Parameters
     ----------
@@ -51,10 +51,10 @@ def populate_z(geometry, time_explosion, p, zs, shell_ids):
         Geometry object containing shell radii.
     time_explosion : float
         Time since explosion (seconds).
-    p : float
+    impact_parameter : float
         Distance of the integration line to the center.
-    zs : ndarray
-        Output array to be filled with z values.
+    shell_intersections : ndarray
+        Output array to be filled with intersection_point values.
     shell_ids : ndarray
         Output array to be filled with the corresponding shell IDs.
 
@@ -67,21 +67,21 @@ def populate_z(geometry, time_explosion, p, zs, shell_ids):
     r = geometry.r_outer
     N = len(geometry.r_inner)
     inv_t = 1 / time_explosion
-    z = 0
+    intersection_point = 0
     offset = N
 
-    if p <= geometry.r_inner[0]:
+    if impact_parameter <= geometry.r_inner[0]:
         # intersect the photosphere
         for i in range(N):
-            zs[i] = 1 - calculate_z(r[i], p, inv_t)
+            shell_intersections[i] = 1 - calculate_z(r[i], impact_parameter, inv_t)
             shell_ids[i] = i
         return N
     else:
         # no intersection with photosphere
         # that means we intersect each shell twice
         for i in range(N):
-            z = calculate_z(r[i], p, inv_t)
-            if z == 0:
+            intersection_point = calculate_z(r[i], impact_parameter, inv_t)
+            if intersection_point == 0:
                 continue
             if offset == N:
                 offset = i
@@ -89,9 +89,9 @@ def populate_z(geometry, time_explosion, p, zs, shell_ids):
             i_low = N - i - 1  # the far intersection with the shell
             i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
-            zs[i_low] = 1 + z
+            shell_intersections[i_low] = 1 + intersection_point
             shell_ids[i_low] = i
-            zs[i_up] = 1 - z
+            shell_intersections[i_up] = 1 - intersection_point
             shell_ids[i_up] = i
         return 2 * (N - offset)
 
@@ -217,47 +217,47 @@ def setup_formal_integral_inputs(
     -------
     intensities_nu_p : ndarray
         Intensities at each frequency and impact parameter (p).
-    ps : ndarray
-        Array of p values.
-    size_zs : ndarray
-        Number of z intersections for each p.
+    impact_parameters : ndarray
+        Array of impact parameters.
+    n_interactions : ndarray
+        Number of intersections for each impact parameter.
     lines_idx : ndarray
-        Initial line indices for each frequency and p.
+        Initial line indices for each frequency and impact parameter.
     lines_idx_offset : ndarray
-        Initial offset line indices for each frequency and p.
+        Initial offset line indices for each frequency and impact parameter.
     nu_ends : ndarray
-        Frequency at each z intersection.
+        Frequency at each intersection.
     nu_ends_idxs : ndarray
         Indices of line list for each nu_end.
-    zstarts : ndarray
-        Starting z values for each p-ray.
-    escat_ops : ndarray
-        Electron scattering opacities for each frequency, p, and z.
+    interaction_starts : ndarray
+        Starting intersection point for each impact parameter.
+    escat_opacities : ndarray
+        Electron scattering optical depths for each frequency, impact parameter, and shell intersection.
     directions : ndarray
-        Direction changes for each frequency, p-ray, and z.
-    exp_tau : ndarray
+        Direction changes for each frequency, impact parameter, and shell intersection.
+    exp_tau_sobolev : ndarray
         Exponential of negative Sobolev optical depths (flattened).
     """
 
     n_frequencies = len(frequencies)
     size_line, size_shell = tau_sobolev.shape
-    exp_tau = np.exp(-tau_sobolev.T.ravel())
+    exp_tau_sobolev = np.exp(-tau_sobolev.T.ravel())
     R_max = geometry.r_outer[size_shell - 1]
     R_photosphere = geometry.r_inner[0]
 
-    ps = np.zeros(points, dtype=np.float64)
-    ps[::] = calculate_p_values(R_max, points)
+    impact_parameters = np.zeros(points, dtype=np.float64)
+    impact_parameters[::] = calculate_p_values(R_max, points)
 
     # prepare arrays for returned parameters
     intensities_nu_p = np.zeros((n_frequencies, points), dtype=np.float64)
-    zs = np.zeros((points, 2 * size_shell), dtype=np.float64)
+    shell_intersections = np.zeros((points, 2 * size_shell), dtype=np.float64)
     shell_ids = np.zeros((points, 2 * size_shell), dtype=np.int64)
-    size_zs = np.zeros(points, dtype=np.int64)
+    n_interactions = np.zeros(points, dtype=np.int64)
 
     lines_idx = np.zeros((n_frequencies, points), dtype=np.int64)
     lines_idx_offset = np.zeros((n_frequencies, points), dtype=np.int64)
 
-    zstarts = np.zeros(points, dtype=np.float64)
+    interaction_starts = np.zeros(points, dtype=np.float64)
 
     nu_ends = np.zeros(
         (n_frequencies, points, 2 * size_shell - 1), dtype=np.float64
@@ -266,39 +266,39 @@ def setup_formal_integral_inputs(
         (n_frequencies, points, 2 * size_shell - 1), dtype=np.int64
     )
 
-    escat_ops = np.zeros(
+    escat_opacities = np.zeros(
         (n_frequencies, points, 2 * size_shell), dtype=np.float64
     )
     directions = np.zeros(
         (n_frequencies, points, 2 * size_shell), dtype=np.int64
     )
 
-    # loop over nu and p
+    # loop over nu and impact parameter
     for nu_idx in prange(n_frequencies):
         intensities_nu = intensities_nu_p[nu_idx]
         nu = frequencies[nu_idx]
         for p_idx in range(1, points):
-            p = ps[p_idx]
+            p = impact_parameters[p_idx]
 
-            # get zs
-            size_z = populate_z(
-                geometry, time_explosion, p, zs[p_idx], shell_ids[p_idx]
+            # get shell intersections
+            n_interactions_p = populate_z(
+                geometry, time_explosion, p, shell_intersections[p_idx], shell_ids[p_idx]
             )
-            size_zs[p_idx] = size_z
-            z = zs[p_idx]
+            n_interactions[p_idx] = n_interactions_p
+            intersection_point = shell_intersections[p_idx]
             shell_id = shell_ids[p_idx]
 
             # if inside the photosphere, set to black body intensity
             # otherwise zero
             if p <= R_photosphere:
                 intensities_nu[p_idx] = intensity_black_body(
-                    nu * z[0], inner_temperature
+                    nu * intersection_point[0], inner_temperature
                 )
             else:
                 intensities_nu[p_idx] = 0
 
             # compute quantities for line interactions
-            nu_start = nu * z[0]
+            nu_start = nu * intersection_point[0]
 
             idx_nu_start = line_search(line_list_nu, nu_start, size_line)
             lines_idx[nu_idx, p_idx] = int(idx_nu_start)
@@ -306,15 +306,15 @@ def setup_formal_integral_inputs(
                 idx_nu_start + (shell_id[0] * size_line)
             )
 
-            zstarts[p_idx] = time_explosion / C_INV * (1.0 - z[0])
+            interaction_starts[p_idx] = time_explosion / C_INV * (1.0 - intersection_point[0])
 
-            nu_ends[nu_idx, p_idx] = nu * z[1:]
+            nu_ends[nu_idx, p_idx] = nu * intersection_point[1:]
             nu_ends_idxs[nu_idx, p_idx] = size_line - np.searchsorted(
                 line_list_nu[::-1], nu_ends[nu_idx, p_idx], side="right"
             )
 
-            for i in range(size_z - 1):
-                escat_ops[nu_idx, p_idx, i] = (
+            for i in range(n_interactions_p - 1):
+                escat_opacities[nu_idx, p_idx, i] = (
                     electron_densities[int(shell_ids[p_idx][i])] * SIGMA_THOMSON
                 )
                 directions[nu_idx, p_idx, i] = int(
@@ -323,29 +323,29 @@ def setup_formal_integral_inputs(
 
     return (
         intensities_nu_p,
-        ps,
-        size_zs,
+        impact_parameters,
+        n_interactions,
         lines_idx,
         lines_idx_offset,
         nu_ends,
         nu_ends_idxs,
-        zstarts,
-        escat_ops,
+        interaction_starts,
+        escat_opacities,
         directions,
-        exp_tau,
+        exp_tau_sobolev,
     )
 
 
 @njit(**njit_dict_no_parallel)
-def increment_escat_contrib(
-    escat_contrib,
-    first,
-    pJred_lu,
-    zend,
-    zstart,
-    escat_op,
-    Jblue_lu,
-    Jred_lu,
+def get_electron_scattering_optical_depth(
+    escat_optical_depth,
+    first_contribution_flag,
+    mean_intensity_red_lu_idx,
+    interaction_end,
+    interaction_start,
+    escat_opacity,
+    mean_intensity_blue_lu,
+    mean_intensity_red_lu,
     intensities_nu_p,
 ):
     """
@@ -353,52 +353,52 @@ def increment_escat_contrib(
 
     Parameters
     ----------
-    escat_contrib : float
+    escat_optical_depth : float
         Current electron scattering contribution.
-    first : int
+    first_contribution_flag : int
         Flag indicating if this is the first contribution (1 if first, 0 otherwise).
-    pJred_lu : int
-        Index for Jred_lu.
-    zend : float
-        Ending z value for the current segment.
-    zstart : float
-        Starting z value for the current segment.
+    mean_intensity_red_lu_idx : int
+        Index for mean_intensity_red_lu.
+    interaction_end : float
+        Ending intersection point value for the current segment.
+    interaction_start : float
+        Starting intersection point value for the current segment.
     escat_op : float
         Electron scattering opacity.
-    Jblue_lu : float
-        Jblue_lu value for the current segment.
-    Jred_lu : float
-        Jred_lu value for the current segment.
+    mean_intensity_blue_lu : float
+        mean intensity of the transition on the blue side for the current segment.
+    mean_intensity_red_lu : float
+        mean intensity of the transition on the red side for the current segment.
     intensities_nu_p : float
-        Intensity at the current frequency and p.
+        Intensity at the current frequency and impact parameter.
 
     Returns
     -------
-    escat_contrib : float
+    escat_optical_depth : float
         Updated electron scattering contribution.
-    first : int
-        Updated first flag.
-    pJred_lu : int
-        Updated Jred_lu index.
+    first_contribution_flag : int
+        Updated flag.
+    mean_intensity_red_lu_idx : int
+        Updated mean_intensity_red_lu index.
     """
-    if first == 1:
+    if first_contribution_flag == 1:
         # first contribution to integration
         # NOTE: this treatment of I_nu_b (given
         #   by boundary conditions) is not in Lucy 1999;
         #   should be re-examined carefully
-        escat_contrib += (
-            (zend - zstart) * escat_op * (Jblue_lu - intensities_nu_p)
+        escat_optical_depth += (
+            (interaction_end - interaction_start) * escat_opacity * (mean_intensity_blue_lu - intensities_nu_p)
         )
-        first = 0
+        first_contribution_flag = 0
     else:
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-        Jkkp = 0.5 * (Jred_lu + Jblue_lu)
-        escat_contrib += (zend - zstart) * escat_op * (Jkkp - intensities_nu_p)
+        Jkkp = 0.5 * (mean_intensity_red_lu + mean_intensity_blue_lu)
+        escat_optical_depth += (interaction_end - interaction_start) * escat_opacity * (Jkkp - intensities_nu_p)
         # this introduces the necessary offset of one element between
-        # pJblue_lu and pJred_lu
-        pJred_lu += 1
+        # the line offset idx
+        mean_intensity_red_lu_idx += 1
 
-    return escat_contrib, first, pJred_lu
+    return escat_optical_depth, first_contribution_flag, mean_intensity_red_lu_idx
 
 
 @njit(**njit_dict)
@@ -409,10 +409,10 @@ def numba_formal_integral(
     inner_temperature,
     frequencies,
     att_S_ul,
-    Jred_lu,
-    Jblue_lu,
+    mean_intensity_red_lu,
+    mean_intensity_blue_lu,
     tau_sobolev,
-    electron_density,
+    electron_densities,
     points,
 ):
     """
@@ -432,27 +432,27 @@ def numba_formal_integral(
         Array of frequencies.
     att_S_ul : ndarray
         Attenuated source function for each line and shell.
-    Jred_lu : ndarray
-        Jred_lu values for each line and shell.
-    Jblue_lu : ndarray
-        Jblue_lu values for each line and shell.
+    mean_intensity_red_lu : ndarray
+        mean intensity of each line transition from upper to lower on the red side for each line and shell.
+    mean_intensity_blue_lu : ndarray
+        mean intensity of each line transition from upper to lower on the blue side for each line and shell.
     tau_sobolev : ndarray
         Sobolev optical depths for each line and shell.
-    electron_density : ndarray
+    electron_densities : ndarray
         Electron densities per shell.
     points : int
-        Number of p-ray points.
+        Number of impact parameters.
 
     Returns
     -------
-    L : ndarray
+    luminosity_densities : ndarray
         Integrated luminosities for each frequency.
     intensities_nu_p : ndarray
-        Intensities at each p-ray multiplied by p (frequency x p-ray grid).
+        Intensities per frequency and impact parameter
     """
     # Initialize the output which is shared among threads
     n_frequencies = len(frequencies)
-    L = np.zeros(n_frequencies, dtype=np.float64)
+    luminosity_densities = np.zeros(n_frequencies, dtype=np.float64)
 
     R_max = geometry.r_outer[-1]
     line_list_nu = plasma.line_list_nu
@@ -460,16 +460,16 @@ def numba_formal_integral(
     # prepare all of the quantities needed for the loops
     (
         intensities_nu_p,
-        ps,
-        size_zs,
+        impact_parameters,
+        n_interactions,
         lines_idx,
         lines_idx_offset,
         nu_ends,
         nu_ends_idxs,
-        zstarts,
-        escat_ops,
+        interaction_starts,
+        escat_opacities,
         directions,
-        exp_tau,
+        exp_tau_sobolev,
     ) = setup_formal_integral_inputs(
         frequencies,
         inner_temperature,
@@ -478,7 +478,7 @@ def numba_formal_integral(
         time_explosion,
         line_list_nu,
         tau_sobolev,
-        electron_density,
+        electron_densities,
     )
 
     # now loop over wavelength in spectrum
@@ -488,83 +488,83 @@ def numba_formal_integral(
 
         # now loop over discrete values along line
         for p_idx in range(1, points):
-            escat_contrib = 0
-            p = ps[p_idx]
-            size_z = size_zs[p_idx]
+            escat_optical_depth = 0
+            p = impact_parameters[p_idx]
+            n_interactions_p = n_interactions[p_idx]
 
             # find first contributing lines
-            zstart = zstarts[p_idx]
+            interaction_start = interaction_starts[p_idx]
 
             # Initialize "pointers"
             line_idx = lines_idx[nu_idx, p_idx]
             line_idx_offset = lines_idx_offset[nu_idx, p_idx]
             line_Jred_lu_idx = lines_idx_offset[nu_idx, p_idx]
 
-            # flag for first contribution to integration on current p-ray
-            first = 1
+            # flag for first contribution to integration on current p
+            first_contribution_flag = 1
 
             # loop over all interactions
-            for i in range(size_z - 1):
-                escat_op = escat_ops[nu_idx, p_idx, i]
+            for i in range(n_interactions_p - 1):
+                escat_opacity = escat_opacities[nu_idx, p_idx, i]
                 nu_end = nu_ends[nu_idx, p_idx, i]
                 nu_end_idx = nu_ends_idxs[nu_idx, p_idx, i]
                 for _ in range(max(nu_end_idx - line_idx, 0)):
                     # calculate e-scattering optical depth to next resonance point
-                    zend = (
+                    interaction_end = (
                         time_explosion
                         / C_INV
                         * (1.0 - line_list_nu[line_idx] / nu)
                     )
 
-                    escat_contrib, first, line_Jred_lu_idx = (
-                        increment_escat_contrib(
-                            escat_contrib,
-                            first,
+                    escat_optical_depth, first_contribution_flag, line_Jred_lu_idx = (
+                        get_electron_scattering_optical_depth(
+                            escat_optical_depth,
+                            first_contribution_flag,
                             line_Jred_lu_idx,
-                            zend,
-                            zstart,
-                            escat_op,
-                            Jblue_lu[line_idx_offset],
-                            Jred_lu[line_Jred_lu_idx],
+                            interaction_end,
+                            interaction_start,
+                            escat_opacity,
+                            mean_intensity_blue_lu[line_idx_offset],
+                            mean_intensity_red_lu[line_Jred_lu_idx],
                             intensities_nu[p_idx],
                         )
                     )
 
-                    intensities_nu[p_idx] += escat_contrib
+                    intensities_nu[p_idx] += escat_optical_depth
                     # Lucy 1999, Eq 26
-                    intensities_nu[p_idx] *= exp_tau[line_idx_offset]
+                    intensities_nu[p_idx] *= exp_tau_sobolev[line_idx_offset]
                     intensities_nu[p_idx] += att_S_ul[line_idx_offset]
 
                     # reset e-scattering opacity
-                    escat_contrib = 0
-                    zstart = zend
+                    escat_optical_depth = 0
+                    interaction_start = interaction_end
 
                     line_idx += 1
                     line_idx_offset += 1
 
                 # calculate e-scattering optical depth to grid cell boundary
                 Jkkp = 0.5 * (
-                    Jred_lu[line_Jred_lu_idx] + Jblue_lu[line_idx_offset]
+                    mean_intensity_red_lu[line_Jred_lu_idx] + mean_intensity_blue_lu[line_idx_offset]
                 )
-                zend = time_explosion / C_INV * (1.0 - nu_end / nu)
-                escat_contrib += (
-                    (zend - zstart) * escat_op * (Jkkp - intensities_nu[p_idx])
+                interaction_end = time_explosion / C_INV * (1.0 - nu_end / nu)
+                escat_optical_depth += (
+                    (interaction_end - interaction_start) * escat_opacity * (Jkkp - intensities_nu[p_idx])
                 )
-                zstart = zend
+                interaction_start = interaction_end
 
                 # advance "pointers"
                 direction = directions[nu_idx, p_idx, i]
                 line_idx_offset += direction
                 line_Jred_lu_idx += direction
             intensities_nu[p_idx] *= p
-        L[nu_idx] = (
+        luminosity_densities[nu_idx] = (
             8
             * np.pi
             * np.pi
             * trapezoid_integration(intensities_nu, R_max / points)
         )
 
-    return L, intensities_nu_p
+    return luminosity_densities, intensities_nu_p
 
 
 class NumbaFormalIntegrator:
@@ -580,7 +580,7 @@ class NumbaFormalIntegrator:
     plasma : object
         Plasma object containing line list frequencies.
     points : int, optional
-        Number of p-ray points (default is 1000).
+        Number of impact parameters
     """
 
     def __init__(self, geometry, time_explosion, plasma, points=1000):
@@ -594,10 +594,10 @@ class NumbaFormalIntegrator:
         inner_temperature,
         frequencies,
         att_S_ul,
-        Jred_lu,
-        Jblue_lu,
+        mean_intensity_red_lu,
+        mean_intensity_blue_lu,
         tau_sobolev,
-        electron_density,
+        electron_densities,
         points,
     ):
         """
@@ -611,23 +611,23 @@ class NumbaFormalIntegrator:
             Array of frequency values.
         att_S_ul : ndarray
             Attenuated source function values.
-        Jred_lu : ndarray
-            Jred_lu values for each line and shell.
-        Jblue_lu : ndarray
-            Jblue_lu values for each line and shell.
+        mean_intensity_red_lu : ndarray
+            mean intensity of each line transition from upper to lower on the red side for each line and shell.
+        mean_intensity_blue_lu : ndarray
+            mean intensity of each line transition from upper to lower on the blue side for each line and shell.
         tau_sobolev : ndarray
             Sobolev optical depths (2D array: lines x shells).
-        electron_density : ndarray
+        electron_densities : ndarray
             Electron densities per shell.
         points : int
-            Number of p-ray points.
+            Number of impact parameters
 
         Returns
         -------
-        L : ndarray
+        luminosity_densities : ndarray
             Integrated luminosities for each frequency.
         intensities_nu_p : ndarray
-            Intensities at each p-ray multiplied by p (frequency x p-ray grid).
+            Intensities per frequency and impact parameter
         """
         return numba_formal_integral(
             self.geometry,
@@ -636,9 +636,9 @@ class NumbaFormalIntegrator:
             inner_temperature,
             frequencies,
             att_S_ul,
-            Jred_lu,
-            Jblue_lu,
+            mean_intensity_red_lu,
+            mean_intensity_blue_lu,
             tau_sobolev,
-            electron_density,
+            electron_densities,
             points,
         )
