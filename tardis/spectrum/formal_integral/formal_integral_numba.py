@@ -411,11 +411,11 @@ def get_electron_scattering_optical_depth(
         first_contribution_flag = 0
     else:
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
-        Jkkp = 0.5 * (mean_intensity_red_lu + mean_intensity_blue_lu)
+        avg_mean_intensity_lu = 0.5 * (mean_intensity_red_lu + mean_intensity_blue_lu)
         escat_optical_depth += (
             (interaction_end - interaction_start)
             * escat_opacity
-            * (Jkkp - intensities_nu_p)
+            * (avg_mean_intensity_lu - intensities_nu_p)
         )
         # this introduces the necessary offset of one element between
         # the line offset idx
@@ -572,7 +572,7 @@ def numba_formal_integral(
                     line_idx_offset += 1
 
                 # calculate e-scattering optical depth to grid cell boundary
-                Jkkp = 0.5 * (
+                avg_mean_intensity_lu = 0.5 * (
                     mean_intensity_red_lu[line_Jred_lu_idx]
                     + mean_intensity_blue_lu[line_idx_offset]
                 )
@@ -580,7 +580,7 @@ def numba_formal_integral(
                 escat_optical_depth += (
                     (interaction_end - interaction_start)
                     * escat_opacity
-                    * (Jkkp - intensities_nu[p_idx])
+                    * (avg_mean_intensity_lu - intensities_nu[p_idx])
                 )
                 interaction_start = interaction_end
 
