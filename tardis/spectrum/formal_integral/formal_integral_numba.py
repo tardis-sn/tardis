@@ -641,7 +641,7 @@ class NumbaFormalIntegrator:
         time_explosion: float,
         plasma,
         points: int = 1000,
-    ) -> None:
+    ):
         self.geometry = geometry
         self.time_explosion = time_explosion
         self.plasma = plasma
