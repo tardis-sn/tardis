@@ -1,5 +1,7 @@
 import numpy as np
 from numba import njit, prange
+from typing import Tuple
+from numpy.typing import NDArray
 
 from tardis.spectrum.formal_integral.base import (
     C_INV,
@@ -7,12 +9,13 @@ from tardis.spectrum.formal_integral.base import (
     calculate_p_values,
     intensity_black_body,
 )
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 
 @njit(**njit_dict_no_parallel)
-def calculate_z(radius, impact_parameter, inv_t):
+def calculate_z(radius: float, impact_parameter: float, inv_t: float) -> float:
     """
     Calculate distance to the impact parameter at radius.
 
@@ -41,7 +44,7 @@ def calculate_z(radius, impact_parameter, inv_t):
 
 
 @njit(**njit_dict_no_parallel)
-def populate_z(geometry, time_explosion, impact_parameter, shell_intersections, shell_ids):
+def populate_z(geometry: NumbaRadial1DGeometry,  time_explosion: float, impact_parameter: float, shell_intersections: NDArray[np.float64], shell_ids: NDArray[np.int64]) -> int:
     """
     Calculate the intersection points of the impact parameter with each shell.
 
@@ -97,7 +100,7 @@ def populate_z(geometry, time_explosion, impact_parameter, shell_intersections, 
 
 
 @njit(**njit_dict_no_parallel)
-def reverse_binary_search(x, x_insert, imin, imax):
+def reverse_binary_search(x: NDArray[np.float64], x_insert: float, imin: int, imax: int) -> int:
     """
     Find the insertion index for a value in an inversely sorted float array.
 
@@ -124,7 +127,7 @@ def reverse_binary_search(x, x_insert, imin, imax):
 
 
 @njit(**njit_dict_no_parallel)
-def line_search(nu, nu_insert, number_of_lines):
+def line_search(nu: NDArray[np.float64], nu_insert: float, number_of_lines: int) -> int:
     """
     Find the index to insert a value into an array of line frequencies.
 
@@ -156,7 +159,7 @@ def line_search(nu, nu_insert, number_of_lines):
 
 
 @njit(**njit_dict_no_parallel)
-def trapezoid_integration(array, h):
+def trapezoid_integration(array: NDArray[np.float64], h: float) -> float:
     """
     Integrate an array using the trapezoidal rule.
 
@@ -182,15 +185,15 @@ intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 
 @njit(**njit_dict)
 def setup_formal_integral_inputs(
-    frequencies,
-    inner_temperature,
-    points,
-    geometry,
-    time_explosion,
-    line_list_nu,
-    tau_sobolev,
-    electron_densities,
-):
+    frequencies: NDArray[np.float64],
+    inner_temperature: float,
+    points: int,
+    geometry: NumbaRadial1DGeometry, 
+    time_explosion: float,
+    line_list_nu: NDArray[np.float64],
+    tau_sobolev: NDArray[np.float64],
+    electron_densities: NDArray[np.float64],
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.int64], NDArray[np.int64], NDArray[np.int64], NDArray[np.float64], NDArray[np.int64], NDArray[np.float64], NDArray[np.float64], NDArray[np.int64], NDArray[np.float64]]:
     """
     Prepare all arrays and values needed for the loops inside the formal integral.
 
@@ -338,16 +341,16 @@ def setup_formal_integral_inputs(
 
 @njit(**njit_dict_no_parallel)
 def get_electron_scattering_optical_depth(
-    escat_optical_depth,
-    first_contribution_flag,
-    mean_intensity_red_lu_idx,
-    interaction_end,
-    interaction_start,
-    escat_opacity,
-    mean_intensity_blue_lu,
-    mean_intensity_red_lu,
-    intensities_nu_p,
-):
+    escat_optical_depth: float,
+    first_contribution_flag: int,
+    mean_intensity_red_lu_idx: int,
+    interaction_end: float,
+    interaction_start: float,
+    escat_opacity: float,
+    mean_intensity_blue_lu: float,
+    mean_intensity_red_lu: float,
+    intensities_nu_p: float,
+) -> Tuple[float, int, int]:
     """
     Increment the electron scattering contribution for the formal integral.
 
@@ -403,18 +406,18 @@ def get_electron_scattering_optical_depth(
 
 @njit(**njit_dict)
 def numba_formal_integral(
-    geometry,
-    time_explosion,
+    geometry: NumbaRadial1DGeometry, 
+    time_explosion: float,
     plasma,
-    inner_temperature,
-    frequencies,
-    att_S_ul,
-    mean_intensity_red_lu,
-    mean_intensity_blue_lu,
-    tau_sobolev,
-    electron_densities,
-    points,
-):
+    inner_temperature: float,
+    frequencies: NDArray[np.float64],
+    att_S_ul: NDArray[np.float64],
+    mean_intensity_red_lu: NDArray[np.float64],
+    mean_intensity_blue_lu: NDArray[np.float64],
+    tau_sobolev: NDArray[np.float64],
+    electron_densities: NDArray[np.float64],
+    points: int,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Compute the formal integral.
 
@@ -583,7 +586,7 @@ class NumbaFormalIntegrator:
         Number of impact parameters
     """
 
-    def __init__(self, geometry, time_explosion, plasma, points=1000):
+    def __init__(self, geometry: NumbaRadial1DGeometry,  time_explosion: float, plasma, points: int = 1000) -> None:
         self.geometry = geometry
         self.time_explosion = time_explosion
         self.plasma = plasma
@@ -591,15 +594,15 @@ class NumbaFormalIntegrator:
 
     def formal_integral(
         self,
-        inner_temperature,
-        frequencies,
-        att_S_ul,
-        mean_intensity_red_lu,
-        mean_intensity_blue_lu,
-        tau_sobolev,
-        electron_densities,
-        points,
-    ):
+        inner_temperature: float,
+        frequencies: NDArray[np.float64],
+        att_S_ul: NDArray[np.float64],
+        mean_intensity_red_lu: NDArray[np.float64],
+        mean_intensity_blue_lu: NDArray[np.float64],
+        tau_sobolev: NDArray[np.float64],
+        electron_densities: NDArray[np.float64],
+        points: int,
+    ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
         """
         Wrapper for the Numba implementation of the formal integral.
 
