@@ -1,7 +1,7 @@
 import numpy as np
 from numba import typeof
 
-from tardis.transport.montecarlo.packet_trackers import (
+from tardis.transport.montecarlo.packets.packet_trackers import (
     RPacketLastInteractionTracker,
     RPacketTracker,
     generate_rpacket_last_interaction_tracker_list,

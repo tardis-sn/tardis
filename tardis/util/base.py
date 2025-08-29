@@ -8,11 +8,8 @@ from pathlib import Path
 import numexpr as ne
 import numpy as np
 import pandas as pd
-import tqdm
-import tqdm.notebook
 import yaml
 from astropy import units as u
-from IPython import display
 from radioactivedecay import DEFAULTDATA
 from radioactivedecay.utils import Z_DICT, parse_nuclide
 
@@ -41,9 +38,7 @@ ATOMIC_SYMBOLS_DATA = (
 )
 
 ATOMIC_NUMBER2SYMBOL = OrderedDict(ATOMIC_SYMBOLS_DATA.to_dict())
-SYMBOL2ATOMIC_NUMBER = OrderedDict(
-    (y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items()
-)
+SYMBOL2ATOMIC_NUMBER = OrderedDict((y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items())
 
 synpp_default_yaml_fname = get_internal_data_path("synpp_default.yaml")
 
@@ -217,9 +212,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     radial1d_mdl.atom_data.synpp_refs["ref_log_tau"] = -99.0
     for key, value in radial1d_mdl.atom_data.synpp_refs.iterrows():
         try:
-            radial1d_mdl.atom_data.synpp_refs["ref_log_tau"].loc[
-                key
-            ] = np.log10(
+            radial1d_mdl.atom_data.synpp_refs["ref_log_tau"].loc[key] = np.log10(
                 radial1d_mdl.plasma.tau_sobolevs[0].loc[value["line_id"]]
             )
         except KeyError:
@@ -305,9 +298,7 @@ def intensity_black_body(nu, temperature):
     """
     beta_rad = 1 / (k_B_cgs * temperature)
     coefficient = 2 * h_cgs / c_cgs**2
-    intensity = ne.evaluate(
-        "coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )"
-    )
+    intensity = ne.evaluate("coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )")
     return intensity
 
 
@@ -333,8 +324,7 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
     if roman_numerals:
         roman_ion_number = int_to_roman(ion_number + 1)
         return f"{str(element_symbol)} {roman_ion_number}"
-    else:
-        return f"{element_symbol} {ion_number:d}"
+    return f"{element_symbol} {ion_number:d}"
 
 
 def species_string_to_tuple(species_string):
@@ -385,9 +375,7 @@ def species_string_to_tuple(species_string):
             )
 
     if ion_number - 1 > atomic_number:
-        raise ValueError(
-            "Species given does not exist: ion number > atomic number"
-        )
+        raise ValueError("Species given does not exist: ion number > atomic number")
 
     return atomic_number, ion_number - 1
 
@@ -543,8 +531,7 @@ def quantity_linspace(start, stop, num, **kwargs):
         )
 
     return (
-        np.linspace(start.value, stop.to(start.unit).value, num, **kwargs)
-        * start.unit
+        np.linspace(start.value, stop.to(start.unit).value, num, **kwargs) * start.unit
     )
 
 
@@ -570,140 +557,6 @@ def convert_abundances_format(fname, delimiter=r"\s+"):
     # Assign header row
     df.columns = [Z_DICT[i] for i in range(1, df.shape[1] + 1)]
     return df
-
-if Environment.allows_widget_display():
-    iterations_pbar = tqdm.notebook.tqdm(
-        desc="Iterations:",
-        bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-    )
-    iterations_pbar.container.close()
-    packet_pbar = tqdm.notebook.tqdm(
-        desc="Packets:   ",
-        postfix="0",
-        bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-    )
-    packet_pbar.container.close()
-
-else:
-    iterations_pbar = tqdm.tqdm(
-        desc="Iterations:",
-        bar_format="{desc:<}{bar:80}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-    )
-    packet_pbar = tqdm.tqdm(
-        desc="Packets:   ",
-        postfix="0",
-        bar_format="{desc:<}{bar:80}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-    )
-
-
-def update_packet_pbar(i, current_iteration, no_of_packets, total_iterations):
-    """
-    Update progress bars as each packet is propagated.
-
-    Parameters
-    ----------
-    i : int
-        Amount by which the progress bar needs to be updated.
-    current_iteration : int
-        Current iteration number.
-    no_of_packets : int
-        Total number of packets in one iteration.
-    total_iterations : int
-        Total number of iterations.
-    """
-    if packet_pbar.postfix == "":
-        packet_pbar.postfix = "0"
-    bar_iteration = int(packet_pbar.postfix) - 1
-
-    # fix bar layout when run_tardis is called for the first time
-    if iterations_pbar.total == None:
-        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
-    if packet_pbar.total == None:
-        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
-
-    # display and reset progress bar when run_tardis is called again
-    if iterations_pbar.n == total_iterations:
-        if type(iterations_pbar).__name__ == "tqdm_notebook":
-            iterations_pbar.container.close()
-        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
-
-    if bar_iteration > current_iteration:
-        packet_pbar.postfix = current_iteration
-        if type(packet_pbar).__name__ == "tqdm_notebook":
-            # stop displaying last container
-            packet_pbar.container.close()
-        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
-
-    # reset progress bar with each iteration
-    if bar_iteration < current_iteration:
-        packet_pbar.reset(total=no_of_packets)
-        packet_pbar.postfix = str(current_iteration + 1)
-
-    packet_pbar.update(i)
-
-
-def refresh_packet_pbar():
-    """
-    Refresh packet progress bar after each iteration.
-
-    """
-    packet_pbar.refresh()
-
-
-def update_iterations_pbar(i):
-    """
-    Update progress bar for each iteration.
-
-    Parameters
-    ----------
-    i : int
-        Amount by which the progress bar needs to be updated.
-    """
-    iterations_pbar.update(i)
-
-
-def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):
-    """
-    Fix the layout of progress bars.
-
-    Parameters
-    ----------
-    bar : tqdm instance
-        Progress bar to change the layout of.
-    no_of_packets : int, optional
-        Number of packets to be propagated.
-    total_iterations : int, optional
-        Total number of iterations.
-    """
-    if type(bar).__name__ == "tqdm_notebook":
-        bar.container = bar.status_printer(
-            bar.fp,
-            bar.total,
-            bar.desc,
-            bar.ncols,
-        )
-        if no_of_packets is not None:
-            bar.reset(total=no_of_packets)
-        if total_iterations is not None:
-            bar.reset(total=total_iterations)
-
-        # change the amount of space the prefix string of the bar takes
-        # here, either packets or iterations
-        bar.container.children[0].layout.width = "6%"
-
-        # change the length of the bar
-        bar.container.children[1].layout.width = "60%"
-
-        # display the progress bar
-        display.display(bar.container)
-
-    else:
-        if no_of_packets is not None:
-            bar.reset(total=no_of_packets)
-        if total_iterations is not None:
-            bar.reset(total=total_iterations)
-        else:
-            pass
 
 
 def deprecated(func):
