@@ -174,26 +174,6 @@ def line_search(
     return result
 
 
-@njit(**njit_dict_no_parallel)
-def trapezoid_integration(array: NDArray[np.float64], h: float) -> float:
-    """
-    Integrate an array using the trapezoidal rule.
-
-    Parameters
-    ----------
-    array : ndarray
-        Array of values to integrate.
-    h : float
-        Step size.
-
-    Returns
-    -------
-    float
-        The integral of the array using the trapezoidal rule.
-    """
-    return np.trapezoid(array, dx=h)
-
-
 # numba jit
 calculate_p_values = njit(calculate_p_values, **njit_dict_no_parallel)
 intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
@@ -613,7 +593,7 @@ def numba_formal_integral(
             8
             * np.pi
             * np.pi
-            * trapezoid_integration(intensities_nu, R_max / points)
+            * np.trapezoid(intensities_nu, dx=R_max / points)
         )
 
     return luminosity_densities, intensities_nu_p

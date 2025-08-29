@@ -36,18 +36,6 @@ def time_explosion():
     return 1 / c.c.cgs.value
 
 
-@pytest.mark.parametrize("N", (1e2, 1e3, 1e4, 1e5))
-def test_trapezoid_integration(N):
-    h = 1.0
-    N = int(N)
-    data = np.random.random(N)
-
-    actual = formal_integral_numba.trapezoid_integration(data, h)
-    expected = np.trapz(data)
-
-    ntest.assert_almost_equal(actual, expected)
-
-
 def calculate_z(r, p):
     return np.sqrt(r * r - p * p)
 
