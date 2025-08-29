@@ -13,16 +13,26 @@ from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
 @njit(**njit_dict_no_parallel)
 def calculate_z(r, p, inv_t):
-    """Calculate distance to p line
+    """
+    Calculate distance to p line
 
     Calculate half of the length of the p-line inside a shell
     of radius r in terms of unit length (c * t_exp).
     If shell and p-line do not intersect, return 0.
 
-    Inputs:
-        :r: (double) radius of the shell
-        :p: (double) distance of the p-line to the center of the supernova
-        :inv_t: (double) inverse time_explosion is needed to norm to unit-length
+    Parameters
+    ----------
+    r : float
+        Radius of the shell.
+    p : float
+        Distance of the p-line to the center of the supernova.
+    inv_t : float
+        Inverse of the time_explosion, used to normalize to unit length.
+
+    Returns
+    -------
+    float
+        Half the length of the p-line inside the shell, or 0 if no intersection.
     """
     if r > p:
         return np.sqrt(r * r - p * p) * C_INV * inv_t
@@ -31,17 +41,27 @@ def calculate_z(r, p, inv_t):
 
 
 @njit(**njit_dict_no_parallel)
-def populate_z(geometry, time_explosion, p, oz, oshell_id):
-    """Calculate p line intersections
+def populate_z(geometry, time_explosion, p, zs, shell_ids):
+    """
+    Calculate the intersection points of the p-line with each shell.
 
-    This function calculates the intersection points of the p-line with
-    each shell
+    Parameters
+    ----------
+    geometry : object
+        Geometry object containing shell radii.
+    time_explosion : float
+        Time since explosion (seconds).
+    p : float
+        Distance of the integration line to the center.
+    zs : ndarray
+        Output array to be filled with z values.
+    shell_ids : ndarray
+        Output array to be filled with the corresponding shell IDs.
 
-    Inputs:
-        :p: (double) distance of the integration line to the center
-        :oz: (array of doubles) will be set with z values. the array is truncated
-                    by the value `1`.
-        :oshell_id: (int64) will be set with the corresponding shell_ids
+    Returns
+    -------
+    int
+        Number of intersection points found.
     """
     # abbreviations
     r = geometry.r_outer
@@ -53,8 +73,8 @@ def populate_z(geometry, time_explosion, p, oz, oshell_id):
     if p <= geometry.r_inner[0]:
         # intersect the photosphere
         for i in range(N):
-            oz[i] = 1 - calculate_z(r[i], p, inv_t)
-            oshell_id[i] = i
+            zs[i] = 1 - calculate_z(r[i], p, inv_t)
+            shell_ids[i] = i
         return N
     else:
         # no intersection with photosphere
@@ -69,25 +89,33 @@ def populate_z(geometry, time_explosion, p, oz, oshell_id):
             i_low = N - i - 1  # the far intersection with the shell
             i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
-            oz[i_low] = 1 + z
-            oshell_id[i_low] = i
-            oz[i_up] = 1 - z
-            oshell_id[i_up] = i
+            zs[i_low] = 1 + z
+            shell_ids[i_low] = i
+            zs[i_up] = 1 - z
+            shell_ids[i_up] = i
         return 2 * (N - offset)
 
 
 @njit(**njit_dict_no_parallel)
 def reverse_binary_search(x, x_insert, imin, imax):
-    """Look for a place to insert a value in an inversely sorted float array.
+    """
+    Find the insertion index for a value in an inversely sorted float array.
 
-    Inputs:
-        :x: (array) an inversely (largest to lowest) sorted float array
-        :x_insert: (value) a value to insert
-        :imin: (int) lower bound
-        :imax: (int) upper bound
+    Parameters
+    ----------
+    x : ndarray
+        Inversely (largest to lowest) sorted float array.
+    x_insert : float
+        Value to insert.
+    imin : int
+        Lower bound index.
+    imax : int
+        Upper bound index.
 
-    Outputs:
-        index of the next boundary to the left
+    Returns
+    -------
+    int
+        Index of the next boundary to the left.
     """
 
     if (x_insert > x[imin]) or (x_insert < x[imax]):
@@ -98,17 +126,21 @@ def reverse_binary_search(x, x_insert, imin, imax):
 @njit(**njit_dict_no_parallel)
 def line_search(nu, nu_insert, number_of_lines):
     """
-    Insert a value in to an array of line frequencies
+    Find the index to insert a value into an array of line frequencies.
 
-    Inputs:
-        :nu: (array) line frequencies
-        :nu_insert: (int) value of nu key
-        :number_of_lines: (int) number of lines in the line list
+    Parameters
+    ----------
+    nu : ndarray
+        Array of line frequencies.
+    nu_insert : float
+        Value of the frequency to insert.
+    number_of_lines : int
+        Number of lines in the line list.
 
-    Outputs:
-        index of the next line ot the red.
-                If the key value is redder
-                 than the reddest line returns number_of_lines.
+    Returns
+    -------
+    int
+        Index of the next line to the red. If the key value is redder than the reddest line, returns number_of_lines.
     """
 
     imin = 0
@@ -125,11 +157,22 @@ def line_search(nu, nu_insert, number_of_lines):
 
 @njit(**njit_dict_no_parallel)
 def trapezoid_integration(array, h):
-    """in the future, let's just replace
-    this with the numpy trapz
-    since it is numba compatable
     """
-    return np.trapz(array, dx=h)
+    Integrate an array using the trapezoidal rule.
+
+    Parameters
+    ----------
+    array : ndarray
+        Array of values to integrate.
+    h : float
+        Step size.
+
+    Returns
+    -------
+    float
+        The integral of the array using the trapezoidal rule.
+    """
+    return np.trapezoid(array, dx=h)
 
 
 # numba jit
@@ -149,15 +192,51 @@ def setup_formal_integral_inputs(
     electron_densities,
 ):
     """
-    Prepare all of the arrays and values needed for the loops inside the formal integral
+    Prepare all arrays and values needed for the loops inside the formal integral.
 
-    Needed parameters at the end:
-        nu, ps, Inup
-        att_S_ul, Jred_lu, Jblue_lu, exp_tau
-        escat_op
-        line_list
-        shell_ids, size_lines,
-        direction (?) can also be precomputed
+    Parameters
+    ----------
+    frequencies : ndarray
+        Array of frequency values.
+    inner_temperature : float
+        Inner boundary temperature.
+    points : int
+        Number of p-rays.
+    geometry : object
+        Geometry object containing shell radii.
+    time_explosion : float
+        Time since explosion (seconds).
+    line_list_nu : ndarray
+        Array of line frequencies.
+    tau_sobolev : ndarray
+        Sobolev optical depths for each line and shell.
+    electron_densities : ndarray
+        Electron densities per shell.
+
+    Returns
+    -------
+    intensities_nu_p : ndarray
+        Intensities at each frequency and impact parameter (p).
+    ps : ndarray
+        Array of p values.
+    size_zs : ndarray
+        Number of z intersections for each p.
+    lines_idx : ndarray
+        Initial line indices for each frequency and p.
+    lines_idx_offset : ndarray
+        Initial offset line indices for each frequency and p.
+    nu_ends : ndarray
+        Frequency at each z intersection.
+    nu_ends_idxs : ndarray
+        Indices of line list for each nu_end.
+    zstarts : ndarray
+        Starting z values for each p-ray.
+    escat_ops : ndarray
+        Electron scattering opacities for each frequency, p, and z.
+    directions : ndarray
+        Direction changes for each frequency, p-ray, and z.
+    exp_tau : ndarray
+        Exponential of negative Sobolev optical depths (flattened).
     """
 
     n_frequencies = len(frequencies)
@@ -269,6 +348,39 @@ def increment_escat_contrib(
     Jred_lu,
     intensities_nu_p,
 ):
+    """
+    Increment the electron scattering contribution for the formal integral.
+
+    Parameters
+    ----------
+    escat_contrib : float
+        Current electron scattering contribution.
+    first : int
+        Flag indicating if this is the first contribution (1 if first, 0 otherwise).
+    pJred_lu : int
+        Index for Jred_lu.
+    zend : float
+        Ending z value for the current segment.
+    zstart : float
+        Starting z value for the current segment.
+    escat_op : float
+        Electron scattering opacity.
+    Jblue_lu : float
+        Jblue_lu value for the current segment.
+    Jred_lu : float
+        Jred_lu value for the current segment.
+    intensities_nu_p : float
+        Intensity at the current frequency and p.
+
+    Returns
+    -------
+    escat_contrib : float
+        Updated electron scattering contribution.
+    first : int
+        Updated first flag.
+    pJred_lu : int
+        Updated Jred_lu index.
+    """
     if first == 1:
         # first contribution to integration
         # NOTE: this treatment of I_nu_b (given
@@ -304,13 +416,39 @@ def numba_formal_integral(
     points,
 ):
     """
+    Compute the formal integral.
+
+    Parameters
+    ----------
+    geometry : object
+        Geometry object containing shell radii.
+    time_explosion : float
+        Time since explosion (seconds).
+    plasma : object
+        Plasma object containing line list frequencies.
+    inner_temperature : float
+        Inner boundary temperature.
+    frequencies : ndarray
+        Array of frequencies.
+    att_S_ul : ndarray
+        Attenuated source function for each line and shell.
+    Jred_lu : ndarray
+        Jred_lu values for each line and shell.
+    Jblue_lu : ndarray
+        Jblue_lu values for each line and shell.
+    tau_sobolev : ndarray
+        Sobolev optical depths for each line and shell.
+    electron_density : ndarray
+        Electron densities per shell.
+    points : int
+        Number of p-ray points.
+
     Returns
     -------
-    L : float64 array
-        integrated luminosities
-    intensities_nu_p : float64 2D array
-        intensities at each p-ray multiplied by p
-        frequency x p-ray grid
+    L : ndarray
+        Integrated luminosities for each frequency.
+    intensities_nu_p : ndarray
+        Intensities at each p-ray multiplied by p (frequency x p-ray grid).
     """
     # Initialize the output which is shared among threads
     n_frequencies = len(frequencies)
@@ -431,8 +569,18 @@ def numba_formal_integral(
 
 class NumbaFormalIntegrator:
     """
-    Helper class for performing the formal integral
-    with numba.
+    Helper class for performing the formal integral with Numba.
+
+    Parameters
+    ----------
+    geometry : object
+        Geometry object containing shell radii.
+    time_explosion : float
+        Time since explosion (seconds).
+    plasma : object
+        Plasma object containing line list frequencies.
+    points : int, optional
+        Number of p-ray points (default is 1000).
     """
 
     def __init__(self, geometry, time_explosion, plasma, points=1000):
@@ -453,7 +601,33 @@ class NumbaFormalIntegrator:
         points,
     ):
         """
-        Simple wrapper for the numba implementation of the formal integral
+        Wrapper for the Numba implementation of the formal integral.
+
+        Parameters
+        ----------
+        inner_temperature : float
+            Inner boundary temperature.
+        frequencies : ndarray
+            Array of frequency values.
+        att_S_ul : ndarray
+            Attenuated source function values.
+        Jred_lu : ndarray
+            Jred_lu values for each line and shell.
+        Jblue_lu : ndarray
+            Jblue_lu values for each line and shell.
+        tau_sobolev : ndarray
+            Sobolev optical depths (2D array: lines x shells).
+        electron_density : ndarray
+            Electron densities per shell.
+        points : int
+            Number of p-ray points.
+
+        Returns
+        -------
+        L : ndarray
+            Integrated luminosities for each frequency.
+        intensities_nu_p : ndarray
+            Intensities at each p-ray multiplied by p (frequency x p-ray grid).
         """
         return numba_formal_integral(
             self.geometry,
