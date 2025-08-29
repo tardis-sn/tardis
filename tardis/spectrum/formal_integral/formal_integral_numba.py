@@ -230,7 +230,7 @@ def setup_formal_integral_inputs(
         Intensities at each frequency and impact parameter (p).
     impact_parameters : ndarray
         Array of impact parameters.
-    n_interactions : ndarray
+    n_intersections : ndarray
         Number of intersections for each impact parameter.
     lines_idx : ndarray
         Initial line indices for each frequency and impact parameter.
@@ -240,7 +240,7 @@ def setup_formal_integral_inputs(
         Frequency at each intersection.
     nu_ends_idxs : ndarray
         Indices of line list for each nu_end.
-    interaction_starts : ndarray
+    intersection_starts : ndarray
         Starting intersection point for each impact parameter.
     escat_opacities : ndarray
         Electron scattering optical depths for each frequency, impact parameter, and shell intersection.
@@ -263,12 +263,12 @@ def setup_formal_integral_inputs(
     intensities_nu_p = np.zeros((n_frequencies, points), dtype=np.float64)
     shell_intersections = np.zeros((points, 2 * size_shell), dtype=np.float64)
     shell_ids = np.zeros((points, 2 * size_shell), dtype=np.int64)
-    n_interactions = np.zeros(points, dtype=np.int64)
+    n_intersections = np.zeros(points, dtype=np.int64)
 
     lines_idx = np.zeros((n_frequencies, points), dtype=np.int64)
     lines_idx_offset = np.zeros((n_frequencies, points), dtype=np.int64)
 
-    interaction_starts = np.zeros(points, dtype=np.float64)
+    intersection_starts = np.zeros(points, dtype=np.float64)
 
     nu_ends = np.zeros(
         (n_frequencies, points, 2 * size_shell - 1), dtype=np.float64
@@ -292,14 +292,14 @@ def setup_formal_integral_inputs(
             p = impact_parameters[p_idx]
 
             # get shell intersections
-            n_interactions_p = populate_z(
+            n_intersections_p = populate_z(
                 geometry,
                 time_explosion,
                 p,
                 shell_intersections[p_idx],
                 shell_ids[p_idx],
             )
-            n_interactions[p_idx] = n_interactions_p
+            n_intersections[p_idx] = n_intersections_p
             intersection_point = shell_intersections[p_idx]
             shell_id = shell_ids[p_idx]
 
@@ -312,7 +312,7 @@ def setup_formal_integral_inputs(
             else:
                 intensities_nu[p_idx] = 0
 
-            # compute quantities for line interactions
+            # compute quantities for line intersections
             nu_start = nu * intersection_point[0]
 
             idx_nu_start = line_search(line_list_nu, nu_start, size_line)
@@ -321,7 +321,7 @@ def setup_formal_integral_inputs(
                 idx_nu_start + (shell_id[0] * size_line)
             )
 
-            interaction_starts[p_idx] = (
+            intersection_starts[p_idx] = (
                 time_explosion / C_INV * (1.0 - intersection_point[0])
             )
 
@@ -330,7 +330,7 @@ def setup_formal_integral_inputs(
                 line_list_nu[::-1], nu_ends[nu_idx, p_idx], side="right"
             )
 
-            for i in range(n_interactions_p - 1):
+            for i in range(n_intersections_p - 1):
                 escat_opacities[nu_idx, p_idx, i] = (
                     electron_densities[int(shell_ids[p_idx][i])] * SIGMA_THOMSON
                 )
@@ -341,12 +341,12 @@ def setup_formal_integral_inputs(
     return (
         intensities_nu_p,
         impact_parameters,
-        n_interactions,
+        n_intersections,
         lines_idx,
         lines_idx_offset,
         nu_ends,
         nu_ends_idxs,
-        interaction_starts,
+        intersection_starts,
         escat_opacities,
         directions,
         exp_tau_sobolev,
@@ -358,8 +358,8 @@ def get_electron_scattering_optical_depth(
     escat_optical_depth: float,
     first_contribution_flag: int,
     mean_intensity_red_lu_idx: int,
-    interaction_end: float,
-    interaction_start: float,
+    intersection_end: float,
+    intersection_start: float,
     escat_opacity: float,
     mean_intensity_blue_lu: float,
     mean_intensity_red_lu: float,
@@ -376,9 +376,9 @@ def get_electron_scattering_optical_depth(
         Flag indicating if this is the first contribution (1 if first, 0 otherwise).
     mean_intensity_red_lu_idx : int
         Index for mean_intensity_red_lu.
-    interaction_end : float
+    intersection_end : float
         Ending intersection point value for the current segment.
-    interaction_start : float
+    intersection_start : float
         Starting intersection point value for the current segment.
     escat_op : float
         Electron scattering opacity.
@@ -404,7 +404,7 @@ def get_electron_scattering_optical_depth(
         #   by boundary conditions) is not in Lucy 1999;
         #   should be re-examined carefully
         escat_optical_depth += (
-            (interaction_end - interaction_start)
+            (intersection_end - intersection_start)
             * escat_opacity
             * (mean_intensity_blue_lu - intensities_nu_p)
         )
@@ -413,7 +413,7 @@ def get_electron_scattering_optical_depth(
         # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
         avg_mean_intensity_lu = 0.5 * (mean_intensity_red_lu + mean_intensity_blue_lu)
         escat_optical_depth += (
-            (interaction_end - interaction_start)
+            (intersection_end - intersection_start)
             * escat_opacity
             * (avg_mean_intensity_lu - intensities_nu_p)
         )
@@ -488,12 +488,12 @@ def numba_formal_integral(
     (
         intensities_nu_p,
         impact_parameters,
-        n_interactions,
+        n_intersections,
         lines_idx,
         lines_idx_offset,
         nu_ends,
         nu_ends_idxs,
-        interaction_starts,
+        intersection_starts,
         escat_opacities,
         directions,
         exp_tau_sobolev,
@@ -517,10 +517,10 @@ def numba_formal_integral(
         for p_idx in range(1, points):
             escat_optical_depth = 0
             p = impact_parameters[p_idx]
-            n_interactions_p = n_interactions[p_idx]
+            n_intersections_p = n_intersections[p_idx]
 
             # find first contributing lines
-            interaction_start = interaction_starts[p_idx]
+            intersection_start = intersection_starts[p_idx]
 
             # Initialize "pointers"
             line_idx = lines_idx[nu_idx, p_idx]
@@ -531,13 +531,13 @@ def numba_formal_integral(
             first_contribution_flag = 1
 
             # loop over all interactions
-            for i in range(n_interactions_p - 1):
+            for i in range(n_intersections_p - 1):
                 escat_opacity = escat_opacities[nu_idx, p_idx, i]
                 nu_end = nu_ends[nu_idx, p_idx, i]
                 nu_end_idx = nu_ends_idxs[nu_idx, p_idx, i]
                 for _ in range(max(nu_end_idx - line_idx, 0)):
                     # calculate e-scattering optical depth to next resonance point
-                    interaction_end = (
+                    intersection_end = (
                         time_explosion
                         / C_INV
                         * (1.0 - line_list_nu[line_idx] / nu)
@@ -551,8 +551,8 @@ def numba_formal_integral(
                         escat_optical_depth,
                         first_contribution_flag,
                         line_Jred_lu_idx,
-                        interaction_end,
-                        interaction_start,
+                        intersection_end,
+                        intersection_start,
                         escat_opacity,
                         mean_intensity_blue_lu[line_idx_offset],
                         mean_intensity_red_lu[line_Jred_lu_idx],
@@ -566,7 +566,7 @@ def numba_formal_integral(
 
                     # reset e-scattering opacity
                     escat_optical_depth = 0
-                    interaction_start = interaction_end
+                    intersection_start = intersection_end
 
                     line_idx += 1
                     line_idx_offset += 1
@@ -576,13 +576,13 @@ def numba_formal_integral(
                     mean_intensity_red_lu[line_Jred_lu_idx]
                     + mean_intensity_blue_lu[line_idx_offset]
                 )
-                interaction_end = time_explosion / C_INV * (1.0 - nu_end / nu)
+                intersection_end = time_explosion / C_INV * (1.0 - nu_end / nu)
                 escat_optical_depth += (
-                    (interaction_end - interaction_start)
+                    (intersection_end - intersection_start)
                     * escat_opacity
                     * (avg_mean_intensity_lu - intensities_nu[p_idx])
                 )
-                interaction_start = interaction_end
+                intersection_start = intersection_end
 
                 # advance "pointers"
                 direction = directions[nu_idx, p_idx, i]
