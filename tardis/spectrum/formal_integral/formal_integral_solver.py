@@ -266,7 +266,6 @@ class FormalIntegralSolver:
         luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
             simulation_state.t_inner,
             frequencies,
-            frequencies.shape[0],
             att_S_ul_interpolated,
             Jred_lu_interpolated,
             Jblue_lu_interpolated,
