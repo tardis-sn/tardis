@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
     create_wavelength_mask,
@@ -125,7 +126,7 @@ class TestPlotUtil:
 
         expected_df = pd.DataFrame(expected_data)
 
-        line_mask = (expected_df["last_interaction_type"] > -1) & (
+        line_mask = (expected_df["last_interaction_type"] > InteractionType.NO_INTERACTION) & (
             expected_df["last_line_interaction_in_id"] > -1
         )
         expected_df_line_interaction = expected_df.loc[line_mask].copy()

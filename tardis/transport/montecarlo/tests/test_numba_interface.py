@@ -3,6 +3,7 @@ import numpy.testing as npt
 import pytest
 
 import tardis.opacities.opacity_state as numba_interface
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 
 @pytest.mark.parametrize(
