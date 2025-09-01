@@ -403,9 +403,9 @@ class TestSDECPlotter:
         assert plotter._species_name == expected_labels
 
     @pytest.fixture(scope="class")
-    def workflow_simple(self, config_verysimple, atomic_dataset):
-        # Use same config as simulation_simple
+    def workflow_simple(self, config_verysimple, atomic_data_fname):
         config = deepcopy(config_verysimple)
+        config.atom_data = atomic_data_fname
         config.montecarlo.iterations = 3
         config.montecarlo.no_of_packets = 4000
         config.montecarlo.last_no_of_packets = -1
@@ -413,8 +413,7 @@ class TestSDECPlotter:
         config.montecarlo.no_of_virtual_packets = 1
         config.spectrum.num = 2000
         
-        atomic_data = deepcopy(atomic_dataset)
-        workflow = StandardTARDISWorkflow(config, atom_data=atomic_data)
+        workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
         workflow.run()
         return workflow
 
@@ -650,28 +649,52 @@ class TestSDECPlotter:
             actual = str(tmp_path / f"{regression_data.fname_prefix}_workflow.png")
             compare_images(expected, actual, tol=0.001)
 
-    def test_from_workflow_against_existing_regression_data(
-        self, plotter_from_workflow, regression_data
-    ):
-        expected_data_path = (
-            regression_data.regression_data_path 
-            / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
-            / "test_calculate_plotting_data__plotter_calculate_plotting_data1__.h5"
+    def test_from_workflow_method_functionality(self, plotter_from_workflow):
+        plotter_from_workflow._parse_species_list(None)
+        plotter_from_workflow._calculate_plotting_data(
+            packets_mode="virtual",
+            packet_wvl_range=[500, 9000] * u.AA, 
+            distance=None,
+            nelements=None
         )
         
-        if expected_data_path.exists():
-            expected_data = pd.read_hdf(expected_data_path, key="plot_data_hdf/emission_luminosities_df")
-            
-            plotter_from_workflow._calculate_plotting_data(
-                packets_mode="virtual",
-                packet_wvl_range=[500, 9000] * u.AA, 
-                distance=10 * u.Mpc,
-                nelements=1
-            )
-            
-            pd.testing.assert_frame_equal(
-                plotter_from_workflow.emission_luminosities_df,
-                expected_data,
-                check_exact=False,
-                rtol=1e-10
-            )
+        # Test that basic plotting data exists and has reasonable values
+        assert plotter_from_workflow.emission_luminosities_df is not None
+        assert plotter_from_workflow.absorption_luminosities_df is not None
+        assert len(plotter_from_workflow.emission_luminosities_df) > 0
+        assert len(plotter_from_workflow.absorption_luminosities_df) > 0
+        
+        # Test that matplotlib plot can be generated
+        fig = plotter_from_workflow.generate_plot_mpl(packets_mode="virtual")
+        assert fig is not None
+
+    def test_workflow_simulation_data_identical(self, plotter, plotter_from_workflow):
+        # Calculate plotting data with identical parameters
+        params = {
+            "packets_mode": "virtual",
+            "packet_wvl_range": [500, 9000] * u.AA,
+            "distance": None,
+            "nelements": None,
+        }
+        
+        plotter._parse_species_list(None)
+        plotter._calculate_plotting_data(**params)
+        
+        plotter_from_workflow._parse_species_list(None)
+        plotter_from_workflow._calculate_plotting_data(**params)
+        
+        # Test emission luminosities are identical
+        pd.testing.assert_frame_equal(
+            plotter.emission_luminosities_df,
+            plotter_from_workflow.emission_luminosities_df,
+            check_exact=False,
+            rtol=1e-12
+        )
+        
+        # Test absorption luminosities are identical  
+        pd.testing.assert_frame_equal(
+            plotter.absorption_luminosities_df,
+            plotter_from_workflow.absorption_luminosities_df,
+            check_exact=False,
+            rtol=1e-12
+        )
