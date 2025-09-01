@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2e554a5b"></script>
+      <script src="../../../_static/documentation_options.js?v=b34bccf3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -155,6 +155,174 @@
   <section id="spectrum-configuration">
 <span id="spectrum-config"></span><h1>Spectrum Configuration<a class="headerlink" href="#spectrum-configuration" title="Link to this heading">¶</a></h1>
 <p>Finally, the spectrum configuration tells TARDIS information needed for spectrum generation (see <a class="reference internal" href="../../../analyzing_tardis/spectrum/index.html#spectrum"><span class="std std-ref">Analyzing TARDIS Spectra</span></a>):</p>
+<table class="docutils align-default" id="spectrum-yml">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="3"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>start</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>The lower limit of the spectrum to be generated. Values below this point will not be generated.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>stop</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>The upper limit of the spectrum to be generated. Values above this point will not be generated.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>num</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>Number of bins used to build the spectrum</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>multipleOf</p></td>
+<td colspan="2"><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>method</p></li>
+</ul>
+</td>
+<td colspan="3"><p>The method to generate the final spectrum</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td colspan="2"><p>integrated, virtual, real</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>virtual</p></td>
+</tr>
+<tr class="row-even"><td rowspan="13"><ul class="simple">
+<li><p>integrated</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>points</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Number of impact parameters p used in the calculation of the integrated spectrum</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>1000</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>interpolate_shells</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Number of shells on which the formal integral quantities are interpolated. For -1 no interpolation is used. The default is to use twice the number of computational shells but at least 80.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>compute</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Which method the formal_integral will be computed with. It defaults to the Numba version, but it can be run on NVIDIA Cuda GPUs. GPU will make it only run on a NVIDIA Cuda GPU, so if one is not available it will raise an error. Automatic first tries to find an acceptable GPU, and if none is found it will run on the CPU.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>CPU</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="16"><ul class="simple">
+<li><p>virtual</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>tau_russian</p></li>
+</ul>
+</td>
+<td colspan="2"><p>For optical depths greater tau_russian russian rouletting is used for the v-packets</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>10.0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>survival_probability</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Probability for not terminating the packet path between 0 and 1</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>enable_biasing</p></li>
+</ul>
+</td>
+<td colspan="2"><p>If True bias v-packet emission based on the electron scattering optical depth</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>virtual_packet_logging</p></li>
+</ul>
+</td>
+<td colspan="2"><p>If True, enable virtual packet logging output</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
 <p><code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">end</span></code> are given as values with units.
 <code class="docutils literal notranslate"><span class="pre">num</span></code> specifies the number of bins used to build the spectrum and must be given as an integer.
 TARDIS produces the spectrum via three different methods. For more information on these methods, visit the
@@ -202,7 +370,7 @@ the integrated spectrum to the HDF output when “integrated” is used as the m
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 01 Sep 2025.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=2e554a5b"></script>
+      <script src="../../../../_static/documentation_options.js?v=b34bccf3"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -165,30 +165,80 @@ we recommend using the YAML configuration method. For creating a custom model (w
 recommend using the CSVY method.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#model-configuration" id="id2">Model Configuration</a></p>
+<li><p><a class="reference internal" href="#model-configuration" id="id6">Model Configuration</a></p>
 <ul>
-<li><p><a class="reference internal" href="#custom-model-configurations" id="id3">Custom Model Configurations</a></p></li>
-<li><p><a class="reference internal" href="#custom-model-tutorial" id="id4">Custom Model Tutorial</a></p></li>
-<li><p><a class="reference internal" href="#model-converters" id="id5">Model Converters</a></p></li>
+<li><p><a class="reference internal" href="#custom-model-configurations" id="id7">Custom Model Configurations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#file-structure" id="id8">File Structure</a></p></li>
+<li><p><a class="reference internal" href="#file-abundance" id="id9">File Abundance</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#built-in-structure-density-and-abundance" id="id6">Built-in Structure, Density, and Abundance</a></p>
-<ul>
-<li><p><a class="reference internal" href="#structure" id="id7">Structure</a></p></li>
-<li><p><a class="reference internal" href="#density" id="id8">Density</a></p></li>
-<li><p><a class="reference internal" href="#abundance" id="id9">Abundance</a></p></li>
+<li><p><a class="reference internal" href="#custom-model-tutorial" id="id10">Custom Model Tutorial</a></p></li>
+<li><p><a class="reference internal" href="#model-converters" id="id11">Model Converters</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#csvy-model" id="id10">CSVY Model</a></p>
+<li><p><a class="reference internal" href="#built-in-structure-density-and-abundance" id="id12">Built-in Structure, Density, and Abundance</a></p>
 <ul>
-<li><p><a class="reference internal" href="#csvy-model-tutorial" id="id11">CSVY Model Tutorial</a></p></li>
+<li><p><a class="reference internal" href="#structure" id="id13">Structure</a></p>
+<ul>
+<li><p><a class="reference internal" href="#specific-structure" id="id14">Specific Structure</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#density" id="id15">Density</a></p>
+<ul>
+<li><p><a class="reference internal" href="#branch85-w7-density" id="id16">Branch85_w7 Density</a></p></li>
+<li><p><a class="reference internal" href="#exponential-density" id="id17">Exponential Density</a></p></li>
+<li><p><a class="reference internal" href="#power-law-density" id="id18">Power_law Density</a></p></li>
+<li><p><a class="reference internal" href="#uniform-density" id="id19">Uniform Density</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#abundance" id="id20">Abundance</a></p>
+<ul>
+<li><p><a class="reference internal" href="#uniform-abundance" id="id21">Uniform Abundance</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#csvy-model" id="id22">CSVY Model</a></p>
+<ul>
+<li><p><a class="reference internal" href="#csvy-model-tutorial" id="id23">CSVY Model Tutorial</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="model-configuration">
-<span id="model-config"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">Model Configuration</a><a class="headerlink" href="#model-configuration" title="Link to this heading">¶</a></h2>
+<span id="model-config"></span><h2><a class="toc-backref" href="#id6" role="doc-backlink">Model Configuration</a><a class="headerlink" href="#model-configuration" title="Link to this heading">¶</a></h2>
 <p>The following schema shows how the model section of the YAML configuration is set up:</p>
+<table class="docutils align-default" id="model-yml">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>structure</p></li>
+</ul>
+</td>
+<td rowspan="2"><p>oneOf</p></td>
+<td><p><a class="reference internal" href="#specific-structure"><span class="std std-ref">Specific Structure</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#file-structure"><span class="std std-ref">File Structure</span></a></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>abundances</p></li>
+</ul>
+</td>
+<td rowspan="2"><p>oneOf</p></td>
+<td><p><a class="reference internal" href="#file-abundance"><span class="std std-ref">File Abundance</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#uniform-abundance"><span class="std std-ref">Uniform Abundance</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
 <p>Several examples are shown in the following sections; additionally, see <a class="reference internal" href="../../example.html#tardis-example"><span class="std std-ref">TARDIS Example Configuration</span></a> to see
 an example model configuration section within the full TARDIS configuration. This configuration allows
 for both built-in structures and abundances, which will be described in later sections, as well as custom
@@ -201,9 +251,77 @@ they are recorded in the same file (see below). Therefore, if you wish to use a 
 structure you must also use a built-in density profile, and vice versa.</p>
 </div>
 <section id="custom-model-configurations">
-<h3><a class="toc-backref" href="#id3" role="doc-backlink">Custom Model Configurations</a><a class="headerlink" href="#custom-model-configurations" title="Link to this heading">¶</a></h3>
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Custom Model Configurations</a><a class="headerlink" href="#custom-model-configurations" title="Link to this heading">¶</a></h3>
 <p>The following two sections demonstrate how to specify custom structures and abundances in the
 model configuration.</p>
+<section id="file-structure">
+<span id="file-structure"></span><h4><a class="toc-backref" href="#id8" role="doc-backlink">File Structure</a><a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h4>
+<p>One can use a file referenced in the model configuration to create a custom structure model and density profile.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td><p>file</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>filename</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>file name (with path) to structure model</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>filetype</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>file type</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td><p>simple_ascii, artis, cmfgen_model</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>v_inner_boundary</p></li>
+</ul>
+</td>
+<td colspan="2"><p>location of the inner boundary chosen from the model</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>-1 km/s</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>v_outer_boundary</p></li>
+</ul>
+</td>
+<td colspan="2"><p>location of the inner boundary chosen from the model</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>-1 km/s</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <p>For example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">structure</span><span class="p">:</span>
@@ -221,6 +339,59 @@ would entail, see:</p>
 <li class="toctree-l1"><a class="reference internal" href="densitycust/densitycust.html">Using a custom density profile</a></li>
 </ul>
 </div>
+<section id="file-abundance">
+<span id="file-abundance"></span><h4><a class="toc-backref" href="#id9" role="doc-backlink">File Abundance</a><a class="headerlink" href="#file-abundance" title="Link to this heading">¶</a></h4>
+<p>One can use a file referenced in the model configuration to create a custom elemental abundances.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td><p>file</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>filetype</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>type of abundance file to read in</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>filename</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>filename</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>model_isotope_time_0</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Initial time for isotope decay. If nan is specified then this is set to time_explosion and the isotope abundances are not decayed. If set to a value then the abundances are decayed from model_isotope_time_0 to time_explosion.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>nan s</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <p>For example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
 <span class="w">    </span>
@@ -239,7 +410,7 @@ would entail, see:</p>
 </div>
 </section>
 <section id="custom-model-tutorial">
-<h3><a class="toc-backref" href="#id4" role="doc-backlink">Custom Model Tutorial</a><a class="headerlink" href="#custom-model-tutorial" title="Link to this heading">¶</a></h3>
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Custom Model Tutorial</a><a class="headerlink" href="#custom-model-tutorial" title="Link to this heading">¶</a></h3>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Custom_TARDIS_Model_Tutorial.html">How to run TARDIS with a custom ejecta model</a><ul>
@@ -256,7 +427,7 @@ would entail, see:</p>
 </div>
 </section>
 <section id="model-converters">
-<span id="converters"></span><h3><a class="toc-backref" href="#id5" role="doc-backlink">Model Converters</a><a class="headerlink" href="#model-converters" title="Link to this heading">¶</a></h3>
+<span id="converters"></span><h3><a class="toc-backref" href="#id11" role="doc-backlink">Model Converters</a><a class="headerlink" href="#model-converters" title="Link to this heading">¶</a></h3>
 <p>There are a variety of formats for models from other codes
 (both hydro and radiative transfer) that can be converted to TARDIS input files.
 Here we aim to provide converters for the most commonly used file formats.</p>
@@ -277,13 +448,84 @@ Here we aim to provide converters for the most commonly used file formats.</p>
 </section>
 </section>
 <section id="built-in-structure-density-and-abundance">
-<h2><a class="toc-backref" href="#id6" role="doc-backlink">Built-in Structure, Density, and Abundance</a><a class="headerlink" href="#built-in-structure-density-and-abundance" title="Link to this heading">¶</a></h2>
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Built-in Structure, Density, and Abundance</a><a class="headerlink" href="#built-in-structure-density-and-abundance" title="Link to this heading">¶</a></h2>
 <p>TARDIS’s built-in models for structure, density, and abundance are described in the following sections:</p>
 <section id="structure">
-<h3><a class="toc-backref" href="#id7" role="doc-backlink">Structure</a><a class="headerlink" href="#structure" title="Link to this heading">¶</a></h3>
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Structure</a><a class="headerlink" href="#structure" title="Link to this heading">¶</a></h3>
 <p>When using the built-in structure functionality, the code requires two sections (<code class="docutils literal notranslate"><span class="pre">velocities</span></code> and <code class="docutils literal notranslate"><span class="pre">densities</span></code>) and a
 parameter <code class="docutils literal notranslate"><span class="pre">no_of_shells</span></code>. <code class="docutils literal notranslate"><span class="pre">no_of_shells</span></code> is the requested number of shells for a model. See
 <a class="reference internal" href="../../../../physics_walkthrough/setup/model.html#Shell-Structure"><span class="std std-ref">Shell Structure</span></a> for more information.</p>
+<section id="specific-structure">
+<span id="specific-structure"></span><h4><a class="toc-backref" href="#id14" role="doc-backlink">Specific Structure</a><a class="headerlink" href="#specific-structure" title="Link to this heading">¶</a></h4>
+<p>The following schema shows how to use the built-in structure model and density profiles.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="3"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td colspan="2"><p>specific</p></td>
+</tr>
+<tr class="row-even"><td rowspan="7"><ul class="simple">
+<li><p><strong>velocity</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>description of the boundaries of the shells</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>start</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p>stop</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>num</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>multipleOf</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p><strong>density</strong></p></li>
+</ul>
+</td>
+<td rowspan="4"><p>oneOf</p></td>
+<td colspan="2"><p><a class="reference internal" href="#branch85-w7-density"><span class="std std-ref">Branch85_w7 Density</span></a></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="#exponential-density"><span class="std std-ref">Exponential Density</span></a></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><a class="reference internal" href="#power-law-density"><span class="std std-ref">Power_law Density</span></a></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="#uniform-density"><span class="std std-ref">Uniform Density</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="3"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <p>We present an example of the above schema:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">structure</span><span class="p">:</span>
@@ -298,9 +540,68 @@ parameter <code class="docutils literal notranslate"><span class="pre">no_of_she
 </div>
 </section>
 <section id="density">
-<h3><a class="toc-backref" href="#id8" role="doc-backlink">Density</a><a class="headerlink" href="#density" title="Link to this heading">¶</a></h3>
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Density</a><a class="headerlink" href="#density" title="Link to this heading">¶</a></h3>
 <p>In the <code class="docutils literal notranslate"><span class="pre">densities</span></code> section of the specific structure, the <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter decides on the parameters.
 The physics of these density models is further discussed in <a class="reference internal" href="../../../../physics_walkthrough/setup/model.html"><span class="doc">Model</span></a>.</p>
+<section id="branch85-w7-density">
+<span id="branch85-w7-density"></span><h4><a class="toc-backref" href="#id16" role="doc-backlink">Branch85_w7 Density</a><a class="headerlink" href="#branch85-w7-density" title="Link to this heading">¶</a></h4>
+<p>The type <code class="docutils literal notranslate"><span class="pre">branch85_w7</span></code> uses a seventh-order polynomial fit to the W7 model and is parametrised by time since explosion. The parameters <code class="docutils literal notranslate"><span class="pre">time_0</span></code> and <code class="docutils literal notranslate"><span class="pre">density_coefficient</span></code> are set to sensible defaults and should not be changed.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td><p>branch85_w7</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>w7_time_0</p></li>
+</ul>
+</td>
+<td colspan="2"><p>This needs no change - DO NOT TOUCH</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0.000231481 day</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>w7_rho_0</p></li>
+</ul>
+</td>
+<td colspan="2"><p>This needs no change - DO NOT TOUCH</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>3e29 g/cm^3</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>w7_v_0</p></li>
+</ul>
+</td>
+<td colspan="2"><p>This needs no change - DO NOT TOUCH</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>1 km/s</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <p>For example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">structure</span><span class="p">:</span>
@@ -311,6 +612,56 @@ The physics of these density models is further discussed in <a class="reference 
 </pre></div>
 </div>
 <p>For more information, see <a class="reference internal" href="../../../../physics_walkthrough/setup/model.html#Branch85-W7-Density"><span class="std std-ref">Branch85 W7 Density</span></a>.</p>
+<section id="exponential-density">
+<span id="exponential-density"></span><h4><a class="toc-backref" href="#id17" role="doc-backlink">Exponential Density</a><a class="headerlink" href="#exponential-density" title="Link to this heading">¶</a></h4>
+<p>This schema shows how to configure an exponential density profile (see the page linked below).</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td><p>exponential</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p>time_0</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Time at which the pure model densities are right</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>rho_0</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>density at time_0</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>v_0</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>at what velocity the density rho_0 applies</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <p>For example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">structure</span><span class="p">:</span>
@@ -323,6 +674,65 @@ The physics of these density models is further discussed in <a class="reference 
 </pre></div>
 </div>
 <p>For more information, see <a class="reference internal" href="../../../../physics_walkthrough/setup/model.html#Exponential-Density"><span class="std std-ref">Exponential Density</span></a>.</p>
+<section id="power-law-density">
+<span id="power-law-density"></span><h4><a class="toc-backref" href="#id18" role="doc-backlink">Power_law Density</a><a class="headerlink" href="#power-law-density" title="Link to this heading">¶</a></h4>
+<p>This schema shows how to configure a power law density profile (see the page linked below).</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td><p>power_law</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p>time_0</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Time at which the pure model densities are right</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>rho_0</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>density at time_0</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>v_0</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>at what velocity the density rho_0 applies</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>exponent</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>exponent for exponential density profile</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <p>For example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">structure</span><span class="p">:</span>
@@ -336,6 +746,47 @@ The physics of these density models is further discussed in <a class="reference 
 </pre></div>
 </div>
 <p>For more information, see <a class="reference internal" href="../../../../physics_walkthrough/setup/model.html#Power-Law-Density"><span class="std std-ref">Power Law Density</span></a>.</p>
+<section id="uniform-density">
+<span id="uniform-density"></span><h4><a class="toc-backref" href="#id19" role="doc-backlink">Uniform Density</a><a class="headerlink" href="#uniform-density" title="Link to this heading">¶</a></h4>
+<p>For a uniform density profile, one need only specify a single parameter – the value of the uniform density.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td><p>uniform</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p>time_0</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Time at which the pure model densities are right</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p><strong>value</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>value for uniform density</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <p>For example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">structure</span><span class="p">:</span>
@@ -349,9 +800,51 @@ The physics of these density models is further discussed in <a class="reference 
 <p>For more information, see <a class="reference internal" href="../../../../physics_walkthrough/setup/model.html#Uniform-Density"><span class="std std-ref">Uniform Density</span></a>.</p>
 </section>
 <section id="abundance">
-<h3><a class="toc-backref" href="#id9" role="doc-backlink">Abundance</a><a class="headerlink" href="#abundance" title="Link to this heading">¶</a></h3>
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Abundance</a><a class="headerlink" href="#abundance" title="Link to this heading">¶</a></h3>
 <p>This section can be used to configure uniform abundances for all shells, by giving the atom or isotope name
 and a relative abundance fraction. If it does not add up to 1, TARDIS will warn – but normalize the numbers.</p>
+<section id="uniform-abundance">
+<span id="uniform-abundance"></span><h4><a class="toc-backref" href="#id21" role="doc-backlink">Uniform Abundance</a><a class="headerlink" href="#uniform-abundance" title="Link to this heading">¶</a></h4>
+<p>The following schema shows how to use TARDIS’s built-in uniform abundance configuration.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td><p>uniform</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>model_isotope_time_0</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>Initial time for isotope decay. If nan is specified then this is set to time_explosion and the isotope abundances are not decayed. If set to a value then the abundances are decayed from model_isotope_time_0 to time_explosion.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>nan s</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><p>additionalProperties</p></td>
+<td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>maximum</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <p>For example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
 
@@ -367,7 +860,7 @@ and a relative abundance fraction. If it does not add up to 1, TARDIS will warn 
 </section>
 </section>
 <section id="csvy-model">
-<span id="csvy-models"></span><h2><a class="toc-backref" href="#id10" role="doc-backlink">CSVY Model</a><a class="headerlink" href="#csvy-model" title="Link to this heading">¶</a></h2>
+<span id="csvy-models"></span><h2><a class="toc-backref" href="#id22" role="doc-backlink">CSVY Model</a><a class="headerlink" href="#csvy-model" title="Link to this heading">¶</a></h2>
 <p>TARDIS allows users to use a CSVY file to input information about the model. To do this, instead of a
 <code class="docutils literal notranslate"><span class="pre">model</span></code> section, one includes <code class="docutils literal notranslate"><span class="pre">csvy_model:</span> <span class="pre">&lt;file</span> <span class="pre">path</span> <span class="pre">to</span> <span class="pre">CSVY</span> <span class="pre">file&gt;</span></code> in the main TARDIS configuration
 file.</p>
@@ -377,6 +870,154 @@ followed by the YAML portion of the CSVY model, then another line with just the 
 and finally the CSV portion of the CSVY file. This is shown in the example CSVY file later in this section.</p>
 <p>The YAML portion of the CSVY file allows the user to use most of the features of the YAML model configuration,
 as shown in the schema below:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="3"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>name</p></li>
+</ul>
+</td>
+<td colspan="3"><p>name of the model being run</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>model_density_time_0</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>Initial time for the density in the model</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>model_isotope_time_0</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>Initial time for isotope decay. Set to 0 for no isotopes.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>description</p></li>
+</ul>
+</td>
+<td colspan="3"><p>description of the model being run</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>tardis_model_config_version</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>Version of the configuration file</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><ul class="simple">
+<li><p>datatype</p></li>
+</ul>
+</td>
+<td colspan="3"><p>fields found in csv part of csvy file</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p>fields</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p>v_inner_boundary</p></li>
+</ul>
+</td>
+<td colspan="3"><p>velocity of the inner boundary</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p>v_outer_boundary</p></li>
+</ul>
+</td>
+<td colspan="3"><p>velocity of the outer boundary of the last shell</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="6"><ul class="simple">
+<li><p>velocity</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p>start</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>stop</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p>num</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>multipleOf</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>density</p></li>
+</ul>
+</td>
+<td rowspan="4"><p>oneOf</p></td>
+<td colspan="2"><p><a class="reference internal" href="#branch85-w7-density"><span class="std std-ref">Branch85_w7 Density</span></a></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><a class="reference internal" href="#exponential-density"><span class="std std-ref">Exponential Density</span></a></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="#power-law-density"><span class="std std-ref">Power_law Density</span></a></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p><a class="reference internal" href="#uniform-density"><span class="std std-ref">Uniform Density</span></a></p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p>abundance</p></li>
+</ul>
+</td>
+<td colspan="3"><p><a class="reference internal" href="#uniform-abundance"><span class="std std-ref">Uniform Abundance</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="3"><p>False</p></td>
+</tr>
+</tbody>
+</table>
 <p>The CSV part of the CSVY file creates a table that can include information about shell velocities, densities,
 and abundances in each cell. The column headers (the first row of the CSV part) may contain <code class="docutils literal notranslate"><span class="pre">velocity</span></code>,
 <code class="docutils literal notranslate"><span class="pre">density</span></code>, <code class="docutils literal notranslate"><span class="pre">t_rad</span></code>, <code class="docutils literal notranslate"><span class="pre">dilution_factor</span></code>, or the name of any element or isotope (e.g. <code class="docutils literal notranslate"><span class="pre">H</span></code>, <code class="docutils literal notranslate"><span class="pre">Mg</span></code>,
@@ -438,7 +1079,7 @@ To prevent these quantities from being changed, you must set the damping constan
 Configuration</span></a> in the Monte Carlo section of the configuration file.</p>
 </div>
 <section id="csvy-model-tutorial">
-<h3><a class="toc-backref" href="#id11" role="doc-backlink">CSVY Model Tutorial</a><a class="headerlink" href="#csvy-model-tutorial" title="Link to this heading">¶</a></h3>
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">CSVY Model Tutorial</a><a class="headerlink" href="#csvy-model-tutorial" title="Link to this heading">¶</a></h3>
 <p>Coming soon!</p>
 </section>
 </section>
@@ -456,7 +1097,7 @@ Configuration</span></a> in the Monte Carlo section of the configuration file.</
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 01 Sep 2025.
       </span></p>
   </div>
 

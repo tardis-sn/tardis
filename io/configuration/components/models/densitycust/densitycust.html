@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=2e554a5b"></script>
+      <script src="../../../../../_static/documentation_options.js?v=b34bccf3"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -163,6 +163,20 @@
 particularly useful if the results of detailed explosion simulations should be
 mapped into TARDIS. The density profile is supplied in the form of a simple
 ASCII file that should look something like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>1 day
+# index velocity (km/s) density (g/cm^3)
+0       9000.0000   5.4869692e-10
+1       10500.000   2.1759646e-10
+2       12000.000   9.7656229e-11
+3       13500.000   4.8170911e-11
+4       15000.000   2.5600000e-11
+5       16500.000   1.4450533e-11
+6       18000.000   8.5733893e-12
+7       19500.000   5.3037103e-12
+8       21000.000   3.3999447e-12
+9       22500.000   2.2474623e-12
+</pre></div>
+</div>
 <p>In this file:</p>
 <ul class="simple">
 <li><p>the first line gives the reference time (see below)</p></li>
@@ -232,7 +246,7 @@ Values for the boundary velocities that lie outside the range covered by density
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 01 Sep 2025.
       </span></p>
   </div>
 

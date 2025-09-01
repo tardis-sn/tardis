@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=2e554a5b"></script>
+      <script src="../../_static/documentation_options.js?v=b34bccf3"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -205,7 +205,7 @@ and the center would be <span class="math notranslate nohighlight">\(\frac{v_\ma
 <p>TARDIS simulates radiative transfer between an inner boundary (the photosphere) and an outer boundary (the outer edge of the supernova ejecta). The velocity of the inner boundary <span class="math notranslate nohighlight">\(v_\mathrm{boundary\_inner}\)</span> and the velocity of the outer boundary <span class="math notranslate nohighlight">\(v_\mathrm{boundary\_outer}\)</span> are supplied in the configuration file, as well as the time after the explosion for which TARDIS is calculating the spectrum (<span class="math notranslate nohighlight">\(t_\mathrm{explosion}\)</span>). The radii of the inner and outer boundaries are
 therefore calculated by <span class="math notranslate nohighlight">\(r_\mathrm{boundary\_inner}=v_\mathrm{boundary\_inner}*t_\mathrm{explosion}\)</span> and <span class="math notranslate nohighlight">\(r_\mathrm{boundary\_outer}=v_\mathrm{boundary\_outer}*t_\mathrm{explosion}\)</span>. Plasma at a distance <span class="math notranslate nohighlight">\(r\)</span> from the center of the supernova would then be traveling outward at a speed <span class="math notranslate nohighlight">\(v=\frac{r}{r_\mathrm{boundary\_outer}}v_\mathrm{boundary\_outer} = \frac{r}{t_\mathrm{explosion}}\)</span>. This is also shown in the animation.</p>
 <p>Additionally, TARDIS divides the space between the inner and outer computational boundaries into cells – radial shells for which the state/condition of the ejecta is (spatially) constant. In the animation, 6 cells are shown, being divided by the light blue lines. As TARDIS is a time-independent code which calculates the spectra at an instant in time, the radii of the boundaries (either of the computational domain or of the cells) do not change throughout the simulation.</p>
-<p><img alt="ce66c4087ca04ac78fc3ff32afd40704" class="no-scaled-link" src="../../_images/expansion_animation.gif" style="width: 500px;" /></p>
+<p><img alt="b4c395c0a2614de7818c9a802289b7e6" class="no-scaled-link" src="../../_images/expansion_animation.gif" style="width: 500px;" /></p>
 <p>We now demonstrate how the shell structure works using the TARDIS code.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -243,7 +243,7 @@ Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /home/runner/Downl
 </pre></div>
 </div>
 </div>
-<p>In the cell below, we set up a model. We use the specific structure where we supply <span class="math notranslate nohighlight">\(t_\mathrm{explosion}\)</span>, the velocity of the inner and outer boundaries of the supernova (labeled <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code>), and the number of shells (labeled <code class="docutils literal notranslate"><span class="pre">num</span></code>). The shells are then evenly spaced between the inner and outer boundaries of the supernova. The time after the explosion, the inner and outer velocities, and the number
+<p>In the cell below, we set up a model. We use the <a class="reference internal" href="../../io/configuration/components/models/index.html#specific-structure"><span class="std std-ref">specific structure</span></a> where we supply <span class="math notranslate nohighlight">\(t_\mathrm{explosion}\)</span>, the velocity of the inner and outer boundaries of the supernova (labeled <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code>), and the number of shells (labeled <code class="docutils literal notranslate"><span class="pre">num</span></code>). The shells are then evenly spaced between the inner and outer boundaries of the supernova. The time after the explosion, the inner and outer velocities, and the number
 of shells can be varied to get different shell structures. The <code class="docutils literal notranslate"><span class="pre">SimulationState</span></code> object stores information about the model in the following attributes: <code class="docutils literal notranslate"><span class="pre">velocity</span></code> shows the velocity of the shell boundaries, <code class="docutils literal notranslate"><span class="pre">v_inner</span></code> shows the velocities of the inner boundaries of each shell, <code class="docutils literal notranslate"><span class="pre">v_outer</span></code> shows the velocity of the outer boundaries of each shell, and <code class="docutils literal notranslate"><span class="pre">v_middle</span></code> shows the velocity of the middle of each shell. Similarly, <code class="docutils literal notranslate"><span class="pre">radius</span></code>, <code class="docutils literal notranslate"><span class="pre">r_inner</span></code>, <code class="docutils literal notranslate"><span class="pre">r_outer</span></code>, and <code class="docutils literal notranslate"><span class="pre">r_middle</span></code> show the radii
 of each shell boundary, the inner boundaries, the outer boundaries, and the middles of each shell, respectively. <code class="docutils literal notranslate"><span class="pre">v_inner_boundary</span></code> shows the velocity of the inner boundary of the computational domain, and <code class="docutils literal notranslate"><span class="pre">v_outer_boundary</span></code> shows the velocity of the outer boundary of the computational domain. Finally, <code class="docutils literal notranslate"><span class="pre">volume</span></code> shows the volume of each shell, calculated via the formula of the volume of a spherical shell: <span class="math notranslate nohighlight">\(V=\frac{4}{3}\pi (r_\mathrm{outer}^3-r_\mathrm{inner}^3)\)</span>.</p>
 <div class="nbinput docutils container">
@@ -343,12 +343,12 @@ volume:
 <p>Notice that <code class="docutils literal notranslate"><span class="pre">radius</span> <span class="pre">=</span> <span class="pre">velocity*time_explosion</span></code>, and similarly for <code class="docutils literal notranslate"><span class="pre">r_inner</span></code>, <code class="docutils literal notranslate"><span class="pre">r_outer</span></code>, and <code class="docutils literal notranslate"><span class="pre">r_middle</span></code>. You can get the radius of the photosphere via <code class="docutils literal notranslate"><span class="pre">v_inner_boundary*time_explosion</span></code> and outer edge of the supernova via <code class="docutils literal notranslate"><span class="pre">v_boundary_outer*time_explosion</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle">Note</p>
-<p>Using the built-in shell structure, as shown here, the shells are all equally spaced. This is not necessarily the case if one uses the file structure, <a class="reference internal" href="../../io/configuration/components/models/index.html#csvy-model"><span class="std std-ref">CSVY model</span></a>, or <a class="reference internal" href="../../analyzing_tardis/visualization/how_to_abundance_widget.html"><span class="doc">custom abundance widget</span></a>.</p>
+<p>Using the built-in shell structure, as shown here, the shells are all equally spaced. This is not necessarily the case if one uses the <a class="reference internal" href="../../io/configuration/components/models/index.html#file-structure"><span class="std std-ref">file structure</span></a>, <a class="reference internal" href="../../io/configuration/components/models/index.html#csvy-model"><span class="std std-ref">CSVY model</span></a>, or <a class="reference internal" href="../../analyzing_tardis/visualization/how_to_abundance_widget.html"><span class="doc">custom abundance widget</span></a>.</p>
 </div>
 </section>
 <section id="Density">
 <h2>Density<a class="headerlink" href="#Density" title="Link to this heading">¶</a></h2>
-<p>We now look at how TARDIS models the density inside each shell. If you use the <a class="reference internal" href="../../io/configuration/components/models/index.html#density"><span class="std std-ref">built-in densities</span></a>, TARDIS allows you to choose between the four models discussed below. The file structure, <a class="reference internal" href="../../io/configuration/components/models/index.html#csvy-model"><span class="std std-ref">CSVY model</span></a>, and <a class="reference external" href="../../io/visualization/how_to_abundance_widget.ipynb">custom abundance widget</a> options
+<p>We now look at how TARDIS models the density inside each shell. If you use the <a class="reference internal" href="../../io/configuration/components/models/index.html#density"><span class="std std-ref">built-in densities</span></a>, TARDIS allows you to choose between the four models discussed below. The <a class="reference internal" href="../../io/configuration/components/models/index.html#file-structure"><span class="std std-ref">file structure</span></a>, <a class="reference internal" href="../../io/configuration/components/models/index.html#csvy-model"><span class="std std-ref">CSVY model</span></a>, and <a class="reference external" href="../../io/visualization/how_to_abundance_widget.ipynb">custom abundance widget</a> options
 allow more freedom in assigning densities to each shell.</p>
 <p>In general, the density in the supernova at a specific moment in time is a function of the radius or velocity of the ejecta (either can be used, since the radius and velocity are linearly related at any moment of time). Since the shell velocities do not change over time, it is more simple to write the densities as a function of ejecta velocity. If we do this, the time-dependence of the density is simple. We know the total mass of the ejecta is constant in each shell due to the nature of
 homologous expansion. The inner and outer radii of each shell increase linearly over time, meaning the volume increases as time cubed. Since density is mass divided by volume, the density is inverse-cubic in time. Mathematically, if <span class="math notranslate nohighlight">\(\rho(v,t_\mathrm{explosion})\)</span> is the density at a velocity <span class="math notranslate nohighlight">\(v\)</span> after a time <span class="math notranslate nohighlight">\(t_\mathrm{explosion}\)</span>, given some characteristic time <span class="math notranslate nohighlight">\(t_0\)</span>, we have</p>
@@ -360,7 +360,7 @@ at the center of each shell).</p>
 <p>Note that the density in each shell is stored in the <code class="docutils literal notranslate"><span class="pre">density</span></code> attribute of the <code class="docutils literal notranslate"><span class="pre">SimulationState</span></code> object.</p>
 <section id="Branch85-W7-Density">
 <h3>Branch85 W7 Density<a class="headerlink" href="#Branch85-W7-Density" title="Link to this heading">¶</a></h3>
-<p>The first built-in density profile is the well-known W7 density model. There are no density-specific parameters that should be edited (see here for the default values) as this is a well-established model. The shell structure can be varied as usual to see the effects of the shell structure on the W7 density.</p>
+<p>The first built-in density profile is the well-known W7 density model. There are no density-specific parameters that should be edited (see <a class="reference internal" href="../../io/configuration/components/models/index.html#branch85-w7-density"><span class="std std-ref">here</span></a> for the default values) as this is a well-established model. The shell structure can be varied as usual to see the effects of the shell structure on the W7 density.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -482,7 +482,7 @@ density:
 <p>and thus</p>
 <div class="math notranslate nohighlight">
 \[\rho(v,t_\mathrm{explosion})=\mathrm{value}*\left(\frac{t_0}{t_\mathrm{explosion}}\right)^3.\]</div>
-<p>The parameters that can be varied, besides the shell structure, are thus the characteristic time <span class="math notranslate nohighlight">\(t_0\)</span>, and the value of the density at time <span class="math notranslate nohighlight">\(t_0\)</span>. The schema can be found here.</p>
+<p>The parameters that can be varied, besides the shell structure, are thus the characteristic time <span class="math notranslate nohighlight">\(t_0\)</span>, and the value of the density at time <span class="math notranslate nohighlight">\(t_0\)</span>. The schema can be found <a class="reference internal" href="../../io/configuration/components/models/index.html#uniform-density"><span class="std std-ref">here</span></a>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -548,7 +548,7 @@ density:
 <p>and thus</p>
 <div class="math notranslate nohighlight">
 \[\rho(v,t_\mathrm{explosion})=\rho_0\left(\frac{v}{v_0}\right)^{\rm exponent}\left(\frac{t_0}{t_\mathrm{explosion}}\right)^3.\]</div>
-<p>Thus, the relevant parameters are <span class="math notranslate nohighlight">\(t_0\)</span>, <span class="math notranslate nohighlight">\(\rho_0\)</span>, <span class="math notranslate nohighlight">\(v_0\)</span>, and the exponent. We recommend that the exponent be negative for a sensible density profile. The schema can be found here.</p>
+<p>Thus, the relevant parameters are <span class="math notranslate nohighlight">\(t_0\)</span>, <span class="math notranslate nohighlight">\(\rho_0\)</span>, <span class="math notranslate nohighlight">\(v_0\)</span>, and the exponent. We recommend that the exponent be negative for a sensible density profile. The schema can be found <a class="reference internal" href="../../io/configuration/components/models/index.html#power-law-density"><span class="std std-ref">here</span></a>.</p>
 <p>Note here that <span class="math notranslate nohighlight">\(\rho_0\)</span> is the density at time <span class="math notranslate nohighlight">\(t_0\)</span> and velocity <span class="math notranslate nohighlight">\(v_0\)</span>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -620,7 +620,7 @@ density:
 <p>and thus</p>
 <div class="math notranslate nohighlight">
 \[\rho(v,t_\mathrm{explosion})=\rho_0e^{-v/v_0}\left(\frac{t_0}{t_\mathrm{explosion}}\right)^3.\]</div>
-<p>Thus, the relevant parameters are <span class="math notranslate nohighlight">\(t_0\)</span>, <span class="math notranslate nohighlight">\(\rho_0\)</span>, and <span class="math notranslate nohighlight">\(v_0\)</span>. The schema can be found here.</p>
+<p>Thus, the relevant parameters are <span class="math notranslate nohighlight">\(t_0\)</span>, <span class="math notranslate nohighlight">\(\rho_0\)</span>, and <span class="math notranslate nohighlight">\(v_0\)</span>. The schema can be found <a class="reference internal" href="../../io/configuration/components/models/index.html#exponential-density"><span class="std std-ref">here</span></a>.</p>
 <p>Note here again that <span class="math notranslate nohighlight">\(\rho_0\)</span> is the density at time <span class="math notranslate nohighlight">\(t_0\)</span> and velocity <span class="math notranslate nohighlight">\(v_0\)</span>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -687,7 +687,7 @@ density:
 <section id="Abundance">
 <h2>Abundance<a class="headerlink" href="#Abundance" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">SimulationState</span></code> also carries important information about elemental abundances in each shell. These are mass abundances – that is, the abundance of oxygen is the fraction of the shell’s mass that is made up of oxygen.</p>
-<p>The only built-in abundance model that TARDIS offers is a uniform abundance, meaning each shell has identical abundances. Like density, however, the file abundance, <a class="reference internal" href="../../io/configuration/components/models/index.html#csvy-model"><span class="std std-ref">CSVY model</span></a>, and <a class="reference internal" href="../../analyzing_tardis/visualization/how_to_abundance_widget.html"><span class="doc">custom abundance widget</span></a> methods allow users more freedom with assigning different abundances in each
+<p>The only built-in abundance model that TARDIS offers is a uniform abundance, meaning each shell has identical abundances. Like density, however, the <a class="reference internal" href="../../io/configuration/components/models/index.html#file-abundance"><span class="std std-ref">file abundance</span></a>, <a class="reference internal" href="../../io/configuration/components/models/index.html#csvy-model"><span class="std std-ref">CSVY model</span></a>, and <a class="reference internal" href="../../analyzing_tardis/visualization/how_to_abundance_widget.html"><span class="doc">custom abundance widget</span></a> methods allow users more freedom with assigning different abundances in each
 shell.</p>
 <p>A table of abundances in each shell is stored in the <code class="docutils literal notranslate"><span class="pre">abundance</span></code> attribute of the <code class="docutils literal notranslate"><span class="pre">SimulationState</span></code> object.</p>
 <p>In this first example, the abundances in each shell do not depend on the time after the explosion and are identical to those provided in the configuration.</p>
@@ -1252,7 +1252,7 @@ t_rad:
 <h2>Dilution Factor<a class="headerlink" href="#Dilution-Factor" title="Link to this heading">¶</a></h2>
 <p>The dilution factor <span class="math notranslate nohighlight">\(W\)</span> describes the fraction of the energy from a blackbody that “reaches” the observer. That is, it is the ratio of the energy density at the observer to the energy density of the blackbody. This heavily depends on light-matter interactions, as matter can shield or amplify the energy coming from the blackbody, in this case the photosphere. However, in the absence of other material, the dilution factor is purely geometric, called the geometric dilution factor. The
 geometric dilution factor at a point is the fraction of the point’s “field of view” that the blackbody takes up, as shown in the figure below.</p>
-<p><img alt="3724b2546d1f43a99d844d6c60cecff4" class="no-scaled-link" src="../../_images/dilution_factor.png" style="width: 500px;" /></p>
+<p><img alt="a3490c32d4ec41eaa81b349b2a3b4ef0" class="no-scaled-link" src="../../_images/dilution_factor.png" style="width: 500px;" /></p>
 <p>Using geometry (in 3D, where the photosphere in the figure is a sphere, not a circle), the fraction of the point’s “field of view” taken up by the sphere is</p>
 <div class="math notranslate nohighlight">
 \[\frac{1}{2}\left(1-\sqrt{1-\frac{r_\mathrm{boundary\_inner}^2}{r^2}}\right)\]</div>
@@ -1331,7 +1331,7 @@ dilution_factor: [0.3902439  0.31651472 0.27093858 0.23746888 0.21120466 0.18981
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 01 Sep 2025.
       </span></p>
   </div>
 

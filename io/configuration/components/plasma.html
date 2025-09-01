@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2e554a5b"></script>
+      <script src="../../../_static/documentation_options.js?v=b34bccf3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -157,6 +157,315 @@
   <section id="plasma-configuration">
 <span id="plasma-config"></span><h1>Plasma Configuration<a class="headerlink" href="#plasma-configuration" title="Link to this heading">¶</a></h1>
 <p>The plasma configuration gives TARDIS the necessary information to calculate the plasma state (see <a class="reference internal" href="../../../physics_walkthrough/setup/plasma/index.html#plasma"><span class="std std-ref">Plasma</span></a>):</p>
+<table class="docutils align-default" id="plasma-yml">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="3"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>initial_t_inner</p></li>
+</ul>
+</td>
+<td colspan="3"><p>initial temperature of the inner boundary black body. If set to -1 K  will result in automatic calculation of boundary</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>-1 K</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>initial_t_rad</p></li>
+</ul>
+</td>
+<td colspan="3"><p>initial radiative temperature in all cells. If set to -1 K will result in automtatic calculation of the initial temperatures</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>quantity</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>-1 K</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>disable_electron_scattering</p></li>
+</ul>
+</td>
+<td colspan="3"><p>disable electron scattering process in montecarlo part - non-physical only for tests</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>disable_line_scattering</p></li>
+</ul>
+</td>
+<td colspan="3"><p>disable line scattering process in montecarlo part - non-physical only for tests</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>ionization</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>ionization treatment mode</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>enum</p></td>
+<td colspan="2"><p>nebular, lte</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>excitation</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>excitation treatment mode</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td colspan="2"><p>lte, dilute-lte</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>radiative_rates_type</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>radiative rates treatment mode</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>enum</p></td>
+<td colspan="2"><p>dilute-blackbody, detailed, blackbody</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>line_interaction_type</strong></p></li>
+</ul>
+</td>
+<td colspan="3"><p>line interaction mode</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td colspan="2"><p>scatter, downbranch, macroatom</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>w_epsilon</p></li>
+</ul>
+</td>
+<td colspan="3"><p>w to use when j_blues get numerically 0. - avoids numerical complications</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>1e-10</p></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="simple">
+<li><p>delta_treatment</p></li>
+</ul>
+</td>
+<td colspan="3"><p>In the saha calculation set delta equals to the number given in this configuration item. if set to None (default), normal delta treatment (as described in Mazzali &amp; Lucy 1993) will be applied</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td rowspan="13"><ul class="simple">
+<li><p>nlte</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>species</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Species that are requested to be NLTE treated in the format  [‘Si 2’, ‘Ca 1’, etc.]</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>coronal_approximation</p></li>
+</ul>
+</td>
+<td colspan="2"><p>set all jblues=0.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>classical_nebular</p></li>
+</ul>
+</td>
+<td colspan="2"><p>sets all beta_sobolevs to 1</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="13"><ul class="simple">
+<li><p>continuum_interaction</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>species</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Species that are requested to be treated with continuum interactios (radiative/collisional ionization and recombination) in the format [‘Si II’, ‘Ca I’, etc.]</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>enable_adiabatic_cooling</p></li>
+</ul>
+</td>
+<td colspan="2"><p>enables adiabatic cooling of the electron gas</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>enable_two_photon_decay</p></li>
+</ul>
+</td>
+<td colspan="2"><p>enables two photon decay processes</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>helium_treatment</p></li>
+</ul>
+</td>
+<td colspan="3"><p>none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td colspan="2"><p>none, recomb-nlte, numerical-nlte</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>none</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>heating_rate_data_file</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Path to file containing heating rate/light curve data.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>none</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>link_t_rad_t_electron</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Value used for estimating the electron temperature from radiation temperature.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>0.9</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>nlte_ionization_species</p></li>
+</ul>
+</td>
+<td colspan="3"><p>List of species treated with nlte ionization. In the format [“H I”, “He II”] etc.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>array</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>nlte_excitation_species</p></li>
+</ul>
+</td>
+<td colspan="3"><p>List of species treated with nlte excitation. In the format [“H I”, “He II”] etc.</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>array</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>nlte_solver</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Selects NLTE population equation solver approach.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>enum</p></td>
+<td colspan="2"><p>root, lu</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>root</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="3"><p>False</p></td>
+</tr>
+</tbody>
+</table>
 <p><code class="docutils literal notranslate"><span class="pre">inital_t_inner</span></code> is initial temperature (will be updated for most modes of TARDIS — see convergence section) of the black-body on the inner
 boundary. <code class="docutils literal notranslate"><span class="pre">initial_t_rad</span></code> is the initial radiation temperature (will be updated for most modes of TARDIS - see convergence section). For debugging purposes and to compare to
 <a class="reference internal" href="../../../resources/zreferences.html#term-Synapps"><span class="xref std std-term">synapps</span></a> calculations one can disable the electron scattering. TARDIS will issue a warning that this is not physical.
@@ -243,7 +552,7 @@ NLTE excitation is important).</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 01 Sep 2025.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=2e554a5b"></script>
+      <script src="../../../../../_static/documentation_options.js?v=b34bccf3"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -161,6 +161,19 @@
 be specified on a per-cell basis via an external ASCII file (similar to setting
 up a <a class="reference internal" href="../densitycust/densitycust.html#densitycust"><span class="std std-ref">custom density</span></a> profile). An ASCII file that could
 work on a mesh with ten cells should be formatted like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># index Z=1 - Z=30
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0 0.1 0 0.2 0 0.2 0 0 0 0 0 0.2 0.1 0.1 0 0
+1 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0 0.1 0 0.2 0 0.2 0 0 0 0 0 0.2 0.1 0.1 0 0
+2 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0 0.1 0 0.2 0 0.2 0 0 0 0 0 0.2 0.1 0.1 0 0
+3 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+4 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+5 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+6 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+7 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+8 0 0 0 0 0 0.5 0 0.5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+9 0 0 0 0 0 0.5 0 0.5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+</pre></div>
+</div>
 <p>In this file:</p>
 <ul class="simple">
 <li><p>there should be the same number of rows as there are cells specified in the velocity/density structure part of the TARDIS setup</p></li>
@@ -306,7 +319,7 @@ the model section of the YAML file:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 01 Sep 2025.
       </span></p>
   </div>
 

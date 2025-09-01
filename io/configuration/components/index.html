@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=2e554a5b"></script>
+      <script src="../../../_static/documentation_options.js?v=b34bccf3"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -172,6 +172,93 @@ are allowed or available.</p>
 </div>
 <p>The base schema outlines the main components of the TARDIS configuration. Schemas for these components are linked
 in the base schema, and important information about the configuration is linked below.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>tardis_config_version</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>Version of the configuration file. The current version is 1.0 and no other versions are allowed</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>supernova</p></li>
+</ul>
+</td>
+<td colspan="2"><p>a section pertaining to observations of the supernova</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="supernova.html#supernova-yml"><span class="std std-ref">supernova.yml</span></a></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>atom_data</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>path or filename to the Atomic Data HDF5 file</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>plasma</p></li>
+</ul>
+</td>
+<td colspan="2"><p>configuration of the plasma microphysics</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="plasma.html#plasma-yml"><span class="std std-ref">plasma.yml</span></a></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>csvy_model</p></li>
+</ul>
+</td>
+<td colspan="2"><p>defining the model using csvy format (see <a class="reference internal" href="models/index.html#csvy-models"><span class="std std-ref">CSVY Model</span></a>)</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>model</p></li>
+</ul>
+</td>
+<td colspan="2"><p>defining the model in the config yaml file</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="models/index.html#model-yml"><span class="std std-ref">model.yml</span></a></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>montecarlo</p></li>
+</ul>
+</td>
+<td colspan="2"><p>configuring the physics of the monte carlo radiative transfer</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="montecarlo.html#montecarlo-yml"><span class="std std-ref">montecarlo.yml</span></a></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p><strong>spectrum</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>Final spectrum sampling</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="spectrum.html#spectrum-yml"><span class="std std-ref">spectrum.yml</span></a></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="simple">
+<li><p>debug</p></li>
+</ul>
+</td>
+<td colspan="2"><p>Debugging setup for the simulation</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="debug.html#debug-yml"><span class="std std-ref">debug.yml</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+</tbody>
+</table>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="supernova.html">Supernova Configuration</a></li>
@@ -215,7 +302,7 @@ in the base schema, and important information about the configuration is linked 
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 01 Sep 2025.
       </span></p>
   </div>
 
