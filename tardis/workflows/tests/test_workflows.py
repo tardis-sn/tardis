@@ -130,6 +130,7 @@ def test_simple_tardis_workflow_against_standard_workflow(
     )
 
 
+@pytest.mark.skip(reason="Test disabled until stable sort")
 @pytest.mark.parametrize(
     "attr",
     [

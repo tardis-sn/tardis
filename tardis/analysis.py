@@ -9,6 +9,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 INVALID_ION_ERROR_MSG = "Atomic number, ion_number pair not present in model"
 
@@ -207,7 +208,7 @@ class LastLineInteraction:
         ]
         self.last_line_in_table["count"] = last_line_in_count
         self.last_line_in_table = self.last_line_in_table.sort_values(
-            by="count", ascending=False
+            by="count", ascending=False, kind=SORTING_ALGORITHM
         )
         self.last_line_out_table = self.last_line_out.reset_index()[
             [
@@ -220,7 +221,7 @@ class LastLineInteraction:
         ]
         self.last_line_out_table["count"] = last_line_out_count
         self.last_line_out_table = self.last_line_out_table.sort_values(
-            by="count", ascending=False
+            by="count", ascending=False, kind=SORTING_ALGORITHM
         )
 
     def plot_wave_in_out(self, fig, do_clf=True, plot_resonance=True):
@@ -278,7 +279,7 @@ class TARDISHistory:
                     int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
                 )
 
-            self.iterations = np.sort(np.unique(iterations))
+            self.iterations = np.sort(np.unique(iterations), kind=SORTING_ALGORITHM)
             hdf_store.close()
         else:
             self.iterations = iterations
