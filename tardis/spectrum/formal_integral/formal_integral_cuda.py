@@ -6,7 +6,7 @@ from tardis.spectrum.formal_integral.base import (
     C_INV,
     KB_CGS,
     H_CGS,
-    calculate_p_values
+    calculate_impact_parameters,
 )
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
@@ -217,7 +217,7 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
     return result
 
 
-calculate_p_values = cuda.jit(calculate_p_values, device=True)
+calculate_impact_parameters = cuda.jit(calculate_impact_parameters, device=True)
 
 
 @cuda.jit(device=True)

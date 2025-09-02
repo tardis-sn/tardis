@@ -36,17 +36,17 @@ def time_explosion():
     return 1 / c.c.cgs.value
 
 
-def calculate_z(r, p):
+def calculate_intersection_point(r, p):
     return np.sqrt(r * r - p * p)
 
 
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
-def test_calculate_z(formal_integral_geometry, time_explosion, p):
+def test_calculate_intersection_point(formal_integral_geometry, time_explosion, p):
     inv_t = 1.0 / time_explosion
     size = len(formal_integral_geometry.r_outer)
     r_outer = formal_integral_geometry.r_outer
     for r in r_outer:
-        actual = formal_integral_numba.calculate_z(r, p, inv_t)
+        actual = formal_integral_numba.calculate_intersection_point(r, p, inv_t)
         if p >= r:
             assert actual == 0
         else:
@@ -68,14 +68,14 @@ def test_populate_z_photosphere(formal_integral_geometry, time_explosion, p):
     oz = np.zeros_like(r_inner)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-    N = formal_integral_numba.populate_z(
+    N = formal_integral_numba.populate_intersection_points(
         formal_integral_geometry, time_explosion, p, oz, oshell_id
     )
     assert N == size
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
 
-    ntest.assert_allclose(oz, 1 - calculate_z(r_outer, p), atol=1e-5)
+    ntest.assert_allclose(oz, 1 - calculate_intersection_point(r_outer, p), atol=1e-5)
 
 
 @pytest.mark.parametrize("p", [1e-5, 0.5, 0.99, 1])
@@ -105,14 +105,14 @@ def test_populate_z_shells(formal_integral_geometry, time_explosion, p):
         np.abs(np.arange(0.5, expected_N, 1) - offset) - 0.5 + idx
     )
 
-    expected_oz[0:offset] = 1 + calculate_z(
+    expected_oz[0:offset] = 1 + calculate_intersection_point(
         r_outer[np.arange(size, idx, -1) - 1], p
     )
-    expected_oz[offset:expected_N] = 1 - calculate_z(
+    expected_oz[offset:expected_N] = 1 - calculate_intersection_point(
         r_outer[np.arange(idx, size, 1)], p
     )
 
-    N = formal_integral_numba.populate_z(
+    N = formal_integral_numba.populate_intersection_points(
         formal_integral_geometry, time_explosion, p, oz, oshell_id
     )
 

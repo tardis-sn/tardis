@@ -30,6 +30,22 @@ def check(simulation_state, opacity_state, transport, raises=True):
     The function returns False if the configuration conflicts with the
     required settings. If raises evaluates to True, then a
     IntegrationError is raised instead
+
+    Parameters
+    ----------
+    simulation_state : tardis.model.SimulationState
+        State which holds information about each shell
+    transport_solver : tardis.transport.montecarlo.MonteCarloTransportSolver
+        The transport solver
+    opacity_state : tardis.opacities.opacity_state.OpacityState
+        Regular (non-numba) opacity state; will be converted to numba via `setup`
+    raises : bool, optional
+        flag to either raise an error or return False and issue a warning
+
+    Returns
+    -------
+    bool
+        True if the configuration is correct, False (or errors) otherwise
     """
 
     def raise_or_return(message):
@@ -66,39 +82,39 @@ def check(simulation_state, opacity_state, transport, raises=True):
     return True
 
 
-def calculate_p_values(R_max, N):
+def calculate_impact_parameters(radius_max, n_impact_parameters):
     """
-    Calculates the p values of N
+    Calculate n_impact_parameters impact parameters between 0 and radius_max
 
     Parameters
     ----------
-    R_max : float64
-    N : int64
+    radius_max : float64
+        maximum radius
+    n_impact_parameters : int64
+        number of impact parameters
 
     Returns
     -------
     float64
     """
-    return np.arange(N).astype(np.float64) * R_max / (N - 1)
+    return np.arange(n_impact_parameters).astype(np.float64) * radius_max / (n_impact_parameters - 1)
 
 
-def intensity_black_body(nu, temperature):
+def intensity_black_body(frequency, temperature):
     """
     Calculate the blackbody intensity.
 
     Parameters
     ----------
-    nu : float64
-        frequency
+    frequency : float64
     temperature : float64
-        Temperature
 
     Returns
     -------
     float64
     """
-    if nu == 0:
+    if frequency == 0:
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)
+    return coefficient * frequency * frequency * frequency / (np.exp(H_CGS * frequency * beta_rad) - 1)
