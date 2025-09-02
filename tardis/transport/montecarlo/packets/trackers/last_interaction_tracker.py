@@ -150,8 +150,8 @@ class RPacketLastInteractionTracker:
         """
         self.line_before_nu = r_packet.nu
         self.line_before_mu = r_packet.mu
-        # Capture the line ID that will be interacted with (next_line_id)
-        self.line_before_id = r_packet.next_line_id
+        # The line ID should already be set in last_line_interaction_in_id by the transport phase
+        self.line_before_id = r_packet.last_line_interaction_in_id
 
     def track_line_interaction_after(self, r_packet) -> None:
         """
@@ -164,6 +164,8 @@ class RPacketLastInteractionTracker:
         """
         self.line_after_nu = r_packet.nu
         self.line_after_mu = r_packet.mu
+        # Capture the line ID after the interaction (from last_line_interaction_out_id)
+        self.line_after_id = r_packet.last_line_interaction_out_id
         self.line_interactions_count += 1
         # Update general tracking
         self.track(r_packet)
