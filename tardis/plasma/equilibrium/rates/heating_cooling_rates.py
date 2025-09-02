@@ -84,8 +84,6 @@ class BoundFreeThermalRates:
         nu_is = nu_i.loc[self.photoionization_cross_sections.index].to_numpy()
         n_cells = level_population.columns
 
-        temp_values = thermal_electron_distribution.temperature.value
-
         if bound_free_heating_estimator is not None:
             # TODO: check if this is correct
             integrated_heating_coefficient = bound_free_heating_estimator
@@ -124,8 +122,9 @@ class BoundFreeThermalRates:
         # Calculate Boltzmann factor
         boltzmann_factor = np.exp(
             -self.nu[:, np.newaxis]
-            / temp_values[np.newaxis, :]
-            * (const.h.cgs.value / const.k_B.cgs.value)
+            * u.Hz
+            / thermal_electron_distribution.temperature[np.newaxis, :]
+            * (const.h.cgs / const.k_B.cgs)
         )
 
         spontaneous_recombination_cooling_coefficient = pd.DataFrame(

@@ -370,7 +370,7 @@ def test_thermal_balance_solver(
     )
 
     expected_total_heating_rate = -1.2538064915724822e-06
-    expected_fractional_heating_rate = -0.10968587857155208
+    expected_fractional_heating_rate = -0.10968587857162025
 
     assert_almost_equal(
         total_heating_rate[0], expected_total_heating_rate, decimal=14
