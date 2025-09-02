@@ -158,7 +158,8 @@ def single_packet_loop(
         # If continuum processes: update continuum estimators
 
         if interaction_type == InteractionType.BOUNDARY:
-            rpacket_tracker.track_boundary_interaction(
+            rpacket_tracker.track_boundary_crossing(
+                r_packet,
                 r_packet.current_shell_id,
                 r_packet.current_shell_id + delta_shell,
             )
@@ -184,6 +185,7 @@ def single_packet_loop(
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            rpacket_tracker.track_line_interaction_before(r_packet)
             line_scatter(
                 r_packet,
                 time_explosion,
@@ -191,6 +193,7 @@ def single_packet_loop(
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            rpacket_tracker.track_line_interaction_after(r_packet)
             trace_vpacket_volley(
                 r_packet,
                 vpacket_collection,
@@ -204,7 +207,6 @@ def single_packet_loop(
 
         elif interaction_type == InteractionType.ESCATTERING:
             r_packet.last_interaction_type = InteractionType.ESCATTERING
-
             move_r_packet(
                 r_packet,
                 distance,
@@ -212,11 +214,13 @@ def single_packet_loop(
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            rpacket_tracker.track_escattering_interaction_before(r_packet)
             thomson_scatter(
                 r_packet,
                 time_explosion,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            rpacket_tracker.track_escattering_interaction_after(r_packet)
 
             trace_vpacket_volley(
                 r_packet,
@@ -240,6 +244,7 @@ def single_packet_loop(
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            rpacket_tracker.track_continuum_interaction_before(r_packet)
             continuum_event(
                 r_packet,
                 time_explosion,
@@ -250,6 +255,7 @@ def single_packet_loop(
                 current_continua,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            rpacket_tracker.track_continuum_interaction_after(r_packet)
 
             trace_vpacket_volley(
                 r_packet,
@@ -262,8 +268,7 @@ def single_packet_loop(
                 montecarlo_configuration.SURVIVAL_PROBABILITY,
             )
         else:
-            pass
-        if interaction_type != InteractionType.BOUNDARY:
+            # Handle any unrecognized interaction types
             rpacket_tracker.track(r_packet)
 
     # Registering the final boundary interaction.
