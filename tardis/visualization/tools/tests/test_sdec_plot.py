@@ -421,6 +421,10 @@ class TestSDECPlotter:
     def plotter_from_workflow(self, workflow_simple):
         return SDECPlotter.from_workflow(workflow_simple)
 
+    @pytest.fixture(scope="class")
+    def sdec_regression_data(self, tardis_regression_path):
+        return tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
+
     def test_from_workflow_vs_from_simulation_data_consistency(
         self, plotter, plotter_from_workflow
     ):
@@ -483,11 +487,10 @@ class TestSDECPlotter:
         return plotter_from_workflow
 
     def test_calculate_plotting_data_workflow_vs_regression(
-        self, plotter_calculate_plotting_data_from_workflow, tardis_regression_path
+        self, plotter_calculate_plotting_data_from_workflow, sdec_regression_data
     ):
-        regression_path = tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
         param_idx = plotter_calculate_plotting_data_from_workflow._param_idx
-        regression_file = regression_path / f"test_calculate_plotting_data__plotter_calculate_plotting_data{param_idx}__.h5"
+        regression_file = sdec_regression_data / f"test_calculate_plotting_data__plotter_calculate_plotting_data{param_idx}__.h5"
         
         for attribute_type, attribute_name in self.plotting_data_attributes:
             plot_object = getattr(plotter_calculate_plotting_data_from_workflow, attribute_name)
@@ -530,12 +533,11 @@ class TestSDECPlotter:
         return fig, plotter_from_workflow
 
     def test_generate_plot_mpl_workflow_vs_regression(
-        self, plotter_generate_plot_mpl_from_workflow, tardis_regression_path
+        self, plotter_generate_plot_mpl_from_workflow, sdec_regression_data
     ):
         _, plotter = plotter_generate_plot_mpl_from_workflow
-        regression_path = tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
         param_idx = plotter._param_idx
-        regression_file = regression_path / f"test_generate_plot_mpl__plotter_generate_plot_ply{param_idx}__.h5"
+        regression_file = sdec_regression_data / f"test_generate_plot_mpl__plotter_generate_plot_ply{param_idx}__.h5"
         
         # Compare species names and color lists
         expected_species = pd.read_hdf(regression_file, key="plot_data_hdf/_species_name")
@@ -577,7 +579,7 @@ class TestSDECPlotter:
             rtol=1e-12
         )
 
-    def test_mpl_image_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, tardis_regression_path):
+    def test_mpl_image_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, sdec_regression_data):
         fig, plotter = plotter_generate_plot_mpl_from_workflow
         param_idx = plotter._param_idx
         
@@ -586,8 +588,7 @@ class TestSDECPlotter:
         fig.figure.savefig(actual_image_path)
         
         # Path to expected image
-        regression_path = tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
-        expected_image_path = regression_path / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
+        expected_image_path = sdec_regression_data / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
         
         # Compare images
         compare_images(str(expected_image_path), str(actual_image_path), tol=0.001)
@@ -595,13 +596,12 @@ class TestSDECPlotter:
     @pytest.mark.parametrize(
         "attribute", ["_full_species_list", "_species_list", "_keep_colour"]
     )
-    def test_parse_species_list_workflow(self, plotter_from_workflow, attribute, tardis_regression_path):
+    def test_parse_species_list_workflow(self, plotter_from_workflow, attribute, sdec_regression_data):
         # Parse species list on workflow plotter
         plotter_from_workflow._parse_species_list(self.species_list[0])
         
         # Load expected data from regression files
-        regression_path = tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
-        expected_file = regression_path / f"test_parse_species_list__{attribute}__.npy"
+        expected_file = sdec_regression_data / f"test_parse_species_list__{attribute}__.npy"
         expected_data = np.load(expected_file)
         
         actual_data = getattr(plotter_from_workflow, attribute)
