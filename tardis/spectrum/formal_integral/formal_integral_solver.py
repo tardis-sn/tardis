@@ -6,6 +6,7 @@ from scipy.interpolate import interp1d
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.base import TARDISSpectrum
+from tardis.spectrum.formal_integral.base import check
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
@@ -194,6 +195,9 @@ class FormalIntegralSolver:
         TARDISSpectrum
             The formal integral spectrum
         """
+        # check objects and configs
+        check(simulation_state, opacity_state, transport_solver)
+
         # Convert to numba opacity state for source function and integrator
         opacity_state_numba = self.setup(
             transport_solver, opacity_state, macro_atom_state
