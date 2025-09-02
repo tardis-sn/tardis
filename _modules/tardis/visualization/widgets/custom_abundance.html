@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=b34bccf3"></script>
+      <script src="../../../../_static/documentation_options.js?v=50c4a0dc"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -132,6 +132,7 @@
              
   <h1>Source code for tardis.visualization.widgets.custom_abundance</h1><div class="highlight"><pre>
 <span></span>&quot;&quot;&quot;Class to create and display Custom Abundance Widget.&quot;&quot;&quot;
+
 from pathlib import Path
 
 import ipywidgets as ipw
@@ -165,6 +166,7 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = &quot;---&quot;
@@ -281,7 +283,7 @@ class CustomAbundanceWidgetData:
                 )
                 time_0 = d_conf.get(&quot;time_0&quot;, 0 * u.day)
             else:
-                raise ValueError(f&quot;Unrecognized density type &quot; f&quot;{d_conf.type}&quot;)
+                raise ValueError(f&quot;Unrecognized density type {d_conf.type}&quot;)
         else:
             density_field_index = [
                 field[&quot;name&quot;] for field in csvy_model_config.datatype.fields
@@ -315,7 +317,7 @@ class CustomAbundanceWidgetData:
         abundance[&quot;mass_number&quot;] = &quot;&quot;
         abundance = abundance.set_index(&quot;mass_number&quot;, append=True)
         abundance = pd.concat([abundance, isotope_abundance])
-        abundance = abundance.sort_index()
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         return cls(
             density_t_0=time_0,
@@ -365,7 +367,7 @@ class CustomAbundanceWidgetData:
         abundance[&quot;mass_number&quot;] = &quot;&quot;
         abundance = abundance.set_index(&quot;mass_number&quot;, append=True)
         abundance = pd.concat([abundance, isotopic_mass_fraction])
-        abundance = abundance.sort_index()
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         return cls(
             density_t_0=density_t_0,
@@ -437,7 +439,7 @@ class CustomAbundanceWidgetData:
         abundance[&quot;mass_number&quot;] = &quot;&quot;
         abundance = abundance.set_index(&quot;mass_number&quot;, append=True)
         abundance = pd.concat([abundance, isotope_abundance])
-        abundance = abundance.sort_index()
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         velocity = sim.simulation_state.velocity
         density_t_0 = sim.simulation_state.time_explosion
@@ -506,7 +508,7 @@ class CustomYAML(yaml.YAMLObject):
                 field[&quot;unit&quot;] = &quot;g/cm^3&quot;
             else:
                 field[&quot;name&quot;] = elements[i - 2]
-                field[&quot;desc&quot;] = f&quot;fractional {elements[i-2]} abundance&quot;
+                field[&quot;desc&quot;] = f&quot;fractional {elements[i - 2]} abundance&quot;
 
             self.datatype[&quot;fields&quot;].append(field)</div>
 </div>
@@ -879,7 +881,9 @@ class CustomAbundanceWidget:
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.update_line_color">[docs]</a>
     def update_line_color(self):
         &quot;&quot;&quot;Update line color in the plot according to colormap.&quot;&quot;&quot;
-        colorscale = pu.get_hex_color_strings(self.no_of_elements, self.plot_cmap)
+        colorscale = pu.get_hex_color_strings(
+            self.no_of_elements, self.plot_cmap
+        )
         for i in range(self.no_of_elements):
             self.fig.data[2 + i].line.color = colorscale[i]</div>
 
@@ -1081,9 +1085,9 @@ class CustomAbundanceWidget:
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
 
-            self.data.abundance.iloc[
-                item_index, self.shell_no - 1
-            ] = obj.owner.value
+            self.data.abundance.iloc[item_index, self.shell_no - 1] = (
+                obj.owner.value
+            )
 
             if self.rbs_multi_apply.index is None:
                 self.update_abundance_plot(item_index)
@@ -1256,7 +1260,7 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index()
+        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new BoundedFloatText control and Checkbox control.
         item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
@@ -1318,9 +1322,9 @@ class CustomAbundanceWidget:
         end_index = self.irs_shell_range.value[1]
         applied_shell_index = self.shell_no - 1
 
-        self.data.abundance.iloc[
-            item_index, start_index:end_index
-        ] = self.data.abundance.iloc[item_index, applied_shell_index]
+        self.data.abundance.iloc[item_index, start_index:end_index] = (
+            self.data.abundance.iloc[item_index, applied_shell_index]
+        )
 
         self.update_abundance_plot(item_index)</div>
 
@@ -1709,7 +1713,7 @@ class CustomAbundanceWidget:
             first_row = [0] * self.no_of_elements
             data.loc[-1] = first_row
             data.index += 1  # shifting index
-            data = data.sort_index()
+            data = data.sort_index(kind=SORTING_ALGORITHM)
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
                 lambda x: f&quot;{x:.3e}&quot;
@@ -2127,7 +2131,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Sep 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 

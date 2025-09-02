@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=b34bccf3"></script>
+      <script src="../../../../_static/documentation_options.js?v=50c4a0dc"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,6 +138,7 @@ from astropy import units as u
 from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 
 from tardis.model.matter.decay import IsotopicMassFraction
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 <div class="viewcode-block" id="compile_rd_isotope_masses">
@@ -169,7 +170,7 @@ def compile_rd_isotope_masses():
     )
     isotope_masses = pd.Series(
         index=isotope_mass_index, data=nuclide_masses
-    ).sort_index()
+    ).sort_index(kind=SORTING_ALGORITHM)
     # there are duplicates that are likely due to excited states
     # dropping them for now
 
@@ -205,9 +206,9 @@ class Composition:
 
     def __init__(self, density, nuclide_mass_fraction):
         self.density = density
-        assert np.all(
-            nuclide_mass_fraction.values &gt;= 0
-        ), &quot;Negative mass fraction detected&quot;
+        assert np.all(nuclide_mass_fraction.values &gt;= 0), (
+            &quot;Negative mass fraction detected&quot;
+        )
         self.nuclide_mass_fraction = nuclide_mass_fraction
 
         self.isotope_masses = self.assemble_isotope_masses()
@@ -253,13 +254,17 @@ class Composition:
         effective_element_masses = self.nuclide_mass_fraction[
             self.nuclide_mass_fraction.index.get_level_values(1) == -1
         ].copy()
-        effective_element_masses.index = effective_element_masses.index.droplevel(1)
+        effective_element_masses.index = (
+            effective_element_masses.index.droplevel(1)
+        )
         for col in effective_element_masses.columns:
             effective_element_masses[col] = element_masses.loc[
                 effective_element_masses.index
             ]
 
-        current_isotope_masses = ISOTOPE_MASSES.loc[self.isotopic_mass_fraction.index]
+        current_isotope_masses = ISOTOPE_MASSES.loc[
+            self.isotopic_mass_fraction.index
+        ]
         contributing_isotope_masses = (
             self.isotopic_mass_fraction.multiply(current_isotope_masses, axis=0)
             .groupby(level=0)
@@ -348,7 +353,9 @@ class Composition:
         --------
         &gt;&gt;&gt; composition.calculate_cell_masses(10 * u.cm**3)
         &quot;&quot;&quot;
-        return self.elemental_mass_fraction * (self.density * volume).to(u.g).value</div>
+        return (
+            self.elemental_mass_fraction * (self.density * volume).to(u.g).value
+        )</div>
 
 
 <div class="viewcode-block" id="Composition.calculate_cell_masses">
@@ -384,7 +391,7 @@ class Composition:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Sep 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=b34bccf3"></script>
+      <script src="../_static/documentation_options.js?v=50c4a0dc"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -95,6 +95,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="tardis.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="tardis.configuration.html">tardis.configuration package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.html">tardis.energy_input package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.grid.html">tardis.grid package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a></li>
@@ -162,92 +163,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-tardis.io.model.parse_composition_configuration">
-<span id="tardis-io-model-parse-composition-configuration-module"></span><h1>tardis.io.model.parse_composition_configuration module<a class="headerlink" href="#module-tardis.io.model.parse_composition_configuration" title="Link to this heading">¶</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.io.model.parse_composition_configuration.parse_composition_from_config">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_composition_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_composition_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_composition_configuration.html#parse_composition_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_composition_configuration.parse_composition_from_config" title="Link to this definition">¶</a></dt>
-<dd><p>Parse the composition data from a CSVY model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>atom_data</strong><span class="classifier">object</span></dt><dd><p>The atom data used for parsing.</p>
-</dd>
-<dt><strong>config</strong><span class="classifier">object</span></dt><dd><p>The configuration data.</p>
-</dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>The time of the explosion.</p>
-</dd>
-<dt><strong>geometry</strong><span class="classifier">object</span></dt><dd><p>The geometry of the model.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>Composition</dt><dd><p>The parsed composition</p>
-</dd>
-<dt>array</dt><dd><p>Electron densities.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.io.model.parse_composition_configuration.parse_composition_from_csvy">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_composition_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_composition_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csvy_model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csvy_model_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_composition_configuration.html#parse_composition_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_composition_configuration.parse_composition_from_csvy" title="Link to this definition">¶</a></dt>
-<dd><p>Parse the composition data from a CSVY model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>atom_data</strong><span class="classifier">object</span></dt><dd><p>The atom data used for parsing.</p>
-</dd>
-<dt><strong>csvy_model_config</strong><span class="classifier">object</span></dt><dd><p>The configuration data of the CSVY model.</p>
-</dd>
-<dt><strong>csvy_model_data</strong><span class="classifier">object</span></dt><dd><p>The data of the CSVY model.</p>
-</dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>The time of the explosion.</p>
-</dd>
-<dt><strong>geometry</strong><span class="classifier">object</span></dt><dd><p>The geometry of the model.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>Composition</strong><span class="classifier">object</span></dt><dd><p>The parsed composition</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>None.</dt><dd></dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>This function parses the composition data from a CSVY model. It calls the ‘parse_density_csvy’
-function to parse the density data, and the ‘parse_mass_fraction_csvy’ function to parse the mass fraction
-and isotope mass fraction data. The parsed data is returned as a Composition object.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.io.model.parse_composition_configuration.parse_density_from_config">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_composition_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_density_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration" title="tardis.io.configuration.config_reader.Configuration"><span class="pre">Configuration</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><span class="pre">Quantity</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/parse_composition_configuration.html#parse_density_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_composition_configuration.parse_density_from_config" title="Link to this definition">¶</a></dt>
-<dd><p>Parse the configuration file and produce a density at
-time_explosion.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>config</strong><span class="classifier">tardis.io.config_reader.Configuration</span></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>density: u.Quantity</dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
+  <section id="tardis-io-model-parse-composition-configuration-module">
+<h1>tardis.io.model.parse_composition_configuration module<a class="headerlink" href="#tardis-io-model-parse-composition-configuration-module" title="Link to this heading">¶</a></h1>
 </section>
 
 
@@ -262,7 +179,7 @@ time_explosion.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Sep 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 
