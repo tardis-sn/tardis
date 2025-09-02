@@ -444,210 +444,6 @@ class TestSDECPlotter:
             assert plotter.spectrum[mode] is not None
             assert plotter_from_workflow.spectrum[mode] is not None
 
-    @pytest.fixture(scope="class", params=combinations)
-    def plotter_generate_plot_mpl_from_workflow(self, request, observed_spectrum, plotter_from_workflow):
-        (
-            distance,
-            packet_wvl_range,
-            species_list,
-            packets_mode,
-            nelements,
-            show_modeled_spectrum,
-        ) = request.param
-        if distance is None:
-            observed_spectrum = None
-
-        fig = plotter_from_workflow.generate_plot_mpl(
-            packets_mode=packets_mode,
-            packet_wvl_range=packet_wvl_range,
-            distance=distance,
-            show_modeled_spectrum=show_modeled_spectrum,
-            observed_spectrum=observed_spectrum,
-            nelements=nelements,
-            species_list=species_list,
-        )
-        return fig, plotter_from_workflow
-
-    @pytest.fixture(scope="class")
-    def generate_plot_mpl_from_workflow_hdf(self, plotter_generate_plot_mpl_from_workflow):
-        fig, plotter = plotter_generate_plot_mpl_from_workflow
-
-        color_list = [
-            item for subitem in plotter._color_list for item in subitem
-        ]
-        property_group = {
-            "_species_name": plotter._species_name,
-            "_color_list": color_list,
-        }
-        for index1, data in enumerate(fig.get_children()):
-            if isinstance(data.get_label(), str):
-                property_group[
-                    "label" + str(index1)
-                ] = data.get_label().encode()
-            # save line plots
-            if isinstance(data, Line2D):
-                property_group["data" + str(index1)] = data.get_xydata()
-                property_group[
-                    "linepath" + str(index1)
-                ] = data.get_path().vertices
-
-            # save artists which correspond to element contributions
-            if isinstance(data, PolyCollection):
-                for index2, path in enumerate(data.get_paths()):
-                    property_group[
-                        "polypath" + "ind_" + str(index1) + "ind_" + str(index2)
-                    ] = path.vertices
-
-        plot_data = PlotDataHDF(**property_group)
-        return plot_data
-
-    def test_generate_plot_mpl_from_workflow(
-        self, generate_plot_mpl_from_workflow_hdf, plotter_generate_plot_mpl_from_workflow, regression_data
-    ):
-        fig, _ = plotter_generate_plot_mpl_from_workflow
-        expected = regression_data.sync_hdf_store(generate_plot_mpl_from_workflow_hdf)
-        
-        for item in ["_species_name", "_color_list"]:
-            np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
-                getattr(generate_plot_mpl_from_workflow_hdf, item),
-            )
-        labels = expected["plot_data_hdf/scalars"]
-        for index1, data in enumerate(fig.get_children()):
-            if isinstance(data.get_label(), str):
-                assert (
-                    getattr(labels, "label" + str(index1)).decode()
-                    == data.get_label()
-                )
-            # save line plots
-            if isinstance(data, Line2D):
-                np.testing.assert_allclose(
-                    data.get_xydata(),
-                    expected.get("plot_data_hdf/" + "data" + str(index1)),
-                )
-                np.testing.assert_allclose(
-                    data.get_path().vertices,
-                    expected.get("plot_data_hdf/" + "linepath" + str(index1)),
-                )
-            # save artists which correspond to element contributions
-            if isinstance(data, PolyCollection):
-                for index2, path in enumerate(data.get_paths()):
-                    np.testing.assert_almost_equal(
-                        path.vertices,
-                        expected.get(
-                            "plot_data_hdf/"
-                            + "polypath"
-                            + "ind_"
-                            + str(index1)
-                            + "ind_"
-                            + str(index2)
-                        ),
-                    )
-        expected.close()
-
-    @pytest.fixture(scope="class", params=combinations)
-    def plotter_generate_plot_ply_from_workflow(self, request, observed_spectrum, plotter_from_workflow):
-        (
-            distance,
-            packet_wvl_range,
-            species_list,
-            packets_mode,
-            nelements,
-            show_modeled_spectrum,
-        ) = request.param
-        if distance is None:
-            observed_spectrum = None
-
-        fig = plotter_from_workflow.generate_plot_ply(
-            packets_mode=packets_mode,
-            packet_wvl_range=packet_wvl_range,
-            distance=distance,
-            show_modeled_spectrum=show_modeled_spectrum,
-            observed_spectrum=observed_spectrum,
-            nelements=nelements,
-            species_list=species_list,
-        )
-        return fig, plotter_from_workflow
-
-    @pytest.fixture(scope="class")
-    def generate_plot_plotly_from_workflow_hdf(self, plotter_generate_plot_ply_from_workflow):
-        fig, plotter = plotter_generate_plot_ply_from_workflow
-
-        color_list = [
-            item for subitem in plotter._color_list for item in subitem
-        ]
-        property_group = {
-            "_species_name": plotter._species_name,
-            "_color_list": color_list,
-        }
-        for index, data in enumerate(fig.data):
-            group = "_" + str(index)
-            if data.stackgroup:
-                property_group[group + "stackgroup"] = data.stackgroup.encode()
-            if data.name:
-                property_group[group + "name"] = data.name.encode()
-            property_group[group + "x"] = data.x
-            property_group[group + "y"] = data.y
-        plot_data = PlotDataHDF(**property_group)
-        return plot_data
-
-    def test_generate_plot_ply_from_workflow(
-        self, generate_plot_plotly_from_workflow_hdf, plotter_generate_plot_ply_from_workflow, regression_data
-    ):
-        fig, _ = plotter_generate_plot_ply_from_workflow
-        expected = regression_data.sync_hdf_store(generate_plot_plotly_from_workflow_hdf)
-
-        for item in ["_species_name", "_color_list"]:
-            np.testing.assert_array_equal(
-                expected.get("plot_data_hdf/" + item).values.flatten(),
-                getattr(generate_plot_plotly_from_workflow_hdf, item),
-            )
-
-        for index, data in enumerate(fig.data):
-            group = "plot_data_hdf/" + "_" + str(index)
-            if data.stackgroup:
-                assert (
-                    data.stackgroup
-                    == getattr(
-                        expected["/plot_data_hdf/scalars"],
-                        "_" + str(index) + "stackgroup",
-                    ).decode()
-                )
-            if data.name:
-                assert (
-                    data.name
-                    == getattr(
-                        expected["/plot_data_hdf/scalars"],
-                        "_" + str(index) + "name",
-                    ).decode()
-                )
-            np.testing.assert_allclose(
-                data.x, expected.get(group + "x").values.flatten()
-            )
-            np.testing.assert_allclose(
-                data.y, expected.get(group + "y").values.flatten()
-            )
-
-        expected.close()
-
-    def test_mpl_image_from_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, regression_data):
-        fig, _ = plotter_generate_plot_mpl_from_workflow
-        regression_data.fpath.parent.mkdir(parents=True, exist_ok=True)
-        fig.figure.savefig(tmp_path / f"{regression_data.fname_prefix}_workflow.png")
-
-        if regression_data.enable_generate_reference:
-            fig.figure.savefig(
-                regression_data.absolute_regression_data_dir
-                / f"{regression_data.fname_prefix}_workflow.png"
-            )
-            pytest.skip("Skipping test to generate reference data")
-        else:
-            expected = str(
-                regression_data.absolute_regression_data_dir
-                / f"{regression_data.fname_prefix}_workflow.png"
-            )
-            actual = str(tmp_path / f"{regression_data.fname_prefix}_workflow.png")
-            compare_images(expected, actual, tol=0.001)
 
     def test_from_workflow_method_functionality(self, plotter_from_workflow):
         plotter_from_workflow._parse_species_list(None)
@@ -667,6 +463,88 @@ class TestSDECPlotter:
         # Test that matplotlib plot can be generated
         fig = plotter_from_workflow.generate_plot_mpl(packets_mode="virtual")
         assert fig is not None
+
+    @pytest.fixture(scope="class", params=list(enumerate(combinations)))
+    def plotter_calculate_plotting_data_from_workflow(self, request, plotter_from_workflow):
+        param_idx, param = request.param
+        (
+            distance,
+            packet_wvl_range,
+            species_list,
+            packets_mode,
+            nelements,
+            _,
+        ) = param
+        plotter_from_workflow._parse_species_list(species_list)
+        plotter_from_workflow._calculate_plotting_data(
+            packets_mode, packet_wvl_range, distance, nelements
+        )
+        plotter_from_workflow._param_idx = param_idx
+        return plotter_from_workflow
+
+    def test_calculate_plotting_data_workflow_vs_regression(
+        self, plotter_calculate_plotting_data_from_workflow, tardis_regression_path
+    ):
+        regression_path = tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
+        param_idx = plotter_calculate_plotting_data_from_workflow._param_idx
+        regression_file = regression_path / f"test_calculate_plotting_data__plotter_calculate_plotting_data{param_idx}__.h5"
+        
+        for attribute_type, attribute_name in self.plotting_data_attributes:
+            plot_object = getattr(plotter_calculate_plotting_data_from_workflow, attribute_name)
+            if attribute_type == "attributes_np":
+                expected = pd.read_hdf(regression_file, key=f"plot_data_hdf/{attribute_name}")
+                if isinstance(plot_object, astropy.units.quantity.Quantity):
+                    plot_object = plot_object.cgs.value
+                # Handle array shape differences
+                if plot_object.ndim > 1:
+                    plot_object = plot_object.flatten()
+                np.testing.assert_allclose(plot_object, expected.values.flatten())
+            elif attribute_type == "attributes_df":
+                expected_df = pd.read_hdf(regression_file, key=f"plot_data_hdf/{attribute_name}")
+                pd.testing.assert_frame_equal(plot_object, expected_df)
+
+    @pytest.fixture(scope="class", params=list(enumerate(combinations)))
+    def plotter_generate_plot_mpl_from_workflow(self, request, observed_spectrum, plotter_from_workflow):
+        param_idx, param = request.param
+        (
+            distance,
+            packet_wvl_range,
+            species_list,
+            packets_mode,
+            nelements,
+            show_modeled_spectrum,
+        ) = param
+        if distance is None:
+            observed_spectrum = None
+
+        fig = plotter_from_workflow.generate_plot_mpl(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+            show_modeled_spectrum=show_modeled_spectrum,
+            observed_spectrum=observed_spectrum,
+            nelements=nelements,
+            species_list=species_list,
+        )
+        plotter_from_workflow._param_idx = param_idx
+        return fig, plotter_from_workflow
+
+    def test_generate_plot_mpl_workflow_vs_regression(
+        self, plotter_generate_plot_mpl_from_workflow, tardis_regression_path
+    ):
+        _, plotter = plotter_generate_plot_mpl_from_workflow
+        regression_path = tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
+        param_idx = plotter._param_idx
+        regression_file = regression_path / f"test_generate_plot_mpl__plotter_generate_plot_ply{param_idx}__.h5"
+        
+        # Compare species names and color lists
+        expected_species = pd.read_hdf(regression_file, key="plot_data_hdf/_species_name")
+        expected_colors = pd.read_hdf(regression_file, key="plot_data_hdf/_color_list")
+        
+        np.testing.assert_array_equal(plotter._species_name, expected_species.values.flatten())
+        
+        color_list = [item for subitem in plotter._color_list for item in subitem]
+        np.testing.assert_array_equal(color_list, expected_colors.values.flatten())
 
     def test_workflow_simulation_data_identical(self, plotter, plotter_from_workflow):
         # Calculate plotting data with identical parameters
