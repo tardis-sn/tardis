@@ -19,7 +19,8 @@ if TYPE_CHECKING:
 
 class ThermalBalanceSolver:
     """Class to solve the thermal balance equation using all available
-    heating and cooling processes. See section 6.4 in Lucy 03.
+    heating and cooling processes. See section 6.4 in Lucy 03, especially
+    equations 55-57.
     """
 
     def __init__(

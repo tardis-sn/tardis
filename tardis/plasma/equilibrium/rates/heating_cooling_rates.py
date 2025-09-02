@@ -84,6 +84,9 @@ class BoundFreeThermalRates:
         nu_is = nu_i.loc[self.photoionization_cross_sections.index].to_numpy()
         n_cells = level_population.columns
 
+        ### HEATING
+        # Lucy 03 eq 58
+
         if bound_free_heating_estimator is not None:
             # TODO: check if this is correct
             integrated_heating_coefficient = bound_free_heating_estimator
@@ -118,6 +121,14 @@ class BoundFreeThermalRates:
             raise ValueError(
                 "Either bound_free_heating_estimator or radiation_field must be provided."
             )
+
+        heating_rate = (
+            integrated_heating_coefficient
+            * level_population.loc[integrated_heating_coefficient.index]
+        ).sum()
+
+        ### COOLING
+        # Lucy 03 eq 59
 
         # Calculate Boltzmann factor
         boltzmann_factor = np.exp(
@@ -181,11 +192,6 @@ class BoundFreeThermalRates:
                 index=spontaneous_recombination_cooling_rate.index,
                 columns=n_cells,
             )
-
-        heating_rate = (
-            integrated_heating_coefficient
-            * level_population.loc[integrated_heating_coefficient.index]
-        ).sum()
 
         cooling_rate = (
             spontaneous_recombination_cooling_rate
@@ -251,6 +257,9 @@ class FreeFreeThermalRates:
         tuple[pd.Series, pd.Series]
             The heating and cooling rates for the free-free process for all cells.
         """
+        ### HEATING
+        # Lucy 03 Eq 47
+
         heating_factor = self.heating_factor(
             ion_population,
             thermal_electron_distribution.number_density.cgs.value,
@@ -261,6 +270,9 @@ class FreeFreeThermalRates:
             / np.sqrt(thermal_electron_distribution.temperature.cgs.value)
             * heating_factor
         )
+
+        ### COOLING
+        # Lucy 03 Eq 32
 
         cooling_rate = (
             self.cooling_constant
@@ -391,6 +403,9 @@ class CollisionalBoundThermalRates:
         lower_level_number_density = level_population.loc[lower_index]
         upper_level_number_density = level_population.loc[upper_index]
 
+        ### HEATING
+        # Lucy 03 eq 33 "similar"
+
         heating_rate = (
             electron_density.cgs.value
             * (
@@ -400,6 +415,9 @@ class CollisionalBoundThermalRates:
                 * const.h.cgs.value
             )
         ).sum(axis=0)
+
+        ### COOLING
+        # Lucy 03 eq 33 "similar"
 
         cooling_rate = (
             electron_density.cgs.value
