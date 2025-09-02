@@ -222,7 +222,7 @@ class FreeFreeThermalRates:
 
     def solve(
         self,
-        heating_estimator: float,
+        heating_estimator: pd.DataFrame,
         thermal_electron_distribution: ThermalElectronEnergyDistribution,
         ion_population: pd.DataFrame,
     ) -> tuple[pd.Series, pd.Series]:
@@ -230,8 +230,8 @@ class FreeFreeThermalRates:
 
         Parameters
         ----------
-        heating_estimator : float
-            Montecarlo free-free heating estimator value.
+        heating_estimator : pd.DataFrame
+            Montecarlo free-free heating estimator value. Columns represent cells.
         thermal_electron_distribution : ThermalElectronEnergyDistribution
             Electron energy distribution containing the number density, temperature and energy.
         ion_population : pd.DataFrame

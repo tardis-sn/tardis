@@ -8,6 +8,12 @@ if TYPE_CHECKING:
     from tardis.plasma.electron_energy_distribution import (
         ThermalElectronEnergyDistribution,
     )
+    from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
+        BoundFreeThermalRates,
+        CollisionalBoundThermalRates,
+        CollisionalIonizationThermalRates,
+        FreeFreeThermalRates,
+    )
     from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 
@@ -16,16 +22,30 @@ class ThermalBalanceSolver:
     heating and cooling processes. See section 6.4 in Lucy 03.
     """
 
-    def __init__(self, thermal_rates: dict) -> None:
-        """Initialize with thermal rates.
+    def __init__(
+        self,
+        bound_free_solver: BoundFreeThermalRates,
+        free_free_solver: FreeFreeThermalRates,
+        collisional_ionization_solver: CollisionalIonizationThermalRates,
+        collisional_bound_solver: CollisionalBoundThermalRates,
+    ) -> None:
+        """Initialize the thermal balance solver with individual solver components.
 
         Parameters
         ----------
-        thermal_rates : dict
-            Thermal rate objects with keys: "bound_free", "free_free",
-            "collisional_ionization", and "collisional_bound".
+        bound_free_solver
+            Solver for bound-free heating and free-bound cooling processes.
+        free_free_solver
+            Solver for free-free heating and cooling processes.
+        collisional_ionization_solver
+            Solver for collisional ionization heating and cooling processes.
+        collisional_bound_solver
+            Solver for collisional bound-bound heating and cooling processes.
         """
-        self.thermal_rates = thermal_rates
+        self.bound_free_solver = bound_free_solver
+        self.free_free_solver = free_free_solver
+        self.collisional_ionization_solver = collisional_ionization_solver
+        self.collisional_bound_solver = collisional_bound_solver
 
     def solve(
         self,
@@ -37,7 +57,7 @@ class ThermalBalanceSolver:
         collisional_excitation_rate_coefficient: pd.DataFrame,
         free_free_heating_estimator: pd.DataFrame,
         level_population_ratio: pd.DataFrame,
-        radiation_field: DilutePlanckianRadiationField | None,
+        radiation_field: DilutePlanckianRadiationField | None = None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
         stimulated_recombination_estimator: pd.DataFrame | None = None,
     ) -> tuple[pd.Series, pd.Series]:
@@ -76,9 +96,7 @@ class ThermalBalanceSolver:
         """
         electron_density = thermal_electron_distribution.number_density
 
-        bound_free_heating, free_bound_cooling = self.thermal_rates[
-            "bound_free"
-        ].solve(
+        bound_free_heating, free_bound_cooling = self.bound_free_solver.solve(
             level_population,
             ion_population,
             thermal_electron_distribution,
@@ -88,16 +106,14 @@ class ThermalBalanceSolver:
             stimulated_recombination_estimator,
         )
 
-        free_free_heating, free_free_cooling = self.thermal_rates[
-            "free_free"
-        ].solve(
+        free_free_heating, free_free_cooling = self.free_free_solver.solve(
             free_free_heating_estimator,
             thermal_electron_distribution,
             ion_population,
         )
 
         collisional_ionization_heating, collisional_ionization_cooling = (
-            self.thermal_rates["collisional_ionization"].solve(
+            self.collisional_ionization_solver.solve(
                 electron_density,
                 ion_population,
                 level_population,
@@ -107,7 +123,7 @@ class ThermalBalanceSolver:
         )
 
         collisional_bound_heating, collisional_bound_cooling = (
-            self.thermal_rates["collisional_bound"].solve(
+            self.collisional_bound_solver.solve(
                 electron_density,
                 collisional_deexcitation_rate_coefficient,
                 collisional_excitation_rate_coefficient,

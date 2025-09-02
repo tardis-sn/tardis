@@ -344,16 +344,14 @@ def test_thermal_balance_solver(
     )
     collisional_bound_rates_solver = CollisionalBoundThermalRates(ctardis_lines)
 
-    thermal_rates = {
-        "bound_free": bound_free_rates_solver,
-        "free_free": free_free_rates_solver,
-        "collisional_ionization": collisional_ionization_rates_solver,
-        "collisional_bound": collisional_bound_rates_solver,
-    }
-
     ff_heating_estimator = 4.89135279e-24  # from chvogl's code
 
-    thermal_balance_solver = ThermalBalanceSolver(thermal_rates)
+    thermal_balance_solver = ThermalBalanceSolver(
+        bound_free_rates_solver,
+        free_free_rates_solver,
+        collisional_ionization_rates_solver,
+        collisional_bound_rates_solver,
+    )
 
     total_heating_rate, fractional_heating_rate = thermal_balance_solver.solve(
         thermal_electron_distribution,
