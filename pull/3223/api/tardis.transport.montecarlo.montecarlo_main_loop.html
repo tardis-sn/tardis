@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e88d2bd5"></script>
+      <script src="../_static/documentation_options.js?v=43143650"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,29 +167,61 @@
 <span id="tardis-transport-montecarlo-montecarlo-main-loop-module"></span><h1>tardis.transport.montecarlo.montecarlo_main_loop module<a class="headerlink" href="#module-tardis.transport.montecarlo.montecarlo_main_loop" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_main_loop.montecarlo_main_loop">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.montecarlo_main_loop.</span></span><span class="sig-name descname"><span class="pre">montecarlo_main_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">montecarlo_configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_frequency_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_trackers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_vpackets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress_bars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_iterations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/montecarlo_main_loop.html#montecarlo_main_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_main_loop.montecarlo_main_loop" title="Link to this definition">¶</a></dt>
-<dd><p>This is the main loop of the MonteCarlo routine that generates packets
-and sends them through the ejecta.</p>
-<dl class="field-list simple">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.montecarlo_main_loop.</span></span><span class="sig-name descname"><span class="pre">montecarlo_main_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.PacketCollection" title="tardis.transport.montecarlo.packets.packet_collections.PacketCollection"><span class="pre">PacketCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_state_numba</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.NumbaRadial1DGeometry" title="tardis.model.geometry.radial1d.NumbaRadial1DGeometry"><span class="pre">NumbaRadial1DGeometry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state_numba</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.OpacityStateNumba" title="tardis.opacities.opacity_state_numba.OpacityStateNumba"><span class="pre">OpacityStateNumba</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">montecarlo_configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration" title="tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration"><span class="pre">MonteCarloConfiguration</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators" title="tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators"><span class="pre">RadiationFieldMCEstimators</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_frequency_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_trackers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_vpackets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress_bars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/montecarlo_main_loop.html#montecarlo_main_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_main_loop.montecarlo_main_loop" title="Link to this definition">¶</a></dt>
+<dd><p>Main loop of the Monte Carlo radiative transfer routine.</p>
+<p>This function generates the packet objects from the packet collection and propagates them through the ejecta,
+performing interactions and collecting statistics for the radiative
+transfer simulation.</p>
+<dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>packet_collection</strong><span class="classifier">PacketCollection</span></dt><dd><p>Real packet collection</p>
+<dt><strong>packet_collection</strong><span class="classifier">PacketCollection</span></dt><dd><p>Collection containing initial packet properties (positions, directions,
+frequencies, energies, and seeds)</p>
 </dd>
-<dt><strong>geometry_state</strong><span class="classifier">GeometryState</span></dt><dd><p>Simulation geometry</p>
+<dt><strong>geometry_state</strong><span class="classifier">NumbaRadial1DGeometry</span></dt><dd><p>Numba-compiled simulation geometry containing shell boundaries
+and velocity information</p>
 </dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>Time in seconds</p>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>Time since explosion in seconds, used for relativistic calculations</p>
 </dd>
-<dt><strong>opacity_state</strong><span class="classifier">OpacityState</span></dt><dd></dd>
-<dt><strong>estimators</strong><span class="classifier">Estimators</span></dt><dd></dd>
-<dt><strong>spectrum_frequency_grid</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>Frequency bins</p>
+<dt><strong>opacity_state</strong><span class="classifier">OpacityStateNumba</span></dt><dd><p>Numba-compiled opacity state containing line opacities, continuum
+opacities, and atomic data required for interactions</p>
 </dd>
-<dt><strong>number_of_vpackets</strong><span class="classifier">int</span></dt><dd><p>VPackets released per interaction</p>
+<dt><strong>montecarlo_configuration</strong><span class="classifier">MonteCarloConfiguration</span></dt><dd><p>Configuration object containing Monte Carlo simulation parameters
+and flags for various physics modules</p>
 </dd>
-<dt><strong>iteration</strong><span class="classifier">int</span></dt><dd><p>Current iteration number</p>
+<dt><strong>estimators</strong><span class="classifier">RadfieldMCEstimators</span></dt><dd><p>Estimator object for collecting radiation field statistics
+during packet propagation</p>
 </dd>
-<dt><strong>show_progress_bars</strong><span class="classifier">bool</span></dt><dd><p>Display progress bars</p>
+<dt><strong>spectrum_frequency_grid</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Frequency grid array for virtual packet spectrum calculation</p>
 </dd>
-<dt><strong>total_iterations</strong><span class="classifier">int</span></dt><dd><p>Maximum number of iterations</p>
+<dt><strong>rpacket_trackers</strong><span class="classifier">numba.typed.List</span></dt><dd><p>List of packet trackers for detailed packet interaction logging</p>
+</dd>
+<dt><strong>number_of_vpackets</strong><span class="classifier">int</span></dt><dd><p>Number of virtual packets to spawn per real packet interaction</p>
+</dd>
+<dt><strong>show_progress_bars</strong><span class="classifier">bool</span></dt><dd><p>Flag to enable/disable progress bar updates during simulation</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl>
+<dt>tuple</dt><dd><p>A tuple containing:
+- v_packets_energy_hist : numpy.ndarray</p>
+<blockquote>
+<div><p>Energy histogram of virtual packets binned by frequency</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>last_interaction_tracker<span class="classifier">LastInteractionTracker</span></dt><dd><p>Object tracking the last interaction properties for each packet</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>vpacket_tracker<span class="classifier">VPacketCollection</span></dt><dd><p>Consolidated virtual packet collection containing all virtual
+packet information from the simulation</p>
+</dd>
+</dl>
+</li>
+</ul>
 </dd>
 </dl>
 </dd>
@@ -210,7 +242,7 @@ and sends them through the ejecta.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 28 Aug 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e88d2bd5"></script>
+      <script src="../_static/documentation_options.js?v=43143650"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -36,7 +36,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tardis.transport.montecarlo.interaction module" href="tardis.transport.montecarlo.interaction.html" />
-    <link rel="prev" title="tardis.transport.montecarlo.estimators.util module" href="tardis.transport.montecarlo.estimators.util.html" />
+    <link rel="prev" title="tardis.transport.montecarlo.packets.virtual_packet module" href="tardis.transport.montecarlo.packets.virtual_packet.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -224,22 +224,21 @@ transfer problem.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.base.MonteCarloTransportSolver.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress_bars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/base.html#MonteCarloTransportSolver.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.base.MonteCarloTransportSolver.run" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress_bars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/base.html#MonteCarloTransportSolver.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.base.MonteCarloTransportSolver.run" title="Link to this definition">¶</a></dt>
 <dd><p>Run the montecarlo calculation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>model</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd></dd>
-<dt><strong>plasma</strong><span class="classifier">tardis.plasma.BasePlasma</span></dt><dd></dd>
-<dt><strong>no_of_packets</strong><span class="classifier">int</span></dt><dd></dd>
-<dt><strong>no_of_virtual_packets</strong><span class="classifier">int</span></dt><dd></dd>
-<dt><strong>total_iterations</strong><span class="classifier">int</span></dt><dd><p>The total number of iterations in the simulation.</p>
+<dt><strong>transport_state</strong><span class="classifier">tardis.transport.montecarlo.transport_state.TransportState</span></dt><dd><p>Transport state containing all the data needed for the Monte Carlo simulation</p>
+</dd>
+<dt><strong>show_progress_bars</strong><span class="classifier">bool</span></dt><dd><p>Show progress bars</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>None</dt><dd></dd>
+<dt><strong>v_packets_energy_hist</strong><span class="classifier">ndarray</span></dt><dd><p>Histogram of energy from virtual packets</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -253,7 +252,7 @@ transfer problem.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tardis.transport.montecarlo.estimators.util.html" class="btn btn-neutral float-left" title="tardis.transport.montecarlo.estimators.util module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.transport.montecarlo.packets.virtual_packet.html" class="btn btn-neutral float-left" title="tardis.transport.montecarlo.packets.virtual_packet module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="tardis.transport.montecarlo.interaction.html" class="btn btn-neutral float-right" title="tardis.transport.montecarlo.interaction module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -261,7 +260,7 @@ transfer problem.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 28 Aug 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 

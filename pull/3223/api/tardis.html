@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e88d2bd5"></script>
+      <script src="../_static/documentation_options.js?v=43143650"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -223,11 +223,6 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.gamma_ray_estimators.html#tardis.energy_input.gamma_ray_estimators.pair_creation_estimator"><code class="docutils literal notranslate"><span class="pre">pair_creation_estimator()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.energy_input.gamma_ray_packet_source.html">tardis.energy_input.gamma_ray_packet_source module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.gamma_ray_packet_source.html#tardis.energy_input.gamma_ray_packet_source.GammaRayPacketSource"><code class="docutils literal notranslate"><span class="pre">GammaRayPacketSource</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.gamma_ray_packet_source.html#tardis.energy_input.gamma_ray_packet_source.legacy_calculate_positron_fraction"><code class="docutils literal notranslate"><span class="pre">legacy_calculate_positron_fraction()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.energy_input.gamma_ray_transport.html">tardis.energy_input.gamma_ray_transport module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_average_energies"><code class="docutils literal notranslate"><span class="pre">calculate_average_energies()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.gamma_ray_transport.html#tardis.energy_input.gamma_ray_transport.calculate_average_power_per_mass"><code class="docutils literal notranslate"><span class="pre">calculate_average_power_per_mass()</span></code></a></li>
@@ -411,6 +406,11 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.OpacityState"><code class="docutils literal notranslate"><span class="pre">OpacityState</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.OpacityStateNumba"><code class="docutils literal notranslate"><span class="pre">OpacityStateNumba</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.opacity_state_initialize"><code class="docutils literal notranslate"><span class="pre">opacity_state_initialize()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.opacities.opacity_state_numba.html">tardis.opacities.opacity_state_numba module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.OpacityStateNumba"><code class="docutils literal notranslate"><span class="pre">OpacityStateNumba</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.opacity_state_numba_initialize"><code class="docutils literal notranslate"><span class="pre">opacity_state_numba_initialize()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.opacities.tau_sobolev.html">tardis.opacities.tau_sobolev module</a><ul>
@@ -597,19 +597,15 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.create_synpp_yaml"><code class="docutils literal notranslate"><span class="pre">create_synpp_yaml()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.deprecated"><code class="docutils literal notranslate"><span class="pre">deprecated()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.element_symbol2atomic_number"><code class="docutils literal notranslate"><span class="pre">element_symbol2atomic_number()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.fix_bar_layout"><code class="docutils literal notranslate"><span class="pre">fix_bar_layout()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.int_to_roman"><code class="docutils literal notranslate"><span class="pre">int_to_roman()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.intensity_black_body"><code class="docutils literal notranslate"><span class="pre">intensity_black_body()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.is_valid_nuclide_or_elem"><code class="docutils literal notranslate"><span class="pre">is_valid_nuclide_or_elem()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.parse_quantity"><code class="docutils literal notranslate"><span class="pre">parse_quantity()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.quantity_linspace"><code class="docutils literal notranslate"><span class="pre">quantity_linspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.reformat_element_symbol"><code class="docutils literal notranslate"><span class="pre">reformat_element_symbol()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.refresh_packet_pbar"><code class="docutils literal notranslate"><span class="pre">refresh_packet_pbar()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.roman_to_int"><code class="docutils literal notranslate"><span class="pre">roman_to_int()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.species_string_to_tuple"><code class="docutils literal notranslate"><span class="pre">species_string_to_tuple()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.species_tuple_to_string"><code class="docutils literal notranslate"><span class="pre">species_tuple_to_string()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.update_iterations_pbar"><code class="docutils literal notranslate"><span class="pre">update_iterations_pbar()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.util.base.html#tardis.util.base.update_packet_pbar"><code class="docutils literal notranslate"><span class="pre">update_packet_pbar()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.util.environment.html">tardis.util.environment module</a><ul>
@@ -619,6 +615,7 @@
 <li class="toctree-l3"><a class="reference internal" href="tardis.util.panel_init.html">tardis.util.panel_init module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.panel_init.html#tardis.util.panel_init.auto"><code class="docutils literal notranslate"><span class="pre">auto()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.panel_init.html#tardis.util.panel_init.notebook"><code class="docutils literal notranslate"><span class="pre">notebook()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.util.panel_init.html#tardis.util.panel_init.sphinx"><code class="docutils literal notranslate"><span class="pre">sphinx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.panel_init.html#tardis.util.panel_init.ssh_jh"><code class="docutils literal notranslate"><span class="pre">ssh_jh()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.panel_init.html#tardis.util.panel_init.vscode"><code class="docutils literal notranslate"><span class="pre">vscode()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.panel_init.html#tardis.util.panel_init.vscode_noipy"><code class="docutils literal notranslate"><span class="pre">vscode_noipy()</span></code></a></li>
@@ -679,26 +676,14 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.workflows.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.simple_tardis_workflow.html">tardis.workflows.simple_tardis_workflow module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.simple_tardis_workflow.html#tardis.workflows.simple_tardis_workflow.SimpleTARDISWorkflow"><code class="docutils literal notranslate"><span class="pre">SimpleTARDISWorkflow</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.standard_tardis_workflow.html">tardis.workflows.standard_tardis_workflow module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.standard_tardis_workflow.html#tardis.workflows.standard_tardis_workflow.StandardTARDISWorkflow"><code class="docutils literal notranslate"><span class="pre">StandardTARDISWorkflow</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.simple_tardis_workflow.html">tardis.workflows.simple_tardis_workflow module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.standard_tardis_workflow.html">tardis.workflows.standard_tardis_workflow module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.workflows.util.html">tardis.workflows.util module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.workflows.util.html#tardis.workflows.util.get_tau_integ"><code class="docutils literal notranslate"><span class="pre">get_tau_integ()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.v_inner_solver.html">tardis.workflows.v_inner_solver module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.v_inner_solver.html#tardis.workflows.v_inner_solver.InnerVelocitySolverWorkflow"><code class="docutils literal notranslate"><span class="pre">InnerVelocitySolverWorkflow</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.workflow_logging.html">tardis.workflows.workflow_logging module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.workflow_logging.html#tardis.workflows.workflow_logging.WorkflowLogging"><code class="docutils literal notranslate"><span class="pre">WorkflowLogging</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.v_inner_solver.html">tardis.workflows.v_inner_solver module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.workflows.workflow_logging.html">tardis.workflows.workflow_logging module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.workflows.html#module-tardis.workflows">Module contents</a></li>
@@ -821,7 +806,7 @@ supported by <a class="reference internal" href="tardis.visualization.tools.conv
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 28 Aug 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 

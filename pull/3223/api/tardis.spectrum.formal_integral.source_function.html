@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=e88d2bd5"></script>
+      <script src="../_static/documentation_options.js?v=43143650"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,7 +167,7 @@
 <span id="tardis-spectrum-formal-integral-source-function-module"></span><h1>tardis.spectrum.formal_integral.source_function module<a class="headerlink" href="#module-tardis.spectrum.formal_integral.source_function" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.source_function.</span></span><span class="sig-name descname"><span class="pre">SourceFunctionSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.source_function.</span></span><span class="sig-name descname"><span class="pre">SourceFunctionSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Configures the source function solver</p>
 <dl class="field-list simple">
@@ -180,17 +180,23 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jblue_lu">
-<span class="sig-name descname"><span class="pre">calculate_Jblue_lu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j_blue_estimator</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_Jblue_lu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jblue_lu" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_Jblue_lu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">j_blue_estimator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_Jblue_lu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jblue_lu" title="Link to this definition">¶</a></dt>
 <dd><p>Calculates Jblue_lu, the normalized J estimator from the blue end of the line from lower to upper level</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>time_explosion: float</strong></dt><dd><p>Time duration of the explosion in seconds</p>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>Time duration of the explosion in seconds</p>
 </dd>
-<dt><strong>time_of_simulation: float</strong></dt><dd><p>Time duration of the simulation</p>
+<dt><strong>time_of_simulation</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>Time duration of the simulation</p>
 </dd>
-<dt><strong>volume: astropy.units.Quantity</strong></dt><dd></dd>
-<dt><strong>j_blue_estimator: np.ndarray</strong></dt><dd><p>the line estimator</p>
+<dt><strong>volume</strong><span class="classifier">astropy.units.Quantity</span></dt><dd></dd>
+<dt><strong>j_blue_estimator</strong><span class="classifier">np.ndarray</span></dt><dd><p>the line estimator</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.ndarray</dt><dd><p>The normalized J estimator from the blue end of the line from lower to upper level</p>
 </dd>
 </dl>
 </dd>
@@ -199,35 +205,59 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jred_lu">
-<span class="sig-name descname"><span class="pre">calculate_Jred_lu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_Jred_lu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jred_lu" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_Jred_lu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_Jred_lu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jred_lu" title="Link to this definition">¶</a></dt>
 <dd><p>Calculates Jred_lu, J estimator from the red end of the line from lower to upper level</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>Jblue_lu</strong><span class="classifier">np.ndarray</span></dt><dd><p>the normalized J estimator from the blue end of the line from lower to upper level</p>
+</dd>
+<dt><strong>tau_sobolevs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Sobolev optical depths</p>
+</dd>
+<dt><strong>att_S_ul</strong><span class="classifier">np.ndarray</span></dt><dd><p>The attenuated source function</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.ndarray</dt><dd><p>J estimator from the red end of the line from lower to upper level</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_att_S_ul">
-<span class="sig-name descname"><span class="pre">calculate_att_S_ul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_line_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_att_S_ul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_att_S_ul" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_att_S_ul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_line_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_att_S_ul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_att_S_ul" title="Link to this definition">¶</a></dt>
 <dd><p>Calculates the source function using the line absorption rate estimator <code class="xref py py-obj docutils literal notranslate"><span class="pre">e_dot_lu_estimator</span></code></p>
 <p>Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
 so there is no need to factor out the source function explicitly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>lines: pd.DataFrame</strong></dt><dd><p>atomic line data</p>
+<dt><strong>lines</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>atomic line data</p>
 </dd>
-<dt><strong>transition_probabilities: np.ndarray</strong></dt><dd></dd>
-<dt><strong>no_of_shells: int</strong></dt><dd><p>Number of shells in the simulation</p>
+<dt><strong>transition_probabilities</strong><span class="classifier">np.ndarray</span></dt><dd></dd>
+<dt><strong>no_of_shells</strong><span class="classifier">int</span></dt><dd><p>Number of shells in the simulation</p>
 </dd>
-<dt><strong>transition_line_id: np.ndarray</strong></dt><dd><p>Line ids for the transitions</p>
+<dt><strong>transition_line_id</strong><span class="classifier">np.ndarray</span></dt><dd><p>Line ids for the transitions</p>
 </dd>
-<dt><strong>line_idx: np.ndarray</strong></dt><dd><p>Indices of the lines in the atomic data</p>
+<dt><strong>line_idx</strong><span class="classifier">np.ndarray</span></dt><dd><p>Indices of the lines in the atomic data</p>
 </dd>
-<dt><strong>transitions_index: pd.Index</strong></dt><dd><p>Index of the transitions in the macro atom data</p>
+<dt><strong>transitions_index</strong><span class="classifier">pd.Index</span></dt><dd><p>Index of the transitions in the macro atom data</p>
 </dd>
-<dt><strong>transition_type: np.ndarray</strong></dt><dd><p>transition types, see <a class="reference external" href="https://tardis-sn.github.io/tardis/physics/setup/plasma/macroatom.html#macroatom">https://tardis-sn.github.io/tardis/physics/setup/plasma/macroatom.html#macroatom</a> for flag definitions</p>
+<dt><strong>transition_type</strong><span class="classifier">np.ndarray</span></dt><dd><p>transition types, see <a class="reference external" href="https://tardis-sn.github.io/tardis/physics/setup/plasma/macroatom.html#macroatom">https://tardis-sn.github.io/tardis/physics/setup/plasma/macroatom.html#macroatom</a> for flag definitions</p>
 </dd>
-<dt><strong>e_dot_u: pd.DataFrame</strong></dt><dd><p>the rate energy density is add to the upper level of transitions excited to it</p>
+<dt><strong>e_dot_u</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>the rate energy density is add to the upper level of transitions excited to it</p>
 </dd>
-<dt><strong>time_explosion: float</strong></dt><dd><p>geometrical explosion time</p>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>geometrical explosion time</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.ndarray</dt><dd><p>The attenuated source function</p>
 </dd>
 </dl>
 </dd>
@@ -236,30 +266,36 @@ so there is no need to factor out the source function explicitly.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u">
-<span class="sig-name descname"><span class="pre">calculate_e_dot_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_lu_estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_level_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lvls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_e_dot_u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_e_dot_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_of_simulation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_lu_estimator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_level_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_lvls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.calculate_e_dot_u"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>time_of_simulation: float</strong></dt><dd><p>Time duration of the simulation</p>
+<dt><strong>time_of_simulation</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>Time duration of the simulation</p>
 </dd>
-<dt><strong>volume: astropy.units.Quantity</strong></dt><dd></dd>
-<dt><strong>tau_sobolevs: np.ndarray</strong></dt><dd><p>Sobolev optical depths</p>
+<dt><strong>volume</strong><span class="classifier">astropy.units.Quantity</span></dt><dd></dd>
+<dt><strong>tau_sobolevs</strong><span class="classifier">np.ndarray</span></dt><dd><p>Sobolev optical depths</p>
 </dd>
-<dt><strong>e_dot_lu_estimator: np.ndarray</strong></dt><dd><p>The line estimator for the rate of energy absorption of a transition from lower to upper level</p>
+<dt><strong>e_dot_lu_estimator</strong><span class="classifier">np.ndarray</span></dt><dd><p>The line estimator for the rate of energy absorption of a transition from lower to upper level</p>
 </dd>
-<dt><strong>transition_probabilities: np.ndarray</strong></dt><dd></dd>
-<dt><strong>upper_level_idx: pd.Index</strong></dt><dd><p>Index of the upper levels in the atomic data</p>
+<dt><strong>transition_probabilities</strong><span class="classifier">np.ndarray</span></dt><dd></dd>
+<dt><strong>upper_level_idx</strong><span class="classifier">pd.Index</span></dt><dd><p>Index of the upper levels in the atomic data</p>
 </dd>
-<dt><strong>no_of_shells: int</strong></dt><dd><p>Number of shells in the simulation</p>
+<dt><strong>no_of_shells</strong><span class="classifier">int</span></dt><dd><p>Number of shells in the simulation</p>
 </dd>
-<dt><strong>no_lvls: int</strong></dt><dd><p>Number of levels in the atomic data</p>
+<dt><strong>no_lvls</strong><span class="classifier">int</span></dt><dd><p>Number of levels in the atomic data</p>
 </dd>
-<dt><strong>line_interaction_type: str</strong></dt><dd><p>Type of line interaction (e.g. “macroatom”, “downbranch”)</p>
+<dt><strong>line_interaction_type</strong><span class="classifier">str</span></dt><dd><p>Type of line interaction (e.g. “macroatom”, “downbranch”)</p>
 </dd>
-<dt><strong>macro_data: pd.DataFrame</strong></dt><dd><p>DataFrame containing macro atom data</p>
+<dt><strong>macro_data</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing macro atom data</p>
 </dd>
-<dt><strong>macro_ref: pd.DataFrame</strong></dt><dd><p>DataFrame containing macro atom references, see <a class="reference external" href="http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html">http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html</a></p>
+<dt><strong>macro_ref</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing macro atom references, see <a class="reference external" href="http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html">http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html</a></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>The rate energy density is added to the upper level of transitions excited to it</p>
 </dd>
 </dl>
 </dd>
@@ -268,7 +304,7 @@ so there is no need to factor out the source function explicitly.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_data</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionState" title="tardis.spectrum.formal_integral.source_function.SourceFunctionState"><span class="pre">SourceFunctionState</span></a></span></span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve" title="Link to this definition">¶</a></dt>
 <dd><p>Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -302,19 +338,21 @@ so there is no need to factor out the source function explicitly.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.source_function.SourceFunctionState">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.source_function.</span></span><span class="sig-name descname"><span class="pre">SourceFunctionState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jred_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_u</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionState" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.source_function.</span></span><span class="sig-name descname"><span class="pre">SourceFunctionState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jred_lu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_dot_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/source_function.html#SourceFunctionState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionState" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Data class to hold the computed source function values</p>
-<section id="attributes">
-<h2>Attributes:<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h2>
-<dl class="simple">
-<dt>att_S_ul<span class="classifier">np.ndarray</span></dt><dd><p>The attenuated source function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>att_S_ul</strong><span class="classifier">np.ndarray</span></dt><dd><p>The attenuated source function</p>
 </dd>
-<dt>Jred_lu<span class="classifier">np.ndarray</span></dt><dd><p>the normalized J estimator from the red end of the line from lower to upper level</p>
+<dt><strong>Jred_lu</strong><span class="classifier">np.ndarray</span></dt><dd><p>the normalized J estimator from the red end of the line from lower to upper level</p>
 </dd>
-<dt>Jblue_lu<span class="classifier">np.ndarray</span></dt><dd><p>the normalized J estimator from the blue end of the line from lower to upper level</p>
+<dt><strong>Jblue_lu</strong><span class="classifier">np.ndarray</span></dt><dd><p>the normalized J estimator from the blue end of the line from lower to upper level</p>
 </dd>
-<dt>e_dot_u<span class="classifier">pd.DataFrame</span></dt><dd><p>The rate energy density is added to the upper level of transitions excited to it</p>
+<dt><strong>e_dot_u</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The rate energy density is added to the upper level of transitions excited to it</p>
+</dd>
+</dl>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -337,7 +375,6 @@ so there is no need to factor out the source function explicitly.</p>
 <span class="sig-name descname"><span class="pre">e_dot_u</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tardis.spectrum.formal_integral.source_function.SourceFunctionState.e_dot_u" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</section>
 </dd></dl>
 
 </section>
@@ -354,7 +391,7 @@ so there is no need to factor out the source function explicitly.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 28 Aug 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 
