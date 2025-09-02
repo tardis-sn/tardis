@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9717589c"></script>
+      <script src="../_static/documentation_options.js?v=416e6f58"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -357,12 +357,12 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.heating_cooling_rates.FreeFreeThermalRates.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">heating_estimator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_electron_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.plasma.electron_energy_distribution.base.html#tardis.plasma.electron_energy_distribution.base.ThermalElectronEnergyDistribution" title="tardis.plasma.electron_energy_distribution.base.ThermalElectronEnergyDistribution"><span class="pre">ThermalElectronEnergyDistribution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pd.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">pd.Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pd.Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/heating_cooling_rates.html#FreeFreeThermalRates.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.heating_cooling_rates.FreeFreeThermalRates.solve" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">heating_estimator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pd.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_electron_distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.plasma.electron_energy_distribution.base.html#tardis.plasma.electron_energy_distribution.base.ThermalElectronEnergyDistribution" title="tardis.plasma.electron_energy_distribution.base.ThermalElectronEnergyDistribution"><span class="pre">ThermalElectronEnergyDistribution</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pd.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">pd.Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pd.Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/heating_cooling_rates.html#FreeFreeThermalRates.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.heating_cooling_rates.FreeFreeThermalRates.solve" title="Link to this definition">¶</a></dt>
 <dd><p>Compute the free-free heating and cooling rates for the input plasma conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>heating_estimator</strong><span class="classifier">float</span></dt><dd><p>Montecarlo free-free heating estimator value.</p>
+<dt><strong>heating_estimator</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Montecarlo free-free heating estimator value. Columns represent cells.</p>
 </dd>
 <dt><strong>thermal_electron_distribution</strong><span class="classifier">ThermalElectronEnergyDistribution</span></dt><dd><p>Electron energy distribution containing the number density, temperature and energy.</p>
 </dd>
@@ -395,7 +395,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Aug 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 

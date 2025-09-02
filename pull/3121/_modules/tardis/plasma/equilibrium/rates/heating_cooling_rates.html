@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=9717589c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=416e6f58"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,7 +167,7 @@ class BoundFreeThermalRates:
             Photoionization cross section data.
         &quot;&quot;&quot;
         self.photoionization_cross_sections = photoionization_cross_sections
-        self.nu = photoionization_cross_sections.nu
+        self.nu = photoionization_cross_sections.nu.to_numpy()
         self.photoionization_block_references = np.pad(
             self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
             .count()
@@ -215,36 +215,41 @@ class BoundFreeThermalRates:
         tuple[pd.Series, pd.Series]
             Heating and cooling rates for the bound-free process for all cells.
         &quot;&quot;&quot;
-        nu_i = self.nu.groupby(level=[0, 1, 2]).first()
-        nu_is = nu_i.loc[self.photoionization_cross_sections.index]
+        nu_i = self.photoionization_cross_sections.nu.groupby(
+            level=[0, 1, 2]
+        ).first()
+        nu_is = nu_i.loc[self.photoionization_cross_sections.index].to_numpy()
         n_cells = level_population.columns
+
+        ### HEATING
+        # Lucy 03 eq 58
 
         if bound_free_heating_estimator is not None:
             # TODO: check if this is correct
             integrated_heating_coefficient = bound_free_heating_estimator
         elif radiation_field is not None:
             mean_intensities = radiation_field.calculate_mean_intensity(
-                self.nu.values * u.Hz
+                self.nu * u.Hz
             )
 
-            basic_coeff = (
+            # Makes broadcasting easier
+            one_dimensional_coefficient = (
                 4
                 * np.pi
-                * self.photoionization_cross_sections[&quot;x_sect&quot;]
+                * self.photoionization_cross_sections[&quot;x_sect&quot;].to_numpy()
                 * self.nu**3
-                * const.h.cgs
-                / const.c.cgs**2
+                * const.h.cgs.value
+                / const.c.cgs.value**2
             ) * (1 - nu_is / self.nu)
 
-            # Create the heating coefficient DataFrame directly
             heating_coefficient = (
-                basic_coeff.values[:, np.newaxis] * mean_intensities
+                one_dimensional_coefficient[:, np.newaxis] * mean_intensities
             )
 
             integrated_heating_coefficient = pd.DataFrame(
                 integrate_array_by_blocks(
                     heating_coefficient,
-                    self.nu.values,
+                    self.nu,
                     self.photoionization_block_references,
                 ),
                 index=self.photoionization_index,
@@ -254,37 +259,52 @@ class BoundFreeThermalRates:
                 &quot;Either bound_free_heating_estimator or radiation_field must be provided.&quot;
             )
 
+        heating_rate = (
+            integrated_heating_coefficient
+            * level_population.loc[integrated_heating_coefficient.index]
+        ).sum()
+
+        ### COOLING
+        # Lucy 03 eq 59
+
+        # Calculate Boltzmann factor
         boltzmann_factor = np.exp(
-            -self.nu.values
-            / thermal_electron_distribution.temperature.value
-            * (const.h.cgs.value / const.k_B.cgs.value)
+            -self.nu[:, np.newaxis]
+            * u.Hz
+            / thermal_electron_distribution.temperature[np.newaxis, :]
+            * (const.h.cgs / const.k_B.cgs)
         )
 
         spontaneous_recombination_cooling_coefficient = pd.DataFrame(
             (
                 8
                 * np.pi
-                * self.photoionization_cross_sections[&quot;x_sect&quot;]
-                * self.nu**3
+                * self.photoionization_cross_sections[&quot;x_sect&quot;].to_numpy()[
+                    :, np.newaxis
+                ]
+                * (self.nu[:, np.newaxis] ** 3)
                 * const.h.cgs.value
                 / const.c.cgs.value**2
             )
-            * (1 - nu_i / self.nu)
+            * (1 - nu_is[:, np.newaxis] / self.nu[:, np.newaxis])
             * boltzmann_factor
         )
 
         integrated_cooling_coefficient = pd.DataFrame(
             integrate_array_by_blocks(
                 spontaneous_recombination_cooling_coefficient.values,
-                self.nu.values,
+                self.nu,
                 self.photoionization_block_references,
             ),
             index=self.photoionization_index,
         )
 
+        # Lymann continuum handling
+        integrated_cooling_coefficient.loc[(1, 0, 0)] = 0.0
+
         ion_cooling_factor = (
             thermal_electron_distribution.number_density.value
-            * ion_population.loc[(1, 1)].values
+            * ion_population.loc[(1, 1)]
         )  # Hydrogen ion population
 
         spontaneous_recombination_cooling_rate = (
@@ -309,11 +329,6 @@ class BoundFreeThermalRates:
                 index=spontaneous_recombination_cooling_rate.index,
                 columns=n_cells,
             )
-
-        heating_rate = (
-            integrated_heating_coefficient
-            * level_population.loc[integrated_heating_coefficient.index]
-        ).sum()
 
         cooling_rate = (
             spontaneous_recombination_cooling_rate
@@ -357,18 +372,18 @@ class FreeFreeThermalRates:
         ionic_charge_squared = np.square(
             ion_population.index.get_level_values(1).values
         )
-        factor = (
+        heating_factor = (
             electron_density
             * ion_population.multiply(ionic_charge_squared, axis=0).sum()
         )
-        return factor</div>
+        return heating_factor</div>
 
 
 <div class="viewcode-block" id="FreeFreeThermalRates.solve">
 <a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.heating_cooling_rates.html#tardis.plasma.equilibrium.rates.heating_cooling_rates.FreeFreeThermalRates.solve">[docs]</a>
     def solve(
         self,
-        heating_estimator: float,
+        heating_estimator: pd.DataFrame,
         thermal_electron_distribution: ThermalElectronEnergyDistribution,
         ion_population: pd.DataFrame,
     ) -&gt; tuple[pd.Series, pd.Series]:
@@ -376,8 +391,8 @@ class FreeFreeThermalRates:
 
         Parameters
         ----------
-        heating_estimator : float
-            Montecarlo free-free heating estimator value.
+        heating_estimator : pd.DataFrame
+            Montecarlo free-free heating estimator value. Columns represent cells.
         thermal_electron_distribution : ThermalElectronEnergyDistribution
             Electron energy distribution containing the number density, temperature and energy.
         ion_population : pd.DataFrame
@@ -388,6 +403,9 @@ class FreeFreeThermalRates:
         tuple[pd.Series, pd.Series]
             The heating and cooling rates for the free-free process for all cells.
         &quot;&quot;&quot;
+        ### HEATING
+        # Lucy 03 Eq 47
+
         heating_factor = self.heating_factor(
             ion_population,
             thermal_electron_distribution.number_density.cgs.value,
@@ -398,6 +416,9 @@ class FreeFreeThermalRates:
             / np.sqrt(thermal_electron_distribution.temperature.cgs.value)
             * heating_factor
         )
+
+        ### COOLING
+        # Lucy 03 Eq 32
 
         cooling_rate = (
             self.cooling_constant
@@ -540,6 +561,9 @@ class CollisionalBoundThermalRates:
         lower_level_number_density = level_population.loc[lower_index]
         upper_level_number_density = level_population.loc[upper_index]
 
+        ### HEATING
+        # Lucy 03 eq 33 &quot;similar&quot;
+
         heating_rate = (
             electron_density.cgs.value
             * (
@@ -549,6 +573,9 @@ class CollisionalBoundThermalRates:
                 * const.h.cgs.value
             )
         ).sum(axis=0)
+
+        ### COOLING
+        # Lucy 03 eq 33 &quot;similar&quot;
 
         cooling_rate = (
             electron_density.cgs.value
@@ -619,7 +646,7 @@ class AdiabaticThermalRates:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Aug 2025.
+      <span class="lastupdated">Last updated on 02 Sep 2025.
       </span></p>
   </div>
 
