@@ -151,6 +151,9 @@ class BoundFreeThermalRates:
             index=self.photoionization_index,
         )
 
+        # Lymann continuum handling
+        integrated_cooling_coefficient.loc[(1, 0, 0)] = 0.0
+
         ion_cooling_factor = (
             thermal_electron_distribution.number_density.value
             * ion_population.loc[(1, 1)]

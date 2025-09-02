@@ -186,7 +186,7 @@ def test_bound_free_thermal_rates_solve(
 
 @pytest.mark.parametrize(
     "heating_rate, cooling_rate",
-    [(1.2809489753862688e-06, 2.069548348352606e-06)],
+    [(1.2809489753862688e-06, 1.235774260367592e-06)],
 )
 def test_bound_free_thermal_rates_solve_with_estimators(
     nlte_atom_data,
@@ -369,8 +369,8 @@ def test_thermal_balance_solver(
         stimulated_recombination_estimator,
     )
 
-    expected_total_heating_rate = -1.2538064915724822e-06
-    expected_fractional_heating_rate = -0.10968587857162025
+    expected_total_heating_rate = -4.2003240358632565e-07
+    expected_fractional_heating_rate = -0.03963650747926685
 
     assert_almost_equal(
         total_heating_rate[0], expected_total_heating_rate, decimal=14
