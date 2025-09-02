@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -14,7 +15,7 @@ from tardis.energy_input.util import (
     doppler_factor_3D_all_packets,
     get_random_unit_vectors,
 )
-from tardis.transport.montecarlo.packet_source import BasePacketSource
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,7 @@ class GammaRayPacketSource(BasePacketSource):
         self.effective_times = effective_times
         super().__init__(**kwargs)
 
-    def create_packet_mus(self, no_of_packets: int, *args, **kwargs):
+    def create_packet_mus(self, no_of_packets: int, *args: Any, **kwargs: Any):
         """
         Create packet directional cosines.
 
@@ -205,7 +206,7 @@ class GammaRayPacketSource(BasePacketSource):
         return energy_array
 
     def create_packet_directions(
-        self, no_of_packets: int, seed: int | None
+        self, no_of_packets: int, seed: "int | None"
     ) -> np.ndarray:
         """
         Create random isotropic directions for packets.
@@ -355,7 +356,7 @@ class GammaRayPacketSource(BasePacketSource):
         self,
         cumulative_decays_df: pd.DataFrame,
         number_of_packets: int,
-        legacy_energy_per_packet: float | None = None,
+        legacy_energy_per_packet: "float | None" = None,
     ) -> GXPacketCollection:
         """
         Initialize a collection of gamma ray packets for simulation.

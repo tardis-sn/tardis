@@ -33,7 +33,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.interrogate]
 color = true
-#exclude = ["docs", "build"]
+exclude = ["docs", "build", "*/tests/*", "*test*"]
 #fail-under = 90
 ignore-init-method = true
 ignore-init-module = true
@@ -43,7 +43,6 @@ ignore-nested-functions = false
 ignore-nested-classes = true
 ignore-private = true
 ignore-property-decorators = true
-ignore-regex = ["^test"]
 ignore-semiprivate = true
 ignore-setters = true
 omit-covered-files = false

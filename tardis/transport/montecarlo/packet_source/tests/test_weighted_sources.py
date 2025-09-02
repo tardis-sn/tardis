@@ -1,8 +1,8 @@
+import astropy.units as u
 import pytest
-from astropy import units as u
 from numpy.testing import assert_allclose
 
-from tardis.transport.montecarlo.weighted_packet_source import (
+from tardis.transport.montecarlo.packet_source.black_body_weighted import (
     BlackBodyWeightedSource,
 )
 
@@ -11,15 +11,14 @@ class TestBlackBodyWeightedSource:
     @pytest.fixture(scope="class")
     def blackbodyweightedsource(self, request):
         """
-        Create blackbodyweightedsource instance.
+        Create BlackBodyWeightedSource instance.
 
         Yields
         -------
-        tardis.transport.montecarlo.packet_source.blackbodyweightedsource
+        tardis.transport.montecarlo.packet_source.BlackBodyWeightedSource
         """
-        cls = type(self)
         bb = BlackBodyWeightedSource(
-            radius=123,
+            radius=123 * u.cm,
             temperature=10000 * u.K,
             base_seed=1963,
             legacy_mode_enabled=False,
@@ -52,4 +51,4 @@ class TestBlackBodyWeightedSource:
         ]
         assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
         assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
-        assert_allclose(expected_bb.radius, actual_bb.radius)
+        assert_allclose(expected_bb.radius, actual_bb.radius.value)

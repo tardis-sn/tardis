@@ -1,7 +1,6 @@
-from enum import IntEnum
 
+import numba as nb
 import numpy as np
-from numba import float64, int64
 from numba.experimental import jitclass
 
 from tardis import constants as const
@@ -10,75 +9,105 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
-opacity_state_spec = [
-    ("electron_density", float64[:]),
-    ("t_electrons", float64[:]),
-    ("line_list_nu", float64[:]),
-    ("tau_sobolev", float64[:, :]),
-    ("transition_probabilities", float64[:, :]),
-    ("line2macro_level_upper", int64[:]),
-    ("macro_block_references", int64[:]),
-    ("transition_type", int64[:]),
-    ("destination_level_id", int64[:]),
-    ("transition_line_id", int64[:]),
-    ("bf_threshold_list_nu", float64[:]),
-    ("p_fb_deactivation", float64[:, :]),
-    ("photo_ion_nu_threshold_mins", float64[:]),
-    ("photo_ion_nu_threshold_maxs", float64[:]),
-    ("photo_ion_block_references", int64[:]),
-    ("chi_bf", float64[:, :]),
-    ("x_sect", float64[:]),
-    ("phot_nus", float64[:]),
-    ("ff_opacity_factor", float64[:]),
-    ("emissivities", float64[:, :]),
-    ("photo_ion_activation_idx", int64[:]),
-    ("k_packet_idx", int64),
-]
+@jitclass
+class OpacityStateNumba:
+    electron_density: nb.float64[:]  # type: ignore[misc]
+    t_electrons: nb.float64[:]  # type: ignore[misc]
+    line_list_nu: nb.float64[:]  # type: ignore[misc]
+    tau_sobolev: nb.float64[:, :]  # type: ignore[misc]
+    transition_probabilities: nb.float64[:, :]  # type: ignore[misc]
+    line2macro_level_upper: nb.int64[:]  # type: ignore[misc]
+    macro_block_references: nb.int64[:]  # type: ignore[misc]
+    transition_type: nb.int64[:]  # type: ignore[misc]
+    destination_level_id: nb.int64[:]  # type: ignore[misc]
+    transition_line_id: nb.int64[:]  # type: ignore[misc]
+    bf_threshold_list_nu: nb.float64[:]  # type: ignore[misc]
+    p_fb_deactivation: nb.float64[:, :]  # type: ignore[misc]
+    photo_ion_nu_threshold_mins: nb.float64[:]  # type: ignore[misc]
+    photo_ion_nu_threshold_maxs: nb.float64[:]  # type: ignore[misc]
+    photo_ion_block_references: nb.int64[:]  # type: ignore[misc]
+    chi_bf: nb.float64[:, :]  # type: ignore[misc]
+    x_sect: nb.float64[:]  # type: ignore[misc]
+    phot_nus: nb.float64[:]  # type: ignore[misc]
+    ff_opacity_factor: nb.float64[:]  # type: ignore[misc]
+    emissivities: nb.float64[:, :]  # type: ignore[misc]
+    photo_ion_activation_idx: nb.int64[:]  # type: ignore[misc]
+    k_packet_idx: nb.int64  # type: ignore[misc]
 
-
-@jitclass(opacity_state_spec)
-class OpacityState:
     def __init__(
         self,
-        electron_density,
-        t_electrons,
-        line_list_nu,
-        tau_sobolev,
-        transition_probabilities,
-        line2macro_level_upper,
-        macro_block_references,
-        transition_type,
-        destination_level_id,
-        transition_line_id,
-        bf_threshold_list_nu,
-        p_fb_deactivation,
-        photo_ion_nu_threshold_mins,
-        photo_ion_nu_threshold_maxs,
-        photo_ion_block_references,
-        chi_bf,
-        x_sect,
-        phot_nus,
-        ff_opacity_factor,
-        emissivities,
-        photo_ion_activation_idx,
-        k_packet_idx,
-    ):
+        electron_density: np.ndarray,
+        t_electrons: np.ndarray,
+        line_list_nu: np.ndarray,
+        tau_sobolev: np.ndarray,
+        transition_probabilities: np.ndarray,
+        line2macro_level_upper: np.ndarray,
+        macro_block_references: np.ndarray,
+        transition_type: np.ndarray,
+        destination_level_id: np.ndarray,
+        transition_line_id: np.ndarray,
+        bf_threshold_list_nu: np.ndarray,
+        p_fb_deactivation: np.ndarray,
+        photo_ion_nu_threshold_mins: np.ndarray,
+        photo_ion_nu_threshold_maxs: np.ndarray,
+        photo_ion_block_references: np.ndarray,
+        chi_bf: np.ndarray,
+        x_sect: np.ndarray,
+        phot_nus: np.ndarray,
+        ff_opacity_factor: np.ndarray,
+        emissivities: np.ndarray,
+        photo_ion_activation_idx: np.ndarray,
+        k_packet_idx: int,
+    ) -> None:
         """
-        Plasma for the Numba code
+        Initialize Numba-compatible opacity state for Monte Carlo transport.
 
         Parameters
         ----------
         electron_density : numpy.ndarray
+            Electron density in each shell [cm^-3].
         t_electrons : numpy.ndarray
+            Electron temperature in each shell [K].
         line_list_nu : numpy.ndarray
+            Frequencies of spectral lines [Hz].
         tau_sobolev : numpy.ndarray
+            Sobolev optical depths for line transitions.
         transition_probabilities : numpy.ndarray
+            Probabilities for macro atom transitions.
         line2macro_level_upper : numpy.ndarray
+            Mapping from line indices to macro atom upper levels.
         macro_block_references : numpy.ndarray
+            Block references for macro atom data.
         transition_type : numpy.ndarray
+            Type identifiers for transitions.
         destination_level_id : numpy.ndarray
+            Destination level indices for transitions.
         transition_line_id : numpy.ndarray
+            Line indices for transitions.
         bf_threshold_list_nu : numpy.ndarray
+            Bound-free threshold frequencies [Hz].
+        p_fb_deactivation : numpy.ndarray
+            Free-bound deactivation probabilities.
+        photo_ion_nu_threshold_mins : numpy.ndarray
+            Minimum photoionization threshold frequencies [Hz].
+        photo_ion_nu_threshold_maxs : numpy.ndarray
+            Maximum photoionization threshold frequencies [Hz].
+        photo_ion_block_references : numpy.ndarray
+            Block references for photoionization data.
+        chi_bf : numpy.ndarray
+            Bound-free absorption coefficients.
+        x_sect : numpy.ndarray
+            Photoionization cross sections [cm^2].
+        phot_nus : numpy.ndarray
+            Photoionization frequencies [Hz].
+        ff_opacity_factor : numpy.ndarray
+            Free-free opacity factors.
+        emissivities : numpy.ndarray
+            Emission coefficients for bound-free transitions.
+        photo_ion_activation_idx : numpy.ndarray
+            Indices for photoionization activation.
+        k_packet_idx : int
+            Index for k-packet handling.
         """
         self.electron_density = electron_density
         self.t_electrons = t_electrons
@@ -111,18 +140,21 @@ class OpacityState:
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
 
-    def __getitem__(self, i: slice):
-        """Get a shell or slice of shells of the attributes of the opacity state
+    def __getitem__(self, i: slice) -> "OpacityStateNumba":
+        """Get a shell or slice of shells of the attributes of the opacity state.
 
-        Args:
-            i (slice): shell slice.  Will fail if slice is int since class only supports array types
+        Parameters
+        ----------
+        i : slice
+            Shell slice. Will fail if slice is int since class only supports array types.
 
         Returns
         -------
-            OpacityState : a shallow copy of the current instance
+        OpacityStateNumba
+            A shallow copy of the current instance with sliced data.
         """
         # NOTE: This currently will not work with continuum processes since it does not slice those arrays
-        return OpacityState(
+        return OpacityStateNumba(
             self.electron_density[i],
             self.t_electrons[i],
             self.line_list_nu,
@@ -148,18 +180,27 @@ class OpacityState:
         )
 
 
-def opacity_state_initialize(
+def opacity_state_numba_initialize(
     plasma,
-    line_interaction_type,
-    disable_line_scattering,
-):
+    line_interaction_type: str,
+    disable_line_scattering: bool,
+) -> OpacityStateNumba:
     """
-    Initialize the OpacityState object and copy over the data over from TARDIS Plasma
+    Initialize the OpacityStateNumba object and copy data from TARDIS Plasma.
 
     Parameters
     ----------
     plasma : tardis.plasma.BasePlasma
-    line_interaction_type : enum
+        The plasma object containing atomic and opacity data.
+    line_interaction_type : str
+        Type of line interaction ("scatter" or "macroatom").
+    disable_line_scattering : bool
+        Whether to disable line scattering by setting tau_sobolev to zero.
+
+    Returns
+    -------
+    OpacityStateNumba
+        Initialized opacity state for Monte Carlo transport.
     """
     electron_densities = plasma.electron_densities.values
     t_electrons = plasma.t_electrons
@@ -242,7 +283,7 @@ def opacity_state_initialize(
         photo_ion_activation_idx = plasma.photo_ion_idx.loc[
             plasma.level2continuum_idx.index, "destination_level_idx"
         ].values
-        k_packet_idx = np.int64(plasma.k_packet_idx)
+        k_packet_idx = plasma.k_packet_idx
     else:
         bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
         p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
@@ -255,9 +296,9 @@ def opacity_state_initialize(
         ff_opacity_factor = np.zeros(0, dtype=np.float64)
         emissivities = np.zeros((0, 0), dtype=np.float64)
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
-        k_packet_idx = np.int64(-1)
+        k_packet_idx = -1
 
-    return OpacityState(
+    return OpacityStateNumba(
         electron_densities,
         t_electrons,
         line_list_nu,
@@ -283,7 +324,3 @@ def opacity_state_initialize(
     )
 
 
-class LineInteractionType(IntEnum):
-    SCATTER = 0
-    DOWNBRANCH = 1
-    MACROATOM = 2

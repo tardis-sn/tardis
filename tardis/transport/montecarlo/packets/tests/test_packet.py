@@ -6,7 +6,7 @@ import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 import tardis.transport.montecarlo.estimators.radfield_mc_estimators
-import tardis.transport.montecarlo.r_packet as r_packet
+import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
@@ -349,7 +349,7 @@ def test_move_packet_across_shell_boundary_emitted(
     r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
-    assert packet.status == r_packet.PacketStatus.EMITTED
+    assert packet.status == radiative_packet.PacketStatus.EMITTED
 
 
 @pytest.mark.parametrize(
@@ -363,7 +363,7 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
-    assert packet.status == r_packet.PacketStatus.REABSORBED
+    assert packet.status == radiative_packet.PacketStatus.REABSORBED
 
 
 @pytest.mark.parametrize(
