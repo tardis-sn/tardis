@@ -220,11 +220,11 @@ class FreeFreeThermalRates:
         ionic_charge_squared = np.square(
             ion_population.index.get_level_values(1).values
         )
-        factor = (
+        heating_factor = (
             electron_density
             * ion_population.multiply(ionic_charge_squared, axis=0).sum()
         )
-        return factor
+        return heating_factor
 
     def solve(
         self,
