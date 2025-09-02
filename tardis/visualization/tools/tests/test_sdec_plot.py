@@ -576,3 +576,37 @@ class TestSDECPlotter:
             check_exact=False,
             rtol=1e-12
         )
+
+    def test_mpl_image_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, tardis_regression_path):
+        fig, plotter = plotter_generate_plot_mpl_from_workflow
+        param_idx = plotter._param_idx
+        
+        # Save actual image
+        actual_image_path = tmp_path / f"test_mpl_image_workflow_{param_idx}.png"
+        fig.figure.savefig(actual_image_path)
+        
+        # Path to expected image
+        regression_path = tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
+        expected_image_path = regression_path / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
+        
+        # Compare images
+        compare_images(str(expected_image_path), str(actual_image_path), tol=0.001)
+
+    @pytest.mark.parametrize(
+        "attribute", ["_full_species_list", "_species_list", "_keep_colour"]
+    )
+    def test_parse_species_list_workflow(self, plotter_from_workflow, attribute, tardis_regression_path):
+        # Parse species list on workflow plotter
+        plotter_from_workflow._parse_species_list(self.species_list[0])
+        
+        # Load expected data from regression files
+        regression_path = tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
+        expected_file = regression_path / f"test_parse_species_list__{attribute}__.npy"
+        expected_data = np.load(expected_file)
+        
+        actual_data = getattr(plotter_from_workflow, attribute)
+        
+        if attribute == "_full_species_list":
+            np.testing.assert_equal(actual_data, expected_data)
+        else:
+            np.testing.assert_allclose(actual_data, expected_data)
