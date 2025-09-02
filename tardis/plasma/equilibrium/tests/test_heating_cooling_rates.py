@@ -24,14 +24,16 @@ from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 @pytest.fixture
 def thermal_electron_distribution():
     return ThermalElectronEnergyDistribution(
-        0 * u.erg, 9992.2722969523056 * u.K, 2.20676447e09 * u.cm**-3
+        0 * u.erg,
+        np.ones(24) * 9992.2722969523056 * u.K,
+        np.ones(24) * 2.20676447e09 * u.cm**-3,
     )
 
 
 @pytest.fixture
 def radiation_field():
     return DilutePlanckianRadiationField(
-        np.ones(1) * 10000 * u.K, np.array([0.5]), geometry=None
+        np.ones(24) * 10000 * u.K, np.ones(24) * 0.5, geometry=None
     )
 
 
@@ -222,7 +224,7 @@ def test_free_free_thermal_rates_heating_factor(
         ion_population,
         thermal_electron_distribution.number_density.cgs.value,
     )
-    expected_factor = 4.869809426186787e18
+    expected_factor = 4.869809426191116e18
 
     assert_almost_equal(factor[0], expected_factor, decimal=10)
 
@@ -367,8 +369,8 @@ def test_thermal_balance_solver(
         stimulated_recombination_estimator,
     )
 
-    expected_total_heating_rate = -1.2538460229470125e-06
-    expected_fractional_heating_rate = -0.10970816086384574
+    expected_total_heating_rate = -1.2538064915724822e-06
+    expected_fractional_heating_rate = -0.10968587857155208
 
     assert_almost_equal(
         total_heating_rate[0], expected_total_heating_rate, decimal=14

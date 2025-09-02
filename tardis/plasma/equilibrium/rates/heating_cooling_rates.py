@@ -32,7 +32,7 @@ class BoundFreeThermalRates:
             Photoionization cross section data.
         """
         self.photoionization_cross_sections = photoionization_cross_sections
-        self.nu = photoionization_cross_sections.nu
+        self.nu = photoionization_cross_sections.nu.to_numpy()
         self.photoionization_block_references = np.pad(
             self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
             .count()
@@ -78,36 +78,40 @@ class BoundFreeThermalRates:
         tuple[pd.Series, pd.Series]
             Heating and cooling rates for the bound-free process for all cells.
         """
-        nu_i = self.nu.groupby(level=[0, 1, 2]).first()
-        nu_is = nu_i.loc[self.photoionization_cross_sections.index]
+        nu_i = self.photoionization_cross_sections.nu.groupby(
+            level=[0, 1, 2]
+        ).first()
+        nu_is = nu_i.loc[self.photoionization_cross_sections.index].to_numpy()
         n_cells = level_population.columns
+
+        temp_values = thermal_electron_distribution.temperature.value
 
         if bound_free_heating_estimator is not None:
             # TODO: check if this is correct
             integrated_heating_coefficient = bound_free_heating_estimator
         elif radiation_field is not None:
             mean_intensities = radiation_field.calculate_mean_intensity(
-                self.nu.values * u.Hz
+                self.nu * u.Hz
             )
 
-            basic_coeff = (
+            # Makes broadcasting easier
+            one_dimensional_coefficient = (
                 4
                 * np.pi
-                * self.photoionization_cross_sections["x_sect"]
+                * self.photoionization_cross_sections["x_sect"].to_numpy()
                 * self.nu**3
-                * const.h.cgs
-                / const.c.cgs**2
+                * const.h.cgs.value
+                / const.c.cgs.value**2
             ) * (1 - nu_is / self.nu)
 
-            # Create the heating coefficient DataFrame directly
             heating_coefficient = (
-                basic_coeff.values[:, np.newaxis] * mean_intensities
+                one_dimensional_coefficient[:, np.newaxis] * mean_intensities
             )
 
             integrated_heating_coefficient = pd.DataFrame(
                 integrate_array_by_blocks(
                     heating_coefficient,
-                    self.nu.values,
+                    self.nu,
                     self.photoionization_block_references,
                 ),
                 index=self.photoionization_index,
@@ -117,9 +121,10 @@ class BoundFreeThermalRates:
                 "Either bound_free_heating_estimator or radiation_field must be provided."
             )
 
+        # Calculate Boltzmann factor
         boltzmann_factor = np.exp(
-            -self.nu.values
-            / thermal_electron_distribution.temperature.value
+            -self.nu[:, np.newaxis]
+            / temp_values[np.newaxis, :]
             * (const.h.cgs.value / const.k_B.cgs.value)
         )
 
@@ -127,19 +132,21 @@ class BoundFreeThermalRates:
             (
                 8
                 * np.pi
-                * self.photoionization_cross_sections["x_sect"]
-                * self.nu**3
+                * self.photoionization_cross_sections["x_sect"].to_numpy()[
+                    :, np.newaxis
+                ]
+                * (self.nu[:, np.newaxis] ** 3)
                 * const.h.cgs.value
                 / const.c.cgs.value**2
             )
-            * (1 - nu_i / self.nu)
+            * (1 - nu_is[:, np.newaxis] / self.nu[:, np.newaxis])
             * boltzmann_factor
         )
 
         integrated_cooling_coefficient = pd.DataFrame(
             integrate_array_by_blocks(
                 spontaneous_recombination_cooling_coefficient.values,
-                self.nu.values,
+                self.nu,
                 self.photoionization_block_references,
             ),
             index=self.photoionization_index,
@@ -147,7 +154,7 @@ class BoundFreeThermalRates:
 
         ion_cooling_factor = (
             thermal_electron_distribution.number_density.value
-            * ion_population.loc[(1, 1)].values
+            * ion_population.loc[(1, 1)]
         )  # Hydrogen ion population
 
         spontaneous_recombination_cooling_rate = (
