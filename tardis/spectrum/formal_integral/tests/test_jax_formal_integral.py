@@ -225,18 +225,13 @@ def test_full_formal_integral(simulation_verysimple):
     )
     formal_integrator_jax.method = "jax"
 
-    # formal_integrator_numba.integrator_settings.interpolate_shells = max(
-    #     2 * sim.simulation_state.no_of_shells, 80
-    # )
+    formal_integrator_numba.integrator_settings.interpolate_shells = max(
+        2 * sim.simulation_state.no_of_shells, 80
+    )
 
-    # formal_integrator_jax.integrator_settings.interpolate_shells = max(
-    #     2 * sim.simulation_state.no_of_shells, 80
-    # )
-    formal_integrator_numba.integrator_settings.interpolate_shells = 20
-    formal_integrator_jax.integrator_settings.interpolate_shells = 20
-    
-    formal_integrator_numba.integrator_settings.points = 10
-    formal_integrator_jax.integrator_settings.points = 10
+    formal_integrator_jax.integrator_settings.interpolate_shells = max(
+        2 * sim.simulation_state.no_of_shells, 80
+    )
 
     L_numba = formal_integrator_numba.solve(
         sim.spectrum_solver.spectrum_real_packets.frequency,
@@ -252,7 +247,7 @@ def test_full_formal_integral(simulation_verysimple):
         sim.plasma,
     ).luminosity
 
-    assert type(formal_integrator_jax) == JaxFormalIntegrator
-    assert type(formal_integrator_numba) == NumbaFormalIntegrator
+    assert type(formal_integrator_jax.integrator) == JaxFormalIntegrator
+    assert type(formal_integrator_numba.integrator) == NumbaFormalIntegrator
 
     npt.assert_allclose(L_jax, L_numba, rtol=1e-14, atol=0.0)
