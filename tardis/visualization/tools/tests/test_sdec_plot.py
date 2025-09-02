@@ -567,7 +567,6 @@ class TestSDECPlotter:
         pd.testing.assert_frame_equal(
             plotter.emission_luminosities_df,
             plotter_from_workflow.emission_luminosities_df,
-            check_exact=False,
             rtol=1e-12
         )
         
@@ -575,7 +574,6 @@ class TestSDECPlotter:
         pd.testing.assert_frame_equal(
             plotter.absorption_luminosities_df,
             plotter_from_workflow.absorption_luminosities_df,
-            check_exact=False,
             rtol=1e-12
         )
 
