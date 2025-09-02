@@ -6,7 +6,7 @@ import functools
 from asv_runner.benchmarks.mark import parameterize
 
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.transport.montecarlo import packet_trackers
+from tardis.transport.montecarlo.packets import packet_trackers
 
 
 class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
