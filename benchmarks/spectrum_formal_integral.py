@@ -50,5 +50,5 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
             self.sim.opacity_state,
             plasma.atomic_data,
             plasma.electron_densities,
-            self.sim.macro_atom_state
+            self.sim.macro_atom_state,
         )
