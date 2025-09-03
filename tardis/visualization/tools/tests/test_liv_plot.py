@@ -90,11 +90,11 @@ class TestLIVPlotter:
                 for item in sublist
             ]
             data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
+            np.testing.assert_allclose(plot_object, data, atol=0, rtol=1e-15)
         else:
             plot_object = getattr(plotter, attribute)
             data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
+            np.testing.assert_allclose(plot_object, data, atol=0, rtol=1e-15)
 
     @pytest.fixture(scope="class", params=combinations)
     def plotter_prepare_plot_data(self, request, plotter):
@@ -158,12 +158,12 @@ class TestLIVPlotter:
             if all(isinstance(item, u.Quantity) for item in plot_object):
                 plot_object = [item.value for item in plot_object]
             data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
+            np.testing.assert_allclose(plot_object, data, atol=0, rtol=1e-15)
         else:
             plot_object = getattr(plotter_prepare_plot_data, attribute)
             plot_object = plot_object.value
             data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
+            np.testing.assert_allclose(plot_object, data, atol=0, rtol=1e-15)
 
     @pytest.fixture(scope="function", params=combinations)
     def plotter_generate_plot_mpl(self, request, plotter):
@@ -268,8 +268,7 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     expected_values,
                     actual_values,
-                    rtol=0.3,
-                    atol=3,
+                    atol=0, rtol=1e-15
                 )
             else:
                 assert np.array_equal(expected_values, actual_values)
@@ -285,14 +284,12 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     data.get_xydata(),
                     expected.get("plot_data_hdf/" + "data" + str(index1)),
-                    rtol=0.3,
-                    atol=3,
+                    atol=0, rtol=1e-15
                 )
                 np.testing.assert_allclose(
                     data.get_path().vertices,
                     expected.get("plot_data_hdf/" + "linepath" + str(index1)),
-                    rtol=1,
-                    atol=3,
+                    atol=0, rtol=1e-15
                 )
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
@@ -433,8 +430,7 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     expected_values,
                     actual_values,
-                    rtol=0.3,
-                    atol=3,
+                    atol=0, rtol=1e-15
                 )
             else:
                 assert np.array_equal(expected_values, actual_values)
@@ -459,14 +455,12 @@ class TestLIVPlotter:
             np.testing.assert_allclose(
                 data.x,
                 expected.get(group + "x").values.flatten(),
-                rtol=0.3,
-                atol=3,
+                atol=0, rtol=1e-15
             )
             np.testing.assert_allclose(
                 data.y,
                 expected.get(group + "y").values.flatten(),
-                rtol=0.3,
-                atol=3,
+                atol=0, rtol=1e-15
             )
         expected.close()
 
@@ -531,7 +525,7 @@ class TestLIVPlotter:
                 if all(isinstance(item, u.Quantity) for item in plot_object):
                     plot_object = [item.value for item in plot_object]
                     
-                np.testing.assert_allclose(plot_object, expected)
+                np.testing.assert_allclose(plot_object, expected, atol=0, rtol=1e-15)
             else:
                 regression_file = liv_regression_data / f"test_prepare_plot_data__plotter_prepare_plot_data{param_idx}-{attribute}__.npy"
                 expected = np.load(regression_file)
@@ -539,7 +533,7 @@ class TestLIVPlotter:
                 plot_object = getattr(plotter_prepare_plot_data_from_workflow, attribute)
                 plot_object = plot_object.value
                 
-                np.testing.assert_allclose(plot_object, expected)
+                np.testing.assert_allclose(plot_object, expected, atol=0, rtol=1e-15)
 
     @pytest.fixture(scope="class", params=list(enumerate(combinations)))
     def plotter_generate_plot_mpl_from_workflow(self, request, plotter_from_workflow):
@@ -581,10 +575,10 @@ class TestLIVPlotter:
         np.testing.assert_array_equal(plotter._species_name, expected_species.values.flatten())
         
         color_list = [item for subitem in plotter._color_list for item in subitem]
-        np.testing.assert_allclose(color_list, expected_colors.values.flatten(), rtol=0.3, atol=3)
+        np.testing.assert_allclose(color_list, expected_colors.values.flatten(), atol=0, rtol=1e-15)
         
-        np.testing.assert_allclose(plotter.step_x.value, expected_step_x.values.flatten(), rtol=0.3, atol=3)
-        np.testing.assert_allclose(plotter.step_y, expected_step_y.values.flatten(), rtol=0.3, atol=3)
+        np.testing.assert_allclose(plotter.step_x.value, expected_step_x.values.flatten(), atol=0, rtol=1e-15)
+        np.testing.assert_allclose(plotter.step_y, expected_step_y.values.flatten(), atol=0, rtol=1e-15)
 
     def test_workflow_simulation_data_identical(self, plotter, plotter_from_workflow):
         # Calculate plotting data with identical parameters
@@ -605,7 +599,7 @@ class TestLIVPlotter:
             np.testing.assert_allclose(
                 [item.value for item in sim_data],
                 [item.value for item in workflow_data],
-                rtol=1e-12
+                atol=0, rtol=1e-15
             )
 
     def test_mpl_image_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, liv_regression_data):
