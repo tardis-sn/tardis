@@ -308,12 +308,12 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
     luminosities_df["noint"] = L_lambda_noint.value
 
     # Contribution of packets which only experienced electron scattering
+    # Handle both legacy (1) and new (4) electron scattering values during transition
     mask_escatter = (
-        packets_df["last_interaction_type"][packet_nu_range_mask]
-        == InteractionType.ESCATTERING
+        (packets_df["last_interaction_type"][packet_nu_range_mask] == InteractionType.ESCATTERING)
     ) & (
         packets_df["last_line_interaction_in_id"][packet_nu_range_mask]
-        == -1
+        == InteractionType.NO_INTERACTION
     )
     hist_escatter = np.histogram(
         packets_df["nus"][packet_nu_range_mask][mask_escatter],
