@@ -10,7 +10,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 viz = ["qgridnext", "lineid_plot"]
-tardisbase = ["tardisbase @ git+https://github.com/tardis-sn/tardisbase.git@a9cd49b"]
+tardisbase = ["tardisbase @ git+https://github.com/tardis-sn/tardisbase.git@bb4f0226"]
 
 
 [project.scripts]
@@ -33,7 +33,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.interrogate]
 color = true
-#exclude = ["docs", "build"]
+exclude = ["docs", "build", "*/tests/*", "*test*"]
 #fail-under = 90
 ignore-init-method = true
 ignore-init-module = true
@@ -43,7 +43,6 @@ ignore-nested-functions = false
 ignore-nested-classes = true
 ignore-private = true
 ignore-property-decorators = true
-ignore-regex = ["^test"]
 ignore-semiprivate = true
 ignore-setters = true
 omit-covered-files = false

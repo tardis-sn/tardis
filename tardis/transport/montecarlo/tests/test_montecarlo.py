@@ -1,11 +1,10 @@
-import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
 
-import tardis.spectrum.formal_integral as formal_integral
-import tardis.transport.montecarlo.r_packet as r_packet
+import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
@@ -17,7 +16,7 @@ from tardis.transport.frame_transformations import (
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.packet_trackers import RPacketTracker
+from tardis.transport.montecarlo.packets.packet_trackers import RPacketTracker
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -35,7 +34,7 @@ from tardis import __path__ as path
 @pytest.fixture(scope="module")
 def continuum_compare_data_fname():
     fname = "continuum_compare_data.hdf"
-    return os.path.join(path[0], "montecarlo", "tests", "data", fname)
+    return str(Path(path[0]) / "montecarlo" / "tests" / "data" / fname)
 
 
 @pytest.fixture(scope="module")
@@ -93,111 +92,12 @@ categorized as important tests, these tests correspond to methods which are
 relatively old and stable code.
 """
 
-
-@pytest.mark.parametrize(
-    ["x", "x_insert", "imin", "imax", "expected_params"],
-    [
-        (
-            [5.0, 4.0, 3.0, 1.0],
-            2.0,
-            0,
-            3,
-            {"result": 2},
-        ),
-        (
-            [5.0, 4.0, 3.0, 2.0],
-            0.0,
-            0,
-            3,
-            {"result": 0},  # This one might need to check for a bounds error
-        ),
-    ],
-)
-def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
-    # x = (c_double * (imax - imin + 1))(*x)
-    obtained_result = 0
-
-    obtained_result = formal_integral.reverse_binary_search(
-        x, x_insert, imin, imax
-    )
-
-    assert obtained_result == expected_params["result"]
-
-
-@pytest.mark.parametrize(
-    ["nu", "nu_insert", "number_of_lines", "expected_params"],
-    [
-        (
-            [0.5, 0.4, 0.3, 0.1],
-            0.2,
-            4,
-            {"result": 3},
-        ),
-        (
-            [0.5, 0.4, 0.3, 0.2],
-            0.1,
-            4,
-            {"result": 4},
-        ),
-        (
-            [0.4, 0.3, 0.2, 0.1],
-            0.5,
-            4,
-            {"result": 0},
-        ),
-    ],
-)
-def test_line_search(nu, nu_insert, number_of_lines, expected_params):
-    # nu = (c_double * number_of_lines)(*nu)
-    obtained_result = 0
-
-    obtained_result = formal_integral.line_search(
-        nu, nu_insert, number_of_lines, obtained_result
-    )
-
-    assert obtained_result == expected_params["result"]
-
-
-@pytest.mark.parametrize(
-    ["x", "x_insert", "imin", "imax", "expected_params"],
-    [
-        (
-            [2.0, 4.0, 6.0, 7.0],
-            5.0,
-            0,
-            3,
-            {"result": 2},
-        ),
-        (
-            [2.0, 3.0, 5.0, 7.0],
-            8.0,
-            0,
-            3,
-            {"result": 0},  # this one too
-        ),
-        (
-            [2.0, 4.0, 6.0, 7.0],
-            4.0,
-            0,
-            3,
-            {"result": 0},
-        ),
-    ],
-)
-def test_binary_search(x, x_insert, imin, imax, expected_params):
-    obtained_result = 0
-
-    obtained_result = formal_integral.binary_search(x, x_insert, imin, imax)
-
-    assert obtained_result == expected_params["result"]
-
-
 def test_get_random_mu_different_output():
     """
     Ensure that different calls results
     """
-    output1 = r_packet.get_random_mu()
-    output2 = r_packet.get_random_mu()
+    output1 = radiative_packet.get_random_mu()
+    output2 = radiative_packet.get_random_mu()
     assert output1 != output2
 
 
@@ -205,8 +105,8 @@ def test_get_random_mu_different_output():
     """
     Ensure that different calls results
     """
-    output1 = r_packet.get_random_mu()
-    output2 = r_packet.get_random_mu()
+    output1 = radiative_packet.get_random_mu()
+    output2 = radiative_packet.get_random_mu()
     assert output1 != output2
 
 
@@ -219,9 +119,9 @@ def test_angle_ab_LF_to_CMF_diverge(mu, r, time_explosion):
     """
     nu = 0.4
     energy = 0.9
-    packet = r_packet.RPacket(r, mu, nu, energy)
+    packet = radiative_packet.RPacket(r, mu, nu, energy)
     with pytest.raises(ZeroDivisionError):
-        obtained = r_packet.angle_aberration_LF_to_CMF(
+        obtained = radiative_packet.angle_aberration_LF_to_CMF(
             packet, time_explosion, mu
         )
 
@@ -236,7 +136,7 @@ def test_both_angle_aberrations(mu, r, time_explosion):
     """
     nu = 0.4
     energy = 0.9
-    packet = r_packet.RPacket(r, mu, nu, energy)
+    packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.r = r
     obtained_mu = angle_aberration_LF_to_CMF(packet, time_explosion, mu)
     inverse_obtained_mu = angle_aberration_CMF_to_LF(
@@ -255,7 +155,7 @@ def test_both_angle_aberrations_inverse(mu, r, time_explosion):
     """
     nu = 0.4
     energy = 0.9
-    packet = r_packet.RPacket(r, mu, nu, energy)
+    packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.r = r
     obtained_mu = angle_aberration_CMF_to_LF(packet, time_explosion, mu)
     inverse_obtained_mu = angle_aberration_LF_to_CMF(
@@ -275,12 +175,12 @@ def test_move_packet_across_shell_boundary_emitted(
     mu = 0.3
     nu = 0.4
     energy = 0.9
-    packet = r_packet.RPacket(r, mu, nu, energy)
+    packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
     r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
-    assert packet.status == r_packet.PacketStatus.EMITTED
+    assert packet.status == radiative_packet.PacketStatus.EMITTED
 
 
 @pytest.mark.parametrize(
@@ -294,12 +194,12 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     mu = 0.3
     nu = 0.4
     energy = 0.9
-    packet = r_packet.RPacket(r, mu, nu, energy)
+    packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
     r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
     )
-    assert packet.status == r_packet.PacketStatus.REABSORBED
+    assert packet.status == radiative_packet.PacketStatus.REABSORBED
 
 
 @pytest.mark.parametrize(
@@ -313,7 +213,7 @@ def test_move_packet_across_shell_boundary_increment(
     mu = 0.3
     nu = 0.4
     energy = 0.9
-    packet = r_packet.RPacket(r, mu, nu, energy)
+    packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
     r_packet_transport.move_packet_across_shell_boundary(
         packet, delta_shell, no_of_shells
@@ -328,8 +228,8 @@ def test_move_packet_across_shell_boundary_increment(
 def test_packet_energy_limit_one(distance_trace, time_explosion, mu, r):
     initial_energy = 0.9
     nu = 0.4
-    packet = r_packet.RPacket(r, mu, nu, initial_energy)
-    new_energy = r_packet.calc_packet_energy(
+    packet = radiative_packet.RPacket(r, mu, nu, initial_energy)
+    new_energy = radiative_packet.calc_packet_energy(
         packet, distance_trace, time_explosion
     )
     assert new_energy == initial_energy
@@ -349,7 +249,7 @@ def test_compute_distance2boundary(packet_params, expected_params):
     r_inner = np.array([6.912e14, 8.64e14], dtype=np.float64)
     r_outer = np.array([8.64e14, 1.0368e15], dtype=np.float64)
 
-    d_boundary = r_packet.calculate_distance_boundary(
+    d_boundary = radiative_packet.calculate_distance_boundary(
         r, mu, r_inner[0], r_outer[0]
     )
 
@@ -385,7 +285,7 @@ def test_compute_distance2line(packet_params, expected_params):
     mu = 0.3
     nu = 0.4
     energy = 0.9
-    packet = r_packet.RPacket(r, mu, nu, energy)
+    packet = radiative_packet.RPacket(r, mu, nu, energy)
     nu_line = packet_params["nu_line"]
     # packet.next_line_id = packet_params['next_line_id']
     # packet.last_line = packet_params['last_line']
@@ -400,7 +300,7 @@ def test_compute_distance2line(packet_params, expected_params):
     d_line = 0
     obtained_tardis_error = None
     try:
-        d_line = r_packet.calculate_distance_line(
+        d_line = radiative_packet.calculate_distance_line(
             packet, comov_nu, nu_line, time_explosion
         )
     except utils.MonteCarloException:
@@ -455,7 +355,7 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     distance = 1e13
     r, mu, nu, energy = 7.5e14, 0.3, 0.4, 0.9
     time_explosion = 5.2e7
-    packet = r_packet.RPacket(r, mu, nu, energy)
+    packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.nu = packet_params["nu"]
     packet.mu = packet_params["mu"]
     packet.energy = packet_params["energy"]
@@ -566,14 +466,14 @@ methods related to continuum interactions.
     ],
 )
 def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
-    packet = r_packet.RPacket(r=r, mu=mu, energy=0.9, nu=0.4)
+    packet = radiative_packet.RPacket(r=r, mu=mu, energy=0.9, nu=0.4)
     mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
     mc.ENABLE_FULL_RELATIVITY = full_relativity
 
-    inverse_doppler_factor = r_packet.get_inverse_doppler_factor(
+    inverse_doppler_factor = radiative_packet.get_inverse_doppler_factor(
         r, mu, 1 / inv_t_exp
     )
-    r_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
+    radiative_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
 
     doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
     mc.ENABLE_FULL_RELATIVITY = False
@@ -592,7 +492,7 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     ],
 )
 def test_angle_transformation_invariance(mu, r, inv_t_exp):
-    packet = r_packet.RPacket(r, mu, 0.4, 0.9)
+    packet = radiative_packet.RPacket(r, mu, 0.4, 0.9)
     mc.ENABLE_FULL_RELATIVITY = True
 
     mu1 = angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, mu)
@@ -618,7 +518,7 @@ def test_angle_transformation_invariance(mu, r, inv_t_exp):
 def test_compute_distance2line_relativistic(
     mu, r, t_exp, nu, nu_line, full_relativity
 ):
-    packet = r_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
+    packet = radiative_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
     # packet.nu_line = nu_line
     numba_estimator = RadiationFieldMCEstimators(
         transport.j_estimator,
@@ -630,7 +530,7 @@ def test_compute_distance2line_relativistic(
 
     doppler_factor = get_doppler_factor(r, mu, t_exp)
     comov_nu = packet.nu * doppler_factor
-    distance = r_packet.calculate_distance_line(
+    distance = radiative_packet.calculate_distance_line(
         packet, comov_nu, nu_line, t_exp
     )
     r_packet_transport.move_r_packet(
@@ -666,7 +566,7 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
     mc.INITIAL_TRACKING_ARRAY_LENGTH = 10
 
     tracked_rpacket_properties = RPacketTracker()
-    test_rpacket = r_packet.RPacket(
+    test_rpacket = radiative_packet.RPacket(
         index=index,
         seed=seed,
         r=r,

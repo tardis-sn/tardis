@@ -6,10 +6,10 @@ import functools
 
 import numpy as np
 
-import tardis.transport.montecarlo.vpacket as vpacket
+import tardis.transport.montecarlo.packets.virtual_packet as virtual_packet
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.frame_transformations import get_doppler_factor
-from tardis.transport.montecarlo.r_packet import RPacket
+from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 
 
 class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
@@ -30,7 +30,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
 
     @functools.cached_property
     def v_packet(self):
-        return vpacket.VPacket(
+        return virtual_packet.VPacket(
             r=7.5e14,
             nu=4e15,
             mu=0.3,
@@ -74,7 +74,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             self.enable_full_relativity,
         )
 
-        vpacket.trace_vpacket_within_shell(
+        virtual_packet.trace_vpacket_within_shell(
             self.vpacket,
             self.numba_radial_1d_geometry,
             self.time_explosion,
@@ -94,7 +94,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
             self.enable_full_relativity,
         )
 
-        vpacket.trace_vpacket(
+        virtual_packet.trace_vpacket(
             self.vpacket,
             self.numba_radial_1d_geometry,
             self.time_explosion,
@@ -106,7 +106,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
 
     @functools.cached_property
     def broken_packet(self):
-        return vpacket.VPacket(
+        return virtual_packet.VPacket(
             r=1286064000000000.0,
             nu=1660428912896553.2,
             mu=0.4916053094346575,
@@ -119,7 +119,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
     def time_trace_bad_vpacket(self):
         broken_packet = self.broken_packet
 
-        vpacket.trace_vpacket(
+        virtual_packet.trace_vpacket(
             broken_packet,
             self.numba_radial_1d_geometry,
             self.time_explosion,
@@ -130,7 +130,7 @@ class BenchmarkMontecarloMontecarloNumbaVpacket(BenchmarkBase):
         )
 
     def time_trace_vpacket_volley(self):
-        vpacket.trace_vpacket_volley(
+        virtual_packet.trace_vpacket_volley(
             self.r_packet,
             self.verysimple_3vpacket_collection,
             self.numba_radial_1d_geometry,

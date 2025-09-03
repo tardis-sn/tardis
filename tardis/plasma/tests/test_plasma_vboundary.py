@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import astropy.units as u
 import pytest
@@ -7,12 +7,12 @@ import tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
-DATA_PATH = os.path.join(tardis.__path__[0], "plasma", "tests", "data")
+DATA_PATH = Path(tardis.__path__[0]) / "plasma" / "tests" / "data"
 
 
 @pytest.fixture
 def config_init_trad_fname():
-    return os.path.join(DATA_PATH, "config_init_trad.yml")
+    return str(DATA_PATH / "config_init_trad.yml")
 
 
 @pytest.mark.parametrize(

@@ -1,4 +1,4 @@
-from tardis.io.util import HDFWriterMixin
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 import pandas as pd
 
@@ -131,11 +131,7 @@ class MacroAtomState:
         """
         transition_probabilities = self.transition_probabilities
         transition_type = self.transition_metadata.transition_type
-        destination_level_id = pd.Series(
-            data=[level[2] for level in self.transition_metadata.destination],
-            index=self.transition_metadata.index,
-            name="destination_level_idx",
-        )
+        destination_level_id = self.transition_metadata.destination_level_idx
         transition_line_id = self.transition_metadata.transition_line_idx
         unique_source_multi_index = pd.MultiIndex.from_tuples(
             self.transition_metadata.source.unique(),
@@ -234,6 +230,8 @@ class MacroAtomState:
         legacy_macro_atom.line2macro_level_upper = (
             legacy_state.line2macro_level_upper
         )
-        legacy_macro_atom.destination_level_id = legacy_state.destination_level_id  # I'm also not sure how to recreate this because it doesn't quite make sense to me.
+        legacy_macro_atom.destination_level_id = (
+            legacy_state.destination_level_id
+        )
 
         return legacy_macro_atom

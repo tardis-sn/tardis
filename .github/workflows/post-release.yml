@@ -7,21 +7,19 @@ name: post-release
 on:
   release:
     types: [published]
-
   workflow_dispatch: # manual trigger
 
 jobs:
   changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: tardis-sn/tardis
-          token: ${{ secrets.BOT_TOKEN }}
           fetch-depth: 0
 
       - name: Generate a changelog
-        uses: orhun/git-cliff-action@v3
+        uses: orhun/git-cliff-action@v4
         with:
           config: pyproject.toml
           args: --verbose --tag ${{ github.event.release.tag_name }}
@@ -36,7 +34,7 @@ jobs:
   citation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Wait for Zenodo webhook
         run: sleep 180
@@ -62,7 +60,7 @@ jobs:
   credits:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Wait for Zenodo webhook
         run: sleep 180
@@ -98,9 +96,9 @@ jobs:
     needs: [changelog, citation, credits]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: /tmp
 

@@ -13,12 +13,15 @@ from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
-from tardis.util.base import is_notebook
+from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
+from tardis.util.environment import Environment
 from tardis.workflows.workflow_logging import WorkflowLogging
 
 # logging support
@@ -26,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 class SimpleTARDISWorkflow(WorkflowLogging):
-    show_progress_bars = is_notebook()
+    show_progress_bars = Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
@@ -414,8 +417,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         virtual_packet_energies = self.transport_solver.run(
             self.transport_state,
-            iteration=self.completed_iterations,
-            total_iterations=self.total_iterations,
             show_progress_bars=self.show_progress_bars,
         )
 
@@ -450,26 +451,39 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.spectrum_solver.integrator_settings = (
                 self.integrated_spectrum_settings
             )
-            self.spectrum_solver._integrator = FormalIntegrator(
-                self.simulation_state,
-                self.plasma_solver,
-                self.transport_solver,
-                opacity_states["opacity_state"],
-                opacity_states["macro_atom_state"],
+            integrator_settings = self.spectrum_solver.integrator_settings
+            formal_integrator = FormalIntegralSolver(
+                integrator_settings.points,
+                integrator_settings.interpolate_shells,
+                getattr(integrator_settings, "method", None),
+            )
+            self.spectrum_solver.setup_optional_spectra(
+                self.transport_state,
+                virtual_packet_luminosity=None,
+                integrator=formal_integrator,
+                simulation_state=self.simulation_state,
+                transport=self.transport_solver,
+                plasma=self.plasma_solver,
+                opacity_state=opacity_states["opacity_state"],
+                macro_atom_state=opacity_states["macro_atom_state"],
             )
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
+        # Initialize iterations progress bar if showing progress bars
+        if self.show_progress_bars:
+            initialize_iterations_pbar(self.total_iterations)
+
         self.converged = False
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
 
-            opacity_states = self.solve_opacity()
+            self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count
             )
 
             (
@@ -493,13 +507,14 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
+        self.opacity_states = self.solve_opacity()
         virtual_packet_energies = self.solve_montecarlo(
-            opacity_states,
+            self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
 
         self.initialize_spectrum_solver(
-            opacity_states,
+            self.opacity_states,
             virtual_packet_energies,
         )

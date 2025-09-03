@@ -10,8 +10,10 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
-
-from tardis.util.base import packet_pbar, iterations_pbar
+from tardis.transport.montecarlo.progress_bars import (
+    iterations_pbar,
+    packet_pbar,
+)
 from tardis.tests.test_util import monkeysession
 
 try:
@@ -78,7 +80,7 @@ def pytest_configure(config):
 
         from . import __version__
 
-        packagename = os.path.basename(os.path.dirname(__file__))
+        packagename = Path(__file__).parent.name
         TESTED_VERSIONS[packagename] = __version__
 
     # Create a marker to ignore the `--generate-reference` flag. A use case for this
@@ -165,15 +167,11 @@ def generate_reference(request):
 
 @pytest.fixture(scope="session")
 def tardis_regression_path(request):
-    tardis_regression_path = request.config.getoption(
-        "--tardis-regression-data"
-    )
+    tardis_regression_path = request.config.getoption("--tardis-regression-data")
     if tardis_regression_path is None:
         pytest.skip("--tardis-regression-data was not specified")
     else:
-        return Path(
-            os.path.expandvars(os.path.expanduser(tardis_regression_path))
-        )
+        return Path(os.path.expandvars(tardis_regression_path)).expanduser().resolve()
 
 
 @pytest.fixture(scope="function")
@@ -182,6 +180,17 @@ def tardis_config_verysimple():
         "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml",
         YAMLLoader,
     )
+
+@pytest.fixture(scope="session")
+def config_verysimple_for_simulation_one_loop(
+    config_verysimple, atomic_data_fname
+):
+    config = deepcopy(config_verysimple)
+    config.atom_data = atomic_data_fname
+    config.montecarlo.iterations = 2
+    config.montecarlo.no_of_packets = int(4e4)
+    config.montecarlo.last_no_of_packets = int(4e4)
+    return config
 
 
 @pytest.fixture(scope="function")
@@ -293,5 +302,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
 
 
 def pytest_sessionfinish(session, exitstatus):
-    packet_pbar.close()
-    iterations_pbar.close()
+    if packet_pbar is not None:
+        packet_pbar.close()
+    if iterations_pbar is not None:
+        iterations_pbar.close()

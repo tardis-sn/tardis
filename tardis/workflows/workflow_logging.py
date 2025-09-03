@@ -5,7 +5,7 @@ import pandas as pd
 from IPython.display import display
 
 from tardis.io.logger.logger import logging_state
-from tardis.util.base import is_notebook
+from tardis.util.environment import Environment
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class WorkflowLogging:
 
         logger.info("\n\tPlasma stratification:")
 
-        if is_notebook():
+        if Environment.allows_widget_display():
             self.log_dataframe_notebook(plasma_state_log, log_sampling)
         else:
             self.log_dataframe_console(plasma_state_log, log_sampling)

@@ -5,16 +5,15 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 from astropy import units as u
-from IPython.display import display
 
 import tardis
 from tardis import constants as const
 from tardis.io.configuration.config_reader import ConfigurationError
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
-from tardis.io.util import HDFWriterMixin
 from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
 from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
@@ -22,7 +21,9 @@ from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral import FormalIntegrator
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -31,7 +32,8 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
-from tardis.util.base import is_notebook
+from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
+from tardis.util.environment import Environment
 from tardis.visualization import ConvergencePlots
 
 logger = logging.getLogger(__name__)
@@ -189,15 +191,14 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         )
 
         if show_convergence_plots:
-            if not is_notebook():
+            if not Environment.allows_widget_display():
                 raise RuntimeError(
                     "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
                     "to False."
                 )
-            else:
-                self.convergence_plots = ConvergencePlots(
-                    iterations=self.iterations, **convergence_plots_kwargs
-                )
+            self.convergence_plots = ConvergencePlots(
+                iterations=self.iterations, **convergence_plots_kwargs
+            )
 
         if "export_convergence_plots" in convergence_plots_kwargs:
             if not isinstance(
@@ -265,9 +266,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             # iterations to converge before we conclude that the Simulation
             # is converged.
             return self.consecutive_converges_count == hold_iterations + 1
-        else:
-            self.consecutive_converges_count = 0
-            return False
+        self.consecutive_converges_count = 0
+        return False
 
     def advance_state(self, emitted_luminosity):
         """
@@ -444,30 +444,30 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         logger.info(
             f"\n\tStarting iteration {(self.iterations_executed + 1):d} of {self.iterations:d}"
         )
-    
+
         if self.macro_atom is None:
             self.plasma.beta_sobolev = None
-            macro_atom_state = None
+            self.macro_atom_state = None
 
-        opacity_state = self.opacity.legacy_solve(self.plasma)
+        self.opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-                macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
+                self.macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
                     self.plasma
                 )  # TODO: Impliment
             else:
-                macro_atom_state = self.macro_atom.solve(
+                self.macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
                     self.plasma.atomic_data,
-                    opacity_state.tau_sobolev,
+                    self.opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
-                    opacity_state.beta_sobolev,
+                    self.opacity_state.beta_sobolev,
                 )
 
         transport_state = self.transport.initialize_transport_state(
             self.simulation_state,
-            opacity_state,
-            macro_atom_state,
+            self.opacity_state,
+            self.macro_atom_state,
             self.plasma,
             no_of_packets,
             no_of_virtual_packets=no_of_virtual_packets,
@@ -476,8 +476,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         v_packets_energy_hist = self.transport.run(
             transport_state,
-            iteration=self.iterations_executed,
-            total_iterations=self.iterations,
             show_progress_bars=self.show_progress_bars,
         )
 
@@ -526,6 +524,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         run the simulation
         """
+        # Initialize iterations progress bar if showing progress bars
+        if self.show_progress_bars:
+            initialize_iterations_pbar(self.iterations)
+
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(
@@ -562,17 +564,28 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             self.plasma.electron_densities,
             self.simulation_state.t_inner,
         )
+
+        # Set up spectrum solver integrator and virtual spectrum
         emitted_luminosity, v_packets_energy_hist = self.iterate(
             self.last_no_of_packets, self.no_of_virtual_packets
         )
 
-        # Set up spectrum solver integrator and virtual spectrum
+        integrator_settings = self.spectrum_solver.integrator_settings
+        formal_integral_solver = FormalIntegralSolver(
+            integrator_settings.points,
+            integrator_settings.interpolate_shells,
+            getattr(integrator_settings, "method", None),
+        )
+
         self.spectrum_solver.setup_optional_spectra(
             self.transport.transport_state,
             v_packets_energy_hist,
-            FormalIntegrator(
-                self.simulation_state, self.plasma, self.transport
-            ),
+            formal_integral_solver,
+            self.simulation_state,
+            self.transport,
+            self.plasma,
+            opacity_state=self.opacity_state,
+            macro_atom_state=self.macro_atom_state,
         )
 
         self.reshape_plasma_state_store(self.iterations_executed)

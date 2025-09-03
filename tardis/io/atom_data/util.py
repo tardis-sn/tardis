@@ -1,5 +1,4 @@
 import logging
-import os
 from pathlib import Path
 
 from tardis.io.atom_data.atom_web_download import (
@@ -25,12 +24,12 @@ def resolve_atom_data_fname(fname):
         resolved fpath
     """
     fname = Path(fname)
-    if os.path.exists(fname):
+    if fname.exists():
         return fname
 
     fname = Path(fname.stem).with_suffix(".h5")
-    fpath = Path(os.path.join(get_data_dir(), fname))
-    if os.path.exists(fpath):
+    fpath = Path(get_data_dir()) / fname
+    if fpath.exists():
         logger.info(
             f"\n\tAtom Data {fname} not found in local path.\n\tExists in TARDIS Data repo {fpath}"
         )

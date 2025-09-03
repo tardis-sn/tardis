@@ -1,8 +1,8 @@
 .. _update regression-data:
 
-*************************
+**************************
 Update the Regression Data
-*************************
+**************************
 
 A special kind of tests are executed only when ``pytest`` is called alongside the ``--tardis-regression-data`` flag. These tests compare the output of the TARDIS code (mostly arrays) against the information stored in the regression data files.
 

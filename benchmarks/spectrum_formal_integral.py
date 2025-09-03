@@ -2,12 +2,13 @@
 Basic TARDIS Benchmark.
 """
 
-import functools
-
 from numba import config
 
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.spectrum import formal_integral
+from tardis.spectrum.formal_integral.base import intensity_black_body
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 
 config.THREADING_LAYER = "workqueue"
 
@@ -19,26 +20,35 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
 
     repeat = 2
 
-    @functools.cache
     def setup(self):
         self.sim = self.simulation_verysimple
-        self.FormalIntegrator = formal_integral.FormalIntegrator(
-            self.sim.simulation_state, self.sim.plasma, self.sim.transport
+        integrator_settings = self.sim.spectrum_solver.integrator_settings
+        self.formal_integral_solver = FormalIntegralSolver(
+            integrator_settings.points,
+            integrator_settings.interpolate_shells,
+            getattr(integrator_settings, "method", None),
         )
 
-    # Bencmark for intensity black body function
+    # Benchmark for intensity black body function
     def time_intensity_black_body(self):
         nu = 1e14
         temperature = 1e4
-        formal_integral.intensity_black_body(nu, temperature)
+        intensity_black_body(nu, temperature)
 
     # Benchmark for functions in FormalIntegrator class
     def time_FormalIntegrator_functions(self):
-        self.FormalIntegrator.calculate_spectrum(
-            self.sim.spectrum_solver.spectrum_frequency_grid
-        )
-        self.FormalIntegrator.make_source_function()
-        self.FormalIntegrator.generate_numba_objects()
-        self.FormalIntegrator.formal_integral(
-            self.sim.spectrum_solver.spectrum_frequency_grid, 1000
+        sim_state = self.sim.simulation_state
+        transport = self.sim.transport
+        plasma = self.sim.plasma
+        nu = self.sim.spectrum_solver.spectrum_frequency_grid[:-1]
+
+        # Solve the formal integral - setup is called internally
+        self.formal_integral_solver.solve(
+            nu,
+            sim_state,
+            transport,
+            self.sim.opacity_state,
+            plasma.atomic_data,
+            plasma.electron_densities,
+            self.sim.macro_atom_state,
         )

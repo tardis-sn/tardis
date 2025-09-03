@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import tardis.util.base
 
@@ -274,7 +275,7 @@ class ConfigEditor(QtWidgets.QWidget):
                             [
                                 "branch85_w7|_:_|w7_time_0"
                                 "|_:_|w7_time_0|_:_|w7_time_0",
-                                "exponential|_:_|time_0|_:_|rho_0|_:_|" "v_0",
+                                "exponential|_:_|time_0|_:_|rho_0|_:_|v_0",
                                 "power_law|_:_|time_0|_:_|rho_0"
                                 "|_:_|v_0|_:_|exponent",
                                 "uniform|_:_|value",
@@ -293,7 +294,7 @@ class ConfigEditor(QtWidgets.QWidget):
                 "abundances": {
                     "type": [
                         True,
-                        ["file|_:_|filetype|_:_|" "filename", "uniform"],
+                        ["file|_:_|filetype|_:_|filename", "uniform"],
                     ],
                     "filename": [True, None],
                     "filetype": [False, None],
@@ -647,9 +648,7 @@ class ModelViewer(QtWidgets.QWidget):
                 self.model.transport.spectrum_virtual.wavelength
             )
         else:
-            luminosity_density_lambda = (
-                self.model.transport.spectrum_virtual.luminosity_density_lambda.value
-            )
+            luminosity_density_lambda = self.model.transport.spectrum_virtual.luminosity_density_lambda.value
 
         self.change_spectrum(luminosity_density_lambda, "spec_flux_angstrom")
 
@@ -995,8 +994,8 @@ class LineInfo(QtWidgets.QDialog):
             self.last_line_out.groupby(["atomic_number", "ion_number"]),
         )
         self.ions_in, self.ions_out = (
-            self.grouped_lines_in.groups.keys(),
-            self.grouped_lines_out.groups.keys(),
+            list(self.grouped_lines_in.groups.keys()),
+            list(self.grouped_lines_out.groups.keys()),
         )
         self.ions_in.sort()
         self.ions_out.sort()
@@ -1265,7 +1264,7 @@ class Tardis(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
 
         # path to icons folder
-        self.path = os.path.join(tardis.__path__[0], "gui", "images")
+        self.path = Path(tardis.__path__[0]) / "gui" / "images"
 
         # Check if configuration file was provided
         self.mode = "passive"
@@ -1287,24 +1286,18 @@ class Tardis(QtWidgets.QMainWindow):
 
         # Actions
         quitAction = QtWidgets.QAction("&Quit", self)
-        quitAction.setIcon(
-            QtGui.QIcon(os.path.join(self.path, "closeicon.png"))
-        )
+        quitAction.setIcon(QtGui.QIcon(str(self.path / "closeicon.png")))
         quitAction.triggered.connect(self.close)
 
         self.viewMdv = QtWidgets.QAction("View &Model", self)
-        self.viewMdv.setIcon(
-            QtGui.QIcon(os.path.join(self.path, "mdvswitch.png"))
-        )
+        self.viewMdv.setIcon(QtGui.QIcon(str(self.path / "mdvswitch.png")))
         self.viewMdv.setCheckable(True)
         self.viewMdv.setChecked(True)
         self.viewMdv.setEnabled(False)
         self.viewMdv.triggered.connect(self.switch_to_mdv)
 
         self.viewForm = QtWidgets.QAction("&Edit Model", self)
-        self.viewForm.setIcon(
-            QtGui.QIcon(os.path.join(self.path, "formswitch.png"))
-        )
+        self.viewForm.setIcon(QtGui.QIcon(str(self.path / "formswitch.png")))
         self.viewForm.setCheckable(True)
         self.viewForm.setEnabled(False)
         self.viewForm.triggered.connect(self.switch_to_form)

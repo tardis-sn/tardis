@@ -1,6 +1,7 @@
 import numpy as np
 from astropy import constants as const
 from astropy import units as u
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
@@ -25,7 +26,7 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     """
     index = plasma.atomic_data.lines.nu.index
     freqs = plasma.atomic_data.lines.nu.values * u.Hz
-    order = np.argsort(freqs)
+    order = np.argsort(freqs, kind=SORTING_ALGORITHM)
     freqs = freqs[order]
     taus = opacity_state.tau_sobolev.values[order]
 
