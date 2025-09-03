@@ -32,4 +32,4 @@ def test_solve(collisional_ionization_solver, regression_data):
         actual_result, key="collisional_ionization_seaton_solve"
     )
 
-    pdt.assert_frame_equal(actual_result, expected_result)
+    pdt.assert_frame_equal(actual_result, expected_result, atol=0, rtol=1e-15)

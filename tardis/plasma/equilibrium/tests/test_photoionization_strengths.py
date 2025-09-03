@@ -43,7 +43,7 @@ def test_spontaneous_recombination_coeff_solver(
         actual_result, key="spontaneous_recombination_coeff"
     )
 
-    pdt.assert_frame_equal(actual_result, expected_result)
+    pdt.assert_frame_equal(actual_result, expected_result, atol=0, rtol=1e-15)
 
 
 def test_analytic_photoionization_coeff_solver(
@@ -85,11 +85,16 @@ def test_analytic_photoionization_coeff_solver(
     )
 
     pdt.assert_frame_equal(
-        actual_photoionization_rate_coeff, expected_photoionization_rate_coeff
+        actual_photoionization_rate_coeff,
+        expected_photoionization_rate_coeff,
+        atol=0,
+        rtol=1e-15,
     )
     pdt.assert_frame_equal(
         actual_stimulated_recombination_rate_coeff,
         expected_stimulated_recombination_rate_coeff,
+        atol=0,
+        rtol=1e-15,
     )
 
 
@@ -140,6 +145,8 @@ def test_analytic_corrected_photoionization_coeff_solver(
     pdt.assert_frame_equal(
         actual_corrected_photoionization_rate_coeff,
         expected_corrected_photoionization_rate_coeff,
+        atol=0,
+        rtol=1e-15,
     )
 
 
@@ -182,9 +189,14 @@ def test_estimated_photoionization_coeff_solver(regression_data):
     )
 
     pdt.assert_frame_equal(
-        actual_photoionization_rate_coeff, expected_photoionization_rate_coeff
+        actual_photoionization_rate_coeff,
+        expected_photoionization_rate_coeff,
+        atol=0,
+        rtol=1e-15,
     )
     pdt.assert_frame_equal(
         actual_stimulated_recombination_rate_coeff,
         expected_stimulated_recombination_rate_coeff,
+        atol=0,
+        rtol=1e-15,
     )

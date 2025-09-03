@@ -71,4 +71,4 @@ class TestLevelPopulationSolver:
         expected_populations = False
         result = self.solver.solve()
         expected_populations = regression_data.sync_dataframe(result)
-        pdt.assert_frame_equal(result, expected_populations)
+        pdt.assert_frame_equal(result, expected_populations, atol=0, rtol=1e-15)
