@@ -38,7 +38,5 @@ class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
             self.nb_simulation_verysimple.transport.spectrum_frequency_grid.value,
             self.rpacket_tracker_list,
             self.montecarlo_configuration.NUMBER_OF_VPACKETS,
-            iteration=0,
             show_progress_bars=True,
-            total_iterations=0,
         )
