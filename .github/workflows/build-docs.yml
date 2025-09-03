@@ -102,10 +102,10 @@ jobs:
           atom-data-sparse: true
 
       - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+        uses: tardis-sn/tardis-actions/setup-env@lockfile-path
         with:
           os-label: linux-64
-          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardis/master"
+          lockfile-path: ./conda-linux-64.lock
 
       - name: Copy atom_data
         run: |

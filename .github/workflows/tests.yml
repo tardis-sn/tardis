@@ -70,10 +70,10 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-lfs@main
 
       - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+        uses: tardis-sn/tardis-actions/setup-env@lockfile-path
         with:
           os-label: ${{ matrix.label }}
-          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardis/master"
+          lockfile-path: ./conda-${{ matrix.label }}.lock
 
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
@@ -114,10 +114,10 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+        uses: tardis-sn/tardis-actions/setup-env@lockfile-path
         with:
           os-label: linux-64
-          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardis/master"
+          lockfile-path: ./conda-linux-64.lock
 
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v5

@@ -128,10 +128,10 @@ jobs:
         uses: ./.github/actions/setup_lfs
 
       - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+        uses: tardis-sn/tardis-actions/setup-env@lockfile-path
         with:
           os-label: ${{ matrix.label }}
-          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardis/master"
+          lockfile-path: ./conda-${{ matrix.label }}.lock
 
       - name: Install tardis editable
         run: |

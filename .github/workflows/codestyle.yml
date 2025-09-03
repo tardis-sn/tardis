@@ -34,10 +34,10 @@ jobs:
           fetch-depth: 0
 
       - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+        uses: tardis-sn/tardis-actions/setup-env@lockfile-path
         with:
           os-label: linux-64
-          lock-file-url-prefix: "https://raw.githubusercontent.com/tardis-sn/tardis/master"
+          lockfile-path: ./conda-linux-64.lock
 
       - name: Show statistics pull request
         if: github.event_name == 'pull_request_target'
