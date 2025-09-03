@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pandas as pd
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
