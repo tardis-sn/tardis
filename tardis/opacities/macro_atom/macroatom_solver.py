@@ -23,7 +23,7 @@ class LegacyMacroAtomSolver:
     initialize: bool = True
     normalize: bool = True
 
-    def __init__(self, initialize=True, normalize=True):
+    def __init__(self, initialize: bool = True, normalize: bool = True) -> None:
         """Solver class for Macro Atom related opacities
 
         Parameters
@@ -36,7 +36,7 @@ class LegacyMacroAtomSolver:
         self.initialize = initialize
         self.normalize = normalize
 
-    def initialize_transition_probabilities(self, atomic_data):
+    def initialize_transition_probabilities(self, atomic_data) -> None:
         """initialize the transition probability coefficients and block references when solving the first time
 
         Parameters
@@ -54,11 +54,11 @@ class LegacyMacroAtomSolver:
     def solve_transition_probabilities(
         self,
         atomic_data,
-        mean_intensities_lines_blue_wing,
-        tau_sobolev,
-        beta_sobolev,
-        stimulated_emission_factor,
-    ):
+        mean_intensities_lines_blue_wing: pd.DataFrame,
+        tau_sobolev: pd.DataFrame,
+        beta_sobolev: pd.DataFrame | None,
+        stimulated_emission_factor: pd.DataFrame | np.ndarray,
+    ) -> pd.DataFrame | None:
         """Solve the basic transition probabilities for the macroatom
 
         Parameters
@@ -76,8 +76,8 @@ class LegacyMacroAtomSolver:
 
         Returns
         -------
-        pd.DataFrame
-            Transition Probabilities
+        pd.DataFrame | None
+            Transition Probabilities. Returns None if mean_intensities_lines_blue_wing is empty.
         """
         if self.initialize:
             self.initialize_transition_probabilities(atomic_data)
@@ -114,12 +114,12 @@ class LegacyMacroAtomSolver:
 
     def solve(
         self,
-        mean_intensities_lines_blue_wing,
+        mean_intensities_lines_blue_wing: pd.DataFrame,
         atomic_data,
-        tau_sobolev,
-        stimulated_emission_factor,
-        beta_sobolev=None,
-    ):
+        tau_sobolev: pd.DataFrame,
+        stimulated_emission_factor: pd.DataFrame,
+        beta_sobolev: pd.DataFrame | None = None,
+    ) -> LegacyMacroAtomState:
         """Solved the Macro Atom State
 
         Parameters
@@ -131,11 +131,11 @@ class LegacyMacroAtomSolver:
         tau_sobolev : pd.DataFrame
             Expansion Optical Depths
         stimulated_emission_factor : pd.DataFrame
-        beta_sobolev : pd.DataFrame
+        beta_sobolev : pd.DataFrame | None
 
         Returns
         -------
-        tardis.opacities.macroatom_state.MacroAtomState
+        LegacyMacroAtomState
             State of the macro atom ready to be placed into the OpacityState
         """
         transition_probabilities = self.solve_transition_probabilities(
@@ -165,17 +165,22 @@ class BoundBoundMacroAtomSolver:
     levels: pd.DataFrame
     lines: pd.DataFrame
 
-    def __init__(self, levels, lines, line_interaction_type="macroatom"):
+    def __init__(
+        self,
+        levels: pd.DataFrame,
+        lines: pd.DataFrame,
+        line_interaction_type: str = "macroatom",
+    ) -> None:
         self.levels = levels
         self.lines = lines
         self.line_interaction_type = line_interaction_type
 
     def solve(
         self,
-        mean_intensities_blue_wing,
-        beta_sobolevs,
-        stimulated_emission_factors,
-    ):
+        mean_intensities_blue_wing: pd.DataFrame,
+        beta_sobolevs: pd.DataFrame,
+        stimulated_emission_factors: pd.DataFrame,
+    ) -> MacroAtomState:
         """
         Solves the transition probabilities and returns a DataFrame with the probabilities and a DataFrame with the macro atom transition metadata.
         Referenced as $p_i$ in Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
@@ -324,8 +329,9 @@ class BoundBoundMacroAtomSolver:
 
 
 def create_line2macro_level_upper(
-    macro_atom_transition_metadata, lines_level_upper
-):
+    macro_atom_transition_metadata: pd.DataFrame,
+    lines_level_upper: pd.MultiIndex,
+) -> pd.Series:
     """
     Create a mapping from line transitions to macro atom level indices for upper levels.
     This method creates a mapping that connects line transition upper levels to their
@@ -335,12 +341,15 @@ def create_line2macro_level_upper(
 
     Parameters
     ----------
-    macro_atom_transition_metadata : pandas.DataFrame
-    lines_level_upper : pandas.MultiIndex or array-like
+    macro_atom_transition_metadata : pd.DataFrame
+        DataFrame containing macro atom transition metadata
+    lines_level_upper : pd.MultiIndex
+        MultiIndex containing line upper level information
 
     Returns
     -------
-    pandas.Series
+    pd.Series
+        Series mapping line transitions to macro atom level indices
     """
     unique_source_index = pd.MultiIndex.from_tuples(
         macro_atom_transition_metadata.source.unique(),
@@ -355,19 +364,21 @@ def create_line2macro_level_upper(
     return line2macro_level_upper
 
 
-def normalize_transition_probabilities(probabilities_df):
+def normalize_transition_probabilities(
+    probabilities_df: pd.DataFrame,
+) -> pd.DataFrame:
     """
     Normalize transition probabilities by their source levels.
 
     Parameters
     ----------
-    probabilities_df : pandas.DataFrame
+    probabilities_df : pd.DataFrame
         DataFrame containing transition probabilities with a 'source' column
         for grouping.
 
     Returns
     -------
-    pandas.DataFrame
+    pd.DataFrame
         Normalized probabilities where each source group sums to 1.0.
         NaN values are replaced with 0.0 for cases where all transition
         probabilities are zero (typically ground levels in macroatom).
@@ -382,21 +393,22 @@ def normalize_transition_probabilities(probabilities_df):
 
 
 def reindex_sort_and_clean_probabilities_and_metadata(
-    normalized_probabilities, macro_atom_transition_metadata
-):
+    normalized_probabilities: pd.DataFrame,
+    macro_atom_transition_metadata: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Reindex and sort macro atom transition probabilities and metadata.
 
     Parameters
     ----------
-    normalized_probabilities : pandas.DataFrame
+    normalized_probabilities : pd.DataFrame
         DataFrame containing normalized transition probabilities.
-    macro_atom_transition_metadata : pandas.DataFrame
+    macro_atom_transition_metadata : pd.DataFrame
         DataFrame containing metadata for macro atom transitions.
 
     Returns
     -------
-    tuple of pandas.DataFrame
+    tuple[pd.DataFrame, pd.DataFrame]
         Reindexed normalized probabilities and cleaned metadata sorted by
         atomic number, ion number, and source level.
     """
