@@ -1,6 +1,7 @@
 import astropy.units as u
 import numpy as np
 import pandas as pd
+import pandas.testing as pdt
 import pytest
 
 from tardis.plasma.equilibrium.rates.photoionization_strengths import (
@@ -23,48 +24,79 @@ def mock_dilute_blackbody_radiationfield_state():
 
 def test_spontaneous_recombination_coeff_solver(
     mock_photoionization_cross_sections,
+    regression_data,
 ):
     solver = SpontaneousRecombinationCoeffSolver(
         mock_photoionization_cross_sections
     )
     electron_temperature = np.array([1e4, 1e4]) * u.K
-    result = solver.solve(electron_temperature)
+    actual_result = solver.solve(electron_temperature)
 
-    assert isinstance(result, pd.DataFrame)
-    assert result.shape[0] == len(
+    assert isinstance(actual_result, pd.DataFrame)
+    assert actual_result.shape[0] == len(
         mock_photoionization_cross_sections.index.unique()
     )
-    assert not result.isnull().values.any()
+    assert not actual_result.isnull().values.any()
+
+    # Regression data comparison
+    expected_result = regression_data.sync_dataframe(
+        actual_result, key="spontaneous_recombination_coeff"
+    )
+
+    pdt.assert_frame_equal(actual_result, expected_result)
 
 
 def test_analytic_photoionization_coeff_solver(
     mock_photoionization_cross_sections,
     mock_dilute_blackbody_radiationfield_state,
+    regression_data,
 ):
     solver = AnalyticPhotoionizationCoeffSolver(
         mock_photoionization_cross_sections
     )
     electron_temperature = np.array([1e4] * 20) * u.K
 
-    photoionization_rate_coeff, stimulated_recombination_rate_coeff = (
-        solver.solve(
-            mock_dilute_blackbody_radiationfield_state, electron_temperature
+    (
+        actual_photoionization_rate_coeff,
+        actual_stimulated_recombination_rate_coeff,
+    ) = solver.solve(
+        mock_dilute_blackbody_radiationfield_state, electron_temperature
+    )
+
+    assert isinstance(actual_photoionization_rate_coeff, pd.DataFrame)
+    assert isinstance(actual_stimulated_recombination_rate_coeff, pd.DataFrame)
+    assert actual_photoionization_rate_coeff.shape[0] == len(
+        mock_photoionization_cross_sections.index.unique()
+    )
+    assert actual_stimulated_recombination_rate_coeff.shape[0] == len(
+        mock_photoionization_cross_sections.index.unique()
+    )
+
+    # Regression data comparison
+    expected_photoionization_rate_coeff = regression_data.sync_dataframe(
+        actual_photoionization_rate_coeff,
+        key="analytic_photoionization_rate_coeff",
+    )
+    expected_stimulated_recombination_rate_coeff = (
+        regression_data.sync_dataframe(
+            actual_stimulated_recombination_rate_coeff,
+            key="analytic_stimulated_recombination_rate_coeff",
         )
     )
 
-    assert isinstance(photoionization_rate_coeff, pd.DataFrame)
-    assert isinstance(stimulated_recombination_rate_coeff, pd.DataFrame)
-    assert photoionization_rate_coeff.shape[0] == len(
-        mock_photoionization_cross_sections.index.unique()
+    pdt.assert_frame_equal(
+        actual_photoionization_rate_coeff, expected_photoionization_rate_coeff
     )
-    assert stimulated_recombination_rate_coeff.shape[0] == len(
-        mock_photoionization_cross_sections.index.unique()
+    pdt.assert_frame_equal(
+        actual_stimulated_recombination_rate_coeff,
+        expected_stimulated_recombination_rate_coeff,
     )
 
 
 def test_analytic_corrected_photoionization_coeff_solver(
     mock_photoionization_cross_sections,
     mock_dilute_blackbody_radiationfield_state,
+    regression_data,
 ):
     solver = AnalyticCorrectedPhotoionizationCoeffSolver(
         mock_photoionization_cross_sections
@@ -83,7 +115,7 @@ def test_analytic_corrected_photoionization_coeff_solver(
         np.ones((2, 2)), index=mock_photoionization_cross_sections.index
     )
 
-    corrected_photoionization_rate_coeff = solver.solve(
+    actual_corrected_photoionization_rate_coeff = solver.solve(
         mock_dilute_blackbody_radiationfield_state,
         electron_temperature,
         lte_level_population,
@@ -92,13 +124,26 @@ def test_analytic_corrected_photoionization_coeff_solver(
         ion_population,
     )
 
-    assert isinstance(corrected_photoionization_rate_coeff, pd.DataFrame)
-    assert corrected_photoionization_rate_coeff.shape[0] == len(
+    assert isinstance(actual_corrected_photoionization_rate_coeff, pd.DataFrame)
+    assert actual_corrected_photoionization_rate_coeff.shape[0] == len(
         mock_photoionization_cross_sections.index.unique()
     )
 
+    # Regression data comparison
+    expected_corrected_photoionization_rate_coeff = (
+        regression_data.sync_dataframe(
+            actual_corrected_photoionization_rate_coeff,
+            key="analytic_corrected_photoionization_rate_coeff",
+        )
+    )
 
-def test_estimated_photoionization_coeff_solver():
+    pdt.assert_frame_equal(
+        actual_corrected_photoionization_rate_coeff,
+        expected_corrected_photoionization_rate_coeff,
+    )
+
+
+def test_estimated_photoionization_coeff_solver(regression_data):
     level2continuum_edge_idx = pd.Series(np.array([0, 2, 4]))
     solver = EstimatedPhotoionizationCoeffSolver(level2continuum_edge_idx)
 
@@ -110,13 +155,36 @@ def test_estimated_photoionization_coeff_solver():
     time_simulation = 1e5 * u.s
     volume = 1e30 * u.cm**3
 
-    photoionization_rate_coeff, stimulated_recombination_rate_coeff = (
-        solver.solve(radfield_mc_estimators, time_simulation, volume)
+    (
+        actual_photoionization_rate_coeff,
+        actual_stimulated_recombination_rate_coeff,
+    ) = solver.solve(radfield_mc_estimators, time_simulation, volume)
+
+    assert isinstance(actual_photoionization_rate_coeff, pd.DataFrame)
+    assert isinstance(actual_stimulated_recombination_rate_coeff, pd.DataFrame)
+    assert actual_photoionization_rate_coeff.shape[0] == len(
+        level2continuum_edge_idx
+    )
+    assert actual_stimulated_recombination_rate_coeff.shape[0] == len(
+        level2continuum_edge_idx
     )
 
-    assert isinstance(photoionization_rate_coeff, pd.DataFrame)
-    assert isinstance(stimulated_recombination_rate_coeff, pd.DataFrame)
-    assert photoionization_rate_coeff.shape[0] == len(level2continuum_edge_idx)
-    assert stimulated_recombination_rate_coeff.shape[0] == len(
-        level2continuum_edge_idx
+    # Regression data comparison
+    expected_photoionization_rate_coeff = regression_data.sync_dataframe(
+        actual_photoionization_rate_coeff,
+        key="estimated_photoionization_rate_coeff",
+    )
+    expected_stimulated_recombination_rate_coeff = (
+        regression_data.sync_dataframe(
+            actual_stimulated_recombination_rate_coeff,
+            key="estimated_stimulated_recombination_rate_coeff",
+        )
+    )
+
+    pdt.assert_frame_equal(
+        actual_photoionization_rate_coeff, expected_photoionization_rate_coeff
+    )
+    pdt.assert_frame_equal(
+        actual_stimulated_recombination_rate_coeff,
+        expected_stimulated_recombination_rate_coeff,
     )
