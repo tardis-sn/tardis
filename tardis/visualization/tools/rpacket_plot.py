@@ -1,34 +1,104 @@
 import logging
+from typing import Dict, List, Optional, Tuple
 
 import astropy.units as u
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
+
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 
 class RPacketPlotter:
     """
-    Plotting interface for the plotting Montecarlo packets. It creates an animated plot using plotly for the
-    trajectories of the real packets as they travel through the ejecta starting from the photosphere.
+    Animated plotting interface for Monte Carlo packet trajectories.
+
+    This class creates an animated plot using Plotly to visualize the trajectories
+    of real packets as they travel through the ejecta starting from the photosphere.
+    The visualization shows packet interactions and shell structures in 2D space.
+
+    Parameters
+    ----------
+    sim : Simulation
+        TARDIS simulation object containing transport state and configuration.
+    no_of_packets : int
+        Number of packets to include in the visualization.
+
+    Attributes
+    ----------
+    no_of_packets : int
+        Number of packets being visualized.
+    sim : Simulation
+        Reference to the TARDIS simulation object.
+    interaction_from_num : dict[int, dict[str, str | float]]
+        Mapping from interaction type integers to display properties.
+    theme_colors : dict[str, dict[str, str]]
+        Color schemes for light and dark themes.
+    play_button : dict
+        Plotly button configuration for animation play control.
+    pause_button : dict
+        Plotly button configuration for animation pause control.
+    fig : go.Figure, optional
+        The generated Plotly figure object.
     """
 
-    def __init__(self, sim, no_of_packets):
+    def __init__(self, sim, no_of_packets: int) -> None:
         """
-        Initializes the RPacket Plotter using the simulation object generated using the run_tardis function.
+        Initialize the RPacket Plotter.
 
         Parameters
         ----------
-        sim : tardis.simulation.Simulation
-            simulation object generated using the run_tardis function.
+        sim : Simulation
+            TARDIS simulation object generated using the run_tardis function.
         no_of_packets : int
-            number of packets to be used for plotting.
+            Number of packets to be used for plotting. Must be positive.
+
+        Raises
+        ------
+        ValueError
+            If no_of_packets is not positive.
         """
+        if no_of_packets <= 0:
+            msg = "no_of_packets must be positive"
+            raise ValueError(msg)
+
         self.no_of_packets = no_of_packets
         self.sim = sim
-        self.interaction_from_num = [
-            {"text": "No Interaction", "color": "darkslategrey", "opacity": 0},
-            {"text": "e-Scattering", "color": "#3366FF", "opacity": 1},
-            {"text": "Line Interaction", "color": "#FF3300", "opacity": 1},
-        ]
+        # Create a dictionary mapping interaction type values to display properties
+        # This allows direct lookup using int(interaction_type) values
+        self.interaction_from_num = {
+            int(InteractionType.NO_INTERACTION): {
+                "text": "No Interaction",
+                "color": "#2E86AB",
+                "color_dark": "#2E86AB",
+                "opacity": 0.8,
+            },
+            int(InteractionType.BOUNDARY): {
+                "text": "Boundary",
+                "color": "#A23B72",
+                "color_dark": "#A23B72",
+                "opacity": 0.8,
+            },
+            int(InteractionType.LINE): {
+                "text": "Line Interaction",
+                "color": "#F18F01",
+                "color_dark": "#F18F01",
+                "opacity": 0.8,
+            },
+            int(InteractionType.ESCATTERING): {
+                "text": "E-Scattering",
+                "color": "#C73E1D",
+                "color_dark": "#C73E1D",
+                "opacity": 0.8,
+            },
+            int(InteractionType.CONTINUUM_PROCESS): {
+                "text": "Continuum",
+                "color": "#6A4C93",
+                "color_dark": "#6A4C93",
+                "opacity": 0.8,
+            },
+
+        }
         self.theme_colors = dict(
             light=dict(
                 linecolor="#555",
@@ -106,50 +176,86 @@ class RPacketPlotter:
         }
 
     @classmethod
-    def from_simulation(cls, sim, no_of_packets=15):
+    def from_simulation(
+        cls,
+        sim,
+        no_of_packets: int = 15,
+    ) -> "RPacketPlotter":
         """
-        Creates an instance of RPacketPlotter from a TARDIS simulation object.
+        Create an RPacketPlotter instance from a TARDIS simulation.
+
+        This factory method creates a plotter instance with validation
+        to ensure the simulation has the necessary tracker data.
 
         Parameters
         ----------
-        sim : tardis.simulation.Simulation
-            TARDIS Simulation object generated using run_tardis function.
-        no_of_packets : int
-            number of packets to be used for plotting.
+        sim : Simulation
+            TARDIS simulation object generated using run_tardis function.
+            Must have rpacket tracking enabled.
+        no_of_packets : int, optional
+            Number of packets to visualize, by default 15.
+            If greater than available packets, all available packets are used.
 
         Returns
         -------
         RPacketPlotter
+            Configured plotter instance ready for visualization.
+
+        Raises
+        ------
+        AttributeError
+            If the simulation does not have rpacket tracking enabled.
+
+        Warns
+        -----
+        UserWarning
+            If requested no_of_packets exceeds available packets.
         """
         logger = logging.getLogger(__name__)
         if hasattr(sim.transport.transport_state, "rpacket_tracker_df"):
             if sim.last_no_of_packets >= no_of_packets:
                 return cls(sim, no_of_packets)
             logger.warning(
-                """
-                no_of_packets specified are more than the actual no of packets in the model. Using all packets in the model.
-                """
+                "no_of_packets specified are more than the actual no of packets "
+                "in the model. Using all packets in the model."
             )
             return cls(sim, sim.last_no_of_packets)
         raise AttributeError(
-            """ There is no attribute named rpacket_tracker in the simulation object passed. Try enabling the
-                rpacket tracking in the configuration. To enable rpacket tracking see: https://tardis-sn.github.io/tardis/io/output/rpacket_tracking.html#How-to-Setup-the-Tracking-for-the-RPackets?"""
+            "There is no attribute named rpacket_tracker in the simulation object "
+            "passed. Try enabling the rpacket tracking in the configuration. "
+            "To enable rpacket tracking see: "
+            "https://tardis-sn.github.io/tardis/io/output/rpacket_tracking.html"
+            "#How-to-Setup-the-Tracking-for-the-RPackets?"
         )
 
-    def generate_plot(self, theme="light"):
+    def generate_plot(self, theme: str = "light") -> go.Figure:
         """
-        Creates an animated plotly plot showing the Montecarlo packets' trajectories.
+        Create an animated plotly plot showing Monte Carlo packet trajectories.
+
+        This method generates a comprehensive visualization showing packet paths,
+        interaction types, shell boundaries, and photosphere. The plot includes
+        animation controls and customizable themes.
 
         Parameters
         ----------
         theme : str, optional
-            theme for the plot, by default "light"
+            Visual theme for the plot, by default "light".
+            Must be either "light" or "dark".
 
         Returns
         -------
-        plotly.graph_objs._figure.Figure
-            plot containing the packets, photosphere and the shells.
+        go.Figure
+            Plotly figure object containing the animated packet trajectory plot
+            with shells, photosphere, and interaction visualization.
+
+        Raises
+        ------
+        ValueError
+            If theme is not "light" or "dark".
         """
+        if theme not in ("light", "dark"):
+            msg = f"Theme must be 'light' or 'dark', got '{theme}'"
+            raise ValueError(msg)
         self.fig = go.Figure()
 
         # getting velocity of different shells
@@ -343,36 +449,44 @@ class RPacketPlotter:
 
     def get_coordinates_with_theta_init(
         self,
-        r_track,
-        mu_track,
-        time,
-        last_interaction_type,
-        theta_initial=0,
-    ):
+        r_track: pd.Series,
+        mu_track: pd.Series,
+        time: float,
+        last_interaction_type: pd.Series,
+        theta_initial: float = 0,
+    ) -> Tuple[np.ndarray, np.ndarray, List[int]]:
         """
-        Generates the coordinates of a single packet for its entire trajectory using the `nu` and `r` attributes.
+        Generate 2D coordinates for a single packet trajectory.
+
+        Calculates x, y coordinates from radial position and direction cosine
+        data, converting from spherical to Cartesian coordinates for visualization.
 
         Parameters
         ----------
-        r_track : pandas.core.series.Series
-            radius of packet at different steps
-        mu_track : pandas.core.series.Series
-            mu or the cosine of radial angle of the packet at different steps
-        time : astropy.units.quantity.Quantity
-            time since the occurence of explosion
-        last_interaction_type : pandas.core.series.Series
-            last interaction type of the packet at different steps
+        r_track : pd.Series
+            Radial position of packet at each step (in cm).
+        mu_track : pd.Series
+            Cosine of radial angle of the packet at each step.
+        time : float
+            Time since explosion occurrence (in seconds).
+        last_interaction_type : pd.Series
+            Interaction type of the packet at each step.
         theta_initial : float, optional
-            intial launch angle of packet from x axis as the packet starts from the photosphere, by default 0
+            Initial launch angle from x-axis at photosphere, by default 0.
 
         Returns
         -------
-        list
-            x coordinates of the packet at different steps
-        list
-            y coordinates of the packet at different steps
-        list
-            types of interactions occuring at different points
+        tuple[np.ndarray, np.ndarray, list[int]]
+            Three-element tuple containing:
+            - x coordinates of the packet at different steps (km/s)
+            - y coordinates of the packet at different steps (km/s)
+            - interaction types occurring at different points
+
+        Notes
+        -----
+        Coordinates are converted to velocity units (km/s) by dividing by time
+        and applying unit conversion. The trajectory calculation follows the
+        spherical geometry described in the TARDIS documentation.
         """
         theta, rpacket_interactions = [], []
 
@@ -409,26 +523,40 @@ class RPacketPlotter:
         for step_no in range(len(r_track)):
             # when packet is at its starting and ending point in its trajectory, we consider it as no interaction
             if step_no == 0 or step_no == len(r_track) - 1:
-                rpacket_interactions.append(0)
+                rpacket_interactions.append(int(InteractionType.NO_INTERACTION))
             else:
                 # current slope is the slope of line from previous position of the packet to the current position
                 rpacket_interactions.append(last_interaction_type[step_no])
 
         return rpacket_x, rpacket_y, rpacket_interactions
 
-    def get_coordinates_multiple_packets(self, r_packet_tracker):
+    def get_coordinates_multiple_packets(
+        self, r_packet_tracker: pd.DataFrame
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Generates an array of array containing x and y coordinates of multiple packets
+        Generate coordinates for multiple packet trajectories.
+
+        Creates uniformly distributed launch angles and calculates coordinates
+        for multiple packets to visualize their collective behavior.
 
         Parameters
         ----------
-        r_packet_tracker : pandas.core.frame.DataFrame
-            contains the rpacket_tracker_df dataframe with data of only specified no_of_packets
+        r_packet_tracker : pd.DataFrame
+            DataFrame containing packet tracking data with columns for radius,
+            direction cosine, and interaction types.
 
         Returns
         -------
-        numpy.ndarray
-            array of array containing x coordinates, y coordinates and the interactions for multiple packets
+        tuple[np.ndarray, np.ndarray, np.ndarray]
+            Three-element tuple containing:
+            - Array of x coordinate arrays for multiple packets (object dtype)
+            - Array of y coordinate arrays for multiple packets (object dtype)
+            - Array of interaction type arrays for multiple packets (object dtype)
+
+        Notes
+        -----
+        Launch angles are distributed uniformly around the photosphere to
+        provide representative coverage of packet trajectories.
         """
         # for plotting packets at equal intervals throught the circle, we choose thetas distributed uniformly
         thetas = np.linspace(0, 2 * np.pi, self.no_of_packets + 1)
@@ -438,6 +566,8 @@ class RPacketPlotter:
 
         # getting coordinates and interaction arrays for all packets
         for packet_no in range(self.no_of_packets):
+            interaction_types = r_packet_tracker.loc[packet_no]["interaction_type"]
+            
             (
                 rpacket_x,
                 rpacket_y,
@@ -446,7 +576,7 @@ class RPacketPlotter:
                 r_packet_tracker.loc[packet_no]["r"],
                 r_packet_tracker.loc[packet_no]["mu"],
                 self.sim.simulation_state.time_explosion.value,
-                r_packet_tracker.loc[packet_no]["interaction_type"],
+                interaction_types,
                 thetas[packet_no],
             )
             all_rpackets_x_coords.append(rpacket_x)
@@ -458,30 +588,40 @@ class RPacketPlotter:
             np.array(all_rpackets_interactions_coords, dtype="object"),
         )
 
-    def get_equal_array_size(self, rpacket_x, rpacket_y, interactions):
+    def get_equal_array_size(
+        self,
+        rpacket_x: np.ndarray,
+        rpacket_y: np.ndarray,
+        interactions: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
         """
-        creates the coordinate arrays of different packets of same size. This is done for generating frames in animation.
+        Normalize coordinate arrays to equal size for animation frames.
+
+        Pads shorter trajectories with their final values to match the longest
+        trajectory length, enabling synchronized animation across all packets.
 
         Parameters
         ----------
-        rpacket_x : numpy.ndarray
-            x coordinates of packets
-        rpacket_y : numpy.ndarray
-            y coordinates of packets
-        interactions : numpy.ndarray
-            interaction types of packets
+        rpacket_x : np.ndarray
+            Array of x coordinate arrays for different packets.
+        rpacket_y : np.ndarray
+            Array of y coordinate arrays for different packets.
+        interactions : np.ndarray
+            Array of interaction type arrays for different packets.
 
         Returns
         -------
-        numpy.ndarray
-            normalized x coordinate array
-        numpy.ndarray
-            normalized y coordinate array
-        numpy.ndarray
-            normalized interaction types array
-        int
-            size of the biggest array among different packets
+        tuple[np.ndarray, np.ndarray, np.ndarray, int]
+            Four-element tuple containing:
+            - Normalized x coordinate array (all sub-arrays same length)
+            - Normalized y coordinate array (all sub-arrays same length)
+            - Normalized interaction types array (all sub-arrays same length)
+            - Maximum array size among all packets
 
+        Notes
+        -----
+        Padding uses the final coordinate values to maintain trajectory continuity
+        in the animation visualization.
         """
         rpacket_step_no_array_max_size = max(list(map(len, rpacket_x)))
 
@@ -512,27 +652,42 @@ class RPacketPlotter:
             rpacket_step_no_array_max_size,
         )
 
-    def get_frames(self, frame, rpacket_x, rpacket_y, interactions, theme):
+    def get_frames(
+        self,
+        frame: int,
+        rpacket_x: np.ndarray,
+        rpacket_y: np.ndarray,
+        interactions: np.ndarray,
+        theme: str,
+    ) -> List[go.Scatter]:
         """
-        Creates individual frames containing the go.Scatter objects for the animation.
+        Create individual animation frames with scatter plot objects.
+
+        Generates a list of scatter plot objects for each packet trajectory
+        up to the specified frame number for animation visualization.
 
         Parameters
         ----------
         frame : int
-            current frame number
-        rpacket_x : numpy.ndarray
-            x coordinates array
-        rpacket_y : numpy.ndarray
-            y coordinates array
-        interactions : numpy.ndarray
-            interactions array
+            Current frame number for trajectory slicing.
+        rpacket_x : np.ndarray
+            Array of x coordinate arrays for different packets.
+        rpacket_y : np.ndarray
+            Array of y coordinate arrays for different packets.
+        interactions : np.ndarray
+            Array of interaction type arrays for different packets.
         theme : str
-            theme for the plot
+            Theme name for plot styling.
 
         Returns
         -------
-        list
-            list of go.Scatter objects for a particular frame number.
+        list[go.Scatter]
+            List of Plotly scatter objects for the current frame.
+
+        Notes
+        -----
+        Each scatter object represents one packet's trajectory up to the
+        current frame, enabling smooth animation transitions.
         """
         return [
             self.create_packet_scatter(
@@ -542,10 +697,44 @@ class RPacketPlotter:
         ]
 
     def create_packet_scatter(
-        self, packet_no, rpacket_x, rpacket_y, interactions, theme, frame=None
-    ):
+        self,
+        packet_no: int,
+        rpacket_x: np.ndarray,
+        rpacket_y: np.ndarray,
+        interactions: np.ndarray,
+        theme: str,
+        frame: Optional[int] = None,
+    ) -> go.Scatter:
         """
-        Creates a Scatter object for a given packet with optional frame slicing.
+        Create a scatter plot object for a single packet trajectory.
+
+        Generates a Plotly scatter plot with interaction-based styling for
+        visualizing packet trajectories with optional frame-based slicing.
+
+        Parameters
+        ----------
+        packet_no : int
+            Index of the packet to create scatter plot for.
+        rpacket_x : np.ndarray
+            Array of x coordinate arrays for different packets.
+        rpacket_y : np.ndarray
+            Array of y coordinate arrays for different packets.
+        interactions : np.ndarray
+            Array of interaction type arrays for different packets.
+        theme : str
+            Theme name for plot styling.
+        frame : int, optional
+            Frame number for trajectory slicing. If None, shows full trajectory.
+
+        Returns
+        -------
+        go.Scatter
+            Plotly scatter object with styled trajectory and interaction markers.
+
+        Notes
+        -----
+        Marker colors and opacity are determined by interaction types.
+        Hover information includes coordinates and last interaction type.
         """
         x_vals = rpacket_x[packet_no]
         y_vals = rpacket_y[packet_no]
@@ -589,19 +778,27 @@ class RPacketPlotter:
             ),
         )
 
-    def get_slider_steps(self, rpacket_max_array_size):
+    def get_slider_steps(self, rpacket_max_array_size: int) -> List[Dict]:
         """
-        Generates different steps in the timeline slider for different frames in the animated plot.
+        Generate timeline slider steps for animated plot frames.
+
+        Creates slider step configurations for frame-by-frame animation
+        control with consistent transition timing.
 
         Parameters
         ----------
         rpacket_max_array_size : int
-            maximum size of coordinate array among all the packets.
+            Maximum size of coordinate array among all packets.
 
         Returns
         -------
-        list
-            list of dictionaries of different steps for different frames.
+        list[dict]
+            List of slider step dictionaries with frame animation arguments.
+
+        Notes
+        -----
+        Each step includes frame duration, transition settings, and label
+        for user interaction with the animation timeline.
         """
         slider_steps = []
         base_step_args = {
