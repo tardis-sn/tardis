@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.opacities.macro_atom import util
 from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
@@ -16,33 +17,36 @@ from tardis.opacities.macro_atom.macroatom_transitions import (
     line_transition_internal_up,
 )
 
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
-
 
 class LegacyMacroAtomSolver:
     initialize: bool = True
     normalize: bool = True
 
     def __init__(self, initialize: bool = True, normalize: bool = True) -> None:
-        """Solver class for Macro Atom related opacities
+        """
+        Initialize the LegacyMacroAtomSolver.
 
         Parameters
         ----------
-        initialize: bool
-            Whether or not to initialize the transition probabilitiy coefficients and block references when solving the first time (default True)
-        normalize: bool
-            Whether or not to normalize the transition probabilities to unity. Default True
+        initialize : bool, optional
+            Whether or not to initialize the transition probability coefficients and block references when solving the first time. Default is True.
+        normalize : bool, optional
+            Whether or not to normalize the transition probabilities to unity. Default is True.
         """
         self.initialize = initialize
         self.normalize = normalize
 
     def initialize_transition_probabilities(self, atomic_data) -> None:
-        """initialize the transition probability coefficients and block references when solving the first time
+        """
+        Initialize the transition probability coefficients and block references.
+
+        This method should be called when solving for the first time to set up
+        the necessary coefficients and block references.
 
         Parameters
         ----------
         atomic_data : tardis.io.atom_data.AtomData
-            Atomic Data
+            Atomic data containing the necessary information for initialization.
         """
         coef_and_block_ref = initialize_transition_probabilities(atomic_data)
         self.transition_probability_coef = coef_and_block_ref[
@@ -59,25 +63,27 @@ class LegacyMacroAtomSolver:
         beta_sobolev: pd.DataFrame | None,
         stimulated_emission_factor: pd.DataFrame | np.ndarray,
     ) -> pd.DataFrame | None:
-        """Solve the basic transition probabilities for the macroatom
+        """
+        Solve the basic transition probabilities for the macroatom.
 
         Parameters
         ----------
         atomic_data : tardis.io.atom_data.AtomData
-            Atomic Data
+            Atomic data containing macro atom information.
         mean_intensities_lines_blue_wing : pd.DataFrame
-            Mean intensity of the radiation field of each line in the blue wing for each shell
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
             For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
         tau_sobolev : pd.DataFrame
-            Expansion Optical Depths
-        beta_sobolev : pd.DataFrame
-            Modified expansion Optical Depths
-        stimulated_emission_factor : np.ndarray
+            Expansion optical depths.
+        beta_sobolev : pd.DataFrame | None
+            Modified expansion optical depths.
+        stimulated_emission_factor : pd.DataFrame | np.ndarray
+            Stimulated emission factors.
 
         Returns
         -------
         pd.DataFrame | None
-            Transition Probabilities. Returns None if mean_intensities_lines_blue_wing is empty.
+            Transition probabilities. Returns None if mean_intensities_lines_blue_wing is empty.
         """
         if self.initialize:
             self.initialize_transition_probabilities(atomic_data)
@@ -120,23 +126,26 @@ class LegacyMacroAtomSolver:
         stimulated_emission_factor: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None = None,
     ) -> LegacyMacroAtomState:
-        """Solved the Macro Atom State
+        """
+        Solve the Macro Atom State.
 
         Parameters
         ----------
         mean_intensities_lines_blue_wing : pd.DataFrame
-            Mean intensity of the radiation field of each line in the blue wing for each shell
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
         atomic_data : tardis.io.atom_data.AtomData
-            Atomic Data
+            Atomic data containing macro atom information.
         tau_sobolev : pd.DataFrame
-            Expansion Optical Depths
+            Expansion optical depths.
         stimulated_emission_factor : pd.DataFrame
-        beta_sobolev : pd.DataFrame | None
+            Stimulated emission factors.
+        beta_sobolev : pd.DataFrame | None, optional
+            Modified expansion optical depths. Default is None.
 
         Returns
         -------
         LegacyMacroAtomState
-            State of the macro atom ready to be placed into the OpacityState
+            State of the macro atom ready to be placed into the OpacityState.
         """
         transition_probabilities = self.solve_transition_probabilities(
             atomic_data,
@@ -171,6 +180,18 @@ class BoundBoundMacroAtomSolver:
         lines: pd.DataFrame,
         line_interaction_type: str = "macroatom",
     ) -> None:
+        """
+        Initialize the BoundBoundMacroAtomSolver.
+
+        Parameters
+        ----------
+        levels : pd.DataFrame
+            DataFrame containing atomic level information.
+        lines : pd.DataFrame
+            DataFrame containing spectral line information.
+        line_interaction_type : str, optional
+            Type of line interaction to use. Default is "macroatom".
+        """
         self.levels = levels
         self.lines = lines
         self.line_interaction_type = line_interaction_type
@@ -182,7 +203,10 @@ class BoundBoundMacroAtomSolver:
         stimulated_emission_factors: pd.DataFrame,
     ) -> MacroAtomState:
         """
-        Solves the transition probabilities and returns a DataFrame with the probabilities and a DataFrame with the macro atom transition metadata.
+        Solve the transition probabilities for the macroatom.
+
+        This method calculates transition probabilities and returns a MacroAtomState object
+        with the probabilities and macro atom transition metadata.
         Referenced as $p_i$ in Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
 
         Parameters
@@ -192,14 +216,15 @@ class BoundBoundMacroAtomSolver:
             For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
         beta_sobolevs : pd.DataFrame
-            Escape probabilites for the Sobolev approximation.
+            Escape probabilities for the Sobolev approximation.
         stimulated_emission_factors : pd.DataFrame
             Stimulated emission factors for the lines.
 
         Returns
         -------
         MacroAtomState
-            A MacroAtomState object containing the transition probabilities, transition metadata, and a mapping from line IDs to macro atom level upper indices.
+            A MacroAtomState object containing the transition probabilities, transition metadata,
+            and a mapping from line IDs to macro atom level upper indices.
         """
         oscillator_strength_ul = self.lines.f_ul.values.reshape(-1, 1)
         oscillator_strength_lu = self.lines.f_lu.values.reshape(-1, 1)
