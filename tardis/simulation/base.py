@@ -14,14 +14,8 @@ from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
-from tardis.opacities.macro_atom.macroatom_solver import (
-    LegacyMacroAtomSolver,
-    BoundBoundMacroAtomSolver,
-)
-from tardis.opacities.macro_atom.macroatom_state import (
-    LegacyMacroAtomState,
-    MacroAtomState,
-)
+from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
@@ -462,23 +456,12 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma
                 )  # TODO: Impliment
             else:
-                old_macro_atom_state = LegacyMacroAtomSolver().solve(
+                self.macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
                     self.plasma.atomic_data,
                     self.opacity_state.tau_sobolev,
                     self.plasma.stimulated_emission_factor,
                     self.opacity_state.beta_sobolev,
-                )
-                self.macro_atom_state = (
-                    self.macro_atom.solve(
-                        self.plasma.j_blues,
-                        self.opacity_state.beta_sobolev,
-                        self.plasma.stimulated_emission_factor,
-                    )
-                    .sort_to_legacy(
-                        old_macro_atom_state, self.plasma.atomic_data.lines
-                    )
-                    .to_legacy_format()
                 )
 
         transport_state = self.transport.initialize_transport_state(
@@ -801,11 +784,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "downbranch",
                 "macroatom",
             ):
-                macro_atom = BoundBoundMacroAtomSolver(
-                    atom_data.levels,
-                    atom_data.lines,
-                    line_interaction_type=config.plasma.line_interaction_type,
-                )
+                macro_atom = LegacyMacroAtomSolver()
 
         convergence_plots_config_options = [
             "plasma_plot_config",
