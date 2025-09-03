@@ -1,6 +1,7 @@
 import astropy.units as u
 import numpy as np
 import pandas as pd
+import pandas.testing as pdt
 import pytest
 from astropy.tests.helper import assert_quantity_allclose
 from numpy.testing import (
@@ -167,21 +168,33 @@ def test_bound_free_thermal_rates_solve(
     thermal_electron_distribution,
     radiation_field,
     level_population_ratio,
+    regression_data,
 ):
     rates = BoundFreeThermalRates(
         nlte_atom_data.photoionization_data.query("atomic_number == 1")
     )
-    heating, cooling = rates.solve(
+    actual_heating, actual_cooling = rates.solve(
         level_population,
         ion_population,
         thermal_electron_distribution,
         level_population_ratio,
         radiation_field,
     )
-    assert heating is not None
-    assert cooling is not None
-    assert isinstance(heating, pd.Series)
-    assert isinstance(cooling, pd.Series)
+
+    assert actual_heating is not None
+    assert actual_cooling is not None
+    assert isinstance(actual_heating, pd.Series)
+    assert isinstance(actual_cooling, pd.Series)
+
+    expected_heating = regression_data.sync_dataframe(
+        actual_heating, key="bound_free_heating"
+    )
+    expected_cooling = regression_data.sync_dataframe(
+        actual_cooling, key="bound_free_cooling"
+    )
+
+    pdt.assert_series_equal(actual_heating, expected_heating)
+    pdt.assert_series_equal(actual_cooling, expected_cooling)
 
 
 @pytest.mark.parametrize(
@@ -198,11 +211,12 @@ def test_bound_free_thermal_rates_solve_with_estimators(
     stimulated_recombination_estimator,
     heating_rate,
     cooling_rate,
+    regression_data,
 ):
     rates = BoundFreeThermalRates(
         nlte_atom_data.photoionization_data.query("atomic_number == 1")
     )
-    heating, cooling = rates.solve(
+    actual_heating, actual_cooling = rates.solve(
         level_population,
         ion_population,
         thermal_electron_distribution,
@@ -211,22 +225,43 @@ def test_bound_free_thermal_rates_solve_with_estimators(
         stimulated_recombination_estimator=stimulated_recombination_estimator,
     )
 
-    assert_almost_equal(heating[0], heating_rate, decimal=10)
-    assert_almost_equal(cooling[0], cooling_rate, decimal=10)
+    # Original parametrized assertions
+    assert_almost_equal(actual_heating[0], heating_rate, decimal=10)
+    assert_almost_equal(actual_cooling[0], cooling_rate, decimal=10)
+
+    # Regression data comparison
+    expected_heating = regression_data.sync_dataframe(
+        actual_heating, key="bound_free_heating_with_estimators"
+    )
+    expected_cooling = regression_data.sync_dataframe(
+        actual_cooling, key="bound_free_cooling_with_estimators"
+    )
+
+    pdt.assert_series_equal(actual_heating, expected_heating)
+    pdt.assert_series_equal(actual_cooling, expected_cooling)
 
 
 def test_free_free_thermal_rates_heating_factor(
     ion_population,
     thermal_electron_distribution,
+    regression_data,
 ):
     rates = FreeFreeThermalRates()
-    factor = rates.heating_factor(
+    actual_factor = rates.heating_factor(
         ion_population,
         thermal_electron_distribution.number_density.cgs.value,
     )
     expected_factor = 4.869809426191116e18
 
-    assert_almost_equal(factor[0], expected_factor, decimal=10)
+    # Original parametrized assertion
+    assert_almost_equal(actual_factor[0], expected_factor, decimal=10)
+
+    # Regression data comparison
+    expected_factor_series = regression_data.sync_dataframe(
+        actual_factor, key="free_free_heating_factor"
+    )
+
+    pdt.assert_series_equal(actual_factor, expected_factor_series)
 
 
 @pytest.mark.parametrize(
@@ -239,6 +274,7 @@ def test_free_free_thermal_rates_solve(
     ff_heating_estimator,
     expected_heating_rate,
     expected_cooling_rate,
+    regression_data,
 ):
     rates = FreeFreeThermalRates()
     actual_heating_rate, actual_cooling_rate = rates.solve(
@@ -246,12 +282,25 @@ def test_free_free_thermal_rates_solve(
         thermal_electron_distribution,
         ion_population,
     )
+
+    # Original parametrized assertions
     assert_almost_equal(
         actual_heating_rate[0], expected_heating_rate, decimal=10
     )
     assert_almost_equal(
         actual_cooling_rate[0], expected_cooling_rate, decimal=10
     )
+
+    # Regression data comparison
+    expected_heating_series = regression_data.sync_dataframe(
+        actual_heating_rate, key="free_free_heating_rate"
+    )
+    expected_cooling_series = regression_data.sync_dataframe(
+        actual_cooling_rate, key="free_free_cooling_rate"
+    )
+
+    pdt.assert_series_equal(actual_heating_rate, expected_heating_series)
+    pdt.assert_series_equal(actual_cooling_rate, expected_cooling_series)
 
 
 @pytest.mark.parametrize(
@@ -267,19 +316,33 @@ def test_collisional_ionization_thermal_rates_solve(
     level_population_ratio,
     heating_rate,
     cooling_rate,
+    regression_data,
 ):
     rates = CollisionalIonizationThermalRates(
         nlte_atom_data.photoionization_data
     )
-    heating, cooling = rates.solve(
+    actual_heating, actual_cooling = rates.solve(
         thermal_electron_distribution.number_density,
         ion_population,
         level_population,
         collisional_ionization_rate_coefficient,
         level_population_ratio,
     )
-    assert_almost_equal(heating[0], heating_rate)
-    assert_almost_equal(cooling[0], cooling_rate)
+
+    # Original parametrized assertions
+    assert_almost_equal(actual_heating[0], heating_rate)
+    assert_almost_equal(actual_cooling[0], cooling_rate)
+
+    # Regression data comparison
+    expected_heating = regression_data.sync_dataframe(
+        actual_heating, key="collisional_ionization_heating"
+    )
+    expected_cooling = regression_data.sync_dataframe(
+        actual_cooling, key="collisional_ionization_cooling"
+    )
+
+    pdt.assert_series_equal(actual_heating, expected_heating)
+    pdt.assert_series_equal(actual_cooling, expected_cooling)
 
 
 @pytest.mark.parametrize(
@@ -294,16 +357,30 @@ def test_collisional_bound_thermal_rates_solve(
     level_population,
     heating_rate,
     cooling_rate,
+    regression_data,
 ):
     rates = CollisionalBoundThermalRates(ctardis_lines)
-    heating, cooling = rates.solve(
+    actual_heating, actual_cooling = rates.solve(
         thermal_electron_distribution.number_density,
         collisional_deexcitation_rate_coefficient,
         collisional_excitation_rate_coefficient,
         level_population,
     )
-    assert_almost_equal(heating[0], heating_rate, decimal=8)
-    assert_almost_equal(cooling[0], cooling_rate, decimal=8)
+
+    # Original parametrized assertions
+    assert_almost_equal(actual_heating[0], heating_rate, decimal=8)
+    assert_almost_equal(actual_cooling[0], cooling_rate, decimal=8)
+
+    # Regression data comparison
+    expected_heating = regression_data.sync_dataframe(
+        actual_heating, key="collisional_bound_heating"
+    )
+    expected_cooling = regression_data.sync_dataframe(
+        actual_cooling, key="collisional_bound_cooling"
+    )
+
+    pdt.assert_series_equal(actual_heating, expected_heating)
+    pdt.assert_series_equal(actual_cooling, expected_cooling)
 
 
 @pytest.mark.parametrize(
@@ -311,13 +388,17 @@ def test_collisional_bound_thermal_rates_solve(
     [(1 * u.s, 0.009133236799630136 * u.erg / (u.s * u.cm**3))],
 )
 def test_adiabatic_thermal_rates_solve(
-    thermal_electron_distribution, time, expected_cooling_rate
+    thermal_electron_distribution,
+    time,
+    expected_cooling_rate,
 ):
     rates = AdiabaticThermalRates()
     actual_cooling_rate = rates.solve(
         thermal_electron_distribution,
         time,
     )
+
+    # Original parametrized assertion
     assert_quantity_allclose(
         actual_cooling_rate, expected_cooling_rate, rtol=1e-14
     )
@@ -336,6 +417,7 @@ def test_thermal_balance_solver(
     level_population_ratio,
     ctardis_lines,
     nlte_atom_data,
+    regression_data,
 ):
     bound_free_rates_solver = BoundFreeThermalRates(
         nlte_atom_data.photoionization_data.query("atomic_number == 1")
@@ -355,26 +437,47 @@ def test_thermal_balance_solver(
         collisional_bound_rates_solver,
     )
 
-    total_heating_rate, fractional_heating_rate = thermal_balance_solver.solve(
-        thermal_electron_distribution,
-        level_population,
-        ion_population,
-        collisional_ionization_rate_coefficient,
-        collisional_deexcitation_rate_coefficient,
-        collisional_excitation_rate_coefficient,
-        ff_heating_estimator,
-        level_population_ratio,
-        radiation_field,
-        bound_free_heating_estimator,
-        stimulated_recombination_estimator,
+    actual_total_heating_rate, actual_fractional_heating_rate = (
+        thermal_balance_solver.solve(
+            thermal_electron_distribution,
+            level_population,
+            ion_population,
+            collisional_ionization_rate_coefficient,
+            collisional_deexcitation_rate_coefficient,
+            collisional_excitation_rate_coefficient,
+            ff_heating_estimator,
+            level_population_ratio,
+            radiation_field,
+            bound_free_heating_estimator,
+            stimulated_recombination_estimator,
+        )
     )
 
     expected_total_heating_rate = -4.2003240358632565e-07
     expected_fractional_heating_rate = -0.03963650747926685
 
+    # Original parametrized assertions
     assert_almost_equal(
-        total_heating_rate[0], expected_total_heating_rate, decimal=14
+        actual_total_heating_rate[0], expected_total_heating_rate, decimal=14
     )
     assert_almost_equal(
-        fractional_heating_rate[0], expected_fractional_heating_rate, decimal=14
+        actual_fractional_heating_rate[0],
+        expected_fractional_heating_rate,
+        decimal=14,
+    )
+
+    # Regression data comparison
+    expected_total_heating_series = regression_data.sync_dataframe(
+        actual_total_heating_rate, key="thermal_balance_total_heating_rate"
+    )
+    expected_fractional_heating_series = regression_data.sync_dataframe(
+        actual_fractional_heating_rate,
+        key="thermal_balance_fractional_heating_rate",
+    )
+
+    pdt.assert_series_equal(
+        actual_total_heating_rate, expected_total_heating_series
+    )
+    pdt.assert_series_equal(
+        actual_fractional_heating_rate, expected_fractional_heating_series
     )
