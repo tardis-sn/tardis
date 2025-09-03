@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=369a000a"></script>
+      <script src="../_static/documentation_options.js?v=c882ce89"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -166,43 +166,125 @@
 <span id="tardis-visualization-tools-rpacket-plot-module"></span><h1>tardis.visualization.tools.rpacket_plot module<a class="headerlink" href="#module-tardis.visualization.tools.rpacket_plot" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.rpacket_plot.</span></span><span class="sig-name descname"><span class="pre">RPacketPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_packets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.rpacket_plot.</span></span><span class="sig-name descname"><span class="pre">RPacketPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_packets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Plotting interface for the plotting Montecarlo packets. It creates an animated plot using plotly for the
-trajectories of the real packets as they travel through the ejecta starting from the photosphere.</p>
-<p>Initializes the RPacket Plotter using the simulation object generated using the run_tardis function.</p>
+<p>Animated plotting interface for Monte Carlo packet trajectories.</p>
+<p>This class creates an animated plot using Plotly to visualize the trajectories
+of real packets as they travel through the ejecta starting from the photosphere.
+The visualization shows packet interactions and shell structures in 2D space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>sim</strong><span class="classifier">tardis.simulation.Simulation</span></dt><dd><p>simulation object generated using the run_tardis function.</p>
+<dt><strong>sim</strong><span class="classifier">Simulation</span></dt><dd><p>TARDIS simulation object containing transport state and configuration.</p>
 </dd>
-<dt><strong>no_of_packets</strong><span class="classifier">int</span></dt><dd><p>number of packets to be used for plotting.</p>
+<dt><strong>no_of_packets</strong><span class="classifier">int</span></dt><dd><p>Number of packets to include in the visualization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>no_of_packets</strong><span class="classifier">int</span></dt><dd><p>Number of packets being visualized.</p>
+</dd>
+<dt><strong>sim</strong><span class="classifier">Simulation</span></dt><dd><p>Reference to the TARDIS simulation object.</p>
+</dd>
+<dt><strong>interaction_from_num</strong><span class="classifier">dict[int, dict[str, str | float]]</span></dt><dd><p>Mapping from interaction type integers to display properties.</p>
+</dd>
+<dt><strong>theme_colors</strong><span class="classifier">dict[str, dict[str, str]]</span></dt><dd><p>Color schemes for light and dark themes.</p>
+</dd>
+<dt><strong>play_button</strong><span class="classifier">dict</span></dt><dd><p>Plotly button configuration for animation play control.</p>
+</dd>
+<dt><strong>pause_button</strong><span class="classifier">dict</span></dt><dd><p>Plotly button configuration for animation pause control.</p>
+</dd>
+<dt><strong>fig</strong><span class="classifier">go.Figure, optional</span></dt><dd><p>The generated Plotly figure object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Initialize the RPacket Plotter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sim</strong><span class="classifier">Simulation</span></dt><dd><p>TARDIS simulation object generated using the run_tardis function.</p>
+</dd>
+<dt><strong>no_of_packets</strong><span class="classifier">int</span></dt><dd><p>Number of packets to be used for plotting. Must be positive.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ValueError</dt><dd><p>If no_of_packets is not positive.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.create_packet_scatter">
-<span class="sig-name descname"><span class="pre">create_packet_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_no</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.create_packet_scatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.create_packet_scatter" title="Link to this definition">¶</a></dt>
-<dd><p>Creates a Scatter object for a given packet with optional frame slicing.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.from_simulation">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_packets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.from_simulation" title="Link to this definition">¶</a></dt>
-<dd><p>Creates an instance of RPacketPlotter from a TARDIS simulation object.</p>
+<span class="sig-name descname"><span class="pre">create_packet_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packet_no</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">theme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Scatter</span></span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.create_packet_scatter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.create_packet_scatter" title="Link to this definition">¶</a></dt>
+<dd><p>Create a scatter plot object for a single packet trajectory.</p>
+<p>Generates a Plotly scatter plot with interaction-based styling for
+visualizing packet trajectories with optional frame-based slicing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>sim</strong><span class="classifier">tardis.simulation.Simulation</span></dt><dd><p>TARDIS Simulation object generated using run_tardis function.</p>
+<dt><strong>packet_no</strong><span class="classifier">int</span></dt><dd><p>Index of the packet to create scatter plot for.</p>
 </dd>
-<dt><strong>no_of_packets</strong><span class="classifier">int</span></dt><dd><p>number of packets to be used for plotting.</p>
+<dt><strong>rpacket_x</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of x coordinate arrays for different packets.</p>
+</dd>
+<dt><strong>rpacket_y</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of y coordinate arrays for different packets.</p>
+</dd>
+<dt><strong>interactions</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of interaction type arrays for different packets.</p>
+</dd>
+<dt><strong>theme</strong><span class="classifier">str</span></dt><dd><p>Theme name for plot styling.</p>
+</dd>
+<dt><strong>frame</strong><span class="classifier">int, optional</span></dt><dd><p>Frame number for trajectory slicing. If None, shows full trajectory.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>RPacketPlotter</dt><dd></dd>
+<dt>go.Scatter</dt><dd><p>Plotly scatter object with styled trajectory and interaction markers.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Marker colors and opacity are determined by interaction types.
+Hover information includes coordinates and last interaction type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.from_simulation">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_packets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter" title="tardis.visualization.tools.rpacket_plot.RPacketPlotter"><span class="pre">RPacketPlotter</span></a></span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.from_simulation" title="Link to this definition">¶</a></dt>
+<dd><p>Create an RPacketPlotter instance from a TARDIS simulation.</p>
+<p>This factory method creates a plotter instance with validation
+to ensure the simulation has the necessary tracker data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sim</strong><span class="classifier">Simulation</span></dt><dd><p>TARDIS simulation object generated using run_tardis function.
+Must have rpacket tracking enabled.</p>
+</dd>
+<dt><strong>no_of_packets</strong><span class="classifier">int, optional</span></dt><dd><p>Number of packets to visualize, by default 15.
+If greater than available packets, all available packets are used.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>RPacketPlotter</dt><dd><p>Configured plotter instance ready for visualization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>AttributeError</dt><dd><p>If the simulation does not have rpacket tracking enabled.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Warns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>UserWarning</dt><dd><p>If requested no_of_packets exceeds available packets.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -210,18 +292,29 @@ trajectories of the real packets as they travel through the ejecta starting from
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.generate_plot">
-<span class="sig-name descname"><span class="pre">generate_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'light'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.generate_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.generate_plot" title="Link to this definition">¶</a></dt>
-<dd><p>Creates an animated plotly plot showing the Montecarlo packets’ trajectories.</p>
+<span class="sig-name descname"><span class="pre">generate_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'light'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.generate_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.generate_plot" title="Link to this definition">¶</a></dt>
+<dd><p>Create an animated plotly plot showing Monte Carlo packet trajectories.</p>
+<p>This method generates a comprehensive visualization showing packet paths,
+interaction types, shell boundaries, and photosphere. The plot includes
+animation controls and customizable themes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>theme</strong><span class="classifier">str, optional</span></dt><dd><p>theme for the plot, by default “light”</p>
+<dt><strong>theme</strong><span class="classifier">str, optional</span></dt><dd><p>Visual theme for the plot, by default “light”.
+Must be either “light” or “dark”.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>plotly.graph_objs._figure.Figure</dt><dd><p>plot containing the packets, photosphere and the shells.</p>
+<dt>go.Figure</dt><dd><p>Plotly figure object containing the animated packet trajectory plot
+with shells, photosphere, and interaction visualization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If theme is not “light” or “dark”.</p>
 </dd>
 </dl>
 </dd>
@@ -230,132 +323,159 @@ trajectories of the real packets as they travel through the ejecta starting from
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_coordinates_multiple_packets">
-<span class="sig-name descname"><span class="pre">get_coordinates_multiple_packets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet_tracker</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_coordinates_multiple_packets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_coordinates_multiple_packets" title="Link to this definition">¶</a></dt>
-<dd><p>Generates an array of array containing x and y coordinates of multiple packets</p>
+<span class="sig-name descname"><span class="pre">get_coordinates_multiple_packets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet_tracker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_coordinates_multiple_packets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_coordinates_multiple_packets" title="Link to this definition">¶</a></dt>
+<dd><p>Generate coordinates for multiple packet trajectories.</p>
+<p>Creates uniformly distributed launch angles and calculates coordinates
+for multiple packets to visualize their collective behavior.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>r_packet_tracker</strong><span class="classifier">pandas.core.frame.DataFrame</span></dt><dd><p>contains the rpacket_tracker_df dataframe with data of only specified no_of_packets</p>
+<dt><strong>r_packet_tracker</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing packet tracking data with columns for radius,
+direction cosine, and interaction types.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>numpy.ndarray</dt><dd><p>array of array containing x coordinates, y coordinates and the interactions for multiple packets</p>
+<dt>tuple[np.ndarray, np.ndarray, np.ndarray]</dt><dd><p>Three-element tuple containing:
+- Array of x coordinate arrays for multiple packets (object dtype)
+- Array of y coordinate arrays for multiple packets (object dtype)
+- Array of interaction type arrays for multiple packets (object dtype)</p>
 </dd>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Launch angles are distributed uniformly around the photosphere to
+provide representative coverage of packet trajectories.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_coordinates_with_theta_init">
-<span class="sig-name descname"><span class="pre">get_coordinates_with_theta_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_track</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_track</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_coordinates_with_theta_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_coordinates_with_theta_init" title="Link to this definition">¶</a></dt>
-<dd><p>Generates the coordinates of a single packet for its entire trajectory using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">nu</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">r</span></code> attributes.</p>
+<span class="sig-name descname"><span class="pre">get_coordinates_with_theta_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_track</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_track</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_interaction_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta_initial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_coordinates_with_theta_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_coordinates_with_theta_init" title="Link to this definition">¶</a></dt>
+<dd><p>Generate 2D coordinates for a single packet trajectory.</p>
+<p>Calculates x, y coordinates from radial position and direction cosine
+data, converting from spherical to Cartesian coordinates for visualization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>r_track</strong><span class="classifier">pandas.core.series.Series</span></dt><dd><p>radius of packet at different steps</p>
+<dt><strong>r_track</strong><span class="classifier">pd.Series</span></dt><dd><p>Radial position of packet at each step (in cm).</p>
 </dd>
-<dt><strong>mu_track</strong><span class="classifier">pandas.core.series.Series</span></dt><dd><p>mu or the cosine of radial angle of the packet at different steps</p>
+<dt><strong>mu_track</strong><span class="classifier">pd.Series</span></dt><dd><p>Cosine of radial angle of the packet at each step.</p>
 </dd>
-<dt><strong>time</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd><p>time since the occurence of explosion</p>
+<dt><strong>time</strong><span class="classifier">float</span></dt><dd><p>Time since explosion occurrence (in seconds).</p>
 </dd>
-<dt><strong>last_interaction_type</strong><span class="classifier">pandas.core.series.Series</span></dt><dd><p>last interaction type of the packet at different steps</p>
+<dt><strong>last_interaction_type</strong><span class="classifier">pd.Series</span></dt><dd><p>Interaction type of the packet at each step.</p>
 </dd>
-<dt><strong>theta_initial</strong><span class="classifier">float, optional</span></dt><dd><p>intial launch angle of packet from x axis as the packet starts from the photosphere, by default 0</p>
+<dt><strong>theta_initial</strong><span class="classifier">float, optional</span></dt><dd><p>Initial launch angle from x-axis at photosphere, by default 0.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>list</dt><dd><p>x coordinates of the packet at different steps</p>
-</dd>
-<dt>list</dt><dd><p>y coordinates of the packet at different steps</p>
-</dd>
-<dt>list</dt><dd><p>types of interactions occuring at different points</p>
-</dd>
-</dl>
+<dt>tuple[np.ndarray, np.ndarray, list[int]]</dt><dd><p>Three-element tuple containing:
+- x coordinates of the packet at different steps (km/s)
+- y coordinates of the packet at different steps (km/s)
+- interaction types occurring at different points</p>
 </dd>
 </dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Coordinates are converted to velocity units (km/s) by dividing by time
+and applying unit conversion. The trajectory calculation follows the
+spherical geometry described in the TARDIS documentation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_equal_array_size">
-<span class="sig-name descname"><span class="pre">get_equal_array_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpacket_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_equal_array_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_equal_array_size" title="Link to this definition">¶</a></dt>
-<dd><p>creates the coordinate arrays of different packets of same size. This is done for generating frames in animation.</p>
+<span class="sig-name descname"><span class="pre">get_equal_array_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpacket_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_equal_array_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_equal_array_size" title="Link to this definition">¶</a></dt>
+<dd><p>Normalize coordinate arrays to equal size for animation frames.</p>
+<p>Pads shorter trajectories with their final values to match the longest
+trajectory length, enabling synchronized animation across all packets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>rpacket_x</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>x coordinates of packets</p>
+<dt><strong>rpacket_x</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of x coordinate arrays for different packets.</p>
 </dd>
-<dt><strong>rpacket_y</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>y coordinates of packets</p>
+<dt><strong>rpacket_y</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of y coordinate arrays for different packets.</p>
 </dd>
-<dt><strong>interactions</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>interaction types of packets</p>
+<dt><strong>interactions</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of interaction type arrays for different packets.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>numpy.ndarray</dt><dd><p>normalized x coordinate array</p>
-</dd>
-<dt>numpy.ndarray</dt><dd><p>normalized y coordinate array</p>
-</dd>
-<dt>numpy.ndarray</dt><dd><p>normalized interaction types array</p>
-</dd>
-<dt>int</dt><dd><p>size of the biggest array among different packets</p>
+<dt>tuple[np.ndarray, np.ndarray, np.ndarray, int]</dt><dd><p>Four-element tuple containing:
+- Normalized x coordinate array (all sub-arrays same length)
+- Normalized y coordinate array (all sub-arrays same length)
+- Normalized interaction types array (all sub-arrays same length)
+- Maximum array size among all packets</p>
 </dd>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Padding uses the final coordinate values to maintain trajectory continuity
+in the animation visualization.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_frames">
-<span class="sig-name descname"><span class="pre">get_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theme</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_frames" title="Link to this definition">¶</a></dt>
-<dd><p>Creates individual frames containing the go.Scatter objects for the animation.</p>
+<span class="sig-name descname"><span class="pre">get_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">interactions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">theme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Scatter</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_frames" title="Link to this definition">¶</a></dt>
+<dd><p>Create individual animation frames with scatter plot objects.</p>
+<p>Generates a list of scatter plot objects for each packet trajectory
+up to the specified frame number for animation visualization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>frame</strong><span class="classifier">int</span></dt><dd><p>current frame number</p>
+<dt><strong>frame</strong><span class="classifier">int</span></dt><dd><p>Current frame number for trajectory slicing.</p>
 </dd>
-<dt><strong>rpacket_x</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>x coordinates array</p>
+<dt><strong>rpacket_x</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of x coordinate arrays for different packets.</p>
 </dd>
-<dt><strong>rpacket_y</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>y coordinates array</p>
+<dt><strong>rpacket_y</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of y coordinate arrays for different packets.</p>
 </dd>
-<dt><strong>interactions</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>interactions array</p>
+<dt><strong>interactions</strong><span class="classifier">np.ndarray</span></dt><dd><p>Array of interaction type arrays for different packets.</p>
 </dd>
-<dt><strong>theme</strong><span class="classifier">str</span></dt><dd><p>theme for the plot</p>
+<dt><strong>theme</strong><span class="classifier">str</span></dt><dd><p>Theme name for plot styling.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>list</dt><dd><p>list of go.Scatter objects for a particular frame number.</p>
+<dt>list[go.Scatter]</dt><dd><p>List of Plotly scatter objects for the current frame.</p>
 </dd>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Each scatter object represents one packet’s trajectory up to the
+current frame, enabling smooth animation transitions.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_slider_steps">
-<span class="sig-name descname"><span class="pre">get_slider_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpacket_max_array_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_slider_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_slider_steps" title="Link to this definition">¶</a></dt>
-<dd><p>Generates different steps in the timeline slider for different frames in the animated plot.</p>
+<span class="sig-name descname"><span class="pre">get_slider_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rpacket_max_array_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/rpacket_plot.html#RPacketPlotter.get_slider_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.rpacket_plot.RPacketPlotter.get_slider_steps" title="Link to this definition">¶</a></dt>
+<dd><p>Generate timeline slider steps for animated plot frames.</p>
+<p>Creates slider step configurations for frame-by-frame animation
+control with consistent transition timing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>rpacket_max_array_size</strong><span class="classifier">int</span></dt><dd><p>maximum size of coordinate array among all the packets.</p>
+<dt><strong>rpacket_max_array_size</strong><span class="classifier">int</span></dt><dd><p>Maximum size of coordinate array among all packets.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>list</dt><dd><p>list of dictionaries of different steps for different frames.</p>
+<dt>list[dict]</dt><dd><p>List of slider step dictionaries with frame animation arguments.</p>
 </dd>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Each step includes frame duration, transition settings, and label
+for user interaction with the animation timeline.</p>
 </dd></dl>
 
 </dd></dl>
@@ -374,7 +494,7 @@ trajectories of the real packets as they travel through the ejecta starting from
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 03 Sep 2025.
       </span></p>
   </div>
 

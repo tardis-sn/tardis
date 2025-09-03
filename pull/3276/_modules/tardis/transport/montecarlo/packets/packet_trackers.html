@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=369a000a"></script>
+      <script src="../../../../../_static/documentation_options.js?v=c882ce89"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,6 +138,10 @@ from numba import from_dtype, njit
 from numba.experimental import jitclass
 from numba.typed import List
 
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+
+NO_INTERACTION_INT = int(InteractionType.NO_INTERACTION)
+
 boundary_interaction_dtype = np.dtype(
     [
         (&quot;event_id&quot;, &quot;int64&quot;),
@@ -208,7 +212,7 @@ class RPacketTracker:
         self.mu = np.empty(length, dtype=np.float64)
         self.energy = np.empty(length, dtype=np.float64)
         self.shell_id = np.empty(length, dtype=np.int64)
-        self.interaction_type = np.empty(length, dtype=np.int64)
+        self.interaction_type = np.full(length, NO_INTERACTION_INT, dtype=np.int64)
         self.boundary_interaction = np.empty(
             length,
             dtype=boundary_interaction_dtype,
@@ -225,6 +229,13 @@ class RPacketTracker:
         temp_array[:array_length] = array
         return temp_array
 
+    def extend_interaction_type_array(self, array, array_length):
+        temp_array = np.full(
+            array_length * self.extend_factor, NO_INTERACTION_INT, dtype=array.dtype
+        )
+        temp_array[:array_length] = array
+        return temp_array
+
     def track(self, r_packet):
         &quot;&quot;&quot;
         Track important properties of RPacket
@@ -236,7 +247,7 @@ class RPacketTracker:
             self.mu = self.extend_array(self.mu, self.mu.size)
             self.energy = self.extend_array(self.energy, self.energy.size)
             self.shell_id = self.extend_array(self.shell_id, self.shell_id.size)
-            self.interaction_type = self.extend_array(
+            self.interaction_type = self.extend_interaction_type_array(
                 self.interaction_type, self.interaction_type.size
             )
 
@@ -312,36 +323,51 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
         Dataframe containing properties of RPackets as columns like status, seed, r, nu, mu, energy, shell_id, interaction_type
 
     &quot;&quot;&quot;
-    len_df = sum([len(tracker.r) for tracker in rpacket_trackers])
-    index_array = np.empty([2, len_df], dtype=&quot;int&quot;)
-    df_dtypes = np.dtype(
-        [
-            (&quot;status&quot;, np.int64),
-            (&quot;seed&quot;, np.int64),
-            (&quot;r&quot;, np.float64),
-            (&quot;nu&quot;, np.float64),
-            (&quot;mu&quot;, np.float64),
-            (&quot;energy&quot;, np.float64),
-            (&quot;shell_id&quot;, np.int64),
-            (&quot;interaction_type&quot;, np.int64),
-        ]
-    )
-    rpacket_tracker_ndarray = np.empty(len_df, df_dtypes)
-    cur_index = 0
-    for rpacket_tracker in rpacket_trackers:
-        prev_index = cur_index
-        cur_index = prev_index + len(rpacket_tracker.r)
-        for j, column_name in enumerate(df_dtypes.fields.keys()):
-            rpacket_tracker_ndarray[column_name][
-                prev_index:cur_index
-            ] = getattr(rpacket_tracker, column_name)
-        index_array[0][prev_index:cur_index] = rpacket_tracker.index
-        index_array[1][prev_index:cur_index] = range(cur_index - prev_index)
-    return pd.DataFrame(
-        rpacket_tracker_ndarray,
-        index=pd.MultiIndex.from_arrays(index_array, names=[&quot;index&quot;, &quot;step&quot;]),
-        columns=df_dtypes.names,
-    )</div>
+    # Collect all data arrays by simply concatenating tracker arrays
+    all_status = []
+    all_seed = []
+    all_r = []
+    all_nu = []
+    all_mu = []
+    all_energy = []
+    all_shell_id = []
+    all_interaction_type = []
+    all_packet_index = []
+    all_step_index = []
+    
+    for i, rpacket_tracker in enumerate(rpacket_trackers):
+        n_interactions = len(rpacket_tracker.r)
+        
+        all_status.append(rpacket_tracker.status)
+        all_seed.append(np.full(n_interactions, rpacket_tracker.seed))
+        all_r.append(rpacket_tracker.r)
+        all_nu.append(rpacket_tracker.nu)
+        all_mu.append(rpacket_tracker.mu)
+        all_energy.append(rpacket_tracker.energy)
+        all_shell_id.append(rpacket_tracker.shell_id)
+        all_interaction_type.append(rpacket_tracker.interaction_type)
+        all_packet_index.append(np.full(n_interactions, rpacket_tracker.index))
+        all_step_index.append(np.arange(n_interactions))
+    
+    # Concatenate all arrays
+    combined_interaction_type = np.concatenate(all_interaction_type)
+    
+    data = {
+        &quot;status&quot;: np.concatenate(all_status),
+        &quot;seed&quot;: np.concatenate(all_seed),
+        &quot;r&quot;: np.concatenate(all_r),
+        &quot;nu&quot;: np.concatenate(all_nu),
+        &quot;mu&quot;: np.concatenate(all_mu),
+        &quot;energy&quot;: np.concatenate(all_energy),
+        &quot;shell_id&quot;: np.concatenate(all_shell_id),
+        &quot;interaction_type&quot;: combined_interaction_type,
+    }
+    
+    # Create multi-index
+    index_arrays = [np.concatenate(all_packet_index), np.concatenate(all_step_index)]
+    multi_index = pd.MultiIndex.from_arrays(index_arrays, names=[&quot;index&quot;, &quot;step&quot;])
+    
+    return pd.DataFrame(data, index=multi_index)</div>
 
 
 
@@ -463,7 +489,7 @@ def generate_rpacket_last_interaction_tracker_list(no_of_packets):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 03 Sep 2025.
       </span></p>
   </div>
 

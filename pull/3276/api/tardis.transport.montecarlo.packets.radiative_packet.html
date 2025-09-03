@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=369a000a"></script>
+      <script src="../_static/documentation_options.js?v=c882ce89"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -169,19 +169,36 @@
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.radiative_packet.InteractionType">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.radiative_packet.</span></span><span class="sig-name descname"><span class="pre">InteractionType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/radiative_packet.html#InteractionType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.InteractionType" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.IntEnum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntEnum</span></code></a></p>
+<p>Enumeration for different types of packet interactions.</p>
+<p>The values are chosen to enable binary masking operations, allowing
+multiple interaction types to be combined using bitwise operations.
+For example, a packet that experienced both line interaction and
+electron scattering could be represented as LINE | ESCATTERING = 6.</p>
+<dl class="simple">
+<dt>NO_INTERACTION<span class="classifier">int</span></dt><dd><p>Initial state, packet has not yet interacted (value = -1)</p>
+</dd>
+<dt>BOUNDARY<span class="classifier">int</span></dt><dd><p>Packet crossed a shell boundary (value = 1)</p>
+</dd>
+<dt>LINE<span class="classifier">int</span></dt><dd><p>Packet underwent line interaction/absorption (value = 2)</p>
+</dd>
+<dt>ESCATTERING<span class="classifier">int</span></dt><dd><p>Packet underwent electron scattering (value = 4)</p>
+</dd>
+<dt>CONTINUUM_PROCESS<span class="classifier">int</span></dt><dd><p>Packet underwent continuum process interaction (value = 8)</p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.radiative_packet.InteractionType.BOUNDARY">
-<span class="sig-name descname"><span class="pre">BOUNDARY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.BOUNDARY" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">BOUNDARY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.BOUNDARY" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.radiative_packet.InteractionType.CONTINUUM_PROCESS">
-<span class="sig-name descname"><span class="pre">CONTINUUM_PROCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.CONTINUUM_PROCESS" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">CONTINUUM_PROCESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.CONTINUUM_PROCESS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.radiative_packet.InteractionType.ESCATTERING">
-<span class="sig-name descname"><span class="pre">ESCATTERING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.ESCATTERING" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ESCATTERING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.ESCATTERING" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -248,7 +265,7 @@ Adds all up to 1 in a single run.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.radiative_packet.RPacket.class_type">
-<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.RPacket#7f1e2ec64ec0&lt;r:float64,mu:float64,nu:float64,energy:float64,next_line_id:int64,current_shell_id:int64,status:int64,seed:int64,index:int64,last_interaction_type:int64,last_interaction_in_nu:float64,last_interaction_in_r:float64,last_line_interaction_in_id:int64,last_line_interaction_out_id:int64,last_line_interaction_shell_id:int64&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.RPacket.class_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.RPacket#7fce5b111010&lt;r:float64,mu:float64,nu:float64,energy:float64,next_line_id:int64,current_shell_id:int64,status:int64,seed:int64,index:int64,last_interaction_type:int64,last_interaction_in_nu:float64,last_interaction_in_r:float64,last_line_interaction_in_id:int64,last_line_interaction_out_id:int64,last_line_interaction_shell_id:int64&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.radiative_packet.RPacket.class_type" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -281,7 +298,7 @@ Adds all up to 1 in a single run.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Aug 2025.
+      <span class="lastupdated">Last updated on 03 Sep 2025.
       </span></p>
   </div>
 
