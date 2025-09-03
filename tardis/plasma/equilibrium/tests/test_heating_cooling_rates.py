@@ -193,8 +193,12 @@ def test_bound_free_thermal_rates_solve(
         actual_cooling, key="bound_free_cooling"
     )
 
-    pdt.assert_series_equal(actual_heating, expected_heating)
-    pdt.assert_series_equal(actual_cooling, expected_cooling)
+    pdt.assert_series_equal(
+        actual_heating, expected_heating, atol=0, rtol=1e-15
+    )
+    pdt.assert_series_equal(
+        actual_cooling, expected_cooling, atol=0, rtol=1e-15
+    )
 
 
 @pytest.mark.parametrize(
@@ -237,8 +241,12 @@ def test_bound_free_thermal_rates_solve_with_estimators(
         actual_cooling, key="bound_free_cooling_with_estimators"
     )
 
-    pdt.assert_series_equal(actual_heating, expected_heating)
-    pdt.assert_series_equal(actual_cooling, expected_cooling)
+    pdt.assert_series_equal(
+        actual_heating, expected_heating, atol=0, rtol=1e-15
+    )
+    pdt.assert_series_equal(
+        actual_cooling, expected_cooling, atol=0, rtol=1e-15
+    )
 
 
 def test_free_free_thermal_rates_heating_factor(
@@ -261,7 +269,9 @@ def test_free_free_thermal_rates_heating_factor(
         actual_factor, key="free_free_heating_factor"
     )
 
-    pdt.assert_series_equal(actual_factor, expected_factor_series)
+    pdt.assert_series_equal(
+        actual_factor, expected_factor_series, atol=0, rtol=1e-15
+    )
 
 
 @pytest.mark.parametrize(
@@ -299,8 +309,12 @@ def test_free_free_thermal_rates_solve(
         actual_cooling_rate, key="free_free_cooling_rate"
     )
 
-    pdt.assert_series_equal(actual_heating_rate, expected_heating_series)
-    pdt.assert_series_equal(actual_cooling_rate, expected_cooling_series)
+    pdt.assert_series_equal(
+        actual_heating_rate, expected_heating_series, atol=0, rtol=1e-15
+    )
+    pdt.assert_series_equal(
+        actual_cooling_rate, expected_cooling_series, atol=0, rtol=1e-15
+    )
 
 
 @pytest.mark.parametrize(
@@ -330,8 +344,8 @@ def test_collisional_ionization_thermal_rates_solve(
     )
 
     # Original parametrized assertions
-    assert_almost_equal(actual_heating[0], heating_rate)
-    assert_almost_equal(actual_cooling[0], cooling_rate)
+    assert_almost_equal(actual_heating[0], heating_rate, decimal=14)
+    assert_almost_equal(actual_cooling[0], cooling_rate, decimal=14)
 
     # Regression data comparison
     expected_heating = regression_data.sync_dataframe(
@@ -341,8 +355,12 @@ def test_collisional_ionization_thermal_rates_solve(
         actual_cooling, key="collisional_ionization_cooling"
     )
 
-    pdt.assert_series_equal(actual_heating, expected_heating)
-    pdt.assert_series_equal(actual_cooling, expected_cooling)
+    pdt.assert_series_equal(
+        actual_heating, expected_heating, atol=0, rtol=1e-15
+    )
+    pdt.assert_series_equal(
+        actual_cooling, expected_cooling, atol=0, rtol=1e-15
+    )
 
 
 @pytest.mark.parametrize(
@@ -379,8 +397,12 @@ def test_collisional_bound_thermal_rates_solve(
         actual_cooling, key="collisional_bound_cooling"
     )
 
-    pdt.assert_series_equal(actual_heating, expected_heating)
-    pdt.assert_series_equal(actual_cooling, expected_cooling)
+    pdt.assert_series_equal(
+        actual_heating, expected_heating, atol=0, rtol=1e-15
+    )
+    pdt.assert_series_equal(
+        actual_cooling, expected_cooling, atol=0, rtol=1e-15
+    )
 
 
 @pytest.mark.parametrize(
@@ -400,7 +422,10 @@ def test_adiabatic_thermal_rates_solve(
 
     # Original parametrized assertion
     assert_quantity_allclose(
-        actual_cooling_rate, expected_cooling_rate, rtol=1e-14
+        actual_cooling_rate,
+        expected_cooling_rate,
+        atol=0 * u.erg / (u.s * u.cm**3),
+        rtol=1e-15,
     )
 
 
@@ -476,8 +501,14 @@ def test_thermal_balance_solver(
     )
 
     pdt.assert_series_equal(
-        actual_total_heating_rate, expected_total_heating_series
+        actual_total_heating_rate,
+        expected_total_heating_series,
+        atol=0,
+        rtol=1e-15,
     )
     pdt.assert_series_equal(
-        actual_fractional_heating_rate, expected_fractional_heating_series
+        actual_fractional_heating_rate,
+        expected_fractional_heating_series,
+        atol=0,
+        rtol=1e-15,
     )
