@@ -496,8 +496,7 @@ class CudaFormalIntegrator:
             self.geometry.r_outer[size_shell - 1], N
         )  # array(float64, 1d, C)
         z = np.zeros(
-            (N, 2 * size_shell), dtype=np.float64
-        )  # array(float64, d, C)
+        )  # array(float64, 2d, C)
         shell_id = np.zeros(
             (N, 2 * size_shell), dtype=np.int64
         )  # array(int64, 2d, C)
