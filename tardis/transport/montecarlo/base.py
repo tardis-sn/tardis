@@ -179,7 +179,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             # Initialize the last interaction tracker list directly
-            transport_state.rpacket_last_interaction_tracker_list = generate_rpacket_last_interaction_tracker_list(
+            transport_state.rpacket_tracker = generate_rpacket_last_interaction_tracker_list(
                 number_of_rpackets
             )
 

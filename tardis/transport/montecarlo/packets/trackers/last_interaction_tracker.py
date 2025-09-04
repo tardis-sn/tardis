@@ -268,10 +268,10 @@ class RPacketLastInteractionTracker:
             self.boundary_interactions_count,
         )
 
-    def initialize_tracker(self, r_packet):
+    def initialize_tracker(self, r_packet) -> None:
         """
         Initialize tracker with packet properties.
-        
+
         Parameters
         ----------
         r_packet : RPacket
@@ -283,29 +283,10 @@ class RPacketLastInteractionTracker:
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
 
-    def finalize_array(self):
+    def finalize_array(self) -> None:
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
         """
-
-    # Compatibility method for RPacketTracker interface
-    def track_boundary_interaction(self, current_shell_id, next_shell_id):
-        """
-        Compatibility method for RPacketTracker interface.
-        This method signature is maintained for backward compatibility,
-        but actual boundary tracking should use the new method with r_packet.
-
-        Parameters
-        ----------
-        current_shell_id : int
-            Current shell ID
-        next_shell_id : int
-            Next shell ID
-        """
-        # Store minimal boundary information for compatibility
-        self.boundary_from_shell_id = current_shell_id
-        self.boundary_to_shell_id = next_shell_id
-        self.boundary_interactions_count += 1
 
 
 @njit
