@@ -317,16 +317,6 @@ def test_full_formal_integral(simulation_verysimple):
         integrator_settings.points, integrator_settings.interpolate_shells, "cuda"
     )
 
-    # The function calculate_spectrum sets this property, but in order to test the CUDA.
-    # version it is done manually, as well as to speed up the test.
-    formal_integrator_numba.interpolate_shells = max(
-        2 * sim.simulation_state.no_of_shells, 80
-    )
-
-    formal_integrator_cuda.interpolate_shells = max(
-        2 * sim.simulation_state.no_of_shells, 80
-    )
-
     L_numba = formal_integrator_numba.solve(
         sim.spectrum_solver.spectrum_real_packets.frequency,
         sim.simulation_state,
@@ -347,4 +337,6 @@ def test_full_formal_integral(simulation_verysimple):
         sim.macro_atom_state
     ).luminosity
 
+    assert isinstance(formal_integrator_cuda.integrator, formal_integral_cuda.CudaFormalIntegrator)
+    assert isinstance(formal_integrator_numba.integrator, formal_integral_numba.NumbaFormalIntegrator)
     ntest.assert_allclose(L_cuda, L_numba, rtol=1e-14)
