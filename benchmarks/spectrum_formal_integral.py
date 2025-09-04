@@ -38,17 +38,17 @@ class BenchmarkTransportMontecarloFormalIntegral(BenchmarkBase):
     # Benchmark for functions in FormalIntegrator class
     def time_FormalIntegrator_functions(self):
         sim_state = self.sim.simulation_state
-        transport_solver = self.sim.transport
+        transport = self.sim.transport
         plasma = self.sim.plasma
         nu = self.sim.spectrum_solver.spectrum_frequency_grid[:-1]
 
         # Solve the formal integral - setup is called internally
         self.formal_integral_solver.solve(
             nu,
-            self.sim.simulation_state,
-            self.sim.transport,
+            sim_state,
+            transport,
             self.sim.opacity_state,
-            self.sim.plasma.atomic_data,
-            self.sim.plasma.electron_densities,
-            self.sim.macro_atom_state
+            plasma.atomic_data,
+            plasma.electron_densities,
+            self.sim.macro_atom_state,
         )
