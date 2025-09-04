@@ -23,13 +23,13 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.transport.montecarlo.packets.packet_trackers import (
+from tardis.transport.montecarlo.packets.trackers.r_packet_tracker import (
     generate_rpacket_tracker_list,
-    rpacket_trackers_to_dataframe,
 )
 from tardis.transport.montecarlo.packets.trackers import (
     generate_rpacket_last_interaction_tracker_list,
 )
+from tardis.transport.montecarlo.packets.trackers.r_packet_tracker import rpacket_trackers_to_dataframe
 from tardis.transport.montecarlo.progress_bars import (
     refresh_packet_pbar,
     reset_packet_pbar,

@@ -7,6 +7,7 @@ from asv_runner.benchmarks.mark import parameterize
 
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.packets import packet_trackers
+import tardis.transport.montecarlo.packets.trackers.r_packet_tracker
 
 
 class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
@@ -22,12 +23,12 @@ class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
         self.TransportState = sim.transport.transport_state
 
     def time_rpacket_trackers_to_dataframe(self):
-        packet_trackers.rpacket_trackers_to_dataframe(
+        tardis.transport.montecarlo.packets.trackers.r_packet_tracker.rpacket_trackers_to_dataframe(
             self.TransportState.rpacket_tracker
         )
 
     def time_generate_rpacket_tracker_list(self):
-        packet_trackers.generate_rpacket_tracker_list(50, 10)
+        tardis.transport.montecarlo.packets.trackers.r_packet_tracker.generate_rpacket_tracker_list(50, 10)
 
     def time_generate_rpacket_last_interaction_tracker_list(self):
         packet_trackers.generate_rpacket_last_interaction_tracker_list(50)

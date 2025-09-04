@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from tardis.transport.montecarlo.packets.packet_trackers import (
+from tardis.transport.montecarlo.packets.RPacketLastInteractionTracker import (
     RPacketLastInteractionTracker,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import InteractionType

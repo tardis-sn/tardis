@@ -1,6 +1,11 @@
 import numba as nb
+import numpy as np
+import pandas as pd
 from numba import njit
 from numba.experimental import jitclass
+from pandas.api.types import CategoricalDtype
+
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 
 @jitclass
@@ -238,14 +243,14 @@ class RPacketLastInteractionTracker:
             Shell ID the packet is entering.
         """
         self.boundary_r = r_packet.r
-        self.boundary_nu = r_packet.nu
-        self.boundary_energy = r_packet.energy
         self.boundary_mu = r_packet.mu
         self.boundary_from_shell_id = from_shell_id
         self.boundary_to_shell_id = to_shell_id
         self.boundary_interactions_count += 1
         # Update general tracking
-        self.track(r_packet)
+        self.r = r_packet.r
+        self.shell_id = r_packet.current_shell_id
+        self.interaction_type = r_packet.last_interaction_type
 
     def get_interaction_summary(self) -> nb.types.Tuple((nb.int64, nb.int64, nb.int64, nb.int64)):  # type: ignore[misc]
         """
@@ -262,6 +267,21 @@ class RPacketLastInteractionTracker:
             self.continuum_interactions_count,
             self.boundary_interactions_count,
         )
+
+    def initialize_tracker(self, r_packet):
+        """
+        Initialize tracker with packet properties.
+        
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet to initialize tracking with
+        """
+        self.nu = r_packet.nu
+        self.mu = r_packet.mu
+        self.r = r_packet.r
+        self.energy = r_packet.energy
+        self.shell_id = r_packet.current_shell_id
 
     def finalize_array(self):
         """
@@ -327,27 +347,21 @@ def rpacket_last_interaction_tracker_list_to_dataframe(tracker_list):
         - last_line_interaction_in_nu: Frequency for the input line interaction
         - last_line_interaction_out_id: Line ID for the output line interaction
     """
-    import numpy as np
-    import pandas as pd
-
-    # Interaction type mapping for categorical data
-    INTERACTION_TYPE_MAPPING = {
-        -1: "NO_INTERACTION",
-        1: "ESCATTERING",
-        2: "LINE",
-        3: "BOUNDARY",
-        4: "CONTINUUM_PROCESS"
-    }
+    # Create categorical dtype from enum for better performance and type safety
+    interaction_type_dtype = CategoricalDtype(
+        categories=[member.name for member in InteractionType],
+        ordered=False
+    )
 
     # Extract data from trackers
     interaction_type_raw = np.array([tracker.interaction_type for tracker in tracker_list])
 
-    # Convert to categorical with human-readable labels
-    interaction_type_labels = [INTERACTION_TYPE_MAPPING.get(int_type, f"UNKNOWN_{int_type}")
-                              for int_type in interaction_type_raw]
-    last_interaction_type = pd.Categorical(interaction_type_labels,
-                                         categories=list(INTERACTION_TYPE_MAPPING.values()),
-                                         ordered=False)
+    # Convert enum values to their string names and create categorical
+    interaction_type_labels = [InteractionType(int_type).name for int_type in interaction_type_raw]
+    last_interaction_type = pd.Categorical(
+        interaction_type_labels,
+        dtype=interaction_type_dtype
+    )
 
     # For line interactions, use line_before_nu as the input frequency
     # For other interactions, use the packet frequency
@@ -358,20 +372,20 @@ def rpacket_last_interaction_tracker_list_to_dataframe(tracker_list):
 
     # Extract line interaction IDs - only meaningful for LINE interactions
     last_line_interaction_in_id = np.array([
-        tracker.line_before_id if tracker.interaction_type == 2 else -1
+        tracker.line_before_id if tracker.interaction_type == InteractionType.LINE else -1
         for tracker in tracker_list
     ])
     last_line_interaction_out_id = np.array([
-        tracker.line_after_id if tracker.interaction_type == 2 else -1
+        tracker.line_after_id if tracker.interaction_type == InteractionType.LINE else -1
         for tracker in tracker_list
     ])
 
-    # Create DataFrame
+    # Create DataFrame with packet index
     df = pd.DataFrame({
         "last_interaction_type": last_interaction_type,
         "last_line_interaction_in_id": last_line_interaction_in_id,
         "last_line_interaction_in_nu": last_line_interaction_in_nu,
         "last_line_interaction_out_id": last_line_interaction_out_id,
-    })
+    }, index=pd.RangeIndex(len(tracker_list), name="packet_id"))
 
     return df
