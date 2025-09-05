@@ -9,10 +9,11 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 class InteractionType(IntEnum):
-    BOUNDARY = 1
-    LINE = 2
-    ESCATTERING = 4
-    CONTINUUM_PROCESS = 8
+    NO_INTERACTION = -1
+    ESCATTERING = 1  # Electron scattering (legacy value)
+    LINE = 2  # Line interaction (legacy value)
+    BOUNDARY = 3  # Boundary crossing (new)
+    CONTINUUM_PROCESS = 4  # Continuum processes
 
 
 class PacketStatus(IntEnum):
@@ -76,7 +77,7 @@ class RPacket:
         self.status = PacketStatus.IN_PROCESS
         self.seed = seed
         self.index = index
-        self.last_interaction_type = -1
+        self.last_interaction_type = InteractionType.NO_INTERACTION
         self.last_interaction_in_nu = 0.0
         self.last_interaction_in_r = 0.0
         self.last_line_interaction_in_id = -1
