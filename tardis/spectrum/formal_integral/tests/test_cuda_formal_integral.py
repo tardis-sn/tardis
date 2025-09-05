@@ -6,7 +6,6 @@ import pytest
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.base import (
-    interpolate_integrator_quantities,
     intensity_black_body,
 )
 from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
