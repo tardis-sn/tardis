@@ -32,6 +32,7 @@ concurrency:
 
 jobs:
   test-cache:
+    if: github.repository_owner == 'tardis-sn' && contains(github.event.pull_request.labels.*.name, 'test-formal-integral')
     uses: ./.github/workflows/lfs-cache.yml
     with:
       atom-data-sparse: false
