@@ -56,7 +56,8 @@ jobs:
         with:
           environment-file: conda-linux-64.lock
           environment-name: tardis
-          micromamba-binary-path: /home/ghci/micromamba-bin/micromamba
+          micromamba-binary-path: ${{ runner.temp }}/bin/micromamba
+          post-cleanup: all
 
       - name: Install tardis editable
         run: |
