@@ -52,7 +52,7 @@ def populate_intersection_points(
     geometry: NumbaRadial1DGeometry,
     time_explosion: float,
     impact_parameter: float,
-    shell_intersections: NDArray[np.float64],
+    intersection_points: NDArray[np.float64],
     shell_ids: NDArray[np.int64],
 ) -> int:
     """
@@ -66,7 +66,7 @@ def populate_intersection_points(
         Time since explosion (seconds).
     impact_parameter : float
         Distance of the integration line to the center.
-    shell_intersections : ndarray
+    intersection_points : ndarray
         Output array to be filled with intersection_point values.
     shell_ids : ndarray
         Output array to be filled with the corresponding shell IDs.
@@ -86,7 +86,7 @@ def populate_intersection_points(
     if impact_parameter <= geometry.r_inner[0]:
         # intersect the photosphere
         for i in range(N):
-            shell_intersections[i] = 1 - calculate_intersection_point(
+            intersection_points[i] = 1 - calculate_intersection_point(
                 r_outer[i], impact_parameter, inv_t
             )
             shell_ids[i] = i
@@ -104,9 +104,9 @@ def populate_intersection_points(
             i_low = N - i - 1  # the far intersection with the shell
             i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
-            shell_intersections[i_low] = 1 + intersection_point
+            intersection_points[i_low] = 1 + intersection_point
             shell_ids[i_low] = i
-            shell_intersections[i_up] = 1 - intersection_point
+            intersection_points[i_up] = 1 - intersection_point
             shell_ids[i_up] = i
         return 2 * (N - offset)
 
@@ -180,27 +180,20 @@ intensity_black_body = njit(intensity_black_body, **njit_dict_no_parallel)
 
 
 @njit(**njit_dict)
-def setup_formal_integral_inputs(
+def initialize_formal_integral_inputs(
     frequencies: NDArray[np.float64],
     inner_temperature: float,
     n_impact_parameters: int,
     geometry: NumbaRadial1DGeometry,
     time_explosion: float,
-    line_list_nu: NDArray[np.float64],
     tau_sobolev: NDArray[np.float64],
-    electron_densities: NDArray[np.float64],
 ) -> Tuple[
-    NDArray[np.float64],
-    NDArray[np.float64],
-    NDArray[np.int64],
-    NDArray[np.int64],
-    NDArray[np.int64],
-    NDArray[np.float64],
-    NDArray[np.int64],
-    NDArray[np.float64],
-    NDArray[np.float64],
-    NDArray[np.int64],
-    NDArray[np.float64],
+    NDArray[np.float64],  # intensities_nu_p
+    NDArray[np.float64],  # impact_parameters  
+    NDArray[np.float64],  # intersection_points
+    NDArray[np.int64],    # shell_ids
+    NDArray[np.int64],    # n_intersections
+    NDArray[np.float64],  # exp_tau_sobolev
 ]:
     """
     Prepare all arrays and values needed for the loops inside the formal integral.
@@ -217,12 +210,8 @@ def setup_formal_integral_inputs(
         Geometry object containing shell radii.
     time_explosion : float
         Time since explosion (seconds).
-    line_list_nu : ndarray
-        Array of line frequencies.
     tau_sobolev : ndarray
         Sobolev optical depths for each line and shell.
-    electron_densities : ndarray
-        Electron densities per shell.
 
     Returns
     -------
@@ -230,28 +219,18 @@ def setup_formal_integral_inputs(
         Intensities at each frequency and impact parameter.
     impact_parameters : ndarray
         Array of impact parameters.
+    intersection_points : ndarray
+        Array of intersection points for each impact parameter and shell.
+    shell_ids : ndarray
+        Array of shell IDs for each impact parameter and shell intersection.
     n_intersections : ndarray
         Number of intersections for each impact parameter.
-    lines_idx : ndarray
-        Initial line indices for each frequency and impact parameter.
-    lines_idx_offset : ndarray
-        Initial offset line indices for each frequency and impact parameter.
-    nu_ends : ndarray
-        Frequency at each intersection.
-    nu_ends_idxs : ndarray
-        Indices of line list for each nu_end.
-    intersection_starts : ndarray
-        Starting intersection point for each impact parameter.
-    escat_opacities : ndarray
-        Electron scattering optical depths for each frequency, impact parameter, and shell intersection.
-    directions : ndarray
-        Direction changes for each frequency, impact parameter, and shell intersection.
     exp_tau_sobolev : ndarray
         Exponential of negative Sobolev optical depths (flattened).
     """
 
     n_frequencies = len(frequencies)
-    size_line, size_shell = tau_sobolev.shape
+    _, size_shell = tau_sobolev.shape
     exp_tau_sobolev = np.exp(-tau_sobolev.T.ravel())
     R_max = geometry.r_outer[size_shell - 1]
     R_photosphere = geometry.r_inner[0]
@@ -261,30 +240,11 @@ def setup_formal_integral_inputs(
 
     # prepare arrays for returned parameters
     intensities_nu_p = np.zeros((n_frequencies, n_impact_parameters), dtype=np.float64)
-    shell_intersections = np.zeros((n_impact_parameters, 2 * size_shell), dtype=np.float64)
+    intersection_points = np.zeros((n_impact_parameters, 2 * size_shell), dtype=np.float64)
     shell_ids = np.zeros((n_impact_parameters, 2 * size_shell), dtype=np.int64)
     n_intersections = np.zeros(n_impact_parameters, dtype=np.int64)
 
-    lines_idx = np.zeros((n_frequencies, n_impact_parameters), dtype=np.int64)
-    lines_idx_offset = np.zeros((n_frequencies, n_impact_parameters), dtype=np.int64)
-
-    intersection_starts = np.zeros(n_impact_parameters, dtype=np.float64)
-
-    nu_ends = np.zeros(
-        (n_frequencies, n_impact_parameters, 2 * size_shell - 1), dtype=np.float64
-    )
-    nu_ends_idxs = np.zeros(
-        (n_frequencies, n_impact_parameters, 2 * size_shell - 1), dtype=np.int64
-    )
-
-    escat_opacities = np.zeros(
-        (n_frequencies, n_impact_parameters, 2 * size_shell), dtype=np.float64
-    )
-    directions = np.zeros(
-        (n_frequencies, n_impact_parameters, 2 * size_shell), dtype=np.int64
-    )
-
-    # loop over frequencies and impact parametersx
+    # loop over frequencies and impact parameters
     for nu_idx in prange(n_frequencies):
         intensities_nu = intensities_nu_p[nu_idx]
         nu = frequencies[nu_idx]
@@ -296,12 +256,11 @@ def setup_formal_integral_inputs(
                 geometry,
                 time_explosion,
                 impact_parameter,
-                shell_intersections[impact_parameter_idx],
+                intersection_points[impact_parameter_idx],
                 shell_ids[impact_parameter_idx],
             )
             n_intersections[impact_parameter_idx] = n_intersections_p
-            intersection_point = shell_intersections[impact_parameter_idx]
-            shell_id = shell_ids[impact_parameter_idx]
+            intersection_point = intersection_points[impact_parameter_idx]
 
             # if inside the photosphere, set to black body intensity
             # otherwise zero
@@ -312,43 +271,12 @@ def setup_formal_integral_inputs(
             else:
                 intensities_nu[impact_parameter_idx] = 0
 
-            # compute quantities for line intersections
-            nu_start = nu * intersection_point[0]
-
-            idx_nu_start = line_search(line_list_nu, nu_start, size_line)
-            lines_idx[nu_idx, impact_parameter_idx] = int(idx_nu_start)
-            lines_idx_offset[nu_idx, impact_parameter_idx] = int(
-                idx_nu_start + (shell_id[0] * size_line)
-            )
-
-            intersection_starts[impact_parameter_idx] = (
-                time_explosion / C_INV * (1.0 - intersection_point[0])
-            )
-
-            nu_ends[nu_idx, impact_parameter_idx] = nu * intersection_point[1:]
-            nu_ends_idxs[nu_idx, impact_parameter_idx] = size_line - np.searchsorted(
-                line_list_nu[::-1], nu_ends[nu_idx, impact_parameter_idx], side="right"
-            )
-
-            for i in range(n_intersections_p - 1):
-                escat_opacities[nu_idx, impact_parameter_idx, i] = (
-                    electron_densities[int(shell_ids[impact_parameter_idx][i])] * SIGMA_THOMSON
-                )
-                directions[nu_idx, impact_parameter_idx, i] = int(
-                    (shell_ids[impact_parameter_idx][i + 1] - shell_ids[impact_parameter_idx][i]) * size_line
-                )
-
     return (
         intensities_nu_p,
         impact_parameters,
+        intersection_points,
+        shell_ids,
         n_intersections,
-        lines_idx,
-        lines_idx_offset,
-        nu_ends,
-        nu_ends_idxs,
-        intersection_starts,
-        escat_opacities,
-        directions,
         exp_tau_sobolev,
     )
 
@@ -483,58 +411,66 @@ def numba_formal_integral(
 
     R_max = geometry.r_outer[-1]
     line_list_nu = plasma.line_list_nu
+    n_lines = len(line_list_nu)
 
-    # prepare all of the quantities needed for the loops
+    # prepare some of the formal integral arrays
+        # Inup, p, zs, shell ids, and size of z
     (
         intensities_nu_p,
         impact_parameters,
+        intersection_points,
+        shell_ids,
         n_intersections,
-        lines_idx,
-        lines_idx_offset,
-        nu_ends,
-        nu_ends_idxs,
-        intersection_starts,
-        escat_opacities,
-        directions,
         exp_tau_sobolev,
-    ) = setup_formal_integral_inputs(
+    ) = initialize_formal_integral_inputs(
         frequencies,
         inner_temperature,
         n_impact_parameters,
         geometry,
         time_explosion,
-        line_list_nu,
         tau_sobolev,
-        electron_densities,
     )
 
-    # now loop over wavelength in spectrum
+    # loop per frequency
     for nu_idx in prange(n_frequencies):
         intensities_nu = intensities_nu_p[nu_idx]
         nu = frequencies[nu_idx]
-
-        # now loop over discrete values along line
+ 
+        # loop per impact parameter
         for impact_parameter_idx in range(1, n_impact_parameters):
-            escat_optical_depth = 0
+
+            # get values for this impact parameter
             impact_parameter = impact_parameters[impact_parameter_idx]
             n_intersections_p = n_intersections[impact_parameter_idx]
+            intersection_points_p = intersection_points[impact_parameter_idx]
+            shell_ids_p = shell_ids[impact_parameter_idx]
 
-            # find first contributing lines
-            intersection_start = intersection_starts[impact_parameter_idx]
+            # get the intersection points in frequency space
+            # and the corresponding position in the line list
+            nu_start = nu * intersection_points_p[0]
+            intersection_start = (
+                time_explosion / C_INV * (1.0 - intersection_points_p[0])
+            )
+            idx_nu_start = line_search(line_list_nu, nu_start, n_lines)
+            offset = shell_ids_p[0] * n_lines
 
+            nu_ends = nu * intersection_points_p[1:]
+            nu_ends_idxs = n_lines - np.searchsorted(
+                line_list_nu[::-1], nu_ends, side="right"
+            )
+            
             # Initialize "pointers"
-            line_idx = lines_idx[nu_idx, impact_parameter_idx]
-            line_idx_offset = lines_idx_offset[nu_idx, impact_parameter_idx]
-            line_Jred_lu_idx = lines_idx_offset[nu_idx, impact_parameter_idx]
+            line_idx = int(idx_nu_start)
+            line_idx_offset = int(idx_nu_start + offset)
+            line_Jred_lu_idx = int(line_idx_offset)
 
             # flag for first contribution to integration on current impact_parameter
             first_contribution_flag = 1
-
-            # loop over all interactions
+            escat_optical_depth = 0
             for i in range(n_intersections_p - 1):
-                escat_opacity = escat_opacities[nu_idx, impact_parameter_idx, i]
-                nu_end = nu_ends[nu_idx, impact_parameter_idx, i]
-                nu_end_idx = nu_ends_idxs[nu_idx, impact_parameter_idx, i]
+                escat_opacity = electron_densities[int(shell_ids_p[i])] * SIGMA_THOMSON
+                nu_end = nu_ends[i]
+                nu_end_idx = nu_ends_idxs[i]
                 for _ in range(max(nu_end_idx - line_idx, 0)):
                     # calculate e-scattering optical depth to next resonance point
                     intersection_end = (
@@ -584,8 +520,8 @@ def numba_formal_integral(
                 )
                 intersection_start = intersection_end
 
-                # advance "pointers"
-                direction = directions[nu_idx, impact_parameter_idx, i]
+                # advance "pointers" - compute direction on-the-fly
+                direction = int((shell_ids_p[i + 1] - shell_ids_p[i]) * n_lines)
                 line_idx_offset += direction
                 line_Jred_lu_idx += direction
             intensities_nu[impact_parameter_idx] *= impact_parameter
