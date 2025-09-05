@@ -81,5 +81,9 @@ def test_solve(rate_matrix_solver, regression_data):
         actual_electron_density, key="electron_density"
     )
 
-    pdt.assert_frame_equal(actual_ion_population, expected_ion_population)
-    pdt.assert_series_equal(actual_electron_density, expected_electron_density)
+    pdt.assert_frame_equal(
+        actual_ion_population, expected_ion_population, atol=0, rtol=1e-15
+    )
+    pdt.assert_series_equal(
+        actual_electron_density, expected_electron_density, atol=0, rtol=1e-15
+    )

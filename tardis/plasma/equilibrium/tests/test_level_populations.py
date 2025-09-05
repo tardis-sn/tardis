@@ -1,6 +1,7 @@
 import astropy.units as u
 import numpy as np
 import pandas as pd
+import pandas.testing as pdt
 import pytest
 
 from tardis.plasma.electron_energy_distribution import (
@@ -70,4 +71,4 @@ class TestLevelPopulationSolver:
         expected_populations = False
         result = self.solver.solve()
         expected_populations = regression_data.sync_dataframe(result)
-        pd.testing.assert_frame_equal(result, expected_populations)
+        pdt.assert_frame_equal(result, expected_populations, atol=0, rtol=1e-15)

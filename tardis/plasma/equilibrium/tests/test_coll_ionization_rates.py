@@ -78,9 +78,14 @@ def test_collisional_ionization_rate_solver_solve(
         actual_recombination_rates, key="recombination_rates"
     )
 
-    pdt.assert_frame_equal(actual_ionization_rates, expected_ionization_rates)
     pdt.assert_frame_equal(
-        actual_recombination_rates, expected_recombination_rates
+        actual_ionization_rates, expected_ionization_rates, atol=0, rtol=1e-15
+    )
+    pdt.assert_frame_equal(
+        actual_recombination_rates,
+        expected_recombination_rates,
+        atol=0,
+        rtol=1e-15,
     )
 
 
