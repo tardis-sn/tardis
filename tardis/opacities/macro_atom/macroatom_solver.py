@@ -16,6 +16,8 @@ from tardis.opacities.macro_atom.macroatom_transitions import (
     line_transition_internal_up,
 )
 
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+
 
 class LegacyMacroAtomSolver:
     initialize: bool = True
@@ -389,7 +391,7 @@ def reindex_sort_and_clean_probabilities_and_metadata(
         macro_atom_transition_metadata.source.apply(lambda x: x[2])
     )
     macro_atom_transition_metadata = macro_atom_transition_metadata.sort_values(
-        ["atomic_number", "ion_number", "source_level"]
+        ["atomic_number", "ion_number", "source_level"], kind=SORTING_ALGORITHM
     )  # This is how carsus sorted the macro atom transitions.
 
     normalized_probabilities = normalized_probabilities.loc[
