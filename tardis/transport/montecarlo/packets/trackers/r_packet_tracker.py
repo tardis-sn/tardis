@@ -423,6 +423,34 @@ class RPacketTracker:
         self.continuum_after_energy[interaction_idx] = after_energy
         self.continuum_after_mu[interaction_idx] = after_mu
 
+    def initialize_tracker(self, r_packet) -> None:
+        """
+        Initialize tracking for a new packet at the start of its transport.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet to start tracking.
+        """
+        # Track the initial packet state
+        self._extend_arrays_if_needed()
+        self._track_general_packet_state(r_packet)
+
+    def finalize_track(self, r_packet) -> None:
+        """
+        Finalize tracking for RPacketTracker by recording the final packet state.
+
+        This is called at the end of packet transport to capture the final
+        interaction or status of the packet.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet in its final state.
+        """
+        self._extend_arrays_if_needed()
+        self._track_general_packet_state(r_packet)
+
 
 def rpacket_trackers_to_dataframe(rpacket_trackers):
     """

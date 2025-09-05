@@ -12,6 +12,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 class RPacketLastInteractionTracker:
     r: nb.float64  # type: ignore[misc]
     nu: nb.float64  # type: ignore[misc]
+    mu: nb.float64  # type: ignore[misc]
     energy: nb.float64  # type: ignore[misc]
     shell_id: nb.int64  # type: ignore[misc]
     interaction_type: nb.int64  # type: ignore[misc]
@@ -129,21 +130,6 @@ class RPacketLastInteractionTracker:
         self.continuum_interactions_count = 0
         self.boundary_interactions_count = 0
 
-    def track(self, r_packet) -> None:
-        """
-        Track properties of RPacket and override the previous values.
-
-        Parameters
-        ----------
-        r_packet : RPacket
-            The R-packet to track.
-        """
-        self.r = r_packet.r
-        self.nu = r_packet.nu
-        self.energy = r_packet.energy
-        self.shell_id = r_packet.current_shell_id
-        self.interaction_type = r_packet.last_interaction_type
-
     def track_line_interaction_before(self, r_packet) -> None:
         """
         Track packet state before line interaction.
@@ -173,7 +159,11 @@ class RPacketLastInteractionTracker:
         self.line_after_id = r_packet.last_line_interaction_out_id
         self.line_interactions_count += 1
         # Update general tracking
-        self.track(r_packet)
+        self.r = r_packet.r
+        self.nu = r_packet.nu
+        self.energy = r_packet.energy
+        self.shell_id = r_packet.current_shell_id
+        self.interaction_type = r_packet.last_interaction_type
 
     def track_escattering_interaction_before(self, r_packet) -> None:
         """
@@ -198,7 +188,11 @@ class RPacketLastInteractionTracker:
         self.escat_after_mu = r_packet.mu
         self.escat_interactions_count += 1
         # Update general tracking
-        self.track(r_packet)
+        self.r = r_packet.r
+        self.nu = r_packet.nu
+        self.energy = r_packet.energy
+        self.shell_id = r_packet.current_shell_id
+        self.interaction_type = r_packet.last_interaction_type
 
     def track_continuum_interaction_before(self, r_packet) -> None:
         """
@@ -227,7 +221,11 @@ class RPacketLastInteractionTracker:
         self.continuum_after_mu = r_packet.mu
         self.continuum_interactions_count += 1
         # Update general tracking
-        self.track(r_packet)
+        self.r = r_packet.r
+        self.nu = r_packet.nu
+        self.energy = r_packet.energy
+        self.shell_id = r_packet.current_shell_id
+        self.interaction_type = r_packet.last_interaction_type
 
     def track_boundary_crossing(self, r_packet, from_shell_id, to_shell_id) -> None:
         """
@@ -286,6 +284,12 @@ class RPacketLastInteractionTracker:
     def finalize_array(self) -> None:
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
+        """
+
+    def finalize_track(self, r_packet) -> None:
+        """
+        Finalize tracking for RPacketLastInteractionTracker.
+        For last interaction tracker, this is a no-op since we only track the last state.
         """
 
 
