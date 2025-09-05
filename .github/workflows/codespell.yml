@@ -29,7 +29,7 @@ jobs:
         if: github.event_name == 'pull_request_target'
 
       - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@lockfile-path
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: "linux-64"
           lockfile-path: ./conda-linux-64.lock

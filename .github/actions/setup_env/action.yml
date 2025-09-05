@@ -11,6 +11,6 @@ runs:
   using: "composite"
   steps:
       - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@lockfile-path
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ inputs.os-label }}
