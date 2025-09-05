@@ -51,10 +51,12 @@ jobs:
       - name: Setup LFS
         uses: tardis-sn/tardis-actions/setup-lfs@main
 
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+      - name: Setup Environment
+        uses: mamba-org/setup-micromamba@v2
         with:
-          os-label: linux-64
+          environment-file: conda-linux-64.lock
+          environment-name: tardis
+          micromamba-binary-path: /home/ghci/micromamba-bin/micromamba
 
       - name: Install tardis editable
         run: |
