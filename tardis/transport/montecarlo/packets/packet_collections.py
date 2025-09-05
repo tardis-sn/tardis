@@ -4,6 +4,11 @@ from numba import njit
 from numba.experimental import jitclass
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+
+# Pre-calculate integer values for Numba compatibility
+NO_INTERACTION_INT = int(InteractionType.NO_INTERACTION)
+
 
 @jitclass
 class PacketCollection:
@@ -78,7 +83,9 @@ def initialize_last_interaction_tracker(no_of_packets):
     last_line_interaction_shell_ids = -1 * np.ones(
         no_of_packets, dtype=np.int64
     )
-    last_interaction_types = -1 * np.ones(no_of_packets, dtype=np.int64)
+    last_interaction_types = NO_INTERACTION_INT * np.ones(
+        no_of_packets, dtype=np.int64
+    )
     last_interaction_in_nus = np.zeros(no_of_packets, dtype=np.float64)
     last_interaction_in_rs = np.zeros(no_of_packets, dtype=np.float64)
 
@@ -215,7 +222,7 @@ class VPacketCollection:
         self.last_interaction_in_r = np.zeros(
             temporary_v_packet_bins, dtype=np.float64
         )
-        self.last_interaction_type = -1 * np.ones(
+        self.last_interaction_type = NO_INTERACTION_INT * np.ones(
             temporary_v_packet_bins, dtype=np.int64
         )
         self.last_interaction_in_id = -1 * np.ones(
@@ -296,24 +303,24 @@ class VPacketCollection:
             temp_energies[: self.length] = self.energies
             temp_initial_mus[: self.length] = self.initial_mus
             temp_initial_rs[: self.length] = self.initial_rs
-            temp_last_interaction_in_nu[
-                : self.length
-            ] = self.last_interaction_in_nu
-            temp_last_interaction_in_r[
-                : self.length
-            ] = self.last_interaction_in_r
-            temp_last_interaction_type[
-                : self.length
-            ] = self.last_interaction_type
-            temp_last_interaction_in_id[
-                : self.length
-            ] = self.last_interaction_in_id
-            temp_last_interaction_out_id[
-                : self.length
-            ] = self.last_interaction_out_id
-            temp_last_interaction_shell_id[
-                : self.length
-            ] = self.last_interaction_shell_id
+            temp_last_interaction_in_nu[: self.length] = (
+                self.last_interaction_in_nu
+            )
+            temp_last_interaction_in_r[: self.length] = (
+                self.last_interaction_in_r
+            )
+            temp_last_interaction_type[: self.length] = (
+                self.last_interaction_type
+            )
+            temp_last_interaction_in_id[: self.length] = (
+                self.last_interaction_in_id
+            )
+            temp_last_interaction_out_id[: self.length] = (
+                self.last_interaction_out_id
+            )
+            temp_last_interaction_shell_id[: self.length] = (
+                self.last_interaction_shell_id
+            )
 
             self.nus = temp_nus
             self.energies = temp_energies

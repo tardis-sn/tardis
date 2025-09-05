@@ -2,6 +2,8 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+
 
 def calculate_absorption_luminosities(
     sim, packets_mode, packet_wvl_range, species_list=None, distance=None
@@ -65,7 +67,7 @@ def calculate_absorption_luminosities(
     lines_df = sim.plasma.atomic_data.lines.reset_index().set_index("line_id")
 
     # Create packets_df_line_interaction
-    line_mask = (packets_df["last_interaction_type"] > -1) & (packets_df["last_line_interaction_in_id"] > -1)
+    line_mask = (packets_df["last_interaction_type"] > InteractionType.NO_INTERACTION) & (packets_df["last_line_interaction_in_id"] > -1)
     packets_df_line_interaction = packets_df.loc[line_mask].copy()
 
     # Add atomic number and species columns
@@ -220,7 +222,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
     lines_df = sim.plasma.atomic_data.lines.reset_index().set_index("line_id")
 
     # Create packets_df_line_interaction
-    line_mask = (packets_df["last_interaction_type"] > -1) & (packets_df["last_line_interaction_in_id"] > -1)
+    line_mask = (packets_df["last_interaction_type"] > InteractionType.NO_INTERACTION) & (packets_df["last_line_interaction_in_id"] > -1)
     packets_df_line_interaction = packets_df.loc[line_mask].copy()
 
     # Add atomic number and species columns
@@ -285,7 +287,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
     # Contribution of packets which experienced no interaction
     mask_noint = (
         packets_df["last_interaction_type"][packet_nu_range_mask]
-        == -1
+        == InteractionType.NO_INTERACTION
     )
 
     hist_noint = np.histogram(
@@ -306,12 +308,12 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
     luminosities_df["noint"] = L_lambda_noint.value
 
     # Contribution of packets which only experienced electron scattering
+    # Handle both legacy (1) and new (4) electron scattering values during transition
     mask_escatter = (
-        packets_df["last_interaction_type"][packet_nu_range_mask]
-        == 1
+        (packets_df["last_interaction_type"][packet_nu_range_mask] == InteractionType.ESCATTERING)
     ) & (
         packets_df["last_line_interaction_in_id"][packet_nu_range_mask]
-        == -1
+        == InteractionType.NO_INTERACTION
     )
     hist_escatter = np.histogram(
         packets_df["nus"][packet_nu_range_mask][mask_escatter],
