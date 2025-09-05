@@ -1,0 +1,68 @@
+#  For more information about TARDIS pipelines, please refer to:
+#
+#    https://tardis-sn.github.io/tardis/development/continuous_integration.html
+
+name: cuda-tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request_target:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+  PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-cache:
+    uses: ./.github/workflows/lfs-cache.yml
+    with:
+      atom-data-sparse: false
+      regression-data-repo: tardis-sn/tardis-regression-data
+      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
+
+  build:
+    if: github.repository_owner == 'tardis-sn' && contains(github.event.pull_request.labels.*.name, 'test-formal-integral')
+    needs: [test-cache]
+    runs-on: self-hosted
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup LFS
+        uses: tardis-sn/tardis-actions/setup-lfs@main
+
+      - name: Setup environment
+        uses: tardis-sn/tardis-actions/setup-env@main
+        with:
+          os-label: linux-64
+
+      - name: Install tardis editable
+        run: |
+          pip install -e ".[tardisbase]"
+
+      - name: Install qgridnext and lineid_plot
+        run: |
+          pip install --no-deps qgridnext lineid_plot
+
+      - name: Run CUDA tests
+        run: pytest tardis/spectrum/formal_integral/tests/test_cuda_formal_integral.py ${{ env.PYTEST_FLAGS }}

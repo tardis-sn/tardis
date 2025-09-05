@@ -44,33 +44,6 @@ jobs:
       regression-data-repo: tardis-sn/tardis-regression-data
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
-  ubuntu-tests:
-    name: ubuntu tests
-    if: github.repository_owner == 'tardis-sn'
-    needs: [test-cache]
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup LFS
-        uses: tardis-sn/tardis-actions/setup-lfs@main
-
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
-        with:
-          os-label: linux-64
-
-      - name: Install tardis editable
-        run: |
-          pip install -e ".[tardisbase]"
-
-      - name: Install qgridnext and lineid_plot
-        run: |
-          pip install --no-deps qgridnext lineid_plot
-
-      - name: Run tests
-        run: pytest tardis/spectrum/formal_integral/tests/test_cuda_formal_integral.py ${{ env.PYTEST_FLAGS }}
-
   tests:
     name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
