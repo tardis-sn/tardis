@@ -131,6 +131,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
+          lockfile-path: ./conda-${{ matrix.label }}.lock
 
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
@@ -174,6 +175,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
+          lockfile-path: ./conda-linux-64.lock
 
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v5
