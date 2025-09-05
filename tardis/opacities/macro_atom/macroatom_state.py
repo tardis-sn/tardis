@@ -1,4 +1,4 @@
-from __future__ import annotations
+from typing import Self
 
 import pandas as pd
 
@@ -53,7 +53,7 @@ class LegacyMacroAtomState(HDFWriterMixin):
         self.line2macro_level_upper = line2macro_level_upper
 
     @classmethod
-    def from_legacy_plasma(cls, plasma) -> LegacyMacroAtomState:
+    def from_legacy_plasma(cls, plasma) -> Self:
         """
         Generate a LegacyMacroAtomState object from a tardis BasePlasma.
 
@@ -169,7 +169,7 @@ class MacroAtomState:
 
     def sort_to_legacy(
         self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
-    ) -> MacroAtomState:
+    ):
         """
         Sort the current MacroAtomState to match the legacy MacroAtomState order.
 
