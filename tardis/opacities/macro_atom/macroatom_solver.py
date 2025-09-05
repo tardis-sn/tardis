@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.io.atom_data import AtomData
 from tardis.opacities.macro_atom import util
 from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
@@ -36,7 +37,9 @@ class LegacyMacroAtomSolver:
         self.initialize = initialize
         self.normalize = normalize
 
-    def initialize_transition_probabilities(self, atomic_data) -> None:
+    def initialize_transition_probabilities(
+        self, atomic_data: AtomData
+    ) -> None:
         """
         Initialize the transition probability coefficients and block references.
 
@@ -45,7 +48,7 @@ class LegacyMacroAtomSolver:
 
         Parameters
         ----------
-        atomic_data : tardis.io.atom_data.AtomData
+        atomic_data : AtomData
             Atomic data containing the necessary information for initialization.
         """
         coef_and_block_ref = initialize_transition_probabilities(atomic_data)
@@ -57,7 +60,7 @@ class LegacyMacroAtomSolver:
 
     def solve_transition_probabilities(
         self,
-        atomic_data,
+        atomic_data: AtomData,
         mean_intensities_lines_blue_wing: pd.DataFrame,
         tau_sobolev: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None,
@@ -68,7 +71,7 @@ class LegacyMacroAtomSolver:
 
         Parameters
         ----------
-        atomic_data : tardis.io.atom_data.AtomData
+        atomic_data : AtomData
             Atomic data containing macro atom information.
         mean_intensities_lines_blue_wing : pd.DataFrame
             Mean intensity of the radiation field of each line in the blue wing for each shell.
@@ -121,7 +124,7 @@ class LegacyMacroAtomSolver:
     def solve(
         self,
         mean_intensities_lines_blue_wing: pd.DataFrame,
-        atomic_data,
+        atomic_data: AtomData,
         tau_sobolev: pd.DataFrame,
         stimulated_emission_factor: pd.DataFrame,
         beta_sobolev: pd.DataFrame | None = None,
@@ -133,7 +136,7 @@ class LegacyMacroAtomSolver:
         ----------
         mean_intensities_lines_blue_wing : pd.DataFrame
             Mean intensity of the radiation field of each line in the blue wing for each shell.
-        atomic_data : tardis.io.atom_data.AtomData
+        atomic_data : AtomData
             Atomic data containing macro atom information.
         tau_sobolev : pd.DataFrame
             Expansion optical depths.
@@ -254,10 +257,7 @@ class BoundBoundMacroAtomSolver:
 
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
 
-        if (
-            self.line_interaction_type == "downbranch"
-            or self.line_interaction_type == "macroatom"
-        ):
+        if self.line_interaction_type in ["downbranch", "macroatom"]:
             p_emission_down, emission_down_metadata = (
                 line_transition_emission_down(
                     oscillator_strength_ul,
