@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.visualization.tools.sdec_plot module &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=b2490dac"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tardis.visualization.widgets package" href="tardis.visualization.widgets.html" />
+    <link rel="prev" title="tardis.visualization.tools.rpacket_plot module" href="tardis.visualization.tools.rpacket_plot.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tardis.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="tardis.configuration.html">tardis.configuration package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.html">tardis.energy_input package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.grid.html">tardis.grid package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.html">tardis.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.model.html">tardis.model package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.opacities.html">tardis.opacities package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.html">tardis.plasma package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.scripts.html">tardis.scripts package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.simulation.html">tardis.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.spectrum.html">tardis.spectrum package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.stats.html">tardis.stats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.html">tardis.transport package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.util.html">tardis.util package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="tardis.visualization.html">tardis.visualization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.html">tardis.workflows package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#module-tardis">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">tardis</a></li>
+          <li class="breadcrumb-item"><a href="tardis.html">tardis package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.visualization.html">tardis.visualization package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.visualization.tools.html">tardis.visualization.tools package</a></li>
+      <li class="breadcrumb-item active">tardis.visualization.tools.sdec_plot module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/tardis.visualization.tools.sdec_plot.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-tardis.visualization.tools.sdec_plot">
+<span id="tardis-visualization-tools-sdec-plot-module"></span><h1>tardis.visualization.tools.sdec_plot module<a class="headerlink" href="#module-tardis.visualization.tools.sdec_plot" title="Link to this heading">¶</a></h1>
+<p>Spectral element DEComposition (SDEC) Plot for TARDIS simulation models.</p>
+<p>This plot is a spectral diagnostics plot similar to those originally
+proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.tools.sdec_plot.</span></span><span class="sig-name descname"><span class="pre">SDECPlotter</span></span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Plotting interface for Spectral element DEComposition (SDEC) Plot.</p>
+<p>It performs necessary calculations to generate SDEC Plot for a simulation
+model, and allows to plot it in matplotlib and plotly.</p>
+<p>Initialize the SDECPlotter with required data of simulation model.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_hdf" title="Link to this definition">¶</a></dt>
+<dd><p>Create an instance of SDECPlotter from a simulation HDF file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>hdf_fpath</strong><span class="classifier">str</span></dt><dd><p>Valid path to the HDF file where simulation is saved</p>
+</dd>
+<dt><strong>packets_mode</strong><span class="classifier">{‘virtual’, ‘real’}, optional</span></dt><dd><p>Mode of packets to be considered (default: ‘virtual’)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>SDECPlotter</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.from_simulation">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_simulation" title="Link to this definition">¶</a></dt>
+<dd><p>Create an instance of SDECPlotter from a TARDIS simulation object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sim</strong><span class="classifier">tardis.simulation.Simulation</span></dt><dd><p>TARDIS Simulation object produced by running a simulation</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>SDECPlotter</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.from_workflow">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_workflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workflow</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.from_workflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.from_workflow" title="Link to this definition">¶</a></dt>
+<dd><p>Create an instance of SDECPlotter from a TARDIS workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>workflow</strong><span class="classifier">A TARDIS workflow object</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>SDECPlotter</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_mpl">
+<span class="sig-name descname"><span class="pre">generate_plot_mpl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'virtual'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_wvl_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_spectrum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_modeled_spectrum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmapname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blackbody_photosphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.generate_plot_mpl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_mpl" title="Link to this definition">¶</a></dt>
+<dd><p>Generate Spectral element DEComposition (SDEC) Plot using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>packets_mode</strong><span class="classifier">{‘virtual’, ‘real’}, optional</span></dt><dd><p>Mode of packets to be considered, either real or virtual. Default
+value is ‘virtual’</p>
+</dd>
+<dt><strong>packet_wvl_range</strong><span class="classifier">astropy.Quantity or None, optional</span></dt><dd><p>Wavelength range to restrict the analysis of escaped packets. It
+should be a quantity having units of Angstrom, containing two
+values - lower lambda and upper lambda i.e.
+[lower_lambda, upper_lambda] * u.AA. Default value is None</p>
+</dd>
+<dt><strong>distance</strong><span class="classifier">astropy.Quantity or None, optional</span></dt><dd><p>Distance used to calculate flux instead of luminosity in the plot.
+It should have a length unit like m, Mpc, etc. Default value is None</p>
+</dd>
+<dt><strong>observed_spectrum</strong><span class="classifier">tuple or list of astropy.Quantity, optional</span></dt><dd><p>Option to plot an observed spectrum in the SDEC plot. If given, the first element
+should be the wavelength and the second element should be flux,
+i.e. (wavelength, flux). The assumed units for wavelength and flux are
+angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.</p>
+</dd>
+<dt><strong>show_modeled_spectrum</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to show modeled spectrum in SDEC Plot. Default value is
+True</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">matplotlib.axes._subplots.AxesSubplot or None, optional</span></dt><dd><p>Axis on which to create plot. Default value is None which will
+create plot on a new figure’s axis.</p>
+</dd>
+<dt><strong>figsize</strong><span class="classifier">tuple, optional</span></dt><dd><p>Size of the matplotlib figure to display. Default value is (12, 7)</p>
+</dd>
+<dt><strong>cmapname</strong><span class="classifier">str, optional</span></dt><dd><p>Name of matplotlib colormap to be used for showing elements.
+Default value is “jet”</p>
+</dd>
+<dt><strong>nelements: int</strong></dt><dd><p>Number of elements to include in plot. Determined by the
+largest contribution to total luminosity absorbed and emitted.
+Other elements are shown in silver. Default value is
+None, which displays all elements</p>
+</dd>
+<dt><strong>species_list: list of strings or None</strong></dt><dd><p>list of strings containing the names of species that should be included in the SDEC plots.
+Must be given in Roman numeral format. Can include specific ions, a range of ions,
+individual elements, or any combination of these:
+e.g. [‘Si II’, ‘Ca II’, ‘C’, ‘Fe I-V’]</p>
+</dd>
+<dt><strong>blackbody_photosphere: bool</strong></dt><dd><p>Whether to include the blackbody photosphere in the plot. Default value is True</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>matplotlib.axes._subplots.AxesSubplot</dt><dd><p>Axis on which SDEC Plot is created</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_ply">
+<span class="sig-name descname"><span class="pre">generate_plot_ply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'virtual'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_wvl_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_spectrum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_modeled_spectrum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmapname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blackbody_photosphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.generate_plot_ply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_ply" title="Link to this definition">¶</a></dt>
+<dd><p>Generate interactive Spectral element DEComposition (SDEC) Plot using plotly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>packets_mode</strong><span class="classifier">{‘virtual’, ‘real’}, optional</span></dt><dd><p>Mode of packets to be considered, either real or virtual. Default
+value is ‘virtual’</p>
+</dd>
+<dt><strong>packet_wvl_range</strong><span class="classifier">astropy.Quantity or None, optional</span></dt><dd><p>Wavelength range to restrict the analysis of escaped packets. It
+should be a quantity having units of Angstrom, containing two
+values - lower lambda and upper lambda i.e.
+[lower_lambda, upper_lambda] * u.AA. Default value is None</p>
+</dd>
+<dt><strong>distance</strong><span class="classifier">astropy.Quantity or None, optional</span></dt><dd><p>Distance used to calculate flux instead of luminosity in the plot.
+It should have a length unit like m, Mpc, etc. Default value is None</p>
+</dd>
+<dt><strong>observed_spectrum</strong><span class="classifier">tuple or list of astropy.Quantity, optional</span></dt><dd><p>Option to plot an observed spectrum in the SDEC plot. If given, the first element
+should be the wavelength and the second element should be flux,
+i.e. (wavelength, flux). The assumed units for wavelength and flux are
+angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.</p>
+</dd>
+<dt><strong>show_modeled_spectrum</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to show modeled spectrum in SDEC Plot. Default value is
+True</p>
+</dd>
+<dt><strong>fig</strong><span class="classifier">plotly.graph_objs._figure.Figure or None, optional</span></dt><dd><p>Figure object on which to create plot. Default value is None which
+will create plot on a new Figure object.</p>
+</dd>
+<dt><strong>graph_height</strong><span class="classifier">int, optional</span></dt><dd><p>Height (in px) of the plotly graph to display. Default value is 600</p>
+</dd>
+<dt><strong>cmapname</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the colormap to be used for showing elements.
+Default value is “jet”</p>
+</dd>
+<dt><strong>nelements: int</strong></dt><dd><p>Number of elements to include in plot. Determined by the
+largest contribution to total luminosity absorbed and emitted.
+Other elements are shown in silver. Default value is
+None, which displays all elements</p>
+</dd>
+<dt><strong>species_list: list of strings or None</strong></dt><dd><p>list of strings containing the names of species that should be included in the SDEC plots.
+Must be given in Roman numeral format. Can include specific ions, a range of ions,
+individual elements, or any combination of these:
+e.g. [‘Si II’, ‘Ca II’, ‘C’, ‘Fe I-V’]</p>
+</dd>
+<dt><strong>blackbody_photosphere: bool</strong></dt><dd><p>Whether to include the blackbody photosphere in the plot. Default value is True</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>plotly.graph_objs._figure.Figure</dt><dd><p>Figure object on which SDEC Plot is created</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.process_luminosity_dataframe">
+<span class="sig-name descname"><span class="pre">process_luminosity_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys_to_exclude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_column_position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.process_luminosity_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.process_luminosity_dataframe" title="Link to this definition">¶</a></dt>
+<dd><p>Process a luminosity DataFrame by aggregating specified columns into an ‘other’ column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>The DataFrame containing luminosity data to be processed.</p>
+</dd>
+<dt><strong>keys_to_exclude</strong><span class="classifier">list of str</span></dt><dd><p>Column names in <code class="xref py py-obj docutils literal notranslate"><span class="pre">df</span></code> whose data should be summed into the ‘other’ column and removed.</p>
+</dd>
+<dt><strong>other_column_position</strong><span class="classifier">int, optional</span></dt><dd><p>The integer location (0-indexed) at which to insert the new ‘other’ column. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>A new DataFrame with the excluded columns summed into ‘other’ and removed from the original.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tardis.visualization.tools.rpacket_plot.html" class="btn btn-neutral float-left" title="tardis.visualization.tools.rpacket_plot module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.visualization.widgets.html" class="btn btn-neutral float-right" title="tardis.visualization.widgets package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 07 Sep 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
