@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-from astropy import constants as const
+from tardis import constants as const
 import numpy as np
 import pandas as pd
 

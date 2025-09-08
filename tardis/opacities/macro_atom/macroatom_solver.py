@@ -286,7 +286,7 @@ class BoundBoundMacroAtomSolver:
                     self._energies_lower,
                     beta_sobolevs,
                     self._transition_a_i_l_u_array,
-                    self.lines.line_id.values,
+                    self.lines.line_id.to_numpy(),
                 )
             )
 
@@ -298,7 +298,7 @@ class BoundBoundMacroAtomSolver:
                 beta_sobolevs,
                 stimulated_emission_factors,
                 self._transition_a_i_l_u_array,
-                self.lines.line_id.values,
+                self.lines.line_id.to_numpy(),
             )
             probabilities_df = pd.concat(
                 [p_emission_down, p_internal_down, p_internal_up]
