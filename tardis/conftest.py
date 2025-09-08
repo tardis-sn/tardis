@@ -302,7 +302,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
     return sim
 
 @pytest.fixture(scope="class")
-def workflow_simple(self, config_verysimple, atomic_data_fname):
+def workflow_simple(config_verysimple, atomic_data_fname):
     config = deepcopy(config_verysimple)
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 3
