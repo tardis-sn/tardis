@@ -1,20 +1,27 @@
-from astropy import constants as const
+from __future__ import annotations
 
-P_INTERNAL_UP = 1
-P_INTERNAL_DOWN = 0
-P_EMISSION_DOWN = -1
+from astropy import constants as const
+import numpy as np
+import pandas as pd
+
+CONST_C_CGS: float = const.c.cgs.value
+CONST_H_CGS: float = const.h.cgs.value
+
+P_INTERNAL_UP: int = 1
+P_INTERNAL_DOWN: int = 0
+P_EMISSION_DOWN: int = -1
 
 
 def line_transition_internal_up(
-    line_f_lus,
-    line_nus,
-    energies_lower,
-    mean_intensities_blue_wing,
-    beta_sobolevs,
-    stimulated_emission_factors,
-    transition_a_i_l_u_array,
-    line_ids,
-):
+    line_f_lus: pd.Series,
+    line_nus: pd.Series,
+    energies_lower: pd.Series,
+    mean_intensities_blue_wing: pd.Series,
+    beta_sobolevs: pd.Series,
+    stimulated_emission_factors: pd.Series,
+    transition_a_i_l_u_array: np.ndarray,
+    line_ids: np.ndarray,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Calculate internal upward transition probabilities for line transitions in macro atoms.
 
@@ -61,55 +68,40 @@ def line_transition_internal_up(
 
     p_internal_up = (
         line_f_lus
-        / (const.h.cgs.value * line_nus)
+        / (CONST_H_CGS * line_nus)
         * stimulated_emission_factors
         * mean_intensities_blue_wing
         * beta_sobolevs
         * energies_lower
     )
-    p_internal_up["source"] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-    ]
 
-    p_internal_up["destination"] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-    ]
-    p_internal_up["transition_type"] = P_INTERNAL_UP
+    transition_indices = np.arange(len(line_ids))
+    sources = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 2]]))
+    destinations = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 3]]))
 
-    p_internal_up["transition_line_id"] = line_ids
-
-    p_internal_up["transition_line_idx"] = range(len(line_ids))
-
-    internal_up_metadata = p_internal_up[
-        [
-            "transition_line_id",
-            "source",
-            "destination",
-            "transition_type",
-            "transition_line_idx",
-        ]
-    ]
-
-    p_internal_up = p_internal_up.drop(
-        columns=[
-            "destination",
-            "transition_type",
-            "transition_line_id",
-            "transition_line_idx",
-        ]
+    internal_up_metadata = pd.DataFrame(
+        {
+            "transition_line_id": line_ids,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": P_INTERNAL_UP,
+            "transition_line_idx": transition_indices,
+        },
+        index=p_internal_up.index,
     )
+    p_internal_up["source"] = sources
 
     return p_internal_up, internal_up_metadata
 
 
 def line_transition_internal_down(
-    line_f_uls,
-    line_nus,
-    energies_lower,
-    beta_sobolevs,
-    transition_a_i_l_u_array,
-    line_ids,
-):
+    line_f_uls: pd.Series,
+    line_nus: pd.Series,
+    energies_lower: pd.Series,
+    beta_sobolevs: pd.Series,
+    transition_a_i_l_u_array: np.ndarray,
+    line_ids: np.ndarray,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Calculate internal downward transition probabilities for line transitions.
 
@@ -154,53 +146,39 @@ def line_transition_internal_down(
         2
         * line_nus**2
         * line_f_uls
-        / const.c.cgs.value**2
+        / CONST_C_CGS**2
         * beta_sobolevs
         * energies_lower
     )
-    p_internal_down["source"] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-    ]
 
-    p_internal_down["destination"] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-    ]
-    p_internal_down["transition_type"] = P_INTERNAL_DOWN
+    transition_indices = np.arange(len(line_ids))
+    sources = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 3]]))
+    destinations = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 2]]))
 
-    p_internal_down["transition_line_id"] = line_ids
-
-    p_internal_down["transition_line_idx"] = range(len(line_ids))
-
-    internal_down_metadata = p_internal_down[
-        [
-            "transition_line_id",
-            "source",
-            "destination",
-            "transition_type",
-            "transition_line_idx",
-        ]
-    ]
-
-    p_internal_down = p_internal_down.drop(
-        columns=[
-            "destination",
-            "transition_type",
-            "transition_line_id",
-            "transition_line_idx",
-        ]
+    internal_down_metadata = pd.DataFrame(
+        {
+            "transition_line_id": line_ids,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": P_INTERNAL_DOWN,
+            "transition_line_idx": transition_indices,
+        },
+        index=p_internal_down.index,
     )
+    p_internal_down["source"] = sources
+
     return p_internal_down, internal_down_metadata
 
 
 def line_transition_emission_down(
-    line_f_uls,
-    line_nus,
-    energies_upper,
-    energies_lower,
-    beta_sobolevs,
-    transition_a_i_l_u_array,
-    line_ids,
-):
+    line_f_uls: pd.Series,
+    line_nus: pd.Series,
+    energies_upper: pd.Series,
+    energies_lower: pd.Series,
+    beta_sobolevs: pd.Series,
+    transition_a_i_l_u_array: np.ndarray,
+    line_ids: np.ndarray,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Calculate emission down transition probabilities for line transitions.
 
@@ -248,40 +226,25 @@ def line_transition_emission_down(
         2
         * line_nus**2
         * line_f_uls
-        / const.c.cgs.value**2
+        / CONST_C_CGS**2
         * beta_sobolevs
         * (energies_upper - energies_lower)
     )
-    p_emission_down["source"] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-    ]
 
-    p_emission_down["destination"] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-    ]
+    transition_indices = np.arange(len(line_ids))
+    sources = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 3]]))
+    destinations = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 2]]))
 
-    p_emission_down["transition_type"] = P_EMISSION_DOWN
-
-    p_emission_down["transition_line_id"] = line_ids
-
-    p_emission_down["transition_line_idx"] = range(len(line_ids))
-
-    emission_down_metadata = p_emission_down[
-        [
-            "transition_line_id",
-            "source",
-            "destination",
-            "transition_type",
-            "transition_line_idx",
-        ]
-    ]
-
-    p_emission_down = p_emission_down.drop(
-        columns=[
-            "destination",
-            "transition_type",
-            "transition_line_id",
-            "transition_line_idx",
-        ]
+    emission_down_metadata = pd.DataFrame(
+        {
+            "transition_line_id": line_ids,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": P_EMISSION_DOWN,
+            "transition_line_idx": transition_indices,
+        },
+        index=p_emission_down.index,
     )
+    p_emission_down["source"] = sources
+
     return p_emission_down, emission_down_metadata
