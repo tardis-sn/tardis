@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=3b53f68a"></script>
+      <script src="../../../../_static/documentation_options.js?v=a4083239"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -131,9 +131,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.opacities.macro_atom.macroatom_state</h1><div class="highlight"><pre>
-<span></span>from tardis.io.hdf_writer_mixin import HDFWriterMixin
-from tardis.transport.montecarlo.configuration import montecarlo_globals
+<span></span>from typing import Self
+
 import pandas as pd
+
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 <div class="viewcode-block" id="LegacyMacroAtomState">
@@ -152,30 +155,30 @@ class LegacyMacroAtomState(HDFWriterMixin):
 
     def __init__(
         self,
-        transition_probabilities,
-        transition_type,
-        destination_level_id,
-        transition_line_id,
-        macro_block_references,
+        transition_probabilities: pd.DataFrame,
+        transition_type: pd.Series,
+        destination_level_id: pd.Series,
+        transition_line_id: pd.Series,
+        macro_block_references: pd.DataFrame | pd.Series,
         line2macro_level_upper,
-    ):
+    ) -&gt; None:
         &quot;&quot;&quot;
-        Current State of the MacroAtom
+        Initialize a LegacyMacroAtomState object.
 
         Parameters
         ----------
         transition_probabilities : pd.DataFrame
-            Macro Atom Transition probabilities between levels
-        transition_type : pd.DataFrame)
-            Macro Atom transition types
-        destination_level_id : pd.DataFrame
-            ID of destination levels of the Macro Atom
-        transition_line_id : pd.DataFrame
-            ID of lines corresponding to Macro Atom transitions
-        macro_block_references : pd.DataFrame or np.ndarray
-            Index references to the Macro Atom blocks
-        line2macro_level_upper : pd.DataFrame
-            Mapping from lines to Macro Atom upper levels
+            Macro Atom transition probabilities between levels.
+        transition_type : pd.Series
+            Macro Atom transition types.
+        destination_level_id : pd.Series
+            ID of destination levels of the Macro Atom.
+        transition_line_id : pd.Series
+            ID of lines corresponding to Macro Atom transitions.
+        macro_block_references : pd.DataFrame | pd.Series
+            Index references to the Macro Atom blocks.
+        line2macro_level_upper
+            Mapping from lines to Macro Atom upper levels.
         &quot;&quot;&quot;
         self.transition_probabilities = transition_probabilities
         self.transition_type = transition_type
@@ -187,18 +190,19 @@ class LegacyMacroAtomState(HDFWriterMixin):
 <div class="viewcode-block" id="LegacyMacroAtomState.from_legacy_plasma">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.LegacyMacroAtomState.from_legacy_plasma">[docs]</a>
     @classmethod
-    def from_legacy_plasma(cls, plasma):
+    def from_legacy_plasma(cls, plasma) -&gt; Self:
         &quot;&quot;&quot;
-        Generates a MacroAtomState object from a tardis BasePlasma
+        Generate a LegacyMacroAtomState object from a tardis BasePlasma.
 
         Parameters
         ----------
         plasma : tardis.plasma.BasePlasma
-            legacy base plasma
+            Legacy base plasma object.
 
         Returns
         -------
-        MacroAtomState
+        LegacyMacroAtomState
+            A LegacyMacroAtomState object created from the plasma data.
         &quot;&quot;&quot;
         transition_probabilities = plasma.transition_probabilities
         transition_type = plasma.macro_atom_data[&quot;transition_type&quot;]
@@ -245,40 +249,41 @@ class MacroAtomState:
         transition_probabilities: pd.DataFrame,
         transition_metadata: pd.DataFrame,
         line2macro_level_upper: pd.Series,
-    ):
+        macro_block_references: pd.Series | None = None,
+    ) -&gt; None:
         &quot;&quot;&quot;
-        Current State of the MacroAtom
+        Initialize a MacroAtomState object.
 
         Parameters
         ----------
         transition_probabilities : pd.DataFrame
             Transition probabilities for the macro atom, indexed by source and destination levels.
         transition_metadata : pd.DataFrame
-            Metadata for the macro atom, including atomic number, ion number, level numbers for the transition, desination, and source.
+            Metadata for the macro atom, including atomic number, ion number, level numbers for the transition, destination, and source.
         line2macro_level_upper : pd.Series
             Mapping from lines to the upper levels of the macro atom transitions.
+        macro_block_references : pd.Series, optional
+            Index references to the Macro Atom blocks. Default is None.
         &quot;&quot;&quot;
         self.transition_probabilities = transition_probabilities
         self.transition_metadata = transition_metadata
         self.line2macro_level_upper = line2macro_level_upper
+        self.macro_block_references = macro_block_references
 
 <div class="viewcode-block" id="MacroAtomState.to_legacy_format">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.to_legacy_format">[docs]</a>
-    def to_legacy_format(self):
+    def to_legacy_format(self) -&gt; LegacyMacroAtomState:
         &quot;&quot;&quot;
-        Convert the current state of the MacroAtom to legacy format.
+        Convert the current MacroAtomState to legacy format.
+
         Returns
         -------
-
-
+        LegacyMacroAtomState
+            The MacroAtomState converted to legacy format.
         &quot;&quot;&quot;
         transition_probabilities = self.transition_probabilities
         transition_type = self.transition_metadata.transition_type
-        destination_level_id = pd.Series(
-            data=[level[2] for level in self.transition_metadata.destination],
-            index=self.transition_metadata.index,
-            name=&quot;destination_level_idx&quot;,
-        )
+        destination_level_id = self.transition_metadata.destination_level_idx
         transition_line_id = self.transition_metadata.transition_line_idx
         unique_source_multi_index = pd.MultiIndex.from_tuples(
             self.transition_metadata.source.unique(),
@@ -310,23 +315,22 @@ class MacroAtomState:
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.sort_to_legacy">[docs]</a>
     def sort_to_legacy(
         self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
-    ) -&gt; &quot;MacroAtomState&quot;:
+    ):
         &quot;&quot;&quot;
-        Sort the current MacroAtomState to match the legacy MacroAtomState.
+        Sort the current MacroAtomState to match the legacy MacroAtomState order.
 
         Parameters
         ----------
         legacy_state : LegacyMacroAtomState
-            The legacy state to sort to.
+            The legacy state to match the ordering of.
         lines : pd.DataFrame
             DataFrame containing line information.
 
         Returns
         -------
         MacroAtomState
-            A new MacroAtomState sorted to match the legacy state.
+            A new MacroAtomState with transitions sorted to match the legacy state order.
         &quot;&quot;&quot;
-
         legacy_sorting_frame = pd.DataFrame(legacy_state.transition_type)
         legacy_sorting_frame[&quot;transition_line_id&quot;] = lines.iloc[
             legacy_state.transition_line_id
@@ -365,17 +369,19 @@ class MacroAtomState:
         self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
     ) -&gt; LegacyMacroAtomState:
         &quot;&quot;&quot;
-        Recreate the legacy MacroAtomState with new transition probabilities and new unique transition ids.
+        Recreate the legacy MacroAtomState with new transition probabilities and unique transition IDs.
 
         Parameters
         ----------
+        legacy_state : LegacyMacroAtomState
+            The original legacy state to recreate from.
         lines : pd.DataFrame
             DataFrame containing line information.
 
         Returns
         -------
         LegacyMacroAtomState
-            The recreated legacy MacroAtomState.
+            The recreated legacy MacroAtomState with updated transition data.
         &quot;&quot;&quot;
         legacy_sorted = self.sort_to_legacy(legacy_state, lines)
         legacy_macro_atom = legacy_sorted.to_legacy_format()
@@ -383,7 +389,9 @@ class MacroAtomState:
         legacy_macro_atom.line2macro_level_upper = (
             legacy_state.line2macro_level_upper
         )
-        legacy_macro_atom.destination_level_id = legacy_state.destination_level_id  # I&#39;m also not sure how to recreate this because it doesn&#39;t quite make sense to me.
+        legacy_macro_atom.destination_level_id = (
+            legacy_state.destination_level_id
+        )
 
         return legacy_macro_atom</div>
 </div>
