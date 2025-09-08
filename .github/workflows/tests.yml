@@ -148,7 +148,7 @@ jobs:
           pip install --no-deps qgridnext lineid_plot
 
       - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+        run: pytest tardis/visualization/tools/tests ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
