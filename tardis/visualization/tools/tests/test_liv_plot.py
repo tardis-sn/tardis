@@ -466,7 +466,7 @@ class TestLIVPlotter:
 
     @pytest.fixture(scope="class")
     def plotter_from_workflow(self, workflow_simple):
-        return LIVPlotter.from_simulation(workflow_simple)
+        return LIVPlotter.from_workflow(workflow_simple)
 
     @pytest.fixture(scope="class")
     def liv_regression_data(self, tardis_regression_path):
