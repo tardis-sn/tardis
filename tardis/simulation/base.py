@@ -788,6 +788,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 macro_atom = BoundBoundMacroAtomSolver(
                     atom_data.levels,
                     atom_data.lines,
+                    line_interaction_type=config.plasma.line_interaction_type,
                 )
 
         convergence_plots_config_options = [
