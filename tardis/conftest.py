@@ -9,6 +9,7 @@ from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.tests.fixtures.atom_data import *
 from tardis.transport.montecarlo.progress_bars import (
     iterations_pbar,
@@ -299,6 +300,21 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
         show_convergence_plots=False,
     )
     return sim
+
+@pytest.fixture(scope="class")
+def workflow_simple(self, config_verysimple, atomic_data_fname):
+    config = deepcopy(config_verysimple)
+    config.atom_data = atomic_data_fname
+    config.montecarlo.iterations = 3
+    config.montecarlo.no_of_packets = 4000
+    config.montecarlo.last_no_of_packets = -1
+    config.spectrum.virtual.virtual_packet_logging = True
+    config.montecarlo.no_of_virtual_packets = 1
+    config.spectrum.num = 2000
+    
+    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
+    workflow.run()
+    return workflow
 
 
 def pytest_sessionfinish(session, exitstatus):
