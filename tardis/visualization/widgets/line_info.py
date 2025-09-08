@@ -18,6 +18,7 @@ from tardis.visualization.widgets.util import (
     create_table_widget,
 )
 from tardis.util.environment import Environment
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class LineInfoWidget:
@@ -102,7 +103,8 @@ class LineInfoWidget:
         )
 
         self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
-            options=list(self.FILTER_MODES_DESC), value=self.FILTER_MODES_DESC[0]
+            options=list(self.FILTER_MODES_DESC),
+            value=self.FILTER_MODES_DESC[0],
         )
 
         self.group_mode_dropdown = pn.widgets.Select(
@@ -223,9 +225,8 @@ class LineInfoWidget:
         )
         fractional_species_interactions.name = "Fraction of packets interacting"
         return fractional_species_interactions.sort_values(
-            ascending=False
+            ascending=False, kind=SORTING_ALGORITHM
         ).to_frame()
-
 
     def get_last_line_counts(
         self,
@@ -321,9 +322,9 @@ class LineInfoWidget:
 
             if group_mode == "both":
                 # Group by both exc. line ids and de-exc. line ids
-                current_last_lines_in[
-                    "line_id_out"
-                ] = current_last_lines_out.line_id
+                current_last_lines_in["line_id_out"] = (
+                    current_last_lines_out.line_id
+                )
                 grouped_line_interactions = current_last_lines_in.groupby(
                     ["line_id", "line_id_out"]
                 )
@@ -397,7 +398,9 @@ class LineInfoWidget:
         last_line_counts.index = pd.Index(
             last_line_interaction_string, name="Last Line Interaction"
         )
-        return last_line_counts.sort_values(ascending=False).to_frame()
+        return last_line_counts.sort_values(
+            ascending=False, kind=SORTING_ALGORITHM
+        ).to_frame()
 
     @staticmethod
     def get_middle_half_edges(arr):
@@ -412,7 +415,7 @@ class LineInfoWidget:
         -------
         list
         """
-        arr = np.sort(arr)
+        arr = np.sort(arr, kind=SORTING_ALGORITHM)
         return [
             (arr[-1] - arr[0]) / 4 + arr[1],
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],
@@ -446,34 +449,62 @@ class LineInfoWidget:
         plotly.graph_objects.FigureWidget
         """
         # Create Bokeh figure with box select
-        p = figure(width=800, height=400, title='Spectrum', tools='box_select,reset')
-        
+        p = figure(
+            width=800, height=400, title="Spectrum", tools="box_select,reset"
+        )
+
         # Add proper axis labels with units (Bokeh compatible)
         p.xaxis.axis_label = f"Wavelength [{wavelength.unit}]"
         p.yaxis.axis_label = f"Luminosity [{luminosity_density_lambda.unit}]"
-        
+
         # Add line plots
-        p.line(wavelength.value, luminosity_density_lambda.value, legend_label='Real packets', color='blue')
-        p.line(virt_wavelength.value, virt_luminosity_density_lambda.value, legend_label='Virtual packets', color='red')
-        
+        p.line(
+            wavelength.value,
+            luminosity_density_lambda.value,
+            legend_label="Real packets",
+            color="blue",
+        )
+        p.line(
+            virt_wavelength.value,
+            virt_luminosity_density_lambda.value,
+            legend_label="Virtual packets",
+            color="red",
+        )
+
         # Create invisible scatter for selection (needed for box select to work)
-        source = ColumnDataSource(dict(x=wavelength.value, y=luminosity_density_lambda.value))
-        p.scatter('x', 'y', source=source, alpha=0, size=1)
-        
+        source = ColumnDataSource(
+            dict(x=wavelength.value, y=luminosity_density_lambda.value)
+        )
+        p.scatter("x", "y", source=source, alpha=0, size=1)
+
         # Create selection overlay source (initially empty)
-        selection_source = ColumnDataSource(dict(left=[], right=[], top=[], bottom=[]))
-        p.quad(left='left', right='right', top='top', bottom='bottom',
-               source=selection_source, alpha=0.3, color='lightblue')
-        
+        selection_source = ColumnDataSource(
+            dict(left=[], right=[], top=[], bottom=[])
+        )
+        p.quad(
+            left="left",
+            right="right",
+            top="top",
+            bottom="bottom",
+            source=selection_source,
+            alpha=0.3,
+            color="lightblue",
+        )
+
         # Store references for callback
         self._bokeh_plot = p
         self._selection_source = selection_source
-        self._y_range = [luminosity_density_lambda.value.min(), luminosity_density_lambda.value.max()]
-        self._wavelength_data = wavelength  # Store wavelength data for callback access
+        self._y_range = [
+            luminosity_density_lambda.value.min(),
+            luminosity_density_lambda.value.max(),
+        ]
+        self._wavelength_data = (
+            wavelength  # Store wavelength data for callback access
+        )
 
         # Connect selection callback
-        source.selected.on_change('indices', self._selection_callback)
-        
+        source.selected.on_change("indices", self._selection_callback)
+
         return pn.pane.Bokeh(p)
 
     def _selection_callback(self, _attr, _old, new):
@@ -503,15 +534,19 @@ class LineInfoWidget:
                     left=[x_range[0]],
                     right=[x_range[1]],
                     top=[self._y_range[1]],
-                    bottom=[self._y_range[0]]
+                    bottom=[self._y_range[0]],
                 )
 
                 # Track the current selection
                 self._current_wavelength_range = x_range
 
                 # Get current filter mode from buttons
-                filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
-                self._update_species_interactions(x_range, self.FILTER_MODES[filter_mode_index])
+                filter_mode_index = list(self.FILTER_MODES_DESC).index(
+                    self.filter_mode_buttons.value
+                )
+                self._update_species_interactions(
+                    x_range, self.FILTER_MODES[filter_mode_index]
+                )
 
     def _update_species_interactions(self, wavelength_range, filter_mode):
         """
@@ -527,8 +562,10 @@ class LineInfoWidget:
         )
 
         # Get index of 0th row in species_interactions_table
-        if not self.species_interactions_table.df.empty and self.species_interactions_table.df.index[0] != "":
-            
+        if (
+            not self.species_interactions_table.df.empty
+            and self.species_interactions_table.df.index[0] != ""
+        ):
             species0 = self.species_interactions_table.df.index[0]
 
             # Also update last_line_counts_table by triggering its event listener
@@ -560,8 +597,6 @@ class LineInfoWidget:
             )
         else:  # Line counts table will be empty
             self.total_packets_label.update_and_resize(0)
-
-
 
     def _filter_mode_toggle_handler(self, event):
         """
@@ -598,15 +633,18 @@ class LineInfoWidget:
             species_selected = None
 
         # Get indices from the selected values
-        filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
-        group_mode_index = list(self.GROUP_MODES_DESC).index(self.group_mode_dropdown.value)
+        filter_mode_index = list(self.FILTER_MODES_DESC).index(
+            self.filter_mode_buttons.value
+        )
+        group_mode_index = list(self.GROUP_MODES_DESC).index(
+            self.group_mode_dropdown.value
+        )
 
         self._update_last_line_counts(
             species_selected,
             self.FILTER_MODES[filter_mode_index],
             self.GROUP_MODES[group_mode_index],
         )
-
 
     def _group_mode_dropdown_handler(self, event):
         """
@@ -626,7 +664,9 @@ class LineInfoWidget:
             return
 
         # Get indices from the selected values
-        filter_mode_index = list(self.FILTER_MODES_DESC).index(self.filter_mode_buttons.value)
+        filter_mode_index = list(self.FILTER_MODES_DESC).index(
+            self.filter_mode_buttons.value
+        )
         group_mode_index = list(self.GROUP_MODES_DESC).index(event.new)
 
         self._update_last_line_counts(
@@ -681,7 +721,6 @@ class LineInfoWidget:
                 f"( {selection_box_symbol} ) by:</span>"
             )
 
-
             group_description = pn.pane.HTML(
                 "<span style='font-size: 1.15em;'>Group packet counts by:</span>"
             )
@@ -690,7 +729,7 @@ class LineInfoWidget:
                 filter_description,
                 self.filter_mode_buttons,
                 self.species_interactions_table.table,
-                margin=(0, 15)
+                margin=(0, 15),
             )
 
             table_container_right = pn.Column(
@@ -698,20 +737,17 @@ class LineInfoWidget:
                 self.group_mode_dropdown,
                 self.last_line_counts_table.table,
                 self.total_packets_label.widget,
-                margin=(0, 15)
+                margin=(0, 15),
             )
 
             tables_row = pn.Row(
                 table_container_left,
                 table_container_right,
-                sizing_mode='stretch_width'
+                sizing_mode="stretch_width",
             )
 
             widget = pn.Column(
-                self.figure_widget,
-                tables_row,
-                sizing_mode='stretch_width'
+                self.figure_widget, tables_row, sizing_mode="stretch_width"
             )
-            
-            return widget
 
+            return widget

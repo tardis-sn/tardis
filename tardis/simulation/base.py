@@ -14,12 +14,8 @@ from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
-from tardis.opacities.macro_atom.macroatom_solver import (
-    BoundBoundMacroAtomSolver,
-)
-from tardis.opacities.macro_atom.macroatom_state import (
-    LegacyMacroAtomState,
-)
+from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
@@ -786,11 +782,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "downbranch",
                 "macroatom",
             ):
-                macro_atom = BoundBoundMacroAtomSolver(
-                    atom_data.levels,
-                    atom_data.lines,
-                    line_interaction_type=config.plasma.line_interaction_type,
-                )
+                macro_atom = LegacyMacroAtomSolver()
 
         convergence_plots_config_options = [
             "plasma_plot_config",
