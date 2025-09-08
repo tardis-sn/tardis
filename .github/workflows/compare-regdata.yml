@@ -131,6 +131,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: ${{ matrix.label }}
+          lockfile-path: ./conda-${{ matrix.label }}.lock
 
       - name: Install tardis editable
         run: |
