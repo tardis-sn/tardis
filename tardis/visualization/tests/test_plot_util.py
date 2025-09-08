@@ -127,7 +127,7 @@ class TestPlotUtil:
         expected_df = pd.DataFrame(expected_data)
 
         line_mask = (expected_df["last_interaction_type"] > InteractionType.NO_INTERACTION) & (
-            expected_df["last_line_interaction_in_id"] > -1
+            expected_df["last_line_interaction_in_id"] > InteractionType.NO_INTERACTION
         )
         expected_df_line_interaction = expected_df.loc[line_mask].copy()
         expected_df_line_interaction["last_line_interaction_atom"] = list(
