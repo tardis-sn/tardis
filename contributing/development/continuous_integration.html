@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=e623e230"></script>
+      <script src="../../_static/documentation_options.js?v=3b53f68a"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -251,7 +251,12 @@ See the <a class="reference internal" href="documentation_guidelines.html#doc-pr
 </section>
 <section id="id1">
 <h3>Testing pipeline<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<p>The <a class="reference external" href="https://github.com/tardis-sn/tardis/blob/master/azure-pipelines/simple_test_framework.yml">testing pipeline</a> (CI) comprises multiple concurrent jobs. Each of these jobs runs tests across two distinct categories—continuum and rpacket tracking—and supports two different operating systems. Additionally, there are extra steps involved in executing the tests and uploading the coverage results</p>
+<p>The <a class="reference external" href="https://github.com/tardis-sn/tardis/blob/master/azure-pipelines/simple_test_framework.yml">testing pipeline</a> (CI) comprises 4 concurrent jobs that execute tests both with and without the continuum marker across Ubuntu and macOS platforms (2 platforms × 2 test types).
+The pipeline includes both preparatory setup (environment installation and regression data configuration) and subsequent uploading of coverage reports upon test completion.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>GPU Tests can be triggered by applying the <code class="xref py py-obj docutils literal notranslate"><span class="pre">full-tests</span></code> label to the pull request.</p>
+</div>
 </section>
 <section id="authors-pipeline">
 <h3>Authors pipeline<a class="headerlink" href="#authors-pipeline" title="Link to this heading">¶</a></h3>
@@ -316,7 +321,7 @@ bridge has failed.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Sep 2025.
+      <span class="lastupdated">Last updated on 08 Sep 2025.
       </span></p>
   </div>
 
