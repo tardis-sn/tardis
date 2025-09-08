@@ -17,43 +17,24 @@ class RPacketLastInteractionTracker:
     shell_id: nb.int64  # type: ignore[misc]
     interaction_type: nb.int64  # type: ignore[misc]
 
-    # LINE interaction tracking (before/after)
-    line_before_nu: nb.float64  # type: ignore[misc]
-    line_before_mu: nb.float64  # type: ignore[misc]
-    line_before_id: nb.int64  # type: ignore[misc]
-    line_after_nu: nb.float64  # type: ignore[misc]
-    line_after_mu: nb.float64  # type: ignore[misc]
-    line_after_id: nb.int64  # type: ignore[misc]
+    # Interaction tracking (before/after)
+    before_nu: nb.float64  # type: ignore[misc]
+    before_mu: nb.float64  # type: ignore[misc]
+    before_energy: nb.float64  # type: ignore[misc]
+    after_nu: nb.float64  # type: ignore[misc]
+    after_mu: nb.float64  # type: ignore[misc]
+    after_energy: nb.float64  # type: ignore[misc]
 
-    # ESCATTERING interaction tracking (before/after)
-    escat_before_mu: nb.float64  # type: ignore[misc]
-    escat_after_mu: nb.float64  # type: ignore[misc]
+    # Line interaction IDs (for line interactions only)
+    interaction_line_absorb_id: nb.int64  # type: ignore[misc]
+    interaction_line_emit_id: nb.int64  # type: ignore[misc]
 
-    # CONTINUUM_PROCESS interaction tracking (before/after)
-    continuum_before_nu: nb.float64  # type: ignore[misc]
-    continuum_before_energy: nb.float64  # type: ignore[misc]
-    continuum_before_mu: nb.float64  # type: ignore[misc]
-    continuum_after_nu: nb.float64  # type: ignore[misc]
-    continuum_after_energy: nb.float64  # type: ignore[misc]
-    continuum_after_mu: nb.float64  # type: ignore[misc]
-
-    # BOUNDARY interaction tracking (single state)
-    boundary_r: nb.float64  # type: ignore[misc]
-    boundary_nu: nb.float64  # type: ignore[misc]
-    boundary_energy: nb.float64  # type: ignore[misc]
-    boundary_mu: nb.float64  # type: ignore[misc]
-    boundary_from_shell_id: nb.int64  # type: ignore[misc]
-    boundary_to_shell_id: nb.int64  # type: ignore[misc]
-
-    # Counters for each interaction type
-    line_interactions_count: nb.int64  # type: ignore[misc]
-    escat_interactions_count: nb.int64  # type: ignore[misc]
-    continuum_interactions_count: nb.int64  # type: ignore[misc]
-    boundary_interactions_count: nb.int64  # type: ignore[misc]
+    # Interaction counter
+    interactions_count: nb.int64  # type: ignore[misc]
 
     """
     Numba JITCLASS for storing the last interaction the RPacket undergoes,
-    with specific tracking for each interaction type.
+    with unified tracking for all interaction types.
 
     Parameters
     ----------
@@ -67,22 +48,16 @@ class RPacketLastInteractionTracker:
             Current Shell No in which the last interaction happened
         interaction_type: int
             Type of interaction the rpacket undergoes
-        line_before_* : float/int
-            Properties before line interaction (nu, mu, id)
-        line_after_* : float/int
-            Properties after line interaction (nu, mu, id)
-        escat_before_* : float
-            Properties before electron scattering interaction (mu)
-        escat_after_* : float
-            Properties after electron scattering interaction (mu)
-        continuum_before_* : float
-            Properties before continuum process interaction (nu, energy, mu)
-        continuum_after_* : float
-            Properties after continuum process interaction (nu, energy, mu)
-        boundary_* : float/int
-            Properties during boundary crossing
-        *_interactions_count : int
-            Count of each interaction type
+        interaction_before_* : float
+            Properties before interaction (nu, mu, energy)
+        interaction_after_* : float
+            Properties after interaction (nu, mu, energy)
+        interaction_line_absorb_id : int
+            Line ID for absorbed line interactions (-1 for non-line interactions)
+        interaction_line_emit_id : int
+            Line ID for emitted line interactions (-1 for non-line interactions)
+        interactions_count : int
+            Count of interactions
     """
 
     def __init__(self) -> None:
@@ -96,39 +71,20 @@ class RPacketLastInteractionTracker:
         self.shell_id = -1
         self.interaction_type = -1
 
-        # Initialize LINE interaction tracking
-        self.line_before_nu = float('nan')
-        self.line_before_mu = float('nan')
-        self.line_before_id = -1
-        self.line_after_nu = float('nan')
-        self.line_after_mu = float('nan')
-        self.line_after_id = -1
+        # Initialize interaction tracking
+        self.before_nu = float('nan')
+        self.before_mu = float('nan')
+        self.before_energy = float('nan')
+        self.after_nu = float('nan')
+        self.after_mu = float('nan')
+        self.after_energy = float('nan')
 
-        # Initialize ESCATTERING interaction tracking
-        self.escat_before_mu = float('nan')
-        self.escat_after_mu = float('nan')
+        # Initialize line interaction IDs
+        self.interaction_line_absorb_id = -1
+        self.interaction_line_emit_id = -1
 
-        # Initialize CONTINUUM_PROCESS interaction tracking
-        self.continuum_before_nu = float('nan')
-        self.continuum_before_energy = float('nan')
-        self.continuum_before_mu = float('nan')
-        self.continuum_after_nu = float('nan')
-        self.continuum_after_energy = float('nan')
-        self.continuum_after_mu = float('nan')
-
-        # Initialize BOUNDARY interaction tracking
-        self.boundary_r = -1.0
-        self.boundary_nu = float('nan')
-        self.boundary_energy = float('nan')
-        self.boundary_mu = float('nan')
-        self.boundary_from_shell_id = -1
-        self.boundary_to_shell_id = -1
-
-        # Initialize counters
-        self.line_interactions_count = 0
-        self.escat_interactions_count = 0
-        self.continuum_interactions_count = 0
-        self.boundary_interactions_count = 0
+        # Initialize counter
+        self.interactions_count = 0
 
     def track_line_interaction_before(self, r_packet) -> None:
         """
@@ -139,10 +95,11 @@ class RPacketLastInteractionTracker:
         r_packet : RPacket
             The R-packet before line interaction.
         """
-        self.line_before_nu = r_packet.nu
-        self.line_before_mu = r_packet.mu
-        # The line ID should already be set in last_line_interaction_in_id by the transport phase
-        self.line_before_id = r_packet.last_line_interaction_in_id
+        self.before_nu = r_packet.nu
+        self.before_mu = r_packet.mu
+        self.before_energy = r_packet.energy
+        # Track the line ID that will be absorbed
+        self.interaction_line_absorb_id = r_packet.next_line_id
 
     def track_line_interaction_after(self, r_packet) -> None:
         """
@@ -153,11 +110,12 @@ class RPacketLastInteractionTracker:
         r_packet : RPacket
             The R-packet after line interaction.
         """
-        self.line_after_nu = r_packet.nu
-        self.line_after_mu = r_packet.mu
-        # Capture the line ID after the interaction (from last_line_interaction_out_id)
-        self.line_after_id = r_packet.last_line_interaction_out_id
-        self.line_interactions_count += 1
+        self.after_nu = r_packet.nu
+        self.after_mu = r_packet.mu
+        self.after_energy = r_packet.energy
+        # Track the line ID that was emitted
+        self.interaction_line_emit_id = r_packet.last_line_interaction_out_id
+        self.interactions_count += 1
         # Update general tracking
         self.r = r_packet.r
         self.nu = r_packet.nu
@@ -174,7 +132,12 @@ class RPacketLastInteractionTracker:
         r_packet : RPacket
             The R-packet before electron scattering.
         """
-        self.escat_before_mu = r_packet.mu
+        self.before_mu = r_packet.mu
+        self.before_nu = r_packet.nu
+        self.before_energy = r_packet.energy
+        # Reset line IDs for non-line interactions
+        self.interaction_line_absorb_id = -1
+        self.interaction_line_emit_id = -1
 
     def track_escattering_interaction_after(self, r_packet) -> None:
         """
@@ -185,8 +148,10 @@ class RPacketLastInteractionTracker:
         r_packet : RPacket
             The R-packet after electron scattering.
         """
-        self.escat_after_mu = r_packet.mu
-        self.escat_interactions_count += 1
+        self.after_mu = r_packet.mu
+        self.after_nu = r_packet.nu
+        self.after_energy = r_packet.energy
+        self.interactions_count += 1
         # Update general tracking
         self.r = r_packet.r
         self.nu = r_packet.nu
@@ -203,9 +168,12 @@ class RPacketLastInteractionTracker:
         r_packet : RPacket
             The R-packet before continuum process.
         """
-        self.continuum_before_nu = r_packet.nu
-        self.continuum_before_energy = r_packet.energy
-        self.continuum_before_mu = r_packet.mu
+        self.before_nu = r_packet.nu
+        self.before_energy = r_packet.energy
+        self.before_mu = r_packet.mu
+        # Reset line IDs for non-line interactions
+        self.interaction_line_absorb_id = -1
+        self.interaction_line_emit_id = -1
 
     def track_continuum_interaction_after(self, r_packet) -> None:
         """
@@ -216,10 +184,10 @@ class RPacketLastInteractionTracker:
         r_packet : RPacket
             The R-packet after continuum process.
         """
-        self.continuum_after_nu = r_packet.nu
-        self.continuum_after_energy = r_packet.energy
-        self.continuum_after_mu = r_packet.mu
-        self.continuum_interactions_count += 1
+        self.after_nu = r_packet.nu
+        self.after_energy = r_packet.energy
+        self.after_mu = r_packet.mu
+        self.interactions_count += 1
         # Update general tracking
         self.r = r_packet.r
         self.nu = r_packet.nu
@@ -227,69 +195,37 @@ class RPacketLastInteractionTracker:
         self.shell_id = r_packet.current_shell_id
         self.interaction_type = r_packet.last_interaction_type
 
-    def track_boundary_crossing(self, r_packet, from_shell_id, to_shell_id) -> None:
+    def track_boundary_event(self, r_packet, from_shell_id=-1, to_shell_id=-1) -> None:
         """
-        Track packet state during boundary crossing.
+        Track packet state during boundary event.
+        This method provides API compatibility with RPacketTracker.
 
         Parameters
         ----------
         r_packet : RPacket
-            The R-packet during boundary crossing.
-        from_shell_id : int
-            Shell ID the packet is leaving.
-        to_shell_id : int
-            Shell ID the packet is entering.
+            The R-packet during boundary event.
+        from_shell_id : int, optional
+            Shell ID the packet is leaving (default: -1).
+        to_shell_id : int, optional
+            Shell ID the packet is entering (default: -1).
         """
-        self.boundary_r = r_packet.r
-        self.boundary_mu = r_packet.mu
-        self.boundary_from_shell_id = from_shell_id
-        self.boundary_to_shell_id = to_shell_id
-        self.boundary_interactions_count += 1
-        # Update general tracking
-        self.r = r_packet.r
-        self.shell_id = r_packet.current_shell_id
-        self.interaction_type = r_packet.last_interaction_type
-
-    def get_interaction_summary(self) -> nb.types.Tuple((nb.int64, nb.int64, nb.int64, nb.int64)):  # type: ignore[misc]
+        pass
+    
+    def get_interaction_summary(self) -> nb.int64:  # type: ignore[misc]
         """
-        Get summary of all interaction counts.
+        Get summary of interaction count.
 
         Returns
         -------
-        tuple[int, int, int, int]
-            Counts for (line, escattering, continuum, boundary) interactions.
+        int
+            Total interaction count.
         """
-        return (
-            self.line_interactions_count,
-            self.escat_interactions_count,
-            self.continuum_interactions_count,
-            self.boundary_interactions_count,
-        )
+        return self.interactions_count
 
-    def initialize_tracker(self, r_packet) -> None:
-        """
-        Initialize tracker with packet properties.
-
-        Parameters
-        ----------
-        r_packet : RPacket
-            The R-packet to initialize tracking with
-        """
-        self.nu = r_packet.nu
-        self.mu = r_packet.mu
-        self.r = r_packet.r
-        self.energy = r_packet.energy
-        self.shell_id = r_packet.current_shell_id
 
     def finalize_array(self) -> None:
         """
         Added to make RPacketLastInteractionTracker compatible with RPacketTracker
-        """
-
-    def finalize_track(self, r_packet) -> None:
-        """
-        Finalize tracking for RPacketLastInteractionTracker.
-        For last interaction tracker, this is a no-op since we only track the last state.
         """
 
 
@@ -328,9 +264,15 @@ def rpacket_last_interaction_tracker_list_to_dataframe(tracker_list):
     pd.DataFrame
         DataFrame containing last interaction data with columns:
         - last_interaction_type: Type of the last interaction (categorical)
-        - last_line_interaction_in_id: Line ID for the input line interaction
-        - last_line_interaction_in_nu: Frequency for the input line interaction
-        - last_line_interaction_out_id: Line ID for the output line interaction
+        - before_nu: Frequency before interaction
+        - before_mu: Direction cosine before interaction
+        - before_energy: Energy before interaction
+        - after_nu: Frequency after interaction
+        - after_mu: Direction cosine after interaction
+        - after_energy: Energy after interaction
+        - line_absorb_id: Line ID for absorbed line interactions (-1 for non-line)
+        - line_emit_id: Line ID for emitted line interactions (-1 for non-line)
+        - interactions_count: Total interaction count
     """
     # Create categorical dtype from enum for better performance and type safety
     interaction_type_dtype = CategoricalDtype(
@@ -348,29 +290,29 @@ def rpacket_last_interaction_tracker_list_to_dataframe(tracker_list):
         dtype=interaction_type_dtype
     )
 
-    # For line interactions, use line_before_nu as the input frequency
-    # For other interactions, use the packet frequency
-    last_line_interaction_in_nu = np.array([
-        tracker.line_before_nu if tracker.line_interactions_count > 0 else tracker.nu
-        for tracker in tracker_list
-    ])
-
-    # Extract line interaction IDs - only meaningful for LINE interactions
-    last_line_interaction_in_id = np.array([
-        tracker.line_before_id if tracker.interaction_type == InteractionType.LINE else -1
-        for tracker in tracker_list
-    ])
-    last_line_interaction_out_id = np.array([
-        tracker.line_after_id if tracker.interaction_type == InteractionType.LINE else -1
-        for tracker in tracker_list
-    ])
+    # Extract interaction data
+    interaction_before_nu = np.array([tracker.interaction_before_nu for tracker in tracker_list])
+    interaction_before_mu = np.array([tracker.interaction_before_mu for tracker in tracker_list])
+    interaction_before_energy = np.array([tracker.interaction_before_energy for tracker in tracker_list])
+    interaction_after_nu = np.array([tracker.interaction_after_nu for tracker in tracker_list])
+    interaction_after_mu = np.array([tracker.interaction_after_mu for tracker in tracker_list])
+    interaction_after_energy = np.array([tracker.interaction_after_energy for tracker in tracker_list])
+    interaction_line_absorb_id = np.array([tracker.interaction_line_absorb_id for tracker in tracker_list])
+    interaction_line_emit_id = np.array([tracker.interaction_line_emit_id for tracker in tracker_list])
+    interactions_count = np.array([tracker.interactions_count for tracker in tracker_list])
 
     # Create DataFrame with packet index
     df = pd.DataFrame({
         "last_interaction_type": last_interaction_type,
-        "last_line_interaction_in_id": last_line_interaction_in_id,
-        "last_line_interaction_in_nu": last_line_interaction_in_nu,
-        "last_line_interaction_out_id": last_line_interaction_out_id,
+        "before_nu": interaction_before_nu,
+        "before_mu": interaction_before_mu,
+        "before_energy": interaction_before_energy,
+        "after_nu": interaction_after_nu,
+        "after_mu": interaction_after_mu,
+        "after_energy": interaction_after_energy,
+        "line_absorb_id": interaction_line_absorb_id,
+        "line_emit_id": interaction_line_emit_id,
+        "interactions_count": interactions_count,
     }, index=pd.RangeIndex(len(tracker_list), name="packet_id"))
 
     return df

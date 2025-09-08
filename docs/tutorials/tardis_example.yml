@@ -13,7 +13,7 @@ model:
     velocity:
       start: 1.1e4 km/s
       stop: 20000 km/s
-      num: 20
+      num: 3
     density:
       type: branch85_w7
 

@@ -565,7 +565,7 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
     # Setup Montecarlo_Configuration.INITIAL_TRACKING_ARRAY_LENGTH
     mc.INITIAL_TRACKING_ARRAY_LENGTH = 10
 
-    tracked_rpacket_properties = RPacketTracker()
+    tracked_rpacket_properties = RPacketTracker(10)
     test_rpacket = radiative_packet.RPacket(
         index=index,
         seed=seed,
