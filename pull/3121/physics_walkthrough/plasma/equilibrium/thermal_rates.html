@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=23cf0557"></script>
+      <script src="../../../_static/documentation_options.js?v=73c8d4e4"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -171,17 +171,21 @@
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/physics_walkthrough/plasma/equilibrium/thermal_rates.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="Thermal-rates-calculation-and-comparison">
 <h1>Thermal rates calculation and comparison<a class="headerlink" href="#Thermal-rates-calculation-and-comparison" title="Link to this heading">¶</a></h1>
-<p>This notebook calculates and compares the thermal rates using data from C. Vogl’s version of TARDIS.</p>
+<p>This notebook calculates and compares the thermal rates using data from C. Vogl’s version of TARDIS. The data were acquired by running his code using PDB and extracting dataframes as CSV. Atomic data used is listed in a following cell.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
+<span class="n">home</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
+
+<span class="c1"># input data from C Vogl&#39;s version of TARDIS</span>
 <span class="n">electron_temp</span> <span class="o">=</span> <span class="p">[</span><span class="mf">9992.2722969523056</span><span class="p">,</span> <span class="mf">9992.592241054022</span><span class="p">,</span> <span class="p">]</span>
 <span class="n">electron_density</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.20676447e09</span><span class="p">,</span> <span class="mf">1624998247.515976</span><span class="p">,</span> <span class="p">]</span>
+
 <span class="n">ff_heating_estimator</span> <span class="o">=</span> <span class="p">[</span>  <span class="mf">4.89135279e-24</span><span class="p">,</span>   <span class="mf">4.37696370e-24</span><span class="p">,</span>   <span class="mf">3.75869301e-24</span><span class="p">,</span>
          <span class="mf">4.97847160e-24</span><span class="p">,</span>   <span class="mf">4.52158002e-24</span><span class="p">,</span>   <span class="mf">4.21024499e-24</span><span class="p">,</span>
          <span class="mf">3.94991540e-24</span><span class="p">,</span>   <span class="mf">3.72915649e-24</span><span class="p">,</span>   <span class="mf">3.58902110e-24</span><span class="p">,</span>
@@ -190,10 +194,6 @@
          <span class="mf">2.50640248e-24</span><span class="p">,</span>   <span class="mf">2.38164559e-24</span><span class="p">,</span>   <span class="mf">2.26967531e-24</span><span class="p">,</span>
          <span class="mf">2.24509826e-24</span><span class="p">,</span>   <span class="mf">2.12378192e-24</span><span class="p">,</span>   <span class="mf">2.02063266e-24</span><span class="p">,</span>
          <span class="mf">1.92509873e-24</span><span class="p">,</span>   <span class="mf">1.83070678e-24</span><span class="p">,</span>   <span class="mf">1.77346374e-24</span><span class="p">]</span>
-
-<span class="n">home</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
-
-<span class="c1"># example data from C Vogl</span>
 <span class="n">data_path</span> <span class="o">=</span> <span class="n">home</span> <span class="o">/</span> <span class="s2">&quot;tardis-regression-data/testdata/thermal_data&quot;</span>
 <span class="n">bf_heating_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_bf_heating_est.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="n">stim_recomb_cooling_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_stim_cooling_est.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -218,13 +218,12 @@
 </pre></div>
 </div>
 </div>
+<p>Benchmark values from CTARDIS acquired using PDB and looping through shells. Only 2 shells tested against due to having to loop through shells and manually copy data.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Benchmark values from ctardis</span>
-
-<span class="n">fb_cooling_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2018593543520837e-06</span><span class="p">,</span> <span class="mf">6.467703748685086e-07</span><span class="p">,</span> <span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fb_cooling_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2018593543520837e-06</span><span class="p">,</span> <span class="mf">6.467703748685086e-07</span><span class="p">,</span> <span class="p">]</span>
 <span class="n">ff_cooling_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">6.941664530316456e-07</span><span class="p">,</span> <span class="mf">3.7641281653486813e-07</span><span class="p">,</span> <span class="p">]</span>
 <span class="n">coll_ion_cooling_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.6125333965984259e-07</span><span class="p">,</span> <span class="mf">6.45338605094838e-08</span><span class="p">,</span> <span class="p">]</span>
 <span class="n">bf_heating_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2809489753862688e-06</span><span class="p">,</span> <span class="mf">7.017461756945128e-07</span><span class="p">,</span> <span class="p">]</span>
@@ -233,13 +232,13 @@
 <span class="n">total_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">3.8611749800759465e-07</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.100641079650486e-07</span><span class="p">,</span> <span class="p">]</span>
 <span class="n">fractional_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.036553097452112299</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.04676864172507447</span><span class="p">,</span> <span class="p">]</span>
 
-<span class="n">col_exc_cooling_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.5059159013e-06</span><span class="p">,</span> <span class="mf">3.403841826360594e-06</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">col_deexc_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.49837495539e-06</span><span class="p">,</span> <span class="mf">3.400456943546342e-06</span><span class="p">,</span> <span class="p">]</span>
+<span class="n">coll_exc_cooling_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.5059159013e-06</span><span class="p">,</span> <span class="mf">3.403841826360594e-06</span><span class="p">,</span> <span class="p">]</span>
+<span class="n">coll_deexc_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.49837495539e-06</span><span class="p">,</span> <span class="mf">3.400456943546342e-06</span><span class="p">,</span> <span class="p">]</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
@@ -255,10 +254,11 @@
          <span class="n">FreeFreeThermalRates</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="c1"># identical atomic data to that used by C Vogl</span>
 <span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">home</span> <span class="o">/</span> <span class="s2">&quot;tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti_ctardis.h5&quot;</span><span class="p">)</span> <span class="c1"># currently not available for public use</span>
 <span class="n">atom_data</span><span class="o">.</span><span class="n">prepare_atom_data</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;macroatom&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
 
-
+<span class="c1"># matching electron distribution to that used by C Vogl</span>
 <span class="n">thermal_electron_distribution</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span><span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="p">,</span> <span class="n">electron_temp</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">electron_density</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -284,6 +284,9 @@
 <div class="output_area docutils container">
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "06b76af921084b38a566f6068ea4bbdd", "version_major": 2, "version_minor": 0}</script></div>
 </div>
+<section id="Solver-comparison-for-each-process">
+<h2>Solver comparison for each process<a class="headerlink" href="#Solver-comparison-for-each-process" title="Link to this heading">¶</a></h2>
+<p>Each solver is set up using the appropriate inputs and compared to the C Vogl output. All inputs are from C Vogl code.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -443,11 +446,10 @@ dtype: float64
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># need to get data with collision rates</span>
-<span class="n">coll_bound_rates</span> <span class="o">=</span> <span class="n">CollisionalBoundThermalRates</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coll_bound_rates</span> <span class="o">=</span> <span class="n">CollisionalBoundThermalRates</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 <span class="n">coll_deexc_heating</span><span class="p">,</span> <span class="n">coll_exc_cooling</span> <span class="o">=</span> <span class="n">coll_bound_rates</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
     <span class="n">thermal_electron_distribution</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span>
     <span class="n">coll_deexc_coeff</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span>
@@ -458,16 +460,15 @@ dtype: float64
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">coll_deexc_heating</span> <span class="o">-</span> <span class="n">col_deexc_heating_rate_ct</span><span class="p">)</span> <span class="o">/</span> <span class="n">col_deexc_heating_rate_ct</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">coll_deexc_heating</span> <span class="o">-</span> <span class="n">coll_deexc_heating_rate_ct</span><span class="p">)</span> <span class="o">/</span> <span class="n">coll_deexc_heating_rate_ct</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -477,16 +478,15 @@ dtype: float64
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">coll_exc_cooling</span> <span class="o">-</span> <span class="n">col_exc_cooling_rate_ct</span><span class="p">)</span> <span class="o">/</span> <span class="n">col_exc_cooling_rate_ct</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">coll_exc_cooling</span> <span class="o">-</span> <span class="n">coll_exc_cooling_rate_ct</span><span class="p">)</span> <span class="o">/</span> <span class="n">coll_exc_cooling_rate_ct</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -495,6 +495,7 @@ dtype: float64
 dtype: float64
 </pre></div></div>
 </div>
+</section>
 <section id="Thermal-balance-solution">
 <h2>Thermal balance solution<a class="headerlink" href="#Thermal-balance-solution" title="Link to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
@@ -578,7 +579,7 @@ dtype: float64
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Sep 2025.
+      <span class="lastupdated">Last updated on 08 Sep 2025.
       </span></p>
   </div>
 
