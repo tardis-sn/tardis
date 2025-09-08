@@ -2,7 +2,7 @@
 #
 #    https://tardis-sn.github.io/tardis/development/continuous_integration.html
 
-name: cuda-tests
+name: full-tests
 
 on:
   push:
@@ -32,15 +32,15 @@ concurrency:
 
 jobs:
   test-cache:
-    if: github.repository_owner == 'tardis-sn' && contains(github.event.pull_request.labels.*.name, 'test-formal-integral')
+    if: github.repository_owner == 'tardis-sn' && contains(github.event.pull_request.labels.*.name, 'full-tests')
     uses: ./.github/workflows/lfs-cache.yml
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
-  build:
-    if: github.repository_owner == 'tardis-sn' && contains(github.event.pull_request.labels.*.name, 'test-formal-integral')
+  run-tests:
+    if: github.repository_owner == 'tardis-sn' && contains(github.event.pull_request.labels.*.name, 'full-tests')
     needs: [test-cache]
     runs-on: self-hosted
     timeout-minutes: 60
@@ -68,5 +68,5 @@ jobs:
         run: |
           pip install --no-deps qgridnext lineid_plot
 
-      - name: Run CUDA tests
-        run: pytest tardis/spectrum/formal_integral/tests/test_cuda_formal_integral.py ${{ env.PYTEST_FLAGS }}
+      - name: Run tests
+        run: pytest tardis ${{ env.PYTEST_FLAGS }}
