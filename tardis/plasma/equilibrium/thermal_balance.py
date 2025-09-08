@@ -1,20 +1,15 @@
-from __future__ import annotations
+import pandas as pd
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import pandas as pd
-
-    from tardis.plasma.electron_energy_distribution import (
-        ThermalElectronEnergyDistribution,
-    )
-    from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
-        BoundFreeThermalRates,
-        CollisionalBoundThermalRates,
-        CollisionalIonizationThermalRates,
-        FreeFreeThermalRates,
-    )
-    from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
+from tardis.plasma.equilibrium.rates.heating_cooling_rates import (
+    BoundFreeThermalRates,
+    CollisionalBoundThermalRates,
+    CollisionalIonizationThermalRates,
+    FreeFreeThermalRates,
+)
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 
 class ThermalBalanceSolver:
