@@ -13,12 +13,12 @@ P_EMISSION_DOWN: int = -1
 
 
 def line_transition_internal_up(
-    line_f_lus: pd.Series,
-    line_nus: pd.Series,
-    energies_lower: pd.Series,
-    mean_intensities_blue_wing: pd.Series,
-    beta_sobolevs: pd.Series,
-    stimulated_emission_factors: pd.Series,
+    line_f_lus: np.ndarray,
+    line_nus: np.ndarray,
+    energies_lower: np.ndarray,
+    mean_intensities_blue_wing: np.ndarray,
+    beta_sobolevs: pd.DataFrame,
+    stimulated_emission_factors: np.ndarray,
     transition_a_i_l_u_array: np.ndarray,
     line_ids: np.ndarray,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -39,7 +39,7 @@ def line_transition_internal_up(
         Energy values of the lower levels in the transitions.
     mean_intensities_blue_wing : array_like
         Mean radiation field intensities at the blue wing of the lines.
-    beta_sobolevs : array_like
+    beta_sobolevs : pd.DataFrame
         Sobolev escape probabilities for the line transitions.
     stimulated_emission_factors : array_like
         Factors accounting for stimulated emission in the transitions.
@@ -65,13 +65,11 @@ def line_transition_internal_up(
 
     The function uses the constant P_INTERNAL_UP to mark the transition type.
     """
-
-    p_internal_up = (
+    p_internal_up = beta_sobolevs * (
         line_f_lus
         / (CONST_H_CGS * line_nus)
         * stimulated_emission_factors
         * mean_intensities_blue_wing
-        * beta_sobolevs
         * energies_lower
     )
 
@@ -95,10 +93,10 @@ def line_transition_internal_up(
 
 
 def line_transition_internal_down(
-    line_f_uls: pd.Series,
-    line_nus: pd.Series,
-    energies_lower: pd.Series,
-    beta_sobolevs: pd.Series,
+    line_f_uls: np.ndarray,
+    line_nus: np.ndarray,
+    energies_lower: np.ndarray,
+    beta_sobolevs: pd.DataFrame,
     transition_a_i_l_u_array: np.ndarray,
     line_ids: np.ndarray,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -117,7 +115,7 @@ def line_transition_internal_down(
         Frequencies of line transitions.
     energies_lower : array_like
         Energies of the lower levels involved in transitions.
-    beta_sobolevs : array_like
+    beta_sobolevs : pd.DataFrame
         Sobolev beta factors for the transitions.
     transition_a_i_l_u_array : array_like
         Array containing atomic number, ion number, lower level, and upper level
@@ -142,13 +140,8 @@ def line_transition_internal_down(
 
     The function uses the constant P_INTERNAL_DOWN to mark the transition type.
     """
-    p_internal_down = (
-        2
-        * line_nus**2
-        * line_f_uls
-        / CONST_C_CGS**2
-        * beta_sobolevs
-        * energies_lower
+    p_internal_down = beta_sobolevs * (
+        2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower
     )
 
     transition_indices = np.arange(len(line_ids))
@@ -171,11 +164,11 @@ def line_transition_internal_down(
 
 
 def line_transition_emission_down(
-    line_f_uls: pd.Series,
-    line_nus: pd.Series,
-    energies_upper: pd.Series,
-    energies_lower: pd.Series,
-    beta_sobolevs: pd.Series,
+    line_f_uls: np.ndarray,
+    line_nus: np.ndarray,
+    energies_upper: np.ndarray,
+    energies_lower: np.ndarray,
+    beta_sobolevs: pd.DataFrame,
     transition_a_i_l_u_array: np.ndarray,
     line_ids: np.ndarray,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -196,7 +189,7 @@ def line_transition_emission_down(
         Energy values of the upper levels in the transitions.
     energies_lower : array_like
         Energy values of the lower levels in the transitions.
-    beta_sobolevs : array_like
+    beta_sobolevs : pd.DataFrame
         Sobolev escape probabilities for the transitions.
     transition_a_i_l_u_array : array_like
         Array containing atomic number, ion number, lower level, and upper level
@@ -222,12 +215,11 @@ def line_transition_emission_down(
 
     The function uses the constant P_EMISSION_DOWN to mark the transition type.
     """
-    p_emission_down = (
+    p_emission_down = beta_sobolevs * (
         2
         * line_nus**2
         * line_f_uls
         / CONST_C_CGS**2
-        * beta_sobolevs
         * (energies_upper - energies_lower)
     )
 

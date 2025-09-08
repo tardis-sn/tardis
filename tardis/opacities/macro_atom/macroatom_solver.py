@@ -209,13 +209,13 @@ class BoundBoundMacroAtomSolver:
             self.levels[["energy"]]
             .rename(columns={"energy": "level_number_upper"})
             .reindex(self.lines.index.droplevel("level_number_lower"))
-            .values
+            .to_numpy()
         )
         self._energies_lower = (
             self.levels[["energy"]]
             .rename(columns={"energy": "level_number_lower"})
             .reindex(self.lines.index.droplevel("level_number_upper"))
-            .values
+            .to_numpy()
         )
         self._transition_a_i_l_u_array = self.lines.reset_index()[
             [
@@ -224,7 +224,7 @@ class BoundBoundMacroAtomSolver:
                 "level_number_lower",
                 "level_number_upper",
             ]
-        ].values  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
+        ].to_numpy()  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
 
     def solve(
         self,
@@ -267,17 +267,18 @@ class BoundBoundMacroAtomSolver:
                     self._energies_lower,
                     beta_sobolevs,
                     self._transition_a_i_l_u_array,
-                    self.lines.line_id.values,
+                    self.lines.line_id.to_numpy(),
                 )
             )
         else:
             raise ValueError(
                 f"Unknown line interaction type: {self.line_interaction_type}"
             )
-        probabilities_df = p_emission_down
-        macro_atom_transition_metadata = emission_down_metadata
+        if self.line_interaction_type == "downbranch":
+            probabilities_df = p_emission_down
+            macro_atom_transition_metadata = emission_down_metadata
 
-        if self.line_interaction_type == "macroatom":
+        elif self.line_interaction_type == "macroatom":
             p_internal_down, internal_down_metadata = (
                 line_transition_internal_down(
                     self._oscillator_strength_ul,
@@ -288,6 +289,7 @@ class BoundBoundMacroAtomSolver:
                     self.lines.line_id.values,
                 )
             )
+
             p_internal_up, internal_up_metadata = line_transition_internal_up(
                 self._oscillator_strength_lu,
                 self._nus,
