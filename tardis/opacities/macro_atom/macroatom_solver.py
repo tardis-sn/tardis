@@ -199,6 +199,33 @@ class BoundBoundMacroAtomSolver:
         self.lines = lines
         self.line_interaction_type = line_interaction_type
 
+        self._precompute_static_data()
+
+    def _precompute_static_data(self):
+        self._oscillator_strength_ul = self.lines.f_ul.to_numpy().reshape(-1, 1)
+        self._oscillator_strength_lu = self.lines.f_lu.to_numpy().reshape(-1, 1)
+        self._nus = self.lines.nu.to_numpy().reshape(-1, 1)
+        self._energies_upper = (
+            self.levels[["energy"]]
+            .rename(columns={"energy": "level_number_upper"})
+            .reindex(self.lines.index.droplevel("level_number_lower"))
+            .values
+        )
+        self._energies_lower = (
+            self.levels[["energy"]]
+            .rename(columns={"energy": "level_number_lower"})
+            .reindex(self.lines.index.droplevel("level_number_upper"))
+            .values
+        )
+        self._transition_a_i_l_u_array = self.lines.reset_index()[
+            [
+                "atomic_number",
+                "ion_number",
+                "level_number_lower",
+                "level_number_upper",
+            ]
+        ].values  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
+
     def solve(
         self,
         mean_intensities_blue_wing: pd.DataFrame,
@@ -229,44 +256,18 @@ class BoundBoundMacroAtomSolver:
             A MacroAtomState object containing the transition probabilities, transition metadata,
             and a mapping from line IDs to macro atom level upper indices.
         """
-        oscillator_strength_ul = self.lines.f_ul.values.reshape(-1, 1)
-        oscillator_strength_lu = self.lines.f_lu.values.reshape(-1, 1)
-        nus = self.lines.nu.values.reshape(-1, 1)
-        line_ids = self.lines.line_id.values
-
-        energies_upper = (
-            self.levels[["energy"]]
-            .rename(columns={"energy": "level_number_upper"})
-            .reindex(self.lines.index.droplevel("level_number_lower"))
-            .values
-        )
-        energies_lower = (
-            self.levels[["energy"]]
-            .rename(columns={"energy": "level_number_lower"})
-            .reindex(self.lines.index.droplevel("level_number_upper"))
-            .values
-        )
-        transition_a_i_l_u_array = self.lines.reset_index()[
-            [
-                "atomic_number",
-                "ion_number",
-                "level_number_lower",
-                "level_number_upper",
-            ]
-        ].values  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
-
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
 
         if self.line_interaction_type in ["downbranch", "macroatom"]:
             p_emission_down, emission_down_metadata = (
                 line_transition_emission_down(
-                    oscillator_strength_ul,
-                    nus,
-                    energies_upper,
-                    energies_lower,
+                    self._oscillator_strength_ul,
+                    self._nus,
+                    self._energies_upper,
+                    self._energies_lower,
                     beta_sobolevs,
-                    transition_a_i_l_u_array,
-                    line_ids,
+                    self._transition_a_i_l_u_array,
+                    self.lines.line_id.values,
                 )
             )
         else:
@@ -279,23 +280,23 @@ class BoundBoundMacroAtomSolver:
         if self.line_interaction_type == "macroatom":
             p_internal_down, internal_down_metadata = (
                 line_transition_internal_down(
-                    oscillator_strength_ul,
-                    nus,
-                    energies_lower,
+                    self._oscillator_strength_ul,
+                    self._nus,
+                    self._energies_lower,
                     beta_sobolevs,
-                    transition_a_i_l_u_array,
-                    line_ids,
+                    self._transition_a_i_l_u_array,
+                    self.lines.line_id.values,
                 )
             )
             p_internal_up, internal_up_metadata = line_transition_internal_up(
-                oscillator_strength_lu,
-                nus,
-                energies_lower,
+                self._oscillator_strength_lu,
+                self._nus,
+                self._energies_lower,
                 mean_intensities_blue_wing,
                 beta_sobolevs,
                 stimulated_emission_factors,
-                transition_a_i_l_u_array,
-                line_ids,
+                self._transition_a_i_l_u_array,
+                self.lines.line_id.values,
             )
             probabilities_df = pd.concat(
                 [p_emission_down, p_internal_down, p_internal_up]
