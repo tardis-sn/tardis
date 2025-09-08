@@ -340,6 +340,9 @@ class BoundBoundMacroAtomSolver:
                 macro_atom_transition_metadata.source.unique()
             )
         }
+        # -99 should never be used downstream. The presence of it means the destination is not a source
+        # , which means that the destination is only referenced from emission
+        # (or macroatom deactivation) for the given macroatom configuration.
         macro_atom_transition_metadata["destination_level_idx"] = (
             (macro_atom_transition_metadata.destination.map(source_to_index))
             .fillna(-99)
