@@ -11,6 +11,7 @@ Submodules
    tardis.plasma.equilibrium.rates.collisional_ionization_rates
    tardis.plasma.equilibrium.rates.collisional_ionization_strengths
    tardis.plasma.equilibrium.rates.collisional_rates
+   tardis.plasma.equilibrium.rates.heating_cooling_rates
    tardis.plasma.equilibrium.rates.photoionization_rates
    tardis.plasma.equilibrium.rates.photoionization_strengths
    tardis.plasma.equilibrium.rates.radiative_rates

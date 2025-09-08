@@ -18,6 +18,7 @@ Submodules
    tardis.plasma.equilibrium.ion_populations
    tardis.plasma.equilibrium.level_populations
    tardis.plasma.equilibrium.rate_matrix
+   tardis.plasma.equilibrium.thermal_balance
 
 Module contents
 ---------------
