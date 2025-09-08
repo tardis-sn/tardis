@@ -228,9 +228,9 @@ class BoundBoundMacroAtomSolver:
 
     def solve(
         self,
-        mean_intensities_blue_wing: pd.DataFrame,
+        mean_intensities_blue_wing: np.ndarray,
         beta_sobolevs: pd.DataFrame,
-        stimulated_emission_factors: pd.DataFrame,
+        stimulated_emission_factors: np.ndarray,
     ) -> MacroAtomState:
         """
         Solve the transition probabilities for the macroatom.
@@ -241,13 +241,13 @@ class BoundBoundMacroAtomSolver:
 
         Parameters
         ----------
-        mean_intensities_blue_wing : pd.DataFrame
+        mean_intensities_blue_wing : np.ndarray
             Mean intensity of the radiation field of each line in the blue wing for each shell.
             For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
         beta_sobolevs : pd.DataFrame
             Escape probabilities for the Sobolev approximation.
-        stimulated_emission_factors : pd.DataFrame
+        stimulated_emission_factors : np.ndarray
             Stimulated emission factors for the lines.
 
         Returns
