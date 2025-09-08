@@ -291,8 +291,8 @@ def line_transition_emission_down(
 
 
 def set_index(
-    p: pd.DataFrame,
-    photo_ion_idx: pd.DataFrame,
+    df_to_reindex: pd.DataFrame,
+    target_index_df: pd.DataFrame,
     transition_type: int = 0,
     reverse: bool = True,
 ) -> pd.DataFrame:
@@ -303,7 +303,7 @@ def set_index(
     ----------
     p : pd.DataFrame
         DataFrame containing transition probabilities.
-    photo_ion_idx : pd.DataFrame
+    target_index_df : pd.DataFrame
         DataFrame containing photoionization indices with source and destination level indices.
     transition_type : int, optional
         Type of transition to assign. Default is 0.
@@ -315,7 +315,7 @@ def set_index(
     pd.DataFrame
         DataFrame with updated multi-level index.
     """
-    idx = photo_ion_idx.loc[p.index]
+    idx = target_index_df.loc[df_to_reindex.index]
     transition_type_array = transition_type * np.ones_like(
         idx.destination_level_idx
     )
@@ -329,8 +329,7 @@ def set_index(
     index = pd.MultiIndex.from_arrays(idx_arrays)
     if reverse:
         index.names = index.names[:-1][::-1] + [index.names[-1]]
-    p = p.set_index(index, drop=True)
-    return p
+    return df_to_reindex.set_index(index, drop=True)
 
 
 def continuum_transition_recombination(
