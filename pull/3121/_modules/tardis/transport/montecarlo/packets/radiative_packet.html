@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.transport.montecarlo.packets.radiative_packet &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=3a8fed2e"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.transport.montecarlo.packets.radiative_packet</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.transport.montecarlo.packets.radiative_packet</h1><div class="highlight"><pre>
+<span></span>import numba as nb
+import numpy as np
+from enum import IntEnum
+from numba import njit, objmode
+from numba.experimental import jitclass
+
+from tardis.transport.frame_transformations import get_doppler_factor
+from tardis.transport.montecarlo import njit_dict_no_parallel
+
+
+<div class="viewcode-block" id="InteractionType">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.InteractionType">[docs]</a>
+class InteractionType(IntEnum):
+    BOUNDARY = 1
+    LINE = 2
+    ESCATTERING = 4
+    CONTINUUM_PROCESS = 8</div>
+
+
+
+<div class="viewcode-block" id="PacketStatus">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.PacketStatus">[docs]</a>
+class PacketStatus(IntEnum):
+    IN_PROCESS = 0
+    EMITTED = 1
+    REABSORBED = 2
+    ADIABATIC_COOLING = 4</div>
+
+
+
+<div class="viewcode-block" id="RPacket">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.RPacket">[docs]</a>
+@jitclass
+class RPacket:
+    r: nb.float64  # type: ignore[misc]
+    mu: nb.float64  # type: ignore[misc]
+    nu: nb.float64  # type: ignore[misc]
+    energy: nb.float64  # type: ignore[misc]
+    next_line_id: nb.int64  # type: ignore[misc]
+    current_shell_id: nb.int64  # type: ignore[misc]
+    status: nb.int64  # type: ignore[misc]
+    seed: nb.int64  # type: ignore[misc]
+    index: nb.int64  # type: ignore[misc]
+    last_interaction_type: nb.int64  # type: ignore[misc]
+    last_interaction_in_nu: nb.float64  # type: ignore[misc]
+    last_interaction_in_r: nb.float64  # type: ignore[misc]
+    last_line_interaction_in_id: nb.int64  # type: ignore[misc]
+    last_line_interaction_out_id: nb.int64  # type: ignore[misc]
+    last_line_interaction_shell_id: nb.int64  # type: ignore[misc]
+
+    def __init__(
+        self,
+        r: float,
+        mu: float,
+        nu: float,
+        energy: float,
+        seed: int,
+        index: int = 0,
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Initialize radiative packet for Monte Carlo transport.
+
+        Parameters
+        ----------
+        r : float
+            Initial radius [cm].
+        mu : float
+            Initial directional cosine.
+        nu : float
+            Initial frequency [Hz].
+        energy : float
+            Initial energy. Energy units are scaled with time_simulation.
+            Adds all up to 1 in a single run.
+        seed : int
+            Random number seed.
+        index : int, optional
+            Packet index, by default 0.
+        &quot;&quot;&quot;
+        self.r = r
+        self.mu = mu
+        self.nu = nu
+        self.energy = energy
+        self.current_shell_id = 0
+        self.status = PacketStatus.IN_PROCESS
+        self.seed = seed
+        self.index = index
+        self.last_interaction_type = -1
+        self.last_interaction_in_nu = 0.0
+        self.last_interaction_in_r = 0.0
+        self.last_line_interaction_in_id = -1
+        self.last_line_interaction_out_id = -1
+        self.last_line_interaction_shell_id = -1
+
+    def initialize_line_id(
+        self, opacity_state, time_explosion, enable_full_relativity
+    ):
+        inverse_line_list_nu = opacity_state.line_list_nu[::-1]
+        doppler_factor = get_doppler_factor(
+            self.r, self.mu, time_explosion, enable_full_relativity
+        )
+        comov_nu = self.nu * doppler_factor
+        next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
+            inverse_line_list_nu, comov_nu
+        )
+        if next_line_id == len(opacity_state.line_list_nu):
+            next_line_id -= 1
+        self.next_line_id = next_line_id</div>
+
+
+
+<div class="viewcode-block" id="print_r_packet_properties">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.print_r_packet_properties">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def print_r_packet_properties(r_packet):
+    &quot;&quot;&quot;
+    Print all packet information.
+
+    Parameters
+    ----------
+    r_packet : RPacket
+        RPacket object.
+    &quot;&quot;&quot;
+    print(&quot;-&quot; * 80)
+    print(&quot;R-Packet information:&quot;)
+    with objmode:
+        print(&quot;r =&quot;, str(r_packet.r))
+        print(&quot;mu =&quot;, str(r_packet.mu))
+        print(&quot;nu =&quot;, str(r_packet.nu))
+        print(&quot;energy =&quot;, str(r_packet.energy))
+        print(&quot;next_line_id =&quot;, str(r_packet.next_line_id))
+        print(&quot;current_shell_id =&quot;, str(r_packet.current_shell_id))
+        print(&quot;status =&quot;, str(r_packet.status))
+        print(&quot;seed =&quot;, str(r_packet.seed))
+        print(&quot;index =&quot;, str(r_packet.index))
+        print(&quot;last_interaction_type =&quot;, str(r_packet.last_interaction_type))
+        print(&quot;last_interaction_in_nu =&quot;, str(r_packet.last_interaction_in_nu))
+        print(&quot;last_interaction_in_r =&quot;, str(r_packet.last_interaction_in_r))
+        print(&quot;last_line_interaction_in_id =&quot;, str(r_packet.last_line_interaction_in_id))
+        print(&quot;last_line_interaction_out_id =&quot;, str(r_packet.last_line_interaction_out_id))
+        print(&quot;last_line_interaction_shell_id =&quot;, str(r_packet.last_line_interaction_shell_id))
+    print(&quot;-&quot; * 80)</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 08 Sep 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

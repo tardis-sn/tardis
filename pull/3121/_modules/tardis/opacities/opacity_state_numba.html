@@ -1,0 +1,497 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.opacities.opacity_state_numba &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=3a8fed2e"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.opacities.opacity_state_numba</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.opacities.opacity_state_numba</h1><div class="highlight"><pre>
+<span></span>
+import numba as nb
+import numpy as np
+from numba.experimental import jitclass
+
+from tardis import constants as const
+from tardis.transport.montecarlo.configuration import montecarlo_globals
+
+C_SPEED_OF_LIGHT = const.c.to(&quot;cm/s&quot;).value
+
+
+<div class="viewcode-block" id="OpacityStateNumba">
+<a class="viewcode-back" href="../../../api/tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.OpacityStateNumba">[docs]</a>
+@jitclass
+class OpacityStateNumba:
+    electron_density: nb.float64[:]  # type: ignore[misc]
+    t_electrons: nb.float64[:]  # type: ignore[misc]
+    line_list_nu: nb.float64[:]  # type: ignore[misc]
+    tau_sobolev: nb.float64[:, :]  # type: ignore[misc]
+    transition_probabilities: nb.float64[:, :]  # type: ignore[misc]
+    line2macro_level_upper: nb.int64[:]  # type: ignore[misc]
+    macro_block_references: nb.int64[:]  # type: ignore[misc]
+    transition_type: nb.int64[:]  # type: ignore[misc]
+    destination_level_id: nb.int64[:]  # type: ignore[misc]
+    transition_line_id: nb.int64[:]  # type: ignore[misc]
+    bf_threshold_list_nu: nb.float64[:]  # type: ignore[misc]
+    p_fb_deactivation: nb.float64[:, :]  # type: ignore[misc]
+    photo_ion_nu_threshold_mins: nb.float64[:]  # type: ignore[misc]
+    photo_ion_nu_threshold_maxs: nb.float64[:]  # type: ignore[misc]
+    photo_ion_block_references: nb.int64[:]  # type: ignore[misc]
+    chi_bf: nb.float64[:, :]  # type: ignore[misc]
+    x_sect: nb.float64[:]  # type: ignore[misc]
+    phot_nus: nb.float64[:]  # type: ignore[misc]
+    ff_opacity_factor: nb.float64[:]  # type: ignore[misc]
+    emissivities: nb.float64[:, :]  # type: ignore[misc]
+    photo_ion_activation_idx: nb.int64[:]  # type: ignore[misc]
+    k_packet_idx: nb.int64  # type: ignore[misc]
+
+    def __init__(
+        self,
+        electron_density: np.ndarray,
+        t_electrons: np.ndarray,
+        line_list_nu: np.ndarray,
+        tau_sobolev: np.ndarray,
+        transition_probabilities: np.ndarray,
+        line2macro_level_upper: np.ndarray,
+        macro_block_references: np.ndarray,
+        transition_type: np.ndarray,
+        destination_level_id: np.ndarray,
+        transition_line_id: np.ndarray,
+        bf_threshold_list_nu: np.ndarray,
+        p_fb_deactivation: np.ndarray,
+        photo_ion_nu_threshold_mins: np.ndarray,
+        photo_ion_nu_threshold_maxs: np.ndarray,
+        photo_ion_block_references: np.ndarray,
+        chi_bf: np.ndarray,
+        x_sect: np.ndarray,
+        phot_nus: np.ndarray,
+        ff_opacity_factor: np.ndarray,
+        emissivities: np.ndarray,
+        photo_ion_activation_idx: np.ndarray,
+        k_packet_idx: int,
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Initialize Numba-compatible opacity state for Monte Carlo transport.
+
+        Parameters
+        ----------
+        electron_density : numpy.ndarray
+            Electron density in each shell [cm^-3].
+        t_electrons : numpy.ndarray
+            Electron temperature in each shell [K].
+        line_list_nu : numpy.ndarray
+            Frequencies of spectral lines [Hz].
+        tau_sobolev : numpy.ndarray
+            Sobolev optical depths for line transitions.
+        transition_probabilities : numpy.ndarray
+            Probabilities for macro atom transitions.
+        line2macro_level_upper : numpy.ndarray
+            Mapping from line indices to macro atom upper levels.
+        macro_block_references : numpy.ndarray
+            Block references for macro atom data.
+        transition_type : numpy.ndarray
+            Type identifiers for transitions.
+        destination_level_id : numpy.ndarray
+            Destination level indices for transitions.
+        transition_line_id : numpy.ndarray
+            Line indices for transitions.
+        bf_threshold_list_nu : numpy.ndarray
+            Bound-free threshold frequencies [Hz].
+        p_fb_deactivation : numpy.ndarray
+            Free-bound deactivation probabilities.
+        photo_ion_nu_threshold_mins : numpy.ndarray
+            Minimum photoionization threshold frequencies [Hz].
+        photo_ion_nu_threshold_maxs : numpy.ndarray
+            Maximum photoionization threshold frequencies [Hz].
+        photo_ion_block_references : numpy.ndarray
+            Block references for photoionization data.
+        chi_bf : numpy.ndarray
+            Bound-free absorption coefficients.
+        x_sect : numpy.ndarray
+            Photoionization cross sections [cm^2].
+        phot_nus : numpy.ndarray
+            Photoionization frequencies [Hz].
+        ff_opacity_factor : numpy.ndarray
+            Free-free opacity factors.
+        emissivities : numpy.ndarray
+            Emission coefficients for bound-free transitions.
+        photo_ion_activation_idx : numpy.ndarray
+            Indices for photoionization activation.
+        k_packet_idx : int
+            Index for k-packet handling.
+        &quot;&quot;&quot;
+        self.electron_density = electron_density
+        self.t_electrons = t_electrons
+        self.line_list_nu = line_list_nu
+        self.tau_sobolev = tau_sobolev
+        self.bf_threshold_list_nu = bf_threshold_list_nu
+
+        #### Macro Atom transition probabilities
+        self.transition_probabilities = transition_probabilities
+        self.line2macro_level_upper = line2macro_level_upper
+
+        self.macro_block_references = macro_block_references
+        self.transition_type = transition_type
+
+        # Destination level is not needed and/or generated for downbranch
+        self.destination_level_id = destination_level_id
+        self.transition_line_id = transition_line_id
+        self.p_fb_deactivation = p_fb_deactivation
+
+        # Continuum Opacity Data
+        self.photo_ion_nu_threshold_mins = photo_ion_nu_threshold_mins
+        self.photo_ion_nu_threshold_maxs = photo_ion_nu_threshold_maxs
+
+        self.photo_ion_block_references = photo_ion_block_references
+        self.chi_bf = chi_bf
+        self.x_sect = x_sect
+        self.phot_nus = phot_nus
+        self.ff_opacity_factor = ff_opacity_factor
+        self.emissivities = emissivities
+        self.photo_ion_activation_idx = photo_ion_activation_idx
+        self.k_packet_idx = k_packet_idx
+
+    def __getitem__(self, i: slice) -&gt; &quot;OpacityStateNumba&quot;:
+        &quot;&quot;&quot;Get a shell or slice of shells of the attributes of the opacity state.
+
+        Parameters
+        ----------
+        i : slice
+            Shell slice. Will fail if slice is int since class only supports array types.
+
+        Returns
+        -------
+        OpacityStateNumba
+            A shallow copy of the current instance with sliced data.
+        &quot;&quot;&quot;
+        # NOTE: This currently will not work with continuum processes since it does not slice those arrays
+        return OpacityStateNumba(
+            self.electron_density[i],
+            self.t_electrons[i],
+            self.line_list_nu,
+            self.tau_sobolev[:, i],
+            self.transition_probabilities[:, i],
+            self.line2macro_level_upper,
+            self.macro_block_references,
+            self.transition_type,
+            self.destination_level_id,
+            self.transition_line_id,
+            self.bf_threshold_list_nu,
+            self.p_fb_deactivation,
+            self.photo_ion_nu_threshold_mins,
+            self.photo_ion_nu_threshold_maxs,
+            self.photo_ion_block_references,
+            self.chi_bf,
+            self.x_sect,
+            self.phot_nus,
+            self.ff_opacity_factor,
+            self.emissivities,
+            self.photo_ion_activation_idx,
+            self.k_packet_idx,
+        )</div>
+
+
+
+<div class="viewcode-block" id="opacity_state_numba_initialize">
+<a class="viewcode-back" href="../../../api/tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.opacity_state_numba_initialize">[docs]</a>
+def opacity_state_numba_initialize(
+    plasma,
+    line_interaction_type: str,
+    disable_line_scattering: bool,
+) -&gt; OpacityStateNumba:
+    &quot;&quot;&quot;
+    Initialize the OpacityStateNumba object and copy data from TARDIS Plasma.
+
+    Parameters
+    ----------
+    plasma : tardis.plasma.BasePlasma
+        The plasma object containing atomic and opacity data.
+    line_interaction_type : str
+        Type of line interaction (&quot;scatter&quot; or &quot;macroatom&quot;).
+    disable_line_scattering : bool
+        Whether to disable line scattering by setting tau_sobolev to zero.
+
+    Returns
+    -------
+    OpacityStateNumba
+        Initialized opacity state for Monte Carlo transport.
+    &quot;&quot;&quot;
+    electron_densities = plasma.electron_densities.values
+    t_electrons = plasma.t_electrons
+    line_list_nu = plasma.atomic_data.lines.nu.values
+    tau_sobolev = np.ascontiguousarray(
+        plasma.tau_sobolevs.values.copy(), dtype=np.float64
+    )
+    if disable_line_scattering:
+        tau_sobolev *= 0
+
+    if line_interaction_type == &quot;scatter&quot;:
+        # to adhere to data types, we must have an array of minimum size 1
+        array_size = 1
+        transition_probabilities = np.zeros(
+            (array_size, array_size), dtype=np.float64
+        )  # to adhere to data types
+        line2macro_level_upper = np.zeros(array_size, dtype=np.int64)
+        macro_block_references = np.zeros(array_size, dtype=np.int64)
+        transition_type = np.zeros(array_size, dtype=np.int64)
+        destination_level_id = np.zeros(array_size, dtype=np.int64)
+        transition_line_id = np.zeros(array_size, dtype=np.int64)
+    else:
+        transition_probabilities = np.ascontiguousarray(
+            plasma.transition_probabilities.values.copy(), dtype=np.float64
+        )
+        line2macro_level_upper = (
+            plasma.atomic_data.lines_upper2macro_reference_idx
+        )
+        # TODO: Fix setting of block references for non-continuum mode
+
+        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+            macro_block_references = plasma.macro_block_references
+        else:
+            macro_block_references = plasma.atomic_data.macro_atom_references[
+                &quot;block_references&quot;
+            ].values
+        transition_type = plasma.macro_atom_data[&quot;transition_type&quot;].values
+
+        # Destination level is not needed and/or generated for downbranch
+        destination_level_id = plasma.macro_atom_data[
+            &quot;destination_level_idx&quot;
+        ].values
+        transition_line_id = plasma.macro_atom_data[&quot;lines_idx&quot;].values
+    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        bf_threshold_list_nu = plasma.nu_i.loc[
+            plasma.level2continuum_idx.index
+        ].values
+        p_fb_deactivation = np.ascontiguousarray(
+            plasma.p_fb_deactivation.values.copy(), dtype=np.float64
+        )
+
+        phot_nus = plasma.photo_ion_cross_sections.nu.loc[
+            plasma.level2continuum_idx.index
+        ]
+        photo_ion_block_references = np.pad(
+            phot_nus.groupby(level=[0, 1, 2], sort=False)
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+        photo_ion_nu_threshold_mins = (
+            phot_nus.groupby(level=[0, 1, 2], sort=False).first().values
+        )
+        photo_ion_nu_threshold_maxs = (
+            phot_nus.groupby(level=[0, 1, 2], sort=False).last().values
+        )
+
+        chi_bf = plasma.chi_bf.loc[plasma.level2continuum_idx.index].values
+        x_sect = plasma.photo_ion_cross_sections.x_sect.loc[
+            plasma.level2continuum_idx.index
+        ].values
+
+        phot_nus = phot_nus.values
+        ff_opacity_factor = (
+            plasma.ff_cooling_factor / np.sqrt(t_electrons)
+        ).astype(np.float64)
+        emissivities = plasma.fb_emission_cdf.loc[
+            plasma.level2continuum_idx.index
+        ].values
+        photo_ion_activation_idx = plasma.photo_ion_idx.loc[
+            plasma.level2continuum_idx.index, &quot;destination_level_idx&quot;
+        ].values
+        k_packet_idx = plasma.k_packet_idx
+    else:
+        bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
+        p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
+        photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
+        photo_ion_nu_threshold_maxs = np.zeros(0, dtype=np.float64)
+        photo_ion_block_references = np.zeros(0, dtype=np.int64)
+        chi_bf = np.zeros((0, 0), dtype=np.float64)
+        x_sect = np.zeros(0, dtype=np.float64)
+        phot_nus = np.zeros(0, dtype=np.float64)
+        ff_opacity_factor = np.zeros(0, dtype=np.float64)
+        emissivities = np.zeros((0, 0), dtype=np.float64)
+        photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
+        k_packet_idx = -1
+
+    return OpacityStateNumba(
+        electron_densities,
+        t_electrons,
+        line_list_nu,
+        tau_sobolev,
+        transition_probabilities,
+        line2macro_level_upper,
+        macro_block_references,
+        transition_type,
+        destination_level_id,
+        transition_line_id,
+        bf_threshold_list_nu,
+        p_fb_deactivation,
+        photo_ion_nu_threshold_mins,
+        photo_ion_nu_threshold_maxs,
+        photo_ion_block_references,
+        chi_bf,
+        x_sect,
+        phot_nus,
+        ff_opacity_factor,
+        emissivities,
+        photo_ion_activation_idx,
+        k_packet_idx,
+    )</div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 08 Sep 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

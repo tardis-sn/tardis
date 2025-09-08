@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.opacities.macro_atom.macroatom_state &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=3a8fed2e"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.opacities.macro_atom.macroatom_state</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.opacities.macro_atom.macroatom_state</h1><div class="highlight"><pre>
+<span></span>from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.transport.montecarlo.configuration import montecarlo_globals
+import pandas as pd
+
+
+<div class="viewcode-block" id="LegacyMacroAtomState">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.LegacyMacroAtomState">[docs]</a>
+class LegacyMacroAtomState(HDFWriterMixin):
+    hdf_name = &quot;macro_atom_state&quot;
+
+    hdf_properties = [
+        &quot;transition_probabilities&quot;,
+        &quot;transition_type&quot;,
+        &quot;destination_level_id&quot;,
+        &quot;transition_line_id&quot;,
+        &quot;macro_block_references&quot;,
+        &quot;line2macro_level_upper&quot;,
+    ]
+
+    def __init__(
+        self,
+        transition_probabilities,
+        transition_type,
+        destination_level_id,
+        transition_line_id,
+        macro_block_references,
+        line2macro_level_upper,
+    ):
+        &quot;&quot;&quot;
+        Current State of the MacroAtom
+
+        Parameters
+        ----------
+        transition_probabilities : pd.DataFrame
+            Macro Atom Transition probabilities between levels
+        transition_type : pd.DataFrame)
+            Macro Atom transition types
+        destination_level_id : pd.DataFrame
+            ID of destination levels of the Macro Atom
+        transition_line_id : pd.DataFrame
+            ID of lines corresponding to Macro Atom transitions
+        macro_block_references : pd.DataFrame or np.ndarray
+            Index references to the Macro Atom blocks
+        line2macro_level_upper : pd.DataFrame
+            Mapping from lines to Macro Atom upper levels
+        &quot;&quot;&quot;
+        self.transition_probabilities = transition_probabilities
+        self.transition_type = transition_type
+        self.destination_level_id = destination_level_id
+        self.transition_line_id = transition_line_id  # THESE ARE NOT TRANSITION LINE IDS. In the macro atom they were &quot;lines_idx&quot; and are the index locations of the lines in the lines dataframe.
+        self.macro_block_references = macro_block_references
+        self.line2macro_level_upper = line2macro_level_upper
+
+<div class="viewcode-block" id="LegacyMacroAtomState.from_legacy_plasma">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.LegacyMacroAtomState.from_legacy_plasma">[docs]</a>
+    @classmethod
+    def from_legacy_plasma(cls, plasma):
+        &quot;&quot;&quot;
+        Generates a MacroAtomState object from a tardis BasePlasma
+
+        Parameters
+        ----------
+        plasma : tardis.plasma.BasePlasma
+            legacy base plasma
+
+        Returns
+        -------
+        MacroAtomState
+        &quot;&quot;&quot;
+        transition_probabilities = plasma.transition_probabilities
+        transition_type = plasma.macro_atom_data[&quot;transition_type&quot;]
+        destination_level_id = plasma.macro_atom_data[&quot;destination_level_idx&quot;]
+        transition_line_id = plasma.macro_atom_data[&quot;lines_idx&quot;]
+        line2macro_level_upper = (
+            plasma.atomic_data.lines_upper2macro_reference_idx
+        )
+
+        if (
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
+        ):  # TODO: Unify this in the plasma solver
+            macro_block_references = plasma.macro_block_references
+        else:
+            macro_block_references = plasma.atomic_data.macro_atom_references[
+                &quot;block_references&quot;
+            ]
+
+        return cls(
+            transition_probabilities,
+            transition_type,
+            destination_level_id,
+            transition_line_id,
+            macro_block_references,
+            line2macro_level_upper,
+        )</div>
+</div>
+
+
+
+<div class="viewcode-block" id="MacroAtomState">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState">[docs]</a>
+class MacroAtomState:
+    hdf_name = &quot;macro_atom_state&quot;
+
+    hdf_properties = [
+        &quot;transition_probabilities&quot;,
+        &quot;transition_metadata&quot;,
+        &quot;line2macro_level_upper&quot;,
+    ]
+
+    def __init__(
+        self,
+        transition_probabilities: pd.DataFrame,
+        transition_metadata: pd.DataFrame,
+        line2macro_level_upper: pd.Series,
+    ):
+        &quot;&quot;&quot;
+        Current State of the MacroAtom
+
+        Parameters
+        ----------
+        transition_probabilities : pd.DataFrame
+            Transition probabilities for the macro atom, indexed by source and destination levels.
+        transition_metadata : pd.DataFrame
+            Metadata for the macro atom, including atomic number, ion number, level numbers for the transition, desination, and source.
+        line2macro_level_upper : pd.Series
+            Mapping from lines to the upper levels of the macro atom transitions.
+        &quot;&quot;&quot;
+        self.transition_probabilities = transition_probabilities
+        self.transition_metadata = transition_metadata
+        self.line2macro_level_upper = line2macro_level_upper
+
+<div class="viewcode-block" id="MacroAtomState.to_legacy_format">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.to_legacy_format">[docs]</a>
+    def to_legacy_format(self):
+        &quot;&quot;&quot;
+        Convert the current state of the MacroAtom to legacy format.
+        Returns
+        -------
+
+
+        &quot;&quot;&quot;
+        transition_probabilities = self.transition_probabilities
+        transition_type = self.transition_metadata.transition_type
+        destination_level_id = pd.Series(
+            data=[level[2] for level in self.transition_metadata.destination],
+            index=self.transition_metadata.index,
+            name=&quot;destination_level_idx&quot;,
+        )
+        transition_line_id = self.transition_metadata.transition_line_idx
+        unique_source_multi_index = pd.MultiIndex.from_tuples(
+            self.transition_metadata.source.unique(),
+            names=[&quot;atomic_number&quot;, &quot;ion_number&quot;, &quot;level_number&quot;],
+        )
+        macro_data = (
+            self.transition_metadata.reset_index()
+            .groupby(&quot;source&quot;)
+            .apply(lambda x: x.index[0])
+        )
+        macro_block_references = pd.Series(
+            data=macro_data.values,
+            index=unique_source_multi_index,
+            name=&quot;macro_block_references&quot;,
+        )
+        line2macro_level_upper = self.line2macro_level_upper.values
+
+        return LegacyMacroAtomState(
+            transition_probabilities,
+            transition_type,
+            destination_level_id,
+            transition_line_id,
+            macro_block_references,
+            line2macro_level_upper,
+        )</div>
+
+
+<div class="viewcode-block" id="MacroAtomState.sort_to_legacy">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.sort_to_legacy">[docs]</a>
+    def sort_to_legacy(
+        self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
+    ) -&gt; &quot;MacroAtomState&quot;:
+        &quot;&quot;&quot;
+        Sort the current MacroAtomState to match the legacy MacroAtomState.
+
+        Parameters
+        ----------
+        legacy_state : LegacyMacroAtomState
+            The legacy state to sort to.
+        lines : pd.DataFrame
+            DataFrame containing line information.
+
+        Returns
+        -------
+        MacroAtomState
+            A new MacroAtomState sorted to match the legacy state.
+        &quot;&quot;&quot;
+
+        legacy_sorting_frame = pd.DataFrame(legacy_state.transition_type)
+        legacy_sorting_frame[&quot;transition_line_id&quot;] = lines.iloc[
+            legacy_state.transition_line_id
+        ].line_id.values
+        legacy_sorting_frame[&quot;match_key&quot;] = legacy_sorting_frame.apply(
+            lambda x: (x[&quot;transition_line_id&quot;], x[&quot;transition_type&quot;]), axis=1
+        )  # match key uniquely identifies the transition
+
+        resorting_frame = self.transition_metadata.copy()
+        resorting_frame[&quot;match_key&quot;] = resorting_frame.apply(
+            lambda x: (x[&quot;transition_line_id&quot;], x[&quot;transition_type&quot;]), axis=1
+        )
+
+        resorted = (
+            resorting_frame.reset_index()
+            .set_index(&quot;match_key&quot;)
+            .loc[legacy_sorting_frame[&quot;match_key&quot;]]
+            .set_index(&quot;macro_atom_transition_id&quot;)
+        )
+
+        resorted_transition_probabilities = self.transition_probabilities.loc[
+            resorted.index
+        ]
+        resorted_metadata = self.transition_metadata.loc[resorted.index]
+
+        return MacroAtomState(
+            transition_probabilities=resorted_transition_probabilities,
+            transition_metadata=resorted_metadata,
+            line2macro_level_upper=self.line2macro_level_upper,
+        )</div>
+
+
+<div class="viewcode-block" id="MacroAtomState.recreate_legacy_macro_atom_state">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.recreate_legacy_macro_atom_state">[docs]</a>
+    def recreate_legacy_macro_atom_state(
+        self, legacy_state: LegacyMacroAtomState, lines: pd.DataFrame
+    ) -&gt; LegacyMacroAtomState:
+        &quot;&quot;&quot;
+        Recreate the legacy MacroAtomState with new transition probabilities and new unique transition ids.
+
+        Parameters
+        ----------
+        lines : pd.DataFrame
+            DataFrame containing line information.
+
+        Returns
+        -------
+        LegacyMacroAtomState
+            The recreated legacy MacroAtomState.
+        &quot;&quot;&quot;
+        legacy_sorted = self.sort_to_legacy(legacy_state, lines)
+        legacy_macro_atom = legacy_sorted.to_legacy_format()
+        legacy_macro_atom.macro_block_references = legacy_state.macro_block_references  # The old block references contained empty blocks. I can&#39;t recreate them from the new state so we just copy them over.
+        legacy_macro_atom.line2macro_level_upper = (
+            legacy_state.line2macro_level_upper
+        )
+        legacy_macro_atom.destination_level_id = legacy_state.destination_level_id  # I&#39;m also not sure how to recreate this because it doesn&#39;t quite make sense to me.
+
+        return legacy_macro_atom</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 08 Sep 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
