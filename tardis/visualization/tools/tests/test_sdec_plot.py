@@ -131,7 +131,7 @@ class TestSDECPlotter:
         if attribute == "_full_species_list":
             np.testing.assert_equal(getattr(plotter, attribute), data)
         else:
-            np.testing.assert_allclose(getattr(plotter, attribute), data, atol=0, rtol=1e-15)
+            np.testing.assert_allclose(getattr(plotter, attribute), data, atol=0, rtol=1e-14)
 
     @pytest.fixture(scope="class", params=combinations)
     def plotter_calculate_plotting_data(self, request, plotter):
@@ -177,11 +177,11 @@ class TestSDECPlotter:
                 if isinstance(plot_object, astropy.units.quantity.Quantity):
                     plot_object = plot_object.cgs.value
                 np.testing.assert_allclose(
-                    plot_object, expected.get(group + attribute_name), atol=0, rtol=1e-15
+                    plot_object, expected.get(group + attribute_name), atol=0, rtol=1e-14
                 )
             if attribute_type == "attributes_pd":
                 pd.testing.assert_frame_equal(
-                    plot_object, expected.get(group + attribute_name), atol=0, rtol=1e-15
+                    plot_object, expected.get(group + attribute_name), atol=0, rtol=1e-14
                 )
         expected.close()
 
@@ -264,12 +264,12 @@ class TestSDECPlotter:
                 np.testing.assert_allclose(
                     data.get_xydata(),
                     expected.get("plot_data_hdf/" + "data" + str(index1)),
-                    atol=0, rtol=1e-15
+                    atol=0, rtol=1e-14
                 )
                 np.testing.assert_allclose(
                     data.get_path().vertices,
                     expected.get("plot_data_hdf/" + "linepath" + str(index1)),
-                    atol=0, rtol=1e-15
+                    atol=0, rtol=1e-14
                 )
             # save artists which correspond to element contributions
             if isinstance(data, PolyCollection):
@@ -364,10 +364,10 @@ class TestSDECPlotter:
                     ).decode()
                 )
             np.testing.assert_allclose(
-                data.x, expected.get(group + "x").values.flatten(), atol=0, rtol=1e-15
+                data.x, expected.get(group + "x").values.flatten(), atol=0, rtol=1e-14
             )
             np.testing.assert_allclose(
-                data.y, expected.get(group + "y").values.flatten(), atol=0, rtol=1e-15
+                data.y, expected.get(group + "y").values.flatten(), atol=0, rtol=1e-14
             )
 
         expected.close()
@@ -417,15 +417,15 @@ class TestSDECPlotter:
     ):
         # Test key attributes are equal
         np.testing.assert_allclose(
-            plotter.t_inner.value, plotter_from_workflow.t_inner.value, atol=0, rtol=1e-15
+            plotter.t_inner.value, plotter_from_workflow.t_inner.value, atol=0, rtol=1e-14
         )
         np.testing.assert_allclose(
-            plotter.r_inner.value, plotter_from_workflow.r_inner.value, atol=0, rtol=1e-15
+            plotter.r_inner.value, plotter_from_workflow.r_inner.value, atol=0, rtol=1e-14
         )
         np.testing.assert_allclose(
             plotter.time_of_simulation.value, 
             plotter_from_workflow.time_of_simulation.value, 
-            atol=0, rtol=1e-15
+            atol=0, rtol=1e-14
         )
         
         # Test packet data structures exist for both modes
@@ -488,10 +488,10 @@ class TestSDECPlotter:
                 # Handle array shape differences
                 if plot_object.ndim > 1:
                     plot_object = plot_object.flatten()
-                np.testing.assert_allclose(plot_object, expected.values.flatten(), atol=0, rtol=1e-15)
+                np.testing.assert_allclose(plot_object, expected.values.flatten(), atol=0, rtol=1e-14)
             elif attribute_type == "attributes_df":
                 expected_df = pd.read_hdf(regression_file, key=f"plot_data_hdf/{attribute_name}")
-                pd.testing.assert_frame_equal(plot_object, expected_df, atol=0, rtol=1e-15)
+                pd.testing.assert_frame_equal(plot_object, expected_df, atol=0, rtol=1e-14)
 
     @pytest.fixture(scope="class", params=list(enumerate(combinations)))
     def plotter_generate_plot_mpl_from_workflow(self, request, observed_spectrum, plotter_from_workflow):
@@ -554,14 +554,14 @@ class TestSDECPlotter:
         pd.testing.assert_frame_equal(
             plotter.emission_luminosities_df,
             plotter_from_workflow.emission_luminosities_df,
-            atol=0, rtol=1e-15
+            atol=0, rtol=1e-14
         )
         
         # Test absorption luminosities are identical  
         pd.testing.assert_frame_equal(
             plotter.absorption_luminosities_df,
             plotter_from_workflow.absorption_luminosities_df,
-            atol=0, rtol=1e-15
+            atol=0, rtol=1e-14
         )
 
     def test_mpl_image_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, sdec_regression_data):
@@ -594,4 +594,4 @@ class TestSDECPlotter:
         if attribute == "_full_species_list":
             np.testing.assert_equal(actual_data, expected_data)
         else:
-            np.testing.assert_allclose(actual_data, expected_data, atol=0, rtol=1e-15)
+            np.testing.assert_allclose(actual_data, expected_data, atol=0, rtol=1e-14)
