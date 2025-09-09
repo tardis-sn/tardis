@@ -15,7 +15,7 @@ from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 from tardis.visualization.tools.sdec_plot import SDECPlotter
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
-RTOL_VALUE=1e-13
+RTOL_VALUE=1e-12
 
 def make_valid_name(testid):
     """

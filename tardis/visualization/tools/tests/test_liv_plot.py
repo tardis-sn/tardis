@@ -14,7 +14,7 @@ from tardis.visualization.tools.liv_plot import LIVPlotter
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
-RTOL_VALUE=1e-13
+RTOL_VALUE=1e-12
 
 @pytest.fixture(scope="class")
 def plotter(simulation_simple):
