@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=c882ce89"></script>
+      <script src="../../../../_static/documentation_options.js?v=946234f0"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -498,14 +498,14 @@ class RPacketPlotter:
                 ),
                 name=&quot;e-scattering&quot;,
                 hoverlabel=dict(font=dict(color=&quot;#222&quot;)),
-                marker=dict(color=&quot;#3366FF&quot;),
+                marker=dict(color=self.interaction_from_num[int(InteractionType.ESCATTERING)][&quot;color&quot;]),
             )
         )
         self.fig.add_trace(
             go.Scatter(
                 **legend_props,
                 name=&quot;Line Interaction&quot;,
-                marker=dict(color=&quot;#FF3300&quot;),
+                marker=dict(color=self.interaction_from_num[int(InteractionType.LINE)][&quot;color&quot;]),
             )
         )
 
@@ -986,7 +986,7 @@ class RPacketPlotter:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Sep 2025.
+      <span class="lastupdated">Last updated on 09 Sep 2025.
       </span></p>
   </div>
 
