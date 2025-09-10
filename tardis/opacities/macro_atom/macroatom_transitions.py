@@ -58,7 +58,7 @@ def line_transition_internal_up(
     The transition probability is calculated using the formula:
     P = (f_lu / (h * nu)) * stimulated_emission_factor * mean_intensity * beta * E_lower
 
-    The function uses the constant P_INTERNAL_UP to mark the transition type.
+    The function uses MacroAtomTransitionType to mark the transition type.
     """
     p_internal_up = probability_internal_up(
         beta_sobolevs,
@@ -179,7 +179,7 @@ def line_transition_internal_down(
     The internal downward transition probability is calculated using the formula:
     p = 2 * nu^2 * f_ul / c^2 * beta * E_lower
 
-    The function uses the constant P_INTERNAL_DOWN to mark the transition type.
+    The function uses MacroAtomTransitionType to mark the transition type.
     """
     p_internal_down = probability_internal_down(
         beta_sobolevs, line_nus, line_f_uls, energies_lower
@@ -289,7 +289,7 @@ def line_transition_emission_down(
     The emission down probability is calculated using the formula:
     P = 2 * nu^2 * f_ul / c^2 * beta * (E_upper - E_lower)
 
-    The function uses the constant P_EMISSION_DOWN to mark the transition type.
+    The function uses MacroAtomTransitionType to mark the transition type.
     """
     p_emission_down = probability_emission_down(
         beta_sobolevs, line_nus, line_f_uls, energies_upper, energies_lower
