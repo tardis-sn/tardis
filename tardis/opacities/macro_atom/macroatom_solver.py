@@ -22,8 +22,6 @@ from tardis.opacities.macro_atom.macroatom_transitions import (
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
-from time import time
-
 
 class LegacyMacroAtomSolver:
     initialize: bool = True
@@ -260,7 +258,6 @@ class BoundBoundMacroAtomSolver:
             A MacroAtomState object containing the transition probabilities, transition metadata,
             and a mapping from line IDs to macro atom level upper indices.
         """
-        start_time = time()
         is_first_iteration = not hasattr(self, "computed_metadata")
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
         if is_first_iteration:
@@ -318,29 +315,22 @@ class BoundBoundMacroAtomSolver:
                         internal_up_metadata,
                     ]
                 )
-            assembly_time = time() - start_time
 
             # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS. This also removes the source column from the probabilities DataFrame.
-            normalize_start = time()
             normalized_probabilities = normalize_transition_probabilities(
                 probabilities_df
             )
-            normalize_time = time() - normalize_start
 
-            reindex_start = time()
             normalized_probabilities, macro_atom_transition_metadata = (
                 reindex_sort_and_clean_probabilities_and_metadata(
                     normalized_probabilities, macro_atom_transition_metadata
                 )
             )
-            reindex_time = time() - reindex_start
 
             # We have to create the line2macro object after sorting.
-            line2macro_start = time()
             line2macro_level_upper = create_line2macro_level_upper(
                 macro_atom_transition_metadata, lines_level_upper
             )
-            line2macro_time = time() - line2macro_start
 
             macro_atom_transition_metadata.drop(
                 columns=[
@@ -371,16 +361,9 @@ class BoundBoundMacroAtomSolver:
                 .astype(np.int64)
             )
 
-            block_reference_start = time()
             macro_block_references = create_macro_block_references(
                 macro_atom_transition_metadata
             )
-            block_reference_time = time() - block_reference_start
-            print(f"Assembly time: {assembly_time:.4f} s")
-            print(f"Normalization time: {normalize_time:.4f} s")
-            print(f"Reindexing time: {reindex_time:.4f} s")
-            print(f"Line2Macro time: {line2macro_time:.4f} s")
-            print(f"Block reference time: {block_reference_time:.4f} s")
 
             self.computed_metadata = (
                 macro_atom_transition_metadata,
@@ -393,7 +376,6 @@ class BoundBoundMacroAtomSolver:
                 line2macro_level_upper,
                 macro_block_references,
             ) = self.computed_metadata
-            recalculate_start = time()
             line_trans_internal_up_ids = macro_atom_transition_metadata[
                 macro_atom_transition_metadata.transition_type
                 == MacroAtomTransitionType.INTERNAL_UP
@@ -452,14 +434,10 @@ class BoundBoundMacroAtomSolver:
             probabilities_df["source"] = (
                 macro_atom_transition_metadata.source.values
             )
-            recalculate_time = time() - recalculate_start
-            print(f"Recalculation time: {recalculate_time:.4f} s")
             normalized_probabilities = normalize_transition_probabilities(
                 probabilities_df
             )
 
-        time_total = time() - start_time
-        print(f"Total time: {time_total:.4f} s")
         return MacroAtomState(
             normalized_probabilities,
             macro_atom_transition_metadata,
