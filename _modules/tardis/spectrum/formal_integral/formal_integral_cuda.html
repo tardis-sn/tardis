@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=d088f7aa"></script>
+      <script src="../../../../_static/documentation_options.js?v=77f6b371"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -484,8 +484,8 @@ def cuda_formal_integral(
 
     # These all have their own version for each thread to avoid race conditions
     I_nu_thread = I_nu[nu_idx]
-    z_thread = z[nu_idx]
-    shell_id_thread = shell_id[nu_idx]
+    z_thread = z[p_idx]
+    shell_id_thread = shell_id[p_idx]
 
     offset = 0
     size_z = 0
@@ -663,11 +663,11 @@ class CudaFormalIntegrator:
             self.geometry.r_outer[size_shell - 1], N
         )  # array(float64, 1d, C)
         z = np.zeros(
-            (inu_size, 2 * size_shell), dtype=np.float64
-        )  # array(float64, 1d, C)
+            (N, 2 * size_shell), dtype=np.float64
+        )  # array(float64, 2d, C)
         shell_id = np.zeros(
-            (inu_size, 2 * size_shell), dtype=np.int64
-        )  # array(int64, 1d, C)
+            (N, 2 * size_shell), dtype=np.int64
+        )  # array(int64, 2d, C)
 
         # These get separate names since they&#39;ll be copied back
         # These are device objects stored on the GPU
@@ -741,7 +741,7 @@ class CudaFormalIntegrator:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Sep 2025.
+      <span class="lastupdated">Last updated on 10 Sep 2025.
       </span></p>
   </div>
 
