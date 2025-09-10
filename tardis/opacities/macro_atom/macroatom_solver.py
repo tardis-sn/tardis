@@ -16,7 +16,13 @@ from tardis.opacities.macro_atom.macroatom_transitions import (
     line_transition_emission_down,
     line_transition_internal_down,
     line_transition_internal_up,
+    probability_emission_down,
+    probability_internal_down,
+    probability_internal_up,
 )
+from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
+
+from time import time
 
 
 class LegacyMacroAtomSolver:
@@ -207,13 +213,11 @@ class BoundBoundMacroAtomSolver:
         self._nus = self.lines.nu.to_numpy().reshape(-1, 1)
         self._energies_upper = (
             self.levels[["energy"]]
-            .rename(columns={"energy": "level_number_upper"})
             .reindex(self.lines.index.droplevel("level_number_lower"))
             .to_numpy()
         )
         self._energies_lower = (
             self.levels[["energy"]]
-            .rename(columns={"energy": "level_number_lower"})
             .reindex(self.lines.index.droplevel("level_number_upper"))
             .to_numpy()
         )
@@ -228,7 +232,7 @@ class BoundBoundMacroAtomSolver:
 
     def solve(
         self,
-        mean_intensities_blue_wing: np.ndarray,
+        mean_intensities_blue_wing: pd.DataFrame,
         beta_sobolevs: pd.DataFrame,
         stimulated_emission_factors: np.ndarray,
     ) -> MacroAtomState:
@@ -241,7 +245,7 @@ class BoundBoundMacroAtomSolver:
 
         Parameters
         ----------
-        mean_intensities_blue_wing : np.ndarray
+        mean_intensities_blue_wing : pd.DataFrame
             Mean intensity of the radiation field of each line in the blue wing for each shell.
             For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
@@ -256,105 +260,206 @@ class BoundBoundMacroAtomSolver:
             A MacroAtomState object containing the transition probabilities, transition metadata,
             and a mapping from line IDs to macro atom level upper indices.
         """
+        start_time = time()
+        is_first_iteration = not hasattr(self, "computed_metadata")
         lines_level_upper = self.lines.index.droplevel("level_number_lower")
-
-        if self.line_interaction_type in ["downbranch", "macroatom"]:
-            p_emission_down, emission_down_metadata = (
-                line_transition_emission_down(
-                    self._oscillator_strength_ul,
-                    self._nus,
-                    self._energies_upper,
-                    self._energies_lower,
-                    beta_sobolevs,
-                    self._transition_a_i_l_u_array,
-                    self.lines.line_id.to_numpy(),
+        if is_first_iteration:
+            if self.line_interaction_type in ["downbranch", "macroatom"]:
+                p_emission_down, emission_down_metadata = (
+                    line_transition_emission_down(
+                        self._oscillator_strength_ul,
+                        self._nus,
+                        self._energies_upper,
+                        self._energies_lower,
+                        beta_sobolevs,
+                        self._transition_a_i_l_u_array,
+                        self.lines.line_id.to_numpy(),
+                    )
                 )
+            else:
+                raise ValueError(
+                    f"Unknown line interaction type: {self.line_interaction_type}"
+                )
+            if self.line_interaction_type == "downbranch":
+                probabilities_df = p_emission_down
+                macro_atom_transition_metadata = emission_down_metadata
+
+            elif self.line_interaction_type == "macroatom":
+                p_internal_down, internal_down_metadata = (
+                    line_transition_internal_down(
+                        self._oscillator_strength_ul,
+                        self._nus,
+                        self._energies_lower,
+                        beta_sobolevs,
+                        self._transition_a_i_l_u_array,
+                        self.lines.line_id.to_numpy(),
+                    )
+                )
+
+                p_internal_up, internal_up_metadata = (
+                    line_transition_internal_up(
+                        self._oscillator_strength_lu,
+                        self._nus,
+                        self._energies_lower,
+                        mean_intensities_blue_wing,
+                        beta_sobolevs,
+                        stimulated_emission_factors,
+                        self._transition_a_i_l_u_array,
+                        self.lines.line_id.to_numpy(),
+                    )
+                )
+                probabilities_df = pd.concat(
+                    [p_emission_down, p_internal_down, p_internal_up]
+                )
+                macro_atom_transition_metadata = pd.concat(
+                    [
+                        emission_down_metadata,
+                        internal_down_metadata,
+                        internal_up_metadata,
+                    ]
+                )
+            assembly_time = time() - start_time
+
+            # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS. This also removes the source column from the probabilities DataFrame.
+            normalize_start = time()
+            normalized_probabilities = normalize_transition_probabilities(
+                probabilities_df
+            )
+            normalize_time = time() - normalize_start
+
+            reindex_start = time()
+            normalized_probabilities, macro_atom_transition_metadata = (
+                reindex_sort_and_clean_probabilities_and_metadata(
+                    normalized_probabilities, macro_atom_transition_metadata
+                )
+            )
+            reindex_time = time() - reindex_start
+
+            # We have to create the line2macro object after sorting.
+            line2macro_start = time()
+            line2macro_level_upper = create_line2macro_level_upper(
+                macro_atom_transition_metadata, lines_level_upper
+            )
+            line2macro_time = time() - line2macro_start
+
+            macro_atom_transition_metadata.drop(
+                columns=[
+                    "atomic_number",
+                    "ion_number",
+                    "level_number_lower",
+                    "level_number_upper",
+                    "source_level",
+                ],
+                inplace=True,
+            )
+            source_to_index = {
+                source: idx
+                for idx, source in enumerate(
+                    macro_atom_transition_metadata.source.unique()
+                )
+            }
+            # -99 should never be used downstream. The presence of it means the destination is not a source,
+            # which means that the destination is only referenced from emission
+            # (or macroatom deactivation) for the given macroatom configuration.
+            macro_atom_transition_metadata["destination_level_idx"] = (
+                (
+                    macro_atom_transition_metadata.destination.map(
+                        source_to_index
+                    )
+                )
+                .fillna(-99)
+                .astype(np.int64)
+            )
+
+            block_reference_start = time()
+            macro_block_references = create_macro_block_references(
+                macro_atom_transition_metadata
+            )
+            block_reference_time = time() - block_reference_start
+            print(f"Assembly time: {assembly_time:.4f} s")
+            print(f"Normalization time: {normalize_time:.4f} s")
+            print(f"Reindexing time: {reindex_time:.4f} s")
+            print(f"Line2Macro time: {line2macro_time:.4f} s")
+            print(f"Block reference time: {block_reference_time:.4f} s")
+
+            self.computed_metadata = (
+                macro_atom_transition_metadata,
+                line2macro_level_upper,
+                macro_block_references,
             )
         else:
-            raise ValueError(
-                f"Unknown line interaction type: {self.line_interaction_type}"
-            )
-        if self.line_interaction_type == "downbranch":
-            probabilities_df = p_emission_down
-            macro_atom_transition_metadata = emission_down_metadata
+            (
+                macro_atom_transition_metadata,
+                line2macro_level_upper,
+                macro_block_references,
+            ) = self.computed_metadata
+            recalculate_start = time()
+            line_trans_internal_up_ids = macro_atom_transition_metadata[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.INTERNAL_UP
+            ].transition_line_idx.to_numpy()
+            line_trans__internal_down_ids = macro_atom_transition_metadata[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.INTERNAL_DOWN
+            ].transition_line_idx.to_numpy()
+            line_trans_emission_down_ids = macro_atom_transition_metadata[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.BB_EMISSION
+            ].transition_line_idx.to_numpy()
 
-        elif self.line_interaction_type == "macroatom":
-            p_internal_down, internal_down_metadata = (
-                line_transition_internal_down(
-                    self._oscillator_strength_ul,
-                    self._nus,
-                    self._energies_lower,
-                    beta_sobolevs,
-                    self._transition_a_i_l_u_array,
-                    self.lines.line_id.to_numpy(),
-                )
+            probabilities_df = pd.DataFrame(
+                np.zeros(
+                    (
+                        macro_atom_transition_metadata.shape[0],
+                        beta_sobolevs.shape[1],
+                    )
+                ),
+                index=macro_atom_transition_metadata.index,
+                columns=beta_sobolevs.columns,
+            )
+            probabilities_df[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.BB_EMISSION
+            ] = probability_emission_down(
+                beta_sobolevs.iloc[line_trans_emission_down_ids],
+                self._nus[line_trans_emission_down_ids],
+                self._oscillator_strength_ul[line_trans_emission_down_ids],
+                self._energies_upper[line_trans_emission_down_ids],
+                self._energies_lower[line_trans_emission_down_ids],
+            ).to_numpy()
+            probabilities_df[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.INTERNAL_DOWN
+            ] = probability_internal_down(
+                beta_sobolevs.iloc[line_trans__internal_down_ids],
+                self._nus[line_trans__internal_down_ids],
+                self._oscillator_strength_ul[line_trans__internal_down_ids],
+                self._energies_lower[line_trans__internal_down_ids],
+            ).to_numpy()
+
+            probabilities_df[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.INTERNAL_UP
+            ] = probability_internal_up(
+                beta_sobolevs.iloc[line_trans_internal_up_ids],
+                self._nus[line_trans_internal_up_ids],
+                self._oscillator_strength_lu[line_trans_internal_up_ids],
+                stimulated_emission_factors[line_trans_internal_up_ids],
+                mean_intensities_blue_wing.iloc[line_trans_internal_up_ids],
+                self._energies_lower[line_trans_internal_up_ids],
+            ).to_numpy()
+
+            probabilities_df["source"] = (
+                macro_atom_transition_metadata.source.values
+            )
+            recalculate_time = time() - recalculate_start
+            print(f"Recalculation time: {recalculate_time:.4f} s")
+            normalized_probabilities = normalize_transition_probabilities(
+                probabilities_df
             )
 
-            p_internal_up, internal_up_metadata = line_transition_internal_up(
-                self._oscillator_strength_lu,
-                self._nus,
-                self._energies_lower,
-                mean_intensities_blue_wing,
-                beta_sobolevs,
-                stimulated_emission_factors,
-                self._transition_a_i_l_u_array,
-                self.lines.line_id.to_numpy(),
-            )
-            probabilities_df = pd.concat(
-                [p_emission_down, p_internal_down, p_internal_up]
-            )
-            macro_atom_transition_metadata = pd.concat(
-                [
-                    emission_down_metadata,
-                    internal_down_metadata,
-                    internal_up_metadata,
-                ]
-            )
-
-        # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS. This also removes the source column from the probabilities DataFrame.
-        normalized_probabilities = normalize_transition_probabilities(
-            probabilities_df
-        )
-
-        normalized_probabilities, macro_atom_transition_metadata = (
-            reindex_sort_and_clean_probabilities_and_metadata(
-                normalized_probabilities, macro_atom_transition_metadata
-            )
-        )
-
-        # We have to create the line2macro object after sorting.
-        line2macro_level_upper = create_line2macro_level_upper(
-            macro_atom_transition_metadata, lines_level_upper
-        )
-
-        macro_atom_transition_metadata.drop(
-            columns=[
-                "atomic_number",
-                "ion_number",
-                "level_number_lower",
-                "level_number_upper",
-                "source_level",
-            ],
-            inplace=True,
-        )
-        source_to_index = {
-            source: idx
-            for idx, source in enumerate(
-                macro_atom_transition_metadata.source.unique()
-            )
-        }
-        # -99 should never be used downstream. The presence of it means the destination is not a source
-        # , which means that the destination is only referenced from emission
-        # (or macroatom deactivation) for the given macroatom configuration.
-        macro_atom_transition_metadata["destination_level_idx"] = (
-            (macro_atom_transition_metadata.destination.map(source_to_index))
-            .fillna(-99)
-            .astype(np.int64)
-        )
-        macro_block_references = create_macro_block_references(
-            macro_atom_transition_metadata
-        )
-
+        time_total = time() - start_time
+        print(f"Total time: {time_total:.4f} s")
         return MacroAtomState(
             normalized_probabilities,
             macro_atom_transition_metadata,
@@ -465,7 +570,7 @@ def reindex_sort_and_clean_probabilities_and_metadata(
     macro_atom_transition_metadata: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Reindex and sort macro atom transition probabilities and metadata.
+    Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.
 
     Parameters
     ----------
