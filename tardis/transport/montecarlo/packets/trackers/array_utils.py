@@ -4,6 +4,7 @@ Array utility functions for packet tracking.
 These functions provide common array extension operations used by
 the packet tracking system.
 """
+
 import numpy as np
 from numba import njit
 
@@ -30,12 +31,14 @@ def extend_array(array: np.ndarray, new_length: int) -> np.ndarray:
         Extended array with original data preserved.
     """
     temp_array = np.empty(new_length, dtype=array.dtype)
-    temp_array[:len(array)] = array
+    temp_array[: len(array)] = array
     return temp_array
 
 
 @njit
-def extend_interaction_type_array(array: np.ndarray, new_length: int) -> np.ndarray:
+def extend_interaction_type_array(
+    array: np.ndarray, new_length: int
+) -> np.ndarray:
     """
     Extend interaction type array with NO_INTERACTION default.
 
@@ -52,7 +55,7 @@ def extend_interaction_type_array(array: np.ndarray, new_length: int) -> np.ndar
         Extended array with NO_INTERACTION defaults for new elements.
     """
     temp_array = np.full(new_length, NO_INTERACTION_INT, dtype=array.dtype)
-    temp_array[:len(array)] = array
+    temp_array[: len(array)] = array
     return temp_array
 
 
@@ -74,7 +77,7 @@ def extend_float_array(array: np.ndarray, new_length: int) -> np.ndarray:
         Extended array with NaN defaults for new elements.
     """
     temp_array = np.full(new_length, np.nan, dtype=array.dtype)
-    temp_array[:len(array)] = array
+    temp_array[: len(array)] = array
     return temp_array
 
 
@@ -96,5 +99,5 @@ def extend_int_array(array: np.ndarray, new_length: int) -> np.ndarray:
         Extended array with -1 defaults for new elements.
     """
     temp_array = np.full(new_length, -1, dtype=array.dtype)
-    temp_array[:len(array)] = array
+    temp_array[: len(array)] = array
     return temp_array

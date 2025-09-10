@@ -20,7 +20,7 @@ NO_INTERACTION_INT = int(InteractionType.NO_INTERACTION)
 
 
 @jitclass
-class RPacketTracker:
+class TrackerFull:
     """
     Numba JITCLASS for storing interaction information for RPacket instances.
 
@@ -44,16 +44,18 @@ class RPacketTracker:
         Status of the RPacket at each event.
     interaction_event_id : nb.int64[:]
         Event ID linked to each interaction (links before/after data).
-    energy : nb.float64[:]
-        Energy of the RPacket at each interaction.
     interaction_before_nu : nb.float64[:]
         Frequency before each interaction.
     interaction_before_mu : nb.float64[:]
         Cosine of angle before each interaction.
+    interaction_before_energy : nb.float64[:]
+        Energy before each interaction.
     interaction_after_nu : nb.float64[:]
         Frequency after each interaction.
     interaction_after_mu : nb.float64[:]
         Cosine of angle after each interaction.
+    interaction_after_energy : nb.float64[:]
+        Energy after each interaction.
     interaction_line_absorb_id : nb.int64[:]
         Line ID for absorbed line interactions.
     interaction_line_emit_id : nb.int64[:]
@@ -74,11 +76,12 @@ class RPacketTracker:
 
     # Interaction-specific arrays with event ID linking
     interaction_event_id: nb.int64[:]  # type: ignore[misc]
-    energy: nb.float64[:]  # type: ignore[misc]
     interaction_before_nu: nb.float64[:]  # type: ignore[misc]
     interaction_before_mu: nb.float64[:]  # type: ignore[misc]
+    interaction_before_energy: nb.float64[:]  # type: ignore[misc]
     interaction_after_nu: nb.float64[:]  # type: ignore[misc]
     interaction_after_mu: nb.float64[:]  # type: ignore[misc]
+    interaction_after_energy: nb.float64[:]  # type: ignore[misc]
 
     # Line interaction specific tracking
     interaction_line_absorb_id: nb.int64[:]  # type: ignore[misc]
@@ -107,11 +110,16 @@ class RPacketTracker:
 
         # Interaction arrays
         self.interaction_event_id = np.empty(length, dtype=np.int64)
-        self.energy = np.empty(length, dtype=np.float64)
         self.interaction_before_nu = np.full(length, np.nan, dtype=np.float64)
         self.interaction_before_mu = np.full(length, np.nan, dtype=np.float64)
+        self.interaction_before_energy = np.full(
+            length, np.nan, dtype=np.float64
+        )
         self.interaction_after_nu = np.full(length, np.nan, dtype=np.float64)
         self.interaction_after_mu = np.full(length, np.nan, dtype=np.float64)
+        self.interaction_after_energy = np.full(
+            length, np.nan, dtype=np.float64
+        )
 
         # Line interaction specific tracking
         self.interaction_line_absorb_id = np.full(length, -1, dtype=np.int64)
@@ -163,18 +171,23 @@ class RPacketTracker:
         self.interaction_event_id = extend_array(
             self.interaction_event_id, new_length
         )
-        self.energy = extend_array(self.energy, new_length)
         self.interaction_before_nu = extend_float_array(
             self.interaction_before_nu, new_length
         )
         self.interaction_before_mu = extend_float_array(
             self.interaction_before_mu, new_length
         )
+        self.interaction_before_energy = extend_float_array(
+            self.interaction_before_energy, new_length
+        )
         self.interaction_after_nu = extend_float_array(
             self.interaction_after_nu, new_length
         )
         self.interaction_after_mu = extend_float_array(
             self.interaction_after_mu, new_length
+        )
+        self.interaction_after_energy = extend_float_array(
+            self.interaction_after_energy, new_length
         )
 
         # Line interaction specific tracking
@@ -205,14 +218,18 @@ class RPacketTracker:
         # Track general packet state
         self.r[self.event_id] = r_packet.r
         self.shell_id[self.event_id] = r_packet.current_shell_id
-        self.interaction_type[self.event_id] = r_packet.last_interaction_type
+        self.interaction_type[self.event_id] = InteractionType.LINE
         self.status[self.event_id] = r_packet.status
 
         # Track interaction data
-        self.interaction_event_id[self.current_interaction_index] = self.event_id
-        self.energy[self.current_interaction_index] = r_packet.energy
+        self.interaction_event_id[self.current_interaction_index] = (
+            self.event_id
+        )
         self.interaction_before_nu[self.current_interaction_index] = r_packet.nu
         self.interaction_before_mu[self.current_interaction_index] = r_packet.mu
+        self.interaction_before_energy[self.current_interaction_index] = (
+            r_packet.energy
+        )
         self.interaction_line_absorb_id[self.current_interaction_index] = (
             r_packet.next_line_id
         )
@@ -229,10 +246,12 @@ class RPacketTracker:
         # Track line interaction after state for the SAME interaction_id
         self.interaction_after_nu[self.current_interaction_index] = r_packet.nu
         self.interaction_after_mu[self.current_interaction_index] = r_packet.mu
-        self.interaction_line_emit_id[self.current_interaction_index] = (
-            r_packet.last_line_interaction_out_id
+        self.interaction_after_energy[self.current_interaction_index] = (
+            r_packet.energy
         )
-
+        self.interaction_line_emit_id[self.current_interaction_index] = (
+            r_packet.next_line_id - 1
+        )
         # Increment counters
         self.event_id += 1
         self.current_interaction_index += 1
@@ -257,14 +276,18 @@ class RPacketTracker:
         # Track general packet state
         self.r[self.event_id] = r_packet.r
         self.shell_id[self.event_id] = r_packet.current_shell_id
-        self.interaction_type[self.event_id] = r_packet.last_interaction_type
+        self.interaction_type[self.event_id] = InteractionType.ESCATTERING
         self.status[self.event_id] = r_packet.status
 
         # Track interaction data
-        self.interaction_event_id[self.current_interaction_index] = self.event_id
-        self.energy[self.current_interaction_index] = r_packet.energy
+        self.interaction_event_id[self.current_interaction_index] = (
+            self.event_id
+        )
         self.interaction_before_nu[self.current_interaction_index] = r_packet.nu
         self.interaction_before_mu[self.current_interaction_index] = r_packet.mu
+        self.interaction_before_energy[self.current_interaction_index] = (
+            r_packet.energy
+        )
 
     def track_escattering_interaction_after(self, r_packet) -> None:
         """
@@ -279,6 +302,9 @@ class RPacketTracker:
         # For Thomson scattering, frequency doesn't change
         self.interaction_after_nu[self.current_interaction_index] = r_packet.nu
         self.interaction_after_mu[self.current_interaction_index] = r_packet.mu
+        self.interaction_after_energy[self.current_interaction_index] = (
+            r_packet.energy
+        )
 
         # Increment counters
         self.event_id += 1
@@ -304,14 +330,18 @@ class RPacketTracker:
         # Track general packet state
         self.r[self.event_id] = r_packet.r
         self.shell_id[self.event_id] = r_packet.current_shell_id
-        self.interaction_type[self.event_id] = r_packet.last_interaction_type
+        self.interaction_type[self.event_id] = InteractionType.CONTINUUM_PROCESS
         self.status[self.event_id] = r_packet.status
 
         # Track interaction data
-        self.interaction_event_id[self.current_interaction_index] = self.event_id
-        self.energy[self.current_interaction_index] = r_packet.energy
+        self.interaction_event_id[self.current_interaction_index] = (
+            self.event_id
+        )
         self.interaction_before_nu[self.current_interaction_index] = r_packet.nu
         self.interaction_before_mu[self.current_interaction_index] = r_packet.mu
+        self.interaction_before_energy[self.current_interaction_index] = (
+            r_packet.energy
+        )
 
     def track_continuum_interaction_after(self, r_packet) -> None:
         """
@@ -325,6 +355,9 @@ class RPacketTracker:
         # Track continuum after state for the SAME interaction_id
         self.interaction_after_nu[self.current_interaction_index] = r_packet.nu
         self.interaction_after_mu[self.current_interaction_index] = r_packet.mu
+        self.interaction_after_energy[self.current_interaction_index] = (
+            r_packet.energy
+        )
 
         # Increment counters
         self.event_id += 1
@@ -372,17 +405,22 @@ class RPacketTracker:
         self.interaction_event_id = self.interaction_event_id[
             : self.current_interaction_index
         ]
-        self.energy = self.energy[: self.current_interaction_index]
         self.interaction_before_nu = self.interaction_before_nu[
             : self.current_interaction_index
         ]
         self.interaction_before_mu = self.interaction_before_mu[
             : self.current_interaction_index
         ]
+        self.interaction_before_energy = self.interaction_before_energy[
+            : self.current_interaction_index
+        ]
         self.interaction_after_nu = self.interaction_after_nu[
             : self.current_interaction_index
         ]
         self.interaction_after_mu = self.interaction_after_mu[
+            : self.current_interaction_index
+        ]
+        self.interaction_after_energy = self.interaction_after_energy[
             : self.current_interaction_index
         ]
 
@@ -395,7 +433,120 @@ class RPacketTracker:
         ]
 
 
-def rpacket_trackers_to_dataframe(rpacket_trackers) -> pd.DataFrame:
+@njit
+def trackers_full_list_to_arrays(trackers):
+    """
+    Convert a list of TrackerFull instances to pre-allocated arrays efficiently.
+
+    Parameters
+    ----------
+    trackers : numba.typed.typedlist.List
+        List of TrackerFull instances.
+
+    Returns
+    -------
+    tuple
+        Tuple containing:
+        - packet_id (np.int64[:]) : Packet ID for each event
+        - r (np.float64[:]) : Radius at each event
+        - shell_id (np.int64[:]) : Shell ID at each event
+        - interaction_type (np.int64[:]) : Interaction type at each event
+        - status (np.int64[:]) : Status at each event
+        - line_absorb_id (np.int64[:]) : Line absorb ID (default -1)
+        - line_emit_id (np.int64[:]) : Line emit ID (default -1)
+        - before_nu (np.float64[:]) : Frequency before interaction (default NaN)
+        - before_mu (np.float64[:]) : Mu before interaction (default NaN)
+        - before_energy (np.float64[:]) : Energy before interaction (default NaN)
+        - after_nu (np.float64[:]) : Frequency after interaction (default NaN)
+        - after_mu (np.float64[:]) : Mu after interaction (default NaN)
+        - after_energy (np.float64[:]) : Energy after interaction (default NaN)
+    """
+    # First pass: calculate total array sizes
+    total_events = 0
+    for tracker in trackers:
+        total_events += tracker.event_id
+
+    # Pre-allocate all arrays with proper default values
+    packet_id = np.empty(total_events, dtype=np.int64)
+    r = np.empty(total_events, dtype=np.float64)
+    shell_id = np.empty(total_events, dtype=np.int64)
+    interaction_type = np.empty(total_events, dtype=np.int64)
+    status = np.empty(total_events, dtype=np.int64)
+
+    # Initialize interaction arrays with default values
+    line_absorb_id = np.full(total_events, -1, dtype=np.int64)
+    line_emit_id = np.full(total_events, -1, dtype=np.int64)
+    before_nu = np.full(total_events, np.nan, dtype=np.float64)
+    before_mu = np.full(total_events, np.nan, dtype=np.float64)
+    before_energy = np.full(total_events, np.nan, dtype=np.float64)
+    after_nu = np.full(total_events, np.nan, dtype=np.float64)
+    after_mu = np.full(total_events, np.nan, dtype=np.float64)
+    after_energy = np.full(total_events, np.nan, dtype=np.float64)
+
+    # Second pass: copy data with proper indexing
+    global_event_offset = 0
+
+    for packet_idx, tracker in enumerate(trackers):
+        n_events = tracker.event_id
+        n_interactions = tracker.current_interaction_index
+
+        # Calculate array slice for this tracker
+        start_idx = global_event_offset
+        end_idx = global_event_offset + n_events
+
+        # Copy core event data
+        packet_id[start_idx:end_idx] = packet_idx
+        r[start_idx:end_idx] = tracker.r[:n_events]
+        shell_id[start_idx:end_idx] = tracker.shell_id[:n_events]
+        interaction_type[start_idx:end_idx] = tracker.interaction_type[
+            :n_events
+        ]
+        status[start_idx:end_idx] = tracker.status[:n_events]
+
+        # Copy interaction data to corresponding event positions
+        for j in range(n_interactions):
+            event_id = tracker.interaction_event_id[j]
+            if event_id < n_events:  # Safety check
+                global_event_idx = start_idx + event_id
+
+                line_absorb_id[global_event_idx] = (
+                    tracker.interaction_line_absorb_id[j]
+                )
+                line_emit_id[global_event_idx] = (
+                    tracker.interaction_line_emit_id[j]
+                )
+                before_nu[global_event_idx] = tracker.interaction_before_nu[j]
+                before_mu[global_event_idx] = tracker.interaction_before_mu[j]
+                before_energy[global_event_idx] = (
+                    tracker.interaction_before_energy[j]
+                )
+                after_nu[global_event_idx] = tracker.interaction_after_nu[j]
+                after_mu[global_event_idx] = tracker.interaction_after_mu[j]
+                after_energy[global_event_idx] = (
+                    tracker.interaction_after_energy[j]
+                )
+
+        # Update global offset for next tracker
+        global_event_offset = end_idx
+
+    return (
+        packet_id,
+        r,
+        shell_id,
+        interaction_type,
+        status,
+        line_absorb_id,
+        line_emit_id,
+        before_nu,
+        before_mu,
+        before_energy,
+        after_nu,
+        after_mu,
+        after_energy,
+    )
+
+
+def trackers_full_to_dataframe(rpacket_trackers) -> pd.DataFrame:
     """
     Convert a list of RPacketTracker instances to a comprehensive DataFrame.
 
@@ -411,119 +562,78 @@ def rpacket_trackers_to_dataframe(rpacket_trackers) -> pd.DataFrame:
         indexed by packet_id and event_id. Line interaction columns have default
         values (-1 for IDs, NaN for physical quantities) for non-interaction events.
     """
+    # Use the fast array extraction function
+    (
+        packet_id,
+        r,
+        shell_id,
+        interaction_type,
+        status,
+        line_absorb_id,
+        line_emit_id,
+        before_nu,
+        before_mu,
+        before_energy,
+        after_nu,
+        after_mu,
+        after_energy,
+    ) = trackers_full_list_to_arrays(rpacket_trackers)
+
+    # Create categorical data types
     interaction_type_dtype = CategoricalDtype(
         categories=[member.name for member in InteractionType], ordered=False
     )
-
-    # Collect all core event data
-    all_r = []
-    all_shell_id = []
-    all_interaction_type = []
-    all_status = []
-    all_packet_index = []
-    all_event_index = []
-    
-    # Collect line interaction data
-    all_line_absorb_id = []
-    all_line_emit_id = []
-    all_before_nu = []
-    all_before_mu = []
-    all_before_energy = []
-    all_after_nu = []
-    all_after_mu = []
-    all_after_energy = []
-
-    for i, rpacket_tracker in enumerate(rpacket_trackers):
-        n_events = rpacket_tracker.event_id
-        n_interactions = rpacket_tracker.current_interaction_index
-
-        # Core event data (every event)
-        all_r.append(rpacket_tracker.r[:n_events])
-        all_shell_id.append(rpacket_tracker.shell_id[:n_events])
-        all_interaction_type.append(rpacket_tracker.interaction_type[:n_events])
-        all_status.append(rpacket_tracker.status[:n_events])
-        all_packet_index.append(np.full(n_events, i))
-        all_event_index.append(np.arange(n_events))
-        
-        # Initialize line interaction arrays with default values
-        event_line_absorb_id = np.full(n_events, -1, dtype=np.int64)
-        event_line_emit_id = np.full(n_events, -1, dtype=np.int64)
-        event_before_nu = np.full(n_events, np.nan, dtype=np.float64)
-        event_before_mu = np.full(n_events, np.nan, dtype=np.float64)
-        event_before_energy = np.full(n_events, np.nan, dtype=np.float64)
-        event_after_nu = np.full(n_events, np.nan, dtype=np.float64)
-        event_after_mu = np.full(n_events, np.nan, dtype=np.float64)
-        event_after_energy = np.full(n_events, np.nan, dtype=np.float64)
-        
-        # Fill in actual interaction data where available
-        if n_interactions > 0:
-            # Map interaction data to corresponding events using interaction_event_id
-            for j in range(n_interactions):
-                event_id = rpacket_tracker.interaction_event_id[j]
-                if event_id < n_events:  # Safety check
-                    event_line_absorb_id[event_id] = rpacket_tracker.interaction_line_absorb_id[j]
-                    event_line_emit_id[event_id] = rpacket_tracker.interaction_line_emit_id[j]
-                    event_before_nu[event_id] = rpacket_tracker.interaction_before_nu[j]
-                    event_before_mu[event_id] = rpacket_tracker.interaction_before_mu[j]
-                    event_before_energy[event_id] = rpacket_tracker.energy[j]
-                    event_after_nu[event_id] = rpacket_tracker.interaction_after_nu[j]
-                    event_after_mu[event_id] = rpacket_tracker.interaction_after_mu[j]
-                    event_after_energy[event_id] = rpacket_tracker.energy[j]  # Energy same before/after for now
-        
-        # Append to collections
-        all_line_absorb_id.append(event_line_absorb_id)
-        all_line_emit_id.append(event_line_emit_id)
-        all_before_nu.append(event_before_nu)
-        all_before_mu.append(event_before_mu)
-        all_before_energy.append(event_before_energy)
-        all_after_nu.append(event_after_nu)
-        all_after_mu.append(event_after_mu)
-        all_after_energy.append(event_after_energy)
-
-    # Concatenate core arrays
-    combined_interaction_type = np.concatenate(all_interaction_type)
-    combined_status = np.concatenate(all_status)
+    status_dtype = CategoricalDtype(
+        categories=[member.name for member in PacketStatus], ordered=False
+    )
 
     # Convert enum values to their string names and create categorical
     interaction_type_labels = [
-        InteractionType(int_type).name for int_type in combined_interaction_type
+        InteractionType(int_type).name for int_type in interaction_type
     ]
     interaction_type_categorical = pd.Categorical(
         interaction_type_labels, dtype=interaction_type_dtype
     )
 
     # Convert status values to their string names
-    status_dtype = CategoricalDtype(
-        categories=[member.name for member in PacketStatus], ordered=False
-    )
-    status_labels = [
-        PacketStatus(int_status).name for int_status in combined_status
-    ]
+    status_labels = [PacketStatus(int_status).name for int_status in status]
     status_categorical = pd.Categorical(status_labels, dtype=status_dtype)
+
+    # Create event index for each packet
+    # Generate event_id arrays for multi-index
+    event_id_arrays = []
+    current_packet = 0
+    event_counter = 0
+
+    for i, pid in enumerate(packet_id):
+        if pid != current_packet:
+            # New packet started, reset event counter
+            current_packet = pid
+            event_counter = 0
+        event_id_arrays.append(event_counter)
+        event_counter += 1
+
+    event_ids = np.array(event_id_arrays)
 
     # Create comprehensive event DataFrame
     event_data = {
-        "r": np.concatenate(all_r),
-        "shell_id": np.concatenate(all_shell_id),
+        "r": r,
+        "shell_id": shell_id,
         "interaction_type": interaction_type_categorical,
         "status": status_categorical,
-        "line_absorb_id": np.concatenate(all_line_absorb_id),
-        "line_emit_id": np.concatenate(all_line_emit_id),
-        "before_nu": np.concatenate(all_before_nu),
-        "before_mu": np.concatenate(all_before_mu),
-        "before_energy": np.concatenate(all_before_energy),
-        "after_nu": np.concatenate(all_after_nu),
-        "after_mu": np.concatenate(all_after_mu),
-        "after_energy": np.concatenate(all_after_energy),
+        "line_absorb_id": line_absorb_id,
+        "line_emit_id": line_emit_id,
+        "before_nu": before_nu,
+        "before_mu": before_mu,
+        "before_energy": before_energy,
+        "after_nu": after_nu,
+        "after_mu": after_mu,
+        "after_energy": after_energy,
     }
 
     # Create multi-index with packet_id and event_id
-    index_arrays = [
-        np.concatenate(all_packet_index),
-        np.concatenate(all_event_index),
-    ]
     multi_index = pd.MultiIndex.from_arrays(
-        index_arrays, names=["packet_id", "event_id"]
+        [packet_id, event_ids], names=["packet_id", "event_id"]
     )
 
     return pd.DataFrame(event_data, index=multi_index)
@@ -550,7 +660,7 @@ def rpacket_trackers_to_last_interaction_dataframe(
         indexed by packet_id.
     """
     # First get the full event dataframe
-    full_df = rpacket_trackers_to_dataframe(rpacket_trackers)
+    full_df = trackers_full_to_dataframe(rpacket_trackers)
 
     if full_df.empty:
         return pd.DataFrame()
@@ -578,7 +688,7 @@ def rpacket_trackers_to_last_interaction_dataframe(
     last_interaction_df.rename(
         columns={
             "interaction_type": "last_interaction_type",
-            "shell_id": "last_shell_id",
+            "shell_id": "last_she ll_id",
         },
         inplace=True,
     )
@@ -665,7 +775,7 @@ def full_tracking_to_last_interaction_dataframe(
 
 
 @njit
-def generate_rpacket_tracker_list(no_of_packets: int, length: int):
+def generate_tracker_full_list(no_of_packets: int, length: int):
     """
     Generate list of RPacketTracker instances.
 
@@ -683,5 +793,5 @@ def generate_rpacket_tracker_list(no_of_packets: int, length: int):
     """
     rpacket_trackers = []
     for i in range(no_of_packets):
-        rpacket_trackers.append(RPacketTracker(length))
+        rpacket_trackers.append(TrackerFull(length))
     return rpacket_trackers

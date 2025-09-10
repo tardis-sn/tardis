@@ -221,7 +221,6 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.LINE:
-            r_packet.last_interaction_type = InteractionType.LINE
             move_r_packet(
                 r_packet,
                 distance,
@@ -229,6 +228,7 @@ def single_packet_loop(
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+
             rpacket_tracker.track_line_interaction_before(r_packet)
             line_scatter(
                 r_packet,
@@ -250,7 +250,6 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
-            r_packet.last_interaction_type = InteractionType.ESCATTERING
             move_r_packet(
                 r_packet,
                 distance,
@@ -280,7 +279,6 @@ def single_packet_loop(
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
             and interaction_type == InteractionType.CONTINUUM_PROCESS
         ):
-            r_packet.last_interaction_type = InteractionType.CONTINUUM_PROCESS
             move_r_packet(
                 r_packet,
                 distance,

@@ -2,9 +2,9 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from tardis.transport.montecarlo.packets.trackers.r_packet_tracker import RPacketTracker
-from tardis.transport.montecarlo.packets.trackers.r_packet_tracker import (
-    rpacket_trackers_to_dataframe,
+from tardis.transport.montecarlo.packets.trackers.tracker_full import TrackerFull
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    trackers_full_to_dataframe,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
@@ -105,7 +105,7 @@ def nu_rpacket_tracker(rpacket_tracker):
 
 
 def test_extend_array():
-    rpacket_tracker = RPacketTracker(10)
+    rpacket_tracker = TrackerFull(10)
     array = np.array([1, 2, 3, 4, 5], dtype=np.int64)
 
     new_array = rpacket_tracker.extend_array(array, array.size)
@@ -157,7 +157,7 @@ def test_boundary_interactions(rpacket_tracker, regression_data):
 
 def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking):
     transport_state = simulation_rpacket_tracking.transport.transport_state
-    rtracker_df = rpacket_trackers_to_dataframe(transport_state.rpacket_tracker)
+    rtracker_df = trackers_full_to_dataframe(transport_state.rpacket_tracker)
 
     # check df shape and column names
     assert rtracker_df.shape == (

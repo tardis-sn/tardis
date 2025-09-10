@@ -16,7 +16,7 @@ from tardis.transport.frame_transformations import (
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.packets.trackers.r_packet_tracker import RPacketTracker
+from tardis.transport.montecarlo.packets.trackers.tracker_full import TrackerFull
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -565,7 +565,7 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
     # Setup Montecarlo_Configuration.INITIAL_TRACKING_ARRAY_LENGTH
     mc.INITIAL_TRACKING_ARRAY_LENGTH = 10
 
-    tracked_rpacket_properties = RPacketTracker(10)
+    tracked_rpacket_properties = TrackerFull(10)
     test_rpacket = radiative_packet.RPacket(
         index=index,
         seed=seed,

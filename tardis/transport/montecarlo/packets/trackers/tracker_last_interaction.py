@@ -9,7 +9,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 
 @jitclass
-class RPacketLastInteractionTracker:
+class TrackerLastInteraction:
     r: nb.float64  # type: ignore[misc]
     nu: nb.float64  # type: ignore[misc]
     mu: nb.float64  # type: ignore[misc]
@@ -66,18 +66,18 @@ class RPacketLastInteractionTracker:
         Float values are initialized with NaN for better data quality tracking.
         """
         self.r = -1.0
-        self.nu = float('nan')
-        self.energy = float('nan')
+        self.nu = float("nan")
+        self.energy = float("nan")
         self.shell_id = -1
         self.interaction_type = -1
 
         # Initialize interaction tracking
-        self.before_nu = float('nan')
-        self.before_mu = float('nan')
-        self.before_energy = float('nan')
-        self.after_nu = float('nan')
-        self.after_mu = float('nan')
-        self.after_energy = float('nan')
+        self.before_nu = float("nan")
+        self.before_mu = float("nan")
+        self.before_energy = float("nan")
+        self.after_nu = float("nan")
+        self.after_mu = float("nan")
+        self.after_energy = float("nan")
 
         # Initialize line interaction IDs
         self.interaction_line_absorb_id = -1
@@ -195,7 +195,9 @@ class RPacketLastInteractionTracker:
         self.shell_id = r_packet.current_shell_id
         self.interaction_type = r_packet.last_interaction_type
 
-    def track_boundary_event(self, r_packet, from_shell_id=-1, to_shell_id=-1) -> None:
+    def track_boundary_event(
+        self, r_packet, from_shell_id=-1, to_shell_id=-1
+    ) -> None:
         """
         Track packet state during boundary event.
         This method provides API compatibility with RPacketTracker.
@@ -210,7 +212,7 @@ class RPacketLastInteractionTracker:
             Shell ID the packet is entering (default: -1).
         """
         pass
-    
+
     def get_interaction_summary(self) -> nb.int64:  # type: ignore[misc]
         """
         Get summary of interaction count.
@@ -221,7 +223,6 @@ class RPacketLastInteractionTracker:
             Total interaction count.
         """
         return self.interactions_count
-
 
     def finalize_array(self) -> None:
         """
@@ -243,7 +244,7 @@ def generate_rpacket_last_interaction_tracker_list(no_of_packets):
     # Create individual trackers - the List will be created externally
     trackers = []
     for i in range(no_of_packets):
-        trackers.append(RPacketLastInteractionTracker())
+        trackers.append(TrackerLastInteraction())
     return trackers
 
 
@@ -276,43 +277,66 @@ def rpacket_last_interaction_tracker_list_to_dataframe(tracker_list):
     """
     # Create categorical dtype from enum for better performance and type safety
     interaction_type_dtype = CategoricalDtype(
-        categories=[member.name for member in InteractionType],
-        ordered=False
+        categories=[member.name for member in InteractionType], ordered=False
     )
 
     # Extract data from trackers
-    interaction_type_raw = np.array([tracker.interaction_type for tracker in tracker_list])
+    interaction_type_raw = np.array(
+        [tracker.interaction_type for tracker in tracker_list]
+    )
 
     # Convert enum values to their string names and create categorical
-    interaction_type_labels = [InteractionType(int_type).name for int_type in interaction_type_raw]
+    interaction_type_labels = [
+        InteractionType(int_type).name for int_type in interaction_type_raw
+    ]
     last_interaction_type = pd.Categorical(
-        interaction_type_labels,
-        dtype=interaction_type_dtype
+        interaction_type_labels, dtype=interaction_type_dtype
     )
 
     # Extract interaction data
-    interaction_before_nu = np.array([tracker.interaction_before_nu for tracker in tracker_list])
-    interaction_before_mu = np.array([tracker.interaction_before_mu for tracker in tracker_list])
-    interaction_before_energy = np.array([tracker.interaction_before_energy for tracker in tracker_list])
-    interaction_after_nu = np.array([tracker.interaction_after_nu for tracker in tracker_list])
-    interaction_after_mu = np.array([tracker.interaction_after_mu for tracker in tracker_list])
-    interaction_after_energy = np.array([tracker.interaction_after_energy for tracker in tracker_list])
-    interaction_line_absorb_id = np.array([tracker.interaction_line_absorb_id for tracker in tracker_list])
-    interaction_line_emit_id = np.array([tracker.interaction_line_emit_id for tracker in tracker_list])
-    interactions_count = np.array([tracker.interactions_count for tracker in tracker_list])
+    interaction_before_nu = np.array(
+        [tracker.before_nu for tracker in tracker_list]
+    )
+    interaction_before_mu = np.array(
+        [tracker.before_mu for tracker in tracker_list]
+    )
+    interaction_before_energy = np.array(
+        [tracker.before_energy for tracker in tracker_list]
+    )
+    interaction_after_nu = np.array(
+        [tracker.after_nu for tracker in tracker_list]
+    )
+    interaction_after_mu = np.array(
+        [tracker.after_mu for tracker in tracker_list]
+    )
+    interaction_after_energy = np.array(
+        [tracker.after_energy for tracker in tracker_list]
+    )
+    interaction_line_absorb_id = np.array(
+        [tracker.interaction_line_absorb_id for tracker in tracker_list]
+    )
+    interaction_line_emit_id = np.array(
+        [tracker.interaction_line_emit_id for tracker in tracker_list]
+    )
+    interactions_count = np.array(
+        [tracker.interactions_count for tracker in tracker_list]
+    )
 
     # Create DataFrame with packet index
-    df = pd.DataFrame({
-        "last_interaction_type": last_interaction_type,
-        "before_nu": interaction_before_nu,
-        "before_mu": interaction_before_mu,
-        "before_energy": interaction_before_energy,
-        "after_nu": interaction_after_nu,
-        "after_mu": interaction_after_mu,
-        "after_energy": interaction_after_energy,
-        "line_absorb_id": interaction_line_absorb_id,
-        "line_emit_id": interaction_line_emit_id,
-        "interactions_count": interactions_count,
-    }, index=pd.RangeIndex(len(tracker_list), name="packet_id"))
+    df = pd.DataFrame(
+        {
+            "last_interaction_type": last_interaction_type,
+            "before_nu": interaction_before_nu,
+            "before_mu": interaction_before_mu,
+            "before_energy": interaction_before_energy,
+            "after_nu": interaction_after_nu,
+            "after_mu": interaction_after_mu,
+            "after_energy": interaction_after_energy,
+            "line_absorb_id": interaction_line_absorb_id,
+            "line_emit_id": interaction_line_emit_id,
+            "interactions_count": interactions_count,
+        },
+        index=pd.RangeIndex(len(tracker_list), name="packet_id"),
+    )
 
     return df

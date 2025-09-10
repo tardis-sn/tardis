@@ -23,13 +23,13 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.transport.montecarlo.packets.trackers.r_packet_tracker import (
-    generate_rpacket_tracker_list,
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    generate_tracker_full_list,
 )
 from tardis.transport.montecarlo.packets.trackers import (
     generate_rpacket_last_interaction_tracker_list,
 )
-from tardis.transport.montecarlo.packets.trackers.r_packet_tracker import rpacket_trackers_to_dataframe
+from tardis.transport.montecarlo.packets.trackers.tracker_full import trackers_full_to_dataframe
 from tardis.transport.montecarlo.progress_bars import (
     refresh_packet_pbar,
     reset_packet_pbar,
@@ -173,7 +173,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
         if self.enable_rpacket_tracking:
-            transport_state.rpacket_tracker = generate_rpacket_tracker_list(
+            transport_state.rpacket_tracker = generate_tracker_full_list(
                 number_of_rpackets,
                 self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
             )
@@ -233,7 +233,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # RPacketLastInteractionTracker
         if self.enable_rpacket_tracking:
             self.transport_state.rpacket_tracker_df = (
-                rpacket_trackers_to_dataframe(
+                trackers_full_to_dataframe(
                     self.transport_state.rpacket_tracker
                 )
             )

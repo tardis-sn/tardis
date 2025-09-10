@@ -38,7 +38,7 @@ def montecarlo_main_loop(
     montecarlo_configuration: MonteCarloConfiguration,
     estimators: RadiationFieldMCEstimators,
     spectrum_frequency_grid: np.ndarray,
-    rpacket_trackers: List,
+    trackers: List,
     number_of_vpackets: int,
     show_progress_bars: bool,
 ):
@@ -90,10 +90,6 @@ def montecarlo_main_loop(
             packet information from the simulation
     """
     no_of_packets = len(packet_collection.initial_nus)
-
-    last_interaction_tracker = initialize_last_interaction_tracker(
-        no_of_packets
-    )
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
     delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
@@ -149,7 +145,7 @@ def montecarlo_main_loop(
         # Get the local v_packet_collection for this thread
         vpacket_collection = vpacket_collections[i]
         # RPacket Tracker for this thread
-        rpacket_tracker = rpacket_trackers[i]
+        rpacket_tracker = trackers[i]
 
         loop = single_packet_loop(
             r_packet,
@@ -163,14 +159,12 @@ def montecarlo_main_loop(
         )
         packet_collection.output_nus[i] = r_packet.nu
 
-        last_interaction_tracker.update_last_interaction(r_packet, i)
 
         if r_packet.status == PacketStatus.REABSORBED:
             packet_collection.output_energies[i] = -r_packet.energy
-            last_interaction_tracker.types[i] = r_packet.last_interaction_type
+
         elif r_packet.status == PacketStatus.EMITTED:
             packet_collection.output_energies[i] = r_packet.energy
-            last_interaction_tracker.types[i] = r_packet.last_interaction_type
 
         vpacket_collection.finalize_arrays()
 
@@ -206,11 +200,10 @@ def montecarlo_main_loop(
         )
 
     if montecarlo_globals.ENABLE_RPACKET_TRACKING:
-        for rpacket_tracker in rpacket_trackers:
+        for rpacket_tracker in trackers:
             rpacket_tracker.finalize_array()
 
     return (
         v_packets_energy_hist,
-        last_interaction_tracker,
         vpacket_tracker,
     )
