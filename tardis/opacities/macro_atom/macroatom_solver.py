@@ -228,7 +228,7 @@ class BoundBoundMacroAtomSolver:
             ]
         ].to_numpy()  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
 
-        self.lines_level_upper = self.lines.index.droplevel(
+        self._lines_level_upper = self.lines.index.droplevel(
             "level_number_lower"
         )
 
@@ -274,7 +274,7 @@ class BoundBoundMacroAtomSolver:
                 mean_intensities_blue_wing,
                 beta_sobolevs,
                 stimulated_emission_factors,
-                self.lines_level_upper,
+                self._lines_level_upper,
             )
         else:
             normalized_probabilities = self._solve_next_macroatom_iteration(
