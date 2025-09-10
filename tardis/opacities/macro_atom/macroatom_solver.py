@@ -274,16 +274,16 @@ class BoundBoundMacroAtomSolver:
                 lines_level_upper,
             )
         else:
-            (
-                normalized_probabilities,
-                macro_atom_transition_metadata,
-                line2macro_level_upper,
-                macro_block_references,
-            ) = self._solve_next_macroatom_iteration(
+            normalized_probabilities = self._solve_next_macroatom_iteration(
                 mean_intensities_blue_wing,
                 beta_sobolevs,
                 stimulated_emission_factors,
             )
+            (
+                macro_atom_transition_metadata,
+                line2macro_level_upper,
+                macro_block_references,
+            ) = self.computed_metadata
 
         return MacroAtomState(
             normalized_probabilities,
@@ -418,7 +418,7 @@ class BoundBoundMacroAtomSolver:
         mean_intensities_blue_wing: pd.DataFrame,
         beta_sobolevs: pd.DataFrame,
         stimulated_emission_factors: np.ndarray,
-    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    ) -> pd.DataFrame:
         """Handle subsequent iterations of the solve method.
         Uses precomputed metadata and only recalculates the probabilities.
         """
@@ -489,12 +489,7 @@ class BoundBoundMacroAtomSolver:
             probabilities_df
         )
 
-        return (
-            normalized_probabilities,
-            macro_atom_transition_metadata,
-            line2macro_level_upper,
-            macro_block_references,
-        )
+        return normalized_probabilities
 
 
 def create_macro_block_references(macro_atom_transition_metadata):
