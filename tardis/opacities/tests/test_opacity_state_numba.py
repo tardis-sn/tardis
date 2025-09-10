@@ -65,32 +65,3 @@ def test_opacity_state_to_numba(
         npt.assert_allclose(actual.transition_type, empty)
         npt.assert_allclose(actual.destination_level_id, empty)
         npt.assert_allclose(actual.transition_line_id, empty)
-    # else: #We don't expect the new ones to match the legacy ones
-    #     npt.assert_allclose(
-    #         actual.transition_probabilities,
-    #         legacy_plasma.transition_probabilities.values[:, index],
-    #     )
-    #     npt.assert_allclose(
-    #         actual.line2macro_level_upper,
-    #         legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
-    #     )
-    #     npt.assert_allclose(
-    #         actual.macro_block_references,
-    #         legacy_plasma.atomic_data.macro_atom_references[
-    #             "block_references"
-    #         ].values,
-    #     )
-    #     npt.assert_allclose(
-    #         actual.transition_type,
-    #         legacy_plasma.atomic_data.macro_atom_data["transition_type"].values,
-    #     )
-    #     npt.assert_allclose(
-    #         actual.destination_level_id,
-    #         legacy_plasma.atomic_data.macro_atom_data[
-    #             "destination_level_idx"
-    #         ].values,
-    #     )
-    #     npt.assert_allclose(
-    #         actual.transition_line_id,
-    #         legacy_plasma.atomic_data.macro_atom_data["lines_idx"].values,
-    #     )
