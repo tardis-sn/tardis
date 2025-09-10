@@ -228,6 +228,10 @@ class BoundBoundMacroAtomSolver:
             ]
         ].to_numpy()  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
 
+        self.lines_level_upper = self.lines.index.droplevel(
+            "level_number_lower"
+        )
+
     def solve(
         self,
         mean_intensities_blue_wing: pd.DataFrame,
@@ -259,7 +263,6 @@ class BoundBoundMacroAtomSolver:
             and a mapping from line IDs to macro atom level upper indices.
         """
         is_first_iteration = not hasattr(self, "computed_metadata")
-        lines_level_upper = self.lines.index.droplevel("level_number_lower")
 
         if is_first_iteration:
             (
@@ -271,7 +274,7 @@ class BoundBoundMacroAtomSolver:
                 mean_intensities_blue_wing,
                 beta_sobolevs,
                 stimulated_emission_factors,
-                lines_level_upper,
+                self.lines_level_upper,
             )
         else:
             normalized_probabilities = self._solve_next_macroatom_iteration(
@@ -494,7 +497,7 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.INTERNAL_UP
         ].transition_line_idx.to_numpy()
-        line_trans__internal_down_ids = macro_atom_transition_metadata[
+        line_trans_internal_down_ids = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.INTERNAL_DOWN
         ].transition_line_idx.to_numpy()
@@ -527,10 +530,10 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.INTERNAL_DOWN
         ] = probability_internal_down(
-            beta_sobolevs.iloc[line_trans__internal_down_ids],
-            self._nus[line_trans__internal_down_ids],
-            self._oscillator_strength_ul[line_trans__internal_down_ids],
-            self._energies_lower[line_trans__internal_down_ids],
+            beta_sobolevs.iloc[line_trans_internal_down_ids],
+            self._nus[line_trans_internal_down_ids],
+            self._oscillator_strength_ul[line_trans_internal_down_ids],
+            self._energies_lower[line_trans_internal_down_ids],
         ).to_numpy()
 
         probabilities_df[
