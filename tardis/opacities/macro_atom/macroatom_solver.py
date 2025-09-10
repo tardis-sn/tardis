@@ -299,8 +299,44 @@ class BoundBoundMacroAtomSolver:
         stimulated_emission_factors: np.ndarray,
         lines_level_upper: pd.MultiIndex,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-        """Handle the first iteration of the solve method.
-        Fully computes all metadata for the macroatom and adds it to the class with the computed_metadata attribute.
+        """
+        Handle the first iteration of the solve method.
+
+        Fully computes all metadata for the macroatom and adds it to the class with
+        the computed_metadata attribute. This method performs the complete calculation
+        including transition probability computation, normalization, sorting, and
+        metadata preparation.
+
+        Parameters
+        ----------
+        mean_intensities_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
+            For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357.
+            Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
+        beta_sobolevs : pd.DataFrame
+            Escape probabilities for the Sobolev approximation. These probabilities
+            represent the fraction of photons that escape the line formation region
+            without being reabsorbed.
+        stimulated_emission_factors : np.ndarray
+            Factors accounting for stimulated emission in the transitions. These
+            modify the transition probabilities based on the radiation field strength.
+        lines_level_upper : pd.MultiIndex
+            MultiIndex containing the upper level information for each line transition,
+            used for creating the line-to-macro-atom level mapping.
+
+        Returns
+        -------
+        normalized_probabilities : pd.DataFrame
+            DataFrame containing normalized transition probabilities where each source
+            group sums to 1.0.
+        macro_atom_transition_metadata : pd.DataFrame
+            DataFrame containing metadata for transitions including source and
+            destination levels, transition types, and line indices.
+        line2macro_level_upper : pd.Series
+            Series mapping line transitions to macro atom level indices for upper levels.
+        macro_block_references : pd.Series
+            Series with unique source levels as index and their first occurrence
+            index in the metadata as values.
         """
         if self.line_interaction_type in ["downbranch", "macroatom"]:
             p_emission_down, emission_down_metadata = (
@@ -419,8 +455,35 @@ class BoundBoundMacroAtomSolver:
         beta_sobolevs: pd.DataFrame,
         stimulated_emission_factors: np.ndarray,
     ) -> pd.DataFrame:
-        """Handle subsequent iterations of the solve method.
-        Uses precomputed metadata and only recalculates the probabilities.
+        """
+        Handle subsequent iterations of the solve method.
+
+        Uses precomputed metadata and only recalculates the probabilities. This method
+        is optimized for speed by reusing the transition metadata, block references,
+        and line mappings computed in the first iteration.
+
+        Parameters
+        ----------
+        mean_intensities_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
+            For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357.
+            Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
+            This parameter may have updated values compared to the first iteration.
+        beta_sobolevs : pd.DataFrame
+            Escape probabilities for the Sobolev approximation. These probabilities
+            represent the fraction of photons that escape the line formation region
+            without being reabsorbed. Values may be updated from the first iteration.
+        stimulated_emission_factors : np.ndarray
+            Factors accounting for stimulated emission in the transitions. These
+            modify the transition probabilities based on the radiation field strength.
+            May contain updated values from the radiation field calculation.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing normalized transition probabilities where each source
+            group sums to 1.0. The structure matches the first iteration output but
+            with updated probability values.
         """
         (
             macro_atom_transition_metadata,
