@@ -105,6 +105,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
+          lockfile-path: ./conda-linux-64.lock
 
       - name: Copy atom_data
         run: |

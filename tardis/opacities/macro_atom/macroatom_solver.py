@@ -16,7 +16,11 @@ from tardis.opacities.macro_atom.macroatom_transitions import (
     line_transition_emission_down,
     line_transition_internal_down,
     line_transition_internal_up,
+    probability_emission_down,
+    probability_internal_down,
+    probability_internal_up,
 )
+from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 
 class LegacyMacroAtomSolver:
@@ -199,11 +203,40 @@ class BoundBoundMacroAtomSolver:
         self.lines = lines
         self.line_interaction_type = line_interaction_type
 
+        self._precompute_static_data()
+
+    def _precompute_static_data(self):
+        self._oscillator_strength_ul = self.lines.f_ul.to_numpy().reshape(-1, 1)
+        self._oscillator_strength_lu = self.lines.f_lu.to_numpy().reshape(-1, 1)
+        self._nus = self.lines.nu.to_numpy().reshape(-1, 1)
+        self._energies_upper = (
+            self.levels[["energy"]]
+            .reindex(self.lines.index.droplevel("level_number_lower"))
+            .to_numpy()
+        )
+        self._energies_lower = (
+            self.levels[["energy"]]
+            .reindex(self.lines.index.droplevel("level_number_upper"))
+            .to_numpy()
+        )
+        self._transition_a_i_l_u_array = self.lines.reset_index()[
+            [
+                "atomic_number",
+                "ion_number",
+                "level_number_lower",
+                "level_number_upper",
+            ]
+        ].to_numpy()  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
+
+        self._lines_level_upper = self.lines.index.droplevel(
+            "level_number_lower"
+        )
+
     def solve(
         self,
         mean_intensities_blue_wing: pd.DataFrame,
         beta_sobolevs: pd.DataFrame,
-        stimulated_emission_factors: pd.DataFrame,
+        stimulated_emission_factors: np.ndarray,
     ) -> MacroAtomState:
         """
         Solve the transition probabilities for the macroatom.
@@ -220,7 +253,7 @@ class BoundBoundMacroAtomSolver:
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
         beta_sobolevs : pd.DataFrame
             Escape probabilities for the Sobolev approximation.
-        stimulated_emission_factors : pd.DataFrame
+        stimulated_emission_factors : np.ndarray
             Stimulated emission factors for the lines.
 
         Returns
@@ -229,73 +262,126 @@ class BoundBoundMacroAtomSolver:
             A MacroAtomState object containing the transition probabilities, transition metadata,
             and a mapping from line IDs to macro atom level upper indices.
         """
-        oscillator_strength_ul = self.lines.f_ul.values.reshape(-1, 1)
-        oscillator_strength_lu = self.lines.f_lu.values.reshape(-1, 1)
-        nus = self.lines.nu.values.reshape(-1, 1)
-        line_ids = self.lines.line_id.values
+        is_first_iteration = not hasattr(self, "computed_metadata")
 
-        energies_upper = (
-            self.levels[["energy"]]
-            .rename(columns={"energy": "level_number_upper"})
-            .reindex(self.lines.index.droplevel("level_number_lower"))
-            .values
+        if is_first_iteration:
+            (
+                normalized_probabilities,
+                macro_atom_transition_metadata,
+                line2macro_level_upper,
+                macro_block_references,
+            ) = self._solve_first_macroatom_iteration(
+                mean_intensities_blue_wing,
+                beta_sobolevs,
+                stimulated_emission_factors,
+                self._lines_level_upper,
+            )
+        else:
+            normalized_probabilities = self._solve_next_macroatom_iteration(
+                mean_intensities_blue_wing,
+                beta_sobolevs,
+                stimulated_emission_factors,
+            )
+            (
+                macro_atom_transition_metadata,
+                line2macro_level_upper,
+                macro_block_references,
+            ) = self.computed_metadata
+
+        return MacroAtomState(
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            line2macro_level_upper,
+            macro_block_references,
         )
-        energies_lower = (
-            self.levels[["energy"]]
-            .rename(columns={"energy": "level_number_lower"})
-            .reindex(self.lines.index.droplevel("level_number_upper"))
-            .values
-        )
-        transition_a_i_l_u_array = self.lines.reset_index()[
-            [
-                "atomic_number",
-                "ion_number",
-                "level_number_lower",
-                "level_number_upper",
-            ]
-        ].values  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
 
-        lines_level_upper = self.lines.index.droplevel("level_number_lower")
+    def _solve_first_macroatom_iteration(
+        self,
+        mean_intensities_blue_wing: pd.DataFrame,
+        beta_sobolevs: pd.DataFrame,
+        stimulated_emission_factors: np.ndarray,
+        lines_level_upper: pd.MultiIndex,
+    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+        """
+        Handle the first iteration of the solve method.
 
+        Fully computes all metadata for the macroatom and adds it to the class with
+        the computed_metadata attribute. This method performs the complete calculation
+        including transition probability computation, normalization, sorting, and
+        metadata preparation.
+
+        Parameters
+        ----------
+        mean_intensities_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
+            For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357.
+            Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
+        beta_sobolevs : pd.DataFrame
+            Escape probabilities for the Sobolev approximation. These probabilities
+            represent the fraction of photons that escape the line formation region
+            without being reabsorbed.
+        stimulated_emission_factors : np.ndarray
+            Factors accounting for stimulated emission in the transitions. These
+            modify the transition probabilities based on the radiation field strength.
+        lines_level_upper : pd.MultiIndex
+            MultiIndex containing the upper level information for each line transition,
+            used for creating the line-to-macro-atom level mapping.
+
+        Returns
+        -------
+        normalized_probabilities : pd.DataFrame
+            DataFrame containing normalized transition probabilities where each source
+            group sums to 1.0.
+        macro_atom_transition_metadata : pd.DataFrame
+            DataFrame containing metadata for transitions including source and
+            destination levels, transition types, and line indices.
+        line2macro_level_upper : pd.Series
+            Series mapping line transitions to macro atom level indices for upper levels.
+        macro_block_references : pd.Series
+            Series with unique source levels as index and their first occurrence
+            index in the metadata as values.
+        """
         if self.line_interaction_type in ["downbranch", "macroatom"]:
             p_emission_down, emission_down_metadata = (
                 line_transition_emission_down(
-                    oscillator_strength_ul,
-                    nus,
-                    energies_upper,
-                    energies_lower,
+                    self._oscillator_strength_ul,
+                    self._nus,
+                    self._energies_upper,
+                    self._energies_lower,
                     beta_sobolevs,
-                    transition_a_i_l_u_array,
-                    line_ids,
+                    self._transition_a_i_l_u_array,
+                    self.lines.line_id.to_numpy(),
                 )
             )
         else:
             raise ValueError(
                 f"Unknown line interaction type: {self.line_interaction_type}"
             )
-        probabilities_df = p_emission_down
-        macro_atom_transition_metadata = emission_down_metadata
+        if self.line_interaction_type == "downbranch":
+            probabilities_df = p_emission_down
+            macro_atom_transition_metadata = emission_down_metadata
 
-        if self.line_interaction_type == "macroatom":
+        elif self.line_interaction_type == "macroatom":
             p_internal_down, internal_down_metadata = (
                 line_transition_internal_down(
-                    oscillator_strength_ul,
-                    nus,
-                    energies_lower,
+                    self._oscillator_strength_ul,
+                    self._nus,
+                    self._energies_lower,
                     beta_sobolevs,
-                    transition_a_i_l_u_array,
-                    line_ids,
+                    self._transition_a_i_l_u_array,
+                    self.lines.line_id.to_numpy(),
                 )
             )
+
             p_internal_up, internal_up_metadata = line_transition_internal_up(
-                oscillator_strength_lu,
-                nus,
-                energies_lower,
+                self._oscillator_strength_lu,
+                self._nus,
+                self._energies_lower,
                 mean_intensities_blue_wing,
                 beta_sobolevs,
                 stimulated_emission_factors,
-                transition_a_i_l_u_array,
-                line_ids,
+                self._transition_a_i_l_u_array,
+                self.lines.line_id.to_numpy(),
             )
             probabilities_df = pd.concat(
                 [p_emission_down, p_internal_down, p_internal_up]
@@ -340,17 +426,169 @@ class BoundBoundMacroAtomSolver:
                 macro_atom_transition_metadata.source.unique()
             )
         }
+        # -99 should never be used downstream. The presence of it means the destination is not a source,
+        # which means that the destination is only referenced from emission
+        # (or macroatom deactivation) for the given macroatom configuration.
         macro_atom_transition_metadata["destination_level_idx"] = (
             (macro_atom_transition_metadata.destination.map(source_to_index))
             .fillna(-99)
             .astype(np.int64)
         )
 
-        return MacroAtomState(
+        macro_block_references = create_macro_block_references(
+            macro_atom_transition_metadata
+        )
+
+        self.computed_metadata = (
+            macro_atom_transition_metadata,
+            line2macro_level_upper,
+            macro_block_references,
+        )
+
+        return (
             normalized_probabilities,
             macro_atom_transition_metadata,
             line2macro_level_upper,
+            macro_block_references,
         )
+
+    def _solve_next_macroatom_iteration(
+        self,
+        mean_intensities_blue_wing: pd.DataFrame,
+        beta_sobolevs: pd.DataFrame,
+        stimulated_emission_factors: np.ndarray,
+    ) -> pd.DataFrame:
+        """
+        Handle subsequent iterations of the solve method.
+
+        Uses precomputed metadata and only recalculates the probabilities. This method
+        is optimized for speed by reusing the transition metadata, block references,
+        and line mappings computed in the first iteration.
+
+        Parameters
+        ----------
+        mean_intensities_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
+            For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357.
+            Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
+            This parameter may have updated values compared to the first iteration.
+        beta_sobolevs : pd.DataFrame
+            Escape probabilities for the Sobolev approximation. These probabilities
+            represent the fraction of photons that escape the line formation region
+            without being reabsorbed. Values may be updated from the first iteration.
+        stimulated_emission_factors : np.ndarray
+            Factors accounting for stimulated emission in the transitions. These
+            modify the transition probabilities based on the radiation field strength.
+            May contain updated values from the radiation field calculation.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing normalized transition probabilities where each source
+            group sums to 1.0. The structure matches the first iteration output but
+            with updated probability values.
+        """
+        (
+            macro_atom_transition_metadata,
+            line2macro_level_upper,
+            macro_block_references,
+        ) = self.computed_metadata
+        line_trans_internal_up_ids = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.INTERNAL_UP
+        ].transition_line_idx.to_numpy()
+        line_trans_internal_down_ids = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.INTERNAL_DOWN
+        ].transition_line_idx.to_numpy()
+        line_trans_emission_down_ids = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.BB_EMISSION
+        ].transition_line_idx.to_numpy()
+
+        probabilities_df = pd.DataFrame(
+            np.zeros(
+                (
+                    macro_atom_transition_metadata.shape[0],
+                    beta_sobolevs.shape[1],
+                )
+            ),
+            index=macro_atom_transition_metadata.index,
+            columns=beta_sobolevs.columns,
+        )
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.BB_EMISSION
+        ] = probability_emission_down(
+            beta_sobolevs.iloc[line_trans_emission_down_ids],
+            self._nus[line_trans_emission_down_ids],
+            self._oscillator_strength_ul[line_trans_emission_down_ids],
+            self._energies_upper[line_trans_emission_down_ids],
+            self._energies_lower[line_trans_emission_down_ids],
+        ).to_numpy()
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.INTERNAL_DOWN
+        ] = probability_internal_down(
+            beta_sobolevs.iloc[line_trans_internal_down_ids],
+            self._nus[line_trans_internal_down_ids],
+            self._oscillator_strength_ul[line_trans_internal_down_ids],
+            self._energies_lower[line_trans_internal_down_ids],
+        ).to_numpy()
+
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.INTERNAL_UP
+        ] = probability_internal_up(
+            beta_sobolevs.iloc[line_trans_internal_up_ids],
+            self._nus[line_trans_internal_up_ids],
+            self._oscillator_strength_lu[line_trans_internal_up_ids],
+            stimulated_emission_factors[line_trans_internal_up_ids],
+            mean_intensities_blue_wing.iloc[line_trans_internal_up_ids],
+            self._energies_lower[line_trans_internal_up_ids],
+        ).to_numpy()
+
+        probabilities_df["source"] = (
+            macro_atom_transition_metadata.source.values
+        )
+        normalized_probabilities = normalize_transition_probabilities(
+            probabilities_df
+        )
+
+        return normalized_probabilities
+
+
+def create_macro_block_references(macro_atom_transition_metadata):
+    """
+    Create macro block references from the macro atom transition metadata.
+    This method creates a mapping from unique source levels to their first occurrence index in the metadata.
+
+    Parameters
+    ----------
+    macro_atom_transition_metadata : pandas.DataFrame
+        DataFrame containing metadata for macro atom transitions.
+
+    Returns
+    -------
+    pandas.Series
+        Series with unique source levels as index and their first occurrence index in the metadata as values.
+    """
+    unique_source_multi_index = pd.MultiIndex.from_tuples(
+        macro_atom_transition_metadata.source.unique(),
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    macro_data = (
+        macro_atom_transition_metadata.reset_index()
+        .groupby("source")
+        .apply(lambda x: x.index[0])
+    )
+    macro_block_references = pd.Series(
+        data=macro_data.values,
+        index=unique_source_multi_index,
+        name="macro_block_references",
+    )
+
+    return macro_block_references
 
 
 def create_line2macro_level_upper(
@@ -422,7 +660,7 @@ def reindex_sort_and_clean_probabilities_and_metadata(
     macro_atom_transition_metadata: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Reindex and sort macro atom transition probabilities and metadata.
+    Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.
 
     Parameters
     ----------
