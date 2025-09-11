@@ -354,39 +354,6 @@ def probability_emission_down(
         * (energies_upper - energies_lower)
     )
     return p_emission_down
-    p_emission_down["source"] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-    ]
-
-    p_emission_down["destination"] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-    ]
-
-    p_emission_down["transition_type"] = P_EMISSION_DOWN
-
-    p_emission_down["transition_line_id"] = line_ids
-
-    p_emission_down["transition_line_idx"] = range(len(line_ids))
-
-    emission_down_metadata = p_emission_down[
-        [
-            "transition_line_id",
-            "source",
-            "destination",
-            "transition_type",
-            "transition_line_idx",
-        ]
-    ]
-
-    p_emission_down = p_emission_down.drop(
-        columns=[
-            "destination",
-            "transition_type",
-            "transition_line_id",
-            "transition_line_idx",
-        ]
-    )
-    return p_emission_down, emission_down_metadata
 
 
 def set_index(
