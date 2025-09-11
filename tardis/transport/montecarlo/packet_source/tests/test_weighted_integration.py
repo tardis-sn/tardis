@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import numpy.testing as npt
 import pandas as pd
+import pytest
 
 from tardis.simulation import Simulation
 
