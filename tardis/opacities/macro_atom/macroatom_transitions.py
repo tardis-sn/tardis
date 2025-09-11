@@ -359,7 +359,7 @@ def probability_emission_down(
 def set_index(
     df_to_reindex: pd.DataFrame,
     target_index_df: pd.DataFrame,
-    transition_type: int = 0,
+    transition_type: MacroAtomTransitionType,
     reverse: bool = True,
 ) -> pd.DataFrame:
     """
@@ -399,7 +399,7 @@ def set_index(
 
 
 def continuum_transition_recombination(
-    alpha_sp: pd.Series,
+    alpha_sp: pd.DataFrame,
     nu_i: pd.Series,
     energy_i: pd.Series,
     photoionization_index: pd.DataFrame,
@@ -429,19 +429,19 @@ def continuum_transition_recombination(
         DataFrame containing metadata for the recombination transitions.
     """
     p_recomb_deactivation = (
-        alpha_sp.multiply(nu_i, axis=0) * const.h.cgs.value
+        alpha_sp.multiply(nu_i, axis=0) * CONST_H_CGS
     )  # nu_i is ionization threshold, so I guess delta e is just nu_i * h?
     p_recomb_deactivation = set_index(
         p_recomb_deactivation,
         photoionization_index,
-        transition_type=P_EMISSION_DOWN,
+        transition_type=MacroAtomTransitionType.BB_EMISSION,
     )
 
     p_recomb_internal = alpha_sp.multiply(energy_i, axis=0)
     p_recomb_internal = set_index(
         p_recomb_internal,
         photoionization_index,
-        transition_type=P_INTERNAL_DOWN,
+        transition_type=MacroAtomTransitionType.INTERNAL_DOWN,
     )
     p_recombination = pd.concat([p_recomb_deactivation, p_recomb_internal])
 
@@ -468,7 +468,7 @@ def continuum_transition_recombination(
 
 
 def continuum_transition_photoionization(
-    gamma_corr: pd.Series, energy_i: pd.Series, photo_ion_idx: pd.DataFrame
+    gamma_corr: pd.DataFrame, energy_i: pd.Series, photo_ion_idx: pd.DataFrame
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Calculate photoionization probability unnormalized.
@@ -498,7 +498,7 @@ def continuum_transition_photoionization(
         p_photoionization,
         photo_ion_idx,
         reverse=False,
-        transition_type=P_INTERNAL_DOWN,
+        transition_type=MacroAtomTransitionType.INTERNAL_DOWN,
     )
 
     photoionization_metadata = p_photoionization[
@@ -603,3 +603,14 @@ def continuum_transition_collisional(
         [p_deexc_deactivation, p_deexc_internal, p_exc_internal, p_exc_cool]
     )
     return p_coll
+
+
+    def calculate(self, electron_densities, t_electrons, time_explosion):
+        cool_rate_adiabatic = (
+            3.0 * electron_densities * K_B * t_electrons
+        ) / time_explosion
+
+        cool_rate_adiabatic = cooling_rate_series2dataframe(
+            cool_rate_adiabatic, destination_level_idx="adiabatic"
+        )
+        return cool_rate_adiabatic
