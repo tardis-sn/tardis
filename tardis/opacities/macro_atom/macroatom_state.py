@@ -131,7 +131,13 @@ class MacroAtomState:
 
     def to_legacy_format(self) -> LegacyMacroAtomState:
         """
-        Convert the current MacroAtomState to legacy format.
+        Convert the current state of the MacroAtom to legacy format.
+
+        This method transforms the modern MacroAtomState structure into the
+        legacy LegacyMacroAtomState format for backward compatibility. It extracts
+        individual components from the consolidated transition_metadata DataFrame
+        and converts them to the separate arrays/DataFrames expected by the
+        legacy format.
 
         Returns
         -------
@@ -142,20 +148,7 @@ class MacroAtomState:
         transition_type = self.transition_metadata.transition_type
         destination_level_id = self.transition_metadata.destination_level_idx
         transition_line_id = self.transition_metadata.transition_line_idx
-        unique_source_multi_index = pd.MultiIndex.from_tuples(
-            self.transition_metadata.source.unique(),
-            names=["atomic_number", "ion_number", "level_number"],
-        )
-        macro_data = (
-            self.transition_metadata.reset_index()
-            .groupby("source")
-            .apply(lambda x: x.index[0])
-        )
-        macro_block_references = pd.Series(
-            data=macro_data.values,
-            index=unique_source_multi_index,
-            name="macro_block_references",
-        )
+        macro_block_references = self.macro_block_references
         line2macro_level_upper = self.line2macro_level_upper.values
 
         return LegacyMacroAtomState(
@@ -214,6 +207,7 @@ class MacroAtomState:
             transition_probabilities=resorted_transition_probabilities,
             transition_metadata=resorted_metadata,
             line2macro_level_upper=self.line2macro_level_upper,
+            macro_block_references=self.macro_block_references,
         )
 
     def recreate_legacy_macro_atom_state(
