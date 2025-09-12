@@ -50,6 +50,8 @@ jobs:
         with:
           name: zenodo_json
           path: .zenodo.json
+          if-no-files-found: warn
+          include-hidden-files: true
 
   create:
     needs: [pip_tests, zenodo]
