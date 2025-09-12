@@ -164,9 +164,7 @@ class SDECPlotter:
         plotter = cls()
         plotter.t_inner = workflow.simulation_state.t_inner
         plotter.r_inner = workflow.simulation_state.geometry.r_inner_active
-        plotter.time_of_simulation = (
-            workflow.transport_state.time_of_simulation * u.s
-        )
+        plotter.time_of_simulation = workflow.transport_state.time_of_simulation
 
         modes = ["real"]
         if workflow.enable_virtual_packet_logging:
