@@ -4,6 +4,11 @@ from numba import njit
 from numba.experimental import jitclass
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+
+# Pre-calculate integer values for Numba compatibility
+NO_INTERACTION_INT = int(InteractionType.NO_INTERACTION)
+
 
 @jitclass
 class PacketCollection:
@@ -78,7 +83,9 @@ def initialize_last_interaction_tracker(no_of_packets):
     last_line_interaction_shell_ids = -1 * np.ones(
         no_of_packets, dtype=np.int64
     )
-    last_interaction_types = -1 * np.ones(no_of_packets, dtype=np.int64)
+    last_interaction_types = NO_INTERACTION_INT * np.ones(
+        no_of_packets, dtype=np.int64
+    )
     last_interaction_in_nus = np.zeros(no_of_packets, dtype=np.float64)
     last_interaction_in_rs = np.zeros(no_of_packets, dtype=np.float64)
 
@@ -91,67 +98,6 @@ def initialize_last_interaction_tracker(no_of_packets):
         last_line_interaction_shell_ids,
     )
 
-
-@jitclass
-class LastInteractionTracker:
-    types: nb.int64[:]  # type: ignore[misc]
-    in_nus: nb.float64[:]  # type: ignore[misc]
-    in_rs: nb.float64[:]  # type: ignore[misc]
-    in_ids: nb.int64[:]  # type: ignore[misc]
-    out_ids: nb.int64[:]  # type: ignore[misc]
-    shell_ids: nb.int64[:]  # type: ignore[misc]
-
-    def __init__(
-        self,
-        types: np.ndarray,
-        in_nus: np.ndarray,
-        in_rs: np.ndarray,
-        in_ids: np.ndarray,
-        out_ids: np.ndarray,
-        shell_ids: np.ndarray,
-    ) -> None:
-        """
-        Initialize last interaction tracker for Monte Carlo packets.
-
-        Parameters
-        ----------
-        types : numpy.ndarray
-            Types of last interactions.
-        in_nus : numpy.ndarray
-            Incoming frequencies of last interactions [Hz].
-        in_rs : numpy.ndarray
-            Radii of last interactions [cm].
-        in_ids : numpy.ndarray
-            Input line IDs for last interactions.
-        out_ids : numpy.ndarray
-            Output line IDs for last interactions.
-        shell_ids : numpy.ndarray
-            Shell IDs where last interactions occurred.
-        """
-        self.types = types
-        self.in_nus = in_nus
-        self.in_rs = in_rs
-        self.in_ids = in_ids
-        self.out_ids = out_ids
-        self.shell_ids = shell_ids
-
-    def update_last_interaction(self, r_packet, i: int) -> None:
-        """
-        Update the last interaction information for a packet.
-
-        Parameters
-        ----------
-        r_packet : RPacket
-            The R-packet with interaction information.
-        i : int
-            Index of the packet to update.
-        """
-        self.types[i] = r_packet.last_interaction_type
-        self.in_nus[i] = r_packet.last_interaction_in_nu
-        self.in_rs[i] = r_packet.last_interaction_in_r
-        self.in_ids[i] = r_packet.last_line_interaction_in_id
-        self.out_ids[i] = r_packet.last_line_interaction_out_id
-        self.shell_ids[i] = r_packet.last_line_interaction_shell_id
 
 
 @jitclass
@@ -215,7 +161,7 @@ class VPacketCollection:
         self.last_interaction_in_r = np.zeros(
             temporary_v_packet_bins, dtype=np.float64
         )
-        self.last_interaction_type = -1 * np.ones(
+        self.last_interaction_type = NO_INTERACTION_INT * np.ones(
             temporary_v_packet_bins, dtype=np.int64
         )
         self.last_interaction_in_id = -1 * np.ones(
@@ -296,24 +242,24 @@ class VPacketCollection:
             temp_energies[: self.length] = self.energies
             temp_initial_mus[: self.length] = self.initial_mus
             temp_initial_rs[: self.length] = self.initial_rs
-            temp_last_interaction_in_nu[
-                : self.length
-            ] = self.last_interaction_in_nu
-            temp_last_interaction_in_r[
-                : self.length
-            ] = self.last_interaction_in_r
-            temp_last_interaction_type[
-                : self.length
-            ] = self.last_interaction_type
-            temp_last_interaction_in_id[
-                : self.length
-            ] = self.last_interaction_in_id
-            temp_last_interaction_out_id[
-                : self.length
-            ] = self.last_interaction_out_id
-            temp_last_interaction_shell_id[
-                : self.length
-            ] = self.last_interaction_shell_id
+            temp_last_interaction_in_nu[: self.length] = (
+                self.last_interaction_in_nu
+            )
+            temp_last_interaction_in_r[: self.length] = (
+                self.last_interaction_in_r
+            )
+            temp_last_interaction_type[: self.length] = (
+                self.last_interaction_type
+            )
+            temp_last_interaction_in_id[: self.length] = (
+                self.last_interaction_in_id
+            )
+            temp_last_interaction_out_id[: self.length] = (
+                self.last_interaction_out_id
+            )
+            temp_last_interaction_shell_id[: self.length] = (
+                self.last_interaction_shell_id
+            )
 
             self.nus = temp_nus
             self.energies = temp_energies

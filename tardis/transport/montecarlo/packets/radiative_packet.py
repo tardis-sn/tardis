@@ -9,6 +9,27 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
 class InteractionType(IntEnum):
+    """
+    Enumeration for different types of packet interactions.
+
+    The values are chosen to enable binary masking operations, allowing
+    multiple interaction types to be combined using bitwise operations.
+    For example, a packet that experienced both line interaction and
+    electron scattering could be represented as LINE | ESCATTERING = 6.
+
+    NO_INTERACTION : int
+        Initial state, packet has not yet interacted (value = -1)
+    BOUNDARY : int
+        Packet crossed a shell boundary (value = 1)
+    LINE : int
+        Packet underwent line interaction/absorption (value = 2)
+    ESCATTERING : int
+        Packet underwent electron scattering (value = 4)
+    CONTINUUM_PROCESS : int
+        Packet underwent continuum process interaction (value = 8)
+    """
+
+    NO_INTERACTION = -1
     BOUNDARY = 1
     LINE = 2
     ESCATTERING = 4
@@ -33,12 +54,6 @@ class RPacket:
     status: nb.int64  # type: ignore[misc]
     seed: nb.int64  # type: ignore[misc]
     index: nb.int64  # type: ignore[misc]
-    last_interaction_type: nb.int64  # type: ignore[misc]
-    last_interaction_in_nu: nb.float64  # type: ignore[misc]
-    last_interaction_in_r: nb.float64  # type: ignore[misc]
-    last_line_interaction_in_id: nb.int64  # type: ignore[misc]
-    last_line_interaction_out_id: nb.int64  # type: ignore[misc]
-    last_line_interaction_shell_id: nb.int64  # type: ignore[misc]
 
     def __init__(
         self,
@@ -76,12 +91,6 @@ class RPacket:
         self.status = PacketStatus.IN_PROCESS
         self.seed = seed
         self.index = index
-        self.last_interaction_type = -1
-        self.last_interaction_in_nu = 0.0
-        self.last_interaction_in_r = 0.0
-        self.last_line_interaction_in_id = -1
-        self.last_line_interaction_out_id = -1
-        self.last_line_interaction_shell_id = -1
 
     def initialize_line_id(
         self, opacity_state, time_explosion, enable_full_relativity
