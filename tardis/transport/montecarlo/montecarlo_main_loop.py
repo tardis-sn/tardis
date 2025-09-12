@@ -145,7 +145,7 @@ def montecarlo_main_loop(
         # Get the local v_packet_collection for this thread
         vpacket_collection = vpacket_collections[i]
         # RPacket Tracker for this thread
-        rpacket_tracker = trackers[i]
+        tracker = trackers[i]
 
         loop = single_packet_loop(
             r_packet,
@@ -154,11 +154,10 @@ def montecarlo_main_loop(
             opacity_state_numba,
             local_estimators,
             vpacket_collection,
-            rpacket_tracker,
+            tracker,
             montecarlo_configuration,
         )
         packet_collection.output_nus[i] = r_packet.nu
-
 
         if r_packet.status == PacketStatus.REABSORBED:
             packet_collection.output_energies[i] = -r_packet.energy
@@ -166,6 +165,10 @@ def montecarlo_main_loop(
         elif r_packet.status == PacketStatus.EMITTED:
             packet_collection.output_energies[i] = r_packet.energy
 
+        # Finalize the tracker (e.g. trim arrays to actual size)
+        tracker.finalize()
+        
+        # Finalize the vpacket collection to trim arrays to actual size
         vpacket_collection.finalize_arrays()
 
         v_packets_idx = np.floor(
@@ -198,10 +201,6 @@ def montecarlo_main_loop(
             -1,
             1,
         )
-
-    if montecarlo_globals.ENABLE_RPACKET_TRACKING:
-        for rpacket_tracker in trackers:
-            rpacket_tracker.finalize_array()
 
     return (
         v_packets_energy_hist,

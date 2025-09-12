@@ -1,12 +1,18 @@
 import numpy as np
 import numpy.testing as npt
+import pandas as pd
 import pytest
 
-from tardis.transport.montecarlo.packets.trackers.tracker_full import TrackerFull
+from pathlib import Path
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+from tardis.transport.montecarlo.packets.trackers.array_utils import (
+    extend_array,
+)
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     trackers_full_to_dataframe,
 )
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+
+NO_INTERACTION_INT = int(InteractionType.NO_INTERACTION)
 
 
 @pytest.fixture
@@ -14,9 +20,7 @@ def interaction_type_last_interaction_class(
     simulation_rpacket_tracking,
 ):
     """Last interaction types of rpacket from LastInteractionTracker class"""
-    interaction_type = (
-        simulation_rpacket_tracking.transport.transport_state.last_interaction_type
-    )
+    interaction_type = simulation_rpacket_tracking.transport.transport_state.last_interaction_type
     return interaction_type
 
 
@@ -27,13 +31,9 @@ def shell_id_last_interaction_class(
     """
     shell_id when last interaction is line from LastInteractionTracker class
     """
-    interaction_type = (
-        simulation_rpacket_tracking.transport.transport_state.last_interaction_type
-    )
+    interaction_type = simulation_rpacket_tracking.transport.transport_state.last_interaction_type
     mask = interaction_type == InteractionType.LINE
-    shell_id = (
-        simulation_rpacket_tracking.transport.transport_state.last_line_interaction_shell_id
-    )
+    shell_id = simulation_rpacket_tracking.transport.transport_state.last_line_interaction_shell_id
     last_line_interaction_shell_id = shell_id[mask]
 
     return last_line_interaction_shell_id
@@ -51,68 +51,20 @@ def nu_from_packet_collection(
 
 
 @pytest.fixture(scope="module")
-def rpacket_tracker(simulation_rpacket_tracking):
-    "RPacketTracker object from the simulation" ""
-    rpacket_tracker = (
-        simulation_rpacket_tracking.transport.transport_state.rpacket_tracker
-    )
-    return rpacket_tracker
-
-
-@pytest.fixture(scope="module")
-def last_interaction_type_rpacket_tracker(rpacket_tracker):
-    """Last interaction types of rpacket from RPacketTracker class"""
-    no_of_packets = len(rpacket_tracker)
-    interaction_type = np.empty(no_of_packets, dtype=np.int64)
-
-    for i in range(no_of_packets):
-        # the last interaction is the second last element since the last element
-        # correspond to reabsorbed/emission of the packet
-        interaction_type[i] = rpacket_tracker[i].interaction_type[-2]
-
-    return interaction_type
-
-
-@pytest.fixture
-def shell_id_rpacket_tracker(
-    rpacket_tracker, last_interaction_type_rpacket_tracker
-):
-    """
-    shell_id when last interaction is line from RPacketTracker class
-    """
-    no_of_packets = len(rpacket_tracker)
-    shell_id = np.empty(no_of_packets, dtype=np.int64)
-
-    for i in range(no_of_packets):
-        shell_id[i] = rpacket_tracker[i].shell_id[-2]
-
-    mask = last_interaction_type_rpacket_tracker == InteractionType.LINE
-    last_line_interaction_shell_id = shell_id[mask]
-
-    return last_line_interaction_shell_id
-
-
-@pytest.fixture
-def nu_rpacket_tracker(rpacket_tracker):
-    """Output nu of rpacket from RPacketTracker class"""
-    no_of_packets = len(rpacket_tracker)
-    nu = np.empty(no_of_packets, dtype=np.float64)
-
-    for i in range(no_of_packets):
-        nu[i] = rpacket_tracker[i].nu[-2]
-
-    return nu
+def tracker_full_df(simulation_rpacket_tracking):
+    "RPacketTracker object from the simulation"
+    return simulation_rpacket_tracking.transport.transport_state.tracker_full_df
 
 
 def test_extend_array():
-    rpacket_tracker = TrackerFull(10)
-    array = np.array([1, 2, 3, 4, 5], dtype=np.int64)
+    original_array = np.array([1, 2, 3, 4, 5], dtype=np.int64)
+    new_length = 10
 
-    new_array = rpacket_tracker.extend_array(array, array.size)
+    new_array = extend_array(original_array, new_length)
 
-    assert new_array.size == array.size * rpacket_tracker.extend_factor
-    assert new_array.dtype == array.dtype
-    npt.assert_allclose(array, new_array[: array.size])
+    assert new_array.size == new_length
+    assert new_array.dtype == original_array.dtype
+    npt.assert_allclose(original_array, new_array[:original_array.size])
 
 
 @pytest.mark.parametrize(
@@ -126,36 +78,39 @@ def test_extend_array():
         ("nu_from_packet_collection", "nu_rpacket_tracker"),
     ],
 )
-def test_rpacket_tracker_properties(expected, obtained, request):
+def test_tracker_full_list_properties(expected, obtained, request):
     expected = request.getfixturevalue(expected)
     obtained = request.getfixturevalue(obtained)
     npt.assert_allclose(expected, obtained)
 
 
-def test_boundary_interactions(rpacket_tracker, regression_data):
-    no_of_packets = len(rpacket_tracker)
+def test_boundary_interactions(tracker_full_df, regression_data):
+    no_of_packets = len(tracker_full_df)
+    expected_boundary_interaction = regression_data.sync_ndarray(
+        obtained_boundary_interaction
+    )
 
-    max_boundary_interaction_size = max([tracker.boundary_interaction.size for tracker in rpacket_tracker])
+    max_boundary_interaction_size = max(
+        [tracker.boundary_interaction.size for tracker in tracker_full_df]
+    )
     obtained_boundary_interaction = np.full(
         (no_of_packets, max_boundary_interaction_size),
         [-1],
-        dtype=rpacket_tracker[0].boundary_interaction.dtype,
+        dtype=tracker_full_df[0].boundary_interaction.dtype,
     )
 
-    for i, tracker in enumerate(rpacket_tracker):
+    for i, tracker in enumerate(tracker_full_df):
         obtained_boundary_interaction[
             i, : tracker.boundary_interaction.size
         ] = tracker.boundary_interaction
 
-    expected_boundary_interaction = regression_data.sync_ndarray(
-        obtained_boundary_interaction
-    )
+    
     npt.assert_array_equal(
         obtained_boundary_interaction, expected_boundary_interaction
     )
 
 
-def test_rpacket_trackers_to_dataframe(simulation_rpacket_tracking):
+def test_tracker_full_lists_to_dataframe(simulation_rpacket_tracking):
     transport_state = simulation_rpacket_tracking.transport.transport_state
     rtracker_df = trackers_full_to_dataframe(transport_state.rpacket_tracker)
 

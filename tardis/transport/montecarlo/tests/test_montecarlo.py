@@ -579,11 +579,11 @@ def test_rpacket_tracking(index, seed, r, nu, mu, energy):
     mc.INITIAL_TRACKING_ARRAY_LENGTH = None
 
     tracked_rpacket_properties.track(test_rpacket)
-    tracked_rpacket_properties.finalize_array()
+    tracked_rpacket_properties.finalize()
 
     assert test_rpacket.index == tracked_rpacket_properties.index
     assert test_rpacket.seed == tracked_rpacket_properties.seed
-    assert test_rpacket.r == tracked_rpacket_properties.r
+    assert test_rpacket.r == tracked_rpacket_properties.radius
     assert test_rpacket.nu == tracked_rpacket_properties.nu
     assert test_rpacket.mu == tracked_rpacket_properties.mu
     assert test_rpacket.energy == tracked_rpacket_properties.energy

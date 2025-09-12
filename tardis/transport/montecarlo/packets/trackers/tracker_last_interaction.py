@@ -67,6 +67,7 @@ class TrackerLastInteraction:
         """
         self.r = -1.0
         self.nu = float("nan")
+        self.mu = float("nan")  # MISSING INITIALIZATION - this was causing JIT vs non-JIT differences!
         self.energy = float("nan")
         self.shell_id = -1
         self.interaction_type = -1
@@ -113,15 +114,15 @@ class TrackerLastInteraction:
         self.after_nu = r_packet.nu
         self.after_mu = r_packet.mu
         self.after_energy = r_packet.energy
-        # Track the line ID that was emitted
-        self.interaction_line_emit_id = r_packet.last_line_interaction_out_id
+        # Track the line ID that was emitted (next_line_id - 1 after emission)
+        self.interaction_line_emit_id = r_packet.next_line_id - 1
         self.interactions_count += 1
         # Update general tracking
         self.r = r_packet.r
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = r_packet.last_interaction_type
+        self.interaction_type = InteractionType.LINE  # Set interaction type directly
 
     def track_escattering_interaction_before(self, r_packet) -> None:
         """
@@ -157,7 +158,7 @@ class TrackerLastInteraction:
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = r_packet.last_interaction_type
+        self.interaction_type = InteractionType.ESCATTERING  # Set interaction type directly
 
     def track_continuum_interaction_before(self, r_packet) -> None:
         """
@@ -193,14 +194,14 @@ class TrackerLastInteraction:
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = r_packet.last_interaction_type
+        self.interaction_type = InteractionType.CONTINUUM_PROCESS  # Set interaction type directly
 
     def track_boundary_event(
         self, r_packet, from_shell_id=-1, to_shell_id=-1
     ) -> None:
         """
         Track packet state during boundary event.
-        This method provides API compatibility with RPacketTracker.
+        This method provides API compatibility with TrackerFull.
 
         Parameters
         ----------
@@ -211,7 +212,10 @@ class TrackerLastInteraction:
         to_shell_id : int, optional
             Shell ID the packet is entering (default: -1).
         """
-        pass
+        # For last interaction tracker, boundary events don't count as interactions
+        # But we update the position tracking
+        self.r = r_packet.r
+        self.shell_id = r_packet.current_shell_id
 
     def get_interaction_summary(self) -> nb.int64:  # type: ignore[misc]
         """
@@ -226,12 +230,16 @@ class TrackerLastInteraction:
 
     def finalize_array(self) -> None:
         """
-        Added to make RPacketLastInteractionTracker compatible with RPacketTracker
+        API compatibility method with TrackerFull.
+        
+        Since TrackerLastInteraction only stores scalar values for the last
+        interaction, there are no arrays to finalize.
         """
+        # No arrays to finalize for last interaction tracker
 
 
 @njit
-def generate_rpacket_last_interaction_tracker_list(no_of_packets):
+def generate_tracker_last_interaction_list(no_of_packets):
     """
     Parameters
     ----------
@@ -248,7 +256,7 @@ def generate_rpacket_last_interaction_tracker_list(no_of_packets):
     return trackers
 
 
-def rpacket_last_interaction_tracker_list_to_dataframe(tracker_list):
+def tracker_last_interaction_to_df(tracker_list):
     """
     Convert a list of RPacketLastInteractionTracker instances to a DataFrame.
 
@@ -332,8 +340,8 @@ def rpacket_last_interaction_tracker_list_to_dataframe(tracker_list):
             "after_nu": interaction_after_nu,
             "after_mu": interaction_after_mu,
             "after_energy": interaction_after_energy,
-            "line_absorb_id": interaction_line_absorb_id,
-            "line_emit_id": interaction_line_emit_id,
+            "line_absorb_id": pd.array(interaction_line_absorb_id, dtype="int64"),
+            "line_emit_id": pd.array(interaction_line_emit_id, dtype="int64"),
             "interactions_count": interactions_count,
         },
         index=pd.RangeIndex(len(tracker_list), name="packet_id"),
