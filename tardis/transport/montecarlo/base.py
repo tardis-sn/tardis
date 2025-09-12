@@ -23,11 +23,10 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
-    trackers_full_to_dataframe,
-    tracker_full_df2tracker_last_interaction_df,
 )
+from tardis.transport.montecarlo.packets.trackers.tracker_full_util import tracker_full_df2tracker_last_interaction_df, trackers_full_to_df
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
     TrackerLastInteraction,
     tracker_last_interaction_to_df,
@@ -223,7 +222,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # Such that it also takes of the case of
         # RPacketLastInteractionTracker
         if self.enable_rpacket_tracking:
-            self.transport_state.tracker_full_df = trackers_full_to_dataframe(
+            self.transport_state.tracker_full_df = trackers_full_to_df(
                 tracker
             )
             self.transport_state.tracker_last_interaction_df = (

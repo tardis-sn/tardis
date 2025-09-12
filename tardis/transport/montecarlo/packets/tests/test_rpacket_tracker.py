@@ -8,8 +8,8 @@ from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 from tardis.transport.montecarlo.packets.trackers.array_utils import (
     extend_array,
 )
-from tardis.transport.montecarlo.packets.trackers.tracker_full import (
-    trackers_full_to_dataframe,
+from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
+    trackers_full_to_df,
 )
 
 NO_INTERACTION_INT = int(InteractionType.NO_INTERACTION)
@@ -84,35 +84,50 @@ def test_tracker_full_list_properties(expected, obtained, request):
     npt.assert_allclose(expected, obtained)
 
 
-def test_boundary_interactions(tracker_full_df, regression_data):
-    no_of_packets = len(tracker_full_df)
+def test_boundary_interactions(simulation_rpacket_tracking, regression_data):
+    """
+    Validate boundary events per packet using the underlying tracker arrays.
+
+    Old behavior accessed numpy arrays on each tracker; replicate that by
+    extracting per-packet event indices where `interaction_type` equals
+    `InteractionType.BOUNDARY` from `transport_state.rpacket_tracker`.
+    """
+    transport_state = simulation_rpacket_tracking.transport.transport_state
+    trackers = transport_state.rpacket_tracker
+
+    no_of_packets = len(trackers)
+
+    # Collect boundary event indices per packet from the interaction_type array
+    per_packet_event_ids = []
+    max_len = 0
+    for tracker in trackers:
+        # interaction_type is an int array; compare to enum value
+        boundary_idx = np.where(tracker.interaction_type == InteractionType.BOUNDARY)[0]
+        per_packet_event_ids.append(boundary_idx.astype(np.int64))
+        if boundary_idx.size > max_len:
+            max_len = boundary_idx.size
+
+    # Build padded 2D array with -1 for missing entries
+    if max_len == 0:
+        max_len = 1
+    obtained_boundary_interaction = np.full(
+        (no_of_packets, max_len),
+        -1,
+        dtype=np.int64,
+    )
+    for i, event_ids in enumerate(per_packet_event_ids):
+        obtained_boundary_interaction[i, : event_ids.size] = event_ids
+
     expected_boundary_interaction = regression_data.sync_ndarray(
         obtained_boundary_interaction
     )
 
-    max_boundary_interaction_size = max(
-        [tracker.boundary_interaction.size for tracker in tracker_full_df]
-    )
-    obtained_boundary_interaction = np.full(
-        (no_of_packets, max_boundary_interaction_size),
-        [-1],
-        dtype=tracker_full_df[0].boundary_interaction.dtype,
-    )
-
-    for i, tracker in enumerate(tracker_full_df):
-        obtained_boundary_interaction[
-            i, : tracker.boundary_interaction.size
-        ] = tracker.boundary_interaction
-
-    
-    npt.assert_array_equal(
-        obtained_boundary_interaction, expected_boundary_interaction
-    )
+    npt.assert_array_equal(obtained_boundary_interaction, expected_boundary_interaction)
 
 
 def test_tracker_full_lists_to_dataframe(simulation_rpacket_tracking):
     transport_state = simulation_rpacket_tracking.transport.transport_state
-    rtracker_df = trackers_full_to_dataframe(transport_state.rpacket_tracker)
+    rtracker_df = trackers_full_to_df(transport_state.rpacket_tracker)
 
     # check df shape and column names
     assert rtracker_df.shape == (

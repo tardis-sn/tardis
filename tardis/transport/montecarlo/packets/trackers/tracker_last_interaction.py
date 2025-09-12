@@ -228,14 +228,17 @@ class TrackerLastInteraction:
         """
         return self.interactions_count
 
-    def finalize_array(self) -> None:
+
+    def finalize(self) -> None:
         """
-        API compatibility method with TrackerFull.
+        Finalize tracker to match the common tracker API.
+
+        TrackerLastInteraction stores only scalar values, so there is nothing
+        to trim or consolidate. This method exists for interface compatibility
+        with TrackerFull and is a no-op.
+        """
+        pass
         
-        Since TrackerLastInteraction only stores scalar values for the last
-        interaction, there are no arrays to finalize.
-        """
-        # No arrays to finalize for last interaction tracker
 
 
 @njit

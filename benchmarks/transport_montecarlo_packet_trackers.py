@@ -23,7 +23,7 @@ class BenchmarkTransportMontecarloPacketTrackers(BenchmarkBase):
         self.TransportState = sim.transport.transport_state
 
     def time_rpacket_trackers_to_dataframe(self):
-        tardis.transport.montecarlo.packets.trackers.tracker_full.trackers_full_to_dataframe(
+        tardis.transport.montecarlo.packets.trackers.tracker_full.trackers_full_to_df(
             self.TransportState.rpacket_tracker
         )
 

@@ -2,10 +2,11 @@ import numpy as np
 from numba import typeof
 
 from tardis.transport.montecarlo.packets.RPacketLastInteractionTracker import RPacketLastInteractionTracker
-from tardis.transport.montecarlo.packets.trackers.tracker_full import TrackerFull, generate_tracker_full_list
+from tardis.transport.montecarlo.packets.trackers.tracker_full import TrackerFull
 from tardis.transport.montecarlo.packets.packet_trackers import (
     generate_rpacket_last_interaction_tracker_list,
 )
+from tardis.transport.montecarlo.packets.trackers.tracker_full_util import generate_tracker_full_list
 
 
 def test_generate_rpacket_tracker_list():
