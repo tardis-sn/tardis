@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=e62c3bbe"></script>
+      <script src="../../../../_static/documentation_options.js?v=25b14d3d"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -135,6 +135,8 @@
 import numpy as np
 import pandas as pd
 
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+
 
 <div class="viewcode-block" id="calculate_absorption_luminosities">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_absorption_luminosities">[docs]</a>
@@ -200,7 +202,7 @@ def calculate_absorption_luminosities(
     lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(&quot;line_id&quot;)
 
     # Create packets_df_line_interaction
-    line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; -1) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
+    line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; InteractionType.NO_INTERACTION) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
     packets_df_line_interaction = packets_df.loc[line_mask].copy()
 
     # Add atomic number and species columns
@@ -358,7 +360,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
     lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(&quot;line_id&quot;)
 
     # Create packets_df_line_interaction
-    line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; -1) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
+    line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; InteractionType.NO_INTERACTION) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
     packets_df_line_interaction = packets_df.loc[line_mask].copy()
 
     # Add atomic number and species columns
@@ -423,7 +425,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
     # Contribution of packets which experienced no interaction
     mask_noint = (
         packets_df[&quot;last_interaction_type&quot;][packet_nu_range_mask]
-        == -1
+        == InteractionType.NO_INTERACTION
     )
 
     hist_noint = np.histogram(
@@ -445,11 +447,10 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
 
     # Contribution of packets which only experienced electron scattering
     mask_escatter = (
-        packets_df[&quot;last_interaction_type&quot;][packet_nu_range_mask]
-        == 1
+        (packets_df[&quot;last_interaction_type&quot;][packet_nu_range_mask] == InteractionType.ESCATTERING)
     ) &amp; (
         packets_df[&quot;last_line_interaction_in_id&quot;][packet_nu_range_mask]
-        == -1
+        == InteractionType.NO_INTERACTION
     )
     hist_escatter = np.histogram(
         packets_df[&quot;nus&quot;][packet_nu_range_mask][mask_escatter],
@@ -515,7 +516,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Sep 2025.
+      <span class="lastupdated">Last updated on 15 Sep 2025.
       </span></p>
   </div>
 
