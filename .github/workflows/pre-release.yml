@@ -69,7 +69,7 @@ jobs:
 
       - name: Check for generated Zenodo JSON and copy if exists
         run: |
-          if [ -f "/tmp/zenodo/.zenodo.json" ]; then
+          if [ -f "/tmp/zenodo_json/.zenodo.json" ]; then
             cp /tmp/zenodo_json/.zenodo.json .
             echo "Using generated zenodo file"
           else
