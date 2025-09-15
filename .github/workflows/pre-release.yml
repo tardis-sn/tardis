@@ -58,7 +58,7 @@ jobs:
       pip_git: true
 
   pull_request:
-    needs: [zenodo, pip_tests]
+    needs: [zenodo]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
