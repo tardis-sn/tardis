@@ -11,6 +11,7 @@ from tardis.plasma.properties.continuum_processes.rates import (
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 __all__ = [
     "MarkovChainTransProbs",
@@ -250,8 +251,8 @@ class MarkovChainTransProbs(
             N[column] = N1
             B[column] = B1
             R[column] = R1
-        N = N.sort_index()
-        B = B.sort_index()
+        N = N.sort_index(kind=SORTING_ALGORITHM)
+        B = B.sort_index(kind=SORTING_ALGORITHM)
         return N, R, B, p_deactivation
 
 
@@ -395,7 +396,9 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
                 non_continuum_trans_probs,
             ]
         )
-        combined_trans_probs = combined_trans_probs.sort_index()
+        combined_trans_probs = combined_trans_probs.sort_index(
+            kind=SORTING_ALGORITHM
+        )
 
         block_references = (
             combined_trans_probs[0].groupby("source_level_idx").count().cumsum()

@@ -358,14 +358,14 @@ class RPacketPlotter:
                 ),
                 name="e-scattering",
                 hoverlabel=dict(font=dict(color="#222")),
-                marker=dict(color="#3366FF"),
+                marker=dict(color=self.interaction_from_num[int(InteractionType.ESCATTERING)]["color"]),
             )
         )
         self.fig.add_trace(
             go.Scatter(
                 **legend_props,
                 name="Line Interaction",
-                marker=dict(color="#FF3300"),
+                marker=dict(color=self.interaction_from_num[int(InteractionType.LINE)]["color"]),
             )
         )
 

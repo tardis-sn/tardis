@@ -246,7 +246,7 @@ def test_trace_packet(
     )
 
     assert delta_shell == 1
-    assert interaction_type == InteractionType.LINE  # Updated from 3 to InteractionType.LINE
+    assert interaction_type == InteractionType.LINE
     assert_almost_equal(distance, 22978745222176.88)
 
 

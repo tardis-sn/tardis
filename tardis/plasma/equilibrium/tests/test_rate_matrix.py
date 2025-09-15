@@ -35,7 +35,7 @@ def test_rate_matrix_solver(
 
     expected = regression_data.sync_dataframe(actual)
 
-    pdt.assert_frame_equal(actual, expected)
+    pdt.assert_frame_equal(actual, expected, atol=0, rtol=1e-15)
 
 
 @pytest.mark.parametrize("charge_conservation", [True, False])
@@ -92,4 +92,4 @@ def test_ion_rate_matrix_solver(
 
     expected = regression_data.sync_dataframe(actual)
 
-    pdt.assert_frame_equal(actual, expected)
+    pdt.assert_frame_equal(actual, expected, atol=0, rtol=1e-15)
