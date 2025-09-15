@@ -6,8 +6,8 @@ import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
 from astropy import units as u
-
 from tardis import constants as const
+from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 logger = logging.getLogger(__name__)
 
@@ -114,13 +114,10 @@ class SourceFunctionSolver:
         )
 
         # Calculate att_S_ul
-        # transition_type = atomic_data.macro_atom_data.transition_type
         transition_type = macro_data.transition_type
-        # transitions = atomic_data.macro_atom_data[transition_type == -1].copy()
-        transitions = macro_data[transition_type == -1].copy()
-        # transitions_index = transitions.set_index(
-        #     ["atomic_number", "ion_number", "source_level_number"]
-        # ).index.copy()
+        transitions = macro_data[
+            transition_type == MacroAtomTransitionType.BB_EMISSION
+        ].copy()
         transitions_index = pd.MultiIndex.from_tuples(
             transitions.source.values,
             names=["atomic_number", "ion_number", "source_level_number"],
@@ -279,7 +276,9 @@ class SourceFunctionSolver:
             The attenuated source function
         """
         q_ul = pd.DataFrame(
-            transition_probabilities[(transition_type == -1).values],
+            transition_probabilities[
+                (transition_type == MacroAtomTransitionType.BB_EMISSION).values
+            ],
             index=transitions_index,
         )
         wave = lines.wavelength_cm.loc[transition_line_id].values.reshape(-1, 1)
