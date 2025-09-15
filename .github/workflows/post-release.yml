@@ -57,6 +57,42 @@ jobs:
           name: citation
           path: CITATION.cff
 
+  zenodo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: tardis-sn/tardis_zenodo
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Wait for Zenodo webhook
+        run: sleep 180
+
+      - name: Setup environment
+        uses: tardis-sn/tardis-actions/setup-env@main
+        with:
+          os-label: "linux-64"
+          lockfile-path: ./conda-linux-64.lock
+
+      - name: Dump Secret Key
+        run: echo "$KEY_SECRET_JSON" > key_secret.json
+        env:
+          KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
+
+      - name: Run Notebook
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+
+      - name: Run Notebook (allow errors)
+        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
+        if: failure()
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zenodo_json
+          path: .zenodo.json
+          if-no-files-found: warn
+          include-hidden-files: true
+
   credits:
     runs-on: ubuntu-latest
     steps:
@@ -93,7 +129,7 @@ jobs:
             https://api.github.com/repos/tardis-sn/tardis-org-data/dispatches
 
   pull_request:
-    needs: [changelog, citation, credits]
+    needs: [changelog, citation, zenodo, credits]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -106,6 +142,7 @@ jobs:
         run: |
           cp /tmp/changelog/CHANGELOG.md .
           cp /tmp/citation/CITATION.cff .
+          cp /tmp/zenodo_json/.zenodo.json .
           cp -r /tmp/credits/* .
 
       - name: Get current date

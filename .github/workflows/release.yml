@@ -20,41 +20,8 @@ jobs:
     secrets: inherit
     with:
       pip_git: true
-  zenodo:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          repository: tardis-sn/tardis_zenodo
-          token: ${{ secrets.BOT_TOKEN }}
-
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
-        with:
-          os-label: "linux-64"
-          lockfile-path: ./conda-linux-64.lock
-
-      - name: Dump Secret Key
-        run: echo "$KEY_SECRET_JSON" > key_secret.json
-        env:
-          KEY_SECRET_JSON: ${{ secrets.ZENODO_KEY_SECRET_JSON }}
-
-      - name: Run Notebook
-        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
-
-      - name: Run Notebook (allow errors)
-        run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
-        if: failure()
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: zenodo_json
-          path: .zenodo.json
-          if-no-files-found: warn
-          include-hidden-files: true
-
   create:
-    needs: [pip_tests, zenodo]
+    needs: [pip_tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
