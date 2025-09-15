@@ -15,7 +15,7 @@ from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 from tardis.visualization.tools.sdec_plot import SDECPlotter
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
-RTOL_VALUE=1e-12
+RELATIVE_TOLERANCE_SDEC=1e-12
 
 def make_valid_name(testid):
     """
@@ -391,7 +391,7 @@ class TestSDECPlotter:
                 / f"{regression_data.fname_prefix}.png"
             )
             actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
-            compare_images(expected, actual, tol=0.001)
+            compare_images(expected, actual, tol=1e-3)
 
     def test_make_colorbar_labels(self, plotter):
         expected_labels = ['O', 'Mg', 'Si', 'Ca']
@@ -578,7 +578,7 @@ class TestSDECPlotter:
         expected_image_path = sdec_regression_data / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
         
         # Compare images
-        compare_images(str(expected_image_path), str(actual_image_path), tol=0.001)
+        compare_images(str(expected_image_path), str(actual_image_path), tol=1e-3)
 
     @pytest.mark.parametrize(
         "attribute", ["_full_species_list", "_species_list", "_keep_colour"]

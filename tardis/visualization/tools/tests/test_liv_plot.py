@@ -14,7 +14,7 @@ from tardis.visualization.tools.liv_plot import LIVPlotter
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
-RTOL_VALUE=1e-12
+RELATIVE_TOLERANCE_LIV=1e-12
 
 @pytest.fixture(scope="class")
 def plotter(simulation_simple):
@@ -334,7 +334,7 @@ class TestLIVPlotter:
                 / f"{regression_data.fname_prefix}.png"
             )
             actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
-            compare_images(expected, actual, tol=0.001)
+            compare_images(expected, actual, tol=1e-3)
 
     @pytest.fixture(scope="function", params=combinations)
     def plotter_generate_plot_ply(self, request, plotter):
@@ -601,4 +601,4 @@ class TestLIVPlotter:
         expected_image_path = liv_regression_data / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
         
         # Compare images
-        compare_images(str(expected_image_path), str(actual_image_path), tol=0.001)
+        compare_images(str(expected_image_path), str(actual_image_path), tol=1e-3)
