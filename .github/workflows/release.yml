@@ -8,20 +8,17 @@ on:
   schedule:
     - cron: "0 0 * * 0"
   workflow_dispatch: # manual trigger
+  pull_request_target:
+    branches: [master]
+    types: [closed]
 
 defaults:
   run:
     shell: bash -l {0}
 
-
 jobs:
-  pip_tests:
-    uses: ./.github/workflows/tests.yml
-    secrets: inherit
-    with:
-      pip_git: true
   create:
-    needs: [pip_tests]
+    if: github.event_name == 'workflow_dispatch' || (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
