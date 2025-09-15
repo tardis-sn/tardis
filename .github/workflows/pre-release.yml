@@ -8,7 +8,6 @@ on:
   schedule:
     - cron: "0 0 * * 0"
   workflow_dispatch: # manual trigger
-  push:
 
 defaults:
   run:
@@ -58,7 +57,7 @@ jobs:
       pip_git: true
 
   pull_request:
-    needs: [zenodo]
+    needs: [zenodo, pip_tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
