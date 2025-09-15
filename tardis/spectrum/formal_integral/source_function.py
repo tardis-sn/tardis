@@ -25,7 +25,12 @@ class SourceFunctionSolver:
         self.line_interaction_type = line_interaction_type
 
     def solve(
-        self, sim_state, opacity_state, transport_state, atomic_data
+        self,
+        sim_state,
+        opacity_state_numba,
+        transport_state,
+        atomic_data,
+        macro_atom_state,
     ) -> "SourceFunctionState":
         """
         Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.
@@ -33,10 +38,11 @@ class SourceFunctionSolver:
         Parameters
         ----------
         sim_state : tardis.model.SimulationState
-        opacity_state : tardis.transport.montecarlo.OpacityState
+        opacity_state_numba : tardis.transport.montecarlo.OpacityStateNumba
         transport_state : tardis.transport.montecarlo.TransportState
         atomic_data : tardis.atomic.AtomicData
             The atomic data for the simulation.
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState
 
         Returns
         -------
@@ -58,8 +64,8 @@ class SourceFunctionSolver:
         time_explosion = sim_state.time_explosion
         volume = sim_state.volume
 
-        tau_sobolev = opacity_state.tau_sobolev
-        transition_probabilities = opacity_state.transition_probabilities
+        tau_sobolev = opacity_state_numba.tau_sobolev
+        transition_probabilities = opacity_state_numba.transition_probabilities
 
         j_blue_estimator = (
             transport_state.radfield_mc_estimators.j_blue_estimator
@@ -81,10 +87,12 @@ class SourceFunctionSolver:
         transition_probabilities = transition_probabilities[:, local_slice]
         tau_sobolevs = tau_sobolev[:, local_slice]
 
-        macro_ref = atomic_data.macro_atom_references
-        macro_data = atomic_data.macro_atom_data
+        # macro_ref = atomic_data.macro_atom_references
+        macro_ref = macro_atom_state.references_index
+        # macro_data = atomic_data.macro_atom_data
+        macro_data = macro_atom_state.transition_metadata
 
-        no_lvls = len(levels)
+        no_lvls = len(macro_ref)
         no_shells = len(dilution_factor)
 
         # Calculate e_dot_u
@@ -106,11 +114,17 @@ class SourceFunctionSolver:
         )
 
         # Calculate att_S_ul
-        transition_type = atomic_data.macro_atom_data.transition_type
-        transitions = atomic_data.macro_atom_data[transition_type == -1].copy()
-        transitions_index = transitions.set_index(
-            ["atomic_number", "ion_number", "source_level_number"]
-        ).index.copy()
+        # transition_type = atomic_data.macro_atom_data.transition_type
+        transition_type = macro_data.transition_type
+        # transitions = atomic_data.macro_atom_data[transition_type == -1].copy()
+        transitions = macro_data[transition_type == -1].copy()
+        # transitions_index = transitions.set_index(
+        #     ["atomic_number", "ion_number", "source_level_number"]
+        # ).index.copy()
+        transitions_index = pd.MultiIndex.from_tuples(
+            transitions.source.values,
+            names=["atomic_number", "ion_number", "source_level_number"],
+        )
         transition_line_id = transitions.transition_line_id.values
         lines = atomic_data.lines.set_index("line_id")
         lines_idx = lines.index.values
@@ -126,7 +140,6 @@ class SourceFunctionSolver:
             e_dot_u,
             time_explosion,
         )
-
         # Calculate Jred_lu and Jblue_lu
         Jblue_lu = self.calculate_Jblue_lu(
             time_explosion, time_of_simulation, volume, j_blue_estimator
@@ -191,9 +204,7 @@ class SourceFunctionSolver:
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
 
         if line_interaction_type == "macroatom":
-            e_dot_u_src_idx = macro_ref.loc[
-                e_dot_u.index
-            ].references_idx.to_numpy()
+            e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].to_numpy()
 
             internal_jump_mask = (macro_data.transition_type >= 0).to_numpy()
             ma_int_data = macro_data[internal_jump_mask]
@@ -273,7 +284,6 @@ class SourceFunctionSolver:
         )
         wave = lines.wavelength_cm.loc[transition_line_id].values.reshape(-1, 1)
         att_S_ul = wave * (q_ul * e_dot_u) * time_explosion / (4 * np.pi)
-
         columns = range(no_of_shells)
 
         result = pd.DataFrame(

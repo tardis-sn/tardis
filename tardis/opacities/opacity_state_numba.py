@@ -1,4 +1,3 @@
-
 import numba as nb
 import numpy as np
 from numba.experimental import jitclass
@@ -322,5 +321,3 @@ def opacity_state_numba_initialize(
         photo_ion_activation_idx,
         k_packet_idx,
     )
-
-

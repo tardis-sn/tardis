@@ -209,13 +209,17 @@ class FormalIntegralSolver:
             logger.warning(
                 "The number of interpolate_shells was not "
                 "specified. The value was set to %d.",
-                interpolate_shells
+                interpolate_shells,
             )
         self.interpolate_shells = interpolate_shells
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
         source_function_state = source_function_solver.solve(
-            simulation_state, opacity_state_numba, transport_state, atomic_data
+            simulation_state,
+            opacity_state_numba,
+            transport_state,
+            atomic_data,
+            macro_atom_state,
         )
 
         # Generate interpolated radii if needed
@@ -263,16 +267,18 @@ class FormalIntegralSolver:
             r_outer_interpolated,
         )
 
-        luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
-            simulation_state.t_inner,
-            frequencies,
-            frequencies.shape[0],
-            att_S_ul_interpolated,
-            Jred_lu_interpolated,
-            Jblue_lu_interpolated,
-            tau_sobolevs_interpolated,
-            electron_densities_interpolated,
-            points,
+        luminosity_densities, intensities_nu_p = (
+            self.integrator.formal_integral(
+                simulation_state.t_inner,
+                frequencies,
+                frequencies.shape[0],
+                att_S_ul_interpolated,
+                Jred_lu_interpolated,
+                Jblue_lu_interpolated,
+                tau_sobolevs_interpolated,
+                electron_densities_interpolated,
+                points,
+            )
         )
 
         luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
@@ -282,7 +288,9 @@ class FormalIntegralSolver:
             frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
         ), "Frequency grid must be uniform"
 
-        luminosity = u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
+        luminosity = (
+            u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
+        )
 
         frequencies = frequencies.to("Hz", u.spectral())
 
@@ -352,7 +360,9 @@ class FormalIntegralSolver:
 
         r_middle_original = (r_inner_original + r_outer_original) / 2.0
 
-        r_middle_interpolated = (r_inner_interpolated + r_outer_interpolated) / 2.0
+        r_middle_interpolated = (
+            r_inner_interpolated + r_outer_interpolated
+        ) / 2.0
 
         electron_densities_interpolated = interp1d(
             r_middle_original,
@@ -364,8 +374,12 @@ class FormalIntegralSolver:
         )(r_middle_interpolated)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        v_inner_boundary_index = simulation_state.geometry.v_inner_boundary_index
-        v_outer_boundary_index = simulation_state.geometry.v_outer_boundary_index
+        v_inner_boundary_index = (
+            simulation_state.geometry.v_inner_boundary_index
+        )
+        v_outer_boundary_index = (
+            simulation_state.geometry.v_outer_boundary_index
+        )
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
             opacity_state.tau_sobolev.values[

@@ -270,6 +270,7 @@ class BoundBoundMacroAtomSolver:
                 macro_atom_transition_metadata,
                 line2macro_level_upper,
                 macro_block_references,
+                references_index,
             ) = self._solve_first_macroatom_iteration(
                 mean_intensities_blue_wing,
                 beta_sobolevs,
@@ -286,6 +287,7 @@ class BoundBoundMacroAtomSolver:
                 macro_atom_transition_metadata,
                 line2macro_level_upper,
                 macro_block_references,
+                references_index,
             ) = self.computed_metadata
 
         return MacroAtomState(
@@ -293,6 +295,7 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata,
             line2macro_level_upper,
             macro_block_references,
+            references_index,
         )
 
     def _solve_first_macroatom_iteration(
@@ -301,7 +304,7 @@ class BoundBoundMacroAtomSolver:
         beta_sobolevs: pd.DataFrame,
         stimulated_emission_factors: np.ndarray,
         lines_level_upper: pd.MultiIndex,
-    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
         """
         Handle the first iteration of the solve method.
 
@@ -406,8 +409,10 @@ class BoundBoundMacroAtomSolver:
         )
 
         # We have to create the line2macro object after sorting.
-        line2macro_level_upper = create_line2macro_level_upper(
-            macro_atom_transition_metadata, lines_level_upper
+        line2macro_level_upper, reference_index = (
+            create_line2macro_level_upper_and_reference_idx(
+                macro_atom_transition_metadata, lines_level_upper
+            )
         )
 
         macro_atom_transition_metadata.drop(
@@ -435,6 +440,12 @@ class BoundBoundMacroAtomSolver:
             .astype(np.int64)
         )
 
+        macro_atom_transition_metadata["source_level_idx"] = (
+            (macro_atom_transition_metadata.source.map(source_to_index))
+            .fillna(0)
+            .astype(np.int64)
+        )
+
         macro_block_references = create_macro_block_references(
             macro_atom_transition_metadata
         )
@@ -443,6 +454,7 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata,
             line2macro_level_upper,
             macro_block_references,
+            reference_index,
         )
 
         return (
@@ -450,6 +462,7 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata,
             line2macro_level_upper,
             macro_block_references,
+            reference_index,
         )
 
     def _solve_next_macroatom_iteration(
@@ -492,6 +505,7 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata,
             line2macro_level_upper,
             macro_block_references,
+            reference_index,
         ) = self.computed_metadata
         line_trans_internal_up_ids = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
@@ -591,10 +605,10 @@ def create_macro_block_references(macro_atom_transition_metadata):
     return macro_block_references
 
 
-def create_line2macro_level_upper(
+def create_line2macro_level_upper_and_reference_idx(
     macro_atom_transition_metadata: pd.DataFrame,
     lines_level_upper: pd.MultiIndex,
-) -> pd.Series:
+) -> tuple[pd.Series, pd.Series]:
     """
     Create a mapping from line transitions to macro atom level indices for upper levels.
     This method creates a mapping that connects line transition upper levels to their
@@ -613,6 +627,8 @@ def create_line2macro_level_upper(
     -------
     pd.Series
         Series mapping line transitions to macro atom level indices
+    pd.Series
+        Series with unique source levels as index and their assigned indices as values
     """
     unique_source_index = pd.MultiIndex.from_tuples(
         macro_atom_transition_metadata.source.unique(),
@@ -624,7 +640,7 @@ def create_line2macro_level_upper(
     )
     line2macro_level_upper = unique_source_series.loc[lines_level_upper]
 
-    return line2macro_level_upper
+    return line2macro_level_upper, unique_source_series
 
 
 def normalize_transition_probabilities(
