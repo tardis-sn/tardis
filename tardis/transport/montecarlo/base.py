@@ -29,10 +29,10 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import tracker_full_df2tracker_last_interaction_df, trackers_full_to_df
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
     TrackerLastInteraction,
-    tracker_last_interaction_to_df,
 )
-from tardis.transport.montecarlo.packets.trackers import (
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (
     generate_tracker_last_interaction_list,
+    trackers_last_interaction_to_df,
 )
 from tardis.transport.montecarlo.progress_bars import (
     refresh_packet_pbar,
@@ -232,7 +232,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             self.transport_state.tracker_full_df = None
-            self.transport_state.tracker_last_interaction_df = tracker_last_interaction_to_df(tracker)
+            self.transport_state.tracker_last_interaction_df = trackers_last_interaction_to_df(tracker)
 
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
