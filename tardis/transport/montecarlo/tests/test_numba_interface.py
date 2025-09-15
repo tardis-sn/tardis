@@ -4,7 +4,6 @@ import pytest
 
 import tardis.opacities.opacity_state as numba_interface
 
-
 @pytest.mark.parametrize(
     "input_params,sliced",
     [
