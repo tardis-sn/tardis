@@ -77,22 +77,16 @@ class SourceFunctionSolver:
             transport_state.packet_collection.time_of_simulation * u.s
         )
 
-        levels = atomic_data.levels.loc[
-            atomic_data.selected_atomic_numbers
-        ].index  # TODO: Fix this in the atom data
-
         # slice for the active shells
         local_slice = slice(v_inner_boundary_index, v_outer_boundary_index)
 
         transition_probabilities = transition_probabilities[:, local_slice]
         tau_sobolevs = tau_sobolev[:, local_slice]
 
-        # macro_ref = atomic_data.macro_atom_references
-        macro_ref = macro_atom_state.references_index
-        # macro_data = atomic_data.macro_atom_data
-        macro_data = macro_atom_state.transition_metadata
+        macroatom_references = macro_atom_state.references_index
+        macroatom_transition_metadata = macro_atom_state.transition_metadata
 
-        no_lvls = len(macro_ref)
+        no_lvls = len(macroatom_references)
         no_shells = len(dilution_factor)
 
         # Calculate e_dot_u
@@ -109,20 +103,22 @@ class SourceFunctionSolver:
             no_shells,
             no_lvls,
             line_interaction_type=self.line_interaction_type,
-            macro_data=macro_data,
-            macro_ref=macro_ref,
+            macro_data=macroatom_transition_metadata,
+            macro_ref=macroatom_references,
         )
 
         # Calculate att_S_ul
-        transition_type = macro_data.transition_type
-        transitions = macro_data[
+        transition_type = macroatom_transition_metadata.transition_type
+        emitting_transitions = macroatom_transition_metadata[
             transition_type == MacroAtomTransitionType.BB_EMISSION
         ].copy()
         transitions_index = pd.MultiIndex.from_tuples(
-            transitions.source.values,
+            emitting_transitions.source.values,
             names=["atomic_number", "ion_number", "source_level_number"],
         )
-        transition_line_id = transitions.transition_line_id.values
+        emission_transition_line_id = (
+            emitting_transitions.transition_line_id.values
+        )
         lines = atomic_data.lines.set_index("line_id")
         lines_idx = lines.index.values
 
@@ -130,7 +126,7 @@ class SourceFunctionSolver:
             lines,
             transition_probabilities,
             no_of_shells,
-            transition_line_id,
+            emission_transition_line_id,
             lines_idx,
             transitions_index,
             transition_type,
