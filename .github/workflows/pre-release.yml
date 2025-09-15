@@ -51,8 +51,14 @@ jobs:
           if-no-files-found: warn
           include-hidden-files: true
 
+  pip_tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+    with:
+      pip_git: true
+
   pull_request:
-    needs: zenodo
+    needs: [zenodo, pip_tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -129,9 +135,3 @@ jobs:
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
           merge-method: squash
         if: steps.create-pr.outputs.pull-request-operation == 'created'
-
-  pip_tests:
-    uses: ./.github/workflows/tests.yml
-    secrets: inherit
-    with:
-      pip_git: true
