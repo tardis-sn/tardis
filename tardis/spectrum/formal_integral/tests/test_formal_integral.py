@@ -3,7 +3,10 @@ import numpy.testing as ntest
 import pytest
 
 
-from tardis.spectrum.formal_integral.base import check, intensity_black_body
+from tardis.spectrum.formal_integral.base import (
+    check_formal_integral_requirements,
+    intensity_black_body,
+)
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.spectrum.formal_integral.formal_integral_numba import (
     calculate_impact_parameters as calculate_impact_parameters_numba,
@@ -19,18 +22,26 @@ from tardis.spectrum.formal_integral.formal_integral_cuda import (
     "line_interaction_type",
     ("downbranch", "macroatom", pytest.param("?", marks=pytest.mark.xfail)),
 )
-def test_check(simulation_verysimple, line_interaction_type):
+def test_check_formal_integral_requirements(
+    simulation_verysimple, line_interaction_type
+):
     sim_state = simulation_verysimple.simulation_state
     plasma = simulation_verysimple.plasma
     transport = simulation_verysimple.transport
     transport.line_interaction_type = line_interaction_type
 
-    assert check(sim_state, plasma, transport)
+    assert check_formal_integral_requirements(sim_state, plasma, transport)
 
     # should return false
-    assert not check(None, plasma, transport, raises=False)
-    assert not check(sim_state, None, transport, raises=False)
-    assert not check(sim_state, plasma, None, raises=False)
+    assert not check_formal_integral_requirements(
+        None, plasma, transport, raises=False
+    )
+    assert not check_formal_integral_requirements(
+        sim_state, None, transport, raises=False
+    )
+    assert not check_formal_integral_requirements(
+        sim_state, plasma, None, raises=False
+    )
 
 
 @pytest.mark.parametrize(

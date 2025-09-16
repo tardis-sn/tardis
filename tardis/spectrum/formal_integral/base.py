@@ -22,7 +22,7 @@ class IntegrationError(Exception):
     pass
 
 
-def check(simulation_state, opacity_state, transport, raises=True):
+def check_formal_integral_requirements(simulation_state, opacity_state, transport, raises=True):
     """
     A method that determines if the formal integral can be performed with
     the current configuration settings
