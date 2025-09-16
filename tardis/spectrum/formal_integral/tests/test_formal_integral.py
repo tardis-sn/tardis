@@ -3,14 +3,17 @@ import numpy.testing as ntest
 import pytest
 
 
-from tardis.spectrum.formal_integral.base import check, intensity_black_body
+from tardis.spectrum.formal_integral.base import (
+    check_formal_integral_requirements,
+    intensity_black_body,
+)
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.spectrum.formal_integral.formal_integral_numba import (
-    calculate_p_values as calculate_p_values_numba,
+    calculate_impact_parameters as calculate_impact_parameters_numba,
     intensity_black_body as intensity_black_body_numba,
 )
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
-    calculate_p_values as calculate_p_values_cuda,
+    calculate_impact_parameters as calculate_impact_parameters_cuda,
     intensity_black_body_cuda,
 )
 
@@ -19,18 +22,26 @@ from tardis.spectrum.formal_integral.formal_integral_cuda import (
     "line_interaction_type",
     ("downbranch", "macroatom", pytest.param("?", marks=pytest.mark.xfail)),
 )
-def test_check(simulation_verysimple, line_interaction_type):
+def test_check_formal_integral_requirements(
+    simulation_verysimple, line_interaction_type
+):
     sim_state = simulation_verysimple.simulation_state
     plasma = simulation_verysimple.plasma
     transport = simulation_verysimple.transport
     transport.line_interaction_type = line_interaction_type
 
-    assert check(sim_state, plasma, transport)
+    assert check_formal_integral_requirements(sim_state, plasma, transport)
 
     # should return false
-    assert not check(None, plasma, transport, raises=False)
-    assert not check(sim_state, None, transport, raises=False)
-    assert not check(sim_state, plasma, None, raises=False)
+    assert not check_formal_integral_requirements(
+        None, plasma, transport, raises=False
+    )
+    assert not check_formal_integral_requirements(
+        sim_state, None, transport, raises=False
+    )
+    assert not check_formal_integral_requirements(
+        sim_state, plasma, None, raises=False
+    )
 
 
 @pytest.mark.parametrize(
@@ -68,10 +79,10 @@ def test_calculate_p_values(N):
     expected = r / (N - 1) * np.arange(0, N, dtype=np.float64)
     actual = np.zeros_like(expected, dtype=np.float64)
 
-    actual[::] = calculate_p_values_numba(r, N)
+    actual[::] = calculate_impact_parameters_numba(r, N)
     ntest.assert_allclose(actual, expected)
 
     # TODO: check if cuda
     # actual_cuda = np.zeros_like(expected, dtype=np.float64)
-    # actual_cuda[::] = calculate_p_values_cuda(r, N)
+    # actual_cuda[::] = calculate_impact_parameters_cuda(r, N)
     # ntest.assert_allclose(actual_cuda, expected)

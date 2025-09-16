@@ -6,6 +6,7 @@ from scipy.interpolate import interp1d
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.base import TARDISSpectrum
+from tardis.spectrum.formal_integral.base import check_formal_integral_requirements
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
@@ -89,16 +90,19 @@ class FormalIntegralSolver:
 
         self.montecarlo_configuration = transport.montecarlo_configuration
 
-        if self.method in [
-            None,
+        # check method selection
+        if self.method in [ # TODO: better way to handle this
             "numba",
             "cuda",
-        ]:  # TODO: better way to handle this
-            # use GPU if available
-            if transport.use_gpu:
-                self.method = "cuda"
-            else:
-                self.method = "numba"
+        ]:
+            pass
+        elif self.method is None:
+            logger.warning(
+                f"The formal integral implementation was not specified. "
+                "Please run with config option numba or cuda."
+                "Defaulting to numba implementation."
+            )
+            self.method = "numba"
         else:
             logger.warning(
                 "Computing formal integral via the %s method isn't supported. "
@@ -194,6 +198,9 @@ class FormalIntegralSolver:
         TARDISSpectrum
             The formal integral spectrum
         """
+        # check objects and configs
+        check_formal_integral_requirements(simulation_state, opacity_state, transport_solver)
+
         # Convert to numba opacity state for source function and integrator
         opacity_state_numba = self.setup(
             transport_solver, opacity_state, macro_atom_state
@@ -267,18 +274,15 @@ class FormalIntegralSolver:
             r_outer_interpolated,
         )
 
-        luminosity_densities, intensities_nu_p = (
-            self.integrator.formal_integral(
-                simulation_state.t_inner,
-                frequencies,
-                frequencies.shape[0],
-                att_S_ul_interpolated,
-                Jred_lu_interpolated,
-                Jblue_lu_interpolated,
-                tau_sobolevs_interpolated,
-                electron_densities_interpolated,
-                points,
-            )
+        luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
+            simulation_state.t_inner,
+            frequencies,
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
+            points,
         )
 
         luminosity_densities = np.array(luminosity_densities, dtype=np.float64)

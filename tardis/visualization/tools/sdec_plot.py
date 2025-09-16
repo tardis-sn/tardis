@@ -16,6 +16,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from astropy.modeling.models import BlackBody
 
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 from tardis.util.base import (
     atomic_number2element_symbol,
     int_to_roman,
@@ -623,7 +624,7 @@ class SDECPlotter:
             self.packet_data[packets_mode]["packets_df"][
                 "last_interaction_type"
             ][self.packet_nu_range_mask]
-            == -1
+            == InteractionType.NO_INTERACTION
         )
         self._calculate_luminosity_contribution(
             packets_mode, mask_noint, ("noint", ""), luminosities_df
@@ -634,12 +635,12 @@ class SDECPlotter:
             self.packet_data[packets_mode]["packets_df"][
                 "last_interaction_type"
             ][self.packet_nu_range_mask]
-            == 1
+            == InteractionType.ESCATTERING
         ) & (
             self.packet_data[packets_mode]["packets_df"][
                 "last_line_interaction_in_id"
             ][self.packet_nu_range_mask]
-            == -1
+            == InteractionType.NO_INTERACTION
         )
         self._calculate_luminosity_contribution(
             packets_mode, mask_escatter, ("escatter", ""), luminosities_df

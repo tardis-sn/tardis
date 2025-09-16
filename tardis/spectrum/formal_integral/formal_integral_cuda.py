@@ -6,7 +6,7 @@ from tardis.spectrum.formal_integral.base import (
     C_INV,
     KB_CGS,
     H_CGS,
-    calculate_p_values,
+    calculate_impact_parameters,
 )
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
@@ -217,7 +217,7 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
     return result
 
 
-calculate_p_values = cuda.jit(calculate_p_values, device=True)
+calculate_impact_parameters = cuda.jit(calculate_impact_parameters, device=True)
 
 
 @cuda.jit(device=True)
@@ -325,8 +325,8 @@ def cuda_formal_integral(
 
     # These all have their own version for each thread to avoid race conditions
     I_nu_thread = I_nu[nu_idx]
-    z_thread = z[nu_idx]
-    shell_id_thread = shell_id[nu_idx]
+    z_thread = z[p_idx]
+    shell_id_thread = shell_id[p_idx]
 
     offset = 0
     size_z = 0
@@ -474,7 +474,6 @@ class CudaFormalIntegrator:
         self,
         iT,
         inu,
-        inu_size,
         att_S_ul,
         Jred_lu,
         Jblue_lu,
@@ -488,6 +487,7 @@ class CudaFormalIntegrator:
         # global read-only values
         size_line, size_shell = tau_sobolev.shape  # int64, int64
         size_tau = size_line * size_shell  # int64
+        inu_size = len(inu)
 
         pp = np.zeros(N, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.zeros(size_tau, dtype=np.float64)  # array(float64, 1d, C)
@@ -496,11 +496,11 @@ class CudaFormalIntegrator:
             self.geometry.r_outer[size_shell - 1], N
         )  # array(float64, 1d, C)
         z = np.zeros(
-            (inu_size, 2 * size_shell), dtype=np.float64
-        )  # array(float64, 1d, C)
+            (N, 2 * size_shell), dtype=np.float64
+        )  # array(float64, 2d, C)
         shell_id = np.zeros(
-            (inu_size, 2 * size_shell), dtype=np.int64
-        )  # array(int64, 1d, C)
+            (N, 2 * size_shell), dtype=np.int64
+        )  # array(int64, 2d, C)
 
         # These get separate names since they'll be copied back
         # These are device objects stored on the GPU
