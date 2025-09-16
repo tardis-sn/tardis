@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=c4af90fb"></script>
+      <script src="../_static/documentation_options.js?v=40db8bea"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -178,14 +178,16 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.calculate_p_values">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">calculate_p_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#calculate_p_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.calculate_p_values" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates the p values of N</p>
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.calculate_impact_parameters">
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">calculate_impact_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_impact_parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#calculate_impact_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.calculate_impact_parameters" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate n_impact_parameters impact parameters between 0 and radius_max</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>R_max</strong><span class="classifier">float64</span></dt><dd></dd>
-<dt><strong>N</strong><span class="classifier">int64</span></dt><dd></dd>
+<dt><strong>radius_max</strong><span class="classifier">float64</span></dt><dd><p>maximum radius</p>
+</dd>
+<dt><strong>n_impact_parameters</strong><span class="classifier">int64</span></dt><dd><p>number of impact parameters</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -197,57 +199,49 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.check">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raises</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.check" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.check_formal_integral_requirements">
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">check_formal_integral_requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raises</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#check_formal_integral_requirements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.check_formal_integral_requirements" title="Link to this definition">¶</a></dt>
 <dd><p>A method that determines if the formal integral can be performed with
 the current configuration settings</p>
 <p>The function returns False if the configuration conflicts with the
 required settings. If raises evaluates to True, then a
 IntegrationError is raised instead</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd><p>State which holds information about each shell</p>
+</dd>
+<dt><strong>transport_solver</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd><p>The transport solver</p>
+</dd>
+<dt><strong>opacity_state</strong><span class="classifier">tardis.opacities.opacity_state.OpacityState</span></dt><dd><p>Regular (non-numba) opacity state; will be converted to numba via <code class="xref py py-obj docutils literal notranslate"><span class="pre">setup</span></code></p>
+</dd>
+<dt><strong>raises</strong><span class="classifier">bool, optional</span></dt><dd><p>flag to either raise an error or return False and issue a warning</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>bool</dt><dd><p>True if the configuration is correct, False (or errors) otherwise</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.intensity_black_body">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">intensity_black_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#intensity_black_body"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.intensity_black_body" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">intensity_black_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#intensity_black_body"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.intensity_black_body" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the blackbody intensity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>nu</strong><span class="classifier">float64</span></dt><dd><p>frequency</p>
-</dd>
-<dt><strong>temperature</strong><span class="classifier">float64</span></dt><dd><p>Temperature</p>
-</dd>
+<dt><strong>frequency</strong><span class="classifier">float64</span></dt><dd></dd>
+<dt><strong>temperature</strong><span class="classifier">float64</span></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>float64</dt><dd></dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.base.interpolate_integrator_quantities">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.base.</span></span><span class="sig-name descname"><span class="pre">interpolate_integrator_quantities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_function_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate_shells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/base.html#interpolate_integrator_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities" title="Link to this definition">¶</a></dt>
-<dd><p>Interpolate the integrator quantities to interpolate_shells.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>source_function_state: SourceFunctionState</strong></dt><dd><p>Data class to hold the computed source function values</p>
-</dd>
-<dt><strong>interpolate_shells</strong><span class="classifier">int</span></dt><dd><p>number of shells to interpolate to</p>
-</dd>
-<dt><strong>simulation_state</strong><span class="classifier">tardis.model.SimulationState</span></dt><dd></dd>
-<dt><strong>transport</strong><span class="classifier">tardis.transport.montecarlo.MonteCarloTransportSolver</span></dt><dd></dd>
-<dt><strong>opacity_state</strong><span class="classifier">OpacityStateNumba</span></dt><dd></dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>tuple</dt><dd><p>Interpolated values of att_S_ul, Jred_lu, Jbluelu, and e_dot_u</p>
-</dd>
 </dl>
 </dd>
 </dl>
@@ -267,7 +261,7 @@ IntegrationError is raised instead</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Sep 2025.
+      <span class="lastupdated">Last updated on 16 Sep 2025.
       </span></p>
   </div>
 

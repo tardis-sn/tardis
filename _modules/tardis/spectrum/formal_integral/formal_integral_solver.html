@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=c4af90fb"></script>
+      <script src="../../../../_static/documentation_options.js?v=40db8bea"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -139,6 +139,7 @@ from scipy.interpolate import interp1d
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.base import TARDISSpectrum
+from tardis.spectrum.formal_integral.base import check_formal_integral_requirements
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
@@ -340,6 +341,9 @@ class FormalIntegralSolver:
         TARDISSpectrum
             The formal integral spectrum
         &quot;&quot;&quot;
+        # check objects and configs
+        check_formal_integral_requirements(simulation_state, opacity_state, transport_solver)
+
         # Convert to numba opacity state for source function and integrator
         opacity_state_numba = self.setup(
             transport_solver, opacity_state, macro_atom_state
@@ -412,7 +416,6 @@ class FormalIntegralSolver:
         luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
             simulation_state.t_inner,
             frequencies,
-            frequencies.shape[0],
             att_S_ul_interpolated,
             Jred_lu_interpolated,
             Jblue_lu_interpolated,
@@ -564,7 +567,7 @@ class FormalIntegralSolver:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Sep 2025.
+      <span class="lastupdated">Last updated on 16 Sep 2025.
       </span></p>
   </div>
 

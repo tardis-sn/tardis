@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=c4af90fb"></script>
+      <script src="../../../../_static/documentation_options.js?v=40db8bea"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -161,9 +161,9 @@ class IntegrationError(Exception):
 
 
 
-<div class="viewcode-block" id="check">
-<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.check">[docs]</a>
-def check(simulation_state, plasma, transport, raises=True):
+<div class="viewcode-block" id="check_formal_integral_requirements">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.check_formal_integral_requirements">[docs]</a>
+def check_formal_integral_requirements(simulation_state, opacity_state, transport, raises=True):
     &quot;&quot;&quot;
     A method that determines if the formal integral can be performed with
     the current configuration settings
@@ -171,6 +171,22 @@ def check(simulation_state, plasma, transport, raises=True):
     The function returns False if the configuration conflicts with the
     required settings. If raises evaluates to True, then a
     IntegrationError is raised instead
+
+    Parameters
+    ----------
+    simulation_state : tardis.model.SimulationState
+        State which holds information about each shell
+    transport_solver : tardis.transport.montecarlo.MonteCarloTransportSolver
+        The transport solver
+    opacity_state : tardis.opacities.opacity_state.OpacityState
+        Regular (non-numba) opacity state; will be converted to numba via `setup`
+    raises : bool, optional
+        flag to either raise an error or return False and issue a warning
+
+    Returns
+    -------
+    bool
+        True if the configuration is correct, False (or errors) otherwise
     &quot;&quot;&quot;
 
     def raise_or_return(message):
@@ -180,10 +196,10 @@ def check(simulation_state, plasma, transport, raises=True):
             warnings.warn(message)
             return False
 
-    for obj in (simulation_state, plasma, transport):
+    for obj in (simulation_state, opacity_state, transport):
         if obj is None:
             return raise_or_return(
-                &quot;The integrator is missing either model, plasma or &quot;
+                &quot;The integrator is missing either model, opacity state or &quot;
                 &quot;transport. Please make sure these are provided to the &quot;
                 &quot;FormalIntegrator.&quot;
             )
@@ -208,141 +224,47 @@ def check(simulation_state, plasma, transport, raises=True):
 
 
 
-<div class="viewcode-block" id="calculate_p_values">
-<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.calculate_p_values">[docs]</a>
-def calculate_p_values(R_max, N):
+<div class="viewcode-block" id="calculate_impact_parameters">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.calculate_impact_parameters">[docs]</a>
+def calculate_impact_parameters(radius_max, n_impact_parameters):
     &quot;&quot;&quot;
-    Calculates the p values of N
+    Calculate n_impact_parameters impact parameters between 0 and radius_max
 
     Parameters
     ----------
-    R_max : float64
-    N : int64
+    radius_max : float64
+        maximum radius
+    n_impact_parameters : int64
+        number of impact parameters
 
     Returns
     -------
     float64
     &quot;&quot;&quot;
-    return np.arange(N).astype(np.float64) * R_max / (N - 1)</div>
+    return np.arange(n_impact_parameters).astype(np.float64) * radius_max / (n_impact_parameters - 1)</div>
 
 
 
 <div class="viewcode-block" id="intensity_black_body">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.intensity_black_body">[docs]</a>
-def intensity_black_body(nu, temperature):
+def intensity_black_body(frequency, temperature):
     &quot;&quot;&quot;
     Calculate the blackbody intensity.
 
     Parameters
     ----------
-    nu : float64
-        frequency
+    frequency : float64
     temperature : float64
-        Temperature
 
     Returns
     -------
     float64
     &quot;&quot;&quot;
-    if nu == 0:
+    if frequency == 0:
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * nu * nu * nu / (np.exp(H_CGS * nu * beta_rad) - 1)</div>
-
-
-
-<div class="viewcode-block" id="interpolate_integrator_quantities">
-<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.interpolate_integrator_quantities">[docs]</a>
-def interpolate_integrator_quantities(
-    source_function_state,
-    interpolate_shells,
-    simulation_state,
-    transport,
-    opacity_state,
-    electron_densities,
-):
-    &quot;&quot;&quot;Interpolate the integrator quantities to interpolate_shells.
-
-    Parameters
-    ----------
-    source_function_state: SourceFunctionState
-        Data class to hold the computed source function values
-    interpolate_shells : int
-        number of shells to interpolate to
-    simulation_state : tardis.model.SimulationState
-    transport : tardis.transport.montecarlo.MonteCarloTransportSolver
-    opacity_state : OpacityStateNumba
-    electron_densities : pd.DataFrame
-
-    Returns
-    -------
-    tuple
-        Interpolated values of att_S_ul, Jred_lu, Jbluelu, and e_dot_u
-    &quot;&quot;&quot;
-
-    mct_state = transport.transport_state
-
-    att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
-            source_function_state.att_S_ul,
-            source_function_state.Jred_lu,
-            source_function_state.Jblue_lu,
-            source_function_state.e_dot_u,
-        )
-
-    nshells = interpolate_shells
-    r_middle = (
-        mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
-    ) / 2.0
-
-    r_integ = np.linspace(
-        mct_state.geometry_state.r_inner[0],
-        mct_state.geometry_state.r_outer[-1],
-        nshells,
-    )
-    transport.r_inner_i = r_integ[:-1]
-    transport.r_outer_i = r_integ[1:]
-
-    r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
-
-    transport.electron_densities_integ = interp1d(
-        r_middle,
-        electron_densities.iloc[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
-        ],
-        fill_value=&quot;extrapolate&quot;,
-        kind=&quot;nearest&quot;,
-    )(r_middle_integ)
-    # Assume tau_sobolevs to be constant within a shell
-    # (as in the MC simulation)
-    transport.tau_sobolevs_integ = interp1d(
-        r_middle,
-        opacity_state.tau_sobolev[
-            :,
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
-        ],
-        fill_value=&quot;extrapolate&quot;,
-        kind=&quot;nearest&quot;,
-    )(r_middle_integ)
-    att_S_ul = interp1d(r_middle, att_S_ul, fill_value=&quot;extrapolate&quot;)(
-        r_middle_integ
-    )
-    Jred_lu = interp1d(r_middle, Jred_lu, fill_value=&quot;extrapolate&quot;)(
-        r_middle_integ
-    )
-    Jblue_lu = interp1d(r_middle, Jblue_lu, fill_value=&quot;extrapolate&quot;)(
-        r_middle_integ
-    )
-    e_dot_u = interp1d(r_middle, e_dot_u, fill_value=&quot;extrapolate&quot;)(
-        r_middle_integ
-    )
-
-    # Set negative values from the extrapolation to zero
-    att_S_ul = att_S_ul.clip(0.0)
-    Jblue_lu = Jblue_lu.clip(0.0)
-    Jred_lu = Jred_lu.clip(0.0)
-    e_dot_u = e_dot_u.clip(0.0)
-    return att_S_ul, Jred_lu, Jblue_lu, e_dot_u</div>
+    return coefficient * frequency * frequency * frequency / (np.exp(H_CGS * frequency * beta_rad) - 1)</div>
 
 </pre></div>
 
@@ -354,7 +276,7 @@ def interpolate_integrator_quantities(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Sep 2025.
+      <span class="lastupdated">Last updated on 16 Sep 2025.
       </span></p>
   </div>
 
