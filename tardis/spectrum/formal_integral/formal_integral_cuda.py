@@ -38,40 +38,40 @@ def trapezoid_integration_cuda(arr, dx):
 
 
 @cuda.jit
-def cuda_vector_integrator(L, I_nu, N, R_max):
+def cuda_vector_integrator(luminosity_density, I_nu, N, radius_max):
     """
     The CUDA Vectorized integrator over second axis
 
     Parameters
     ----------
-    L : array(float64, 1d, C)
+    luminosity_density : array(float64, 1d, C)
         Output Array
     I_nu : array(floagt64, 2d, C)
         Input Array
     N : int64
-    R_max : float64
+    radius_max : float64
 
     """
     nu_idx = cuda.grid(1)
-    L[nu_idx] = (
-        8 * np.pi * np.pi * trapezoid_integration_cuda(I_nu[nu_idx], R_max / N)
+    luminosity_density[nu_idx] = (
+        8 * np.pi * np.pi * trapezoid_integration_cuda(I_nu[nu_idx], radius_max / N)
     )
 
 
 @cuda.jit(device=True)
-def calculate_z_cuda(r, p, inv_t):
+def calculate_intersection_point_cuda(radius, impact_parameter, inv_t):
     """
     Calculate distance to p line
 
     Calculate half of the length of the p-line inside a shell
-    of radius r in terms of unit length (c * t_exp).
+    of radius radius in terms of unit length (c * t_exp).
     If shell and p-line do not intersect, return 0.
 
     Parameters
     ----------
-    r : float64
+    radius : float64
         radius of the shell
-    p : float64
+    impact_parameter : float64
         distance of the p-line to the center of the supernova
     inv_t : float64
         inverse time_explosio is needed to norm to unit-length
@@ -80,14 +80,20 @@ def calculate_z_cuda(r, p, inv_t):
     -------
     float64
     """
-    if r > p:
-        return math.sqrt(r * r - p * p) * C_INV * inv_t
+    if radius > impact_parameter:
+        return (
+            math.sqrt(radius * radius - impact_parameter * impact_parameter)
+            * C_INV
+            * inv_t
+        )
     else:
         return 0.0
 
 
 @cuda.jit(device=True)
-def populate_z_cuda(r_inner, r_outer, time_explosion, p, oz, oshell_id):
+def populate_intersection_points_cuda(
+    r_inner, r_outer, time_explosion, impact_parameter, oz, oshell_id
+):
     """
     Calculate p line intersections
 
@@ -112,21 +118,25 @@ def populate_z_cuda(r_inner, r_outer, time_explosion, p, oz, oshell_id):
     """
     N = len(r_inner)
     inv_t = 1 / time_explosion
-    z = 0
+    intersection_point = 0
     offset = N
 
-    if p <= r_inner[0]:
+    if impact_parameter <= r_inner[0]:
         # intersect the photosphere
         for i in range(N):
-            oz[i] = 1 - calculate_z_cuda(r_outer[i], p, inv_t)
+            oz[i] = 1 - calculate_intersection_point_cuda(
+                r_outer[i], impact_parameter, inv_t
+            )
             oshell_id[i] = i
         return N
     else:
         # no intersection with photosphere
         # that means we intersect each shell twice
         for i in range(N):
-            z = calculate_z_cuda(r_outer[i], p, inv_t)
-            if z == 0:
+            intersection_point = calculate_intersection_point_cuda(
+                r_outer[i], impact_parameter, inv_t
+            )
+            if intersection_point == 0:
                 continue
             if offset == N:
                 offset = i
@@ -135,9 +145,9 @@ def populate_z_cuda(r_inner, r_outer, time_explosion, p, oz, oshell_id):
             i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
             # setting the arrays
-            oz[i_low] = 1 + z
+            oz[i_low] = 1 + intersection_point
             oshell_id[i_low] = i
-            oz[i_up] = 1 - z
+            oz[i_up] = 1 - intersection_point
             oshell_id[i_up] = i
         return 2 * (N - offset)
 
@@ -261,7 +271,7 @@ def cuda_formal_integral(
     pp,
     exp_tau,
     I_nu,
-    z,
+    intersection_point,
     shell_id,
 ):
     """
@@ -305,7 +315,7 @@ def cuda_formal_integral(
         $\\exp{-tau}$ array to speed up computation
     I_nu array(floatt64, 2d, C)
         Radiative intensity per unit frequency per impact parameter
-    z : array(float64, 2d, C)
+    intersection_point : array(float64, 2d, C)
         Ray intersections with the shells
     shell_id : array(int64, 2d, C)
         List of shells for each thread
@@ -325,7 +335,7 @@ def cuda_formal_integral(
 
     # These all have their own version for each thread to avoid race conditions
     I_nu_thread = I_nu[nu_idx]
-    z_thread = z[p_idx]
+    intersection_point_thread = intersection_point[p_idx]
     shell_id_thread = shell_id[p_idx]
 
     offset = 0
@@ -338,8 +348,8 @@ def cuda_formal_integral(
     nu_start = 0.0
     nu_end = 0.0
     nu = 0.0
-    zstart = 0.0
-    zend = 0.0
+    intersection_point_start = 0.0
+    intersection_point_end = 0.0
     escat_contrib = 0.0
     escat_op = 0.0
     Jkkp = 0.0
@@ -354,20 +364,24 @@ def cuda_formal_integral(
     p = pp[p_idx]
 
     # initialize z intersections for p values
-    size_z = populate_z_cuda(
-        r_inner, r_outer, time_explosion, p, z_thread, shell_id_thread
+    size_z = populate_intersection_points_cuda(
+        r_inner, r_outer, time_explosion, p, intersection_point_thread, shell_id_thread
     )
     if p <= R_ph:
-        I_nu_thread[p_idx] = intensity_black_body_cuda(nu * z_thread[0], iT)
+        I_nu_thread[p_idx] = intensity_black_body_cuda(
+            nu * intersection_point_thread[0], iT
+        )
     else:
         I_nu_thread[p_idx] = 0
-    nu_start = nu * z_thread[0]
-    nu_end = nu * z_thread[1]
+    nu_start = nu * intersection_point_thread[0]
+    nu_end = nu * intersection_point_thread[1]
 
     idx_nu_start = line_search_cuda(line_list_nu, nu_start, size_line)
     offset = shell_id_thread[0] * size_line
     # start tracking accumulated e-scattering optical depth
-    zstart = time_explosion / C_INV * (1.0 - z_thread[0])
+    intersection_point_start = (
+        time_explosion / C_INV * (1.0 - intersection_point_thread[0])
+    )
     # Initialize "pointers"
     pline = int(idx_nu_start)
     pexp_tau = int(offset + idx_nu_start)
@@ -381,19 +395,19 @@ def cuda_formal_integral(
     for i in range(size_z - 1):
         escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON
         nu_end = (
-            nu * z_thread[i + 1]
+            nu * intersection_point_thread[i + 1]
         )  # +1 is the offset as the original is from z[1:]
 
         nu_end_idx = line_search_cuda(line_list_nu, nu_end, len(line_list_nu))
         for _ in range(max(nu_end_idx - pline, 0)):
             # calculate e-scattering optical depth to next resonance point
-            zend = (
+            intersection_point_end = (
                 time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
             )  # check
 
             if first == 1:
                 escat_contrib += (
-                    (zend - zstart)
+                    (intersection_point_end - intersection_point_start)
                     * escat_op
                     * (Jblue_lu[pJblue_lu] - I_nu_thread[p_idx])
                 )
@@ -402,7 +416,9 @@ def cuda_formal_integral(
                 # Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
                 Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
                 escat_contrib += (
-                    (zend - zstart) * escat_op * (Jkkp - I_nu_thread[p_idx])
+                    (intersection_point_end - intersection_point_start)
+                    * escat_op
+                    * (Jkkp - I_nu_thread[p_idx])
                 )
                 # this introduces the necessary ffset of one element between
                 # pJblue_lu and pJred_lu
@@ -414,7 +430,7 @@ def cuda_formal_integral(
 
             # // reset e-scattering opacity
             escat_contrib = 0
-            zstart = zend
+            intersection_point_start = intersection_point_end
 
             pline += 1
             pexp_tau += 1
@@ -424,16 +440,16 @@ def cuda_formal_integral(
         # calculate e-scattering optical depth to grid cell boundary
 
         Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-        zend = time_explosion / C_INV * (1.0 - nu_end / nu)
+        intersection_point_end = time_explosion / C_INV * (1.0 - nu_end / nu)
         escat_contrib += (
-            (zend - zstart) * escat_op * (Jkkp - I_nu_thread[p_idx])
+            (intersection_point_end - intersection_point_start)
+            * escat_op
+            * (Jkkp - I_nu_thread[p_idx])
         )
-        zstart = zend
+        intersection_point_start = intersection_point_end
 
         # advance pointers
-        direction = int(
-            (shell_id_thread[i + 1] - shell_id_thread[i]) * size_line
-        )
+        direction = int((shell_id_thread[i + 1] - shell_id_thread[i]) * size_line)
         pexp_tau += direction
         patt_S_ul += direction
         pJred_lu += direction
@@ -442,20 +458,20 @@ def cuda_formal_integral(
     I_nu_thread[p_idx] *= p
 
 
-def calculate_p_values(R_max, N):
+def calculate_impact_parameter_values(radius_max, N):
     """
-    Calculates the p values of N
+    Calculates the impact parameter values of N
 
     Parameters
     ----------
-    R_max : float64
+    radius_max : float64
     N : int64
 
     Returns
     -------
     float64
     """
-    return np.arange(N).astype(np.float64) * R_max / (N - 1)
+    return np.arange(N).astype(np.float64) * radius_max / (N - 1)
 
 
 class CudaFormalIntegrator:
@@ -492,15 +508,13 @@ class CudaFormalIntegrator:
         pp = np.zeros(N, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.zeros(size_tau, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.exp(-tau_sobolev.T.ravel())  # array(float64, 1d, C)
-        pp[::] = calculate_p_values(
+        pp[::] = calculate_impact_parameter_values(
             self.geometry.r_outer[size_shell - 1], N
         )  # array(float64, 1d, C)
-        z = np.zeros(
+        intersection_point = np.zeros(
             (N, 2 * size_shell), dtype=np.float64
         )  # array(float64, 2d, C)
-        shell_id = np.zeros(
-            (N, 2 * size_shell), dtype=np.int64
-        )  # array(int64, 2d, C)
+        shell_id = np.zeros((N, 2 * size_shell), dtype=np.int64)  # array(int64, 2d, C)
 
         # These get separate names since they'll be copied back
         # These are device objects stored on the GPU
@@ -510,7 +524,7 @@ class CudaFormalIntegrator:
 
         # Copy these arrays to the device, we don't need them again
         # But they must be initialized with zeros
-        z = cuda.to_device(z)
+        intersection_point = cuda.to_device(intersection_point)
         shell_id = cuda.to_device(shell_id)
         pp = cuda.to_device(pp)
         exp_tau = cuda.to_device(exp_tau)
@@ -550,7 +564,7 @@ class CudaFormalIntegrator:
             pp,
             exp_tau,
             d_I_nu,
-            z,
+            intersection_point,
             shell_id,
         )
 
