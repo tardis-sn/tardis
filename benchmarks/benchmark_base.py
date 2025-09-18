@@ -18,6 +18,7 @@ from tardis.transport.montecarlo.configuration.base import (
 )
 from tardis.transport.montecarlo.estimators import radfield_mc_estimators
 from tardis.opacities.opacity_state_numba import opacity_state_numba_initialize
+import tardis.transport.montecarlo.packets.RPacketLastInteractionTracker
 from tardis.transport.montecarlo.packets.packet_collections import VPacketCollection
 from tardis.transport.montecarlo.packets import packet_trackers
 
@@ -195,7 +196,7 @@ class BenchmarkBase:
         # Do not use RPacketTracker or RPacketLastInteraction directly
         # Use it by importing packet_trackers
         # functions with name track_* function is used by ASV
-        return packet_trackers.RPacketLastInteractionTracker()
+        return tardis.transport.montecarlo.packets.RPacketLastInteractionTracker.RPacketLastInteractionTracker()
 
     @functools.cached_property
     def transport_state(self):

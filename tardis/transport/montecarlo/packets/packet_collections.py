@@ -99,67 +99,6 @@ def initialize_last_interaction_tracker(no_of_packets):
     )
 
 
-@jitclass
-class LastInteractionTracker:
-    types: nb.int64[:]  # type: ignore[misc]
-    in_nus: nb.float64[:]  # type: ignore[misc]
-    in_rs: nb.float64[:]  # type: ignore[misc]
-    in_ids: nb.int64[:]  # type: ignore[misc]
-    out_ids: nb.int64[:]  # type: ignore[misc]
-    shell_ids: nb.int64[:]  # type: ignore[misc]
-
-    def __init__(
-        self,
-        types: np.ndarray,
-        in_nus: np.ndarray,
-        in_rs: np.ndarray,
-        in_ids: np.ndarray,
-        out_ids: np.ndarray,
-        shell_ids: np.ndarray,
-    ) -> None:
-        """
-        Initialize last interaction tracker for Monte Carlo packets.
-
-        Parameters
-        ----------
-        types : numpy.ndarray
-            Types of last interactions.
-        in_nus : numpy.ndarray
-            Incoming frequencies of last interactions [Hz].
-        in_rs : numpy.ndarray
-            Radii of last interactions [cm].
-        in_ids : numpy.ndarray
-            Input line IDs for last interactions.
-        out_ids : numpy.ndarray
-            Output line IDs for last interactions.
-        shell_ids : numpy.ndarray
-            Shell IDs where last interactions occurred.
-        """
-        self.types = types
-        self.in_nus = in_nus
-        self.in_rs = in_rs
-        self.in_ids = in_ids
-        self.out_ids = out_ids
-        self.shell_ids = shell_ids
-
-    def update_last_interaction(self, r_packet, i: int) -> None:
-        """
-        Update the last interaction information for a packet.
-
-        Parameters
-        ----------
-        r_packet : RPacket
-            The R-packet with interaction information.
-        i : int
-            Index of the packet to update.
-        """
-        self.types[i] = r_packet.last_interaction_type
-        self.in_nus[i] = r_packet.last_interaction_in_nu
-        self.in_rs[i] = r_packet.last_interaction_in_r
-        self.in_ids[i] = r_packet.last_line_interaction_in_id
-        self.out_ids[i] = r_packet.last_line_interaction_out_id
-        self.shell_ids[i] = r_packet.last_line_interaction_shell_id
-
 
 @jitclass
 class VPacketCollection:
