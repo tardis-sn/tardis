@@ -335,7 +335,7 @@ def cuda_formal_integral(
     """
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
-    R_ph = radii_inner[0]  # make sure these are cgs
+    photosphere_radius = radii_inner[0]  # make sure these are cgs
 
     frequencies_idx, impact_parameter_idx = cuda.grid(2)  # 2D Cuda Grid, nu x p
     impact_parameter_idx += 1  # Because the iteration starts at 1
@@ -385,7 +385,7 @@ def cuda_formal_integral(
         intersection_point_thread,
         shell_id_thread,
     )
-    if impact_parameter <= R_ph:
+    if impact_parameter <= photosphere_radius:
         intensities_nu_thread[impact_parameter_idx] = intensity_black_body_cuda(
             frequency * intersection_point_thread[0], iT
         )
@@ -569,9 +569,7 @@ class CudaFormalIntegrator:
         exp_tau = cuda.to_device(exp_tau)
         radii_inner = cuda.to_device(self.geometry.r_inner)
         radii_outer = cuda.to_device(self.geometry.r_outer)
-        line_list_frequencies = cuda.to_device(
-            self.plasma.line_list_frequencies
-        )
+        line_list_frequencies = cuda.to_device(self.plasma.line_list_nu)
         interpolated_frequencies = cuda.to_device(
             interpolated_frequencies.value
         )
