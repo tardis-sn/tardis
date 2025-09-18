@@ -114,7 +114,7 @@ class LIVPlotter:
         """
         plotter = cls()
         plotter.velocity = workflow.simulation_state.velocity
-        plotter.time_explosion = workflow.transport_state.time_explosion * u.s
+        plotter.time_explosion = workflow.transport_state.time_explosion
         modes = ["real"]
         if workflow.enable_virtual_packet_logging:
             modes.append("virtual")
