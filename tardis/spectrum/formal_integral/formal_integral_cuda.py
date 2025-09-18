@@ -38,7 +38,7 @@ def trapezoid_integration_cuda(arr, dx):
 
 
 @cuda.jit
-def cuda_vector_integrator(luminosity_density, I_nu, N, radius_max):
+def cuda_vector_integrator(luminosity_density, intensities_nu, N, radius_max):
     """
     The CUDA Vectorized integrator over second axis
 
@@ -46,15 +46,15 @@ def cuda_vector_integrator(luminosity_density, I_nu, N, radius_max):
     ----------
     luminosity_density : array(float64, 1d, C)
         Output Array
-    I_nu : array(floagt64, 2d, C)
+    intensities_nu : array(floagt64, 2d, C)
         Input Array
     N : int64
     radius_max : float64
 
     """
-    nu_idx = cuda.grid(1)
-    luminosity_density[nu_idx] = (
-        8 * np.pi * np.pi * trapezoid_integration_cuda(I_nu[nu_idx], radius_max / N)
+    frequencies_idx = cuda.grid(1)
+    luminosity_density[frequencies_idx] = (
+        8 * np.pi * np.pi * trapezoid_integration_cuda(intensities_nu[frequencies_idx], radius_max / N)
     )
 
 
@@ -270,7 +270,7 @@ def cuda_formal_integral(
     N,
     pp,
     exp_tau,
-    I_nu,
+    intensities_nu,
     intersection_point,
     shell_id,
 ):
@@ -313,7 +313,7 @@ def cuda_formal_integral(
         Impact parameter arrays
     exp_tau : array(float64, 1d, C)
         $\\exp{-tau}$ array to speed up computation
-    I_nu array(floatt64, 2d, C)
+    intensities_nu array(floatt64, 2d, C)
         Radiative intensity per unit frequency per impact parameter
     intersection_point : array(float64, 2d, C)
         Ray intersections with the shells
@@ -324,17 +324,17 @@ def cuda_formal_integral(
     size_line, size_shell = tau_sobolev.shape
     R_ph = r_inner[0]  # make sure these are cgs
 
-    nu_idx, p_idx = cuda.grid(2)  # 2D Cuda Grid, nu x p
+    frequencies_idx, p_idx = cuda.grid(2)  # 2D Cuda Grid, nu x p
     p_idx += 1  # Because the iteration starts at 1
     # Check to see if CUDA is out of bounds
-    if nu_idx >= inu_size:
+    if frequencies_idx >= inu_size:
         return
 
     if p_idx >= N:
         return
 
     # These all have their own version for each thread to avoid race conditions
-    I_nu_thread = I_nu[nu_idx]
+    intensities_nu_thread = intensities_nu[frequencies_idx]
     intersection_point_thread = intersection_point[p_idx]
     shell_id_thread = shell_id[p_idx]
 
@@ -359,7 +359,7 @@ def cuda_formal_integral(
     pJblue_lu = 0
     pline = 0
 
-    nu = inu[nu_idx]
+    nu = inu[frequencies_idx]
     escat_contrib = 0.0
     p = pp[p_idx]
 
@@ -368,11 +368,11 @@ def cuda_formal_integral(
         r_inner, r_outer, time_explosion, p, intersection_point_thread, shell_id_thread
     )
     if p <= R_ph:
-        I_nu_thread[p_idx] = intensity_black_body_cuda(
+        intensities_nu_thread[p_idx] = intensity_black_body_cuda(
             nu * intersection_point_thread[0], iT
         )
     else:
-        I_nu_thread[p_idx] = 0
+        intensities_nu_thread[p_idx] = 0
     nu_start = nu * intersection_point_thread[0]
     nu_end = nu * intersection_point_thread[1]
 
@@ -409,7 +409,7 @@ def cuda_formal_integral(
                 escat_contrib += (
                     (intersection_point_end - intersection_point_start)
                     * escat_op
-                    * (Jblue_lu[pJblue_lu] - I_nu_thread[p_idx])
+                    * (Jblue_lu[pJblue_lu] - intensities_nu_thread[p_idx])
                 )
                 first = 0
             else:
@@ -418,15 +418,15 @@ def cuda_formal_integral(
                 escat_contrib += (
                     (intersection_point_end - intersection_point_start)
                     * escat_op
-                    * (Jkkp - I_nu_thread[p_idx])
+                    * (Jkkp - intensities_nu_thread[p_idx])
                 )
                 # this introduces the necessary ffset of one element between
                 # pJblue_lu and pJred_lu
                 pJred_lu += 1
-            I_nu_thread[p_idx] += escat_contrib
+            intensities_nu_thread[p_idx] += escat_contrib
             # // Lucy 1999, Eq 26
-            I_nu_thread[p_idx] *= exp_tau[pexp_tau]
-            I_nu_thread[p_idx] += att_S_ul[patt_S_ul]
+            intensities_nu_thread[p_idx] *= exp_tau[pexp_tau]
+            intensities_nu_thread[p_idx] += att_S_ul[patt_S_ul]
 
             # // reset e-scattering opacity
             escat_contrib = 0
@@ -444,7 +444,7 @@ def cuda_formal_integral(
         escat_contrib += (
             (intersection_point_end - intersection_point_start)
             * escat_op
-            * (Jkkp - I_nu_thread[p_idx])
+            * (Jkkp - intensities_nu_thread[p_idx])
         )
         intersection_point_start = intersection_point_end
 
@@ -455,7 +455,7 @@ def cuda_formal_integral(
         pJred_lu += direction
         pJblue_lu += direction
 
-    I_nu_thread[p_idx] *= p
+    intensities_nu_thread[p_idx] *= p
 
 
 def calculate_impact_parameter_values(radius_max, N):
@@ -520,7 +520,7 @@ class CudaFormalIntegrator:
         # These are device objects stored on the GPU
         # for the Luminosity density and Radiative intensity
         d_L = cuda.device_array((inu_size,), dtype=np.float64)
-        d_I_nu = cuda.device_array((inu_size, N), dtype=np.float64)
+        d_intensities_nu = cuda.device_array((inu_size, N), dtype=np.float64)
 
         # Copy these arrays to the device, we don't need them again
         # But they must be initialized with zeros
@@ -563,16 +563,16 @@ class CudaFormalIntegrator:
             N,
             pp,
             exp_tau,
-            d_I_nu,
+            d_intensities_nu,
             intersection_point,
             shell_id,
         )
 
         R_max = self.geometry.r_outer[size_shell - 1]
         cuda_vector_integrator[blocks_per_grid_nu, THREADS_PER_BLOCK_NU](
-            d_L, d_I_nu, N, R_max
+            d_L, d_intensities_nu, N, R_max
         )
         L = d_L.copy_to_host()
-        I_nu = d_I_nu.copy_to_host()
+        intensities_nu = d_intensities_nu.copy_to_host()
 
-        return L, I_nu
+        return L, intensities_nu
