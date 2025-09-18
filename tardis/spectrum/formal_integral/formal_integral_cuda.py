@@ -46,7 +46,7 @@ def cuda_vector_integrator(luminosity_density, intensities_nu, N, radius_max):
     ----------
     luminosity_density : array(float64, 1d, C)
         Output Array
-    intensities_nu : array(floagt64, 2d, C)
+    intensities_nu : array(float64, 2d, C)
         Input Array
     N : int64
     radius_max : float64
@@ -111,7 +111,8 @@ def populate_intersection_points_cuda(
     ----------
     radii_inner : array(float64, 1d, C)
     radii_outer : array(float64, 1d, C)
-    p : float64
+    time_explosion : float64
+    impact_parameter : float64
         distance of the integration line to the center
     oz : array(float64, 1d, C)
         will be set with z values. the array is truncated
@@ -304,13 +305,13 @@ def cuda_formal_integral(
     line_list_frequencies : array(float64, 1d, A)
         List of line transition frequencies
     iT : np.float64
-        interpolated temperture in cgs units
+        interpolated temperature in cgs units
     interpolated_frequencies : np.float64
         interpolated frequencies in cgs units
     interpolated_frequencies_size : int64
         size of interpolated_frequencies array
     att_S_ul : array(float64, 1d, C)
-        attentuated source function
+        attenuated source function
     Jred_lu : array(float64, 1d, C)
         J estimator from red end of the line from lower to upper level
     Jblue_lu : array(float64, 1d, C)
