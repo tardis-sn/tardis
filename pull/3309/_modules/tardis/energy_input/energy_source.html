@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.energy_input.energy_source &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=c7c9b53b"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.energy_input.energy_source</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.energy_input.energy_source</h1><div class="highlight"><pre>
+<span></span>import numpy as np
+import pandas as pd
+import radioactivedecay as rd
+
+from tardis.util.base import (
+    atomic_number2element_symbol,
+)
+from tardis.energy_input.util import (
+    convert_half_life_to_astropy_units,
+    ELECTRON_MASS_ENERGY_KEV,
+)
+
+
+<div class="viewcode-block" id="setup_input_energy">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.setup_input_energy">[docs]</a>
+def setup_input_energy(nuclear_data, source):
+    &quot;&quot;&quot;Sets up energy distribution and CDF for a
+    source of decay radiation.
+
+    Parameters
+    ----------
+    nuclear_data : Pandas dataframe
+        Dataframe of nuclear decay properties
+    source : str
+        Type of decay radiation
+
+    Returns
+    -------
+    One-dimensional Numpy Array, dtype float
+        Sorted energy array
+    One-dimensional Numpy Array, dtype float
+        CDF where each index corresponds to the energy in
+        the sorted array
+    &quot;&quot;&quot;
+    intensity = nuclear_data[nuclear_data.Radiation == source][&quot;Rad Intensity&quot;]
+    energy = nuclear_data[nuclear_data.Radiation == source][&quot;Rad Energy&quot;]
+
+    intensity /= 100  # = [i / 100 if i &gt; 1 else i for i in intensity]
+
+    return energy, intensity</div>
+
+
+
+<div class="viewcode-block" id="intensity_ratio">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.intensity_ratio">[docs]</a>
+def intensity_ratio(nuclear_data, source_1, source_2):
+    &quot;&quot;&quot;Determined the ratio of intensities between two
+    sources of decay radiation
+
+    Parameters
+    ----------
+    nuclear_data : pandas.Dataframe
+        Dataframe of nuclear decay properties
+    source_1 : str
+        Type of decay radiation to compare
+    source_2 : str
+        Type of decay radiation to compare
+
+    Returns
+    -------
+    float
+        Fractional intensity of source_1
+    float
+        Fractional intensity of source_2
+    float
+        Number of decay products per decay
+    &quot;&quot;&quot;
+    intensity_1 = nuclear_data.query(&quot;type==&quot; + source_1)[&quot;intensity&quot;].values
+    intensity_2 = nuclear_data.query(&quot;type==&quot; + source_2)[&quot;intensity&quot;].values
+    total_intensity = np.sum(intensity_1) + np.sum(intensity_2)
+    # Factor of 100 is because intensities are in percent
+    scale_factor = total_intensity / 100
+    return (
+        np.sum(intensity_1) / total_intensity,
+        np.sum(intensity_2) / total_intensity,
+        scale_factor,
+    )</div>
+
+
+
+<div class="viewcode-block" id="get_all_isotopes">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.get_all_isotopes">[docs]</a>
+def get_all_isotopes(abundances):
+    &quot;&quot;&quot;
+    Get the possible isotopes present over time
+    for a given starting abundance
+
+    Parameters
+    ----------
+    abundances : DataFrame
+        Current isotope abundances
+
+    Returns
+    -------
+    list
+        List of isotope names
+    &quot;&quot;&quot;
+    progenitors = [
+        f&quot;{rd.utils.Z_DICT[i[0]]}-{i[1]}&quot; for i in abundances.T.columns
+    ]
+
+    isotopes = set(progenitors)
+    check = True
+
+    while check:
+        progeny = set(isotopes)
+
+        for i in isotopes:
+            for p in rd.Nuclide(i).progeny():
+                if (
+                    p != &quot;SF&quot;
+                    and rd.Nuclide(p).half_life(&quot;readable&quot;) != &quot;stable&quot;
+                ):
+                    progeny.add(p)
+
+        if progeny == isotopes:
+            check = False
+        else:
+            isotopes |= progeny
+
+    isotopes = [i for i in isotopes]
+    return isotopes</div>
+
+
+
+<div class="viewcode-block" id="get_radioactive_isotopes">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.get_radioactive_isotopes">[docs]</a>
+def get_radioactive_isotopes(isotope_index):
+    &quot;&quot;&quot;
+    Build a complete set of isotopes that appear in any decay chain
+    starting from the isotopes in the given MultiIndex or list of
+    (atomic_number, mass_number) tuples. This function returns a
+    list-like index of (atomic_number, mass_number).
+
+    Parameters
+    ----------
+    isotope_index : iterable or pd.MultiIndex
+        An iterable or MultiIndex of (atomic_number, mass_number) tuples
+
+    Returns
+    -------
+    pd.MultiIndex
+        A MultiIndex with the entries (atomic_number, mass_number)
+        for all isotopes in the decay chains
+    &quot;&quot;&quot;
+    # Convert the input to a set of (Z, A) tuples
+    isotopes = set(isotope_index)
+
+    # Iteratively explore progeny until no new isotopes are found
+    found_new = True
+    while found_new:
+        found_new = False
+        for Z, A in list(isotopes):
+            # Convert (Z, A) to &quot;Element-Mass&quot; format (e.g., &quot;Ni-56&quot;)
+            parent_str = f&quot;{rd.utils.Z_DICT[Z]}-{A}&quot;
+            # For each progeny:
+            for child in rd.Nuclide(parent_str).progeny():
+                # Omit spontaneous fission and stable isotopes
+                if (
+                    child != &quot;SF&quot;
+                    and rd.Nuclide(child).half_life(&quot;readable&quot;) != &quot;stable&quot;
+                ):
+                    # Parse the child string (e.g., &quot;Co-56&quot; or &quot;Co56&quot;)
+                    if &quot;-&quot; in child:
+                        elem_symbol, mass_str = child.split(&quot;-&quot;)
+                    else:
+                        elem_symbol = &quot;&quot;.join([c for c in child if c.isalpha()])
+                        mass_str = &quot;&quot;.join([c for c in child if c.isdigit()])
+                    child_Z = rd.utils.elem_to_Z(elem_symbol)
+                    child_A = int(mass_str)
+
+                    if (child_Z, child_A) not in isotopes:
+                        isotopes.add((child_Z, child_A))
+                        found_new = True
+
+    # Convert the final set into a sorted list
+    sorted_isotopes = sorted(isotopes, key=lambda x: (x[0], x[1]))
+
+    # Return as a MultiIndex labeled by atomic_number and mass_number
+    return pd.MultiIndex.from_tuples(
+        sorted_isotopes, names=[&quot;atomic_number&quot;, &quot;mass_number&quot;]
+    )</div>
+
+
+
+<div class="viewcode-block" id="get_tau">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.get_tau">[docs]</a>
+def get_tau(meta, isotope_string):
+    &quot;&quot;&quot;Calculate the mean lifetime of an isotope
+
+    Parameters
+    ----------
+    meta : DataFrame
+        Isotope metadata
+    isotope_string : str
+        Isotope of interest
+
+    Returns
+    -------
+    float
+        Mean lifetime of isotope
+    &quot;&quot;&quot;
+    isotope_meta = meta.loc[isotope_string]
+    half_life = isotope_meta.loc[isotope_meta[&quot;key&quot;] == &quot;Parent T1/2 value&quot;][
+        &quot;value&quot;
+    ].values[0]
+    half_life = convert_half_life_to_astropy_units(half_life)
+    return half_life / np.log(2)</div>
+
+
+
+<div class="viewcode-block" id="get_isotope_string">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.get_isotope_string">[docs]</a>
+def get_isotope_string(atom_number, atom_mass):
+    &quot;&quot;&quot;Get the isotope string in the format e.g. Ni56
+
+    Parameters
+    ----------
+    atom_number : int
+        Atomic number
+    atom_mass : int
+        Atomic mass
+
+    Returns
+    -------
+    str
+        Isotope string in the format e.g. Ni56
+    &quot;&quot;&quot;
+    return atomic_number2element_symbol(atom_number) + str(atom_mass)</div>
+
+
+
+<div class="viewcode-block" id="read_artis_lines">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.read_artis_lines">[docs]</a>
+def read_artis_lines(isotope, path_to_data):
+    &quot;&quot;&quot;Reads lines of ARTIS format
+
+    Parameters
+    ----------
+    isotope : string
+        Isotope to read e.g. Ni56
+
+    Returns
+    -------
+    pd.DataFrame
+        Energies and intensities of the isotope lines
+    &quot;&quot;&quot;
+    return pd.read_csv(
+        path_to_data + isotope + &quot;.txt&quot;,
+        names=[&quot;energy&quot;, &quot;intensity&quot;],
+        sep=&quot;  &quot;,
+        index_col=False,
+    )</div>
+
+
+
+<div class="viewcode-block" id="get_nuclear_lines_database">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.get_nuclear_lines_database">[docs]</a>
+def get_nuclear_lines_database(
+    path,
+):
+    &quot;&quot;&quot;Load the nuclear decay line data set
+
+    Parameters
+    ----------
+    path : str
+        Path to the data set HDF file
+
+    Returns
+    -------
+    pandas DataFrame
+        The decay radiation lines
+    &quot;&quot;&quot;
+    decay_radiation_db = pd.read_hdf(path, &quot;decay_radiation_data&quot;)
+    return decay_radiation_db</div>
+
+
+
+<div class="viewcode-block" id="positronium_continuum">
+<a class="viewcode-back" href="../../../api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.positronium_continuum">[docs]</a>
+def positronium_continuum():
+    &quot;&quot;&quot;Produces a continuum of positronium decay energy
+    using the function defined by Ore and Powell 1949
+    and adapted by Leung 2022 to be in terms of electron
+    rest mass energy
+
+    Returns
+    -------
+    energy
+        An array of photon energies in keV
+    intensity
+        An array of intensities between 0 and 1
+    &quot;&quot;&quot;
+
+    energy = np.linspace(1, ELECTRON_MASS_ENERGY_KEV, num=100, endpoint=False)
+
+    x = energy / ELECTRON_MASS_ENERGY_KEV
+
+    one_minus_x = 1 - x
+
+    term_1 = (x * one_minus_x) / (2 - x) ** 2
+    term_2 = (2 * one_minus_x**2) / (2 - x) ** 3 * np.log(one_minus_x)
+    term_3 = (2 - x) / x
+    term_4 = (2 * one_minus_x) / x**2 * np.log(one_minus_x)
+
+    intensity = 2 * (term_1 - term_2 + term_3 + term_4)
+
+    return energy, intensity / np.max(intensity)</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 18 Sep 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
