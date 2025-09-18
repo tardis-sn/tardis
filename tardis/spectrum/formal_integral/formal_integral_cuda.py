@@ -38,7 +38,7 @@ def trapezoid_integration_cuda(arr, dx):
 
 
 @cuda.jit
-def cuda_vector_integrator(luminosity_density, I_nu, N, radius_max):
+def cuda_vector_integrator(luminosity_density, intensities_nu, N, radius_max):
     """
     The CUDA Vectorized integrator over second axis
 
@@ -46,20 +46,27 @@ def cuda_vector_integrator(luminosity_density, I_nu, N, radius_max):
     ----------
     luminosity_density : array(float64, 1d, C)
         Output Array
-    I_nu : array(floagt64, 2d, C)
+    intensities_nu : array(float64, 2d, C)
         Input Array
     N : int64
     radius_max : float64
 
     """
-    nu_idx = cuda.grid(1)
-    luminosity_density[nu_idx] = (
-        8 * np.pi * np.pi * trapezoid_integration_cuda(I_nu[nu_idx], radius_max / N)
+    frequencies_idx = cuda.grid(1)
+    luminosity_density[frequencies_idx] = (
+        8
+        * np.pi
+        * np.pi
+        * trapezoid_integration_cuda(
+            intensities_nu[frequencies_idx], radius_max / N
+        )
     )
 
 
 @cuda.jit(device=True)
-def calculate_intersection_point_cuda(radius, impact_parameter, inv_t):
+def calculate_intersection_point_cuda(
+    radius, impact_parameter, inverse_time_explosion
+):
     """
     Calculate distance to p line
 
@@ -73,8 +80,8 @@ def calculate_intersection_point_cuda(radius, impact_parameter, inv_t):
         radius of the shell
     impact_parameter : float64
         distance of the p-line to the center of the supernova
-    inv_t : float64
-        inverse time_explosio is needed to norm to unit-length
+    inverse_time_explosion : float64
+        inverse time_explosion is needed to norm to unit-length
 
     Returns
     -------
@@ -84,7 +91,7 @@ def calculate_intersection_point_cuda(radius, impact_parameter, inv_t):
         return (
             math.sqrt(radius * radius - impact_parameter * impact_parameter)
             * C_INV
-            * inv_t
+            * inverse_time_explosion
         )
     else:
         return 0.0
@@ -92,7 +99,7 @@ def calculate_intersection_point_cuda(radius, impact_parameter, inv_t):
 
 @cuda.jit(device=True)
 def populate_intersection_points_cuda(
-    r_inner, r_outer, time_explosion, impact_parameter, oz, oshell_id
+    radii_inner, radii_outer, time_explosion, impact_parameter, oz, oshell_id
 ):
     """
     Calculate p line intersections
@@ -102,9 +109,10 @@ def populate_intersection_points_cuda(
 
     Parameters
     ----------
-    r_inner : array(float64, 1d, C)
-    r_outer : array(float64, 1d, C)
-    p : float64
+    radii_inner : array(float64, 1d, C)
+    radii_outer : array(float64, 1d, C)
+    time_explosion : float64
+    impact_parameter : float64
         distance of the integration line to the center
     oz : array(float64, 1d, C)
         will be set with z values. the array is truncated
@@ -116,16 +124,16 @@ def populate_intersection_points_cuda(
     -------
     int64
     """
-    N = len(r_inner)
-    inv_t = 1 / time_explosion
+    N = len(radii_inner)
+    inverse_time_explosion = 1 / time_explosion
     intersection_point = 0
     offset = N
 
-    if impact_parameter <= r_inner[0]:
+    if impact_parameter <= radii_inner[0]:
         # intersect the photosphere
         for i in range(N):
             oz[i] = 1 - calculate_intersection_point_cuda(
-                r_outer[i], impact_parameter, inv_t
+                radii_outer[i], impact_parameter, inverse_time_explosion
             )
             oshell_id[i] = i
         return N
@@ -134,7 +142,7 @@ def populate_intersection_points_cuda(
         # that means we intersect each shell twice
         for i in range(N):
             intersection_point = calculate_intersection_point_cuda(
-                r_outer[i], impact_parameter, inv_t
+                radii_outer[i], impact_parameter, inverse_time_explosion
             )
             if intersection_point == 0:
                 continue
@@ -198,14 +206,14 @@ def reverse_binary_search_cuda(x, x_insert, imin, imax):
 
 
 @cuda.jit(device=True)
-def line_search_cuda(nu, nu_insert, number_of_lines):
+def line_search_cuda(frequencies, frequencies_insert, number_of_lines):
     """
     Insert a value in to an array of line frequencies
 
     Parameters
     ----------
-    nu : (array) line frequencies
-    nu_insert : (int) value of nu key
+    frequencies : (array) line frequencies
+    frequencies_insert : (int) value of frequencies key
     number_of_lines : (int) number of lines in the line list
 
     Returns
@@ -217,12 +225,14 @@ def line_search_cuda(nu, nu_insert, number_of_lines):
     """
     imin = 0
     imax = number_of_lines - 1
-    if nu_insert > nu[imin]:
+    if frequencies_insert > frequencies[imin]:
         result = imin
-    elif nu_insert < nu[imax]:
+    elif frequencies_insert < frequencies[imax]:
         result = imax + 1
     else:
-        result = reverse_binary_search_cuda(nu, nu_insert, imin, imax)
+        result = reverse_binary_search_cuda(
+            frequencies, frequencies_insert, imin, imax
+        )
         result = result + 1
     return result
 
@@ -231,13 +241,13 @@ calculate_impact_parameters = cuda.jit(calculate_impact_parameters, device=True)
 
 
 @cuda.jit(device=True)
-def intensity_black_body_cuda(nu, temperature):
+def intensity_black_body_cuda(frequency, temperature):
     """
     Calculate the blackbody intensity.
 
     Parameters
     ----------
-    nu : float64
+    frequency : float64
         frequency
     temperature : float64
         Temperature
@@ -246,31 +256,37 @@ def intensity_black_body_cuda(nu, temperature):
     -------
     float64
     """
-    if nu == 0:
+    if frequency == 0:
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * nu * nu * nu / (math.exp(H_CGS * nu * beta_rad) - 1)
+    return (
+        coefficient
+        * frequency
+        * frequency
+        * frequency
+        / (math.exp(H_CGS * frequency * beta_rad) - 1)
+    )
 
 
 @cuda.jit
 def cuda_formal_integral(
-    r_inner,
-    r_outer,
+    radii_inner,
+    radii_outer,
     time_explosion,
-    line_list_nu,
+    line_list_frequencies,
     iT,
-    inu,
-    inu_size,
+    interpolated_frequencies,
+    interpolated_frequencies_size,
     att_S_ul,
     Jred_lu,
     Jblue_lu,
     tau_sobolev,
     electron_density,
     N,
-    pp,
+    impact_parameter_array,
     exp_tau,
-    I_nu,
+    intensities_nu,
     intersection_point,
     shell_id,
 ):
@@ -280,22 +296,22 @@ def cuda_formal_integral(
 
     Parameters
     ----------
-    r_inner : array(float64, 1d, C)
+    radii_inner : array(float64, 1d, C)
         inner radius of each shell
-    r_outer : array(float64, 1d, C)
+    radii_outer : array(float64, 1d, C)
         outer radius of each shell
     time_explosion: float64
         geometrical explosion time
-    line_list_nu : array(float64, 1d, A)
+    line_list_frequencies : array(float64, 1d, A)
         List of line transition frequencies
     iT : np.float64
-        interpolated temperture in cgs units
-    inu : np.float64
+        interpolated temperature in cgs units
+    interpolated_frequencies : np.float64
         interpolated frequencies in cgs units
-    inu_size : int64
-        size of inu array
+    interpolated_frequencies_size : int64
+        size of interpolated_frequencies array
     att_S_ul : array(float64, 1d, C)
-        attentuated source function
+        attenuated source function
     Jred_lu : array(float64, 1d, C)
         J estimator from red end of the line from lower to upper level
     Jblue_lu : array(float64, 1d, C)
@@ -306,14 +322,11 @@ def cuda_formal_integral(
         electron density in each shell
     N : int64
         Number of impact parameter values (p)
-    L : array(float64, 1d, C)
-        Luminosity density at each frequency
-        This is where the results will be stored
-    pp : array(float64, 1d, C)
+    impact_parameter_array : array(float64, 1d, C)
         Impact parameter arrays
     exp_tau : array(float64, 1d, C)
         $\\exp{-tau}$ array to speed up computation
-    I_nu array(floatt64, 2d, C)
+    intensities_nu : array(float64, 2d, C)
         Radiative intensity per unit frequency per impact parameter
     intersection_point : array(float64, 2d, C)
         Ray intersections with the shells
@@ -322,32 +335,32 @@ def cuda_formal_integral(
     """
     # global read-only values
     size_line, size_shell = tau_sobolev.shape
-    R_ph = r_inner[0]  # make sure these are cgs
+    photosphere_radius = radii_inner[0]  # make sure these are cgs
 
-    nu_idx, p_idx = cuda.grid(2)  # 2D Cuda Grid, nu x p
-    p_idx += 1  # Because the iteration starts at 1
+    frequencies_idx, impact_parameter_idx = cuda.grid(2)  # 2D Cuda Grid, nu x p
+    impact_parameter_idx += 1  # Because the iteration starts at 1
     # Check to see if CUDA is out of bounds
-    if nu_idx >= inu_size:
+    if frequencies_idx >= interpolated_frequencies_size:
         return
 
-    if p_idx >= N:
+    if impact_parameter_idx >= N:
         return
 
     # These all have their own version for each thread to avoid race conditions
-    I_nu_thread = I_nu[nu_idx]
-    intersection_point_thread = intersection_point[p_idx]
-    shell_id_thread = shell_id[p_idx]
+    intensities_nu_thread = intensities_nu[frequencies_idx]
+    intersection_point_thread = intersection_point[impact_parameter_idx]
+    shell_id_thread = shell_id[impact_parameter_idx]
 
     offset = 0
     size_z = 0
-    idx_nu_start = 0
+    idx_frequencies_start = 0
     direction = 0
     first = 0
     i = 0
-    p = 0.0
-    nu_start = 0.0
-    nu_end = 0.0
-    nu = 0.0
+    impact_parameter = 0.0
+    frequency_start = 0.0
+    frequency_end = 0.0
+    frequency = 0.0
     intersection_point_start = 0.0
     intersection_point_end = 0.0
     escat_contrib = 0.0
@@ -359,57 +372,71 @@ def cuda_formal_integral(
     pJblue_lu = 0
     pline = 0
 
-    nu = inu[nu_idx]
+    frequency = interpolated_frequencies[frequencies_idx]
     escat_contrib = 0.0
-    p = pp[p_idx]
+    impact_parameter = impact_parameter_array[impact_parameter_idx]
 
     # initialize z intersections for p values
     size_z = populate_intersection_points_cuda(
-        r_inner, r_outer, time_explosion, p, intersection_point_thread, shell_id_thread
+        radii_inner,
+        radii_outer,
+        time_explosion,
+        impact_parameter,
+        intersection_point_thread,
+        shell_id_thread,
     )
-    if p <= R_ph:
-        I_nu_thread[p_idx] = intensity_black_body_cuda(
-            nu * intersection_point_thread[0], iT
+    if impact_parameter <= photosphere_radius:
+        intensities_nu_thread[impact_parameter_idx] = intensity_black_body_cuda(
+            frequency * intersection_point_thread[0], iT
         )
     else:
-        I_nu_thread[p_idx] = 0
-    nu_start = nu * intersection_point_thread[0]
-    nu_end = nu * intersection_point_thread[1]
+        intensities_nu_thread[impact_parameter_idx] = 0
+    frequency_start = frequency * intersection_point_thread[0]
+    frequency_end = frequency * intersection_point_thread[1]
 
-    idx_nu_start = line_search_cuda(line_list_nu, nu_start, size_line)
+    idx_frequencies_start = line_search_cuda(
+        line_list_frequencies, frequency_start, size_line
+    )
     offset = shell_id_thread[0] * size_line
     # start tracking accumulated e-scattering optical depth
     intersection_point_start = (
         time_explosion / C_INV * (1.0 - intersection_point_thread[0])
     )
     # Initialize "pointers"
-    pline = int(idx_nu_start)
-    pexp_tau = int(offset + idx_nu_start)
-    patt_S_ul = int(offset + idx_nu_start)
-    pJred_lu = int(offset + idx_nu_start)
-    pJblue_lu = int(offset + idx_nu_start)
+    pline = int(idx_frequencies_start)
+    pexp_tau = int(offset + idx_frequencies_start)
+    patt_S_ul = int(offset + idx_frequencies_start)
+    pJred_lu = int(offset + idx_frequencies_start)
+    pJblue_lu = int(offset + idx_frequencies_start)
 
     first = 1
 
     # loop over all interactions
     for i in range(size_z - 1):
         escat_op = electron_density[int(shell_id_thread[i])] * SIGMA_THOMSON
-        nu_end = (
-            nu * intersection_point_thread[i + 1]
+        frequency_end = (
+            frequency * intersection_point_thread[i + 1]
         )  # +1 is the offset as the original is from z[1:]
 
-        nu_end_idx = line_search_cuda(line_list_nu, nu_end, len(line_list_nu))
-        for _ in range(max(nu_end_idx - pline, 0)):
+        frequency_end_idx = line_search_cuda(
+            line_list_frequencies, frequency_end, len(line_list_frequencies)
+        )
+        for _ in range(max(frequency_end_idx - pline, 0)):
             # calculate e-scattering optical depth to next resonance point
             intersection_point_end = (
-                time_explosion / C_INV * (1.0 - line_list_nu[pline] / nu)
+                time_explosion
+                / C_INV
+                * (1.0 - line_list_frequencies[pline] / frequency)
             )  # check
 
             if first == 1:
                 escat_contrib += (
                     (intersection_point_end - intersection_point_start)
                     * escat_op
-                    * (Jblue_lu[pJblue_lu] - I_nu_thread[p_idx])
+                    * (
+                        Jblue_lu[pJblue_lu]
+                        - intensities_nu_thread[impact_parameter_idx]
+                    )
                 )
                 first = 0
             else:
@@ -418,15 +445,15 @@ def cuda_formal_integral(
                 escat_contrib += (
                     (intersection_point_end - intersection_point_start)
                     * escat_op
-                    * (Jkkp - I_nu_thread[p_idx])
+                    * (Jkkp - intensities_nu_thread[impact_parameter_idx])
                 )
                 # this introduces the necessary ffset of one element between
                 # pJblue_lu and pJred_lu
                 pJred_lu += 1
-            I_nu_thread[p_idx] += escat_contrib
+            intensities_nu_thread[impact_parameter_idx] += escat_contrib
             # // Lucy 1999, Eq 26
-            I_nu_thread[p_idx] *= exp_tau[pexp_tau]
-            I_nu_thread[p_idx] += att_S_ul[patt_S_ul]
+            intensities_nu_thread[impact_parameter_idx] *= exp_tau[pexp_tau]
+            intensities_nu_thread[impact_parameter_idx] += att_S_ul[patt_S_ul]
 
             # // reset e-scattering opacity
             escat_contrib = 0
@@ -440,22 +467,26 @@ def cuda_formal_integral(
         # calculate e-scattering optical depth to grid cell boundary
 
         Jkkp = 0.5 * (Jred_lu[pJred_lu] + Jblue_lu[pJblue_lu])
-        intersection_point_end = time_explosion / C_INV * (1.0 - nu_end / nu)
+        intersection_point_end = (
+            time_explosion / C_INV * (1.0 - frequency_end / frequency)
+        )
         escat_contrib += (
             (intersection_point_end - intersection_point_start)
             * escat_op
-            * (Jkkp - I_nu_thread[p_idx])
+            * (Jkkp - intensities_nu_thread[impact_parameter_idx])
         )
         intersection_point_start = intersection_point_end
 
         # advance pointers
-        direction = int((shell_id_thread[i + 1] - shell_id_thread[i]) * size_line)
+        direction = int(
+            (shell_id_thread[i + 1] - shell_id_thread[i]) * size_line
+        )
         pexp_tau += direction
         patt_S_ul += direction
         pJred_lu += direction
         pJblue_lu += direction
 
-    I_nu_thread[p_idx] *= p
+    intensities_nu_thread[impact_parameter_idx] *= impact_parameter
 
 
 def calculate_impact_parameter_values(radius_max, N):
@@ -489,7 +520,7 @@ class CudaFormalIntegrator:
     def formal_integral(
         self,
         iT,
-        inu,
+        interpolated_frequencies,
         att_S_ul,
         Jred_lu,
         Jblue_lu,
@@ -503,35 +534,45 @@ class CudaFormalIntegrator:
         # global read-only values
         size_line, size_shell = tau_sobolev.shape  # int64, int64
         size_tau = size_line * size_shell  # int64
-        inu_size = len(inu)
+        interpolated_frequencies_size = len(interpolated_frequencies)
 
-        pp = np.zeros(N, dtype=np.float64)  # array(float64, 1d, C)
+        impact_parameters_array = np.zeros(
+            N, dtype=np.float64
+        )  # array(float64, 1d, C)
         exp_tau = np.zeros(size_tau, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.exp(-tau_sobolev.T.ravel())  # array(float64, 1d, C)
-        pp[::] = calculate_impact_parameter_values(
+        impact_parameters_array[::] = calculate_impact_parameter_values(
             self.geometry.r_outer[size_shell - 1], N
         )  # array(float64, 1d, C)
         intersection_point = np.zeros(
             (N, 2 * size_shell), dtype=np.float64
         )  # array(float64, 2d, C)
-        shell_id = np.zeros((N, 2 * size_shell), dtype=np.int64)  # array(int64, 2d, C)
+        shell_id = np.zeros(
+            (N, 2 * size_shell), dtype=np.int64
+        )  # array(int64, 2d, C)
 
         # These get separate names since they'll be copied back
         # These are device objects stored on the GPU
         # for the Luminosity density and Radiative intensity
-        d_L = cuda.device_array((inu_size,), dtype=np.float64)
-        d_I_nu = cuda.device_array((inu_size, N), dtype=np.float64)
+        d_lum_density = cuda.device_array(
+            (interpolated_frequencies_size,), dtype=np.float64
+        )
+        d_intensities_nu = cuda.device_array(
+            (interpolated_frequencies_size, N), dtype=np.float64
+        )
 
         # Copy these arrays to the device, we don't need them again
         # But they must be initialized with zeros
         intersection_point = cuda.to_device(intersection_point)
         shell_id = cuda.to_device(shell_id)
-        pp = cuda.to_device(pp)
+        impact_parameters_array = cuda.to_device(impact_parameters_array)
         exp_tau = cuda.to_device(exp_tau)
-        r_inner = cuda.to_device(self.geometry.r_inner)
-        r_outer = cuda.to_device(self.geometry.r_outer)
-        line_list_nu = cuda.to_device(self.plasma.line_list_nu)
-        inu = cuda.to_device(inu.value)
+        radii_inner = cuda.to_device(self.geometry.r_inner)
+        radii_outer = cuda.to_device(self.geometry.r_outer)
+        line_list_frequencies = cuda.to_device(self.plasma.line_list_nu)
+        interpolated_frequencies = cuda.to_device(
+            interpolated_frequencies.value
+        )
         att_S_ul = cuda.to_device(att_S_ul)
         Jred_lu = cuda.to_device(Jred_lu)
         Jblue_lu = cuda.to_device(Jblue_lu)
@@ -541,38 +582,40 @@ class CudaFormalIntegrator:
         # Thread/Block Allocation, this seems to work
         THREADS_PER_BLOCK_NU = 32
         THREADS_PER_BLOCK_P = 16
-        blocks_per_grid_nu = (inu_size // THREADS_PER_BLOCK_NU) + 1
+        blocks_per_grid_nu = (
+            interpolated_frequencies_size // THREADS_PER_BLOCK_NU
+        ) + 1
         blocks_per_grid_p = ((N - 1) // THREADS_PER_BLOCK_P) + 1
 
         cuda_formal_integral[
             (blocks_per_grid_nu, blocks_per_grid_p),
             (THREADS_PER_BLOCK_NU, THREADS_PER_BLOCK_P),
         ](
-            r_inner,
-            r_outer,
+            radii_inner,
+            radii_outer,
             self.time_explosion,
-            line_list_nu,
+            line_list_frequencies,
             iT.value,
-            inu,
-            inu_size,
+            interpolated_frequencies,
+            interpolated_frequencies_size,
             att_S_ul,
             Jred_lu,
             Jblue_lu,
             tau_sobolev,
             electron_density,
             N,
-            pp,
+            impact_parameters_array,
             exp_tau,
-            d_I_nu,
+            d_intensities_nu,
             intersection_point,
             shell_id,
         )
 
-        R_max = self.geometry.r_outer[size_shell - 1]
+        radius_max = self.geometry.r_outer[size_shell - 1]
         cuda_vector_integrator[blocks_per_grid_nu, THREADS_PER_BLOCK_NU](
-            d_L, d_I_nu, N, R_max
+            d_lum_density, d_intensities_nu, N, radius_max
         )
-        L = d_L.copy_to_host()
-        I_nu = d_I_nu.copy_to_host()
+        lum_density = d_lum_density.copy_to_host()
+        intensities_nu = d_intensities_nu.copy_to_host()
 
-        return L, I_nu
+        return lum_density, intensities_nu
