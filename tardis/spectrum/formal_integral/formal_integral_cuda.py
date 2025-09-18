@@ -542,7 +542,7 @@ class CudaFormalIntegrator:
         exp_tau = np.zeros(size_tau, dtype=np.float64)  # array(float64, 1d, C)
         exp_tau = np.exp(-tau_sobolev.T.ravel())  # array(float64, 1d, C)
         impact_parameters_array[::] = calculate_impact_parameter_values(
-            self.geometry.radii_outer[size_shell - 1], N
+            self.geometry.r_outer[size_shell - 1], N
         )  # array(float64, 1d, C)
         intersection_point = np.zeros(
             (N, 2 * size_shell), dtype=np.float64
@@ -567,8 +567,8 @@ class CudaFormalIntegrator:
         shell_id = cuda.to_device(shell_id)
         impact_parameters_array = cuda.to_device(impact_parameters_array)
         exp_tau = cuda.to_device(exp_tau)
-        radii_inner = cuda.to_device(self.geometry.radii_inner)
-        radii_outer = cuda.to_device(self.geometry.radii_outer)
+        radii_inner = cuda.to_device(self.geometry.r_inner)
+        radii_outer = cuda.to_device(self.geometry.r_outer)
         line_list_frequencies = cuda.to_device(
             self.plasma.line_list_frequencies
         )
@@ -613,7 +613,7 @@ class CudaFormalIntegrator:
             shell_id,
         )
 
-        radius_max = self.geometry.radii_outer[size_shell - 1]
+        radius_max = self.geometry.r_outer[size_shell - 1]
         cuda_vector_integrator[blocks_per_grid_nu, THREADS_PER_BLOCK_NU](
             d_lum_density, d_intensities_nu, N, radius_max
         )
