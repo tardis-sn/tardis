@@ -624,7 +624,7 @@ class SDECPlotter:
             self.packet_data[packets_mode]["packets_df"][
                 "last_interaction_type"
             ][self.packet_nu_range_mask]
-            == InteractionType.NO_INTERACTION
+            == "NO_INTERACTION"
         )
         self._calculate_luminosity_contribution(
             packets_mode, mask_noint, ("noint", ""), luminosities_df
@@ -635,12 +635,12 @@ class SDECPlotter:
             self.packet_data[packets_mode]["packets_df"][
                 "last_interaction_type"
             ][self.packet_nu_range_mask]
-            == InteractionType.ESCATTERING
+            == "ESCATTERING"
         ) & (
             self.packet_data[packets_mode]["packets_df"][
                 "last_line_interaction_in_id"
             ][self.packet_nu_range_mask]
-            == InteractionType.NO_INTERACTION
+            == -1
         )
         self._calculate_luminosity_contribution(
             packets_mode, mask_escatter, ("escatter", ""), luminosities_df
@@ -997,6 +997,9 @@ class SDECPlotter:
 
     def _show_colorbar_mpl(self):
         """Show matplotlib colorbar with labels of elements mapped to colors."""
+        if len(self._species_name) == 0:
+            return
+            
         color_values = [
             self.cmap(species_counter / len(self._species_name))
             for species_counter in range(len(self._species_name))
@@ -1270,6 +1273,9 @@ class SDECPlotter:
 
     def _show_colorbar_ply(self):
         """Show plotly colorbar with labels of elements mapped to colors."""
+        if len(self._species_name) == 0:
+            return
+            
         # Interpolate [0, 1] range to create bins equal to number of elements
         colorscale_bins = np.linspace(0, 1, num=len(self._species_name) + 1)
 

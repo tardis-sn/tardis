@@ -167,22 +167,17 @@ def extract_and_process_packet_data(simulation, packets_mode):
         packet_nus = u.Quantity(
             transport_state.packet_collection.output_nus[mask], u.Hz
         )
+        
+        # Use new tracker DataFrame structure
+        last_interaction_df = transport_state.tracker_last_interaction_df
+        emitted_packets_df = last_interaction_df[mask]
+        
         packet_data = {
-            "last_interaction_type": transport_state.last_interaction_type[
-                mask
-            ],
-            "last_line_interaction_in_id": transport_state.last_line_interaction_in_id[
-                mask
-            ],
-            "last_line_interaction_out_id": transport_state.last_line_interaction_out_id[
-                mask
-            ],
-            "last_line_interaction_in_nu": transport_state.last_interaction_in_nu[
-                mask
-            ],
-            "last_interaction_in_r": transport_state.last_interaction_in_r[
-                mask
-            ],
+            "last_interaction_type": emitted_packets_df["last_interaction_type"].values,
+            "last_line_interaction_in_id": emitted_packets_df["line_absorb_id"].values,
+            "last_line_interaction_out_id": emitted_packets_df["line_emit_id"].values,
+            "last_line_interaction_in_nu": emitted_packets_df["before_nu"].values,
+            "last_interaction_in_r": emitted_packets_df["radius"].values,
             "nus": packet_nus,
             "energies": transport_state.packet_collection.output_energies[mask],
             "lambdas": packet_nus.to("angstrom", u.spectral()),
@@ -213,7 +208,7 @@ def process_line_interactions(packet_data, lines_df):
 
     if packets_df is not None:
         # Create dataframe of packets that experience line interaction
-        line_mask = (packets_df["last_interaction_type"] > InteractionType.NO_INTERACTION) & (
+        line_mask = (packets_df["last_interaction_type"] != "NO_INTERACTION") & (
             packets_df["last_line_interaction_in_id"] > -1
         )
         packet_data["packets_df_line_interaction"] = packets_df.loc[
