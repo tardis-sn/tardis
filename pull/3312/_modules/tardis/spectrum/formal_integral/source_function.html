@@ -1,0 +1,577 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.spectrum.formal_integral.source_function &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=621f3c4b"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.spectrum.formal_integral.source_function</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.spectrum.formal_integral.source_function</h1><div class="highlight"><pre>
+<span></span>import logging
+from dataclasses import dataclass
+
+import numpy as np
+import pandas as pd
+import scipy.sparse as sp
+import scipy.sparse.linalg as linalg
+from astropy import units as u
+from tardis import constants as const
+from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="SourceFunctionSolver">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver">[docs]</a>
+class SourceFunctionSolver:
+    def __init__(self, line_interaction_type: str) -&gt; None:
+        &quot;&quot;&quot;
+        Configures the source function solver
+
+        Parameters
+        ----------
+        line_interaction_type : str
+            The type of line interaction (e.g. &quot;downbranch&quot;, &quot;macroatom&quot;).
+        &quot;&quot;&quot;
+        self.line_interaction_type = line_interaction_type
+
+<div class="viewcode-block" id="SourceFunctionSolver.solve">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.solve">[docs]</a>
+    def solve(
+        self,
+        sim_state,
+        opacity_state_numba,
+        transport_state,
+        atomic_data,
+        macro_atom_state,
+    ) -&gt; &quot;SourceFunctionState&quot;:
+        &quot;&quot;&quot;
+        Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.
+
+        Parameters
+        ----------
+        sim_state : tardis.model.SimulationState
+        opacity_state_numba : tardis.transport.montecarlo.OpacityStateNumba
+        transport_state : tardis.transport.montecarlo.TransportState
+        atomic_data : tardis.atomic.AtomicData
+            The atomic data for the simulation.
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState
+
+        Returns
+        -------
+        SourceFunctionState with attributes
+            att_S_ul : np.ndarray
+                The attenuated source function
+            Jred_lu : np.ndarray
+                the normalized J estimator from the red end of the line from lower to upper level
+            Jblue_lu : np.ndarray
+                the normalized J estimator from the blue end of the line from lower to upper level
+            e_dot_u : pd.DataFrame
+                The rate energy density is added to the upper level of transitions excited to it
+        &quot;&quot;&quot;
+        # Parse states for required values
+        v_inner_boundary_index = sim_state.geometry.v_inner_boundary_index
+        v_outer_boundary_index = sim_state.geometry.v_outer_boundary_index
+        no_of_shells = sim_state.no_of_shells
+        dilution_factor = sim_state.dilution_factor
+        time_explosion = sim_state.time_explosion
+        volume = sim_state.volume
+
+        tau_sobolev = opacity_state_numba.tau_sobolev
+        transition_probabilities = opacity_state_numba.transition_probabilities
+
+        j_blue_estimator = (
+            transport_state.radfield_mc_estimators.j_blue_estimator
+        )
+        e_dot_lu_estimator = (
+            transport_state.radfield_mc_estimators.Edotlu_estimator
+        )
+        time_of_simulation = (
+            transport_state.packet_collection.time_of_simulation * u.s
+        )
+
+        # slice for the active shells
+        local_slice = slice(v_inner_boundary_index, v_outer_boundary_index)
+
+        transition_probabilities = transition_probabilities[:, local_slice]
+        tau_sobolevs = tau_sobolev[:, local_slice]
+
+        macroatom_references = macro_atom_state.references_index
+        macroatom_transition_metadata = macro_atom_state.transition_metadata
+
+        no_lvls = len(macroatom_references)
+        no_shells = len(dilution_factor)
+
+        # Calculate e_dot_u
+        upper_level_index = atomic_data.lines.index.droplevel(
+            &quot;level_number_lower&quot;
+        )
+        e_dot_u = self.calculate_e_dot_u(
+            time_of_simulation,
+            volume,
+            tau_sobolevs,
+            e_dot_lu_estimator,
+            transition_probabilities,
+            upper_level_index,
+            no_shells,
+            no_lvls,
+            line_interaction_type=self.line_interaction_type,
+            macro_data=macroatom_transition_metadata,
+            macro_ref=macroatom_references,
+        )
+
+        # Calculate att_S_ul
+        transition_type = macroatom_transition_metadata.transition_type
+        emitting_transitions = macroatom_transition_metadata[
+            transition_type == MacroAtomTransitionType.BB_EMISSION
+        ].copy()
+        transitions_index = pd.MultiIndex.from_tuples(
+            emitting_transitions.source.values,
+            names=[&quot;atomic_number&quot;, &quot;ion_number&quot;, &quot;source_level_number&quot;],
+        )
+        emission_transition_line_id = (
+            emitting_transitions.transition_line_id.values
+        )
+        lines = atomic_data.lines.set_index(&quot;line_id&quot;)
+        lines_idx = lines.index.values
+
+        att_S_ul = self.calculate_att_S_ul(
+            lines,
+            transition_probabilities,
+            no_of_shells,
+            emission_transition_line_id,
+            lines_idx,
+            transitions_index,
+            transition_type,
+            e_dot_u,
+            time_explosion,
+        )
+        # Calculate Jred_lu and Jblue_lu
+        Jblue_lu = self.calculate_Jblue_lu(
+            time_explosion, time_of_simulation, volume, j_blue_estimator
+        )
+        Jred_lu = self.calculate_Jred_lu(Jblue_lu, tau_sobolevs, att_S_ul)
+
+        return SourceFunctionState(att_S_ul, Jred_lu, Jblue_lu, e_dot_u)</div>
+
+
+<div class="viewcode-block" id="SourceFunctionSolver.calculate_e_dot_u">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_e_dot_u">[docs]</a>
+    def calculate_e_dot_u(
+        self,
+        time_of_simulation: u.Quantity,
+        volume: u.Quantity,
+        tau_sobolevs: np.ndarray,
+        e_dot_lu_estimator: np.ndarray,
+        transition_probabilities: np.ndarray,
+        upper_level_idx: pd.Index,
+        no_of_shells: int,
+        no_lvls: int,
+        line_interaction_type: str,
+        macro_data: pd.DataFrame,
+        macro_ref: pd.DataFrame,
+    ) -&gt; pd.DataFrame:
+        &quot;&quot;&quot;
+        Calculate e_dot_u, the rate energy density is added to the upper level of transitions excited to it
+
+        Parameters
+        ----------
+        time_of_simulation : astropy.units.Quantity
+            Time duration of the simulation
+        volume : astropy.units.Quantity
+        tau_sobolevs : np.ndarray
+            Sobolev optical depths
+        e_dot_lu_estimator : np.ndarray
+            The line estimator for the rate of energy absorption of a transition from lower to upper level
+        transition_probabilities : np.ndarray
+        upper_level_idx : pd.Index
+            Index of the upper levels in the atomic data
+        no_of_shells : int
+            Number of shells in the simulation
+        no_lvls : int
+            Number of levels in the atomic data
+        line_interaction_type : str
+            Type of line interaction (e.g. &quot;macroatom&quot;, &quot;downbranch&quot;)
+        macro_data : pd.DataFrame
+            DataFrame containing macro atom data
+        macro_ref : pd.DataFrame
+            DataFrame containing macro atom references, see http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+
+        Returns
+        -------
+        pd.DataFrame
+            The rate energy density is added to the upper level of transitions excited to it
+        &quot;&quot;&quot;
+        e_dot_lu_norm_factor = 1 / (time_of_simulation * volume)
+        exptau = 1 - np.exp(-tau_sobolevs)
+        e_dot_lu = e_dot_lu_norm_factor * exptau * e_dot_lu_estimator
+
+        columns = range(no_of_shells)
+        e_dot_lu = pd.DataFrame(
+            e_dot_lu.value, index=upper_level_idx, columns=columns
+        )
+        e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+
+        if line_interaction_type == &quot;macroatom&quot;:
+            e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].to_numpy()
+
+            internal_jump_mask = (macro_data.transition_type &gt;= 0).to_numpy()
+            ma_int_data = macro_data[internal_jump_mask]
+            internal = transition_probabilities[internal_jump_mask]
+
+            source_level_idx = ma_int_data.source_level_idx.values
+            destination_level_idx = ma_int_data.destination_level_idx.values
+
+            C_frame = pd.DataFrame(columns=columns, index=macro_ref.index)
+            q_indices = (source_level_idx, destination_level_idx)
+            for shell in columns:
+                Q = sp.coo_matrix(
+                    (internal[:, shell], q_indices), shape=(no_lvls, no_lvls)
+                )
+                inv_N = sp.identity(no_lvls) - Q
+                e_dot_u_vec = np.zeros(no_lvls)
+                e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].to_numpy()
+                C_frame[shell] = linalg.spsolve(inv_N.T, e_dot_u_vec)
+
+            e_dot_u = C_frame.loc[e_dot_u.index]
+
+        # needed for att_S_ul calculation
+        e_dot_u.index.names = [
+            &quot;atomic_number&quot;,
+            &quot;ion_number&quot;,
+            &quot;source_level_number&quot;,
+        ]
+
+        return e_dot_u</div>
+
+
+<div class="viewcode-block" id="SourceFunctionSolver.calculate_att_S_ul">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_att_S_ul">[docs]</a>
+    def calculate_att_S_ul(
+        self,
+        lines: pd.DataFrame,
+        transition_probabilities: np.ndarray,
+        no_of_shells: int,
+        transition_line_id: np.ndarray,
+        line_idx: np.ndarray,
+        transitions_index: pd.Index,
+        transition_type: np.ndarray,
+        e_dot_u: pd.DataFrame,
+        time_explosion: float,
+    ) -&gt; np.ndarray:
+        &quot;&quot;&quot;
+        Calculates the source function using the line absorption rate estimator `e_dot_lu_estimator`
+
+        Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+        so there is no need to factor out the source function explicitly.
+
+        Parameters
+        ----------
+        lines : pd.DataFrame
+            atomic line data
+        transition_probabilities : np.ndarray
+        no_of_shells : int
+            Number of shells in the simulation
+        transition_line_id : np.ndarray
+            Line ids for the transitions
+        line_idx : np.ndarray
+            Indices of the lines in the atomic data
+        transitions_index : pd.Index
+            Index of the transitions in the macro atom data
+        transition_type : np.ndarray
+            transition types, see https://tardis-sn.github.io/tardis/physics/setup/plasma/macroatom.html#macroatom for flag definitions
+        e_dot_u : pd.DataFrame
+            the rate energy density is add to the upper level of transitions excited to it
+        time_explosion : float
+            geometrical explosion time
+
+        Returns
+        -------
+        np.ndarray
+            The attenuated source function
+        &quot;&quot;&quot;
+        q_ul = pd.DataFrame(
+            transition_probabilities[
+                (transition_type == MacroAtomTransitionType.BB_EMISSION).values
+            ],
+            index=transitions_index,
+        )
+        wave = lines.wavelength_cm.loc[transition_line_id].values.reshape(-1, 1)
+        att_S_ul = wave * (q_ul * e_dot_u) * time_explosion / (4 * np.pi)
+        columns = range(no_of_shells)
+
+        result = pd.DataFrame(
+            att_S_ul.values,
+            index=transition_line_id,
+            columns=columns,
+        )
+        att_S_ul = result.loc[line_idx].values
+
+        return att_S_ul</div>
+
+
+<div class="viewcode-block" id="SourceFunctionSolver.calculate_Jblue_lu">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jblue_lu">[docs]</a>
+    def calculate_Jblue_lu(
+        self,
+        time_explosion: float,
+        time_of_simulation: u.Quantity,
+        volume: u.Quantity,
+        j_blue_estimator: np.ndarray,
+    ) -&gt; np.ndarray:
+        &quot;&quot;&quot;
+        Calculates Jblue_lu, the normalized J estimator from the blue end of the line from lower to upper level
+
+        Parameters
+        ----------
+        time_explosion : float
+            Time duration of the explosion in seconds
+        time_of_simulation : astropy.units.Quantity
+            Time duration of the simulation
+        volume : astropy.units.Quantity
+        j_blue_estimator : np.ndarray
+            the line estimator
+
+        Returns
+        -------
+        np.ndarray
+            The normalized J estimator from the blue end of the line from lower to upper level
+        &quot;&quot;&quot;
+        Jblue_lu_norm_factor = (
+            (
+                const.c.cgs
+                * time_explosion
+                / (4 * np.pi * time_of_simulation * volume)
+            )
+            .to(&quot;1/(cm^2 s)&quot;)
+            .value
+        )
+
+        # Jblue_lu should already by in the correct order, i.e. by wavelength of
+        # the transition l-&gt;u
+        Jblue_lu = j_blue_estimator * Jblue_lu_norm_factor
+        return Jblue_lu</div>
+
+
+<div class="viewcode-block" id="SourceFunctionSolver.calculate_Jred_lu">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionSolver.calculate_Jred_lu">[docs]</a>
+    def calculate_Jred_lu(
+        self,
+        Jblue_lu: np.ndarray,
+        tau_sobolevs: np.ndarray,
+        att_S_ul: np.ndarray,
+    ) -&gt; np.ndarray:
+        &quot;&quot;&quot;
+        Calculates Jred_lu, J estimator from the red end of the line from lower to upper level
+
+        Parameters
+        ----------
+        Jblue_lu : np.ndarray
+            the normalized J estimator from the blue end of the line from lower to upper level
+        tau_sobolevs : np.ndarray
+            Sobolev optical depths
+        att_S_ul : np.ndarray
+            The attenuated source function
+
+        Returns
+        -------
+        np.ndarray
+            J estimator from the red end of the line from lower to upper level
+        &quot;&quot;&quot;
+        return Jblue_lu * np.exp(-tau_sobolevs) + att_S_ul</div>
+</div>
+
+
+
+<div class="viewcode-block" id="SourceFunctionState">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionState">[docs]</a>
+@dataclass
+class SourceFunctionState:
+    &quot;&quot;&quot;
+    Data class to hold the computed source function values
+
+    Attributes
+    ----------
+    att_S_ul : np.ndarray
+        The attenuated source function
+    Jred_lu : np.ndarray
+        the normalized J estimator from the red end of the line from lower to upper level
+    Jblue_lu : np.ndarray
+        the normalized J estimator from the blue end of the line from lower to upper level
+    e_dot_u : pd.DataFrame
+        The rate energy density is added to the upper level of transitions excited to it
+    &quot;&quot;&quot;
+
+    att_S_ul: np.ndarray
+    Jred_lu: np.ndarray
+    Jblue_lu: np.ndarray
+    e_dot_u: pd.DataFrame
+
+    def __init__(
+        self,
+        att_S_ul: np.ndarray,
+        Jred_lu: np.ndarray,
+        Jblue_lu: np.ndarray,
+        e_dot_u: pd.DataFrame,
+    ) -&gt; None:
+        self.att_S_ul = att_S_ul
+        self.Jred_lu = Jred_lu
+        self.Jblue_lu = Jblue_lu
+        self.e_dot_u = e_dot_u</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 21 Sep 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

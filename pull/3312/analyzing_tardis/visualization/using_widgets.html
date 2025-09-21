@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using TARDIS Widgets &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=621f3c4b"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to Generate Custom Abundance Widget" href="how_to_abundance_widget.html" />
+    <link rel="prev" title="Convergence Plots" href="tutorial_convergence_plot.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Analyszing TARDIS Simulation Outputs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#quick-reference">Quick Reference</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#detailed-guides">Detailed Guides</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../spectrum/spectrum-visualization-notebook.html">Analysing Spectrum</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Visualization Tools &amp; Widgets</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#tardis-visualization-tools">TARDIS Visualization Tools</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#tardis-widgets-graphical-user-interfaces">TARDIS Widgets (Graphical User Interfaces)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Analyszing TARDIS Simulation Outputs</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Visualization Tools &amp; Widgets</a></li>
+      <li class="breadcrumb-item active">Using TARDIS Widgets</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/analyzing_tardis/visualization/using_widgets.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="using-tardis-widgets">
+<h1>Using TARDIS Widgets<a class="headerlink" href="#using-tardis-widgets" title="Link to this heading">¶</a></h1>
+<p>This page describes what each TARDIS Widget has to offer and how you can make
+the best use of it. If you’re looking for the code to generate widgets, head
+over to <a class="reference external" href="how_to_abundance_widget">Generating Custom Abundance Widget</a> section or
+<a class="reference external" href="how_to_generating_widgets">Generating Data Exploration Widgets</a> section to see the
+notebook in action.</p>
+<p>Currently, TARDIS supports the following widgets:</p>
+<section id="custom-abundance-widget">
+<h2>Custom Abundance Widget<a class="headerlink" href="#custom-abundance-widget" title="Link to this heading">¶</a></h2>
+<p>This widget (or GUI) allows you to develop custom model compositions
+graphically and output the model to a new file.</p>
+<img alt="Demo of Custom Abundance Widget" src="../../_images/custom_abundance_widget.png" />
+<p>The GUI consists of three parts:</p>
+<p>1. <strong>Visualization plot</strong> - An interactive step graph that shows abundances
+and densities as a function of velocity.</p>
+<p>2. <strong>Data editor</strong> - An interface to edit abundances, densities and velocity
+shells.</p>
+<p>3. <strong>File output</strong> - An output module to save the model compositions as a CSVY
+file.</p>
+<section id="interacting-with-the-gui">
+<h3>Interacting with the GUI<a class="headerlink" href="#interacting-with-the-gui" title="Link to this heading">¶</a></h3>
+<p>You can interact with this GUI in the following ways:</p>
+<section id="edit-abundances">
+<h4>Edit Abundances<a class="headerlink" href="#edit-abundances" title="Link to this heading">¶</a></h4>
+<p>There are two radio buttons which allow you to edit either single shell or
+multiple shells. The new input will be applied to selected shell(s) immediately
+and the plot is updated at the same time. If you want to edit multiple shells
+at a time, remember to choose the second radio button and set the range of
+shell number using int slider. The selected shell(s) is highlighted in the
+plot.</p>
+<img alt="Demo of editing abundances" src="analyzing_tardis/images/cus_abund_edit_abundance.gif" />
+</section>
+<section id="normalize-abundances">
+<h4>Normalize Abundances<a class="headerlink" href="#normalize-abundances" title="Link to this heading">¶</a></h4>
+<p>Click <code class="xref py py-obj docutils literal notranslate"><span class="pre">Normalize</span></code> button to normalize the abundances on selected shell(s) to
+1. If you wish to keep the abundance of a certain element unchanged during the
+normalization, you can select the checkbox near that element to lock it.
+The normalization will be applied to other elements and the sum of the
+abundances still remains at 1.</p>
+<img alt="Demo of normalization" src="analyzing_tardis/images/cus_abund_norm.gif" />
+</section>
+<section id="edit-densities">
+<h4>Edit Densities<a class="headerlink" href="#edit-densities" title="Link to this heading">¶</a></h4>
+<p>In <code class="xref py py-obj docutils literal notranslate"><span class="pre">Edit</span> <span class="pre">Density</span></code> tab, you also can edit either single shell or the whole
+density profile. To calculate a new profile, you need to choose the density
+type and input required parameters.</p>
+<img alt="Demo of editing densities" src="analyzing_tardis/images/cus_abund_edit_density.gif" />
+</section>
+<section id="add-new-element">
+<h4>Add New Element<a class="headerlink" href="#add-new-element" title="Link to this heading">¶</a></h4>
+<p>At the bottom of the editor, the symbol input box allows you to add new element
+or isotope to the model. It automatically recognizes whether the symbol exists
+or whether the element is already in the model.</p>
+<img alt="Demo of adding new element" src="analyzing_tardis/images/cus_abund_add_element.gif" />
+</section>
+<section id="add-new-shell">
+<h4>Add New Shell<a class="headerlink" href="#add-new-shell" title="Link to this heading">¶</a></h4>
+<p>Another important functionality is to add new shell to the model. You need to
+specify the velocity range of the new shell and abundances at that new shell
+will be set to 0. Note that the existing shell(s) will be resized smartly if
+the new shell overlaps with it.</p>
+<img alt="Demo of adding new shell" src="analyzing_tardis/images/cus_abund_add_shell.gif" />
+</section>
+</section>
+</section>
+<section id="shell-info-widget">
+<h2>Shell Info Widget<a class="headerlink" href="#shell-info-widget" title="Link to this heading">¶</a></h2>
+<p>This widget allows you to explore the chemical abundances in different shells
+of the model Supernova ejecta.</p>
+<img alt="Demo of Shell Info Widget" src="../../_images/shell_info_widget_demo.gif" />
+<p>It consists of four interlinked tables - clicking on any row in a table,
+populates data in the table(s) to the right of it. Each table has the
+following information:</p>
+<p>1. <strong>Shells Data</strong> - Radiative temperature and Dilution Factor (W) of each shell
+(computational partitions) of the model Supernova ejecta. Shell numbers are
+given in ascending order, from the innermost shell to the outermost.</p>
+<p>2. <strong>Element Abundances</strong> - Fractional mass abundance of each element present
+in the selected shell.</p>
+<p>3. <strong>Ion Abundances</strong> - Fractional mass abundance of each ion (species) of the
+selected element present in the selected shell.</p>
+<p>4. <strong>Level Abundances</strong> - Fractional mass abundance of each level of the
+selected ion and element in the selected shell.</p>
+</section>
+<section id="line-info-widget">
+<h2>Line Info Widget<a class="headerlink" href="#line-info-widget" title="Link to this heading">¶</a></h2>
+<p>This widget lets you explore the atomic lines responsible for producing
+features in the simulated spectrum.</p>
+<img alt="Demo of Line Info Widget" src="../../_images/line_info_widget_demo.gif" />
+<p>By selecting a wavelength range on the spectrum plot, you can see the species
+that produced the features within that range. This is determined by counting
+the number of escaping packets that experienced their last interaction with
+each species. Packets can be filtered by the wavelength at which they were
+absorbed or emitted, using the toggle buttons.</p>
+<p>You can then click on a species to see the packets count for each last line
+interaction it experienced. Using the dropdown menu, these counts can be grouped
+by excitation lines, de-excitation lines, or both.</p>
+<section id="interacting-with-spectrum">
+<h3>Interacting with Spectrum<a class="headerlink" href="#interacting-with-spectrum" title="Link to this heading">¶</a></h3>
+<p>The spectrum in the Line Info Widget is an interactive figure made using
+<a class="reference external" href="https://plotly.com/python/">plotly</a>, there are several things you can
+do with it:</p>
+<section id="making-selection">
+<h4>Making Selection<a class="headerlink" href="#making-selection" title="Link to this heading">¶</a></h4>
+<p>The box selection is enabled by default, so you just need to click and drag on
+the figure and a pink colored selection box will appear. By making a
+selection across the wavelength range you’re interested in, tables update
+to show line information of only packets from that range.</p>
+<img alt="Demo of making selection" src="analyzing_tardis/images/line_info_spectrum_selection.gif" />
+<p>After making a selection, if you need to resize the selection box (say, make it
+narrower), simply redraw a new selection box over the older one.</p>
+</section>
+<section id="using-rangesilder">
+<h4>Using Rangesilder<a class="headerlink" href="#using-rangesilder" title="Link to this heading">¶</a></h4>
+<p>The rangeslider is a long bar below the figure that allows you to zoom in on a
+particular wavelength range in the long spectrum.</p>
+<img alt="Demo of using rangeslider" src="analyzing_tardis/images/line_info_spectrum_rangeslider.gif" />
+<p>Either you can <strong>slide</strong> the zoomed range by clicking and dragging it or you
+can <strong>resize</strong> it by dragging the handles (vertical bars) at its edges.</p>
+</section>
+<section id="using-other-options-in-modebar">
+<h4>Using other options in Modebar<a class="headerlink" href="#using-other-options-in-modebar" title="Link to this heading">¶</a></h4>
+<p>If you take your mouse to the top right corner of the figure, you will see a
+Modebar with multiple options. The default option when Line Info Widget first
+displays is <strong>Box Select</strong> - the dotted square icon. You can click on other
+options like <strong>Zoom</strong> (magnifying glass icon), to do a rectangular zoom which
+may be helpful to focus on a feature in the spectrum. You can always revert
+back to the initial state of the figure by clicking on <strong>Reset Axes</strong> option.</p>
+<img alt="Demo of using modebar options" src="analyzing_tardis/images/line_info_spectrum_modebar.gif" />
+<p>There are also several other options in the modebar which we have not explained
+(because they are not very relevant) but you’re free to explore them as long as
+you remember to click back on the <strong>Box Select</strong> option for making selections on
+spectrum.</p>
+</section>
+</section>
+</section>
+<section id="energy-level-diagram">
+<h2>Energy Level Diagram<a class="headerlink" href="#energy-level-diagram" title="Link to this heading">¶</a></h2>
+<p>This widget lets you visualize the last line interactions</p>
+<img alt="Demo of Energy Level Diagram" src="analyzing_tardis/images/energy_level_widget_demo.gif" />
+<p>By selecting an ion on the widget, you can see its energy level diagram, which
+also shows information about the last line interactions experienced by packets
+in the simulation.</p>
+<p>The y-axis of the plot represents energy while the horizontal lines show
+discrete energy levels. The thickness of each line represents the level
+population, with thicker lines representing a greater population than the thin lines.</p>
+<p>Arrows represent the line interactions experienced by packets. Upwards arrows
+show excitation from lower energy levels to higher levels and downward arrows
+show de-excitation from higher energy levels to lower levels. The thickness of
+each arrow represents the number of packets that underwent that interaction,
+with thicker lines representing more packets than the thin lines.
+The wavelength of the transition is given by the color.</p>
+<p>You can select the range on which to filter the wavelength using the slider.
+You can also select the model shell by which to filter the last line interactions
+and the level populations. If no shell is selected, then all the last line
+interactions are plotted and the level populations are averaged across all shells
+in the simulation. You can also set the maximum number of levels to show on the plot.</p>
+<p>Lastly, you can also set the scale of the y-axis: Linear or Log.</p>
+<img alt="Demo of using options" src="../../_images/energy_level_widget_options.gif" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial_convergence_plot.html" class="btn btn-neutral float-left" title="Convergence Plots" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="how_to_abundance_widget.html" class="btn btn-neutral float-right" title="How to Generate Custom Abundance Widget" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 21 Sep 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
