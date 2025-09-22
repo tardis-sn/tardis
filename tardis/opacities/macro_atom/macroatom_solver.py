@@ -441,10 +441,8 @@ class BoundBoundMacroAtomSolver:
         )
 
         macro_atom_transition_metadata["source_level_idx"] = (
-            (macro_atom_transition_metadata.source.map(source_to_index))
-            .fillna(-99)
-            .astype(np.int64)
-        )
+            macro_atom_transition_metadata.source.map(source_to_index)
+        ).astype(np.int64)
 
         macro_block_references = create_macro_block_references(
             macro_atom_transition_metadata
