@@ -412,6 +412,8 @@ class TestSDECPlotter:
 
     @pytest.fixture(scope="class")
     def sdec_regression_data(self, tardis_regression_path):
+        # workflow tests for the SDEC plot use the existing regression data from the 
+        # Simulation since both objects produce the same plot with same config.
         return tardis_regression_path / "tardis/visualization/tools/tests/test_sdec_plot/test_sdec_plotter"
 
     def test_from_workflow_vs_from_simulation_data_consistency(
