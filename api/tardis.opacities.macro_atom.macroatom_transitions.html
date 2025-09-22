@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=40db8bea"></script>
+      <script src="../_static/documentation_options.js?v=de14b06c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,7 +167,7 @@
 <span id="tardis-opacities-macro-atom-macroatom-transitions-module"></span><h1>tardis.opacities.macro_atom.macroatom_transitions module<a class="headerlink" href="#module-tardis.opacities.macro_atom.macroatom_transitions" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_transitions.line_transition_emission_down">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">line_transition_emission_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_f_uls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_upper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_a_i_l_u_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#line_transition_emission_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.line_transition_emission_down" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">line_transition_emission_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_f_uls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_a_i_l_u_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#line_transition_emission_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.line_transition_emission_down" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate emission down transition probabilities for line transitions.</p>
 <p>This function computes the probability of emission down transitions for
 atomic line transitions using oscillator strengths, frequencies, energy
@@ -183,7 +183,7 @@ differences, and Sobolev optical depths.</p>
 </dd>
 <dt><strong>energies_lower</strong><span class="classifier">array_like</span></dt><dd><p>Energy values of the lower levels in the transitions.</p>
 </dd>
-<dt><strong>beta_sobolevs</strong><span class="classifier">array_like</span></dt><dd><p>Sobolev escape probabilities for the transitions.</p>
+<dt><strong>beta_sobolevs</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Sobolev escape probabilities for the transitions.</p>
 </dd>
 <dt><strong>transition_a_i_l_u_array</strong><span class="classifier">array_like</span></dt><dd><p>Array containing atomic number, ion number, lower level, and upper level
 indices for each transition. Shape should be (n_transitions, 4).</p>
@@ -208,12 +208,12 @@ and transition line indices.</p>
 <p class="rubric">Notes</p>
 <p>The emission down probability is calculated using the formula:
 P = 2 * nu^2 * f_ul / c^2 * beta * (E_upper - E_lower)</p>
-<p>The function uses the constant P_EMISSION_DOWN to mark the transition type.</p>
+<p>The function uses MacroAtomTransitionType to mark the transition type.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_down">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">line_transition_internal_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_f_uls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_a_i_l_u_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#line_transition_internal_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_down" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">line_transition_internal_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_f_uls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_a_i_l_u_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#line_transition_internal_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_down" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate internal downward transition probabilities for line transitions.</p>
 <p>This function computes the probability of internal downward transitions
 in macro atoms for line transitions, based on oscillator strengths,
@@ -227,7 +227,7 @@ frequencies, and other atomic parameters.</p>
 </dd>
 <dt><strong>energies_lower</strong><span class="classifier">array_like</span></dt><dd><p>Energies of the lower levels involved in transitions.</p>
 </dd>
-<dt><strong>beta_sobolevs</strong><span class="classifier">array_like</span></dt><dd><p>Sobolev beta factors for the transitions.</p>
+<dt><strong>beta_sobolevs</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Sobolev beta factors for the transitions.</p>
 </dd>
 <dt><strong>transition_a_i_l_u_array</strong><span class="classifier">array_like</span></dt><dd><p>Array containing atomic number, ion number, lower level, and upper level
 indices for each transition. Shape should be (n_transitions, 4).</p>
@@ -251,12 +251,12 @@ transition type, and transition line indices.</p>
 <p class="rubric">Notes</p>
 <p>The internal downward transition probability is calculated using the formula:
 p = 2 * nu^2 * f_ul / c^2 * beta * E_lower</p>
-<p>The function uses the constant P_INTERNAL_DOWN to mark the transition type.</p>
+<p>The function uses MacroAtomTransitionType to mark the transition type.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_up">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">line_transition_internal_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_f_lus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_intensities_blue_wing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimulated_emission_factors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_a_i_l_u_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#line_transition_internal_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_up" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">line_transition_internal_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line_f_lus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_intensities_blue_wing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimulated_emission_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_a_i_l_u_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#line_transition_internal_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_up" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate internal upward transition probabilities for line transitions in macro atoms.</p>
 <p>This function computes the probability of internal upward transitions between
 energy levels in macro atoms due to line transitions. It calculates the
@@ -270,9 +270,9 @@ transition probabilities and creates metadata for tracking the transitions.</p>
 </dd>
 <dt><strong>energies_lower</strong><span class="classifier">array_like</span></dt><dd><p>Energy values of the lower levels in the transitions.</p>
 </dd>
-<dt><strong>mean_intensities_blue_wing</strong><span class="classifier">array_like</span></dt><dd><p>Mean radiation field intensities at the blue wing of the lines.</p>
+<dt><strong>mean_intensities_blue_wing</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Mean radiation field intensities at the blue wing of the lines.</p>
 </dd>
-<dt><strong>beta_sobolevs</strong><span class="classifier">array_like</span></dt><dd><p>Sobolev escape probabilities for the line transitions.</p>
+<dt><strong>beta_sobolevs</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Sobolev escape probabilities for the line transitions.</p>
 </dd>
 <dt><strong>stimulated_emission_factors</strong><span class="classifier">array_like</span></dt><dd><p>Factors accounting for stimulated emission in the transitions.</p>
 </dd>
@@ -297,7 +297,100 @@ source and destination level information, transition type, and line indices.</p>
 <p class="rubric">Notes</p>
 <p>The transition probability is calculated using the formula:
 P = (f_lu / (h * nu)) * stimulated_emission_factor * mean_intensity * beta * E_lower</p>
-<p>The function uses the constant P_INTERNAL_UP to mark the transition type.</p>
+<p>The function uses MacroAtomTransitionType to mark the transition type.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_transitions.probability_emission_down">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_emission_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_f_uls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#probability_emission_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.probability_emission_down" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate emission down transition probabilities.</p>
+<p>This function computes the probability of emission down transitions for
+atomic line transitions. The calculation considers oscillator strengths,
+line frequencies, and the energy difference between upper and lower levels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>beta_sobolevs</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Sobolev escape probabilities for the line transitions.</p>
+</dd>
+<dt><strong>line_nus</strong><span class="classifier">np.ndarray</span></dt><dd><p>Frequencies of the line transitions in Hz.</p>
+</dd>
+<dt><strong>line_f_uls</strong><span class="classifier">np.ndarray</span></dt><dd><p>Oscillator strengths for line transitions from upper to lower levels.</p>
+</dd>
+<dt><strong>energies_upper</strong><span class="classifier">np.ndarray</span></dt><dd><p>Energy values of the upper levels in the transitions.</p>
+</dd>
+<dt><strong>energies_lower</strong><span class="classifier">np.ndarray</span></dt><dd><p>Energy values of the lower levels in the transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>DataFrame containing the calculated emission down transition probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_transitions.probability_internal_down">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_internal_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_f_uls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#probability_internal_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.probability_internal_down" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate internal downward transition probabilities.</p>
+<p>This function computes the probability of internal downward transitions between
+energy levels in macro atoms. The calculation is based on oscillator strengths,
+line frequencies, and lower level energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>beta_sobolevs</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Sobolev escape probabilities for the line transitions.</p>
+</dd>
+<dt><strong>line_nus</strong><span class="classifier">np.ndarray</span></dt><dd><p>Frequencies of the line transitions in Hz.</p>
+</dd>
+<dt><strong>line_f_uls</strong><span class="classifier">np.ndarray</span></dt><dd><p>Oscillator strengths for line transitions from upper to lower levels.</p>
+</dd>
+<dt><strong>energies_lower</strong><span class="classifier">np.ndarray</span></dt><dd><p>Energy values of the lower levels in the transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>DataFrame containing the calculated internal downward transition probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_transitions.probability_internal_up">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_internal_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_nus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_f_lus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimulated_emission_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_intensities_blue_wing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_transitions.html#probability_internal_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_transitions.probability_internal_up" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate internal upward transition probabilities.</p>
+<p>This function computes the probability of internal upward transitions between
+energy levels in macro atoms. The calculation involves oscillator strengths,
+stimulated emission factors, mean radiation field intensities, and energy values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>beta_sobolevs</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Sobolev escape probabilities for the line transitions.</p>
+</dd>
+<dt><strong>line_nus</strong><span class="classifier">np.ndarray</span></dt><dd><p>Frequencies of the line transitions in Hz.</p>
+</dd>
+<dt><strong>line_f_lus</strong><span class="classifier">np.ndarray</span></dt><dd><p>Oscillator strengths for line transitions from lower to upper levels.</p>
+</dd>
+<dt><strong>stimulated_emission_factors</strong><span class="classifier">np.ndarray</span></dt><dd><p>Factors accounting for stimulated emission in the transitions.</p>
+</dd>
+<dt><strong>mean_intensities_blue_wing</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Mean radiation field intensities at the blue wing of the lines.</p>
+</dd>
+<dt><strong>energies_lower</strong><span class="classifier">np.ndarray</span></dt><dd><p>Energy values of the lower levels in the transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>DataFrame containing the calculated internal upward transition probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -314,7 +407,7 @@ P = (f_lu / (h * nu)) * stimulated_emission_factor * mean_intensity * beta * E_l
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 

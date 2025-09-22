@@ -1,5 +1,13 @@
 ## Changelog
 
+### release-2025.09.21 (2025/09/20 22:03)
+- [3312](https://github.com/tardis-sn/tardis/pull/3312) Pre-release 2025.09.21 (3312) (@tardis-bot)
+- [3309](https://github.com/tardis-sn/tardis/pull/3309) Fix macroatom docs break (3309) (@jvshields)
+- [3253](https://github.com/tardis-sn/tardis/pull/3253) Speedup and implement new macroatom (3253) (@jvshields)
+- [3265](https://github.com/tardis-sn/tardis/pull/3265) Refactor `NumbaFormalIntegral` (3265) (@hmperk18)
+- [3302](https://github.com/tardis-sn/tardis/pull/3302) Zenodo Fixes 2 (3302) (@atharva-2001)
+- [3276](https://github.com/tardis-sn/tardis/pull/3276) Refactor Monte Carlo transport and interaction handling (3276) (@wkerzendorf)
+- [3301](https://github.com/tardis-sn/tardis/pull/3301) Post-release 2025.09.14 (3301) (@tardis-bot)
 ### release-2025.09.14 (2025/09/12 09:22)
 - [3299](https://github.com/tardis-sn/tardis/pull/3299) Zenodo fixes (3299) (@atharva-2001)
 - [3285](https://github.com/tardis-sn/tardis/pull/3285) Equilibrium plasma regression data tests (3285) (@andrewfullard)

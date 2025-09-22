@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=40db8bea"></script>
+      <script src="../_static/documentation_options.js?v=de14b06c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -222,7 +222,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_state.MacroAtomState">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_state.</span></span><span class="sig-name descname"><span class="pre">MacroAtomState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line2macro_level_upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_block_references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_state.html#MacroAtomState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_state.MacroAtomState" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_state.</span></span><span class="sig-name descname"><span class="pre">MacroAtomState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line2macro_level_upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_block_references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_state.html#MacroAtomState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_state.MacroAtomState" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Initialize a MacroAtomState object.</p>
 <dl class="field-list simple">
@@ -296,7 +296,12 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_state.MacroAtomState.to_legacy_format">
 <span class="sig-name descname"><span class="pre">to_legacy_format</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tardis.opacities.macro_atom.macroatom_state.LegacyMacroAtomState" title="tardis.opacities.macro_atom.macroatom_state.LegacyMacroAtomState"><span class="pre">LegacyMacroAtomState</span></a></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_state.html#MacroAtomState.to_legacy_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.to_legacy_format" title="Link to this definition">¶</a></dt>
-<dd><p>Convert the current MacroAtomState to legacy format.</p>
+<dd><p>Convert the current state of the MacroAtom to legacy format.</p>
+<p>This method transforms the modern MacroAtomState structure into the
+legacy LegacyMacroAtomState format for backward compatibility. It extracts
+individual components from the consolidated transition_metadata DataFrame
+and converts them to the separate arrays/DataFrames expected by the
+legacy format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -323,7 +328,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 

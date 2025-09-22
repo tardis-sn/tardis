@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=40db8bea"></script>
+      <script src="../../../../_static/documentation_options.js?v=de14b06c"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -359,13 +359,17 @@ class FormalIntegralSolver:
             logger.warning(
                 &quot;The number of interpolate_shells was not &quot;
                 &quot;specified. The value was set to %d.&quot;,
-                interpolate_shells
+                interpolate_shells,
             )
         self.interpolate_shells = interpolate_shells
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
         source_function_state = source_function_solver.solve(
-            simulation_state, opacity_state_numba, transport_state, atomic_data
+            simulation_state,
+            opacity_state_numba,
+            transport_state,
+            atomic_data,
+            macro_atom_state,
         )
 
         # Generate interpolated radii if needed
@@ -431,7 +435,9 @@ class FormalIntegralSolver:
             frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
         ), &quot;Frequency grid must be uniform&quot;
 
-        luminosity = u.Quantity(luminosity_densities, &quot;erg/s/Hz&quot;) * delta_frequency
+        luminosity = (
+            u.Quantity(luminosity_densities, &quot;erg/s/Hz&quot;) * delta_frequency
+        )
 
         frequencies = frequencies.to(&quot;Hz&quot;, u.spectral())
 
@@ -504,7 +510,9 @@ class FormalIntegralSolver:
 
         r_middle_original = (r_inner_original + r_outer_original) / 2.0
 
-        r_middle_interpolated = (r_inner_interpolated + r_outer_interpolated) / 2.0
+        r_middle_interpolated = (
+            r_inner_interpolated + r_outer_interpolated
+        ) / 2.0
 
         electron_densities_interpolated = interp1d(
             r_middle_original,
@@ -516,8 +524,12 @@ class FormalIntegralSolver:
         )(r_middle_interpolated)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        v_inner_boundary_index = simulation_state.geometry.v_inner_boundary_index
-        v_outer_boundary_index = simulation_state.geometry.v_outer_boundary_index
+        v_inner_boundary_index = (
+            simulation_state.geometry.v_inner_boundary_index
+        )
+        v_outer_boundary_index = (
+            simulation_state.geometry.v_outer_boundary_index
+        )
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
             opacity_state.tau_sobolev.values[
@@ -567,7 +579,7 @@ class FormalIntegralSolver:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=40db8bea"></script>
+      <script src="../../../_static/documentation_options.js?v=de14b06c"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -165,6 +165,7 @@ opacity_state_spec = [
     (&quot;k_packet_idx&quot;, int64),
 ]
 
+
 <div class="viewcode-block" id="OpacityStateNumba">
 <a class="viewcode-back" href="../../../api/tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.OpacityStateNumba">[docs]</a>
 @jitclass(opacity_state_spec)
@@ -276,6 +277,7 @@ class OpacityStateNumba:
             self.photo_ion_activation_idx,
             self.k_packet_idx,
         )</div>
+
 
 
 <div class="viewcode-block" id="OpacityState">
@@ -402,9 +404,7 @@ class OpacityState:
         line_list_nu = self.line_list_nu.values
 
         # NOTE: Disabled line scattering is handled by the opacitystate solver
-        tau_sobolev = np.ascontiguousarray(
-            self.tau_sobolev, dtype=np.float64
-        )
+        tau_sobolev = np.ascontiguousarray(self.tau_sobolev, dtype=np.float64)
 
         if line_interaction_type == &quot;scatter&quot;:
             # to adhere to data types, we must have an array of minimum size 1
@@ -422,19 +422,24 @@ class OpacityState:
                 macro_atom_state.transition_probabilities.values.copy(),
                 dtype=np.float64,
             )
-            line2macro_level_upper = macro_atom_state.line2macro_level_upper
-
+            line2macro_level_upper = (
+                macro_atom_state.line2macro_level_upper.values
+            )
             # TODO: Fix setting of block references for non-continuum mode
 
             macro_block_references = np.asarray(
                 macro_atom_state.macro_block_references
             )
 
-            transition_type = macro_atom_state.transition_type.values
+            transition_type = (
+                macro_atom_state.transition_metadata.transition_type.values
+            )
 
             # Destination level is not needed and/or generated for downbranch
-            destination_level_id = macro_atom_state.destination_level_id.values
-            transition_line_id = macro_atom_state.transition_line_id.values
+            destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.values
+            transition_line_id = (
+                macro_atom_state.transition_metadata.transition_line_idx.values
+            )
 
         if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             bf_threshold_list_nu = (
@@ -461,8 +466,7 @@ class OpacityState:
 
             phot_nus = phot_nus.values
             ff_opacity_factor = (
-                self.continuum_state.ff_cooling_factor
-                / np.sqrt(t_electrons)
+                self.continuum_state.ff_cooling_factor / np.sqrt(t_electrons)
             ).astype(np.float64)
             emissivities = self.continuum_state.emissivities.values
             photo_ion_activation_idx = (
@@ -664,7 +668,7 @@ def opacity_state_initialize(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 

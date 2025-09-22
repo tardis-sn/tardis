@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=40db8bea"></script>
+      <script src="_static/documentation_options.js?v=de14b06c"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -556,9 +556,13 @@
 </li>
       <li><a href="api/tardis.plasma.properties.hydrogen_continuum.html#tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties.calculate_hydrogen_ion_populations">calculate_hydrogen_ion_populations() (tardis.plasma.properties.hydrogen_continuum.HydrogenContinuumProperties method)</a>
 </li>
+      <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_impact_parameter_values">calculate_impact_parameter_values() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
+</li>
       <li><a href="api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.calculate_impact_parameters">calculate_impact_parameters() (in module tardis.spectrum.formal_integral.base)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.calculate_intersection_point">calculate_intersection_point() (in module tardis.spectrum.formal_integral.formal_integral_numba)</a>
+</li>
+      <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_intersection_point_cuda">calculate_intersection_point_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF.calculate_j_nu">calculate_j_nu() (tardis.plasma.properties.continuum_processes.rates.TwoPhotonEmissionCDF static method)</a>
 </li>
@@ -587,8 +591,6 @@
 </li>
       </ul></li>
       <li><a href="api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction.calculate_number_of_decays">calculate_number_of_decays() (tardis.model.matter.decay.IsotopicMassFraction method)</a>
-</li>
-      <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_p_values">calculate_p_values() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver.calculate_photoionization_boltzmann_factor">calculate_photoionization_boltzmann_factor() (tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver method)</a>
 </li>
@@ -624,8 +626,6 @@
 </li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.calculate_yg_van_regemorter">calculate_yg_van_regemorter() (tardis.plasma.properties.atomic.YgData class method)</a>
 </li>
-      <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_z_cuda">calculate_z_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
-</li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.Timer.cancel">cancel() (tardis.visualization.widgets.util.Timer method)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.PanelTableWidget.change_selection">change_selection() (tardis.visualization.widgets.util.PanelTableWidget method)</a>
@@ -638,10 +638,10 @@
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.check_formal_integral_requirements">check_formal_integral_requirements() (in module tardis.spectrum.formal_integral.base)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.checked_list">checked_list (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.opacities.continuum.continuum_state.html#tardis.opacities.continuum.continuum_state.ContinuumState.chi_bf">chi_bf (tardis.opacities.continuum.continuum_state.ContinuumState property)</a>
 </li>
       <li><a href="api/tardis.opacities.opacities.html#tardis.opacities.opacities.chi_bf_interpolator">chi_bf_interpolator() (in module tardis.opacities.opacities)</a>
@@ -804,7 +804,9 @@
 </li>
       <li><a href="api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.create_isotope_dicts">create_isotope_dicts() (in module tardis.energy_input.gamma_ray_channel)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.create_line2macro_level_upper">create_line2macro_level_upper() (in module tardis.opacities.macro_atom.macroatom_solver)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.create_line2macro_level_upper_and_reference_idx">create_line2macro_level_upper_and_reference_idx() (in module tardis.opacities.macro_atom.macroatom_solver)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.create_macro_block_references">create_macro_block_references() (in module tardis.opacities.macro_atom.macroatom_solver)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.GammaRayPacketSource.create_packet_directions">create_packet_directions() (tardis.transport.montecarlo.packet_source.GammaRayPacketSource method)</a>
 
@@ -3049,10 +3051,10 @@
 </li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff">PhotoIonRateCoeff (class in tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.radiation_field.planck_rad_field.html#tardis.plasma.radiation_field.planck_rad_field.PlanckianRadiationField">PlanckianRadiationField (class in tardis.plasma.radiation_field.planck_rad_field)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_collection">plasma_collection (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_modules">plasma_modules (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
@@ -3095,7 +3097,7 @@
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.populate_intersection_points">populate_intersection_points() (in module tardis.spectrum.formal_integral.formal_integral_numba)</a>
 </li>
-      <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.populate_z_cuda">populate_z_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
+      <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.populate_intersection_points_cuda">populate_intersection_points_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
       <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.positron_energy">positron_energy (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult attribute)</a>
 </li>
@@ -3124,6 +3126,12 @@
       <li><a href="api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.PreviousIterationProperty">PreviousIterationProperty (class in tardis.plasma.properties.base)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.print_r_packet_properties">print_r_packet_properties() (in module tardis.transport.montecarlo.packets.radiative_packet)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_emission_down">probability_emission_down() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_internal_down">probability_internal_down() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_internal_up">probability_internal_up() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
 </li>
       <li><a href="api/tardis.energy_input.decay_radiation.html#tardis.energy_input.decay_radiation.process_decay_radiation_data">process_decay_radiation_data() (in module tardis.energy_input.decay_radiation)</a>
 </li>
@@ -5482,7 +5490,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=40db8bea"></script>
+      <script src="../../../../_static/documentation_options.js?v=de14b06c"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -131,25 +131,27 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.opacities.macro_atom.macroatom_transitions</h1><div class="highlight"><pre>
-<span></span>from astropy import constants as const
+<span></span>from tardis import constants as const
+import numpy as np
+import pandas as pd
+from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
-P_INTERNAL_UP = 1
-P_INTERNAL_DOWN = 0
-P_EMISSION_DOWN = -1
+CONST_C_CGS: float = const.c.cgs.value
+CONST_H_CGS: float = const.h.cgs.value
 
 
 <div class="viewcode-block" id="line_transition_internal_up">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_up">[docs]</a>
 def line_transition_internal_up(
-    line_f_lus,
-    line_nus,
-    energies_lower,
-    mean_intensities_blue_wing,
-    beta_sobolevs,
-    stimulated_emission_factors,
-    transition_a_i_l_u_array,
-    line_ids,
-):
+    line_f_lus: np.ndarray,
+    line_nus: np.ndarray,
+    energies_lower: np.ndarray,
+    mean_intensities_blue_wing: pd.DataFrame,
+    beta_sobolevs: pd.DataFrame,
+    stimulated_emission_factors: np.ndarray,
+    transition_a_i_l_u_array: np.ndarray,
+    line_ids: np.ndarray,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
     &quot;&quot;&quot;
     Calculate internal upward transition probabilities for line transitions in macro atoms.
 
@@ -165,9 +167,9 @@ def line_transition_internal_up(
         Frequencies of the line transitions in Hz.
     energies_lower : array_like
         Energy values of the lower levels in the transitions.
-    mean_intensities_blue_wing : array_like
+    mean_intensities_blue_wing : pd.DataFrame
         Mean radiation field intensities at the blue wing of the lines.
-    beta_sobolevs : array_like
+    beta_sobolevs : pd.DataFrame
         Sobolev escape probabilities for the line transitions.
     stimulated_emission_factors : array_like
         Factors accounting for stimulated emission in the transitions.
@@ -191,63 +193,95 @@ def line_transition_internal_up(
     The transition probability is calculated using the formula:
     P = (f_lu / (h * nu)) * stimulated_emission_factor * mean_intensity * beta * E_lower
 
-    The function uses the constant P_INTERNAL_UP to mark the transition type.
+    The function uses MacroAtomTransitionType to mark the transition type.
     &quot;&quot;&quot;
-
-    p_internal_up = (
-        line_f_lus
-        / (const.h.cgs.value * line_nus)
-        * stimulated_emission_factors
-        * mean_intensities_blue_wing
-        * beta_sobolevs
-        * energies_lower
+    p_internal_up = probability_internal_up(
+        beta_sobolevs,
+        line_nus,
+        line_f_lus,
+        stimulated_emission_factors,
+        mean_intensities_blue_wing,
+        energies_lower,
     )
-    p_internal_up[&quot;source&quot;] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-    ]
 
-    p_internal_up[&quot;destination&quot;] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-    ]
-    p_internal_up[&quot;transition_type&quot;] = P_INTERNAL_UP
+    sources = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 2]]))
+    transition_indices = np.arange(len(line_ids))
+    destinations = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 3]]))
 
-    p_internal_up[&quot;transition_line_id&quot;] = line_ids
-
-    p_internal_up[&quot;transition_line_idx&quot;] = range(len(line_ids))
-
-    internal_up_metadata = p_internal_up[
-        [
-            &quot;transition_line_id&quot;,
-            &quot;source&quot;,
-            &quot;destination&quot;,
-            &quot;transition_type&quot;,
-            &quot;transition_line_idx&quot;,
-        ]
-    ]
-
-    p_internal_up = p_internal_up.drop(
-        columns=[
-            &quot;destination&quot;,
-            &quot;transition_type&quot;,
-            &quot;transition_line_id&quot;,
-            &quot;transition_line_idx&quot;,
-        ]
+    internal_up_metadata = pd.DataFrame(
+        {
+            &quot;transition_line_id&quot;: line_ids,
+            &quot;source&quot;: sources,
+            &quot;destination&quot;: destinations,
+            &quot;transition_type&quot;: MacroAtomTransitionType.INTERNAL_UP,
+            &quot;transition_line_idx&quot;: transition_indices,
+        },
+        index=p_internal_up.index,
     )
+    p_internal_up[&quot;source&quot;] = sources
 
     return p_internal_up, internal_up_metadata</div>
+
+
+
+<div class="viewcode-block" id="probability_internal_up">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_internal_up">[docs]</a>
+def probability_internal_up(
+    beta_sobolevs: pd.DataFrame,
+    line_nus: np.ndarray,
+    line_f_lus: np.ndarray,
+    stimulated_emission_factors: np.ndarray,
+    mean_intensities_blue_wing: pd.DataFrame,
+    energies_lower: np.ndarray,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate internal upward transition probabilities.
+
+    This function computes the probability of internal upward transitions between
+    energy levels in macro atoms. The calculation involves oscillator strengths,
+    stimulated emission factors, mean radiation field intensities, and energy values.
+
+    Parameters
+    ----------
+    beta_sobolevs : pd.DataFrame
+        Sobolev escape probabilities for the line transitions.
+    line_nus : np.ndarray
+        Frequencies of the line transitions in Hz.
+    line_f_lus : np.ndarray
+        Oscillator strengths for line transitions from lower to upper levels.
+    stimulated_emission_factors : np.ndarray
+        Factors accounting for stimulated emission in the transitions.
+    mean_intensities_blue_wing : pd.DataFrame
+        Mean radiation field intensities at the blue wing of the lines.
+    energies_lower : np.ndarray
+        Energy values of the lower levels in the transitions.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the calculated internal upward transition probabilities.
+    &quot;&quot;&quot;
+    p_internal_up = beta_sobolevs * (
+        line_f_lus
+        / (CONST_H_CGS * line_nus)
+        * stimulated_emission_factors
+        * mean_intensities_blue_wing
+        * energies_lower
+    )
+    return p_internal_up</div>
 
 
 
 <div class="viewcode-block" id="line_transition_internal_down">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_down">[docs]</a>
 def line_transition_internal_down(
-    line_f_uls,
-    line_nus,
-    energies_lower,
-    beta_sobolevs,
-    transition_a_i_l_u_array,
-    line_ids,
-):
+    line_f_uls: np.ndarray,
+    line_nus: np.ndarray,
+    energies_lower: np.ndarray,
+    beta_sobolevs: pd.DataFrame,
+    transition_a_i_l_u_array: np.ndarray,
+    line_ids: np.ndarray,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
     &quot;&quot;&quot;
     Calculate internal downward transition probabilities for line transitions.
 
@@ -263,7 +297,7 @@ def line_transition_internal_down(
         Frequencies of line transitions.
     energies_lower : array_like
         Energies of the lower levels involved in transitions.
-    beta_sobolevs : array_like
+    beta_sobolevs : pd.DataFrame
         Sobolev beta factors for the transitions.
     transition_a_i_l_u_array : array_like
         Array containing atomic number, ion number, lower level, and upper level
@@ -286,62 +320,81 @@ def line_transition_internal_down(
     The internal downward transition probability is calculated using the formula:
     p = 2 * nu^2 * f_ul / c^2 * beta * E_lower
 
-    The function uses the constant P_INTERNAL_DOWN to mark the transition type.
+    The function uses MacroAtomTransitionType to mark the transition type.
     &quot;&quot;&quot;
-    p_internal_down = (
-        2
-        * line_nus**2
-        * line_f_uls
-        / const.c.cgs.value**2
-        * beta_sobolevs
-        * energies_lower
+    p_internal_down = probability_internal_down(
+        beta_sobolevs, line_nus, line_f_uls, energies_lower
     )
-    p_internal_down[&quot;source&quot;] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-    ]
 
-    p_internal_down[&quot;destination&quot;] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-    ]
-    p_internal_down[&quot;transition_type&quot;] = P_INTERNAL_DOWN
+    sources = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 3]]))
+    transition_indices = np.arange(len(line_ids))
+    destinations = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 2]]))
 
-    p_internal_down[&quot;transition_line_id&quot;] = line_ids
-
-    p_internal_down[&quot;transition_line_idx&quot;] = range(len(line_ids))
-
-    internal_down_metadata = p_internal_down[
-        [
-            &quot;transition_line_id&quot;,
-            &quot;source&quot;,
-            &quot;destination&quot;,
-            &quot;transition_type&quot;,
-            &quot;transition_line_idx&quot;,
-        ]
-    ]
-
-    p_internal_down = p_internal_down.drop(
-        columns=[
-            &quot;destination&quot;,
-            &quot;transition_type&quot;,
-            &quot;transition_line_id&quot;,
-            &quot;transition_line_idx&quot;,
-        ]
+    internal_down_metadata = pd.DataFrame(
+        {
+            &quot;transition_line_id&quot;: line_ids,
+            &quot;source&quot;: sources,
+            &quot;destination&quot;: destinations,
+            &quot;transition_type&quot;: MacroAtomTransitionType.INTERNAL_DOWN,
+            &quot;transition_line_idx&quot;: transition_indices,
+        },
+        index=p_internal_down.index,
     )
+    p_internal_down[&quot;source&quot;] = sources
+
     return p_internal_down, internal_down_metadata</div>
+
+
+
+<div class="viewcode-block" id="probability_internal_down">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_internal_down">[docs]</a>
+def probability_internal_down(
+    beta_sobolevs: pd.DataFrame,
+    line_nus: np.ndarray,
+    line_f_uls: np.ndarray,
+    energies_lower: np.ndarray,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate internal downward transition probabilities.
+
+    This function computes the probability of internal downward transitions between
+    energy levels in macro atoms. The calculation is based on oscillator strengths,
+    line frequencies, and lower level energies.
+
+    Parameters
+    ----------
+    beta_sobolevs : pd.DataFrame
+        Sobolev escape probabilities for the line transitions.
+    line_nus : np.ndarray
+        Frequencies of the line transitions in Hz.
+    line_f_uls : np.ndarray
+        Oscillator strengths for line transitions from upper to lower levels.
+    energies_lower : np.ndarray
+        Energy values of the lower levels in the transitions.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the calculated internal downward transition probabilities.
+    &quot;&quot;&quot;
+    p_internal_down = beta_sobolevs * (
+        2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower
+    )
+    return p_internal_down</div>
 
 
 
 <div class="viewcode-block" id="line_transition_emission_down">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.line_transition_emission_down">[docs]</a>
 def line_transition_emission_down(
-    line_f_uls,
-    line_nus,
-    energies_upper,
-    energies_lower,
-    beta_sobolevs,
-    transition_a_i_l_u_array,
-    line_ids,
-):
+    line_f_uls: np.ndarray,
+    line_nus: np.ndarray,
+    energies_upper: np.ndarray,
+    energies_lower: np.ndarray,
+    beta_sobolevs: pd.DataFrame,
+    transition_a_i_l_u_array: np.ndarray,
+    line_ids: np.ndarray,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
     &quot;&quot;&quot;
     Calculate emission down transition probabilities for line transitions.
 
@@ -359,7 +412,7 @@ def line_transition_emission_down(
         Energy values of the upper levels in the transitions.
     energies_lower : array_like
         Energy values of the lower levels in the transitions.
-    beta_sobolevs : array_like
+    beta_sobolevs : pd.DataFrame
         Sobolev escape probabilities for the transitions.
     transition_a_i_l_u_array : array_like
         Array containing atomic number, ion number, lower level, and upper level
@@ -383,49 +436,74 @@ def line_transition_emission_down(
     The emission down probability is calculated using the formula:
     P = 2 * nu^2 * f_ul / c^2 * beta * (E_upper - E_lower)
 
-    The function uses the constant P_EMISSION_DOWN to mark the transition type.
+    The function uses MacroAtomTransitionType to mark the transition type.
     &quot;&quot;&quot;
-    p_emission_down = (
+    p_emission_down = probability_emission_down(
+        beta_sobolevs, line_nus, line_f_uls, energies_upper, energies_lower
+    )
+
+    sources = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 3]]))
+    transition_indices = np.arange(len(line_ids))
+    destinations = list(map(tuple, transition_a_i_l_u_array[:, [0, 1, 2]]))
+
+    emission_down_metadata = pd.DataFrame(
+        {
+            &quot;transition_line_id&quot;: line_ids,
+            &quot;source&quot;: sources,
+            &quot;destination&quot;: destinations,
+            &quot;transition_type&quot;: MacroAtomTransitionType.BB_EMISSION,
+            &quot;transition_line_idx&quot;: transition_indices,
+        },
+        index=p_emission_down.index,
+    )
+    p_emission_down[&quot;source&quot;] = sources
+
+    return p_emission_down, emission_down_metadata</div>
+
+
+
+<div class="viewcode-block" id="probability_emission_down">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_emission_down">[docs]</a>
+def probability_emission_down(
+    beta_sobolevs: pd.DataFrame,
+    line_nus: np.ndarray,
+    line_f_uls: np.ndarray,
+    energies_upper: np.ndarray,
+    energies_lower: np.ndarray,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate emission down transition probabilities.
+
+    This function computes the probability of emission down transitions for
+    atomic line transitions. The calculation considers oscillator strengths,
+    line frequencies, and the energy difference between upper and lower levels.
+
+    Parameters
+    ----------
+    beta_sobolevs : pd.DataFrame
+        Sobolev escape probabilities for the line transitions.
+    line_nus : np.ndarray
+        Frequencies of the line transitions in Hz.
+    line_f_uls : np.ndarray
+        Oscillator strengths for line transitions from upper to lower levels.
+    energies_upper : np.ndarray
+        Energy values of the upper levels in the transitions.
+    energies_lower : np.ndarray
+        Energy values of the lower levels in the transitions.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the calculated emission down transition probabilities.
+    &quot;&quot;&quot;
+    p_emission_down = beta_sobolevs * (
         2
         * line_nus**2
         * line_f_uls
-        / const.c.cgs.value**2
-        * beta_sobolevs
+        / CONST_C_CGS**2
         * (energies_upper - energies_lower)
     )
-    p_emission_down[&quot;source&quot;] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 3]]
-    ]
-
-    p_emission_down[&quot;destination&quot;] = [
-        tuple(col) for col in transition_a_i_l_u_array[:, [0, 1, 2]]
-    ]
-
-    p_emission_down[&quot;transition_type&quot;] = P_EMISSION_DOWN
-
-    p_emission_down[&quot;transition_line_id&quot;] = line_ids
-
-    p_emission_down[&quot;transition_line_idx&quot;] = range(len(line_ids))
-
-    emission_down_metadata = p_emission_down[
-        [
-            &quot;transition_line_id&quot;,
-            &quot;source&quot;,
-            &quot;destination&quot;,
-            &quot;transition_type&quot;,
-            &quot;transition_line_idx&quot;,
-        ]
-    ]
-
-    p_emission_down = p_emission_down.drop(
-        columns=[
-            &quot;destination&quot;,
-            &quot;transition_type&quot;,
-            &quot;transition_line_id&quot;,
-            &quot;transition_line_idx&quot;,
-        ]
-    )
-    return p_emission_down, emission_down_metadata</div>
+    return p_emission_down</div>
 
 </pre></div>
 
@@ -437,7 +515,7 @@ def line_transition_emission_down(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 

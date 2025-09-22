@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=40db8bea"></script>
+      <script src="../_static/documentation_options.js?v=de14b06c"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -181,20 +181,20 @@ binary search</p>
 with CUDA.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.CudaFormalIntegrator.formal_integral">
-<span class="sig-name descname"><span class="pre">formal_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jred_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#CudaFormalIntegrator.formal_integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.CudaFormalIntegrator.formal_integral" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">formal_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolated_frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jred_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#CudaFormalIntegrator.formal_integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.CudaFormalIntegrator.formal_integral" title="Link to this definition">¶</a></dt>
 <dd><p>Simple wrapper for the CUDA implementation of the formal integral</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.calculate_p_values">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">calculate_p_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#calculate_p_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_p_values" title="Link to this definition">¶</a></dt>
-<dd><p>Calculates the p values of N</p>
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.calculate_impact_parameter_values">
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">calculate_impact_parameter_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#calculate_impact_parameter_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_impact_parameter_values" title="Link to this definition">¶</a></dt>
+<dd><p>Calculates the impact parameter values of N</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>R_max</strong><span class="classifier">float64</span></dt><dd></dd>
+<dt><strong>radius_max</strong><span class="classifier">float64</span></dt><dd></dd>
 <dt><strong>N</strong><span class="classifier">int64</span></dt><dd></dd>
 </dl>
 </dd>
@@ -207,20 +207,20 @@ with CUDA.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.calculate_z_cuda">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">calculate_z_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inv_t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#calculate_z_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_z_cuda" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.calculate_intersection_point_cuda">
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">calculate_intersection_point_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impact_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#calculate_intersection_point_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.calculate_intersection_point_cuda" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate distance to p line</p>
 <p>Calculate half of the length of the p-line inside a shell
-of radius r in terms of unit length (c * t_exp).
+of radius radius in terms of unit length (c * t_exp).
 If shell and p-line do not intersect, return 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>r</strong><span class="classifier">float64</span></dt><dd><p>radius of the shell</p>
+<dt><strong>radius</strong><span class="classifier">float64</span></dt><dd><p>radius of the shell</p>
 </dd>
-<dt><strong>p</strong><span class="classifier">float64</span></dt><dd><p>distance of the p-line to the center of the supernova</p>
+<dt><strong>impact_parameter</strong><span class="classifier">float64</span></dt><dd><p>distance of the p-line to the center of the supernova</p>
 </dd>
-<dt><strong>inv_t</strong><span class="classifier">float64</span></dt><dd><p>inverse time_explosio is needed to norm to unit-length</p>
+<dt><strong>inverse_time_explosion</strong><span class="classifier">float64</span></dt><dd><p>inverse time_explosion is needed to norm to unit-length</p>
 </dd>
 </dl>
 </dd>
@@ -234,27 +234,27 @@ If shell and p-line do not intersect, return 0.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.cuda_formal_integral">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">cuda_formal_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_outer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_list_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inu_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jred_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_tau</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#cuda_formal_integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.cuda_formal_integral" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">cuda_formal_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radii_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radii_outer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_list_frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolated_frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolated_frequencies_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att_S_ul</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jred_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jblue_lu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_sobolev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impact_parameter_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_tau</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensities_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intersection_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#cuda_formal_integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.cuda_formal_integral" title="Link to this definition">¶</a></dt>
 <dd><p>The CUDA version of numba_formal_integral that can run
 on a NVIDIA GPU.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>r_inner</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>inner radius of each shell</p>
+<dt><strong>radii_inner</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>inner radius of each shell</p>
 </dd>
-<dt><strong>r_outer</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>outer radius of each shell</p>
+<dt><strong>radii_outer</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>outer radius of each shell</p>
 </dd>
 <dt><strong>time_explosion: float64</strong></dt><dd><p>geometrical explosion time</p>
 </dd>
-<dt><strong>line_list_nu</strong><span class="classifier">array(float64, 1d, A)</span></dt><dd><p>List of line transition frequencies</p>
+<dt><strong>line_list_frequencies</strong><span class="classifier">array(float64, 1d, A)</span></dt><dd><p>List of line transition frequencies</p>
 </dd>
-<dt><strong>iT</strong><span class="classifier">np.float64</span></dt><dd><p>interpolated temperture in cgs units</p>
+<dt><strong>iT</strong><span class="classifier">np.float64</span></dt><dd><p>interpolated temperature in cgs units</p>
 </dd>
-<dt><strong>inu</strong><span class="classifier">np.float64</span></dt><dd><p>interpolated frequencies in cgs units</p>
+<dt><strong>interpolated_frequencies</strong><span class="classifier">np.float64</span></dt><dd><p>interpolated frequencies in cgs units</p>
 </dd>
-<dt><strong>inu_size</strong><span class="classifier">int64</span></dt><dd><p>size of inu array</p>
+<dt><strong>interpolated_frequencies_size</strong><span class="classifier">int64</span></dt><dd><p>size of interpolated_frequencies array</p>
 </dd>
-<dt><strong>att_S_ul</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>attentuated source function</p>
+<dt><strong>att_S_ul</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>attenuated source function</p>
 </dd>
 <dt><strong>Jred_lu</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>J estimator from red end of the line from lower to upper level</p>
 </dd>
@@ -266,16 +266,13 @@ on a NVIDIA GPU.</p>
 </dd>
 <dt><strong>N</strong><span class="classifier">int64</span></dt><dd><p>Number of impact parameter values (p)</p>
 </dd>
-<dt><strong>L</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>Luminosity density at each frequency
-This is where the results will be stored</p>
-</dd>
-<dt><strong>pp</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>Impact parameter arrays</p>
+<dt><strong>impact_parameter_array</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>Impact parameter arrays</p>
 </dd>
 <dt><strong>exp_tau</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>$exp{-tau}$ array to speed up computation</p>
 </dd>
-<dt><strong>I_nu array(floatt64, 2d, C)</strong></dt><dd><p>Radiative intensity per unit frequency per impact parameter</p>
+<dt><strong>intensities_nu</strong><span class="classifier">array(float64, 2d, C)</span></dt><dd><p>Radiative intensity per unit frequency per impact parameter</p>
 </dd>
-<dt><strong>z</strong><span class="classifier">array(float64, 2d, C)</span></dt><dd><p>Ray intersections with the shells</p>
+<dt><strong>intersection_point</strong><span class="classifier">array(float64, 2d, C)</span></dt><dd><p>Ray intersections with the shells</p>
 </dd>
 <dt><strong>shell_id</strong><span class="classifier">array(int64, 2d, C)</span></dt><dd><p>List of shells for each thread</p>
 </dd>
@@ -286,17 +283,17 @@ This is where the results will be stored</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.cuda_vector_integrator">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">cuda_vector_integrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#cuda_vector_integrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.cuda_vector_integrator" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">cuda_vector_integrator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">luminosity_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensities_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#cuda_vector_integrator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.cuda_vector_integrator" title="Link to this definition">¶</a></dt>
 <dd><p>The CUDA Vectorized integrator over second axis</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>L</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>Output Array</p>
+<dt><strong>luminosity_density</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>Output Array</p>
 </dd>
-<dt><strong>I_nu</strong><span class="classifier">array(floagt64, 2d, C)</span></dt><dd><p>Input Array</p>
+<dt><strong>intensities_nu</strong><span class="classifier">array(float64, 2d, C)</span></dt><dd><p>Input Array</p>
 </dd>
 <dt><strong>N</strong><span class="classifier">int64</span></dt><dd></dd>
-<dt><strong>R_max</strong><span class="classifier">float64</span></dt><dd></dd>
+<dt><strong>radius_max</strong><span class="classifier">float64</span></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -304,12 +301,12 @@ This is where the results will be stored</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.intensity_black_body_cuda">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">intensity_black_body_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#intensity_black_body_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.intensity_black_body_cuda" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">intensity_black_body_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#intensity_black_body_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.intensity_black_body_cuda" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the blackbody intensity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>nu</strong><span class="classifier">float64</span></dt><dd><p>frequency</p>
+<dt><strong>frequency</strong><span class="classifier">float64</span></dt><dd><p>frequency</p>
 </dd>
 <dt><strong>temperature</strong><span class="classifier">float64</span></dt><dd><p>Temperature</p>
 </dd>
@@ -325,13 +322,13 @@ This is where the results will be stored</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.line_search_cuda">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">line_search_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu_insert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_lines</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#line_search_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.line_search_cuda" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">line_search_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies_insert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_lines</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#line_search_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.line_search_cuda" title="Link to this definition">¶</a></dt>
 <dd><p>Insert a value in to an array of line frequencies</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>nu</strong><span class="classifier">(array) line frequencies</span></dt><dd></dd>
-<dt><strong>nu_insert</strong><span class="classifier">(int) value of nu key</span></dt><dd></dd>
+<dt><strong>frequencies</strong><span class="classifier">(array) line frequencies</span></dt><dd></dd>
+<dt><strong>frequencies_insert</strong><span class="classifier">(int) value of frequencies key</span></dt><dd></dd>
 <dt><strong>number_of_lines</strong><span class="classifier">(int) number of lines in the line list</span></dt><dd></dd>
 </dl>
 </dd>
@@ -347,17 +344,18 @@ the reddest line returns number_of_lines.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.populate_z_cuda">
-<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">populate_z_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_outer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oshell_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#populate_z_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.populate_z_cuda" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.spectrum.formal_integral.formal_integral_cuda.populate_intersection_points_cuda">
+<span class="sig-prename descclassname"><span class="pre">tardis.spectrum.formal_integral.formal_integral_cuda.</span></span><span class="sig-name descname"><span class="pre">populate_intersection_points_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radii_inner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radii_outer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impact_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oshell_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/formal_integral/formal_integral_cuda.html#populate_intersection_points_cuda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.formal_integral.formal_integral_cuda.populate_intersection_points_cuda" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate p line intersections</p>
 <p>This function calculates the intersection points of the p-line with
 each shell</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>r_inner</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd></dd>
-<dt><strong>r_outer</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd></dd>
-<dt><strong>p</strong><span class="classifier">float64</span></dt><dd><p>distance of the integration line to the center</p>
+<dt><strong>radii_inner</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd></dd>
+<dt><strong>radii_outer</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd></dd>
+<dt><strong>time_explosion</strong><span class="classifier">float64</span></dt><dd></dd>
+<dt><strong>impact_parameter</strong><span class="classifier">float64</span></dt><dd><p>distance of the integration line to the center</p>
 </dd>
 <dt><strong>oz</strong><span class="classifier">array(float64, 1d, C)</span></dt><dd><p>will be set with z values. the array is truncated
 by the value <code class="xref py py-obj docutils literal notranslate"><span class="pre">1</span></code>.</p>
@@ -433,7 +431,7 @@ trapezoidal integration of the array.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 

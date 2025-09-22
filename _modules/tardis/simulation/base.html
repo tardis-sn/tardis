@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=40db8bea"></script>
+      <script src="../../../_static/documentation_options.js?v=de14b06c"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -147,7 +147,10 @@ from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
-from tardis.opacities.macro_atom.macroatom_solver import LegacyMacroAtomSolver
+from tardis.opacities.macro_atom.macroatom_solver import (
+    LegacyMacroAtomSolver,
+    BoundBoundMacroAtomSolver,
+)
 from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
@@ -610,10 +613,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             else:
                 self.macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
-                    self.plasma.atomic_data,
-                    self.opacity_state.tau_sobolev,
-                    self.plasma.stimulated_emission_factor,
                     self.opacity_state.beta_sobolev,
+                    self.plasma.stimulated_emission_factor,
                 )
 
         transport_state = self.transport.initialize_transport_state(
@@ -957,7 +958,11 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 &quot;downbranch&quot;,
                 &quot;macroatom&quot;,
             ):
-                macro_atom = LegacyMacroAtomSolver()
+                macro_atom = BoundBoundMacroAtomSolver(
+                    atom_data.levels,
+                    atom_data.lines,
+                    line_interaction_type=config.plasma.line_interaction_type,
+                )
 
         convergence_plots_config_options = [
             &quot;plasma_plot_config&quot;,
@@ -1023,7 +1028,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 

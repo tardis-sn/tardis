@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=40db8bea"></script>
+      <script src="../../../../_static/documentation_options.js?v=de14b06c"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -250,6 +250,7 @@ class MacroAtomState:
         transition_metadata: pd.DataFrame,
         line2macro_level_upper: pd.Series,
         macro_block_references: pd.Series | None = None,
+        references_index: pd.Series | None = None,
     ) -&gt; None:
         &quot;&quot;&quot;
         Initialize a MacroAtomState object.
@@ -269,12 +270,19 @@ class MacroAtomState:
         self.transition_metadata = transition_metadata
         self.line2macro_level_upper = line2macro_level_upper
         self.macro_block_references = macro_block_references
+        self.references_index = references_index
 
 <div class="viewcode-block" id="MacroAtomState.to_legacy_format">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.to_legacy_format">[docs]</a>
     def to_legacy_format(self) -&gt; LegacyMacroAtomState:
         &quot;&quot;&quot;
-        Convert the current MacroAtomState to legacy format.
+        Convert the current state of the MacroAtom to legacy format.
+
+        This method transforms the modern MacroAtomState structure into the
+        legacy LegacyMacroAtomState format for backward compatibility. It extracts
+        individual components from the consolidated transition_metadata DataFrame
+        and converts them to the separate arrays/DataFrames expected by the
+        legacy format.
 
         Returns
         -------
@@ -285,20 +293,7 @@ class MacroAtomState:
         transition_type = self.transition_metadata.transition_type
         destination_level_id = self.transition_metadata.destination_level_idx
         transition_line_id = self.transition_metadata.transition_line_idx
-        unique_source_multi_index = pd.MultiIndex.from_tuples(
-            self.transition_metadata.source.unique(),
-            names=[&quot;atomic_number&quot;, &quot;ion_number&quot;, &quot;level_number&quot;],
-        )
-        macro_data = (
-            self.transition_metadata.reset_index()
-            .groupby(&quot;source&quot;)
-            .apply(lambda x: x.index[0])
-        )
-        macro_block_references = pd.Series(
-            data=macro_data.values,
-            index=unique_source_multi_index,
-            name=&quot;macro_block_references&quot;,
-        )
+        macro_block_references = self.macro_block_references
         line2macro_level_upper = self.line2macro_level_upper.values
 
         return LegacyMacroAtomState(
@@ -360,6 +355,7 @@ class MacroAtomState:
             transition_probabilities=resorted_transition_probabilities,
             transition_metadata=resorted_metadata,
             line2macro_level_upper=self.line2macro_level_upper,
+            macro_block_references=self.macro_block_references,
         )</div>
 
 
@@ -406,7 +402,7 @@ class MacroAtomState:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Sep 2025.
+      <span class="lastupdated">Last updated on 22 Sep 2025.
       </span></p>
   </div>
 
