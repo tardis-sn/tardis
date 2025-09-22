@@ -50,7 +50,7 @@ class LIVPlotter:
         """
         plotter = cls()
         plotter.velocity = sim.simulation_state.velocity
-        plotter.time_explosion = sim.plasma.time_explosion
+        plotter.time_explosion = sim.simulation_state.time_explosion
 
         modes = ["real"]
         if sim.transport.transport_state.virt_logging:
@@ -114,7 +114,12 @@ class LIVPlotter:
         """
         plotter = cls()
         plotter.velocity = workflow.simulation_state.velocity
-        plotter.time_explosion = workflow.transport_state.time_explosion * u.s
+        # Handle time_explosion from workflow properly - it may be a Quantity already
+        time_explosion = workflow.transport_state.time_explosion
+        if hasattr(time_explosion, 'unit'):
+            plotter.time_explosion = time_explosion
+        else:
+            plotter.time_explosion = time_explosion * u.s
         modes = ["real"]
         if workflow.enable_virtual_packet_logging:
             modes.append("virtual")
@@ -193,7 +198,6 @@ class LIVPlotter:
         else:
             species_name = []
             for species_key, species_ids in self._species_mapped.items():
-                print(self.species, species_ids)
                 if any(spec_id in self.species for spec_id in species_ids):
                     atomic_number, ion_number = species_key
                     if ion_number == 0:
@@ -323,25 +327,39 @@ class LIVPlotter:
             found in the model.
         """
         # Extract all unique elements from the packets data
-        species_in_model = np.unique(
-            self.packet_data[packets_mode]["packets_df_line_interaction"][
-                "last_line_interaction_species"
-            ]
-            .apply(lambda x: (int(x[0]), int(x[1])))
-            .to_numpy()
-        )
+        line_df = self.packet_data[packets_mode]["packets_df_line_interaction"]
+            
+        if line_df is not None and not line_df.empty:
+            species_in_model = np.unique(
+                line_df["last_line_interaction_species"].to_numpy()
+            )
+        else:
+            species_in_model = []
         if species_list is None:
-            species_list = [
-                f"{atomic_number2element_symbol(species[0])}"
-                for species in species_in_model
-            ]
+            if len(species_in_model) > 0:
+                species_list = [
+                    f"{atomic_number2element_symbol(species[0])}"
+                    for species in species_in_model
+                ]
+            else:
+                species_list = []
         self._parse_species_list(species_list, packets_mode, nelements)
         if self._species_list is None or not self._species_list:
-            raise ValueError("No species provided for plotting.")
+            if len(species_in_model) == 0:
+                raise ValueError(
+                    "No line interactions found in the packet data. "
+                    "The LIV plot requires packets that underwent line interactions."
+                )
+            else:
+                raise ValueError("No species provided for plotting.")
         self.species = list(set(self._species_list) & set(species_in_model))
 
         if len(self.species) == 0:
-            raise ValueError("No valid species found for plotting.")
+            raise ValueError(
+                f"No valid species found for plotting. "
+                f"Requested species: {species_list}, "
+                f"Available species in model: {[f'{atomic_number2element_symbol(s[0])} {int_to_roman(s[1]+1)}' for s in species_in_model]}"
+            )
 
         self._make_colorbar_labels()
         self.cmap = plt.get_cmap(cmapname, len(self._species_name))
