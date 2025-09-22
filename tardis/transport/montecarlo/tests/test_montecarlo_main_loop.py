@@ -137,3 +137,23 @@ def test_montecarlo_main_loop_vpacket_log(
         rtol=1e-12,
         atol=1e-15,
     )
+
+
+def test_montecarlo_main_loop_hydrogen_only(
+    config_verysimple_hydrogen_only, atomic_dataset, regression_data
+):
+    atomic_dataset = deepcopy(atomic_dataset)
+    montecarlo_main_loop_simulation = Simulation.from_config(
+        config_verysimple_hydrogen_only,
+        atom_data=atomic_dataset,
+        virtual_packet_logging=False,
+    )
+    montecarlo_main_loop_simulation.run_convergence()
+    montecarlo_main_loop_simulation.run_final()
+
+    transport = montecarlo_main_loop_simulation.transport.transport_state
+    assert transport.j_estimator is not None
+    expected_j_estimator = regression_data.sync_ndarray(transport.j_estimator)
+    npt.assert_allclose(
+        transport.j_estimator, expected_j_estimator, atol=0, rtol=1e-12
+    )
