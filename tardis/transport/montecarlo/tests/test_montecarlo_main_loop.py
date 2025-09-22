@@ -154,4 +154,6 @@ def test_montecarlo_main_loop_hydrogen_only(
     transport = montecarlo_main_loop_simulation.transport.transport_state
     assert transport.j_estimator is not None
     expected_j_estimator = regression_data.sync_ndarray(transport.j_estimator)
-    npt.assert_allclose(transport.j_estimator, expected_j_estimator)
+    npt.assert_allclose(
+        transport.j_estimator, expected_j_estimator, atol=0, rtol=1e-13
+    )
