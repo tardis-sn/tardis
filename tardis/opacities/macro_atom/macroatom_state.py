@@ -109,6 +109,7 @@ class MacroAtomState:
         transition_metadata: pd.DataFrame,
         line2macro_level_upper: pd.Series,
         macro_block_references: pd.Series | None = None,
+        references_index: pd.Series | None = None,
     ) -> None:
         """
         Initialize a MacroAtomState object.
@@ -128,6 +129,7 @@ class MacroAtomState:
         self.transition_metadata = transition_metadata
         self.line2macro_level_upper = line2macro_level_upper
         self.macro_block_references = macro_block_references
+        self.references_index = references_index
 
     def to_legacy_format(self) -> LegacyMacroAtomState:
         """

@@ -176,7 +176,7 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.LINE:
-            r_packet.last_interaction_type = 2
+            r_packet.last_interaction_type = InteractionType.LINE
             move_r_packet(
                 r_packet,
                 distance,
@@ -203,7 +203,7 @@ def single_packet_loop(
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
-            r_packet.last_interaction_type = 1
+            r_packet.last_interaction_type = InteractionType.ESCATTERING
 
             move_r_packet(
                 r_packet,

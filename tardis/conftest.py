@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 from astropy.version import version as astropy_version
+from astropy import units as u
 
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
@@ -167,11 +168,17 @@ def generate_reference(request):
 
 @pytest.fixture(scope="session")
 def tardis_regression_path(request):
-    tardis_regression_path = request.config.getoption("--tardis-regression-data")
+    tardis_regression_path = request.config.getoption(
+        "--tardis-regression-data"
+    )
     if tardis_regression_path is None:
         pytest.skip("--tardis-regression-data was not specified")
     else:
-        return Path(os.path.expandvars(tardis_regression_path)).expanduser().resolve()
+        return (
+            Path(os.path.expandvars(tardis_regression_path))
+            .expanduser()
+            .resolve()
+        )
 
 
 @pytest.fixture(scope="function")
@@ -180,6 +187,7 @@ def tardis_config_verysimple():
         "tardis/io/configuration/tests/data/tardis_configv1_verysimple.yml",
         YAMLLoader,
     )
+
 
 @pytest.fixture(scope="session")
 def config_verysimple_for_simulation_one_loop(
@@ -190,6 +198,17 @@ def config_verysimple_for_simulation_one_loop(
     config.montecarlo.iterations = 2
     config.montecarlo.no_of_packets = int(4e4)
     config.montecarlo.last_no_of_packets = int(4e4)
+    return config
+
+
+@pytest.fixture(scope="function")
+def config_verysimple_hydrogen_only(config_verysimple):
+    config = deepcopy(config_verysimple)
+    config.model.abundances = {
+        "type": "uniform",
+        "H": 1.0,
+        "model_isotope_time_0": 0.0 * u.s,
+    }
     return config
 
 

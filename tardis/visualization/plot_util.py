@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+
 from tardis.util.base import (
     element_symbol2atomic_number,
     int_to_roman,
@@ -211,7 +213,7 @@ def process_line_interactions(packet_data, lines_df):
 
     if packets_df is not None:
         # Create dataframe of packets that experience line interaction
-        line_mask = (packets_df["last_interaction_type"] > -1) & (
+        line_mask = (packets_df["last_interaction_type"] > InteractionType.NO_INTERACTION) & (
             packets_df["last_line_interaction_in_id"] > -1
         )
         packet_data["packets_df_line_interaction"] = packets_df.loc[

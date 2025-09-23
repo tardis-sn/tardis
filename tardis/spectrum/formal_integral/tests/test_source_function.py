@@ -4,12 +4,15 @@ import numpy.testing as npt
 import pytest
 
 from tardis.simulation import Simulation
-from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL = 1e-14
 
 config_line_modes = ["downbranch", "macroatom"]
+
 
 @pytest.fixture(scope="module", params=config_line_modes)
 def source_function_verysimple(request, config_verysimple, atomic_dataset):
@@ -46,6 +49,7 @@ def source_function_verysimple(request, config_verysimple, atomic_dataset):
         opacity_state,
         transport.transport_state,
         atomic_data,
+        sim.macro_atom_state,
     )
     return source_function_state
 

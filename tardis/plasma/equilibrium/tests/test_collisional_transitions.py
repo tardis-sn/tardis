@@ -109,6 +109,8 @@ def test_legacy_cmfgen_collisional_strengths(
     npt.assert_allclose(
         new_regemorter_collision_strengths.values,
         approximated_cmfgen_yg_data,
+        atol=0,
+        rtol=1e-8,
     )  # residuals are ~1e-8 not sure if that is good enough
     # Not comparing to the yg_data as they are saved differently
 
@@ -154,4 +156,6 @@ def test_thermal_collision_rates(
         # to allow comparison between old and new versions
         check_names=False,
         check_column_type=False,
+        atol=0,
+        rtol=1e-8,
     )
