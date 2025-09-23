@@ -1,4 +1,5 @@
 from itertools import product
+from copy import deepcopy
 
 import astropy.units as u
 import numpy as np
@@ -7,8 +8,13 @@ from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
 
+import pandas as pd
+
 from tardis.visualization.tools.liv_plot import LIVPlotter
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardisbase.testing.regression_data.regression_data import PlotDataHDF
+
+RELATIVE_TOLERANCE_LIV=1e-12
 
 @pytest.fixture(scope="class")
 def plotter(simulation_simple):
@@ -86,11 +92,11 @@ class TestLIVPlotter:
                 for item in sublist
             ]
             data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
+            np.testing.assert_allclose(plot_object, data, atol=0, rtol=RELATIVE_TOLERANCE_LIV)
         else:
             plot_object = getattr(plotter, attribute)
             data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
+            np.testing.assert_allclose(plot_object, data, atol=0, rtol=RELATIVE_TOLERANCE_LIV)
 
     @pytest.fixture(scope="class", params=combinations)
     def plotter_prepare_plot_data(self, request, plotter):
@@ -154,12 +160,12 @@ class TestLIVPlotter:
             if all(isinstance(item, u.Quantity) for item in plot_object):
                 plot_object = [item.value for item in plot_object]
             data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
+            np.testing.assert_allclose(plot_object, data, atol=0, rtol=RELATIVE_TOLERANCE_LIV)
         else:
             plot_object = getattr(plotter_prepare_plot_data, attribute)
             plot_object = plot_object.value
             data = regression_data.sync_ndarray(plot_object)
-            np.testing.assert_allclose(plot_object, data)
+            np.testing.assert_allclose(plot_object, data, atol=0, rtol=RELATIVE_TOLERANCE_LIV)
 
     @pytest.fixture(scope="function", params=combinations)
     def plotter_generate_plot_mpl(self, request, plotter):
@@ -264,8 +270,7 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     expected_values,
                     actual_values,
-                    rtol=0.3,
-                    atol=3,
+                    atol=0, rtol=RELATIVE_TOLERANCE_LIV
                 )
             else:
                 assert np.array_equal(expected_values, actual_values)
@@ -281,14 +286,12 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     data.get_xydata(),
                     expected.get("plot_data_hdf/" + "data" + str(index1)),
-                    rtol=0.3,
-                    atol=3,
+                    atol=0, rtol=RELATIVE_TOLERANCE_LIV
                 )
                 np.testing.assert_allclose(
                     data.get_path().vertices,
                     expected.get("plot_data_hdf/" + "linepath" + str(index1)),
-                    rtol=1,
-                    atol=3,
+                    atol=0, rtol=RELATIVE_TOLERANCE_LIV
                 )
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
@@ -331,7 +334,7 @@ class TestLIVPlotter:
                 / f"{regression_data.fname_prefix}.png"
             )
             actual = str(tmp_path / f"{regression_data.fname_prefix}.png")
-            compare_images(expected, actual, tol=0.001)
+            compare_images(expected, actual, tol=1e-3)
 
     @pytest.fixture(scope="function", params=combinations)
     def plotter_generate_plot_ply(self, request, plotter):
@@ -429,8 +432,7 @@ class TestLIVPlotter:
                 np.testing.assert_allclose(
                     expected_values,
                     actual_values,
-                    rtol=0.3,
-                    atol=3,
+                    atol=0, rtol=RELATIVE_TOLERANCE_LIV
                 )
             else:
                 assert np.array_equal(expected_values, actual_values)
@@ -455,13 +457,148 @@ class TestLIVPlotter:
             np.testing.assert_allclose(
                 data.x,
                 expected.get(group + "x").values.flatten(),
-                rtol=0.3,
-                atol=3,
+                atol=0, rtol=RELATIVE_TOLERANCE_LIV
             )
             np.testing.assert_allclose(
                 data.y,
                 expected.get(group + "y").values.flatten(),
-                rtol=0.3,
-                atol=3,
+                atol=0, rtol=RELATIVE_TOLERANCE_LIV
             )
         expected.close()
+
+    @pytest.fixture(scope="class")
+    def plotter_from_workflow(self, workflow_simple):
+        return LIVPlotter.from_workflow(workflow_simple)
+
+    @pytest.fixture(scope="class")
+    def liv_regression_data(self, tardis_regression_path):
+        return tardis_regression_path / "tardis/visualization/tools/tests/test_liv_plot/test_liv_plotter"
+
+    @pytest.fixture(scope="class", params=list(enumerate(combinations)))
+    def plotter_prepare_plot_data_from_workflow(self, request, plotter_from_workflow):
+        param_idx, param = request.param
+        (
+            species_list,
+            packet_wvl_range,
+            packets_mode,
+            nelements,
+            num_bins,
+            _,
+            cmapname,
+        ) = param
+        plotter_from_workflow._prepare_plot_data(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            species_list=species_list,
+            cmapname=cmapname,
+            num_bins=num_bins,
+            nelements=nelements,
+        )
+        plotter_from_workflow._param_idx = param_idx
+        return plotter_from_workflow
+
+    def test_prepare_plot_data_workflow_vs_regression(
+        self, plotter_prepare_plot_data_from_workflow, liv_regression_data
+    ):
+        param_idx = plotter_prepare_plot_data_from_workflow._param_idx
+        
+        for attribute in ["plot_data", "plot_colors", "new_bin_edges"]:
+            if attribute == "plot_data" or attribute == "plot_colors":
+                regression_file = liv_regression_data / f"test_prepare_plot_data__plotter_prepare_plot_data{param_idx}-{attribute}__.npy"
+                expected = np.load(regression_file)
+                
+                plot_object = getattr(plotter_prepare_plot_data_from_workflow, attribute)
+                plot_object = [item for sublist in plot_object for item in sublist]
+                if all(isinstance(item, u.Quantity) for item in plot_object):
+                    plot_object = [item.value for item in plot_object]
+                    
+                np.testing.assert_allclose(plot_object, expected, atol=0, rtol=RELATIVE_TOLERANCE_LIV)
+            else:
+                regression_file = liv_regression_data / f"test_prepare_plot_data__plotter_prepare_plot_data{param_idx}-{attribute}__.npy"
+                expected = np.load(regression_file)
+                
+                plot_object = getattr(plotter_prepare_plot_data_from_workflow, attribute)
+                plot_object = plot_object.value
+                
+                np.testing.assert_allclose(plot_object, expected, atol=0, rtol=RELATIVE_TOLERANCE_LIV)
+
+    @pytest.fixture(scope="class", params=list(enumerate(combinations)))
+    def plotter_generate_plot_mpl_from_workflow(self, request, plotter_from_workflow):
+        param_idx, param = request.param
+        (
+            species_list,
+            packet_wvl_range,
+            packets_mode,
+            nelements,
+            num_bins,
+            velocity_range,
+            _,
+        ) = param
+
+        fig = plotter_from_workflow.generate_plot_mpl(
+            species_list=species_list,
+            packet_wvl_range=packet_wvl_range,
+            nelements=nelements,
+            packets_mode=packets_mode,
+            num_bins=num_bins,
+            velocity_range=velocity_range,
+        )
+        plotter_from_workflow._param_idx = param_idx
+        return fig, plotter_from_workflow
+
+    def test_generate_plot_mpl_workflow_vs_regression(
+        self, plotter_generate_plot_mpl_from_workflow, liv_regression_data
+    ):
+        _, plotter = plotter_generate_plot_mpl_from_workflow
+        param_idx = plotter._param_idx
+        regression_file = liv_regression_data / f"test_generate_plot_mpl__plotter_generate_plot_mpl{param_idx}__.h5"
+        
+        # Compare species names and color lists
+        expected_species = pd.read_hdf(regression_file, key="plot_data_hdf/_species_name")
+        expected_colors = pd.read_hdf(regression_file, key="plot_data_hdf/_color_list")
+        expected_step_x = pd.read_hdf(regression_file, key="plot_data_hdf/step_x")
+        expected_step_y = pd.read_hdf(regression_file, key="plot_data_hdf/step_y")
+        
+        np.testing.assert_array_equal(plotter._species_name, expected_species.values.flatten())
+        
+        color_list = [item for subitem in plotter._color_list for item in subitem]
+        np.testing.assert_allclose(color_list, expected_colors.values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_LIV)
+        
+        np.testing.assert_allclose(plotter.step_x.value, expected_step_x.values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_LIV)
+        np.testing.assert_allclose(plotter.step_y, expected_step_y.values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_LIV)
+
+    def test_workflow_simulation_data_identical(self, plotter, plotter_from_workflow):
+        # Calculate plotting data with identical parameters
+        params = {
+            "packets_mode": "virtual",
+            "packet_wvl_range": [3000, 9000] * u.AA,
+            "species_list": None,
+            "cmapname": "jet",
+            "num_bins": None,
+            "nelements": None
+        }
+        
+        plotter._prepare_plot_data(**params)
+        plotter_from_workflow._prepare_plot_data(**params)
+        
+        # Test that plot data arrays are identical
+        for i, (sim_data, workflow_data) in enumerate(zip(plotter.plot_data, plotter_from_workflow.plot_data)):
+            np.testing.assert_allclose(
+                [item.value for item in sim_data],
+                [item.value for item in workflow_data],
+                atol=0, rtol=RELATIVE_TOLERANCE_LIV
+            )
+
+    def test_mpl_image_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, liv_regression_data):
+        fig, plotter = plotter_generate_plot_mpl_from_workflow
+        param_idx = plotter._param_idx
+        
+        # Save actual image
+        actual_image_path = tmp_path / f"test_mpl_image_workflow_{param_idx}.png"
+        fig.figure.savefig(actual_image_path)
+        
+        # Path to expected image
+        expected_image_path = liv_regression_data / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
+        
+        # Compare images
+        compare_images(str(expected_image_path), str(actual_image_path), tol=1e-3)

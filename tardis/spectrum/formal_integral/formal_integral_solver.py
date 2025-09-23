@@ -6,6 +6,7 @@ from scipy.interpolate import interp1d
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.base import TARDISSpectrum
+from tardis.spectrum.formal_integral.base import check_formal_integral_requirements
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
@@ -197,6 +198,9 @@ class FormalIntegralSolver:
         TARDISSpectrum
             The formal integral spectrum
         """
+        # check objects and configs
+        check_formal_integral_requirements(simulation_state, opacity_state, transport_solver)
+
         # Convert to numba opacity state for source function and integrator
         opacity_state_numba = self.setup(
             transport_solver, opacity_state, macro_atom_state
@@ -212,13 +216,17 @@ class FormalIntegralSolver:
             logger.warning(
                 "The number of interpolate_shells was not "
                 "specified. The value was set to %d.",
-                interpolate_shells
+                interpolate_shells,
             )
         self.interpolate_shells = interpolate_shells
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
         source_function_state = source_function_solver.solve(
-            simulation_state, opacity_state_numba, transport_state, atomic_data
+            simulation_state,
+            opacity_state_numba,
+            transport_state,
+            atomic_data,
+            macro_atom_state,
         )
 
         # Generate interpolated radii if needed
@@ -269,7 +277,6 @@ class FormalIntegralSolver:
         luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
             simulation_state.t_inner,
             frequencies,
-            frequencies.shape[0],
             att_S_ul_interpolated,
             Jred_lu_interpolated,
             Jblue_lu_interpolated,
@@ -285,7 +292,9 @@ class FormalIntegralSolver:
             frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
         ), "Frequency grid must be uniform"
 
-        luminosity = u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
+        luminosity = (
+            u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
+        )
 
         frequencies = frequencies.to("Hz", u.spectral())
 
@@ -355,7 +364,9 @@ class FormalIntegralSolver:
 
         r_middle_original = (r_inner_original + r_outer_original) / 2.0
 
-        r_middle_interpolated = (r_inner_interpolated + r_outer_interpolated) / 2.0
+        r_middle_interpolated = (
+            r_inner_interpolated + r_outer_interpolated
+        ) / 2.0
 
         electron_densities_interpolated = interp1d(
             r_middle_original,
@@ -367,8 +378,12 @@ class FormalIntegralSolver:
         )(r_middle_interpolated)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        v_inner_boundary_index = simulation_state.geometry.v_inner_boundary_index
-        v_outer_boundary_index = simulation_state.geometry.v_outer_boundary_index
+        v_inner_boundary_index = (
+            simulation_state.geometry.v_inner_boundary_index
+        )
+        v_outer_boundary_index = (
+            simulation_state.geometry.v_outer_boundary_index
+        )
         tau_sobolevs_interpolated = interp1d(
             r_middle_original,
             opacity_state.tau_sobolev.values[
