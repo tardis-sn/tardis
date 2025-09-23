@@ -425,24 +425,10 @@ class BoundBoundMacroAtomSolver:
             ],
             inplace=True,
         )
-        source_to_index = {
-            source: idx
-            for idx, source in enumerate(
-                macro_atom_transition_metadata.source.unique()
-            )
-        }
-        # -99 should never be used downstream. The presence of it means the destination is not a source,
-        # which means that the destination is only referenced from emission
-        # (or macroatom deactivation) for the given macroatom configuration.
-        macro_atom_transition_metadata["destination_level_idx"] = (
-            (macro_atom_transition_metadata.destination.map(source_to_index))
-            .fillna(-99)
-            .astype(np.int64)
-        )
 
-        macro_atom_transition_metadata["source_level_idx"] = (
-            macro_atom_transition_metadata.source.map(source_to_index)
-        ).astype(np.int64)
+        create_source_and_destination_idx_columns(
+            macro_atom_transition_metadata
+        )
 
         macro_block_references = create_macro_block_references(
             macro_atom_transition_metadata
@@ -568,6 +554,38 @@ class BoundBoundMacroAtomSolver:
         )
 
         return normalized_probabilities
+
+
+def create_source_and_destination_idx_columns(macro_atom_transition_metadata):
+    """
+    This function creates numerical indices for source and destination levels
+    by mapping unique source levels to sequential integers. The destination
+    indices use -99 for destinations that are not sources (emission-only levels).
+
+    Parameters
+    ----------
+    macro_atom_transition_metadata : pd.DataFrame
+        DataFrame containing macro atom transition metadata with 'source' and
+        'destination' columns.
+    """
+    source_to_index = {
+        source: idx
+        for idx, source in enumerate(
+            macro_atom_transition_metadata.source.unique()
+        )
+    }
+    # -99 should never be used downstream. The presence of it means the destination is not a source,
+    # which means that the destination is only referenced from emission
+    # (or macroatom deactivation) for the given macroatom configuration.
+    macro_atom_transition_metadata["destination_level_idx"] = (
+        (macro_atom_transition_metadata.destination.map(source_to_index))
+        .fillna(-99)
+        .astype(np.int64)
+    )
+
+    macro_atom_transition_metadata["source_level_idx"] = (
+        macro_atom_transition_metadata.source.map(source_to_index)
+    ).astype(np.int64)
 
 
 def create_macro_block_references(macro_atom_transition_metadata):
@@ -733,6 +751,7 @@ def reindex_sort_and_clean_probabilities_and_metadata(
     ]  # Reorder to match the metadata, which was sorted to match carsus.
 
     return normalized_probabilities, macro_atom_transition_metadata
+
 
 class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
     levels: pd.DataFrame
