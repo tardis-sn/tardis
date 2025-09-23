@@ -1,63 +1,91 @@
-import numpy as np
-from astropy import units as u
-import warnings
-from scipy.interpolate import interp1d
 import logging
 
-from tardis.opacities.opacity_state import opacity_state_initialize
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+import numpy as np
+from astropy import units as u
+from scipy.interpolate import interp1d
 
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.base import TARDISSpectrum
-from tardis.spectrum.formal_integral.base import check
-from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
-from tardis.spectrum.formal_integral.formal_integral_numba import (
-    NumbaFormalIntegrator,
-)
 from tardis.spectrum.formal_integral.formal_integral_cuda import (
     CudaFormalIntegrator,
 )
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    NumbaFormalIntegrator,
+)
+from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 logger = logging.getLogger(__name__)
 
 
 class FormalIntegralSolver:
-    def __init__(self, integrator_settings):
+    """
+    Formal integral solver for TARDIS spectra.
+
+    Attributes
+    ----------
+    points : int
+        Number of points for the formal integral calculation
+    interpolate_shells : int
+        Number of shells to interpolate to. If > 0, interpolation is performed
+        to the specified number of shells. If <= 0, no interpolation is performed
+        and original shell structure is used.
+    method : str or None
+        Method to use for the formal integral solver ('numba' or 'cuda')
+    """
+
+    points: int
+    interpolate_shells: int
+    method: str | None
+
+    def __init__(
+        self, points: int, interpolate_shells: int, method: str | None = None
+    ) -> None:
         """
         Initialize the formal integral solver.
 
         Parameters
         ----------
-        integrator_settings : IntegratorSettings
-            The settings to use for the integrator, such as:
-                points (int): Number of points
-                interpolate_shells (int): Number of shells to interpolate to
-                method (str): Method to use for the formal integral solver ('numba' or 'cuda')
+        points : int
+            Number of points for the formal integral calculation
+        interpolate_shells : int
+            Number of shells to interpolate to. If > 0, interpolation is performed
+            to the specified number of shells. If <= 0, no interpolation is performed
+            and original shell structure is used.
+        method : str, optional
+            Method to use for the formal integral solver ('numba' or 'cuda').
+            If None, will be determined based on GPU availability.
         """
-        self.integrator_settings = integrator_settings
-
-        # check if the method was set in the configuration
-        try:
-            self.method = self.integrator_settings.integrated.method
-        except AttributeError:
-            self.method = None
+        self.points = points
+        self.interpolate_shells = interpolate_shells
+        self.method = method
 
     def setup(
-        self, transport, plasma, opacity_state=None, macro_atom_state=None
-    ):
+        self,
+        transport,
+        opacity_state=None,
+        macro_atom_state=None,
+    ) -> object:
         """
-        Prepares the necessary data for the formal integral solver.
+        Prepare the necessary data for the formal integral solver.
 
         Parameters
         ----------
-        plasma : tardis.plasma.BasePlasma
         transport : tardis.transport.montecarlo.MontecarloTransport
+            The transport configuration object
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            The regular (non-numba) opacity state object to be converted
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional
+            The macro atom state object
 
         Returns
         -------
-        atomic_data : AtomicData
-        levels_index : np.ndarray
-        opacity_state : OpacityStateNumba
+        opacity_state_numba : tardis.opacities.opacity_state.OpacityStateNumba
+            The opacity state converted to numba format
         """
+        if opacity_state is None or macro_atom_state is None:
+            raise NotImplementedError(
+                "This functionality does not work anymore. Both opacity_state and macro_atom_state must be provided."
+            )
 
         self.montecarlo_configuration = transport.montecarlo_configuration
 
@@ -73,35 +101,35 @@ class FormalIntegralSolver:
                 self.method = "numba"
         else:
             logger.warning(
-                f"Computing formal integral via the {self.method} method isn't supported"
-                "Please run with config option numba or cuda"
-                "Defaulting to numba implementation"
+                "Computing formal integral via the %s method isn't supported. "
+                "Please run with config option numba or cuda. "
+                "Defaulting to numba implementation",
+                self.method,
             )
             self.method = "numba"
 
         if opacity_state and macro_atom_state:
-            opacity_state = opacity_state.to_numba(
+            opacity_state_numba = opacity_state.to_numba(
                 macro_atom_state,
                 transport.line_interaction_type,
             )
-        else:
-            opacity_state = opacity_state_initialize(
-                plasma,
-                transport.line_interaction_type,
-                self.montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            )
-        atomic_data = plasma.atomic_data
 
-        return atomic_data, opacity_state
+        return opacity_state_numba
 
-    def setup_integrator(self, opacity_state, time_explosion, r_inner, r_outer):
+    def setup_integrator(
+        self,
+        opacity_state_numba,
+        time_explosion: u.Quantity,
+        r_inner: np.ndarray,
+        r_outer: np.ndarray,
+    ) -> None:
         """
-        Setup the integrator depending on the choice of method
+        Set up the integrator depending on the choice of method.
 
         Parameters
         ----------
-        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
-            The opacity state to use for the formal integral
+        opacity_state_numba : tardis.opacities.opacity_state.OpacityStateNumba
+            The opacity state (numba format) to use for the formal integral
         time_explosion : u.Quantity
             The time of the explosion
         r_inner : np.ndarray
@@ -109,7 +137,6 @@ class FormalIntegralSolver:
         r_outer : np.ndarray
             The outer radii of the shells
         """
-
         numba_radial_1d_geometry = NumbaRadial1DGeometry(
             r_inner,
             r_outer,
@@ -121,290 +148,258 @@ class FormalIntegralSolver:
             self.integrator = CudaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
-                opacity_state,
-                self.integrator_settings.points,
+                opacity_state_numba,
+                self.points,
             )
         else:
             self.integrator = NumbaFormalIntegrator(
                 numba_radial_1d_geometry,
                 time_explosion.cgs.value,
-                opacity_state,
-                self.integrator_settings.points,
+                opacity_state_numba,
+                self.points,
             )
 
     def solve(
         self,
-        nu,
+        frequencies: u.Quantity,
         simulation_state,
-        transport,
-        plasma,
-        opacity_state=None,
+        transport_solver,
+        opacity_state,
+        atomic_data,
+        electron_densities,
         macro_atom_state=None,
-    ):
+    ) -> TARDISSpectrum:
         """
-        Solve the formal integral
+        Solve the formal integral.
 
         Parameters
         ----------
-        nu : u.Quantity
-            The frequency grid for the formal integral.
+        frequencies : u.Quantity
+            The frequency grid for the formal integral
         simulation_state : tardis.model.SimulationState
-            State which hold information about each shell
-        transport : tardis.transport.montecarlo.MonteCarloTransportSolver
-        plasma : tardis.plasma.BasePlasma
-        opacity_state : tardis.opacities.opacity_state.OpacityState or None
-            State of the line opacities
-        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState or None
-            State of the macro atom
+            State which holds information about each shell
+        transport_solver : tardis.transport.montecarlo.MonteCarloTransportSolver
+            The transport solver
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            Regular (non-numba) opacity state; will be converted to numba via `setup`
+        atomic_data : tardis.atomic.AtomicData
+            Atomic data containing atomic properties
+        electron_densities : pd.Series
+            Electron densities for each shell
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional
+            State of the macro atom (required for converting opacity_state to numba)
 
         Returns
         -------
         TARDISSpectrum
-            the formal integral spectrum
+            The formal integral spectrum
         """
-
-        atomic_data, opacity_state = self.setup(
-            transport, plasma, opacity_state, macro_atom_state
+        # Convert to numba opacity state for source function and integrator
+        opacity_state_numba = self.setup(
+            transport_solver, opacity_state, macro_atom_state
         )
-        transport_state = transport.transport_state
+        transport_state = transport_solver.transport_state
 
-        points = self.integrator_settings.points
-        interpolate_shells = self.integrator_settings.interpolate_shells
-        line_interaction_type = transport.line_interaction_type
+        points = self.points
+        interpolate_shells = self.interpolate_shells
+        line_interaction_type = transport_solver.line_interaction_type
+
+        if interpolate_shells == 0:  # Default Value
+            interpolate_shells = max(2 * simulation_state.no_of_shells, 80)
+            logger.warning(
+                "The number of interpolate_shells was not "
+                "specified. The value was set to %d.",
+                interpolate_shells
+            )
+        self.interpolate_shells = interpolate_shells
 
         source_function_solver = SourceFunctionSolver(line_interaction_type)
         source_function_state = source_function_solver.solve(
-            simulation_state, opacity_state, transport_state, atomic_data
+            simulation_state, opacity_state_numba, transport_state, atomic_data
         )
+
+        # Generate interpolated radii if needed
+        mct_state = transport_solver.transport_state
+        if interpolate_shells > 0:
+            radius_interpolated = np.linspace(
+                mct_state.geometry_state.r_inner[0],
+                mct_state.geometry_state.r_outer[-1],
+                interpolate_shells,
+            )
+            r_inner_interpolated = radius_interpolated[:-1]
+            r_outer_interpolated = radius_interpolated[1:]
+        elif interpolate_shells <= 0:
+            # Use original radii values when interpolate_shells < 0
+            r_inner_interpolated = mct_state.geometry_state.r_inner
+            r_outer_interpolated = mct_state.geometry_state.r_outer
 
         (
-            att_S_ul,
-            Jred_lu,
-            Jblue_lu,
-            _,  # e_dot_u is not used
-            r_inner_itp,
-            r_outer_itp,
-            tau_sobolevs_integ,
-            electron_densities_integ,
-        ) = self.get_interpolated_quantities(
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
+            r_inner_interpolated,
+            r_outer_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
+        ) = self.interpolate_integrator_quantities(
+            mct_state.geometry_state.r_inner,
+            mct_state.geometry_state.r_outer,
+            r_inner_interpolated,
+            r_outer_interpolated,
             source_function_state,
-            interpolate_shells,
             simulation_state,
-            transport,
             opacity_state,
-            plasma,
+            electron_densities,
         )
-        att_S_ul = att_S_ul.flatten(order="F")
-        Jred_lu = Jred_lu.flatten(order="F")
-        Jblue_lu = Jblue_lu.flatten(order="F")
+
+        att_S_ul_interpolated = att_S_ul_interpolated.flatten(order="F")
+        Jred_lu_interpolated = Jred_lu_interpolated.flatten(order="F")
+        Jblue_lu_interpolated = Jblue_lu_interpolated.flatten(order="F")
 
         self.setup_integrator(
-            opacity_state,
+            opacity_state_numba,
             simulation_state.time_explosion,
-            r_inner_itp,
-            r_outer_itp,
+            r_inner_interpolated,
+            r_outer_interpolated,
         )
 
-        L, I_nu_p = self.integrator.formal_integral(
+        luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
             simulation_state.t_inner,
-            nu,
-            nu.shape[0],
-            att_S_ul,
-            Jred_lu,
-            Jblue_lu,
-            tau_sobolevs_integ,
-            electron_densities_integ,
+            frequencies,
+            frequencies.shape[0],
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
             points,
         )
 
-        L = np.array(L, dtype=np.float64)
-        luminosity = u.Quantity(L, "erg") * (nu[1] - nu[0])
+        luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
+        delta_frequency = frequencies[1] - frequencies[0]
 
-        self.interpolate_shells = interpolate_shells
-        frequency = nu.to("Hz", u.spectral())
+        assert np.allclose(
+            frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
+        ), "Frequency grid must be uniform"
+
+        luminosity = u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
+
+        frequencies = frequencies.to("Hz", u.spectral())
 
         # Ugly hack to convert to 'bin edges'
-        frequency = u.Quantity(
+        frequencies = u.Quantity(
             np.concatenate(
                 [
-                    frequency.value,
-                    [frequency.value[-1] + np.diff(frequency.value)[-1]],
+                    frequencies.value,
+                    [frequencies.value[-1] + np.diff(frequencies.value)[-1]],
                 ]
             ),
-            frequency.unit,
+            frequencies.unit,
         )
 
-        return TARDISSpectrum(frequency, luminosity)
+        return TARDISSpectrum(frequencies, luminosity)
 
-    # TODO: rewrite interpolate_integrator_quantities
     def interpolate_integrator_quantities(
         self,
-        att_S_ul,
-        Jredlu,
-        Jbluelu,
-        e_dot_u,
-        interpolate_shells,
+        r_inner_original: np.ndarray,
+        r_outer_original: np.ndarray,
+        r_inner_interpolated: np.ndarray,
+        r_outer_interpolated: np.ndarray,
+        source_function_state,
         simulation_state,
-        transport,
         opacity_state,
         electron_densities,
-    ):
+    ) -> tuple[
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+    ]:
         """
         Interpolate the integrator quantities to interpolate_shells.
 
         Parameters
         ----------
+        r_inner_original : np.ndarray
+            Original inner radii of the shells
+        r_outer_original : np.ndarray
+            Original outer radii of the shells
+        r_inner_interpolated : np.ndarray
+            Pre-computed inner radii for interpolation
+        r_outer_interpolated : np.ndarray
+            Pre-computed outer radii for interpolation
         source_function_state : tardis.spectrum.formal_integral.source_function.SourceFunctionState
-            Data class that hold the computed source function values
-        interpolate_shells : int
-            number of shells to interpolate to
+            Data class that holds the computed source function values which will be interpolated
         simulation_state : tardis.model.SimulationState
-        transport : tardis.transport.montecarlo.MonteCarloTransportSolver
-        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
-        electron_densities : np.ndarray
+            The simulation state object
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            The opacity state object (regular, non-numba)
+        electron_densities : pd.Series
+            Electron densities for each shell
 
         Returns
         -------
-        tuple
-            Interpolated values of att_S_ul, Jredlu, Jbluelu, e_dot_u, r_inner_i, r_outer_i, tau_sobolevs_integ, and electron_densities_integ
+        tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+            Interpolated values of att_S_ul_interpolated, Jred_lu_interpolated, Jblue_lu_interpolated, r_inner_interpolated, r_outer_interpolated, tau_sobolevs_interpolated, and electron_densities_interpolated
         """
+        # Extract values from source function state
+        att_S_ul = source_function_state.att_S_ul
+        Jred_lu = source_function_state.Jred_lu
+        Jblue_lu = source_function_state.Jblue_lu
 
-        mct_state = transport.transport_state
+        r_middle_original = (r_inner_original + r_outer_original) / 2.0
 
-        nshells = interpolate_shells
-        r_middle = (
-            mct_state.geometry_state.r_inner + mct_state.geometry_state.r_outer
-        ) / 2.0
+        r_middle_interpolated = (r_inner_interpolated + r_outer_interpolated) / 2.0
 
-        r_integ = np.linspace(
-            mct_state.geometry_state.r_inner[0],
-            mct_state.geometry_state.r_outer[-1],
-            nshells,
-        )
-        r_inner_i = r_integ[:-1]
-        r_outer_i = r_integ[1:]
-
-        r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.0
-
-        electron_densities_integ = interp1d(
-            r_middle,
+        electron_densities_interpolated = interp1d(
+            r_middle_original,
             electron_densities.iloc[
                 simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
             ],
-            fill_value="extrapolate",
+            fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
-        )(r_middle_integ)
+        )(r_middle_interpolated)
         # Assume tau_sobolevs to be constant within a shell
         # (as in the MC simulation)
-        tau_sobolevs_integ = interp1d(
-            r_middle,
-            opacity_state.tau_sobolev[
-                :,
-                simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index,
+        v_inner_boundary_index = simulation_state.geometry.v_inner_boundary_index
+        v_outer_boundary_index = simulation_state.geometry.v_outer_boundary_index
+        tau_sobolevs_interpolated = interp1d(
+            r_middle_original,
+            opacity_state.tau_sobolev.values[
+                :, v_inner_boundary_index:v_outer_boundary_index
             ],
-            fill_value="extrapolate",
+            fill_value="extrapolate",  # type: ignore[arg-type]
             kind="nearest",
-        )(r_middle_integ)
-        att_S_ul = interp1d(r_middle, att_S_ul, fill_value="extrapolate")(
-            r_middle_integ
-        )
-        Jredlu = interp1d(r_middle, Jredlu, fill_value="extrapolate")(
-            r_middle_integ
-        )
-        Jbluelu = interp1d(r_middle, Jbluelu, fill_value="extrapolate")(
-            r_middle_integ
-        )
-        e_dot_u = interp1d(r_middle, e_dot_u, fill_value="extrapolate")(
-            r_middle_integ
-        )
+        )(r_middle_interpolated)
+        att_S_ul_interpolated = interp1d(
+            r_middle_original,
+            att_S_ul,
+            fill_value="extrapolate",  # type: ignore[arg-type]
+        )(r_middle_interpolated)
+        Jred_lu_interpolated = interp1d(
+            r_middle_original,
+            Jred_lu,
+            fill_value="extrapolate",  # type: ignore[arg-type]
+        )(r_middle_interpolated)
+        Jblue_lu_interpolated = interp1d(
+            r_middle_original,
+            Jblue_lu,
+            fill_value="extrapolate",  # type: ignore[arg-type]
+        )(r_middle_interpolated)
 
         # Set negative values from the extrapolation to zero
-        att_S_ul = att_S_ul.clip(0.0)
-        Jbluelu = Jbluelu.clip(0.0)
-        Jredlu = Jredlu.clip(0.0)
-        e_dot_u = e_dot_u.clip(0.0)
+        att_S_ul_interpolated = att_S_ul_interpolated.clip(0.0)
+        Jblue_lu_interpolated = Jblue_lu_interpolated.clip(0.0)
+        Jred_lu_interpolated = Jred_lu_interpolated.clip(0.0)
         return (
-            att_S_ul,
-            Jredlu,
-            Jbluelu,
-            e_dot_u,
-            r_inner_i,
-            r_outer_i,
-            tau_sobolevs_integ,
-            electron_densities_integ,
-        )
-
-    def get_interpolated_quantities(
-        self,
-        source_function_state,
-        interpolate_shells,
-        simulation_state,
-        transport,
-        opacity_state,
-        plasma,
-    ):
-        """
-        If needed, interpolate the quantities from the source function state, and prepare the results for use in the formal integral.
-
-        Parameters
-        ----------
-        source_function_state : tardis.spectrum.formal_integral.source_function.SourceFunctionState
-            Data class that hold the computed source function values which will be interpolated, if needed
-        interpolate_shells : int
-            The number of shells to interpolate to.
-        simulation_state : tardis.model.SimulationState
-        transport : tardis.transport.montecarlo.MonteCarloTransportSolver
-        opacity_state : tardis.opacities.opacity_state.OpacityStateNumba
-        plasma : tardis.plasma.Plasma
-
-        Returns
-        -------
-        tuple
-            (possibly interpolated) att_S_ul, Jred_lu, Jblue_lu, e_dot_u, r_inner, r_outer, tau_sobolevs, electron_densities
-        """
-
-        att_S_ul, Jred_lu, Jblue_lu, e_dot_u = (
-            source_function_state.att_S_ul,
-            source_function_state.Jred_lu,
-            source_function_state.Jblue_lu,
-            source_function_state.e_dot_u,
-        )
-
-        # interpolate, if not use existing values
-        if interpolate_shells > 0:
-            (
-                att_S_ul,
-                Jred_lu,
-                Jblue_lu,
-                e_dot_u,
-                r_inner_i,
-                r_outer_i,
-                tau_sobolevs_integ,
-                electron_densities_integ,
-            ) = self.interpolate_integrator_quantities(
-                att_S_ul,
-                Jred_lu,
-                Jblue_lu,
-                e_dot_u,
-                interpolate_shells,
-                simulation_state,
-                transport,
-                opacity_state,
-                plasma.electron_densities,
-            )
-        else:
-            r_inner_i = transport.transport_state.geometry_state.r_inner
-            r_outer_i = transport.transport_state.geometry_state.r_outer
-            tau_sobolevs_integ = opacity_state.tau_sobolev
-            electron_densities_integ = opacity_state.electron_density
-
-        return (
-            att_S_ul,
-            Jred_lu,
-            Jblue_lu,
-            e_dot_u,
-            r_inner_i,
-            r_outer_i,
-            tau_sobolevs_integ,
-            electron_densities_integ,
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
+            r_inner_interpolated,
+            r_outer_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
         )

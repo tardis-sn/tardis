@@ -50,11 +50,11 @@ jobs:
       trigger-check-outcome: ${{ steps.trigger_check.outcome }}
       docs-check-outcome: ${{ steps.docs_check.outcome }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: github.event_name != 'pull_request_target'
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -87,11 +87,11 @@ jobs:
     needs: [test-cache, check-for-changes]
     if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: github.event_name != 'pull_request_target'
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
@@ -105,13 +105,18 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
+          lockfile-path: ./conda-linux-64.lock
 
       - name: Copy atom_data
         run: |
           mkdir -p ~/Downloads/tardis-data && cp -a ./tardis-regression-data/atom_data/. ~/Downloads/tardis-data
 
       - name: Install package
-        run: pip install -e ".[viz]"
+        run: pip install -e ".[tardisbase]"
+
+      - name: Install qgridnext and lineid_plot
+        run: |
+          pip install --no-deps qgridnext lineid_plot
 
       - name: Install Sphinx extensions
         run: |

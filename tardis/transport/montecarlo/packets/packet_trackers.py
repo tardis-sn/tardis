@@ -1,6 +1,7 @@
+import numba as nb
 import numpy as np
 import pandas as pd
-from numba import float64, from_dtype, int64, njit
+from numba import from_dtype, njit
 from numba.experimental import jitclass
 from numba.typed import List
 
@@ -13,26 +14,22 @@ boundary_interaction_dtype = np.dtype(
 )
 
 
-rpacket_tracker_spec = [
-    ("seed", int64),
-    ("index", int64),
-    ("status", int64[:]),
-    ("r", float64[:]),
-    ("nu", float64[:]),
-    ("mu", float64[:]),
-    ("energy", float64[:]),
-    ("shell_id", int64[:]),
-    ("interaction_type", int64[:]),
-    ("boundary_interaction", from_dtype(boundary_interaction_dtype)[:]),
-    ("num_interactions", int64),
-    ("boundary_interactions_index", int64),
-    ("event_id", int64),
-    ("extend_factor", int64),
-]
-
-
-@jitclass(rpacket_tracker_spec)
+@jitclass
 class RPacketTracker:
+    seed: nb.int64  # type: ignore[misc]
+    index: nb.int64  # type: ignore[misc]
+    status: nb.int64[:]  # type: ignore[misc]
+    r: nb.float64[:]  # type: ignore[misc]
+    nu: nb.float64[:]  # type: ignore[misc]
+    mu: nb.float64[:]  # type: ignore[misc]
+    energy: nb.float64[:]  # type: ignore[misc]
+    shell_id: nb.int64[:]  # type: ignore[misc]
+    interaction_type: nb.int64[:]  # type: ignore[misc]
+    boundary_interaction: from_dtype(boundary_interaction_dtype)[:]  # type: ignore[misc]
+    num_interactions: nb.int64  # type: ignore[misc]
+    boundary_interactions_index: nb.int64  # type: ignore[misc]
+    event_id: nb.int64  # type: ignore[misc]
+    extend_factor: nb.int64  # type: ignore[misc]
     """
     Numba JITCLASS for storing the information for each interaction a RPacket instance undergoes.
 
@@ -64,7 +61,7 @@ class RPacketTracker:
             The factor by which to extend the properties array when the size limit is reached
     """
 
-    def __init__(self, length):
+    def __init__(self, length: int) -> None:
         """
         Initialize the variables with default value
         """
@@ -209,18 +206,14 @@ def rpacket_trackers_to_dataframe(rpacket_trackers):
     )
 
 
-rpacket_last_interaction_tracker_spec = [
-    ("index", int64),
-    ("r", float64),
-    ("nu", float64),
-    ("energy", float64),
-    ("shell_id", int64),
-    ("interaction_type", int64),
-]
-
-
-@jitclass(rpacket_last_interaction_tracker_spec)
+@jitclass
 class RPacketLastInteractionTracker:
+    index: nb.int64  # type: ignore[misc]
+    r: nb.float64  # type: ignore[misc]
+    nu: nb.float64  # type: ignore[misc]
+    energy: nb.float64  # type: ignore[misc]
+    shell_id: nb.int64  # type: ignore[misc]
+    interaction_type: nb.int64  # type: ignore[misc]
     """
     Numba JITCLASS for storing the last interaction the RPacket undergoes.
 
@@ -240,7 +233,7 @@ class RPacketLastInteractionTracker:
             Type of interaction the rpacket undergoes
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize properties with default values
         """
@@ -251,9 +244,14 @@ class RPacketLastInteractionTracker:
         self.shell_id = -1
         self.interaction_type = -1
 
-    def track(self, r_packet):
+    def track(self, r_packet) -> None:
         """
-        Track properties of RPacket and override the previous values
+        Track properties of RPacket and override the previous values.
+        
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet to track.
         """
         self.index = r_packet.index
         self.r = r_packet.r

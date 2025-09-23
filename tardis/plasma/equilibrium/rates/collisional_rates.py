@@ -8,6 +8,7 @@ from tardis.plasma.equilibrium.rates.collision_strengths import (
     UpsilonCMFGENSolver,
     UpsilonRegemorterSolver,
 )
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BETA_COLL = (
     (const.h**4 / (8 * const.k_B * const.m_e**3 * np.pi**3)) ** 0.5
@@ -180,4 +181,4 @@ class ThermalCollisionalRateSolver:
                 thermal_collision_strengths,
                 thermal_collision_strength_approximated,
             ]
-        ).sort_index()
+        ).sort_index(kind=SORTING_ALGORITHM)

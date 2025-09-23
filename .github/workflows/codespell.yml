@@ -18,11 +18,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: github.event_name != 'pull_request_target'
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -32,6 +32,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: "linux-64"
+          lockfile-path: ./conda-linux-64.lock
       
       - name: Run codespell
         run: |

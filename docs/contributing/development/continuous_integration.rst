@@ -92,7 +92,10 @@ See the :ref:`Documentation Preview <doc-preview>` section for more information.
 Testing pipeline
 ================
 
-The `testing pipeline`_ (CI) comprises multiple concurrent jobs. Each of these jobs runs tests across two distinct categories—continuum and rpacket tracking—and supports two different operating systems. Additionally, there are extra steps involved in executing the tests and uploading the coverage results
+The `testing pipeline`_ (CI) comprises 4 concurrent jobs that execute tests both with and without the continuum marker across Ubuntu and macOS platforms (2 platforms × 2 test types). 
+The pipeline includes both preparatory setup (environment installation and regression data configuration) and subsequent uploading of coverage reports upon test completion.
+
+.. note :: GPU Tests can be triggered by applying the `full-tests` label to the pull request.
 
 
 Authors pipeline

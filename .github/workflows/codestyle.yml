@@ -21,14 +21,14 @@ jobs:
   ruff: 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: github.event_name == 'push'
         with:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
         if: github.event_name == 'pull_request_target'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -37,6 +37,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: linux-64
+          lockfile-path: ./conda-linux-64.lock
 
       - name: Show statistics pull request
         if: github.event_name == 'pull_request_target'

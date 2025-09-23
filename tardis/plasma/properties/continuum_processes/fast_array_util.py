@@ -25,7 +25,13 @@ def numba_cumulative_trapezoid(f, x):
     """
     integ = (np.diff(x) * (f[1:] + f[:-1]) / 2.0).cumsum()
     return integ / integ[-1]
+<<<<<<< HEAD
 @njit(**njit_dict) 
+=======
+
+
+@njit(**njit_dict)
+>>>>>>> 46e2fe9f1c6f954b93947c9fbc4f638f3e261f5e
 def cumulative_integrate_array_by_blocks(f, x, block_references, normalize=True):
     """
     Cumulatively integrates an array f(x) over discrete blocks.
@@ -53,6 +59,7 @@ def cumulative_integrate_array_by_blocks(f, x, block_references, normalize=True)
         integrated values within each block.
     """
     integrated = np.zeros_like(f)
+<<<<<<< HEAD
     n_blocks = len(block_references) - 1
 
     if n_blocks <= 0:
@@ -83,4 +90,28 @@ def cumulative_integrate_array_by_blocks(f, x, block_references, normalize=True)
                 block_integral /= block_integral[-1]
             integrated[start:stop, i] = block_integral
             
+=======
+    dx = np.diff(x)
+
+    for i in prange(f.shape[1]):
+        contribs = dx * 0.5 * (f[1:, i] + f[:-1, i])
+        cumsum = np.zeros(f.shape[0])
+        cumsum[1:] = np.cumsum(contribs)
+
+        for j in range(len(block_references) - 1):
+            start = block_references[j]
+            stop = block_references[j + 1]
+
+            block_len = stop - start
+            if block_len == 1:
+                # Single-element block: copy original value
+                integrated[start, i] = f[start, i]
+            else:
+                block = cumsum[start:stop] - cumsum[start]
+                if normalize and block[-1] != 0:
+                    block /= block[-1]
+                # Fill the integrated array, aligned properly
+                integrated[start + 1:stop, i] = block[1:]  # skip first 0
+
+>>>>>>> 46e2fe9f1c6f954b93947c9fbc4f638f3e261f5e
     return integrated

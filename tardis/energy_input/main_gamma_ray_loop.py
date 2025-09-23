@@ -5,7 +5,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 
-from tardis.energy_input.gamma_ray_packet_source import (
+from tardis.transport.montecarlo.packet_source.high_energy import (
     GammaRayPacketSource,
     legacy_calculate_positron_fraction,
 )
@@ -17,6 +17,7 @@ from tardis.energy_input.transport.gamma_packet_loop import gamma_packet_loop
 from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import get_index
 from tardis.model.base import SimulationState
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -65,9 +66,13 @@ def calculate_electron_number_density(
         )
     else:
         if legacy_atom_data is None:
-            raise ValueError("legacy_atom_data must be provided when legacy=True")
-        elemental_number_density = simulation_state.calculate_elemental_number_density(
-            legacy_atom_data.atom_data.mass
+            raise ValueError(
+                "legacy_atom_data must be provided when legacy=True"
+            )
+        elemental_number_density = (
+            simulation_state.calculate_elemental_number_density(
+                legacy_atom_data.atom_data.mass
+            )
         )
 
     # Electron number density
@@ -78,7 +83,9 @@ def calculate_electron_number_density(
     electron_number = np.array(electron_number_density * ejecta_volume)
 
     # Evolve electron number and mass density with time
-    electron_number_density_time = electron_number[:, np.newaxis] * inv_volume_time
+    electron_number_density_time = (
+        electron_number[:, np.newaxis] * inv_volume_time
+    )
 
     return electron_number_density_time
 
@@ -185,7 +192,9 @@ def run_gamma_ray_loop(
     # TODO: decaying upto times[0]. raw_isotope_abundance is possibly not the best name
     isotopic_mass_fraction = (
         simulation_state.composition.isotopic_mass_fraction.sort_values(
-            by=["atomic_number", "mass_number"], ascending=False
+            by=["atomic_number", "mass_number"],
+            ascending=False,
+            kind=SORTING_ALGORITHM,
         )
     )
 
@@ -240,7 +249,9 @@ def run_gamma_ray_loop(
 
     # For non-legacy mode, get the energy per packet from the packet source calculation
     if not legacy:
-        gamma_df = cumulative_decays_df[cumulative_decays_df["radiation"] == "g"]
+        gamma_df = cumulative_decays_df[
+            cumulative_decays_df["radiation"] == "g"
+        ]
         total_energy_gamma = gamma_df["decay_energy_erg"].sum()
         energy_per_packet = total_energy_gamma / number_of_packets
 
@@ -267,19 +278,26 @@ def run_gamma_ray_loop(
 
     # Calculate isotope positron fraction separately
     isotope_positron_fraction = legacy_calculate_positron_fraction(
-        legacy_isotope_decacy_df, packet_collection.source_isotopes, number_of_packets
+        legacy_isotope_decacy_df,
+        packet_collection.source_isotopes,
+        number_of_packets,
     )
     for i, p in enumerate(packets):
-        total_energy[p.shell, p.time_index] += isotope_positron_fraction[i] * energy_per_packet
+        total_energy[p.shell, p.time_index] += (
+            isotope_positron_fraction[i] * energy_per_packet
+        )
 
     logger.info(
-        "Total energy deposited by the positrons is %s", total_energy.sum().sum()
+        "Total energy deposited by the positrons is %s",
+        total_energy.sum().sum(),
     )
 
     # positron_energy = total_energy
 
     # Copy the positron energy to a new dataframe
-    positron_energy_df = pd.DataFrame(data=total_energy.copy(), columns=times[:-1])
+    positron_energy_df = pd.DataFrame(
+        data=total_energy.copy(), columns=times[:-1]
+    )
 
     energy_bins = np.logspace(2, 3.8, spectrum_bins)
     energy_out = np.zeros((len(energy_bins - 1), len(times) - 1))
@@ -354,9 +372,7 @@ def run_gamma_ray_loop(
         data=energy_deposited_gamma, columns=times[:-1]
     )
     # deposited energy by positrons and gamma-rays in ergs
-    total_energy = pd.DataFrame(
-        data=total_energy, columns=times[:-1]
-    )
+    total_energy = pd.DataFrame(data=total_energy, columns=times[:-1])
 
     logger.info(
         "Total energy deposited by gamma rays and positrons is %s",
@@ -371,7 +387,7 @@ def run_gamma_ray_loop(
         packets_df_escaped,
         gamma_ray_deposited_energy,
         total_deposited_energy,
-        positron_energy_df
+        positron_energy_df,
     )
 
 

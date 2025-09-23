@@ -5,12 +5,8 @@ from numba import cuda, set_num_threads
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
-from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
-from tardis.opacities.continuum.continuum_state import ContinuumState
-from tardis.opacities.opacity_state import (
-    OpacityState,
-)
+from tardis.io.logger import montecarlo_tracking as mc_tracker
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
@@ -27,15 +23,18 @@ from tardis.transport.montecarlo.montecarlo_main_loop import (
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
-from tardis.transport.montecarlo.packet_trackers import (
+from tardis.transport.montecarlo.packets.packet_trackers import (
     generate_rpacket_last_interaction_tracker_list,
     generate_rpacket_tracker_list,
     rpacket_trackers_to_dataframe,
 )
+from tardis.transport.montecarlo.progress_bars import (
+    refresh_packet_pbar,
+    reset_packet_pbar,
+    update_iterations_pbar,
+)
 from tardis.util.base import (
     quantity_linspace,
-    refresh_packet_pbar,
-    update_iterations_pbar,
 )
 
 logger = logging.getLogger(__name__)
@@ -148,8 +147,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
     def run(
         self,
         transport_state,
-        iteration=0,
-        total_iterations=0,
         show_progress_bars=True,
     ):
         """
@@ -157,16 +154,15 @@ class MonteCarloTransportSolver(HDFWriterMixin):
 
         Parameters
         ----------
-        model : tardis.model.SimulationState
-        plasma : tardis.plasma.BasePlasma
-        no_of_packets : int
-        no_of_virtual_packets : int
-        total_iterations : int
-            The total number of iterations in the simulation.
+        transport_state : tardis.transport.montecarlo.transport_state.TransportState
+            Transport state containing all the data needed for the Monte Carlo simulation
+        show_progress_bars : bool
+            Show progress bars
 
         Returns
         -------
-        None
+        v_packets_energy_hist : ndarray
+            Histogram of energy from virtual packets
         """
         set_num_threads(self.nthreads)
         self.transport_state = transport_state
@@ -186,6 +182,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
                 )
             )
 
+        # Reset packet progress bar for this iteration
+        if show_progress_bars:
+            reset_packet_pbar(number_of_rpackets)
+
         (
             v_packets_energy_hist,
             last_interaction_tracker,
@@ -200,9 +200,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.spectrum_frequency_grid.value,
             transport_state.rpacket_tracker,
             number_of_vpackets,
-            iteration=iteration,
             show_progress_bars=show_progress_bars,
-            total_iterations=total_iterations,
         )
 
         transport_state.last_interaction_type = last_interaction_tracker.types

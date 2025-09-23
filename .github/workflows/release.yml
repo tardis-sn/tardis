@@ -23,7 +23,7 @@ jobs:
   zenodo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: tardis-sn/tardis_zenodo
           token: ${{ secrets.BOT_TOKEN }}
@@ -32,8 +32,13 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-env@main
         with:
           os-label: "linux-64"
+<<<<<<< HEAD
       - name: Install jupyter
         run: pip install jupyter nbconvert
+=======
+          lockfile-path: ./conda-linux-64.lock
+
+>>>>>>> 46e2fe9f1c6f954b93947c9fbc4f638f3e261f5e
       - name: Dump Secret Key
         run: echo "$KEY_SECRET_JSON" > key_secret.json
         env:
@@ -55,7 +60,7 @@ jobs:
     needs: [pip_tests, zenodo]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -76,7 +81,7 @@ jobs:
           echo "NEW_TAG=$(python .ci-helpers/get_next_version.py)" >> $GITHUB_ENV
 
       - name: Initialize release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: TARDIS v${{ env.NEW_TAG }}
           tag_name: release-${{ env.NEW_TAG }}
@@ -117,7 +122,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Update release with changelog and DOI
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: release-${{ env.NEW_TAG }}
           token: ${{ secrets.BOT_TOKEN }}

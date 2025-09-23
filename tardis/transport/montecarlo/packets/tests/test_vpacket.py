@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import tardis.transport.montecarlo.vpacket as vpacket
+import tardis.transport.montecarlo.packets.virtual_packet as virtual_packet
 from tardis import constants as const
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
@@ -14,7 +14,7 @@ import numpy.testing as npt
 
 @pytest.fixture(scope="function")
 def v_packet():
-    return vpacket.VPacket(
+    return virtual_packet.VPacket(
         r=7.5e14,
         nu=4e15,
         mu=0.3,
@@ -52,7 +52,7 @@ def test_trace_vpacket_within_shell(
         tau_trace_combined,
         distance_boundary,
         delta_shell,
-    ) = vpacket.trace_vpacket_within_shell(
+    ) = virtual_packet.trace_vpacket_within_shell(
         v_packet,
         verysimple_numba_radial_1d_geometry,
         verysimple_time_explosion,
@@ -80,7 +80,7 @@ def test_trace_vpacket(
         v_packet, verysimple_opacity_state, verysimple_time_explosion
     )
 
-    tau_trace_combined = vpacket.trace_vpacket(
+    tau_trace_combined = virtual_packet.trace_vpacket(
         v_packet,
         verysimple_numba_radial_1d_geometry,
         verysimple_time_explosion,
@@ -117,7 +117,7 @@ def test_trace_vpacket_volley(
         verysimple_opacity_state, verysimple_time_explosion
     )
 
-    vpacket.trace_vpacket_volley(
+    virtual_packet.trace_vpacket_volley(
         packet,
         verysimple_3vpacket_collection,
         verysimple_numba_radial_1d_geometry,
@@ -131,7 +131,7 @@ def test_trace_vpacket_volley(
 
 @pytest.fixture(scope="function")
 def broken_packet():
-    return vpacket.VPacket(
+    return virtual_packet.VPacket(
         r=1286064000000000.0,
         nu=1660428912896553.2,
         mu=0.4916053094346575,
@@ -148,7 +148,7 @@ def test_trace_bad_vpacket(
     verysimple_time_explosion,
     verysimple_opacity_state,
 ):
-    vpacket.trace_vpacket(
+    virtual_packet.trace_vpacket(
         broken_packet,
         verysimple_numba_radial_1d_geometry,
         verysimple_time_explosion,

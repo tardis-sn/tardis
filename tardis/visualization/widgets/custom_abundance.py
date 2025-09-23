@@ -1,4 +1,5 @@
 """Class to create and display Custom Abundance Widget."""
+
 from pathlib import Path
 
 import ipywidgets as ipw
@@ -32,6 +33,7 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
@@ -141,7 +143,7 @@ class CustomAbundanceWidgetData:
                 )
                 time_0 = d_conf.get("time_0", 0 * u.day)
             else:
-                raise ValueError(f"Unrecognized density type " f"{d_conf.type}")
+                raise ValueError(f"Unrecognized density type {d_conf.type}")
         else:
             density_field_index = [
                 field["name"] for field in csvy_model_config.datatype.fields
@@ -175,7 +177,7 @@ class CustomAbundanceWidgetData:
         abundance["mass_number"] = ""
         abundance = abundance.set_index("mass_number", append=True)
         abundance = pd.concat([abundance, isotope_abundance])
-        abundance = abundance.sort_index()
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         return cls(
             density_t_0=time_0,
@@ -222,7 +224,7 @@ class CustomAbundanceWidgetData:
         abundance["mass_number"] = ""
         abundance = abundance.set_index("mass_number", append=True)
         abundance = pd.concat([abundance, isotopic_mass_fraction])
-        abundance = abundance.sort_index()
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         return cls(
             density_t_0=density_t_0,
@@ -288,7 +290,7 @@ class CustomAbundanceWidgetData:
         abundance["mass_number"] = ""
         abundance = abundance.set_index("mass_number", append=True)
         abundance = pd.concat([abundance, isotope_abundance])
-        abundance = abundance.sort_index()
+        abundance = abundance.sort_index(kind=SORTING_ALGORITHM)
 
         velocity = sim.simulation_state.velocity
         density_t_0 = sim.simulation_state.time_explosion
@@ -351,7 +353,7 @@ class CustomYAML(yaml.YAMLObject):
                 field["unit"] = "g/cm^3"
             else:
                 field["name"] = elements[i - 2]
-                field["desc"] = f"fractional {elements[i-2]} abundance"
+                field["desc"] = f"fractional {elements[i - 2]} abundance"
 
             self.datatype["fields"].append(field)
 
@@ -697,7 +699,9 @@ class CustomAbundanceWidget:
 
     def update_line_color(self):
         """Update line color in the plot according to colormap."""
-        colorscale = pu.get_hex_color_strings(self.no_of_elements, self.plot_cmap)
+        colorscale = pu.get_hex_color_strings(
+            self.no_of_elements, self.plot_cmap
+        )
         for i in range(self.no_of_elements):
             self.fig.data[2 + i].line.color = colorscale[i]
 
@@ -887,9 +891,9 @@ class CustomAbundanceWidget:
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
 
-            self.data.abundance.iloc[
-                item_index, self.shell_no - 1
-            ] = obj.owner.value
+            self.data.abundance.iloc[item_index, self.shell_no - 1] = (
+                obj.owner.value
+            )
 
             if self.rbs_multi_apply.index is None:
                 self.update_abundance_plot(item_index)
@@ -1044,7 +1048,7 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index()
+        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new BoundedFloatText control and Checkbox control.
         item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
@@ -1103,9 +1107,9 @@ class CustomAbundanceWidget:
         end_index = self.irs_shell_range.value[1]
         applied_shell_index = self.shell_no - 1
 
-        self.data.abundance.iloc[
-            item_index, start_index:end_index
-        ] = self.data.abundance.iloc[item_index, applied_shell_index]
+        self.data.abundance.iloc[item_index, start_index:end_index] = (
+            self.data.abundance.iloc[item_index, applied_shell_index]
+        )
 
         self.update_abundance_plot(item_index)
 
@@ -1288,7 +1292,7 @@ class CustomAbundanceWidget:
         ipywidgets.widgets.widget_box.VBox
             A box that contains all the widgets in the GUI.
         """
-        if not (Environment.is_notebook() or Environment.is_sshjh() or Environment.is_vscode()):
+        if not Environment.allows_widget_display():
             print("Please use a notebook to display the widget")
         else:
             # --------------Combine widget components--------------
@@ -1464,7 +1468,7 @@ class CustomAbundanceWidget:
             first_row = [0] * self.no_of_elements
             data.loc[-1] = first_row
             data.index += 1  # shifting index
-            data = data.sort_index()
+            data = data.sort_index(kind=SORTING_ALGORITHM)
 
             formatted_v = pd.Series(self.data.velocity.value).apply(
                 lambda x: f"{x:.3e}"
