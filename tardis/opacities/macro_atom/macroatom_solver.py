@@ -706,3 +706,71 @@ def reindex_sort_and_clean_probabilities_and_metadata(
     ]  # Reorder to match the metadata, which was sorted to match carsus.
 
     return normalized_probabilities, macro_atom_transition_metadata
+
+class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
+    levels: pd.DataFrame
+    lines: pd.DataFrame
+    line_interaction_type: str
+    photoionization_data: pd.DataFrame
+
+    def __init__(
+        self,
+        levels: pd.DataFrame,
+        lines: pd.DataFrame,
+        photoionization_data: pd.DataFrame,
+        line_interaction_type: str = "macroatom",
+    ) -> None:
+        """
+        Initialize the BoundBoundMacroAtomSolver.
+
+        Parameters
+        ----------
+        levels : pd.DataFrame
+            DataFrame containing atomic level information.
+        lines : pd.DataFrame
+            DataFrame containing spectral line information.
+        photoionization_data : pd.DataFrame
+            DataFrame containing photoionization cross-section information.
+        line_interaction_type : str, optional
+            Type of line interaction to use. Default is "macroatom".
+        """
+        super().__init__(
+            lines=lines,
+            levels=levels,
+            line_interaction_type=line_interaction_type,
+        )
+        self.photoionization_data = photoionization_data
+
+    def solve(
+        self,
+        mean_intensities_blue_wing: pd.DataFrame,
+        beta_sobolevs: pd.DataFrame,
+        stimulated_emission_factors: np.ndarray,
+    ) -> MacroAtomState:
+        """
+        Solve the transition probabilities for the macroatom.
+
+        This method calculates transition probabilities and returns a MacroAtomState object
+        with the probabilities and macro atom transition metadata.
+        Referenced as $p_i$ in Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
+
+        Parameters
+        ----------
+        mean_intensities_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
+            For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
+            Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
+        beta_sobolevs : pd.DataFrame
+            Escape probabilities for the Sobolev approximation.
+        stimulated_emission_factors : np.ndarray
+            Stimulated emission factors for the lines.
+
+        Returns
+        -------
+        MacroAtomState
+            A MacroAtomState object containing the transition probabilities, transition metadata,
+            and a mapping from line IDs to macro atom level upper indices.
+        """
+        raise NotImplementedError(
+            "ContinuumMacroAtomSolver is not yet implemented."
+        )
