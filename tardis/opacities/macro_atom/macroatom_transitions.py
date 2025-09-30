@@ -356,7 +356,11 @@ def probability_emission_down(
     return p_emission_down
 
 
-def set_index(
+### Below are continuum transition specific functions
+
+
+# I hate this. Try to find out what it does exactly and replace it with something clearer.
+def set_index_func(
     df_to_reindex: pd.DataFrame,
     target_index_df: pd.DataFrame,
     transition_type: MacroAtomTransitionType,
@@ -398,9 +402,8 @@ def set_index(
     return df_to_reindex.set_index(index, drop=True)
 
 
-def continuum_transition_recombination(
+def continuum_transition_recombination_internal(
     alpha_sp: pd.DataFrame,
-    nu_i: pd.Series,
     energy_i: pd.Series,
     photoionization_index: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -411,8 +414,6 @@ def continuum_transition_recombination(
     ----------
     alpha_sp : pd.Series
         Rate coefficient for spontaneous recombination from `k` to level `i`.
-    nu_i : pd.Series
-        Threshold frequencies for ionization.
     energy_i : pd.Series
         Energies of levels with bound-free transitions. Needed to calculate
         for example internal transition probabilities in the macro atom scheme.
@@ -428,24 +429,14 @@ def continuum_transition_recombination(
     recombination_metadata : pd.DataFrame
         DataFrame containing metadata for the recombination transitions.
     """
-    p_recomb_deactivation = (
-        alpha_sp.multiply(nu_i, axis=0) * CONST_H_CGS
-    )  # nu_i is ionization threshold, so I guess delta e is just nu_i * h?
-    p_recomb_deactivation = set_index(
-        p_recomb_deactivation,
-        photoionization_index,
-        transition_type=MacroAtomTransitionType.BB_EMISSION,
-    )
-
-    p_recomb_internal = alpha_sp.multiply(energy_i, axis=0)
-    p_recomb_internal = set_index(
+    p_recomb_internal = probability_recombination_internal(alpha_sp, energy_i)
+    p_recomb_internal = set_index_func(
         p_recomb_internal,
         photoionization_index,
-        transition_type=MacroAtomTransitionType.INTERNAL_DOWN,
+        transition_type=MacroAtomTransitionType.RECOMB_INTERNAL,
     )
-    p_recombination = pd.concat([p_recomb_deactivation, p_recomb_internal])
 
-    recombination_metadata = p_recombination[
+    recombination_metadata = p_recomb_internal[
         [
             "transition_line_id",
             "source",
@@ -455,7 +446,7 @@ def continuum_transition_recombination(
         ]
     ]
 
-    p_recombination = p_recombination.drop(
+    p_recombination = p_recomb_internal.drop(
         columns=[
             "destination",
             "transition_type",
@@ -465,6 +456,58 @@ def continuum_transition_recombination(
     )
 
     return p_recombination, recombination_metadata
+
+
+def probability_recombination_internal(
+    alpha_sp: pd.DataFrame,
+    energy_i: pd.Series,
+) -> pd.DataFrame:
+    p_recomb_internal = alpha_sp.multiply(energy_i, axis=0)
+    return p_recomb_internal
+
+
+def continuum_transition_recombination_emission(
+    alpha_sp: pd.DataFrame,
+    nu_i: pd.Series,
+    photoionization_index: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    p_recomb_emission = probability_recombination_emission(alpha_sp, nu_i)
+
+    p_recomb_emission = set_index_func(
+        p_recomb_emission,
+        photoionization_index,
+        transition_type=MacroAtomTransitionType.RECOMB_EMISSION,
+    )
+
+    recombination_emission_metadata = p_recomb_emission[
+        [
+            "transition_line_id",
+            "source",
+            "destination",
+            "transition_type",
+            "transition_line_idx",
+        ]
+    ]
+    p_recomb_emission = p_recomb_emission.drop(
+        columns=[
+            "destination",
+            "transition_type",
+            "transition_line_id",
+            "transition_line_idx",
+        ]
+    )
+
+    return p_recomb_emission, recombination_emission_metadata
+
+
+def probability_recombination_emission(
+    alpha_sp: pd.DataFrame,
+    nu_i: pd.Series,
+) -> pd.DataFrame:
+    p_recomb_emission = (
+        alpha_sp.multiply(nu_i, axis=0) * CONST_H_CGS
+    )  # nu_i is ionization threshold, so I guess delta e is just nu_i * h?
+    return p_recomb_emission
 
 
 def continuum_transition_photoionization(
@@ -488,17 +531,13 @@ def continuum_transition_photoionization(
         DataFrame containing photoionization probabilities.
     photoionization_metadata : pd.DataFrame
         DataFrame containing metadata for the photoionization transitions.
-
-    Notes
-    -----
-    This method may need an additional transition type.
     """
-    p_photoionization = gamma_corr.multiply(energy_i, axis=0)
-    p_photoionization = set_index(
+    p_photoionization = probability_photoionization(gamma_corr, energy_i)
+    p_photoionization = set_index_func(
         p_photoionization,
         photo_ion_idx,
         reverse=False,
-        transition_type=MacroAtomTransitionType.INTERNAL_DOWN,
+        transition_type=MacroAtomTransitionType.PHOTOIONIZATION,  # USED TO BE INTERNAL_DOWN. SO IT'S AN INTERNAL TRANSITION
     )
 
     photoionization_metadata = p_photoionization[
@@ -521,6 +560,28 @@ def continuum_transition_photoionization(
     )
 
     return p_photoionization, photoionization_metadata
+
+
+def probability_photoionization(
+    gamma_corr: pd.DataFrame, energy_i: pd.Series
+) -> pd.DataFrame:
+    """
+    Calculate photoionization probability unnormalized.
+
+    Parameters
+    ----------
+    gamma_corr : pd.Series
+        Corrected photoionization rate coefficient from level `i` to `k`.
+    energy_i : pd.Series
+        Energies of the levels involved in photoionization.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing photoionization probabilities.
+    """
+    p_photoionization = gamma_corr.multiply(energy_i, axis=0)
+    return p_photoionization
 
 
 def continuum_transition_collisional(
@@ -603,7 +664,6 @@ def continuum_transition_collisional(
         [p_deexc_deactivation, p_deexc_internal, p_exc_internal, p_exc_cool]
     )
     return p_coll
-
 
     def calculate(self, electron_densities, t_electrons, time_explosion):
         cool_rate_adiabatic = (

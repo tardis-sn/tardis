@@ -701,7 +701,7 @@ def normalize_transition_probabilities(
 
 
 def reindex_sort_and_clean_probabilities_and_metadata(
-    normalized_probabilities: pd.DataFrame,
+    probabilities: pd.DataFrame,
     macro_atom_transition_metadata: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
@@ -709,7 +709,7 @@ def reindex_sort_and_clean_probabilities_and_metadata(
 
     Parameters
     ----------
-    normalized_probabilities : pd.DataFrame
+    probabilities : pd.DataFrame
         DataFrame containing normalized transition probabilities.
     macro_atom_transition_metadata : pd.DataFrame
         DataFrame containing metadata for macro atom transitions.
@@ -720,12 +720,10 @@ def reindex_sort_and_clean_probabilities_and_metadata(
         Reindexed normalized probabilities and cleaned metadata sorted by
         atomic number, ion number, and source level.
     """
-    normalized_probabilities = normalized_probabilities.reset_index(
+    probabilities = probabilities.reset_index(
         drop=True
     )  # Reset to create a unique macro_atom_transition_id.
-    normalized_probabilities.index.rename(
-        "macro_atom_transition_id", inplace=True
-    )
+    probabilities.index.rename("macro_atom_transition_id", inplace=True)
 
     macro_atom_transition_metadata = (
         macro_atom_transition_metadata.reset_index()
@@ -746,11 +744,11 @@ def reindex_sort_and_clean_probabilities_and_metadata(
         kind=SORTING_ALGORITHM,
     )  # This is how carsus sorted the macro atom transitions, then also using macro_atom_transition_id to break ties.
 
-    normalized_probabilities = normalized_probabilities.loc[
+    probabilities = probabilities.loc[
         macro_atom_transition_metadata.index
     ]  # Reorder to match the metadata, which was sorted to match carsus.
 
-    return normalized_probabilities, macro_atom_transition_metadata
+    return probabilities, macro_atom_transition_metadata
 
 
 class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
@@ -786,6 +784,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             line_interaction_type=line_interaction_type,
         )
         self.photoionization_data = photoionization_data
+        # Here we probably want to check and throw an error if the photoionization data contains atoms not in the lines and levels dataframes.
 
     def solve(
         self,
@@ -817,6 +816,82 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             A MacroAtomState object containing the transition probabilities, transition metadata,
             and a mapping from line IDs to macro atom level upper indices.
         """
+        raise NotImplementedError(
+            "ContinuumMacroAtomSolver is not yet implemented."
+        )
+
+    def _solve_first_macroatom_iteration(
+        self,
+        mean_intensities_blue_wing,
+        beta_sobolevs,
+        stimulated_emission_factors,
+        lines_level_upper,
+    ):
+        # The continuum macro atom needs macroatom references, so we have to construct the metadata for the bound-bound part first.
+        if self.line_interaction_type in ["downbranch", "macroatom"]:
+            p_emission_down, emission_down_metadata = (
+                line_transition_emission_down(
+                    self._oscillator_strength_ul,
+                    self._nus,
+                    self._energies_upper,
+                    self._energies_lower,
+                    beta_sobolevs,
+                    self._transition_a_i_l_u_array,
+                    self.lines.line_id.to_numpy(),
+                )
+            )
+        else:
+            raise ValueError(
+                f"Unknown line interaction type: {self.line_interaction_type}"
+            )
+        if self.line_interaction_type == "downbranch":
+            probabilities_df = p_emission_down
+            macro_atom_transition_metadata = emission_down_metadata
+
+        elif self.line_interaction_type == "macroatom":
+            p_internal_down, internal_down_metadata = (
+                line_transition_internal_down(
+                    self._oscillator_strength_ul,
+                    self._nus,
+                    self._energies_lower,
+                    beta_sobolevs,
+                    self._transition_a_i_l_u_array,
+                    self.lines.line_id.to_numpy(),
+                )
+            )
+
+            p_internal_up, internal_up_metadata = line_transition_internal_up(
+                self._oscillator_strength_lu,
+                self._nus,
+                self._energies_lower,
+                mean_intensities_blue_wing,
+                beta_sobolevs,
+                stimulated_emission_factors,
+                self._transition_a_i_l_u_array,
+                self.lines.line_id.to_numpy(),
+            )
+            probabilities_df = pd.concat(
+                [p_emission_down, p_internal_down, p_internal_up]
+            )
+            macro_atom_transition_metadata = pd.concat(
+                [
+                    emission_down_metadata,
+                    internal_down_metadata,
+                    internal_up_metadata,
+                ]
+            )
+
+        reindex_sort_and_clean_probabilities_and_metadata(
+            probabilities_df, macro_atom_transition_metadata
+        )
+        line2macro_level_upper, reference_index = (
+            create_line2macro_level_upper_and_reference_idx(
+                macro_atom_transition_metadata, lines_level_upper
+            )
+        )
+        create_source_and_destination_idx_columns(
+            macro_atom_transition_metadata
+        )
         raise NotImplementedError(
             "ContinuumMacroAtomSolver is not yet implemented."
         )

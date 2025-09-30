@@ -19,10 +19,15 @@ class MacroAtomTransitionType(IntEnum):
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
     TWO_PHOTON = -6
+    RECOMB_INTERNAL = -7
+    RECOMB_EMISSION = -8
+    PHOTOIONIZATION = -9
 
 
 @njit(**njit_dict_no_parallel)
-def macro_atom_interaction(activation_level_id, current_shell_id, opacity_state):
+def macro_atom_interaction(
+    activation_level_id, current_shell_id, opacity_state
+):
     """
     Parameters
     ----------
@@ -46,7 +51,6 @@ def macro_atom_interaction(activation_level_id, current_shell_id, opacity_state)
 
         # looping through the transition probabilities
         for transition_id in range(block_start, block_end):
-
             transition_probability = opacity_state.transition_probabilities[
                 transition_id, current_shell_id
             ]
