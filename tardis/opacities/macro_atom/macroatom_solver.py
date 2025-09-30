@@ -756,12 +756,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
     lines: pd.DataFrame
     line_interaction_type: str
     photoionization_data: pd.DataFrame
+    selected_continuum_transitions: np.ndarray
 
     def __init__(
         self,
         levels: pd.DataFrame,
         lines: pd.DataFrame,
         photoionization_data: pd.DataFrame,
+        selected_continuum_transitions: np.ndarray,
         line_interaction_type: str = "macroatom",
     ) -> None:
         """
@@ -783,7 +785,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             levels=levels,
             line_interaction_type=line_interaction_type,
         )
-        self.photoionization_data = photoionization_data
+
+        selected_continuum_transitions = np.array([(1, 0)])
+        included_species = photoionization_data.index.droplevel(
+            "level_number"
+        ).isin(selected_continuum_transitions)
+        self.photoionization_data = photoionization_data[included_species]
         # Here we probably want to check and throw an error if the photoionization data contains atoms not in the lines and levels dataframes.
 
     def solve(

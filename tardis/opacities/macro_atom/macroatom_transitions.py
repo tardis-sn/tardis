@@ -1,6 +1,9 @@
 from tardis import constants as const
 import numpy as np
 import pandas as pd
+from tardis.plasma.properties.continuum_processes.rates import (
+    get_ground_state_multi_index,
+)
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 CONST_C_CGS: float = const.c.cgs.value
@@ -360,9 +363,9 @@ def probability_emission_down(
 
 
 # I hate this. Try to find out what it does exactly and replace it with something clearer.
-def set_index_func(
-    df_to_reindex: pd.DataFrame,
-    target_index_df: pd.DataFrame,
+def set_transition_index(
+    probabilities_dataframe: pd.DataFrame,
+    photoionization_data: pd.DataFrame,
     transition_type: MacroAtomTransitionType,
     reverse: bool = True,
 ) -> pd.DataFrame:
@@ -371,12 +374,12 @@ def set_index_func(
 
     Parameters
     ----------
-    p : pd.DataFrame
+    probabilities_dataframe : pd.DataFrame
         DataFrame containing transition probabilities.
-    target_index_df : pd.DataFrame
+    photoionization_data : pd.DataFrame
         DataFrame containing photoionization indices with source and destination level indices.
-    transition_type : int, optional
-        Type of transition to assign. Default is 0.
+    transition_type : MacroAtomTransitionType
+        Type of transition to assign.
     reverse : bool, optional
         Whether to reverse the order of source and destination indices. Default is True.
 
@@ -385,7 +388,7 @@ def set_index_func(
     pd.DataFrame
         DataFrame with updated multi-level index.
     """
-    idx = target_index_df.loc[df_to_reindex.index]
+    idx = photoionization_data.loc[probabilities_dataframe.index]
     transition_type_array = transition_type * np.ones_like(
         idx.destination_level_idx
     )
@@ -399,7 +402,7 @@ def set_index_func(
     index = pd.MultiIndex.from_arrays(idx_arrays)
     if reverse:
         index.names = index.names[:-1][::-1] + [index.names[-1]]
-    return df_to_reindex.set_index(index, drop=True)
+    return probabilities_dataframe.set_index(index, drop=True)
 
 
 def continuum_transition_recombination_internal(
@@ -430,32 +433,21 @@ def continuum_transition_recombination_internal(
         DataFrame containing metadata for the recombination transitions.
     """
     p_recomb_internal = probability_recombination_internal(alpha_sp, energy_i)
-    p_recomb_internal = set_index_func(
-        p_recomb_internal,
-        photoionization_index,
-        transition_type=MacroAtomTransitionType.RECOMB_INTERNAL,
+
+    sources = p_recomb_internal.index.values
+    destinations = get_ground_state_multi_index(p_recomb_internal.index).values
+
+    recombination_internal_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.RECOMB_INTERNAL,
+            "transition_line_idx": -99,
+        },
+        index=p_recomb_internal.index,
     )
-
-    recombination_metadata = p_recomb_internal[
-        [
-            "transition_line_id",
-            "source",
-            "destination",
-            "transition_type",
-            "transition_line_idx",
-        ]
-    ]
-
-    p_recombination = p_recomb_internal.drop(
-        columns=[
-            "destination",
-            "transition_type",
-            "transition_line_id",
-            "transition_line_idx",
-        ]
-    )
-
-    return p_recombination, recombination_metadata
+    return p_recomb_internal, recombination_internal_metadata
 
 
 def probability_recombination_internal(
@@ -473,28 +465,18 @@ def continuum_transition_recombination_emission(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     p_recomb_emission = probability_recombination_emission(alpha_sp, nu_i)
 
-    p_recomb_emission = set_index_func(
-        p_recomb_emission,
-        photoionization_index,
-        transition_type=MacroAtomTransitionType.RECOMB_EMISSION,
-    )
+    sources = p_recomb_emission.index.values
+    destinations = get_ground_state_multi_index(p_recomb_emission.index).values
 
-    recombination_emission_metadata = p_recomb_emission[
-        [
-            "transition_line_id",
-            "source",
-            "destination",
-            "transition_type",
-            "transition_line_idx",
-        ]
-    ]
-    p_recomb_emission = p_recomb_emission.drop(
-        columns=[
-            "destination",
-            "transition_type",
-            "transition_line_id",
-            "transition_line_idx",
-        ]
+    recombination_emission_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.RECOMB_EMISSION,
+            "transition_line_idx": -99,
+        },
+        index=p_recomb_emission.index,
     )
 
     return p_recomb_emission, recombination_emission_metadata
@@ -533,30 +515,20 @@ def continuum_transition_photoionization(
         DataFrame containing metadata for the photoionization transitions.
     """
     p_photoionization = probability_photoionization(gamma_corr, energy_i)
-    p_photoionization = set_index_func(
-        p_photoionization,
-        photo_ion_idx,
-        reverse=False,
-        transition_type=MacroAtomTransitionType.PHOTOIONIZATION,  # USED TO BE INTERNAL_DOWN. SO IT'S AN INTERNAL TRANSITION
-    )
 
-    photoionization_metadata = p_photoionization[
-        [
-            "transition_line_id",
-            "source",
-            "destination",
-            "transition_type",
-            "transition_line_idx",
-        ]
-    ]
+    sources = p_photoionization.index.values
+    destinations = get_ground_state_multi_index(p_photoionization.index).values
 
-    p_photoionization = p_photoionization.drop(
-        columns=[
-            "destination",
-            "transition_type",
-            "transition_line_id",
-            "transition_line_idx",
-        ]
+    photoionization_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.PHOTOIONIZATION,
+            "transition_line_idx": -99,
+            "destination_level_idx": -99,  # Placeholder - replace with real values if available
+            "source_level_idx": -99,  # Placeholder - replace with real values if available
+        }
     )
 
     return p_photoionization, photoionization_metadata
@@ -665,12 +637,27 @@ def continuum_transition_collisional(
     )
     return p_coll
 
-    def calculate(self, electron_densities, t_electrons, time_explosion):
-        cool_rate_adiabatic = (
-            3.0 * electron_densities * K_B * t_electrons
-        ) / time_explosion
+    # def calculate(self, electron_densities, t_electrons, time_explosion):
+    #     cool_rate_adiabatic = (
+    #         3.0 * electron_densities * K_B * t_electrons
+    #     ) / time_explosion
 
-        cool_rate_adiabatic = cooling_rate_series2dataframe(
-            cool_rate_adiabatic, destination_level_idx="adiabatic"
-        )
-        return cool_rate_adiabatic
+    #     cool_rate_adiabatic = cooling_rate_series2dataframe(
+    #         cool_rate_adiabatic, destination_level_idx="adiabatic"
+    #     )
+    #     return cool_rate_adiabatic
+
+
+def continuum_transition_collision_deexc_deactivate(
+    coll_deexc_coeff, yg_idx, electron_densities, delta_E_yg
+):
+    p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
+        delta_E_yg.values, axis=0
+    )
+    # yg idx has source_level_idx, destination_level_idx
+    # p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
+    # index_dd = pd.MultiIndex.from_product(
+    #     [p_deexc_deactivation.index.values, ["k"], [0]],
+    #     names=list(yg_idx.columns) + ["transition_type"],
+    # )
+    # p_deexc_deactivation = p_deexc_deactivation.set_index(index_dd)
