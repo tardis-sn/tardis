@@ -21,7 +21,7 @@ class TestPlotUtil:
     """Test utility functions used in plotting."""
 
     species_list = [["Si II", "Ca II", "C", "Fe I-V"]]
-    packets_mode = ["real", "virtual"]
+    packets_mode = ["real"]
 
     @pytest.mark.parametrize(
         "label_text,unit,only_text,expected",
@@ -67,13 +67,11 @@ class TestPlotUtil:
         result = to_rgb255_string(rgba)
         assert result == expected
 
-    @pytest.mark.parametrize("packets_mode", ["real", "virtual"])
+    @pytest.mark.parametrize("packets_mode", ["real"])
     def test_extract_and_process_packet_data(
-        self, simulation_simple, packets_mode
+        self, simulation_simple, packets_mode, 
     ):
-        actual_data = extract_and_process_packet_data(
-            simulation_simple, packets_mode
-        )
+        actual_data = extract_and_process_packet_data(simulation_simple)
 
         transport_state = simulation_simple.transport.transport_state
         lines_df = (
@@ -82,47 +80,32 @@ class TestPlotUtil:
             )
         )
 
-        if packets_mode == "virtual":
-            vpt = transport_state.vpacket_tracker
-            expected_data = {
-                "last_interaction_type": vpt.last_interaction_type,
-                "last_line_interaction_in_id": vpt.last_interaction_in_id,
-                "last_line_interaction_out_id": vpt.last_interaction_out_id,
-                "last_line_interaction_in_nu": vpt.last_interaction_in_nu,
-                "last_interaction_in_r": vpt.last_interaction_in_r,
-                "nus": u.Quantity(vpt.nus, "Hz"),
-                "energies": u.Quantity(vpt.energies, "erg"),
-                "lambdas": u.Quantity(vpt.nus, "Hz").to(
-                    "angstrom", u.spectral()
-                ),
-            }
-        else:
-            mask = transport_state.emitted_packet_mask
-            nus = u.Quantity(
-                transport_state.packet_collection.output_nus[mask], u.Hz
-            )
-            expected_data = {
-                "last_interaction_type": transport_state.last_interaction_type[
-                    mask
-                ],
-                "last_line_interaction_in_id": transport_state.last_line_interaction_in_id[
-                    mask
-                ],
-                "last_line_interaction_out_id": transport_state.last_line_interaction_out_id[
-                    mask
-                ],
-                "last_line_interaction_in_nu": transport_state.last_interaction_in_nu[
-                    mask
-                ],
-                "last_interaction_in_r": transport_state.last_interaction_in_r[
-                    mask
-                ],
-                "nus": nus,
-                "energies": transport_state.packet_collection.output_energies[
-                    mask
-                ],
-                "lambdas": nus.to("angstrom", u.spectral()),
-            }
+        mask = transport_state.emitted_packet_mask
+        nus = u.Quantity(
+            transport_state.packet_collection.output_nus[mask], u.Hz
+        )
+        expected_data = {
+            "last_interaction_type": transport_state.last_interaction_type[
+                mask
+            ],
+            "last_line_interaction_in_id": transport_state.last_line_interaction_in_id[
+                mask
+            ],
+            "last_line_interaction_out_id": transport_state.last_line_interaction_out_id[
+                mask
+            ],
+            "last_line_interaction_in_nu": transport_state.last_interaction_in_nu[
+                mask
+            ],
+            "last_interaction_in_r": transport_state.last_interaction_in_r[
+                mask
+            ],
+            "nus": nus,
+            "energies": transport_state.packet_collection.output_energies[
+                mask
+            ],
+            "lambdas": nus.to("angstrom", u.spectral()),
+        }
 
         expected_df = pd.DataFrame(expected_data)
 
@@ -238,9 +221,9 @@ class TestPlotUtil:
         np.testing.assert_array_equal(keep_colour_result, expected_keep_colour)
         assert full_species_list_result == expected_full_species_list
 
-    @pytest.mark.parametrize("packets_mode", ["real", "virtual"])
+    @pytest.mark.parametrize("packets_mode", ["real"])
     def test_get_spectrum_data(self, simulation_simple, packets_mode):
-        actual_data = get_spectrum_data(packets_mode, simulation_simple)
+        actual_data = get_spectrum_data(simulation_simple)
         packets_type = f"spectrum_{packets_mode}_packets"
 
         expected_data = {
@@ -267,30 +250,24 @@ class TestPlotUtil:
     @pytest.fixture(scope="module")
     def generate_masked_dataframe_hdf(self, simulation_simple):
         packet_data = {
-            "real": extract_and_process_packet_data(
-                simulation=simulation_simple, packets_mode="real"
-            ),
-            "virtual": extract_and_process_packet_data(
-                simulation=simulation_simple, packets_mode="virtual"
-            ),
+            "real": extract_and_process_packet_data(simulation=simulation_simple),
         }
         masked_data = {
             mode: PlotDataHDF(
                 masked_df=pd.DataFrame(
                     create_wavelength_mask(
                         packet_data,
-                        mode,
                         [3000, 9000] * u.AA,
                         df_key="packets_df",
                         column_name="nus",
                     )
                 )
             )
-            for mode in ["real", "virtual"]
+            for mode in ["real"]
         }
         return masked_data
 
-    @pytest.mark.parametrize("mode", ["real", "virtual"])
+    @pytest.mark.parametrize("mode", ["real"])
     def test_create_wavelength_mask(
         self, generate_masked_dataframe_hdf, regression_data, mode
     ):

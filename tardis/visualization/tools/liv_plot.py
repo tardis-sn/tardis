@@ -26,10 +26,6 @@ class LIVPlotter:
         """
         self.packet_data = {
             "real": {"packets_df": None, "packets_df_line_interaction": None},
-            "virtual": {
-                "packets_df": None,
-                "packets_df_line_interaction": None,
-            },
         }
         self.velocity = None
         self.time_explosion = None
@@ -52,13 +48,8 @@ class LIVPlotter:
         plotter.velocity = sim.simulation_state.velocity
         plotter.time_explosion = sim.simulation_state.time_explosion
 
-        modes = ["real"]
-        if sim.transport.transport_state.virt_logging:
-            modes.append("virtual")
-        for mode in modes:
-            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
-                sim, mode
-            )
+        # the Liv plotter only supports real packets at the moment
+        plotter.packet_data["real"] = pu.extract_and_process_packet_data(sim, "real")
 
         return plotter
 
@@ -87,15 +78,9 @@ class LIVPlotter:
             transport_state_scalars = hdf[
                 "/simulation/transport/transport_state/scalars"
             ]
-            has_virtual = bool(
-                getattr(transport_state_scalars, "virt_logging", False)
+            plotter.packet_data["real"] = (
+                pu.extract_and_process_packet_data_hdf(hdf, "real")
             )
-
-            modes = ["real"] + (["virtual"] if has_virtual else [])
-            for mode in modes:
-                plotter.packet_data[mode] = (
-                    pu.extract_and_process_packet_data_hdf(hdf, mode)
-                )
 
         return plotter
 
@@ -120,18 +105,11 @@ class LIVPlotter:
             plotter.time_explosion = time_explosion
         else:
             plotter.time_explosion = time_explosion * u.s
-        modes = ["real"]
-        if workflow.enable_virtual_packet_logging:
-            modes.append("virtual")
-
-        for mode in modes:
-            plotter.packet_data[mode] = pu.extract_and_process_packet_data(
-                workflow, mode
-            )
+        plotter.packet_data["real"] = pu.extract_and_process_packet_data(workflow, "real")
 
         return plotter
 
-    def _parse_species_list(self, species_list, packets_mode, nelements=None):
+    def _parse_species_list(self, species_list, nelements=None):
         """
         Parse user requested species list and create list of species ids to be used.
 
@@ -141,8 +119,6 @@ class LIVPlotter:
             List of species (e.g. Si II, Ca II, etc.) that the user wants to show as unique colours.
             Species can be given as an ion (e.g. Si II), an element (e.g. Si), a range of ions
             (e.g. Si I - V), or any combination of these (e.g. species_list = [Si II, Fe I-V, Ca])
-        packets_mode : str, optional
-            Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         nelements : int, optional
             Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
 
@@ -169,7 +145,7 @@ class LIVPlotter:
             self._keep_colour = None
 
         if nelements:
-            interaction_counts = self.packet_data[packets_mode][
+            interaction_counts = self.packet_data["real"][
                 "packets_df_line_interaction"
             ]["last_line_interaction_species"].value_counts()
             # interaction_counts.index = interaction_counts.index // 100
@@ -181,7 +157,7 @@ class LIVPlotter:
                 atomic_number2element_symbol(element[0])
                 for element in top_elements
             ]
-            self._parse_species_list(top_species_list, packets_mode)
+            self._parse_species_list(top_species_list)
 
     def _make_colorbar_labels(self):
         """
@@ -231,17 +207,12 @@ class LIVPlotter:
 
         self._color_list = color_list
 
-    def _generate_plot_data(self, packets_mode):
+    def _generate_plot_data(self):
         """
         Generate plot data and colors for species in the model.
-
-        Parameters
-        ----------
-        packets_mode : str
-            Packet mode, either 'virtual' or 'real'.
         """
         groups = (
-            self.packet_data[packets_mode]["packets_df_line_interaction"]
+            self.packet_data["real"]["packets_df_line_interaction"]
             .loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_species")
         )
@@ -284,7 +255,6 @@ class LIVPlotter:
 
     def _prepare_plot_data(
         self,
-        packets_mode,
         packet_wvl_range,
         species_list,
         cmapname,
@@ -300,8 +270,6 @@ class LIVPlotter:
 
         Parameters
         ----------
-        packets_mode : str
-            Packet mode, either 'virtual' or 'real'.
         packet_wvl_range : astropy.Quantity
             Wavelength range to restrict the analysis of escaped packets. It
             should be a quantity having units of Angstrom, containing two
@@ -327,7 +295,7 @@ class LIVPlotter:
             found in the model.
         """
         # Extract all unique elements from the packets data
-        line_df = self.packet_data[packets_mode]["packets_df_line_interaction"]
+        line_df = self.packet_data["real"]["packets_df_line_interaction"]
             
         if line_df is not None and not line_df.empty:
             species_in_model = np.unique(
@@ -343,7 +311,7 @@ class LIVPlotter:
                 ]
             else:
                 species_list = []
-        self._parse_species_list(species_list, packets_mode, nelements)
+        self._parse_species_list(species_list, nelements)
         if self._species_list is None or not self._species_list:
             if len(species_in_model) == 0:
                 raise ValueError(
@@ -367,13 +335,13 @@ class LIVPlotter:
 
         self.packet_nu_line_range_mask = pu.create_wavelength_mask(
             self.packet_data,
-            packets_mode,
+            "real",
             packet_wvl_range,
             df_key="packets_df_line_interaction",
             column_name="nus",
         )
 
-        self._generate_plot_data(packets_mode)
+        self._generate_plot_data()
         bin_edges = (self.velocity).to("km/s")
 
         if num_bins:
@@ -410,7 +378,6 @@ class LIVPlotter:
         self,
         species_list=None,
         nelements=None,
-        packets_mode="virtual",
         packet_wvl_range=None,
         ax=None,
         figsize=(11, 5),
@@ -429,8 +396,6 @@ class LIVPlotter:
             List of species to plot. Default is None which plots all species in the model.
         nelements : int, optional
             Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
-        packets_mode : str, optional
-            Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         packet_wvl_range : astropy.Quantity
             Wavelength range to restrict the analysis of escaped packets. It
             should be a quantity having units of Angstrom, containing two
@@ -464,7 +429,6 @@ class LIVPlotter:
             nelements = None
 
         self._prepare_plot_data(
-            packets_mode,
             packet_wvl_range,
             species_list,
             cmapname,
@@ -512,7 +476,6 @@ class LIVPlotter:
         self,
         species_list=None,
         nelements=None,
-        packets_mode="virtual",
         packet_wvl_range=None,
         fig=None,
         graph_height=600,
@@ -531,8 +494,6 @@ class LIVPlotter:
             List of species to plot. Default is None which plots all species in the model.
         nelements : int, optional
             Number of elements to include in plot. The most interacting elements are included. If None, displays all elements.
-        packets_mode : str, optional
-            Packet mode, either 'virtual' or 'real'. Default is 'virtual'.
         packet_wvl_range : astropy.Quantity
             Wavelength range to restrict the analysis of escaped packets. It
             should be a quantity having units of Angstrom, containing two
@@ -566,7 +527,6 @@ class LIVPlotter:
             nelements = None
 
         self._prepare_plot_data(
-            packets_mode,
             packet_wvl_range,
             species_list,
             cmapname,

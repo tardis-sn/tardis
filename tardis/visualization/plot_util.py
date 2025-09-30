@@ -115,7 +115,7 @@ def get_hex_color_strings(length, name="jet"):
     return [mcolors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
 
 
-def extract_and_process_packet_data(simulation, packets_mode):
+def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=False):
     """
     Extract and process packet data from the simulation object.
 
@@ -132,6 +132,9 @@ def extract_and_process_packet_data(simulation, packets_mode):
         Type of packets to extract:
         - 'virtual': Use virtual packet tracker.
         - 'real': Use emitted real packets.
+
+    include_shell_id : bool, optional
+        Whether to include shell_id information in the output (default: False)
 
     Returns
     -------
@@ -193,6 +196,9 @@ def extract_and_process_packet_data(simulation, packets_mode):
             "energies": transport_state.packet_collection.output_energies[packet_indices],
             "lambdas": packet_nus.to("angstrom", u.spectral()),
         }
+
+        if include_shell_id:
+            packet_data["last_line_interaction_shell_id"] = result_df["after_shell_id"].values
 
     packet_data["packets_df"] = pd.DataFrame(packet_data)
     process_line_interactions(packet_data, lines_df)
