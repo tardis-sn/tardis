@@ -39,7 +39,6 @@ class TestLIVPlotter:
     species_list = [["Si II", "Ca II", "C", "Fe I-V"], None]
     packet_wvl_range = [[3000, 9000] * u.AA]
     nelements = [1, None]
-    packets_mode = ["virtual", "real"]
     num_bins = [10]
     velocity_range = [(18000, 25000)]
     cmapname = ["jet"]
@@ -48,7 +47,6 @@ class TestLIVPlotter:
         product(
             species_list,
             packet_wvl_range,
-            packets_mode,
             nelements,
             num_bins,
             velocity_range,
@@ -80,7 +78,6 @@ class TestLIVPlotter:
         attribute: The attribute to test after parsing the species list.
         """
         plotter._parse_species_list(
-            packets_mode=self.packets_mode[0],
             species_list=self.species_list[0],
             nelements=self.nelements[0],
         )
@@ -115,14 +112,12 @@ class TestLIVPlotter:
         (
             species_list,
             packet_wvl_range,
-            packets_mode,
             nelements,
             num_bins,
             _,
             cmapname,
         ) = request.param
         plotter._prepare_plot_data(
-            packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             species_list=species_list,
             cmapname=cmapname,
@@ -184,7 +179,6 @@ class TestLIVPlotter:
         (
             species_list,
             packet_wvl_range,
-            packets_mode,
             nelements,
             num_bins,
             velocity_range,
@@ -195,7 +189,6 @@ class TestLIVPlotter:
             species_list=species_list,
             packet_wvl_range=packet_wvl_range,
             nelements=nelements,
-            packets_mode=packets_mode,
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
@@ -353,7 +346,6 @@ class TestLIVPlotter:
         (
             species_list,
             packet_wvl_range,
-            packets_mode,
             nelements,
             num_bins,
             velocity_range,
@@ -364,7 +356,6 @@ class TestLIVPlotter:
             species_list=species_list,
             packet_wvl_range=packet_wvl_range,
             nelements=nelements,
-            packets_mode=packets_mode,
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
@@ -480,14 +471,12 @@ class TestLIVPlotter:
         (
             species_list,
             packet_wvl_range,
-            packets_mode,
             nelements,
             num_bins,
             _,
             cmapname,
         ) = param
         plotter_from_workflow._prepare_plot_data(
-            packets_mode=packets_mode,
             packet_wvl_range=packet_wvl_range,
             species_list=species_list,
             cmapname=cmapname,
@@ -528,7 +517,6 @@ class TestLIVPlotter:
         (
             species_list,
             packet_wvl_range,
-            packets_mode,
             nelements,
             num_bins,
             velocity_range,
@@ -539,7 +527,6 @@ class TestLIVPlotter:
             species_list=species_list,
             packet_wvl_range=packet_wvl_range,
             nelements=nelements,
-            packets_mode=packets_mode,
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
@@ -570,14 +557,13 @@ class TestLIVPlotter:
     def test_workflow_simulation_data_identical(self, plotter, plotter_from_workflow):
         # Calculate plotting data with identical parameters
         params = {
-            "packets_mode": "virtual",
             "packet_wvl_range": [3000, 9000] * u.AA,
             "species_list": None,
             "cmapname": "jet",
             "num_bins": None,
             "nelements": None
         }
-        
+
         plotter._prepare_plot_data(**params)
         plotter_from_workflow._prepare_plot_data(**params)
         

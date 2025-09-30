@@ -67,86 +67,34 @@ class TestPlotUtil:
         result = to_rgb255_string(rgba)
         assert result == expected
 
-    @pytest.mark.parametrize("packets_mode", ["real"])
-    def test_extract_and_process_packet_data(
-        self, simulation_simple, packets_mode, 
+    @pytest.fixture(scope="module")
+    def packet_data(self, simulation_simple):
+        data = extract_and_process_packet_data(simulation_simple, "real")
+        data["packets_df"]["last_interaction_type"] = data["packets_df"][
+            "last_interaction_type"
+        ].astype(str)
+        data["packets_df_line_interaction"]["last_interaction_type"] = data[
+            "packets_df_line_interaction"
+        ]["last_interaction_type"].astype(str)
+        return data
+
+    def test_extract_and_process_packet_data_packets_df(
+        self, packet_data, regression_data
     ):
-        actual_data = extract_and_process_packet_data(simulation_simple)
-
-        transport_state = simulation_simple.transport.transport_state
-        lines_df = (
-            simulation_simple.plasma.atomic_data.lines.reset_index().set_index(
-                "line_id"
-            )
+        expected = regression_data.sync_dataframe(
+            packet_data["packets_df"], key="packets_df"
         )
+        pd.testing.assert_frame_equal(packet_data["packets_df"], expected)
 
-        mask = transport_state.emitted_packet_mask
-        nus = u.Quantity(
-            transport_state.packet_collection.output_nus[mask], u.Hz
+    def test_extract_and_process_packet_data_line_interaction(
+        self, packet_data, regression_data
+    ):
+        expected = regression_data.sync_dataframe(
+            packet_data["packets_df_line_interaction"],
+            key="packets_df_line_interaction",
         )
-        expected_data = {
-            "last_interaction_type": transport_state.last_interaction_type[
-                mask
-            ],
-            "last_line_interaction_in_id": transport_state.last_line_interaction_in_id[
-                mask
-            ],
-            "last_line_interaction_out_id": transport_state.last_line_interaction_out_id[
-                mask
-            ],
-            "last_line_interaction_in_nu": transport_state.last_interaction_in_nu[
-                mask
-            ],
-            "last_interaction_in_r": transport_state.last_interaction_in_r[
-                mask
-            ],
-            "nus": nus,
-            "energies": transport_state.packet_collection.output_energies[
-                mask
-            ],
-            "lambdas": nus.to("angstrom", u.spectral()),
-        }
-
-        expected_df = pd.DataFrame(expected_data)
-
-        line_mask = (expected_df["last_interaction_type"] > InteractionType.NO_INTERACTION) & (
-            expected_df["last_line_interaction_in_id"] > -1
-        )
-        expected_df_line_interaction = expected_df.loc[line_mask].copy()
-        expected_df_line_interaction["last_line_interaction_atom"] = list(
-            zip(
-                lines_df["atomic_number"]
-                .iloc[
-                    expected_df_line_interaction["last_line_interaction_out_id"]
-                ]
-                .to_numpy(),
-                [0] * len(expected_df_line_interaction),
-            )
-        )
-
-        expected_df_line_interaction["last_line_interaction_species"] = list(
-            zip(
-                lines_df["atomic_number"]
-                .iloc[
-                    expected_df_line_interaction["last_line_interaction_out_id"]
-                ]
-                .to_numpy(),
-                +lines_df["ion_number"]
-                .iloc[
-                    expected_df_line_interaction["last_line_interaction_out_id"]
-                ]
-                .to_numpy(),
-            )
-        )
-
         pd.testing.assert_frame_equal(
-            actual_data["packets_df"].reset_index(drop=True),
-            expected_df.reset_index(drop=True),
-        )
-
-        pd.testing.assert_frame_equal(
-            actual_data["packets_df_line_interaction"].reset_index(drop=True),
-            expected_df_line_interaction.reset_index(drop=True),
+            packet_data["packets_df_line_interaction"], expected
         )
 
     @pytest.mark.parametrize(
@@ -221,10 +169,9 @@ class TestPlotUtil:
         np.testing.assert_array_equal(keep_colour_result, expected_keep_colour)
         assert full_species_list_result == expected_full_species_list
 
-    @pytest.mark.parametrize("packets_mode", ["real"])
-    def test_get_spectrum_data(self, simulation_simple, packets_mode):
-        actual_data = get_spectrum_data(simulation_simple)
-        packets_type = f"spectrum_{packets_mode}_packets"
+    def test_get_spectrum_data(self, simulation_simple):
+        actual_data = get_spectrum_data("real", simulation_simple)
+        packets_type = "spectrum_real_packets"
 
         expected_data = {
             "spectrum_delta_frequency": getattr(
@@ -248,31 +195,18 @@ class TestPlotUtil:
             )
 
     @pytest.fixture(scope="module")
-    def generate_masked_dataframe_hdf(self, simulation_simple):
-        packet_data = {
-            "real": extract_and_process_packet_data(simulation=simulation_simple),
-        }
-        masked_data = {
-            mode: PlotDataHDF(
-                masked_df=pd.DataFrame(
-                    create_wavelength_mask(
-                        packet_data,
-                        [3000, 9000] * u.AA,
-                        df_key="packets_df",
-                        column_name="nus",
-                    )
-                )
-            )
-            for mode in ["real"]
-        }
-        return masked_data
-
-    @pytest.mark.parametrize("mode", ["real"])
-    def test_create_wavelength_mask(
-        self, generate_masked_dataframe_hdf, regression_data, mode
-    ):
-        expected = regression_data.sync_dataframe(
-            generate_masked_dataframe_hdf[mode].masked_df, key=mode
+    def masked_packet_data(self, packet_data):
+        mask = create_wavelength_mask(
+            {"real": packet_data},
+            "real",
+            [3000, 9000] * u.AA,
+            "packets_df",
+            "nus",
         )
-        actual = generate_masked_dataframe_hdf[mode].masked_df
-        pd.testing.assert_frame_equal(actual, expected)
+        return pd.DataFrame({"mask": mask})
+
+    def test_create_wavelength_mask(
+        self, masked_packet_data, regression_data
+    ):
+        expected = regression_data.sync_dataframe(masked_packet_data, key="mask")
+        pd.testing.assert_frame_equal(masked_packet_data, expected)
