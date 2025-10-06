@@ -24,6 +24,9 @@ class MacroAtomTransitionType(IntEnum):
     PHOTOIONIZATION = -9
 
 
+# Think more about the specific values here. Maybe negatives are for deactivating the macroatom, and positive values are internal?
+
+
 @njit(**njit_dict_no_parallel)
 def macro_atom_interaction(
     activation_level_id, current_shell_id, opacity_state
