@@ -3,8 +3,8 @@ import numpy.testing as npt
 import pytest
 
 from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
-from tardis.transport.montecarlo.packets.RPacketLastInteractionTracker import (
-    RPacketLastInteractionTracker,
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
 )
 
 
@@ -130,19 +130,16 @@ def nu_to_check(
 
 
 def test_defaults():
-    tracker = RPacketLastInteractionTracker()
-    assert tracker.index == -1
+    tracker = TrackerLastInteraction()
     assert tracker.shell_id == -1
     assert tracker.interaction_type == -1
     npt.assert_almost_equal(tracker.r, -1.0)
-    npt.assert_almost_equal(tracker.nu, 0.0)
-    npt.assert_almost_equal(tracker.energy, 0.0)
 
 
 def test_tracking_manual(static_packet):
-    tracker = RPacketLastInteractionTracker()
-    tracker.track(static_packet)
-    assert tracker.index == 0
+    tracker = TrackerLastInteraction()
+    tracker.track_line_interaction_before(static_packet)
+    tracker.track_line_interaction_after(static_packet)
     npt.assert_almost_equal(tracker.r, 7.5e14)
     npt.assert_almost_equal(tracker.nu, 0.4)
     npt.assert_almost_equal(tracker.energy, 0.9)
