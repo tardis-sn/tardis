@@ -14,7 +14,9 @@ def interaction_type_in_use(
 ):
     """Last interaction types of rpacket from LastInteractionTracker class"""
     transport_state = nb_simulation_verysimple.transport.transport_state
-    interaction_type = transport_state.last_interaction_type
+    df = transport_state.tracker_last_interaction_df
+    interaction_type_labels = df['last_interaction_type'].values
+    interaction_type = np.array([InteractionType[label].value if label != 'NO_INTERACTION' else -1 for label in interaction_type_labels], dtype=np.int64)
     return interaction_type
 
 
@@ -27,7 +29,7 @@ def shell_id_in_use(
     `shell_id` when last interaction is line from LastInteractionTracker class
     """
     transport_state = nb_simulation_verysimple.transport.transport_state
-    shell_id = transport_state.last_line_interaction_shell_id
+    shell_id = np.array([tracker.shell_id for tracker in transport_state.rpacket_tracker], dtype=np.int64)
     mask = interaction_type_in_use == InteractionType.LINE
     return shell_id[mask]
 
@@ -41,7 +43,7 @@ def r_in_use(
     `r` when last interaction is line from LastInteractionTracker class
     """
     transport_state = nb_simulation_verysimple.transport.transport_state
-    r = transport_state.last_interaction_in_r
+    r = np.array([tracker.r for tracker in transport_state.rpacket_tracker], dtype=np.float64)
     mask = interaction_type_in_use == InteractionType.LINE
     return r[mask]
 
@@ -106,10 +108,8 @@ def nu_packet_collection(
     nb_simulation_verysimple,
 ):
     """Last interaction output nus of rpacket from packet_collection"""
-    packet_collection = (
-        nb_simulation_verysimple.transport.transport_state.packet_collection
-    )
-    return packet_collection.output_nus
+    transport_state = nb_simulation_verysimple.transport.transport_state
+    return np.array([tracker.nu for tracker in transport_state.rpacket_tracker], dtype=np.float64)
 
 
 @pytest.fixture
