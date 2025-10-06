@@ -186,7 +186,7 @@ jobs:
         if: always() && github.event_name == 'pull_request_target'
 
       - name: Post comment (success)
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -205,7 +205,7 @@ jobs:
         if: success() && github.event_name == 'pull_request_target'
 
       - name: Post comment (failure)
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}

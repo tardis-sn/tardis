@@ -253,7 +253,7 @@ jobs:
           body-includes: Regression Data Comparison Results
 
       - name: Post comment
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
