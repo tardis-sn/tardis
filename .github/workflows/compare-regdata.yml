@@ -246,7 +246,7 @@ jobs:
           user_email: "tardis.sn.bot@gmail.com"
 
       - name: Find Comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ github.event.number }}
