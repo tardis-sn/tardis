@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=de14b06c"></script>
+      <script src="../../../../_static/documentation_options.js?v=743ecc6b"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -591,10 +591,8 @@ class BoundBoundMacroAtomSolver:
         )
 
         macro_atom_transition_metadata[&quot;source_level_idx&quot;] = (
-            (macro_atom_transition_metadata.source.map(source_to_index))
-            .fillna(0)
-            .astype(np.int64)
-        )
+            macro_atom_transition_metadata.source.map(source_to_index)
+        ).astype(np.int64)
 
         macro_block_references = create_macro_block_references(
             macro_atom_transition_metadata
@@ -749,8 +747,21 @@ def create_macro_block_references(macro_atom_transition_metadata):
         .groupby(&quot;source&quot;)
         .apply(lambda x: x.index[0])
     )
+
+    # Append a dummy index so that the interactions can access a &quot;block end&quot; if a packet activates the macroatom highest level of the heaviest element in the montecarlo.
+    # Without this the kernel will crash trying to access an index that doesn&#39;t exist.
+    macro_data = np.append(
+        macro_data.values, len(macro_atom_transition_metadata)
+    )
+    unique_source_multi_index = unique_source_multi_index.append(
+        pd.MultiIndex.from_tuples(
+            [(-99, -99, -99)],
+            names=[&quot;atomic_number&quot;, &quot;ion_number&quot;, &quot;level_number&quot;],
+        )
+    )
+
     macro_block_references = pd.Series(
-        data=macro_data.values,
+        data=macro_data,
         index=unique_source_multi_index,
         name=&quot;macro_block_references&quot;,
     )
@@ -895,7 +906,7 @@ def reindex_sort_and_clean_probabilities_and_metadata(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 22 Sep 2025.
+      <span class="lastupdated">Last updated on 06 Oct 2025.
       </span></p>
   </div>
 
