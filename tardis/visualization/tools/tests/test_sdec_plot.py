@@ -396,7 +396,7 @@ class TestSDECPlotter:
     def test_make_colorbar_labels(self, plotter):
         plotter._parse_species_list(None)
         plotter._calculate_plotting_data(
-            packets_mode="real",
+            packets_mode="virtual",
             packet_wvl_range=[500, 9000] * u.AA,
             distance=None,
             nelements=None,
