@@ -15,9 +15,7 @@ def interaction_type_in_use(
     """Last interaction types of rpacket from LastInteractionTracker class"""
     transport_state = nb_simulation_verysimple.transport.transport_state
     df = transport_state.tracker_last_interaction_df
-    interaction_type_labels = df['last_interaction_type'].values
-    interaction_type = np.array([InteractionType[label].value if label != 'NO_INTERACTION' else -1 for label in interaction_type_labels], dtype=np.int64)
-    return interaction_type
+    return df['last_interaction_type'].astype(str).values
 
 
 @pytest.fixture
@@ -30,7 +28,7 @@ def shell_id_in_use(
     """
     transport_state = nb_simulation_verysimple.transport.transport_state
     shell_id = np.array([tracker.shell_id for tracker in transport_state.rpacket_tracker], dtype=np.int64)
-    mask = interaction_type_in_use == InteractionType.LINE
+    mask = interaction_type_in_use == "LINE"
     return shell_id[mask]
 
 
@@ -44,7 +42,7 @@ def r_in_use(
     """
     transport_state = nb_simulation_verysimple.transport.transport_state
     r = np.array([tracker.r for tracker in transport_state.rpacket_tracker], dtype=np.float64)
-    mask = interaction_type_in_use == InteractionType.LINE
+    mask = interaction_type_in_use == "LINE"
     return r[mask]
 
 
@@ -56,15 +54,19 @@ def interaction_type_to_check(
     Last interaction types of rpacket from RPacketLastInteractionTracker class
     """
     transport_state = nb_simulation_verysimple.transport.transport_state
-    interaction_type = np.empty(
+    interaction_type_raw = np.empty(
         len(transport_state.rpacket_tracker), dtype=np.int64
     )
     for i, last_interaction_tracker in enumerate(
         transport_state.rpacket_tracker
     ):
-        interaction_type[i] = last_interaction_tracker.interaction_type
+        interaction_type_raw[i] = last_interaction_tracker.interaction_type
 
-    return interaction_type
+    interaction_type_labels = [
+        "NO_INTERACTION" if int_type == -1 else InteractionType(int_type).name
+        for int_type in interaction_type_raw
+    ]
+    return np.array(interaction_type_labels)
 
 
 @pytest.fixture
@@ -81,7 +83,7 @@ def shell_id_to_check(
         transport_state.rpacket_tracker
     ):
         shell_id[i] = last_interaction_tracker.shell_id
-    mask = interaction_type_to_check == InteractionType.LINE
+    mask = interaction_type_to_check == "LINE"
     return shell_id[mask]
 
 
@@ -99,7 +101,7 @@ def r_to_check(
         transport_state.rpacket_tracker
     ):
         r[i] = last_interaction_tracker.r
-    mask = interaction_type_to_check == InteractionType.LINE
+    mask = interaction_type_to_check == "LINE"
     return r[mask]
 
 
@@ -166,4 +168,4 @@ def test_tracking_manual(static_packet):
 def test_last_interaction_properties(expected, obtained, request):
     expected = request.getfixturevalue(expected)
     obtained = request.getfixturevalue(obtained)
-    npt.assert_allclose(expected, obtained)
+    npt.assert_array_equal(expected, obtained)
