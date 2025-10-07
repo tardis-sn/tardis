@@ -56,15 +56,14 @@ def test_tracker_last_interaction_df_output_nus(simulation_rpacket_tracking, reg
     npt.assert_allclose(output_nus, expected_nus)
 
 
-def test_boundary_interactions(simulation_rpacket_tracking, regression_data):
+def test_boundary_interactions(tracker_full_df, regression_data):
     """
     Validate boundary events per packet using the tracker_full_df.
 
     Extract per-packet event indices where interaction_type equals BOUNDARY
     from the tracker_full_df.
     """
-    transport_state = simulation_rpacket_tracking.transport.transport_state
-    df = transport_state.tracker_full_df
+    df = tracker_full_df
 
     packet_ids = df.index.get_level_values('packet_id').unique()
     no_of_packets = len(packet_ids)
@@ -96,8 +95,8 @@ def test_boundary_interactions(simulation_rpacket_tracking, regression_data):
     npt.assert_array_equal(obtained_boundary_interaction, expected_boundary_interaction)
 
 
-def test_tracker_full_df_contents(simulation_rpacket_tracking, regression_data):
-    tracker_df = simulation_rpacket_tracking.transport.transport_state.tracker_full_df.copy()
+def test_tracker_full_df_contents(tracker_full_df, regression_data):
+    tracker_df = tracker_full_df.copy()
     tracker_df['interaction_type'] = tracker_df['interaction_type'].astype(str)
     tracker_df['status'] = tracker_df['status'].astype(str)
 
