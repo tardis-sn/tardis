@@ -404,19 +404,19 @@ class BoundBoundMacroAtomSolver:
             )
 
         # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS. This also removes the source column from the probabilities DataFrame.
-        normalized_probabilities = normalize_transition_probabilities(
+        normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )
 
         normalized_probabilities, macro_atom_transition_metadata = (
-            reindex_sort_and_clean_probabilities_and_metadata(
+            self.reindex_sort_and_clean_probabilities_and_metadata(
                 normalized_probabilities, macro_atom_transition_metadata
             )
         )
 
         # We have to create the line2macro object after sorting.
         line2macro_level_upper, reference_index = (
-            create_line2macro_level_upper_and_reference_idx(
+            self.create_line2macro_level_upper_and_reference_idx(
                 macro_atom_transition_metadata, lines_level_upper
             )
         )
@@ -432,11 +432,11 @@ class BoundBoundMacroAtomSolver:
             inplace=True,
         )
 
-        create_source_and_destination_idx_columns(
+        self.create_source_and_destination_idx_columns(
             macro_atom_transition_metadata
         )
 
-        macro_block_references = create_macro_block_references(
+        macro_block_references = self.create_macro_block_references(
             macro_atom_transition_metadata
         )
 
@@ -555,206 +555,207 @@ class BoundBoundMacroAtomSolver:
         probabilities_df["source"] = (
             macro_atom_transition_metadata.source.values
         )
-        normalized_probabilities = normalize_transition_probabilities(
+        normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )
 
         return normalized_probabilities
 
+    def create_source_and_destination_idx_columns(
+        self,
+        macro_atom_transition_metadata,
+    ):
+        """
+        This function creates numerical indices for source and destination levels
+        by mapping unique source levels to sequential integers. The destination
+        indices use -99 for destinations that are not sources (emission-only levels).
 
-def create_source_and_destination_idx_columns(macro_atom_transition_metadata):
-    """
-    This function creates numerical indices for source and destination levels
-    by mapping unique source levels to sequential integers. The destination
-    indices use -99 for destinations that are not sources (emission-only levels).
-
-    Parameters
-    ----------
-    macro_atom_transition_metadata : pd.DataFrame
-        DataFrame containing macro atom transition metadata with 'source' and
-        'destination' columns.
-    """
-    source_to_index = {
-        source: idx
-        for idx, source in enumerate(
-            macro_atom_transition_metadata.source.unique()
+        Parameters
+        ----------
+        macro_atom_transition_metadata : pd.DataFrame
+            DataFrame containing macro atom transition metadata with 'source' and
+            'destination' columns.
+        """
+        source_to_index = {
+            source: idx
+            for idx, source in enumerate(
+                macro_atom_transition_metadata.source.unique()
+            )
+        }
+        # -99 should never be used downstream. The presence of it means the destination is not a source,
+        # which means that the destination is only referenced from emission
+        # (or macroatom deactivation) for the given macroatom configuration.
+        macro_atom_transition_metadata["destination_level_idx"] = (
+            (macro_atom_transition_metadata.destination.map(source_to_index))
+            .fillna(-99)
+            .astype(np.int64)
         )
-    }
-    # -99 should never be used downstream. The presence of it means the destination is not a source,
-    # which means that the destination is only referenced from emission
-    # (or macroatom deactivation) for the given macroatom configuration.
-    macro_atom_transition_metadata["destination_level_idx"] = (
-        (macro_atom_transition_metadata.destination.map(source_to_index))
-        .fillna(-99)
-        .astype(np.int64)
-    )
 
-    macro_atom_transition_metadata["source_level_idx"] = (
-        macro_atom_transition_metadata.source.map(source_to_index)
-    ).astype(np.int64)
+        macro_atom_transition_metadata["source_level_idx"] = (
+            macro_atom_transition_metadata.source.map(source_to_index)
+        ).astype(np.int64)
 
+    def create_macro_block_references(self, macro_atom_transition_metadata):
+        """
+        Create macro block references from the macro atom transition metadata.
+        This method creates a mapping from unique source levels to their first occurrence index in the metadata.
 
-def create_macro_block_references(macro_atom_transition_metadata):
-    """
-    Create macro block references from the macro atom transition metadata.
-    This method creates a mapping from unique source levels to their first occurrence index in the metadata.
+        Parameters
+        ----------
+        macro_atom_transition_metadata : pandas.DataFrame
+            DataFrame containing metadata for macro atom transitions.
 
-    Parameters
-    ----------
-    macro_atom_transition_metadata : pandas.DataFrame
-        DataFrame containing metadata for macro atom transitions.
-
-    Returns
-    -------
-    pandas.Series
-        Series with unique source levels as index and their first occurrence index in the metadata as values.
-    """
-    unique_source_multi_index = pd.MultiIndex.from_tuples(
-        macro_atom_transition_metadata.source.unique(),
-        names=["atomic_number", "ion_number", "level_number"],
-    )
-    macro_data = (
-        macro_atom_transition_metadata.reset_index()
-        .groupby("source")
-        .apply(lambda x: x.index[0])
-    )
-
-    # Append a dummy index so that the interactions can access a "block end" if a packet activates the macroatom highest level of the heaviest element in the montecarlo.
-    # Without this the kernel will crash trying to access an index that doesn't exist.
-    macro_data = np.append(
-        macro_data.values, len(macro_atom_transition_metadata)
-    )
-    unique_source_multi_index = unique_source_multi_index.append(
-        pd.MultiIndex.from_tuples(
-            [(-99, -99, -99)],
+        Returns
+        -------
+        pandas.Series
+            Series with unique source levels as index and their first occurrence index in the metadata as values.
+        """
+        unique_source_multi_index = pd.MultiIndex.from_tuples(
+            macro_atom_transition_metadata.source.unique(),
             names=["atomic_number", "ion_number", "level_number"],
         )
-    )
+        macro_data = (
+            macro_atom_transition_metadata.reset_index()
+            .groupby("source")
+            .apply(lambda x: x.index[0])
+        )
 
-    macro_block_references = pd.Series(
-        data=macro_data,
-        index=unique_source_multi_index,
-        name="macro_block_references",
-    )
+        # Append a dummy index so that the interactions can access a "block end" if a packet activates the macroatom highest level of the heaviest element in the montecarlo.
+        # Without this the kernel will crash trying to access an index that doesn't exist.
+        macro_data = np.append(
+            macro_data.values, len(macro_atom_transition_metadata)
+        )
+        unique_source_multi_index = unique_source_multi_index.append(
+            pd.MultiIndex.from_tuples(
+                [(-99, -99, -99)],
+                names=["atomic_number", "ion_number", "level_number"],
+            )
+        )
 
-    return macro_block_references
+        macro_block_references = pd.Series(
+            data=macro_data,
+            index=unique_source_multi_index,
+            name="macro_block_references",
+        )
 
+        return macro_block_references
 
-def create_line2macro_level_upper_and_reference_idx(
-    macro_atom_transition_metadata: pd.DataFrame,
-    lines_level_upper: pd.MultiIndex,
-) -> tuple[pd.Series, pd.Series]:
-    """
-    Create a mapping from line transitions to macro atom level indices for upper levels.
-    This method creates a mapping that connects line transition upper levels to their
-    corresponding macro atom level indices. It first extracts unique source levels
-    from the macro atom transition metadata and assigns sequential indices to them,
-    then maps the line upper levels to these indices.
+    def create_line2macro_level_upper_and_reference_idx(
+        self,
+        macro_atom_transition_metadata: pd.DataFrame,
+        lines_level_upper: pd.MultiIndex,
+    ) -> tuple[pd.Series, pd.Series]:
+        """
+        Create a mapping from line transitions to macro atom level indices for upper levels.
+        This method creates a mapping that connects line transition upper levels to their
+        corresponding macro atom level indices. It first extracts unique source levels
+        from the macro atom transition metadata and assigns sequential indices to them,
+        then maps the line upper levels to these indices.
 
-    Parameters
-    ----------
-    macro_atom_transition_metadata : pd.DataFrame
-        DataFrame containing macro atom transition metadata
-    lines_level_upper : pd.MultiIndex
-        MultiIndex containing line upper level information
+        Parameters
+        ----------
+        macro_atom_transition_metadata : pd.DataFrame
+            DataFrame containing macro atom transition metadata
+        lines_level_upper : pd.MultiIndex
+            MultiIndex containing line upper level information
 
-    Returns
-    -------
-    pd.Series
-        Series mapping line transitions to macro atom level indices
-    pd.Series
-        Series with unique source levels as index and their assigned indices as values
-    """
-    unique_source_index = pd.MultiIndex.from_tuples(
-        macro_atom_transition_metadata.source.unique(),
-        names=["atomic_number", "ion_number", "level_number"],
-    )
-    unique_source_series = pd.Series(
-        index=unique_source_index,
-        data=range(len(macro_atom_transition_metadata.source.unique())),
-    )
-    line2macro_level_upper = unique_source_series.loc[lines_level_upper]
+        Returns
+        -------
+        pd.Series
+            Series mapping line transitions to macro atom level indices
+        pd.Series
+            Series with unique source levels as index and their assigned indices as values
+        """
+        unique_source_index = pd.MultiIndex.from_tuples(
+            macro_atom_transition_metadata.source.unique(),
+            names=["atomic_number", "ion_number", "level_number"],
+        )
+        unique_source_series = pd.Series(
+            index=unique_source_index,
+            data=range(len(macro_atom_transition_metadata.source.unique())),
+        )
+        line2macro_level_upper = unique_source_series.loc[lines_level_upper]
 
-    return line2macro_level_upper, unique_source_series
+        return line2macro_level_upper, unique_source_series
 
+    def normalize_transition_probabilities(
+        self,
+        probabilities_df: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """
+        Normalize transition probabilities by their source levels.
 
-def normalize_transition_probabilities(
-    probabilities_df: pd.DataFrame,
-) -> pd.DataFrame:
-    """
-    Normalize transition probabilities by their source levels.
+        Parameters
+        ----------
+        probabilities_df : pd.DataFrame
+            DataFrame containing transition probabilities with a 'source' column
+            for grouping.
 
-    Parameters
-    ----------
-    probabilities_df : pd.DataFrame
-        DataFrame containing transition probabilities with a 'source' column
-        for grouping.
+        Returns
+        -------
+        pd.DataFrame
+            Normalized probabilities where each source group sums to 1.0.
+            NaN values are replaced with 0.0 for cases where all transition
+            probabilities are zero (typically ground levels in macroatom).
+        """
+        # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS.
+        normalized_probabilities = probabilities_df.div(
+            probabilities_df.groupby("source").transform("sum"),
+        )
+        normalized_probabilities.replace(np.nan, 0, inplace=True)
 
-    Returns
-    -------
-    pd.DataFrame
-        Normalized probabilities where each source group sums to 1.0.
-        NaN values are replaced with 0.0 for cases where all transition
-        probabilities are zero (typically ground levels in macroatom).
-    """
-    # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS.
-    normalized_probabilities = probabilities_df.div(
-        probabilities_df.groupby("source").transform("sum"),
-    )
-    normalized_probabilities.replace(np.nan, 0, inplace=True)
+        return normalized_probabilities.drop(columns=["source"])
 
-    return normalized_probabilities.drop(columns=["source"])
+    def reindex_sort_and_clean_probabilities_and_metadata(
+        self,
+        probabilities: pd.DataFrame,
+        macro_atom_transition_metadata: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.
 
+        Parameters
+        ----------
+        probabilities : pd.DataFrame
+            DataFrame containing normalized transition probabilities.
+        macro_atom_transition_metadata : pd.DataFrame
+            DataFrame containing metadata for macro atom transitions.
 
-def reindex_sort_and_clean_probabilities_and_metadata(
-    probabilities: pd.DataFrame,
-    macro_atom_transition_metadata: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.
+        Returns
+        -------
+        tuple[pd.DataFrame, pd.DataFrame]
+            Reindexed normalized probabilities and cleaned metadata sorted by
+            atomic number, ion number, and source level.
+        """
+        probabilities = probabilities.reset_index(
+            drop=True
+        )  # Reset to create a unique macro_atom_transition_id.
+        probabilities.index.rename("macro_atom_transition_id", inplace=True)
 
-    Parameters
-    ----------
-    probabilities : pd.DataFrame
-        DataFrame containing normalized transition probabilities.
-    macro_atom_transition_metadata : pd.DataFrame
-        DataFrame containing metadata for macro atom transitions.
+        macro_atom_transition_metadata = (
+            macro_atom_transition_metadata.reset_index()
+        )
+        macro_atom_transition_metadata.index.rename(
+            "macro_atom_transition_id", inplace=True
+        )
+        macro_atom_transition_metadata["source_level"] = (
+            macro_atom_transition_metadata.source.apply(lambda x: x[2])
+        )
+        macro_atom_transition_metadata = macro_atom_transition_metadata.sort_values(
+            [
+                "atomic_number",
+                "ion_number",
+                "source_level",
+                "macro_atom_transition_id",
+            ],
+            kind=SORTING_ALGORITHM,
+        )  # This is how carsus sorted the macro atom transitions, then also using macro_atom_transition_id to break ties.
 
-    Returns
-    -------
-    tuple[pd.DataFrame, pd.DataFrame]
-        Reindexed normalized probabilities and cleaned metadata sorted by
-        atomic number, ion number, and source level.
-    """
-    probabilities = probabilities.reset_index(
-        drop=True
-    )  # Reset to create a unique macro_atom_transition_id.
-    probabilities.index.rename("macro_atom_transition_id", inplace=True)
+        probabilities = probabilities.loc[
+            macro_atom_transition_metadata.index
+        ]  # Reorder to match the metadata, which was sorted to match carsus.
 
-    macro_atom_transition_metadata = (
-        macro_atom_transition_metadata.reset_index()
-    )
-    macro_atom_transition_metadata.index.rename(
-        "macro_atom_transition_id", inplace=True
-    )
-    macro_atom_transition_metadata["source_level"] = (
-        macro_atom_transition_metadata.source.apply(lambda x: x[2])
-    )
-    macro_atom_transition_metadata = macro_atom_transition_metadata.sort_values(
-        [
-            "atomic_number",
-            "ion_number",
-            "source_level",
-            "macro_atom_transition_id",
-        ],
-        kind=SORTING_ALGORITHM,
-    )  # This is how carsus sorted the macro atom transitions, then also using macro_atom_transition_id to break ties.
-
-    probabilities = probabilities.loc[
-        macro_atom_transition_metadata.index
-    ]  # Reorder to match the metadata, which was sorted to match carsus.
-
-    return probabilities, macro_atom_transition_metadata
+        return probabilities, macro_atom_transition_metadata
 
 
 class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
@@ -762,14 +763,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
     lines: pd.DataFrame
     line_interaction_type: str
     photoionization_data: pd.DataFrame
-    selected_continuum_transitions: np.ndarray
+    # selected_continuum_transitions: np.ndarray
 
     def __init__(
         self,
         levels: pd.DataFrame,
         lines: pd.DataFrame,
         photoionization_data: pd.DataFrame,
-        selected_continuum_transitions: np.ndarray,
+        # selected_continuum_transitions: np.ndarray,
         line_interaction_type: str = "macroatom",
     ) -> None:
         """
@@ -792,14 +793,21 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             line_interaction_type=line_interaction_type,
         )
 
-        selected_continuum_transitions = np.array(
-            [(1, 0)]
-        )  # Temporary hack to test the continuum macro atom implementation.
+        selected_continuum_transitions = [
+            (1, 0),
+            (1, 1),
+        ]  # Temporary hack to test the continuum macro atom implementation.
         included_species = photoionization_data.index.droplevel(
             "level_number"
         ).isin(selected_continuum_transitions)
         self.photoionization_data = photoionization_data[included_species]
         # Here we probably want to check and throw an error if the photoionization data contains atoms not in the lines and levels dataframes.
+        self.photoionization_data_level_energies = levels.loc[
+            self.photoionization_data.index.unique()
+        ].energy
+        self.ionization_frequency_thresholds = (
+            self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
+        )
 
     def solve(
         self,
@@ -842,144 +850,155 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         stimulated_emission_factors: np.ndarray,
         lines_level_upper: pd.MultiIndex,
         gamma_corr: pd.DataFrame,
-        energy_i: pd.Series,
+        photoionization_data_level_energies: pd.Series,
         alpha_sp: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
         # Assemble bound-bound transitions first.
-        if self.line_interaction_type in ["downbranch", "macroatom"]:
-            p_emission_down, emission_down_metadata = (
-                line_transition_emission_down(
-                    self._oscillator_strength_ul,
-                    self._nus,
-                    self._energies_upper,
-                    self._energies_lower,
-                    beta_sobolevs,
-                    self._transition_a_i_l_u_array,
-                    self.lines.line_id.to_numpy(),
-                )
+        if self.line_interaction_type != "macroatom":
+            raise NotImplementedError(
+                "ContinuumMacroAtomSolver only supports line_interaction_type='macroatom' currently."
             )
-        else:
-            raise ValueError(
-                f"Unknown line interaction type: {self.line_interaction_type}"
-            )
-        if self.line_interaction_type == "downbranch":
-            probabilities_df = p_emission_down
-            macro_atom_transition_metadata = emission_down_metadata
+        p_emission_down, emission_down_metadata = line_transition_emission_down(
+            self._oscillator_strength_ul,
+            self._nus,
+            self._energies_upper,
+            self._energies_lower,
+            beta_sobolevs,
+            self._transition_a_i_l_u_array,
+            self.lines.line_id.to_numpy(),
+        )
+        p_internal_down, internal_down_metadata = line_transition_internal_down(
+            self._oscillator_strength_ul,
+            self._nus,
+            self._energies_lower,
+            beta_sobolevs,
+            self._transition_a_i_l_u_array,
+            self.lines.line_id.to_numpy(),
+        )
 
-        elif self.line_interaction_type == "macroatom":
-            p_internal_down, internal_down_metadata = (
-                line_transition_internal_down(
-                    self._oscillator_strength_ul,
-                    self._nus,
-                    self._energies_lower,
-                    beta_sobolevs,
-                    self._transition_a_i_l_u_array,
-                    self.lines.line_id.to_numpy(),
-                )
+        p_internal_up, internal_up_metadata = line_transition_internal_up(
+            self._oscillator_strength_lu,
+            self._nus,
+            self._energies_lower,
+            mean_intensities_blue_wing,
+            beta_sobolevs,
+            stimulated_emission_factors,
+            self._transition_a_i_l_u_array,
+            self.lines.line_id.to_numpy(),
+        )
+        # Then assemble continuum transitions
+        p_photoionization, photoionization_metadata = (
+            continuum_transition_photoionization(
+                gamma_corr, photoionization_data_level_energies
             )
+        )
+        p_recombination_emission, recombination_emission_metadata = (
+            continuum_transition_recombination_emission(
+                alpha_sp, self.photoionization_data.nu
+            )
+        )
+        p_recombination_internal, recombination_internal_metadata = (
+            continuum_transition_recombination_internal(
+                alpha_sp, photoionization_data_level_energies
+            )
+        )
 
-            p_internal_up, internal_up_metadata = line_transition_internal_up(
-                self._oscillator_strength_lu,
-                self._nus,
-                self._energies_lower,
-                mean_intensities_blue_wing,
-                beta_sobolevs,
-                stimulated_emission_factors,
-                self._transition_a_i_l_u_array,
-                self.lines.line_id.to_numpy(),
+        probabilities_df = pd.concat(
+            [
+                p_emission_down,
+                p_internal_down,
+                p_internal_up,
+                p_photoionization,
+                p_recombination_emission,
+                p_recombination_internal,
+            ],
+            ignore_index=True,
+        )
+        macro_atom_transition_metadata = pd.concat(
+            [
+                emission_down_metadata,
+                internal_down_metadata,
+                internal_up_metadata,
+                photoionization_metadata,
+                recombination_emission_metadata,
+                recombination_internal_metadata,
+            ],
+            ignore_index=True,
+        )
+        probabilities_df, macro_atom_transition_metadata = (
+            self.reindex_sort_and_clean_probabilities_and_metadata(
+                probabilities_df, macro_atom_transition_metadata
             )
+        )
 
-            # Then assemble continuum transitions
-            p_photoionization, photoionization_metadata = (
-                continuum_transition_photoionization(gamma_corr, energy_i)
-            )
-            p_recombination_emission, recombination_emission_metadata = (
-                continuum_transition_recombination_emission(
-                    alpha_sp, self.photoionization_data.nu
-                )
-            )
-            p_recombination_internal, recombination_internal_metadata = (
-                continuum_transition_recombination_internal(alpha_sp, energy_i)
-            )
-
-            probabilities_df = pd.concat(
-                [
-                    p_emission_down,
-                    p_internal_down,
-                    p_internal_up,
-                    p_photoionization,
-                    p_recombination_emission,
-                    p_recombination_internal,
-                ]
-            )
-            macro_atom_transition_metadata = pd.concat(
-                [
-                    emission_down_metadata,
-                    internal_down_metadata,
-                    internal_up_metadata,
-                    photoionization_metadata,
-                    recombination_emission_metadata,
-                    recombination_internal_metadata,
-                ]
-            )
-        normalized_probabilities = normalize_transition_probabilities(
+        normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )
 
-        reindex_sort_and_clean_probabilities_and_metadata(
-            probabilities_df, macro_atom_transition_metadata
-        )
         line2macro_level_upper, reference_index = (
-            create_line2macro_level_upper_and_reference_idx(
+            self.create_line2macro_level_upper_and_reference_idx(
                 macro_atom_transition_metadata, lines_level_upper
             )
         )
-        create_source_and_destination_idx_columns(
+        self.create_source_and_destination_idx_columns(
             macro_atom_transition_metadata
         )
-        raise NotImplementedError(
-            "ContinuumMacroAtomSolver is not yet implemented."
+        macro_block_references = self.create_macro_block_references(
+            macro_atom_transition_metadata
         )
 
-        # normalized_probabilities = normalize_transition_probabilities(
-        #     probabilities_df
-        # )
+        self.computed_metadata = (
+            macro_atom_transition_metadata,
+            line2macro_level_upper,
+            macro_block_references,
+            reference_index,
+        )
 
-        # normalized_probabilities, macro_atom_transition_metadata = (
-        #     reindex_sort_and_clean_probabilities_and_metadata(
-        #         normalized_probabilities, macro_atom_transition_metadata
-        #     )
-        # )
+        return (
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            line2macro_level_upper,
+            macro_block_references,
+            reference_index,
+        )
 
-        # # We have to create the line2macro object after sorting.
-        # line2macro_level_upper, reference_index = (
-        #     create_line2macro_level_upper_and_reference_idx(
-        #         macro_atom_transition_metadata, lines_level_upper
-        #     )
-        # )
+    def reindex_sort_and_clean_probabilities_and_metadata(
+        self,
+        probabilities: pd.DataFrame,
+        macro_atom_transition_metadata: pd.DataFrame,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Adapted for continuum macroatom, where continuum transitions do not have the same dataframe indices.
+        Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.
 
-        # macro_atom_transition_metadata.drop(
-        #     columns=[
-        #         "atomic_number",
-        #         "ion_number",
-        #         "level_number_lower",
-        #         "level_number_upper",
-        #         "source_level",
-        #     ],
-        #     inplace=True,
-        # )
+        Parameters
+        ----------
+        probabilities : pd.DataFrame
+            DataFrame containing normalized transition probabilities.
+        macro_atom_transition_metadata : pd.DataFrame
+            DataFrame containing metadata for macro atom transitions.
 
-        # create_source_and_destination_idx_columns(
-        #     macro_atom_transition_metadata
-        # )
+        Returns
+        -------
+        tuple[pd.DataFrame, pd.DataFrame]
+            Reindexed normalized probabilities and cleaned metadata sorted by
+            atomic number, ion number, and source level.
+        """
+        probabilities.index.rename("macro_atom_transition_id", inplace=True)
+        macro_atom_transition_metadata.index.rename(
+            "macro_atom_transition_id", inplace=True
+        )
 
-        # macro_block_references = create_macro_block_references(
-        #     macro_atom_transition_metadata
-        # )
+        macro_atom_transition_metadata = macro_atom_transition_metadata.sort_values(
+            [
+                "source",
+                "macro_atom_transition_id",
+            ],
+            kind=SORTING_ALGORITHM,
+        )  # This is how carsus sorted the macro atom transitions, then also using macro_atom_transition_id to break ties.
 
-        # self.computed_metadata = (
-        #     macro_atom_transition_metadata,
-        #     line2macro_level_upper,
-        #     macro_block_references,
-        #     reference_index,
-        # )
+        probabilities = probabilities.loc[
+            macro_atom_transition_metadata.index
+        ]  # Reorder to match the metadata, which was sorted to match carsus.
+
+        return probabilities, macro_atom_transition_metadata

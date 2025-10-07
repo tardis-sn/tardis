@@ -407,7 +407,7 @@ def probability_emission_down(
 
 def continuum_transition_recombination_internal(
     alpha_sp: pd.DataFrame,  # These will all be changes to spontaneous recombination coefficient
-    energy_i: pd.Series,  # Figure out which energy this is - delta E from energy level to ionization?
+    photoionization_data_level_energies: pd.Series,  # This is just energy of the excitation state in the atomic data
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Calculate unnormalized probabilities of radiative recombination.
@@ -416,7 +416,7 @@ def continuum_transition_recombination_internal(
     ----------
     alpha_sp : pd.Series
         Rate coefficient for spontaneous recombination from `k` to level `i`.
-    energy_i : pd.Series
+    photoionization_data_level_energies : pd.Series
         Energies of levels with bound-free transitions. Needed to calculate
         for example internal transition probabilities in the macro atom scheme.
         All p_internals (u/l) go as R_i(u/l) * e_i / D_i
@@ -431,7 +431,9 @@ def continuum_transition_recombination_internal(
     recombination_metadata : pd.DataFrame
         DataFrame containing metadata for the recombination transitions.
     """
-    p_recomb_internal = probability_recombination_internal(alpha_sp, energy_i)
+    p_recomb_internal = probability_recombination_internal(
+        alpha_sp, photoionization_data_level_energies
+    )
 
     destinations = p_recomb_internal.index.values
     sources = get_ground_state_multi_index(p_recomb_internal.index).values
@@ -451,9 +453,11 @@ def continuum_transition_recombination_internal(
 
 def probability_recombination_internal(
     alpha_sp: pd.DataFrame,
-    energy_i: pd.Series,
+    photoionization_data_level_energies: pd.Series,
 ) -> pd.DataFrame:
-    p_recomb_internal = alpha_sp.multiply(energy_i, axis=0)
+    p_recomb_internal = alpha_sp.multiply(
+        photoionization_data_level_energies, axis=0
+    )
     return p_recomb_internal
 
 
@@ -492,7 +496,7 @@ def probability_recombination_emission(
 
 def continuum_transition_photoionization(
     gamma_corr: pd.DataFrame,
-    energy_i: pd.Series,
+    photoionization_data_level_energies: pd.Series,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Calculate photoionization probability unnormalized.
@@ -501,7 +505,7 @@ def continuum_transition_photoionization(
     ----------
     gamma_corr : pd.Series
         Corrected photoionization rate coefficient from level `i` to `k`.
-    energy_i : pd.Series
+    photoionization_data_level_energies : pd.Series
         Energies of the levels involved in photoionization.
     photo_ion_idx : pd.DataFrame
         DataFrame containing photoionization indices.
@@ -513,7 +517,9 @@ def continuum_transition_photoionization(
     photoionization_metadata : pd.DataFrame
         DataFrame containing metadata for the photoionization transitions.
     """
-    p_photoionization = probability_photoionization(gamma_corr, energy_i)
+    p_photoionization = probability_photoionization(
+        gamma_corr, photoionization_data_level_energies
+    )
 
     sources = p_photoionization.index.values
     destinations = get_ground_state_multi_index(p_photoionization.index).values
@@ -525,14 +531,15 @@ def continuum_transition_photoionization(
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.PHOTOIONIZATION,
             "transition_line_idx": -99,
-        }
+        },
+        index=p_photoionization.index,
     )
 
     return p_photoionization, photoionization_metadata
 
 
 def probability_photoionization(
-    gamma_corr: pd.DataFrame, energy_i: pd.Series
+    gamma_corr: pd.DataFrame, photoionization_data_level_energies: pd.Series
 ) -> pd.DataFrame:
     """
     Calculate photoionization probability unnormalized.
@@ -541,7 +548,7 @@ def probability_photoionization(
     ----------
     gamma_corr : pd.Series
         Corrected photoionization rate coefficient from level `i` to `k`.
-    energy_i : pd.Series
+    photoionization_data_level_energies : pd.Series
         Energies of the levels involved in photoionization.
 
     Returns
@@ -549,7 +556,9 @@ def probability_photoionization(
     pd.DataFrame
         DataFrame containing photoionization probabilities.
     """
-    p_photoionization = gamma_corr.multiply(energy_i, axis=0)
+    p_photoionization = gamma_corr.multiply(
+        photoionization_data_level_energies, axis=0
+    )
     return p_photoionization
 
 
