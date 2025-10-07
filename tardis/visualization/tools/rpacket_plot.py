@@ -559,8 +559,6 @@ class RPacketPlotter:
         Launch angles are distributed uniformly around the photosphere to
         provide representative coverage of packet trajectories.
         """
-        # Remove only BOUNDARY interactions
-        # r_packet_tracker = r_packet_tracker[r_packet_tracker['interaction_type'] != 'BOUNDARY']
         # Remove rows with any NaN values
         r_packet_tracker = r_packet_tracker.dropna()
         
@@ -572,8 +570,6 @@ class RPacketPlotter:
 
         # getting coordinates and interaction arrays for all packets
         for packet_no in range(self.no_of_packets):
-            # try:
-        # packet_data = r_packet_tracker.loc[packet_no].reset_index(drop=True)
             packet_data = r_packet_tracker.loc[packet_no]
             interaction_types = packet_data["interaction_type"]
             mu_data = packet_data["after_mu"]
@@ -592,9 +588,6 @@ class RPacketPlotter:
             all_rpackets_x_coords.append(rpacket_x)
             all_rpackets_y_coords.append(rpacket_y)
             all_rpackets_interactions_coords.append(rpacket_interactions)
-            # except KeyError as e:
-            #     print(f"skipping, {packet_no} ", e)
-            #     continue
         return (
             np.array(all_rpackets_x_coords, dtype="object"),
             np.array(all_rpackets_y_coords, dtype="object"),
