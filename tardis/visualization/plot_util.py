@@ -589,12 +589,15 @@ def create_wavelength_mask(
 
     Parameters
     ----------
-    packets_mode : str
-        'virtual' or 'real' packets mode
+    packet_data : dict or pd.DataFrame
+        Either a nested dict with packet data or a DataFrame directly
+    packets_mode : str or None
+        'virtual' or 'real' packets mode. Required if packet_data is a dict, ignored if DataFrame
     packet_wvl_range : astropy.Quantity or None
         Wavelength range to filter packets
-    df_key : str
-        Key for the dataframe in packet_data ('packets_df' or 'packets_df_line_interaction')
+    df_key : str or None
+        Key for the dataframe in packet_data ('packets_df' or 'packets_df_line_interaction').
+        Required if packet_data is a dict, ignored if DataFrame
     column_name : str
         Column name to filter on ('nus' or 'last_line_interaction_in_nu')
 
@@ -603,14 +606,15 @@ def create_wavelength_mask(
     np.array
         Boolean mask for packets in the specified wavelength range
     """
+    if isinstance(packet_data, pd.DataFrame):
+        df = packet_data
+    else:
+        df = packet_data[packets_mode][df_key]
+
     if packet_wvl_range is None:
-        return np.ones(
-            packet_data[packets_mode][df_key].shape[0],
-            dtype=bool,
-        )
+        return np.ones(df.shape[0], dtype=bool)
 
     packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
-    df = packet_data[packets_mode][df_key]
 
     return (df[column_name] < packet_nu_range[0]) & (
         df[column_name] > packet_nu_range[1]

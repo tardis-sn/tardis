@@ -24,9 +24,8 @@ class LIVPlotter:
         """
         Initialize the plotter with required data from the simulation.
         """
-        self.packet_data = {
-            "real": {"packets_df": None, "packets_df_line_interaction": None},
-        }
+        self.packets_df = None
+        self.packets_df_line_interaction = None
         self.velocity = None
         self.time_explosion = None
 
@@ -49,7 +48,9 @@ class LIVPlotter:
         plotter.time_explosion = sim.simulation_state.time_explosion
 
         # the Liv plotter only supports real packets at the moment
-        plotter.packet_data["real"] = pu.extract_and_process_packet_data(sim, "real")
+        packet_data = pu.extract_and_process_packet_data(sim, "real")
+        plotter.packets_df = packet_data["packets_df"]
+        plotter.packets_df_line_interaction = packet_data["packets_df_line_interaction"]
 
         return plotter
 
@@ -78,9 +79,9 @@ class LIVPlotter:
             transport_state_scalars = hdf[
                 "/simulation/transport/transport_state/scalars"
             ]
-            plotter.packet_data["real"] = (
-                pu.extract_and_process_packet_data_hdf(hdf, "real")
-            )
+            packet_data = pu.extract_and_process_packet_data_hdf(hdf, "real")
+            plotter.packets_df = packet_data["packets_df"]
+            plotter.packets_df_line_interaction = packet_data["packets_df_line_interaction"]
 
         return plotter
 
@@ -105,7 +106,9 @@ class LIVPlotter:
             plotter.time_explosion = time_explosion
         else:
             plotter.time_explosion = time_explosion * u.s
-        plotter.packet_data["real"] = pu.extract_and_process_packet_data(workflow, "real")
+        packet_data = pu.extract_and_process_packet_data(workflow, "real")
+        plotter.packets_df = packet_data["packets_df"]
+        plotter.packets_df_line_interaction = packet_data["packets_df_line_interaction"]
 
         return plotter
 
@@ -145,9 +148,9 @@ class LIVPlotter:
             self._keep_colour = None
 
         if nelements:
-            interaction_counts = self.packet_data["real"][
-                "packets_df_line_interaction"
-            ]["last_line_interaction_species"].value_counts()
+            interaction_counts = self.packets_df_line_interaction[
+                "last_line_interaction_species"
+            ].value_counts()
             # interaction_counts.index = interaction_counts.index // 100
             element_counts = interaction_counts.groupby(
                 interaction_counts.index
@@ -212,7 +215,7 @@ class LIVPlotter:
         Generate plot data and colors for species in the model.
         """
         groups = (
-            self.packet_data["real"]["packets_df_line_interaction"]
+            self.packets_df_line_interaction
             .loc[self.packet_nu_line_range_mask]
             .groupby(by="last_line_interaction_species")
         )
@@ -295,11 +298,9 @@ class LIVPlotter:
             found in the model.
         """
         # Extract all unique elements from the packets data
-        line_df = self.packet_data["real"]["packets_df_line_interaction"]
-            
-        if line_df is not None and not line_df.empty:
+        if self.packets_df_line_interaction is not None and not self.packets_df_line_interaction.empty:
             species_in_model = np.unique(
-                line_df["last_line_interaction_species"].to_numpy()
+                self.packets_df_line_interaction["last_line_interaction_species"].to_numpy()
             )
         else:
             species_in_model = []
@@ -334,10 +335,10 @@ class LIVPlotter:
         self._make_colorbar_colors()
 
         self.packet_nu_line_range_mask = pu.create_wavelength_mask(
-            self.packet_data,
-            "real",
+            self.packets_df_line_interaction,
+            None,
             packet_wvl_range,
-            df_key="packets_df_line_interaction",
+            None,
             column_name="nus",
         )
 
