@@ -106,7 +106,6 @@ jobs:
         run: |
           cp /tmp/changelog/CHANGELOG.md .
           cp /tmp/citation/CITATION.cff .
-          cp /tmp/zenodo_json/.zenodo.json .
           cp -r /tmp/credits/* .
 
       - name: Get current date
