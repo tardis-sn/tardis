@@ -218,7 +218,7 @@ def tracker_full_df2tracker_last_interaction_df(
 
     # Reset index to work with packet_id and event_id as columns
     df = full_df.reset_index()
-    
+
     # Get all unique packet IDs to ensure we include packets with no physics interactions
     all_packet_ids = df["packet_id"].unique()
 
@@ -231,20 +231,29 @@ def tracker_full_df2tracker_last_interaction_df(
 
     if physics_interactions.empty:
         # No physics interactions - create DataFrame with NO_INTERACTION for all packets
-        no_interaction_df = pd.DataFrame({
-            "last_interaction_type": pd.Categorical(["NO_INTERACTION"] * len(all_packet_ids)),
-            "status": pd.Categorical(["IN_PROCESS"] * len(all_packet_ids)),
-            "radius": np.full(len(all_packet_ids), np.nan),
-            "shell_id": np.full(len(all_packet_ids), -1),
-            "before_nu": np.full(len(all_packet_ids), np.nan),
-            "before_mu": np.full(len(all_packet_ids), np.nan),
-            "before_energy": np.full(len(all_packet_ids), np.nan),
-            "after_nu": np.full(len(all_packet_ids), np.nan),
-            "after_mu": np.full(len(all_packet_ids), np.nan),
-            "after_energy": np.full(len(all_packet_ids), np.nan),
-            "line_absorb_id": pd.array(np.full(len(all_packet_ids), -1), dtype="int64"),
-            "line_emit_id": pd.array(np.full(len(all_packet_ids), -1), dtype="int64"),
-        }, index=pd.Index(all_packet_ids, name="packet_id"))
+        no_interaction_df = pd.DataFrame(
+            {
+                "last_interaction_type": pd.Categorical(
+                    ["NO_INTERACTION"] * len(all_packet_ids)
+                ),
+                "status": pd.Categorical(["IN_PROCESS"] * len(all_packet_ids)),
+                "radius": np.full(len(all_packet_ids), np.nan),
+                "shell_id": np.full(len(all_packet_ids), -1),
+                "before_nu": np.full(len(all_packet_ids), np.nan),
+                "before_mu": np.full(len(all_packet_ids), np.nan),
+                "before_energy": np.full(len(all_packet_ids), np.nan),
+                "after_nu": np.full(len(all_packet_ids), np.nan),
+                "after_mu": np.full(len(all_packet_ids), np.nan),
+                "after_energy": np.full(len(all_packet_ids), np.nan),
+                "line_absorb_id": pd.array(
+                    np.full(len(all_packet_ids), -1), dtype="int64"
+                ),
+                "line_emit_id": pd.array(
+                    np.full(len(all_packet_ids), -1), dtype="int64"
+                ),
+            },
+            index=pd.Index(all_packet_ids, name="packet_id"),
+        )
         return no_interaction_df
 
     # Get the last interaction for each packet
@@ -262,16 +271,22 @@ def tracker_full_df2tracker_last_interaction_df(
 
     # Drop after_shell_id column
     last_interaction_df = last_interaction_df.drop(columns=["after_shell_id"])
-    
+
     # Handle packets that had no physics interactions - add them with NO_INTERACTION
     packets_with_interactions = set(last_interaction_df.index)
-    packets_without_interactions = set(all_packet_ids) - packets_with_interactions
-    
+    packets_without_interactions = (
+        set(all_packet_ids) - packets_with_interactions
+    )
+
     if packets_without_interactions:
         # Create DataFrame for packets with no interactions
         no_interaction_data = {
-            "last_interaction_type": pd.Categorical(["NO_INTERACTION"] * len(packets_without_interactions)),
-            "status": pd.Categorical(["IN_PROCESS"] * len(packets_without_interactions)),
+            "last_interaction_type": pd.Categorical(
+                ["NO_INTERACTION"] * len(packets_without_interactions)
+            ),
+            "status": pd.Categorical(
+                ["IN_PROCESS"] * len(packets_without_interactions)
+            ),
             "radius": np.full(len(packets_without_interactions), np.nan),
             "shell_id": np.full(len(packets_without_interactions), -1),
             "before_nu": np.full(len(packets_without_interactions), np.nan),
@@ -280,23 +295,33 @@ def tracker_full_df2tracker_last_interaction_df(
             "after_nu": np.full(len(packets_without_interactions), np.nan),
             "after_mu": np.full(len(packets_without_interactions), np.nan),
             "after_energy": np.full(len(packets_without_interactions), np.nan),
-            "line_absorb_id": pd.array(np.full(len(packets_without_interactions), -1), dtype="int64"),
-            "line_emit_id": pd.array(np.full(len(packets_without_interactions), -1), dtype="int64"),
+            "line_absorb_id": pd.array(
+                np.full(len(packets_without_interactions), -1), dtype="int64"
+            ),
+            "line_emit_id": pd.array(
+                np.full(len(packets_without_interactions), -1), dtype="int64"
+            ),
         }
         no_interaction_df = pd.DataFrame(
-            no_interaction_data, 
-            index=pd.Index(list(packets_without_interactions), name="packet_id")
+            no_interaction_data,
+            index=pd.Index(
+                list(packets_without_interactions), name="packet_id"
+            ),
         )
-        
+
         # Combine the DataFrames
-        last_interaction_df = pd.concat([last_interaction_df, no_interaction_df], ignore_index=False)
+        last_interaction_df = pd.concat(
+            [last_interaction_df, no_interaction_df], ignore_index=False
+        )
         last_interaction_df.sort_index(inplace=True)
 
     return last_interaction_df
 
 
 @njit
-def generate_tracker_full_list(no_of_packets: int, length: int):
+def generate_tracker_full_list(
+    no_of_packets: int, length: int, extend_factor: int = 2
+) -> list:
     """
     Generate list of RPacketTracker instances.
 
@@ -314,5 +339,7 @@ def generate_tracker_full_list(no_of_packets: int, length: int):
     """
     rpacket_trackers = []
     for i in range(no_of_packets):
-        rpacket_trackers.append(TrackerFull(length))
+        rpacket_trackers.append(
+            TrackerFull(length, extend_factor=extend_factor)
+        )
     return rpacket_trackers

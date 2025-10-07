@@ -177,13 +177,13 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
         if self.enable_rpacket_tracking:
-            tracker = generate_tracker_full_list(
+            trackers_list = generate_tracker_full_list(
                 number_of_rpackets,
                 self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
             )
         else:
             # Initialize the last interaction tracker list directly
-            transport_state.rpacket_tracker = (
+            trackers_list = (
                 generate_tracker_last_interaction_list(number_of_rpackets)
             )
             tracker = transport_state.rpacket_tracker
@@ -203,7 +203,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             self.montecarlo_configuration,
             transport_state.radfield_mc_estimators,
             self.spectrum_frequency_grid.value,
-            tracker,
+            trackers_list,
             number_of_vpackets,
             show_progress_bars=show_progress_bars,
         )
@@ -224,7 +224,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # RPacketLastInteractionTracker
         if self.enable_rpacket_tracking:
             self.transport_state.tracker_full_df = trackers_full_to_df(
-                tracker
+                trackers_list
             )
             self.transport_state.tracker_last_interaction_df = (
                 tracker_full_df2tracker_last_interaction_df(
@@ -233,7 +233,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             self.transport_state.tracker_full_df = None
-            self.transport_state.tracker_last_interaction_df = trackers_last_interaction_to_df(tracker)
+            self.transport_state.tracker_last_interaction_df = trackers_last_interaction_to_df(trackers_list)
 
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING

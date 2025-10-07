@@ -81,7 +81,7 @@ class TrackerFull:
     event_id: nb.int64  # type: ignore[misc]
     extend_factor: nb.int64  # type: ignore[misc]
 
-    def __init__(self, length: int) -> None:
+    def __init__(self, length: int, extend_factor: int) -> None:
         """
         Initialize the RPacketTracker with arrays for tracking packet events.
 
