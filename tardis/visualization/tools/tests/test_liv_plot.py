@@ -17,19 +17,19 @@ from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 RELATIVE_TOLERANCE_LIV=1e-12
 
 @pytest.fixture(scope="class")
-def plotter(simulation_simple):
+def plotter(simulation_simple_tracked):
     """
     Fixture to create an LIVPlotter instance from a simulation.
 
     Parameters:
     -----------
-    simulation_simple: A TARDIS simulation object.
+    simulation_simple_tracked: A TARDIS simulation object.
 
     Returns:
     --------
     An LIVPlotter instance.
     """
-    return LIVPlotter.from_simulation(simulation_simple)
+    return LIVPlotter.from_simulation(simulation_simple_tracked)
 
 
 class TestLIVPlotter:

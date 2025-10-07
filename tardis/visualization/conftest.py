@@ -4,7 +4,7 @@ from copy import deepcopy
 from tardis.base import run_tardis
 
 @pytest.fixture(scope="module")
-def simulation_simple(config_verysimple, atomic_dataset):
+def simulation_simple_tracked(config_verysimple, atomic_dataset):
     """
     Instantiate SDEC plotter using a simple simulation model.
 

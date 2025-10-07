@@ -68,8 +68,8 @@ class TestPlotUtil:
         assert result == expected
 
     @pytest.fixture(scope="module")
-    def packet_data(self, simulation_simple):
-        data = extract_and_process_packet_data(simulation_simple, "real")
+    def packet_data(self, simulation_simple_tracked):
+        data = extract_and_process_packet_data(simulation_simple_tracked, "real")
         data["packets_df"]["last_interaction_type"] = data["packets_df"][
             "last_interaction_type"
         ].astype(str)
@@ -169,22 +169,22 @@ class TestPlotUtil:
         np.testing.assert_array_equal(keep_colour_result, expected_keep_colour)
         assert full_species_list_result == expected_full_species_list
 
-    def test_get_spectrum_data(self, simulation_simple):
-        actual_data = get_spectrum_data("real", simulation_simple)
+    def test_get_spectrum_data(self, simulation_simple_tracked):
+        actual_data = get_spectrum_data("real", simulation_simple_tracked)
         packets_type = "spectrum_real_packets"
 
         expected_data = {
             "spectrum_delta_frequency": getattr(
-                simulation_simple.spectrum_solver, packets_type
+                simulation_simple_tracked.spectrum_solver, packets_type
             ).delta_frequency,
             "spectrum_frequency_bins": getattr(
-                simulation_simple.spectrum_solver, packets_type
+                simulation_simple_tracked.spectrum_solver, packets_type
             )._frequency,
             "spectrum_luminosity_density_lambda": getattr(
-                simulation_simple.spectrum_solver, packets_type
+                simulation_simple_tracked.spectrum_solver, packets_type
             ).luminosity_density_lambda,
             "spectrum_wavelength": getattr(
-                simulation_simple.spectrum_solver, packets_type
+                simulation_simple_tracked.spectrum_solver, packets_type
             ).wavelength,
         }
 

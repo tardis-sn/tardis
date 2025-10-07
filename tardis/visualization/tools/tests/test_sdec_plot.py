@@ -80,20 +80,20 @@ class TestSDECPlotter:
     ]
 
     @pytest.fixture(scope="class")
-    def plotter(self, simulation_simple):
+    def plotter(self, simulation_simple_tracked):
         """
         Create a SDECPlotter object.
 
         Parameters
         ----------
-        simulation_simple : tardis.simulation.base.Simulation
+        simulation_simple_tracked : tardis.simulation.base.Simulation
             Simulation object.
 
         Returns
         -------
         tardis.visualization.tools.sdec_plot.SDECPlotter
         """
-        return SDECPlotter.from_simulation(simulation_simple)
+        return SDECPlotter.from_simulation(simulation_simple_tracked)
 
     @pytest.fixture(scope="class")
     def observed_spectrum(self):
