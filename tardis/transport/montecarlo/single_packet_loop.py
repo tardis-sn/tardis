@@ -90,20 +90,6 @@ def single_packet_loop(
         This function modifies the r_packet object in-place and updates
         estimators and collections. No return value.
 
-    Notes
-    -----
-    The function implements the core Monte Carlo transport loop:
-
-    1. Initialize packet properties (relativistic corrections)
-    2. Initialize line interaction data
-    3. Trace virtual packet volley
-    4. Initialize packet tracking
-    5. Main transport loop until packet escapes:
-       - Calculate continuum opacities
-       - Trace packet to next interaction
-       - Handle interaction (line, e-scatter, continuum, boundary)
-       - Update estimators and trackers
-    6. Finalize packet tracking
     """
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
@@ -353,13 +339,6 @@ def set_packet_props_partial_relativity(
     -------
     None
         Modifies r_packet.nu and r_packet.energy in-place.
-
-    Notes
-    -----
-    Partial relativity assumes first-order corrections in v/c and is
-    computationally more efficient than full relativistic treatment.
-    The inverse Doppler factor corrects for the transformation from
-    the lab frame to the comoving frame.
     """
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r,
@@ -393,12 +372,6 @@ def set_packet_props_full_relativity(
     -------
     None
         Modifies r_packet.nu, r_packet.energy, and r_packet.mu in-place.
-
-    Notes
-    -----
-    This function accounts for the full relativistic Doppler effect including
-    aberration corrections to the direction cosine mu. The velocity beta is
-    calculated as beta = r / (c * t_exp).
     """
     beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 
