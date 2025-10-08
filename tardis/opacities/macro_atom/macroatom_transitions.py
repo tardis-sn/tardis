@@ -362,49 +362,6 @@ def probability_emission_down(
 ### Below are continuum transition specific functions
 
 
-# I hate this. Try to find out what it does exactly and replace it with something clearer.
-# def set_transition_index(
-#     probabilities_dataframe: pd.DataFrame,
-#     photoionization_data: pd.DataFrame,
-#     transition_type: MacroAtomTransitionType,
-#     reverse: bool = True,
-# ) -> pd.DataFrame:
-#     """
-#     Set a multi-level index for transition probabilities DataFrame.
-
-#     Parameters
-#     ----------
-#     probabilities_dataframe : pd.DataFrame
-#         DataFrame containing transition probabilities.
-#     photoionization_data : pd.DataFrame
-#         DataFrame containing photoionization indices with source and destination level indices.
-#     transition_type : MacroAtomTransitionType
-#         Type of transition to assign.
-#     reverse : bool, optional
-#         Whether to reverse the order of source and destination indices. Default is True.
-
-#     Returns
-#     -------
-#     pd.DataFrame
-#         DataFrame with updated multi-level index.
-#     """
-#     idx = photoionization_data.loc[probabilities_dataframe.index]
-#     transition_type_array = transition_type * np.ones_like(
-#         idx.destination_level_idx
-#     )
-#     transition_type_series = pd.Series(
-#         transition_type_array, name="transition_type"
-#     )
-#     idx_arrays = [idx.source_level_idx, idx.destination_level_idx]
-#     if reverse:
-#         idx_arrays.reverse()
-#     idx_arrays.append(transition_type_series)
-#     index = pd.MultiIndex.from_arrays(idx_arrays)
-#     if reverse:
-#         index.names = index.names[:-1][::-1] + [index.names[-1]]
-#     return probabilities_dataframe.set_index(index, drop=True)
-
-
 def continuum_transition_recombination_internal(
     alpha_sp: pd.DataFrame,  # These will all be changes to spontaneous recombination coefficient
     photoionization_data_level_energies: pd.Series,  # This is just energy of the excitation state in the atomic data
@@ -445,6 +402,9 @@ def continuum_transition_recombination_internal(
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.RECOMB_INTERNAL,
             "transition_line_idx": -99,
+            "continuum_transition_idx": range(
+                len(photoionization_data_level_energies)
+            ),
         },
         index=p_recomb_internal.index,
     )
@@ -477,6 +437,7 @@ def continuum_transition_recombination_emission(
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.RECOMB_EMISSION,
             "transition_line_idx": -99,
+            "continuum_transition_idx": range(len(nu_i)),
         },
         index=p_recomb_emission.index,
     )
@@ -531,6 +492,9 @@ def continuum_transition_photoionization(
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.PHOTOIONIZATION,
             "transition_line_idx": -99,
+            "continuum_transition_idx": range(
+                len(photoionization_data_level_energies)
+            ),
         },
         index=p_photoionization.index,
     )
