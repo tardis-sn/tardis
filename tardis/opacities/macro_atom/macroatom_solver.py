@@ -774,7 +774,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         line_interaction_type: str = "macroatom",
     ) -> None:
         """
-        Initialize the BoundBoundMacroAtomSolver.
+        Initialize the ContinuumMacroAtomSolver.
 
         Parameters
         ----------
@@ -819,28 +819,30 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         alpha_sp: pd.DataFrame,
     ) -> MacroAtomState:
         """
-        Solve the transition probabilities for the macroatom.
+        Solve the Macro Atom State including continuum transitions.
 
-        This method calculates transition probabilities and returns a MacroAtomState object
-        with the probabilities and macro atom transition metadata.
+        This method calculates transition probabilities for both bound-bound (line) and continuum
+        transitions and returns a MacroAtomState object with the probabilities and macro atom transition metadata.
         Referenced as $p_i$ in Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
 
         Parameters
         ----------
         mean_intensities_blue_wing : pd.DataFrame
             Mean intensity of the radiation field of each line in the blue wing for each shell.
-            For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
         beta_sobolevs : pd.DataFrame
             Escape probabilities for the Sobolev approximation.
         stimulated_emission_factors : np.ndarray
             Stimulated emission factors for the lines.
+        gamma_corr : pd.DataFrame
+            Corrected photoionization rate coefficients for continuum transitions.
+        alpha_sp : pd.DataFrame
+            Spontaneous recombination coefficients for continuum transitions.
 
         Returns
         -------
         MacroAtomState
-            A MacroAtomState object containing the transition probabilities, transition metadata,
-            and a mapping from line IDs to macro atom level upper indices.
+            State of the macro atom including continuum transitions, ready to be placed into the OpacityState.
         """
         is_first_iteration = not hasattr(self, "computed_metadata")
 
@@ -895,6 +897,43 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         photoionization_data_level_energies: pd.Series,
         alpha_sp: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+        """
+        Handle the first iteration of the solve method for continuum macro atom.
+
+        Fully computes all metadata for the macroatom including continuum transitions and adds it to the class
+        with the computed_metadata attribute. This method performs the complete calculation including transition
+        probability computation, normalization, sorting, and metadata preparation for both bound-bound and bound-free transitions.
+
+        Parameters
+        ----------
+        mean_intensities_blue_wing : pd.DataFrame
+            Mean intensity of the radiation field of each line in the blue wing for each shell.
+        beta_sobolevs : pd.DataFrame
+            Escape probabilities for the Sobolev approximation.
+        stimulated_emission_factors : np.ndarray
+            Stimulated emission factors for the lines.
+        lines_level_upper : pd.MultiIndex
+            MultiIndex containing the upper level information for each line transition.
+        gamma_corr : pd.DataFrame
+            Corrected photoionization rate coefficients for continuum transitions.
+        photoionization_data_level_energies : pd.Series
+            Energies of the levels involved in photoionization.
+        alpha_sp : pd.DataFrame
+            Spontaneous recombination coefficients for continuum transitions.
+
+        Returns
+        -------
+        normalized_probabilities : pd.DataFrame
+            DataFrame containing normalized transition probabilities where each source group sums to 1.0.
+        macro_atom_transition_metadata : pd.DataFrame
+            DataFrame containing metadata for transitions including source and destination levels, transition types, and line indices.
+        line2macro_level_upper : pd.Series
+            Series mapping line transitions to macro atom level indices for upper levels.
+        macro_block_references : pd.Series
+            Series with unique source levels as index and their first occurrence index in the metadata as values.
+        references_index : pd.Series
+            Series with unique source levels as index and their assigned indices as values.
+        """
         # Assemble bound-bound transitions first.
         if self.line_interaction_type != "macroatom":
             raise NotImplementedError(
@@ -1080,11 +1119,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         continuum_recombination_emission_ids = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.RECOMB_EMISSION
-        ].index.to_numpy()
+        ].continuum_transition_idx.to_numpy()
         continuum_recombination_internal_ids = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.RECOMB_INTERNAL
-        ].index.to_numpy()
+        ].continuum_transition_idx.to_numpy()
 
         probabilities_df = pd.DataFrame(
             np.zeros(
@@ -1096,6 +1135,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             index=macro_atom_transition_metadata.index,
             columns=beta_sobolevs.columns,
         )
+        # Update the line transitions first.
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.BB_EMISSION
@@ -1129,48 +1169,52 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ).to_numpy()
 
         # Then update the continuum transitions.
-        recomb_internal_slice = probabilities_df[
+        recomb_internal_destinations = pd.MultiIndex.from_tuples(
+            macro_atom_transition_metadata[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.RECOMB_INTERNAL
+            ].destination
+        )
+        probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.RECOMB_INTERNAL
-        ]
-        recomb_internal_slice = probability_recombination_internal(
-            alpha_sp.loc[
-                pd.MultiIndex.from_tuples(
-                    macro_atom_transition_metadata[
-                        MacroAtomTransitionType.RECOMB_INTERNAL
-                    ].source
-                )
+        ] = probability_recombination_internal(
+            alpha_sp.loc[recomb_internal_destinations],
+            photoionization_data_level_energies.loc[
+                recomb_internal_destinations
             ],
-            photoionization_data_level_energies[continuum_photoionization_ids],
         ).to_numpy()
 
-        recomb_emission_slice = probabilities_df[
+        recomb_emission_destinations = pd.MultiIndex.from_tuples(
+            macro_atom_transition_metadata[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.RECOMB_EMISSION
+            ].destination
+        )
+        probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.RECOMB_EMISSION
-        ]
-        recomb_emission_slice = probability_recombination_emission(
-            alpha_sp.loc[
-                pd.MultiIndex.from_tuples(
-                    macro_atom_transition_metadata[
-                        MacroAtomTransitionType.RECOMB_EMISSION
-                    ].source
-                )
+        ] = probability_recombination_emission(
+            alpha_sp.loc[recomb_emission_destinations],
+            self.photoionization_data.nu.iloc[
+                continuum_recombination_emission_ids
             ],
-            self.photoionization_data.nu[continuum_recombination_emission_ids],
         ).to_numpy()
-        photoionization_slice = probabilities_df[
+
+        photoionization_sources = pd.MultiIndex.from_tuples(
+            macro_atom_transition_metadata[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.PHOTOIONIZATION
+            ].source
+        )
+        probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION
-        ]
-        photoionization_slice = probability_photoionization(
-            gamma_corr.loc[
-                pd.MultiIndex.from_tuples(
-                    macro_atom_transition_metadata[
-                        MacroAtomTransitionType.PHOTOIONIZATION
-                    ].source
-                )
+        ] = probability_photoionization(
+            gamma_corr.loc[photoionization_sources],
+            photoionization_data_level_energies.iloc[
+                continuum_photoionization_ids
             ],
-            photoionization_data_level_energies[continuum_photoionization_ids],
         ).to_numpy()
 
         probabilities_df["source"] = (
