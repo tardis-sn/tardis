@@ -363,7 +363,7 @@ def probability_emission_down(
 
 
 def continuum_transition_recombination_internal(
-    alpha_sp: pd.DataFrame,  # These will all be changes to spontaneous recombination coefficient
+    spontaneous_recombination_coeff: pd.DataFrame,  # These will all be changes to spontaneous recombination coefficient
     photoionization_data_level_energies: pd.Series,  # This is just energy of the excitation state in the atomic data
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
@@ -371,7 +371,7 @@ def continuum_transition_recombination_internal(
 
     Parameters
     ----------
-    alpha_sp : pd.Series
+    spontaneous_recombination_coeff : pd.Series
         Rate coefficient for spontaneous recombination from `k` to level `i`.
     photoionization_data_level_energies : pd.Series
         Energies of levels with bound-free transitions. Needed to calculate
@@ -389,7 +389,7 @@ def continuum_transition_recombination_internal(
         DataFrame containing metadata for the recombination transitions.
     """
     p_recomb_internal = probability_recombination_internal(
-        alpha_sp, photoionization_data_level_energies
+        spontaneous_recombination_coeff, photoionization_data_level_energies
     )
 
     destinations = p_recomb_internal.index.values
@@ -412,20 +412,54 @@ def continuum_transition_recombination_internal(
 
 
 def probability_recombination_internal(
-    alpha_sp: pd.DataFrame,
+    spontaneous_recombination_coeff: pd.DataFrame,
     photoionization_data_level_energies: pd.Series,
 ) -> pd.DataFrame:
-    p_recomb_internal = alpha_sp.multiply(
+    """
+    Calculate unnormalized probabilities of radiative recombination (internal transitions).
+
+    Parameters
+    ----------
+    spontaneous_recombination_coeff : pd.DataFrame
+        Rate coefficient for spontaneous recombination from `k` to level `i`.
+    photoionization_data_level_energies : pd.Series
+        Energies of levels with bound-free transitions.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing unnormalized recombination probabilities for internal transitions.
+    """
+    p_recomb_internal = spontaneous_recombination_coeff.multiply(
         photoionization_data_level_energies, axis=0
     )
     return p_recomb_internal
 
 
 def continuum_transition_recombination_emission(
-    alpha_sp: pd.DataFrame,
-    nu_i: pd.Series,
+    spontaneous_recombination_coeff: pd.DataFrame,
+    photoionization_data_frequencies: pd.Series,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    p_recomb_emission = probability_recombination_emission(alpha_sp, nu_i)
+    """
+    Calculate unnormalized probabilities and metadata for radiative recombination emission transitions (continuum).
+
+    Parameters
+    ----------
+    spontaneous_recombination_coeff : pd.DataFrame
+        Rate coefficient for spontaneous recombination from `k` to level `i`.
+    photoionization_data_frequencies : pd.Series
+        Ionization threshold frequencies for the levels.
+
+    Returns
+    -------
+    p_recomb_emission : pd.DataFrame
+        DataFrame containing unnormalized recombination emission probabilities.
+    recombination_emission_metadata : pd.DataFrame
+        DataFrame containing metadata for the recombination emission transitions.
+    """
+    p_recomb_emission = probability_recombination_emission(
+        spontaneous_recombination_coeff, photoionization_data_frequencies
+    )
 
     destinations = p_recomb_emission.index.values
     sources = get_ground_state_multi_index(p_recomb_emission.index).values
@@ -437,7 +471,9 @@ def continuum_transition_recombination_emission(
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.RECOMB_EMISSION,
             "transition_line_idx": -99,
-            "continuum_transition_idx": range(len(nu_i)),
+            "continuum_transition_idx": range(
+                len(photoionization_data_frequencies)
+            ),
         },
         index=p_recomb_emission.index,
     )
@@ -446,17 +482,35 @@ def continuum_transition_recombination_emission(
 
 
 def probability_recombination_emission(
-    alpha_sp: pd.DataFrame,
-    nu_i: pd.Series,
+    spontaneous_recombination_coeff: pd.DataFrame,
+    photoionization_data_frequencies: pd.Series,
 ) -> pd.DataFrame:
+    """
+    Calculate unnormalized probabilities of radiative recombination emission transitions.
+
+    Parameters
+    ----------
+    spontaneous_recombination_coeff : pd.DataFrame
+        Rate coefficient for spontaneous recombination from `k` to level `i`.
+    photoionization_data_frequencies : pd.Series
+        Ionization threshold frequencies for the levels.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing unnormalized recombination emission probabilities.
+    """
     p_recomb_emission = (
-        alpha_sp.multiply(nu_i, axis=0) * CONST_H_CGS
-    )  # nu_i is ionization threshold, so I guess delta e is just nu_i * h?
+        spontaneous_recombination_coeff.multiply(
+            photoionization_data_frequencies, axis=0
+        )
+        * CONST_H_CGS
+    )  # photoionization_data_frequencies is ionization threshold, so I guess delta e is just photoionization_data_frequencies * h?
     return p_recomb_emission
 
 
 def continuum_transition_photoionization(
-    gamma_corr: pd.DataFrame,
+    stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
     photoionization_data_level_energies: pd.Series,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
@@ -464,7 +518,7 @@ def continuum_transition_photoionization(
 
     Parameters
     ----------
-    gamma_corr : pd.Series
+    stim_recomb_corrected_photoionization_rate_coeff : pd.Series
         Corrected photoionization rate coefficient from level `i` to `k`.
     photoionization_data_level_energies : pd.Series
         Energies of the levels involved in photoionization.
@@ -479,7 +533,8 @@ def continuum_transition_photoionization(
         DataFrame containing metadata for the photoionization transitions.
     """
     p_photoionization = probability_photoionization(
-        gamma_corr, photoionization_data_level_energies
+        stim_recomb_corrected_photoionization_rate_coeff,
+        photoionization_data_level_energies,
     )
 
     sources = p_photoionization.index.values
@@ -503,14 +558,15 @@ def continuum_transition_photoionization(
 
 
 def probability_photoionization(
-    gamma_corr: pd.DataFrame, photoionization_data_level_energies: pd.Series
+    stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
+    photoionization_data_level_energies: pd.Series,
 ) -> pd.DataFrame:
     """
     Calculate photoionization probability unnormalized.
 
     Parameters
     ----------
-    gamma_corr : pd.Series
+    stim_recomb_corrected_photoionization_rate_coeff : pd.Series
         Corrected photoionization rate coefficient from level `i` to `k`.
     photoionization_data_level_energies : pd.Series
         Energies of the levels involved in photoionization.
@@ -520,8 +576,10 @@ def probability_photoionization(
     pd.DataFrame
         DataFrame containing photoionization probabilities.
     """
-    p_photoionization = gamma_corr.multiply(
-        photoionization_data_level_energies, axis=0
+    p_photoionization = (
+        stim_recomb_corrected_photoionization_rate_coeff.multiply(
+            photoionization_data_level_energies, axis=0
+        )
     )
     return p_photoionization
 
