@@ -441,10 +441,8 @@ class BoundBoundMacroAtomSolver:
         )
 
         macro_atom_transition_metadata["source_level_idx"] = (
-            (macro_atom_transition_metadata.source.map(source_to_index))
-            .fillna(0)
-            .astype(np.int64)
-        )
+            macro_atom_transition_metadata.source.map(source_to_index)
+        ).astype(np.int64)
 
         macro_block_references = create_macro_block_references(
             macro_atom_transition_metadata
@@ -596,8 +594,21 @@ def create_macro_block_references(macro_atom_transition_metadata):
         .groupby("source")
         .apply(lambda x: x.index[0])
     )
+
+    # Append a dummy index so that the interactions can access a "block end" if a packet activates the macroatom highest level of the heaviest element in the montecarlo.
+    # Without this the kernel will crash trying to access an index that doesn't exist.
+    macro_data = np.append(
+        macro_data.values, len(macro_atom_transition_metadata)
+    )
+    unique_source_multi_index = unique_source_multi_index.append(
+        pd.MultiIndex.from_tuples(
+            [(-99, -99, -99)],
+            names=["atomic_number", "ion_number", "level_number"],
+        )
+    )
+
     macro_block_references = pd.Series(
-        data=macro_data.values,
+        data=macro_data,
         index=unique_source_multi_index,
         name="macro_block_references",
     )
