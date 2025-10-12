@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=b8b70f6b"></script>
+      <script src="../_static/documentation_options.js?v=e462899a"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -170,7 +170,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.io.model.readers.snec.snec_input.SNECIsotopeProfile">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.snec.snec_input.</span></span><span class="sig-name descname"><span class="pre">SNECIsotopeProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enclosed_mass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_mass_fraction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/snec/snec_input.html#SNECIsotopeProfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.snec.snec_input.SNECIsotopeProfile" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Data class representing an isotope profile from SNEC output.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
@@ -224,7 +224,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.readers.snec.snec_input.read_snec_isotope_profile">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.snec.snec_input.</span></span><span class="sig-name descname"><span class="pre">read_snec_isotope_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tardis.io.model.readers.snec.snec_input.SNECIsotopeProfile" title="tardis.io.model.readers.snec.snec_input.SNECIsotopeProfile"><span class="pre">SNECIsotopeProfile</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/readers/snec/snec_input.html#read_snec_isotope_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.snec.snec_input.read_snec_isotope_profile" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.snec.snec_input.</span></span><span class="sig-name descname"><span class="pre">read_snec_isotope_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tardis.io.model.readers.snec.snec_input.SNECIsotopeProfile" title="tardis.io.model.readers.snec.snec_input.SNECIsotopeProfile"><span class="pre">SNECIsotopeProfile</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/readers/snec/snec_input.html#read_snec_isotope_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.snec.snec_input.read_snec_isotope_profile" title="Link to this definition">¶</a></dt>
 <dd><p>Read a SNEC isotope profile file and return a SNECIsotopeProfile object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -256,7 +256,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Oct 2025.
+      <span class="lastupdated">Last updated on 12 Oct 2025.
       </span></p>
   </div>
 

@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=b8b70f6b"></script>
+      <script src="../../_static/documentation_options.js?v=e462899a"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -218,7 +218,7 @@ deriving the <a class="reference internal" href="estimators.html"><span class="d
 <div class="math notranslate nohighlight">
 \[\mu = \sqrt{z}.\]</div>
 <p>This sampling is shown in the “Code Example” section.</p>
-<p><img alt="eccb6991141a446f97ec2ed803f43e98" class="no-scaled-link" src="../../_images/propagation_direction.png" style="width: 500px;" /></p>
+<p><img alt="58364b5833654708830bacaeb3568ae3" class="no-scaled-link" src="../../_images/propagation_direction.png" style="width: 500px;" /></p>
 <p>Finally, each packet is assigned an initial frequency (or more precisely, the initial frequency of its constituent photons). Note that since each packet has the same energy, each packet will represent a different number of real photons. The sampling on packet frequencies is more involved than that of the propagation direction, as it involves sampling the Planck distribution (see below). TARDIS uses the technique described in <span id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id4" title="L. L. Carter and E. Cashwell. Particle-transport simulation with the Monte Carlo method. Technical Report, Los Alamos Scientific Laboratory, 1975. URL: http://www.iaea.org/inis/collection/NCLCollectionStore/_Public/07/227/7227109.pdf.">CarterCashwell75</a>]</span> and summarized in <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id3" title="J. E. Bjorkman and K. Wood. Radiative Equilibrium and Temperature Correction in Monte Carlo Radiation Transfer. Astrophysical Journal, 554:615-623, June 2001. arXiv:astro-ph/0103249, doi:10.1086/321336.">BjorkmanWood01</a>]</span> for this
 purpose.</p>
 <p>During the simulation, the energy of the packet remains constant in the local co-moving frame (see <a class="reference internal" href="propagation.html#reference-frames"><span class="std std-ref">Reference Frames</span></a>). This naturally ensures energy conservation and constitutes the main advantage of this discretization scheme. <strong>However, while the energy of the packets is conserved in the co-moving frame, the co-moving frequency of the packet (and thus the photons represented by the packet) may vary over the course of the simulation. Thus, a packet may
@@ -477,7 +477,7 @@ Luminosity per packet: [1.78140022e+38 1.78140022e+38 1.78140022e+38 ... 1.78140
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Oct 2025.
+      <span class="lastupdated">Last updated on 12 Oct 2025.
       </span></p>
   </div>
 
