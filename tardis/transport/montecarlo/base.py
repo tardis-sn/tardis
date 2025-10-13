@@ -186,7 +186,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             trackers_list = (
                 generate_tracker_last_interaction_list(number_of_rpackets)
             )
-            tracker = transport_state.rpacket_tracker
 
         # Reset packet progress bar for this iteration
         if show_progress_bars:
