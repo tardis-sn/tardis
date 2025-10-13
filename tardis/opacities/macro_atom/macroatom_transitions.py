@@ -1,6 +1,9 @@
 from tardis import constants as const
 import numpy as np
 import pandas as pd
+from tardis.plasma.properties.continuum_processes.rates import (
+    get_ground_state_multi_index,
+)
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 CONST_C_CGS: float = const.c.cgs.value
@@ -26,30 +29,30 @@ def line_transition_internal_up(
 
     Parameters
     ----------
-    line_f_lus : array_like
+    line_f_lus : np.ndarray
         Oscillator strengths for line transitions from lower to upper levels.
-    line_nus : array_like
+    line_nus : np.ndarray
         Frequencies of the line transitions in Hz.
-    energies_lower : array_like
+    energies_lower : np.ndarray
         Energy values of the lower levels in the transitions.
     mean_intensities_blue_wing : pd.DataFrame
         Mean radiation field intensities at the blue wing of the lines.
     beta_sobolevs : pd.DataFrame
         Sobolev escape probabilities for the line transitions.
-    stimulated_emission_factors : array_like
+    stimulated_emission_factors : pd.DataFrame
         Factors accounting for stimulated emission in the transitions.
-    transition_a_i_l_u_array : array_like
+    transition_a_i_l_u_array : np.ndarray
         2D array containing atomic number, ion number, lower level, and upper level
         indices for each transition. Shape should be (n_transitions, 4).
-    line_ids : array_like
+    line_ids : np.ndarray
         Unique identifiers for each line transition.
 
     Returns
     -------
-    p_internal_up : pandas.DataFrame
+    p_internal_up : pd.DataFrame
         DataFrame containing the calculated internal upward transition probabilities
         with source information, indexed by transition.
-    internal_up_metadata : pandas.DataFrame
+    internal_up_metadata : pd.DataFrame
         DataFrame containing metadata for the transitions including transition line IDs,
         source and destination level information, transition type, and line indices.
 
@@ -150,26 +153,26 @@ def line_transition_internal_down(
 
     Parameters
     ----------
-    line_f_uls : array_like
+    line_f_uls : np.ndarray
         Oscillator strengths for line transitions.
-    line_nus : array_like
+    line_nus : np.ndarray
         Frequencies of line transitions.
-    energies_lower : array_like
+    energies_lower : np.ndarray
         Energies of the lower levels involved in transitions.
     beta_sobolevs : pd.DataFrame
         Sobolev beta factors for the transitions.
-    transition_a_i_l_u_array : array_like
+    transition_a_i_l_u_array : np.ndarray
         Array containing atomic number, ion number, lower level, and upper level
         indices for each transition. Shape should be (n_transitions, 4).
-    line_ids : array_like
+    line_ids : np.ndarray
         Identifiers for each line transition.
 
     Returns
     -------
-    p_internal_down : pandas.DataFrame
+    p_internal_down : pd.DataFrame
         DataFrame containing the calculated internal downward transition
         probabilities with source information.
-    internal_down_metadata : pandas.DataFrame
+    internal_down_metadata : pd.DataFrame
         DataFrame containing metadata for the transitions including
         transition line IDs, source and destination level information,
         transition type, and transition line indices.
@@ -257,29 +260,29 @@ def line_transition_emission_down(
 
     Parameters
     ----------
-    line_f_uls : array_like
+    line_f_uls : np.ndarray
         Oscillator strengths for the line transitions.
-    line_nus : array_like
+    line_nus : np.ndarray
         Frequencies of the line transitions in Hz.
-    energies_upper : array_like
+    energies_upper : np.ndarray
         Energy values of the upper levels in the transitions.
-    energies_lower : array_like
+    energies_lower : np.ndarray
         Energy values of the lower levels in the transitions.
     beta_sobolevs : pd.DataFrame
         Sobolev escape probabilities for the transitions.
-    transition_a_i_l_u_array : array_like
+    transition_a_i_l_u_array : np.ndarray
         Array containing atomic number, ion number, lower level, and upper level
         indices for each transition. Shape should be (n_transitions, 4).
-    line_ids : array_like
+    line_ids : np.ndarray
         Unique identifiers for each line transition.
 
     Returns
     -------
-    p_emission_down : pandas.DataFrame
+    p_emission_down : pd.DataFrame
         DataFrame containing the calculated emission down probabilities with
         source information. Contains columns for the probability values and
         'source' tuples.
-    emission_down_metadata : pandas.DataFrame
+    emission_down_metadata : pd.DataFrame
         DataFrame containing metadata for the transitions including transition
         line IDs, source and destination level information, transition type,
         and transition line indices.
@@ -354,3 +357,277 @@ def probability_emission_down(
         * (energies_upper - energies_lower)
     )
     return p_emission_down
+
+
+### Below are continuum transition specific functions
+
+
+def continuum_transition_recombination_internal(
+    alpha_sp: pd.DataFrame,  # These will all be changes to spontaneous recombination coefficient
+    photoionization_data_level_energies: pd.Series,  # This is just energy of the excitation state in the atomic data
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Calculate unnormalized probabilities of radiative recombination.
+
+    Parameters
+    ----------
+    alpha_sp : pd.Series
+        Rate coefficient for spontaneous recombination from `k` to level `i`.
+    photoionization_data_level_energies : pd.Series
+        Energies of levels with bound-free transitions. Needed to calculate
+        for example internal transition probabilities in the macro atom scheme.
+        All p_internals (u/l) go as R_i(u/l) * e_i / D_i
+        All p_deactivations go as R * (delta_e)/D_i.
+    photoionization_index : pd.DataFrame
+        DataFrame containing photoionization indices.
+
+    Returns
+    -------
+    p_recombination : pd.DataFrame
+        DataFrame containing recombination probabilities.
+    recombination_metadata : pd.DataFrame
+        DataFrame containing metadata for the recombination transitions.
+    """
+    p_recomb_internal = probability_recombination_internal(
+        alpha_sp, photoionization_data_level_energies
+    )
+
+    destinations = p_recomb_internal.index.values
+    sources = get_ground_state_multi_index(p_recomb_internal.index).values
+
+    recombination_internal_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.RECOMB_INTERNAL,
+            "transition_line_idx": -99,
+            "continuum_transition_idx": range(
+                len(photoionization_data_level_energies)
+            ),
+        },
+        index=p_recomb_internal.index,
+    )
+    return p_recomb_internal, recombination_internal_metadata
+
+
+def probability_recombination_internal(
+    alpha_sp: pd.DataFrame,
+    photoionization_data_level_energies: pd.Series,
+) -> pd.DataFrame:
+    p_recomb_internal = alpha_sp.multiply(
+        photoionization_data_level_energies, axis=0
+    )
+    return p_recomb_internal
+
+
+def continuum_transition_recombination_emission(
+    alpha_sp: pd.DataFrame,
+    nu_i: pd.Series,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    p_recomb_emission = probability_recombination_emission(alpha_sp, nu_i)
+
+    destinations = p_recomb_emission.index.values
+    sources = get_ground_state_multi_index(p_recomb_emission.index).values
+
+    recombination_emission_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.RECOMB_EMISSION,
+            "transition_line_idx": -99,
+            "continuum_transition_idx": range(len(nu_i)),
+        },
+        index=p_recomb_emission.index,
+    )
+
+    return p_recomb_emission, recombination_emission_metadata
+
+
+def probability_recombination_emission(
+    alpha_sp: pd.DataFrame,
+    nu_i: pd.Series,
+) -> pd.DataFrame:
+    p_recomb_emission = (
+        alpha_sp.multiply(nu_i, axis=0) * CONST_H_CGS
+    )  # nu_i is ionization threshold, so I guess delta e is just nu_i * h?
+    return p_recomb_emission
+
+
+def continuum_transition_photoionization(
+    gamma_corr: pd.DataFrame,
+    photoionization_data_level_energies: pd.Series,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Calculate photoionization probability unnormalized.
+
+    Parameters
+    ----------
+    gamma_corr : pd.Series
+        Corrected photoionization rate coefficient from level `i` to `k`.
+    photoionization_data_level_energies : pd.Series
+        Energies of the levels involved in photoionization.
+    photo_ion_idx : pd.DataFrame
+        DataFrame containing photoionization indices.
+
+    Returns
+    -------
+    p_photoionization : pd.DataFrame
+        DataFrame containing photoionization probabilities.
+    photoionization_metadata : pd.DataFrame
+        DataFrame containing metadata for the photoionization transitions.
+    """
+    p_photoionization = probability_photoionization(
+        gamma_corr, photoionization_data_level_energies
+    )
+
+    sources = p_photoionization.index.values
+    destinations = get_ground_state_multi_index(p_photoionization.index).values
+
+    photoionization_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.PHOTOIONIZATION,
+            "transition_line_idx": -99,
+            "continuum_transition_idx": range(
+                len(photoionization_data_level_energies)
+            ),
+        },
+        index=p_photoionization.index,
+    )
+
+    return p_photoionization, photoionization_metadata
+
+
+def probability_photoionization(
+    gamma_corr: pd.DataFrame, photoionization_data_level_energies: pd.Series
+) -> pd.DataFrame:
+    """
+    Calculate photoionization probability unnormalized.
+
+    Parameters
+    ----------
+    gamma_corr : pd.Series
+        Corrected photoionization rate coefficient from level `i` to `k`.
+    photoionization_data_level_energies : pd.Series
+        Energies of the levels involved in photoionization.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing photoionization probabilities.
+    """
+    p_photoionization = gamma_corr.multiply(
+        photoionization_data_level_energies, axis=0
+    )
+    return p_photoionization
+
+
+# def continuum_transition_collisional(
+#     self,
+#     coll_exc_coeff: pd.DataFrame,
+#     coll_deexc_coeff: pd.DataFrame,
+#     yg_idx: pd.DataFrame,
+#     electron_densities: pd.DataFrame,
+#     delta_E_yg: pd.Series,
+#     atomic_data,
+#     level_number_density: pd.Series,
+# ) -> pd.DataFrame:
+#     """
+#     Calculate collisional transition probabilities.
+
+#     Parameters
+#     ----------
+#     self
+#         The instance of the class containing this method.
+#     coll_exc_coeff : pd.DataFrame
+#         Collisional excitation coefficients.
+#     coll_deexc_coeff : pd.DataFrame
+#         Collisional de-excitation coefficients.
+#     yg_idx : pd.DataFrame
+#         Index DataFrame containing level information.
+#     electron_densities : pd.DataFrame
+#         Electron densities.
+#     delta_E_yg : pd.Series
+#         Energy differences.
+#     atomic_data
+#         Atomic data containing level information.
+#     level_number_density : pd.Series
+#         Number densities of levels.
+
+#     Returns
+#     -------
+#     pd.DataFrame
+#         DataFrame containing collisional transition probabilities.
+#     """
+#     p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
+#         delta_E_yg.values, axis=0
+#     )
+#     p_deexc_deactivation = self.set_index(
+#         p_deexc_deactivation, yg_idx, reverse=True
+#     )
+#     p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
+#     index_dd = pd.MultiIndex.from_product(
+#         [p_deexc_deactivation.index.values, ["k"], [0]],
+#         names=list(yg_idx.columns) + ["transition_type"],
+#     )
+#     p_deexc_deactivation = p_deexc_deactivation.set_index(index_dd)
+
+#     level_lower_index = coll_deexc_coeff.index.droplevel("level_number_upper")
+#     energy_lower = atomic_data.levels.energy.loc[level_lower_index]
+#     p_deexc_internal = (coll_deexc_coeff * electron_densities).multiply(
+#         energy_lower.values, axis=0
+#     )
+#     p_deexc_internal = self.set_index(
+#         p_deexc_internal, yg_idx, transition_type=0, reverse=True
+#     )
+
+#     p_exc_internal = (coll_exc_coeff * electron_densities).multiply(
+#         energy_lower.values, axis=0
+#     )
+#     p_exc_internal = self.set_index(
+#         p_exc_internal, yg_idx, transition_type=0, reverse=False
+#     )
+#     p_exc_cool = (coll_exc_coeff * electron_densities).multiply(
+#         delta_E_yg.values, axis=0
+#     )
+#     p_exc_cool = p_exc_cool * level_number_density.loc[level_lower_index].values
+#     p_exc_cool = self.set_index(p_exc_cool, yg_idx, reverse=False)
+#     p_exc_cool = p_exc_cool.groupby(level="destination_level_idx").sum()
+#     exc_cool_index = pd.MultiIndex.from_product(
+#         [["k"], p_exc_cool.index.values, [0]],
+#         names=list(yg_idx.columns) + ["transition_type"],
+#     )
+#     p_exc_cool = p_exc_cool.set_index(exc_cool_index)
+#     p_coll = pd.concat(
+#         [p_deexc_deactivation, p_deexc_internal, p_exc_internal, p_exc_cool]
+#     )
+#     return p_coll
+
+#     # def calculate(self, electron_densities, t_electrons, time_explosion):
+#     #     cool_rate_adiabatic = (
+#     #         3.0 * electron_densities * K_B * t_electrons
+#     #     ) / time_explosion
+
+#     #     cool_rate_adiabatic = cooling_rate_series2dataframe(
+#     #         cool_rate_adiabatic, destination_level_idx="adiabatic"
+#     #     )
+#     #     return cool_rate_adiabatic
+
+
+# def continuum_transition_collision_deexc_deactivate(
+#     coll_deexc_coeff, yg_idx, electron_densities, delta_E_yg
+# ):
+#     p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
+#         delta_E_yg.values, axis=0
+#     )
+#     # yg idx has source_level_idx, destination_level_idx
+#     # p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
+#     # index_dd = pd.MultiIndex.from_product(
+#     #     [p_deexc_deactivation.index.values, ["k"], [0]],
+#     #     names=list(yg_idx.columns) + ["transition_type"],
+#     # )
+#     # p_deexc_deactivation = p_deexc_deactivation.set_index(index_dd)
