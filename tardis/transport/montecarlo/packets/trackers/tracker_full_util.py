@@ -340,6 +340,6 @@ def generate_tracker_full_list(
     rpacket_trackers = []
     for i in range(no_of_packets):
         rpacket_trackers.append(
-            TrackerFull(length, extend_factor=extend_factor)
+            TrackerFull(length, extend_factor)
         )
     return rpacket_trackers

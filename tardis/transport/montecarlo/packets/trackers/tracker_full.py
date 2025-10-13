@@ -108,7 +108,7 @@ class TrackerFull:
         self.line_emit_id = np.full(length, -1, dtype=np.int64)
 
         self.event_id = 0
-        self.extend_factor = 2
+        self.extend_factor = extend_factor
 
     @property
     def array_length(self) -> int:

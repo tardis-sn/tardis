@@ -12,6 +12,7 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full_util import gener
 def test_generate_rpacket_tracker_list():
     no_of_packets = 10
     length = 10
+    extend_factor = 2
     random_index = np.random.randint(0, no_of_packets)
 
     rpacket_tracker_list = generate_tracker_full_list(no_of_packets, length)
@@ -19,7 +20,7 @@ def test_generate_rpacket_tracker_list():
     assert len(rpacket_tracker_list) == no_of_packets
     assert len(rpacket_tracker_list[random_index].before_shell_id) == length
     assert typeof(rpacket_tracker_list[random_index]) == typeof(
-        TrackerFull(length)
+        TrackerFull(length, extend_factor)
     )
 
 
