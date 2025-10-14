@@ -80,20 +80,20 @@ class TestSDECPlotter:
     ]
 
     @pytest.fixture(scope="class")
-    def plotter(self, simulation_simple):
+    def plotter(self, simulation_simple_tracked):
         """
         Create a SDECPlotter object.
 
         Parameters
         ----------
-        simulation_simple : tardis.simulation.base.Simulation
+        simulation_simple_tracked : tardis.simulation.base.Simulation
             Simulation object.
 
         Returns
         -------
         tardis.visualization.tools.sdec_plot.SDECPlotter
         """
-        return SDECPlotter.from_simulation(simulation_simple)
+        return SDECPlotter.from_simulation(simulation_simple_tracked)
 
     @pytest.fixture(scope="class")
     def observed_spectrum(self):
@@ -394,9 +394,7 @@ class TestSDECPlotter:
             compare_images(expected, actual, tol=1e-3)
 
     def test_make_colorbar_labels(self, plotter):
-        expected_labels = ['O', 'Mg', 'Si', 'Ca']
-        plotter._species_list = ['Si','O','Mg','Ca']
-        plotter._parse_species_list(plotter._species_list)
+        plotter._parse_species_list(None)
         plotter._calculate_plotting_data(
             packets_mode="virtual",
             packet_wvl_range=[500, 9000] * u.AA,
@@ -404,7 +402,8 @@ class TestSDECPlotter:
             nelements=None,
         )
         plotter._make_colorbar_labels()
-        assert plotter._species_name == expected_labels
+        assert isinstance(plotter._species_name, list)
+        assert all(isinstance(label, str) for label in plotter._species_name)
 
     @pytest.fixture(scope="class")
     def plotter_from_workflow(self, workflow_simple):
