@@ -9,7 +9,9 @@ from numpy.testing import assert_almost_equal
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
-    simulation_verysimple.simulation_state.to_hdf(hdf_file_path, overwrite=True)
+    from tardis.tests.regression_storage import to_hdf_compressed
+
+    to_hdf_compressed(hdf_file_path, simulation_verysimple.simulation_state, key="simulation_state")
 
 
 def test_hdf_density_0(hdf_file_path, simulation_verysimple):

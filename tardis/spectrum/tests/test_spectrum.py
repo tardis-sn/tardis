@@ -150,7 +150,10 @@ def compare_spectra(actual, desired):
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, spectrum):
-    spectrum.to_hdf(hdf_file_path, name="spectrum", overwrite=True)
+    # Use compressed HDF helper to reduce disk size for regression artifacts
+    from tardis.tests.regression_storage import to_hdf_compressed
+
+    to_hdf_compressed(hdf_file_path, spectrum, key="spectrum")
 
 
 @pytest.mark.parametrize("attr", TARDISSpectrum.hdf_properties)
