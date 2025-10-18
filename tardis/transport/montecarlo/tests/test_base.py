@@ -9,12 +9,11 @@ from numpy.testing import assert_almost_equal
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple_vpacket_tracking):
-    simulation_verysimple_vpacket_tracking.transport.to_hdf(
-        hdf_file_path, name="transport", overwrite=True
-    )
-    simulation_verysimple_vpacket_tracking.transport.transport_state.to_hdf(
-        hdf_file_path, name="transport_state", overwrite=True
-    )
+    from tardis.tests.regression_storage import to_hdf_compressed
+
+    # store transport and nested transport_state with compression to reduce size
+    to_hdf_compressed(hdf_file_path, simulation_verysimple_vpacket_tracking.transport, key="transport")
+    to_hdf_compressed(hdf_file_path, simulation_verysimple_vpacket_tracking.transport.transport_state, key="transport_state")
 
 
 transport_properties = [None]
