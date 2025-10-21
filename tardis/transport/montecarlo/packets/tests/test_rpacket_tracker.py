@@ -68,25 +68,37 @@ def test_boundary_interactions(tracker_full_df, regression_data):
     packet_ids = df.index.get_level_values('packet_id').unique()
     no_of_packets = len(packet_ids)
 
-    per_packet_event_ids = []
+    per_packet_info = []
     max_len = 0
     for packet_id in packet_ids:
         packet_df = df.loc[packet_id]
-        boundary_mask = packet_df['interaction_type'] == 'BOUNDARY'
-        boundary_idx = packet_df[boundary_mask].index.values
-        per_packet_event_ids.append(boundary_idx.astype(np.int64))
-        if boundary_idx.size > max_len:
-            max_len = boundary_idx.size
+
+        # For regression data consistency, do not include initialization (before_shell_id < 0)
+        # or EMITTED event
+        boundary_mask = np.logical_and(
+            np.logical_and(packet_df['interaction_type'] == 'BOUNDARY',
+                           packet_df['status'] == 'IN_PROCESS'),
+            packet_df['before_shell_id'] >= 0)
+
+        boundary_event_idx = packet_df[boundary_mask].index.values
+        current_shell_id = packet_df[boundary_mask]['before_shell_id'].values
+        next_shell_id = packet_df[boundary_mask]['after_shell_id'].values
+        per_packet_info.append([*zip(boundary_event_idx, current_shell_id, next_shell_id)])
+        max_len = max(max_len, boundary_event_idx.size)
 
     if max_len == 0:
         max_len = 1
+    names = ('event_id', 'current_shell_id', 'next_shell_id')
+    formats = ('i8', 'i8', 'i8')
+    boundary_interaction_dtype = np.dtype({'names': names, 'formats': formats})
     obtained_boundary_interaction = np.full(
         (no_of_packets, max_len),
         -1,
-        dtype=np.int64,
+        dtype=boundary_interaction_dtype,
     )
-    for i, event_ids in enumerate(per_packet_event_ids):
-        obtained_boundary_interaction[i, : event_ids.size] = event_ids
+    for i, info in enumerate(per_packet_info):
+        info_array = np.array(info, dtype=boundary_interaction_dtype)
+        obtained_boundary_interaction[i, : info_array.size] = info_array
 
     expected_boundary_interaction = regression_data.sync_ndarray(
         obtained_boundary_interaction
