@@ -166,39 +166,30 @@ def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=F
             ),
         }
     else:
-        # Get emitted packets that had line interactions
         df = transport_state.tracker_full_df
-        
-        # Get final interaction per packet where status is EMITTED
-        emitted_final = df.groupby(level='packet_id').last()
-        emitted_packets = emitted_final[emitted_final['status'] == 'EMITTED'].index
-        
-        # Get last line interaction for each emitted packet
-        line_interactions = df[df['interaction_type'] == 'LINE']
-        emitted_line_interactions = line_interactions[
-            line_interactions.index.get_level_values('packet_id').isin(emitted_packets)
-        ]
-        result_df = emitted_line_interactions.groupby(level='packet_id').last()
-        
+        df_last = transport_state.tracker_last_interaction_df
+
+        df_last_emitted = df_last[transport_state.emitted_packet_mask]
+
         # Extract packet collection data for these packets
-        packet_indices = result_df.index.values
+        packet_indices = df_last_emitted.index.values
         packet_nus = u.Quantity(
             transport_state.packet_collection.output_nus[packet_indices], u.Hz
         )
-        
+
         packet_data = {
-            "last_interaction_type": result_df["interaction_type"].values,
-            "last_line_interaction_in_id": result_df["line_absorb_id"].values,
-            "last_line_interaction_out_id": result_df["line_emit_id"].values,
-            "last_line_interaction_in_nu": result_df["before_nu"].values,
-            "last_interaction_in_r": result_df["radius"].values,
+            "last_interaction_type": df_last_emitted["last_interaction_type"].values,
+            "last_line_interaction_in_id": df_last_emitted["line_absorb_id"].values,
+            "last_line_interaction_out_id": df_last_emitted["line_emit_id"].values,
+            "last_line_interaction_in_nu": df_last_emitted["before_nu"].values,
+            "last_interaction_in_r": df_last_emitted["radius"].values,
             "nus": packet_nus,
             "energies": transport_state.packet_collection.output_energies[packet_indices],
             "lambdas": packet_nus.to("angstrom", u.spectral()),
         }
 
         if include_shell_id:
-            packet_data["last_line_interaction_shell_id"] = result_df["after_shell_id"].values
+            packet_data["last_line_interaction_shell_id"] = df_last_emitted["after_shell_id"].values
 
     packet_data["packets_df"] = pd.DataFrame(packet_data)
     process_line_interactions(packet_data, lines_df)
