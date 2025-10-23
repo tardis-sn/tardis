@@ -1,14 +1,32 @@
 import logging
 import sys
 from dataclasses import dataclass, field
-import panel as pn
-from IPython.display import display
-import pandas as pd
+# Optional imports for widget display. Defer these so the module can be
+# imported in environments that don't have notebook tooling installed.
+try:
+    import panel as pn  # type: ignore
+except Exception:
+    pn = None
+
+try:
+    from IPython.display import display  # type: ignore
+except Exception:
+    display = None
+
+try:
+    import pandas as pd  # type: ignore
+except Exception:
+    pd = None
+
 from tardis.io.logger.colored_logger import ColoredFormatter
 from tardis.util.environment import Environment
-from tardis.io.logger.logger_widget import create_logger_columns, PanelWidgetLogHandler
-import tardis.util.panel_init as panel_init
-panel_init.auto()
+# logger_widget helpers are imported where needed to avoid top-level import
+try:
+    import tardis.util.panel_init as panel_init
+    panel_init.auto()
+except Exception:
+    # panel init is optional; ignore if unavailable
+    pass
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
@@ -87,22 +105,38 @@ class TARDISLogger:
         ValueError
             If an invalid log_level is provided.
         """
-        if "debug" in tardis_config:
-            specific_log_level = tardis_config["debug"].get(
-                "specific_log_level", specific_log_level
+        # Normalize access to the optional `debug` section. The configuration
+        # object implements dict-like access, but it can be missing the
+        # `debug` key. Use a local mapping to avoid KeyError and avoid
+        # mutating the passed config object unnecessarily.
+        try:
+            debug_section = tardis_config.get("debug", None)
+        except Exception:
+            # Fallback if tardis_config doesn't provide get (defensive)
+            debug_section = None
+
+        if debug_section is None:
+            # Use defaults when debug section is absent
+            debug_section = {}
+
+        # Determine specific_log_level: precedence -> functional arg -> debug section -> default
+        if specific_log_level is None:
+            specific_log_level = debug_section.get(
+                "specific_log_level", self.config.DEFAULT_SPECIFIC_STATE
             )
-            logging_level = log_level or tardis_config["debug"].get(
-                "log_level", "INFO"
-            )
-            if log_level and tardis_config["debug"].get("log_level"):
-                self.logger.debug(
-                    "log_level is defined both in Functional Argument & YAML Configuration {debug section}, "
-                    f"log_level = {log_level.upper()} will be used for Log Level Determination"
-                )
+
+        # Determine logging level: precedence -> functional arg -> debug section -> default
+        if log_level:
+            logging_level = log_level
         else:
-            tardis_config["debug"] = {}
-            logging_level = log_level or self.config.DEFAULT_LEVEL
-            specific_log_level = specific_log_level or self.config.DEFAULT_SPECIFIC_STATE
+            logging_level = debug_section.get("log_level", self.config.DEFAULT_LEVEL)
+
+        # If both functional arg and YAML provide a log level, inform user
+        if log_level and debug_section.get("log_level"):
+            self.logger.debug(
+                "log_level is defined both in Functional Argument & YAML Configuration {debug section}, "
+                f"log_level = {log_level.upper()} will be used for Log Level Determination"
+            )
 
         logging_level = logging_level.upper()
         if logging_level not in self.config.LEVELS:
@@ -143,12 +177,15 @@ class TARDISLogger:
         display_widget : bool, optional
             Whether to display the widget in GUI environments. Default is True.
         """
+        # Import widget handler lazily (may require panel/pandas)
+        from tardis.io.logger.logger_widget import PanelWidgetLogHandler
+
         self.widget_handler = PanelWidgetLogHandler(
             log_columns=self.log_columns,
             colors=self.config.COLORS,
             display_widget=display_widget,
             display_handles=self.display_handles,
-            batch_size=self.batch_size
+            batch_size=self.batch_size,
         )
         self.widget_handler.setFormatter(
             logging.Formatter("%(name)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)d)")
@@ -250,7 +287,15 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     dict
         Dictionary of log columns if display_logging_widget is True, otherwise None.
     """
-    log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
+    # Create logger columns via lazy import so module import doesn't fail
+    # if notebook-related dependencies are missing.
+    try:
+        from tardis.io.logger.logger_widget import create_logger_columns
+
+        log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
+    except Exception:
+        # Fallback to empty mapping when widget support is unavailable
+        log_columns = {}
     tardislogger = TARDISLogger(log_columns=log_columns, batch_size=batch_size)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
     use_widget = display_logging_widget and Environment.allows_widget_display()
