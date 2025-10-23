@@ -7,8 +7,14 @@ import sys
 from importlib.metadata import version as ilversion
 from packaging.version import Version as pversion
 
-__version__ = ilversion("tardis")
-last_release = pversion(__version__).base_version
+# When running tests in-tree (without installing the package), importlib.metadata
+# may not find package metadata. Fall back gracefully to allow test imports.
+try:
+    __version__ = ilversion("tardis")
+    last_release = pversion(__version__).base_version
+except Exception:
+    __version__ = "0+local"
+    last_release = "0"
 __all__ = ['__version__', 'run_tardis', 'last_release']
 
 if ("astropy.units" in sys.modules) or ("astropy.constants" in sys.modules):
