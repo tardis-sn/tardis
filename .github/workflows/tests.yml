@@ -178,7 +178,7 @@ jobs:
           lockfile-path: ./conda-linux-64.lock
 
       # will download all artifacts(in this case all are coverage reports)
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: .
           merge-multiple: true
