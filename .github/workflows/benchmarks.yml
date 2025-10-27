@@ -258,7 +258,7 @@ jobs:
           URL_PAGES: https://tardis-sn.github.io/tardis-benchmarks/pull/${{ github.event.number }}
 
       - name: Save results artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: asv-benchmark-results-${{ runner.os }}

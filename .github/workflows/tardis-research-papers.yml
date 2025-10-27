@@ -31,7 +31,7 @@ jobs:
             jupyter nbconvert --to python  docs/resources/research_done_using_TARDIS/ads.ipynb
             python3 docs/resources/research_done_using_TARDIS/ads.py
         
-        - uses: actions/upload-artifact@v4
+        - uses: actions/upload-artifact@v5
           with:
             name: research_papers
             path: |
