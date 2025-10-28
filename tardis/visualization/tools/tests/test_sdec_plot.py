@@ -42,7 +42,7 @@ class TestSDECPlotter:
     distance = [10 * u.Mpc, None]
     packet_wvl_range = [[500, 9000] * u.AA]
     species_list = [["Si II", "Ca II", "C", "Fe I-V"]]
-    packets_mode = ["real", "virtual"]
+    packets_mode = ["real"]
     nelements = [1, None]
     show_modeled_spectrum = [True, False]
 
@@ -56,6 +56,7 @@ class TestSDECPlotter:
             show_modeled_spectrum,
         )
     )
+    current_params = {}
 
     plotting_data_attributes = {
         "attributes_np": [
@@ -135,7 +136,8 @@ class TestSDECPlotter:
         else:
             np.testing.assert_allclose(getattr(plotter, attribute), data, atol=0, rtol=RELATIVE_TOLERANCE_SDEC)
 
-    @pytest.fixture(scope="class", params=combinations)
+    @pytest.fixture(scope="class", params=combinations,
+        ids=lambda p: f"distance={p[0]}, packets_mode={p[3]}, nelements={p[4]}, show_modeled_spectrum={p[5]}")
     def plotter_calculate_plotting_data(self, request, plotter):
         (
             distance,
@@ -169,6 +171,34 @@ class TestSDECPlotter:
         calculate_plotting_data_hdf,
         regression_data,
     ):
+
+        #TODO: temporary! hardcoded paths to correct regression data since "virtual" tracking
+        # no longer should be tested.
+        # Find the index of the test - there are 4 booleans, so 2^4=16 combinations.
+        import re
+        old_name = regression_data.fname_prefix
+        current_params = re.findall(r"(\w+)=([a-zA-Z\d\.\s]+)(?:,|])", regression_data.test_name)
+        param_index = 0
+        for param, value in current_params:
+            if param=='distance' and value=='None':
+                param_index += 8
+            elif param=='packets_mode' and value=='virtual':
+                param_index += 4
+            elif param=='nelements' and value=='None':
+                param_index += 2
+            elif param=='show_modeled_spectrum' and value=='False':
+                param_index += 1
+
+        # Overwrite all regression data file paths so we can find the data in the old naming convention
+        # Regression data object attributes are read-only - we need to re-initialize the object after
+        # changing the parameters of the request from pytest
+        # the new test name and file path
+        nodename = regression_data.request.node.originalname
+        testname = next(iter(regression_data.request.node.callspec.params.keys()))
+        newname = f"{nodename}__{testname}{param_index}__"
+        regression_data.request.node.name = newname
+        regression_data.__init__(regression_data.request)
+
         expected = regression_data.sync_hdf_store(calculate_plotting_data_hdf)
         group = "plot_data_hdf/"
         for attribute_type, attribute_name in self.plotting_data_attributes:
