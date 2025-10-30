@@ -488,7 +488,8 @@ class TestSDECPlotter:
         fig = plotter_from_workflow.generate_plot_mpl(packets_mode="virtual")
         assert fig is not None
 
-    @pytest.fixture(scope="class", params=list(enumerate(combinations)))
+    @pytest.fixture(scope="class", params=list(enumerate(combinations)),
+        ids=lambda p: f"distance={p[1][0]}, packets_mode={p[1][3]}, nelements={p[1][4]}, show_modeled_spectrum={p[1][5]}")
     def plotter_calculate_plotting_data_from_workflow(self, request, plotter_from_workflow):
         param_idx, param = request.param
         (
@@ -497,13 +498,24 @@ class TestSDECPlotter:
             species_list,
             packets_mode,
             nelements,
-            _,
+            show_modeled_spectrum,
         ) = param
         plotter_from_workflow._parse_species_list(species_list)
         plotter_from_workflow._calculate_plotting_data(
             packets_mode, packet_wvl_range, distance, nelements
         )
-        plotter_from_workflow._param_idx = param_idx
+
+        #TODO: Temporary! Override parameter index since the removal of virtual packets from the test suite has changed the indices.
+        param_index = 0
+        if distance==None:
+            param_index += 8
+        if packets_mode=='virtual':
+            param_index += 4
+        if nelements==None:
+            param_index += 2
+        if show_modeled_spectrum is False:
+            param_index += 1
+        plotter_from_workflow._param_idx = param_index
         return plotter_from_workflow
 
     def test_calculate_plotting_data_workflow_vs_regression(
@@ -511,7 +523,7 @@ class TestSDECPlotter:
     ):
         param_idx = plotter_calculate_plotting_data_from_workflow._param_idx
         regression_file = sdec_regression_data / f"test_calculate_plotting_data__plotter_calculate_plotting_data{param_idx}__.h5"
-        
+
         for attribute_type, attribute_name in self.plotting_data_attributes:
             plot_object = getattr(plotter_calculate_plotting_data_from_workflow, attribute_name)
             if attribute_type == "attributes_np":
