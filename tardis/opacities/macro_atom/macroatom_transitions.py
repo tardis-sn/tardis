@@ -374,12 +374,7 @@ def continuum_transition_recombination_internal(
     spontaneous_recombination_coeff : pd.Series
         Rate coefficient for spontaneous recombination from `k` to level `i`.
     photoionization_data_level_energies : pd.Series
-        Energies of levels with bound-free transitions. Needed to calculate
-        for example internal transition probabilities in the macro atom scheme.
-        All p_internals (u/l) go as R_i(u/l) * e_i / D_i
-        All p_deactivations go as R * (delta_e)/D_i.
-    photoionization_index : pd.DataFrame
-        DataFrame containing photoionization indices.
+        Energies of levels with bound-free transitions.
 
     Returns
     -------
@@ -408,6 +403,9 @@ def continuum_transition_recombination_internal(
         },
         index=p_recomb_internal.index,
     )
+
+    p_recomb_internal["source"] = sources
+
     return p_recomb_internal, recombination_internal_metadata
 
 
@@ -478,6 +476,8 @@ def continuum_transition_recombination_emission(
         index=p_recomb_emission.index,
     )
 
+    p_recomb_emission["source"] = sources
+
     return p_recomb_emission, recombination_emission_metadata
 
 
@@ -522,8 +522,6 @@ def continuum_transition_photoionization(
         Corrected photoionization rate coefficient from level `i` to `k`.
     photoionization_data_level_energies : pd.Series
         Energies of the levels involved in photoionization.
-    photo_ion_idx : pd.DataFrame
-        DataFrame containing photoionization indices.
 
     Returns
     -------
@@ -553,6 +551,8 @@ def continuum_transition_photoionization(
         },
         index=p_photoionization.index,
     )
+
+    p_photoionization["source"] = sources
 
     return p_photoionization, photoionization_metadata
 
