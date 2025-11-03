@@ -584,6 +584,18 @@ def probability_photoionization(
     return p_photoionization
 
 
+def continuum_adiabatic_cooling():
+    pass
+
+
+def continuum_transition_bound_free_cooling():
+    pass
+
+
+def continuum_transition_two_photon():
+    pass
+
+
 # def continuum_transition_collisional(
 #     self,
 #     coll_exc_coeff: pd.DataFrame,

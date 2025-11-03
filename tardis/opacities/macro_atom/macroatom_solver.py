@@ -13,12 +13,12 @@ from tardis.opacities.macro_atom.macroatom_state import (
     MacroAtomState,
 )
 from tardis.opacities.macro_atom.macroatom_transitions import (
-    line_transition_emission_down,
-    line_transition_internal_down,
-    line_transition_internal_up,
     continuum_transition_photoionization,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
+    line_transition_emission_down,
+    line_transition_internal_down,
+    line_transition_internal_up,
     probability_emission_down,
     probability_internal_down,
     probability_internal_up,
