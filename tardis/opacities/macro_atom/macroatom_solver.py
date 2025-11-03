@@ -1097,10 +1097,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ].transition_line_idx.to_numpy()
 
         # I WILL NEED TO KEEP TRACK OF THE CONTINUUM TRANSITION INDICES AS WELL.
-        continuum_recombination_emission_idxs = macro_atom_transition_metadata[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.RECOMB_EMISSION
-        ].continuum_transition_idx.to_numpy()
         continuum_photoionization_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION

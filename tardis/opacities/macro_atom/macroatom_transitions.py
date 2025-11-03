@@ -676,16 +676,60 @@ def probability_photoionization(
 #     #     return cool_rate_adiabatic
 
 
-# def continuum_transition_collision_deexc_deactivate(
+# def collisional_transition_deexcite_deactivate(
 #     coll_deexc_coeff, yg_idx, electron_densities, delta_E_yg
 # ):
-#     p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
-#         delta_E_yg.values, axis=0
+#     p_deexc_deactivation = probability_collision_deexc_deactivate(
+#         coll_deexc_coeff, electron_densities, delta_E_yg
 #     )
-#     # yg idx has source_level_idx, destination_level_idx
+#     # yg idx is just source_level_idx, destination_level_idx
 #     # p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
 #     # index_dd = pd.MultiIndex.from_product(
 #     #     [p_deexc_deactivation.index.values, ["k"], [0]],
 #     #     names=list(yg_idx.columns) + ["transition_type"],
 #     # )
 #     # p_deexc_deactivation = p_deexc_deactivation.set_index(index_dd)
+
+#     coll_deexc_deactivate_metadata = pd.DataFrame(
+#         {
+#             "transition_line_id": -99,
+#             "source": p_deexc_deactivation.index.values,
+#             "destination": get_ground_state_multi_index(
+#                 p_deexc_deactivation.index
+#             ).values,
+#             "transition_type": MacroAtomTransitionType.COLL_DEEXCITATION_DEACTIVATION,
+#             "transition_line_idx": -99,
+#             "continuum_transition_idx": range(len(delta_E_yg)),
+#         },
+#         index=p_deexc_deactivation.index,
+#     )
+
+#     return p_deexc_deactivation, coll_deexc_deactivate_metadata
+
+
+# def probability_collision_deexc_deactivate(
+#     coll_deexc_coeff, electron_densities, delta_E_yg
+# ) -> pd.DataFrame:
+#     """
+#     Calculate collisional de-excitation and deactivation probabilities.
+
+#     Parameters
+#     ----------
+#     coll_deexc_coeff : pd.DataFrame
+#         Collisional de-excitation coefficients.
+#     electron_densities : pd.DataFrame
+#         Electron densities.
+#     delta_E_yg : pd.Series
+#         Energy differences.
+
+#     Returns
+#     -------
+#     pd.DataFrame
+#         DataFrame containing collisional de-excitation and deactivation probabilities.
+#     """
+#     p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
+#         delta_E_yg.values, axis=0
+#     )
+#     p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
+
+#     return p_deexc_deactivation

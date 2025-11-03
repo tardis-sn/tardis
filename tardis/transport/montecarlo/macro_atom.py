@@ -22,6 +22,7 @@ class MacroAtomTransitionType(IntEnum):
     RECOMB_INTERNAL = -7
     RECOMB_EMISSION = -8
     PHOTOIONIZATION = -9
+    # COLL_DEEXCITATION_DEACTIVATION = -10
 
 
 # Think more about the specific values here. Maybe negatives are for deactivating the macroatom, and positive values are internal?
