@@ -27,6 +27,9 @@ env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  # Force numpy to use AVX-512 if available
+  NPY_DISABLE_CPU_FEATURES: "NONE"
+  NPY_ENABLE_CPU_FEATURES: "AVX512F,AVX512CD,AVX512_SKX"
 
 defaults:
   run:
@@ -45,16 +48,17 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
+    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} run-${{ matrix.run_id }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        label: [osx-arm64, linux-64]
-        continuum: ['not', '']
-        pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
+        label: [linux-64]
+        continuum: ['not']
+        pip_git: [false]
+        run_id: [1, 2, 3, 4, 5]  # Run 5 parallel jobs to increase chance of hitting different runners
         include:
           - label: osx-arm64
             os: macos-latest
@@ -128,20 +132,10 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-lfs@main
 
       - name: Setup environment
-        uses: mamba-org/setup-micromamba@v2
+        uses: tardis-sn/tardis-actions/setup-env@main
         with:
-          environment-file: ./conda-${{ matrix.label }}.lock
-          environment-name: tardis
-          cache-environment: false
-          cache-downloads: false
-          condarc: |
-            channels:
-              - conda-forge
-            virtual_packages:
-              - __unix=0=0
-              - __linux=6.11.0=0
-              - __glibc=2.39=0
-              - __archspec=1=x86_64_v4
+          os-label: ${{ matrix.label }}
+          lockfile-path: ./conda-${{ matrix.label }}.lock
 
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
@@ -157,8 +151,36 @@ jobs:
         run: |
           pip install --no-deps qgridnext lineid_plot
 
-      - name: Run tests
-        run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+      - name: Check CPU features and try to force AVX-512
+        run: |
+          echo "=== CPU Info ==="
+          lscpu | grep -i "flags\|model name\|avx"
+          cat /proc/cpuinfo | grep -i "flags" | head -1
+
+          echo ""
+          echo "=== Current numpy config ==="
+          python -c "import numpy; numpy.show_config()"
+
+          echo ""
+          echo "=== Checking for AVX-512 support ==="
+          if grep -q avx512 /proc/cpuinfo; then
+            echo "CPU supports AVX-512"
+          else
+            echo "CPU does NOT support AVX-512"
+          fi
+
+          echo ""
+          echo "=== Numpy CPU features ==="
+          python -c "import numpy as np; print('Numpy version:', np.__version__); print('CPU baseline:', np.__cpu_baseline__); print('CPU dispatch:', np.__cpu_dispatch__)"
+
+      - name: Run tests (multiple iterations to check for variance)
+        run: |
+          echo "=== Running tests 3 times to check for any variance ==="
+          for i in 1 2 3; do
+            echo ""
+            echo ">>> Iteration $i <<<"
+            pytest tardis/spectrum/formal_integral/tests/test_source_function.py ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum" -v || echo "FAILED on iteration $i"
+          done
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
@@ -176,7 +198,7 @@ jobs:
 
   combine_coverage_reports:
     needs: [tests]
-    if: github.repository_owner == 'tardis-sn'
+    if: false  # Disabled for debugging
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
