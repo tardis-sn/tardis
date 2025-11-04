@@ -27,9 +27,6 @@ env:
   CACHE_NUMBER: 0  # increase to reset cache manually
   PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  # Force numpy to use AVX-512 if available
-  NPY_DISABLE_CPU_FEATURES: "NONE"
-  NPY_ENABLE_CPU_FEATURES: "AVX512F,AVX512CD,AVX512_SKX"
 
 defaults:
   run:
@@ -48,7 +45,7 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
-    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} run-${{ matrix.run_id }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
+    name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
     needs: [test-cache]
     runs-on: ${{ matrix.os }}
@@ -58,7 +55,6 @@ jobs:
         label: [linux-64]
         continuum: ['not']
         pip_git: [false]
-        run_id: [1, 2, 3, 4, 5]  # Run 5 parallel jobs to increase chance of hitting different runners
         include:
           - label: osx-arm64
             os: macos-latest
@@ -151,36 +147,38 @@ jobs:
         run: |
           pip install --no-deps qgridnext lineid_plot
 
-      - name: Check CPU features and try to force AVX-512
+      - name: Check CPU features
+        continue-on-error: true
         run: |
           echo "=== CPU Info ==="
-          lscpu | grep -i "flags\|model name\|avx"
-          cat /proc/cpuinfo | grep -i "flags" | head -1
+          lscpu | grep -i "model name" || true
 
           echo ""
-          echo "=== Current numpy config ==="
-          python -c "import numpy; numpy.show_config()"
+          echo "=== CPU Flags ==="
+          cat /proc/cpuinfo | grep "flags" | head -1 || true
 
           echo ""
-          echo "=== Checking for AVX-512 support ==="
+          echo "=== Checking for AVX support ==="
           if grep -q avx512 /proc/cpuinfo; then
             echo "CPU supports AVX-512"
+          elif grep -q avx2 /proc/cpuinfo; then
+            echo "CPU supports AVX2"
+          elif grep -q avx /proc/cpuinfo; then
+            echo "CPU supports AVX"
           else
-            echo "CPU does NOT support AVX-512"
+            echo "CPU does NOT support AVX"
           fi
 
           echo ""
-          echo "=== Numpy CPU features ==="
-          python -c "import numpy as np; print('Numpy version:', np.__version__); print('CPU baseline:', np.__cpu_baseline__); print('CPU dispatch:', np.__cpu_dispatch__)"
+          echo "=== Micromamba detected architecture ==="
+          micromamba info | grep -i "archspec" || true
 
-      - name: Run tests (multiple iterations to check for variance)
-        run: |
-          echo "=== Running tests 3 times to check for any variance ==="
-          for i in 1 2 3; do
-            echo ""
-            echo ">>> Iteration $i <<<"
-            pytest tardis/spectrum/formal_integral/tests/test_source_function.py ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum" -v || echo "FAILED on iteration $i"
-          done
+          echo ""
+          echo "=== Numpy CPU features ==="
+          python -c "import numpy as np; print('Numpy version:', np.__version__); print('CPU baseline:', np.__cpu_baseline__); print('CPU dispatch:', np.__cpu_dispatch__)" || true
+
+      - name: Run tests
+        run: pytest tardis/spectrum/formal_integral/tests/test_source_function.py ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum" -v
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
