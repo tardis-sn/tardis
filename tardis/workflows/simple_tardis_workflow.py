@@ -9,6 +9,7 @@ from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
+    ContinuumMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly import PlasmaSolverFactory
@@ -88,6 +89,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         line_interaction_type = configuration.plasma.line_interaction_type
+        continuum_interactions = configuration.plasma.continuum_interaction
 
         self.opacity_solver = OpacitySolver(
             line_interaction_type,
@@ -96,13 +98,19 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         if line_interaction_type == "scatter":
             self.macro_atom_solver = None
+        if continuum_interactions:
+            self.macro_atom_solver = ContinuumMacroAtomSolver(
+                atom_data.levels,
+                atom_data.lines,
+                atom_data.photoionization_data,
+                line_interaction_type,
+            )
         else:
             self.macro_atom_solver = BoundBoundMacroAtomSolver(
                 atom_data.levels,
                 atom_data.lines,
                 line_interaction_type,
             )
-
         self.transport_state = None
         self.transport_solver = MonteCarloTransportSolver.from_config(
             configuration,
@@ -373,6 +381,14 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         if self.macro_atom_solver is None:
             macro_atom_state = None
+        elif isinstance(self.macro_atom_solver, ContinuumMacroAtomSolver):
+            macro_atom_state = self.macro_atom_solver.solve(
+                self.plasma_solver.j_blues,
+                opacity_state.beta_sobolev,
+                self.plasma_solver.stimulated_emission_factor,
+                self.plasma_solver.gamma_corr,
+                self.plasma_solver.alpha_sp,
+            )
         else:
             macro_atom_state = self.macro_atom_solver.solve(
                 self.plasma_solver.j_blues,

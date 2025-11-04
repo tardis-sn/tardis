@@ -255,8 +255,10 @@ def macro_atom_event(
             opacity_state,
             enable_full_relativity,
         )
+    elif transition_type == MacroAtomTransitionType.RECOMB_EMISSION:
+        recombination_emission()
     else:
-        raise Exception("No Interaction Found!")
+        raise Exception(f"Interaction {transition_type} not Found!")
 
 
 @njit(**njit_dict_no_parallel)
@@ -514,3 +516,8 @@ def line_emission(
         r_packet.mu = angle_aberration_CMF_to_LF(
             r_packet, time_explosion, r_packet.mu
         )
+
+
+@njit(**njit_dict_no_parallel)
+def recombination_emission():
+    pass

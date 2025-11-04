@@ -2,6 +2,7 @@ from tardis import constants as const
 import numpy as np
 import pandas as pd
 from tardis.plasma.properties.continuum_processes.rates import (
+    K_B,
     get_ground_state_multi_index,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
@@ -584,16 +585,39 @@ def probability_photoionization(
     return p_photoionization
 
 
-def continuum_adiabatic_cooling():
-    pass
+# def continuum_adiabatic_cooling(
+#     electron_densities, t_electrons, time_explosion
+# ):
+#     # def calculate(self, electron_densities, t_electrons, time_explosion):
+#     # cool_rate_adiabatic = (
+#     #     3.0 * electron_densities * K_B * t_electrons
+#     # ) / time_explosion
+
+#     # cool_rate_adiabatic = cooling_rate_series2dataframe(
+#     #     cool_rate_adiabatic, destination_level_idx="adiabatic"
+#     # )
+#     # return cool_rate_adiabatic
+
+#     pass
 
 
-def continuum_transition_bound_free_cooling():
-    pass
+# def probability_adiabatic_cooling(
+#     electron_densities, t_electrons, time_explosion
+# ):
+#     # Calculate the probability of adiabatic cooling
+#     p_adiabatic_cooling = (
+#         3.0 * electron_densities * K_B * t_electrons
+#     ) / time_explosion
+
+#     return p_adiabatic_cooling
 
 
-def continuum_transition_two_photon():
-    pass
+# def continuum_transition_bound_free_cooling():
+#     pass
+
+
+# def continuum_transition_two_photon():
+#     pass
 
 
 # def continuum_transition_collisional(

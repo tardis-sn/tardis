@@ -786,6 +786,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             levels=levels,
             line_interaction_type=line_interaction_type,
         )
+        if line_interaction_type != "macroatom":
+            raise NotImplementedError(
+                "ContinuumMacroAtomSolver only supports line_interaction_type='macroatom' currently."
+            )
 
         ### TODO: Remove this
         selected_continuum_transitions = [
@@ -920,10 +924,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Series with unique source levels as index and their assigned indices as values.
         """
         # Assemble bound-bound transitions first.
-        if self.line_interaction_type != "macroatom":
-            raise NotImplementedError(
-                "ContinuumMacroAtomSolver only supports line_interaction_type='macroatom' currently."
-            )
         p_emission_down, emission_down_metadata = line_transition_emission_down(
             self._oscillator_strength_ul,
             self._nus,
