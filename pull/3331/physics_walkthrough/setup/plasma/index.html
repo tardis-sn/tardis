@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plasma &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=ca105d60"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="LTE Plasma" href="lte_plasma.html" />
+    <link rel="prev" title="Model" href="../model.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Setting Up the Simulation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../setup_example.html">Setup Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model.html">Model</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Plasma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-plasma-graph">The Plasma Graph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../io/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-the-plasma">Updating the Plasma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plasma-calculations">Plasma Calculations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lte_plasma.html">LTE Plasma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nebular_plasma.html">Nebular Plasma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nlte.html">NLTE treatment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="helium_nlte.html">Helium NLTE</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sobolev-optical-depth">Sobolev optical depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#macro-atom-line-interaction-treatment">Macro Atom Line Interaction Treatment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macroatom.html">Macro Atom</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Setting Up the Simulation</a></li>
+      <li class="breadcrumb-item active">Plasma</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/physics_walkthrough/setup/plasma/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="plasma">
+<span id="id1"></span><h1>Plasma<a class="headerlink" href="#plasma" title="Link to this heading">¶</a></h1>
+<p>The role of the plasma module is to determine the ionisation and excitation states of the elements of the
+supernova ejecta, given the basic structure, including the elemental abundances, densities and radiation temperature.
+After the calculation of the plasma state, the <span class="math notranslate nohighlight">\(\tau_{\textrm{sobolev}}\)</span> values can be calculated.</p>
+<p>The TARDIS plasma structure inherits from the <code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePlasma</span></code> class. The code currently uses the <code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPlasmaArray</span></code>
+for generating a plasma from the information provided by <code class="xref py py-obj docutils literal notranslate"><span class="pre">model</span></code>. A variety of different plasmas can be generated
+depending on the options selected in the plasma section of the TARDIS config. file. The options currently considered
+by the Legacy Plasma when creating the plasma calculation structure include:</p>
+<dl class="simple">
+<dt>plasma:</dt><dd><ul class="simple">
+<li><p>ionization: lte/nebular</p></li>
+<li><p>excitation: lte/dilute-lte</p></li>
+<li><p>line_interaction_type: scatter/downbranch/macroatom</p></li>
+<li><p>helium_treatment: dilute-lte/recomb-nlte</p></li>
+<li><p>nlte: [can provide list of ion species to be treated in NLTE, as well as specifying the use of the coronal_approximation/classical_nebular settings.</p></li>
+</ul>
+</dd>
+</dl>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPlasmaArray</span></code> uses these options to construct a map of the necessary plasma parameters that demonstrates how these parameters are dependent on one another (using <a class="reference external" href="https://networkx.github.io/">NetworkX</a>). Each time a particular parameter of the plasma is updated, all of the parameters dependent (directly or indirectly) on that particular one can be easily updated automatically, without requiring that all the plasma calculations are repeated.</p>
+<section id="properties-inputs-and-outputs">
+<h2>Properties, Inputs and Outputs<a class="headerlink" href="#properties-inputs-and-outputs" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>Each TARDIS plasma possesses an array of plasma properties, which are used to calculate plasma parameter values. Most plasma properties have a single output, e.g.</dt><dd><ul class="simple">
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GElectron</span></code>: (<code class="xref py py-obj docutils literal notranslate"><span class="pre">g_electron</span></code>,)</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HeliumNLTE</span></code>: (<code class="xref py py-obj docutils literal notranslate"><span class="pre">helium_population</span></code>,)</p></li>
+</ul>
+</dd>
+<dt>but some have two or more, e.g.</dt><dd><ul class="simple">
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">IonNumberDensity</span></code>: (<code class="xref py py-obj docutils literal notranslate"><span class="pre">ion_number_density</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">electron_densities</span></code>)</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Levels</span></code>: (<code class="xref py py-obj docutils literal notranslate"><span class="pre">levels</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">excitation_energy</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">metastability</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">g</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Every property has a <code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate</span></code> function that returns the values of its outputs. The arguments required for that function become the property inputs. TARDIS will raise an error if it does not have all of the required inputs for a particular property. It will also raise an error if there is an output loop, i.e. if two properties are dependent on each other. Some different properties share output names; for example, <code class="xref py py-obj docutils literal notranslate"><span class="pre">PhiSahaLTE</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">PhiSahaNebular</span></code> both have an output called <code class="xref py py-obj docutils literal notranslate"><span class="pre">phi</span></code>. That is because the <code class="xref py py-obj docutils literal notranslate"><span class="pre">phi</span></code> value is calculated differently depending on the ionization method selected, but once calculated, both values interact in the same way with the rest of the plasma. TARDIS will import only one of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">phi</span></code> properties when initialising the plasma.</p>
+</section>
+<section id="the-plasma-graph">
+<h2>The Plasma Graph<a class="headerlink" href="#the-plasma-graph" title="Link to this heading">¶</a></h2>
+<p>If the necessary Python modules (<a class="reference external" href="https://pygraphviz.github.io/">PyGraphviz</a> and <a class="reference external" href="https://dot2tex.readthedocs.io/en/latest/">dot2tex</a>) are available, TARDIS can output a .dot and a .tex file at the beginning of each run that can be compiled to produce a PDF image of the plasma module graph via the <code class="code docutils literal notranslate"><span class="pre">write_to_dot()</span></code> and <code class="code docutils literal notranslate"><span class="pre">write_to_tex()</span></code> functions, respectively. The nodes on this graph are the names of plasma properties, e.g. <code class="xref py py-obj docutils literal notranslate"><span class="pre">Levels</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">TauSobolev</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">IonNumberDensity</span></code>, along with a list of outputs from those properties. These nodes are connected by edges linking them with the sources of their inputs. The .tex file contains the name of the input/output linking the properties (e.g. <code class="xref py py-obj docutils literal notranslate"><span class="pre">levels</span></code>, <span class="math notranslate nohighlight">\(\tau_{\textrm{sobolev}}\)</span>, <span class="math notranslate nohighlight">\(n_{e}\)</span>), as well as the equations used to calculate them, written in LaTeX. See the tutorial below!</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../io/output/how_to_plasma_graph.html#Displaying-the-Graph-Within-A-Jupyter-Notebook">Displaying the Graph Within A Jupyter Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../io/output/how_to_plasma_graph.html#Saving-the-Graph-Onto-a-.tex-File">Saving the Graph Onto a .tex File</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="updating-the-plasma">
+<h2>Updating the Plasma<a class="headerlink" href="#updating-the-plasma" title="Link to this heading">¶</a></h2>
+<p>During each iteration of the main code, TARDIS updates the plasma using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">update_radiationfield</span></code> function. This requires, at minimum, new values for <code class="xref py py-obj docutils literal notranslate"><span class="pre">t_rad</span></code> (the radiation temperature), <code class="xref py py-obj docutils literal notranslate"><span class="pre">w</span></code> (the dilution factor) and <code class="xref py py-obj docutils literal notranslate"><span class="pre">j_blues</span></code> (the intensity in the blue part of each line).</p>
+</section>
+<section id="plasma-calculations">
+<span id="id2"></span><h2>Plasma Calculations<a class="headerlink" href="#plasma-calculations" title="Link to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this documentation we use the indices <span class="math notranslate nohighlight">\(i, j, k\)</span> to mean atomic number, ion number and level number respectively.</p>
+</div>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePlasma</span></code> serves as the base class for all plasmas and can just calculate the atom number densities for a given input of abundance fraction.</p>
+<div class="math notranslate nohighlight">
+\[N_{atom} = \rho_\textrm{total} \times \textrm{Abundance fraction} / m_\textrm{atom}\]</div>
+<p>In the next step the line and level tables are purged of entries that are not represented in the abundance fractions are saved in <code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePlasma.levels</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePlasma.lines</span></code>. Finally, the function <code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePlasma.update_t_rad</span></code> is called at the end of initialization to update the plasma conditions to a new <span class="math notranslate nohighlight">\(T_\textrm{radiation field}\)</span> (with the give t_rad). This function is the same in the other plasma classes and does the main part of the calculation. In the case of <code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePlasma</span></code> this is only setting <code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePlasma.beta_rad</span></code> to <span class="math notranslate nohighlight">\(\frac{1}{k_\textrm{B}T_\textrm{rad}}\)</span>.</p>
+<p>The next more complex class is <code class="xref py py-obj docutils literal notranslate"><span class="pre">LTEPlasma</span></code> which will calculate the ionization balance and level populations in Local Thermal Equilibrium conditions (LTE). The <code class="xref py py-class docutils literal notranslate"><span class="pre">NebularPlasma</span></code>-class inherits from <code class="xref py py-obj docutils literal notranslate"><span class="pre">LTEPlasma</span></code> and uses a more complex description of the BasePlasma.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lte_plasma.html">LTE Plasma</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lte_plasma.html#example-calculations">Example Calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nebular_plasma.html">Nebular Plasma</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nebular_plasma.html#calculating-zeta">Calculating Zeta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nebular_plasma.html#calculating-delta">Calculating Delta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nebular_plasma.html#example-calculations">Example Calculations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>TARDIS also allows for NLTE treatments of specified species, as well as special NLTE treatments for Helium.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The NLTE treatment of specified species is currently incompatible with the NLTE treatment for helium and cannot be used simultaneously.</p>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="nlte.html">NLTE treatment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helium_nlte.html">Helium NLTE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="helium_nlte.html#recombination-he-nlte">Recombination He NLTE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helium_nlte.html#numerical-he-nlte">Numerical He NLTE</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="sobolev-optical-depth">
+<span id="tau-sobolev"></span><h2>Sobolev optical depth<a class="headerlink" href="#sobolev-optical-depth" title="Link to this heading">¶</a></h2>
+<p>After the above calculations, TARDIS calculates the Sobolev optical depth <span class="math notranslate nohighlight">\(\tau_\textrm{Sobolev}\)</span> with the following formula:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}C_\textrm{Sobolev} = \frac{\pi e^2}{m_e c}\\\tau_\textrm{Sobolev} = C_\textrm{Sobolev}\,  \lambda\, f_{\textrm{lower}\rightarrow\textrm{upper}}\,
+    t_\textrm{explosion}\, N_\textrm{lower}
+    (1 - \frac{g_\textrm{lower}}{g_\textrm{upper}}\frac{N_\textrm{upper}}{N_\textrm{lower}})\end{aligned}\end{align} \]</div>
+</section>
+<section id="macro-atom-line-interaction-treatment">
+<h2>Macro Atom Line Interaction Treatment<a class="headerlink" href="#macro-atom-line-interaction-treatment" title="Link to this heading">¶</a></h2>
+<p>The following page describes the macro atom treatment of line interactions:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="macroatom.html">Macro Atom</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../model.html" class="btn btn-neutral float-left" title="Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lte_plasma.html" class="btn btn-neutral float-right" title="LTE Plasma" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 04 Nov 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

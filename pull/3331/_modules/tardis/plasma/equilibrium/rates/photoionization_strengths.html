@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.plasma.equilibrium.rates.photoionization_strengths &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=ca105d60"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.plasma.equilibrium.rates.photoionization_strengths</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.plasma.equilibrium.rates.photoionization_strengths</h1><div class="highlight"><pre>
+<span></span>import astropy.units as u
+import numpy as np
+import pandas as pd
+
+from tardis import constants as const
+from tardis.transport.montecarlo.estimators.util import (
+    bound_free_estimator_array2frame,
+    integrate_array_by_blocks,
+)
+
+C = const.c.cgs
+H = const.h.cgs
+K_B = const.k_B.cgs
+
+
+<div class="viewcode-block" id="SpontaneousRecombinationCoeffSolver">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver">[docs]</a>
+class SpontaneousRecombinationCoeffSolver:
+    def __init__(
+        self,
+        photoionization_cross_sections,
+    ):
+        self.photoionization_cross_sections = photoionization_cross_sections
+        self.nu = self.photoionization_cross_sections.nu.values * u.Hz
+
+        self.photoionization_block_references = np.pad(
+            self.photoionization_cross_sections.nu.groupby(level=[0, 1, 2])
+            .count()
+            .values.cumsum(),
+            [1, 0],
+        )
+
+        self.photoionization_index = (
+            self.photoionization_cross_sections.index.unique()
+        )
+
+    @property
+    def common_prefactor(self):
+        &quot;&quot;&quot;Used to multiply with both spontaneous recombination and
+        photoionization coefficients. Lucy 2003 Eq 13, 15, 16.
+
+        Returns
+        -------
+        pd.DataFrame
+            A dataframe of the prefactor.
+        &quot;&quot;&quot;
+        return (
+            4.0
+            * np.pi
+            * self.photoionization_cross_sections.x_sect
+            / (H * self.nu)
+        )
+
+<div class="viewcode-block" id="SpontaneousRecombinationCoeffSolver.calculate_photoionization_boltzmann_factor">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver.calculate_photoionization_boltzmann_factor">[docs]</a>
+    def calculate_photoionization_boltzmann_factor(self, electron_temperature):
+        &quot;&quot;&quot;Calculate the Boltzmann factor at each photoionization frequency
+
+        Parameters
+        ----------
+        electron_temperature : Quantity
+            Electron temperature in each shell.
+
+        Returns
+        -------
+        numpy.ndarray
+            The Boltzmann factor per shell per photoionization frequency.
+        &quot;&quot;&quot;
+        return np.exp(-self.nu[np.newaxis].T / electron_temperature * (H / K_B))</div>
+
+
+<div class="viewcode-block" id="SpontaneousRecombinationCoeffSolver.solve">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.SpontaneousRecombinationCoeffSolver.solve">[docs]</a>
+    def solve(self, electron_temperature):
+        &quot;&quot;&quot;
+        Calculate the spontaneous recombination rate coefficient.
+
+        Parameters
+        ----------
+        electron_temperature : u.Quantity
+            Electron temperature in each cell.
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated spontaneous recombination rate coefficient.
+
+        Notes
+        -----
+        Equation 13 in Lucy 2003, missing the factor from Eq 14.
+        &quot;&quot;&quot;
+        prefactor = self.common_prefactor * (2 * H * self.nu**3.0) / (C**2.0)
+        photoionization_boltzmann_factor = pd.DataFrame(
+            self.calculate_photoionization_boltzmann_factor(
+                electron_temperature
+            ),
+            index=prefactor.index,
+        )
+        spontaneous_recombination_rate_coeff = (
+            photoionization_boltzmann_factor.multiply(
+                prefactor,
+                axis=0,
+            )
+        )
+        spontaneous_recombination_rate_coeff_integrated = (
+            integrate_array_by_blocks(
+                spontaneous_recombination_rate_coeff.to_numpy(),
+                self.nu.value,
+                self.photoionization_block_references,
+            )
+        )
+
+        spontaneous_recombination_rate_coeff_df = pd.DataFrame(
+            spontaneous_recombination_rate_coeff_integrated,
+            index=self.photoionization_index,
+        )
+
+        # Lymann continuum handling
+        spontaneous_recombination_rate_coeff_df.loc[(1, 0, 0)] = 0.0
+
+        return spontaneous_recombination_rate_coeff_df</div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver">[docs]</a>
+class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
+    def __init__(
+        self,
+        photoionization_cross_sections,
+    ):
+        super().__init__(photoionization_cross_sections)
+
+<div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">[docs]</a>
+    def calculate_mean_intensity_photoionization_df(
+        self,
+        dilute_blackbody_radiationfield_state,
+    ):
+        &quot;&quot;&quot;Calculates the mean intensity of the radiation field at each photoionization frequency.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DilutePlanckianRadiationField
+            The radiation field.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of mean intensities indexed by photoionization levels and
+            columns of cells.
+        &quot;&quot;&quot;
+        mean_intensity = (
+            dilute_blackbody_radiationfield_state.calculate_mean_intensity(
+                self.nu
+            )
+        )
+        return pd.DataFrame(
+            mean_intensity,
+            index=self.photoionization_cross_sections.index,
+            columns=np.arange(
+                len(dilute_blackbody_radiationfield_state.temperature)
+            ),
+        )</div>
+
+
+<div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver.calculate_stimulated_recombination_rate_coeff">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_stimulated_recombination_rate_coeff">[docs]</a>
+    def calculate_stimulated_recombination_rate_coeff(
+        self,
+        mean_intensity_photoionization_df,
+        photoionization_boltzmann_factor,
+    ):
+        &quot;&quot;&quot;
+        Calculate the photoionization rate coefficient.
+
+        Parameters
+        ----------
+        mean_intensity_photoionization_df : pd.DataFrame
+            Mean intensity at each photoionization frequency.
+        photoionization_boltzmann_factor : np.ndarray
+            Boltzmann factor for each photoionization frequency.
+
+        Returns
+        -------
+        pd.DataFrame
+            The stimulated recombination rate coefficient.
+
+        Notes
+        -----
+        Equation 15 in Lucy 2003.
+        &quot;&quot;&quot;
+        stimulated_recombination_rate_coeff = (
+            mean_intensity_photoionization_df * photoionization_boltzmann_factor
+        )
+
+        stimulated_recombination_rate_coeff = (
+            stimulated_recombination_rate_coeff.multiply(
+                self.common_prefactor,
+                axis=0,
+            )
+        )
+        stimulated_recombination_rate_coeff = integrate_array_by_blocks(
+            stimulated_recombination_rate_coeff.values,
+            self.nu.value,
+            self.photoionization_block_references,
+        )
+        stimulated_recombination_rate_coeff = pd.DataFrame(
+            stimulated_recombination_rate_coeff,
+            index=self.photoionization_index,
+        )
+        return stimulated_recombination_rate_coeff</div>
+
+
+<div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver.calculate_photoionization_rate_coeff">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.calculate_photoionization_rate_coeff">[docs]</a>
+    def calculate_photoionization_rate_coeff(
+        self,
+        mean_intensity_photoionization_df,
+    ):
+        &quot;&quot;&quot;
+        Calculate the photoionization rate coefficient.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
+            A dilute black body radiation field state.
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated photoionization rate coefficient.
+
+        Notes
+        -----
+        Equation 16 in Lucy 2003.
+        &quot;&quot;&quot;
+        photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
+            self.common_prefactor,
+            axis=0,
+        )
+        photoionization_rate_coeff = integrate_array_by_blocks(
+            photoionization_rate_coeff.values,
+            self.nu.value,
+            self.photoionization_block_references,
+        )
+        photoionization_rate_coeff = pd.DataFrame(
+            photoionization_rate_coeff,
+            index=self.photoionization_index,
+        )
+        return photoionization_rate_coeff</div>
+
+
+<div class="viewcode-block" id="AnalyticPhotoionizationCoeffSolver.solve">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticPhotoionizationCoeffSolver.solve">[docs]</a>
+    def solve(
+        self,
+        dilute_blackbody_radiationfield_state,
+        electron_temperature,
+    ):
+        &quot;&quot;&quot;
+        Prepares the ionization and recombination coefficients by grouping them for
+        ion numbers.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
+            The dilute black body radiation field state.
+        electron_temperature : u.Quantity
+            Electron temperature in each shell.
+
+        Returns
+        -------
+        photoionization_rate_coeff
+            Photoionization rate coefficient grouped by atomic number and ion number.
+        recombination_rate_coeff
+            Radiative recombination rate coefficient grouped by atomic number and ion number.
+        &quot;&quot;&quot;
+        photoionization_boltzmann_factor = (
+            self.calculate_photoionization_boltzmann_factor(
+                electron_temperature
+            )
+        )
+
+        mean_intensity_photoionization_df = (
+            self.calculate_mean_intensity_photoionization_df(
+                dilute_blackbody_radiationfield_state
+            )
+        )
+
+        # Equation 15 Lucy 2003. Must be multiplied by factor Phi_ik from Eq 14
+        stimulated_recombination_rate_coeff = (
+            self.calculate_stimulated_recombination_rate_coeff(
+                mean_intensity_photoionization_df,
+                photoionization_boltzmann_factor,
+            )
+        )
+
+        # Equation 16 Lucy 2003
+        photoionization_rate_coeff = self.calculate_photoionization_rate_coeff(
+            mean_intensity_photoionization_df,
+        )
+
+        return (
+            photoionization_rate_coeff,
+            stimulated_recombination_rate_coeff,
+        )</div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnalyticCorrectedPhotoionizationCoeffSolver">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver">[docs]</a>
+class AnalyticCorrectedPhotoionizationCoeffSolver(
+    SpontaneousRecombinationCoeffSolver
+):
+    def __init__(
+        self,
+        photoionization_cross_sections,
+    ):
+        super().__init__(photoionization_cross_sections)
+
+<div class="viewcode-block" id="AnalyticCorrectedPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_mean_intensity_photoionization_df">[docs]</a>
+    def calculate_mean_intensity_photoionization_df(
+        self,
+        radiation_field,
+    ):
+        &quot;&quot;&quot;Calculates the mean intensity of the radiation field at each photoionization frequency.
+
+        Parameters
+        ----------
+        radiation_field : RadiationField
+            The radiation field.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of mean intensities indexed by photoionization levels and
+            columns of cells.
+        &quot;&quot;&quot;
+        mean_intensity = radiation_field.calculate_mean_intensity(self.nu)
+        return pd.DataFrame(
+            mean_intensity,
+            index=self.photoionization_cross_sections.index,
+            columns=np.arange(len(radiation_field.temperature)),
+        )</div>
+
+
+<div class="viewcode-block" id="AnalyticCorrectedPhotoionizationCoeffSolver.calculate_corrected_photoionization_rate_coeff">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.calculate_corrected_photoionization_rate_coeff">[docs]</a>
+    def calculate_corrected_photoionization_rate_coeff(
+        self,
+        mean_intensity_photoionization_df,
+        photoionization_boltzmann_factor,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
+    ):
+        &quot;&quot;&quot;
+        Calculate the stimulated emission corrected photoionization rate coefficient.
+
+        Parameters
+        ----------
+        mean_intensity_photoionization_df : pd.DataFrame
+            A DataFrame of the mean intensity of the radiation field at each frequency
+
+        Returns
+        -------
+        pd.DataFrame
+            The calculated photoionization rate coefficient.
+
+        Notes
+        -----
+        Equation 18 in Lucy 2003.
+        &quot;&quot;&quot;
+        photoionization_rate_coeff = mean_intensity_photoionization_df.multiply(
+            self.common_prefactor,
+            axis=0,
+        )
+
+        # need to handle He and up. They have extra ionization states that
+        # break the indexing.
+        # Lucy 2003 Eq 18
+        correction_factor = (
+            1
+            - (ion_population / lte_ion_population).values
+            * (lte_level_population / level_population)
+            * photoionization_boltzmann_factor
+        )
+
+        corrected_photoionization_rate_coeff = (
+            photoionization_rate_coeff.multiply(correction_factor, axis=0)
+        )
+
+        corrected_photoionization_rate_coeff = integrate_array_by_blocks(
+            corrected_photoionization_rate_coeff.values,
+            self.nu.value,
+            self.photoionization_block_references,
+        )
+        corrected_photoionization_rate_coeff = pd.DataFrame(
+            corrected_photoionization_rate_coeff,
+            index=self.photoionization_index,
+        )
+        return corrected_photoionization_rate_coeff</div>
+
+
+<div class="viewcode-block" id="AnalyticCorrectedPhotoionizationCoeffSolver.solve">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.AnalyticCorrectedPhotoionizationCoeffSolver.solve">[docs]</a>
+    def solve(
+        self,
+        dilute_blackbody_radiationfield_state,
+        electron_temperature,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
+    ):
+        &quot;&quot;&quot;
+        Prepares the ionization and recombination coefficients by grouping them for
+        ion numbers.
+
+        Parameters
+        ----------
+        dilute_blackbody_radiationfield_state : DiluteBlackBodyRadiationFieldState
+            The dilute black body radiation field state.
+        electron_temperature : u.Quantity
+            Electron temperature in each shell.
+
+        Returns
+        -------
+        photoionization_rate_coeff
+            Photoionization rate coefficient grouped by atomic number and ion number.
+        recombination_rate_coeff
+            Radiative recombination rate coefficient grouped by atomic number and ion number.
+        &quot;&quot;&quot;
+        photoionization_boltzmann_factor = pd.DataFrame(
+            self.calculate_photoionization_boltzmann_factor(
+                electron_temperature
+            ),
+            index=self.common_prefactor.index,
+        )
+
+        mean_intensity_photoionization_df = (
+            self.calculate_mean_intensity_photoionization_df(
+                dilute_blackbody_radiationfield_state
+            )
+        )
+        # Equation 16 Lucy 2003
+        corrected_photoionization_rate_coeff = (
+            self.calculate_corrected_photoionization_rate_coeff(
+                mean_intensity_photoionization_df,
+                photoionization_boltzmann_factor,
+                lte_level_population,
+                level_population,
+                lte_ion_population,
+                ion_population,
+            )
+        )
+
+        return corrected_photoionization_rate_coeff</div>
+</div>
+
+
+
+<div class="viewcode-block" id="EstimatedPhotoionizationCoeffSolver">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.EstimatedPhotoionizationCoeffSolver">[docs]</a>
+class EstimatedPhotoionizationCoeffSolver:
+    def __init__(
+        self,
+        level2continuum_edge_idx,
+    ):
+        self.level2continuum_edge_idx = level2continuum_edge_idx
+
+<div class="viewcode-block" id="EstimatedPhotoionizationCoeffSolver.solve">
+<a class="viewcode-back" href="../../../../../api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.EstimatedPhotoionizationCoeffSolver.solve">[docs]</a>
+    def solve(
+        self,
+        radfield_mc_estimators,
+        time_simulation,
+        volume,
+    ):
+        &quot;&quot;&quot;
+        Solve for the continuum properties.
+
+        Parameters
+        ----------
+        radfield_mc_estimators : RadiationFieldMCEstimators
+            The Monte Carlo estimators for the radiation field.
+        time_simulation : float
+            The simulation time.
+        volume : float
+            The volume of the cells.
+
+        Returns
+        -------
+        ContinuumProperties
+            The calculated continuum properties.
+
+        Notes
+        -----
+        Lucy 2003 Eq 44, 45.
+        &quot;&quot;&quot;
+        # TODO: the estimators are computed in the form epsilon_nu * distance * xsection / comoving_nu
+        # with the stimulated recombination multiplied by a Boltzmann factor exp(-h * comoving_nu / k * electron_temp)
+        # This is why this method does not match the one in AnalyticPhotoionizationCoeffSolver
+        photoionization_normalization = (time_simulation * volume * H) ** -1
+
+        photoionization_rate_coeff = bound_free_estimator_array2frame(
+            radfield_mc_estimators.photo_ion_estimator,
+            self.level2continuum_edge_idx,
+        )
+        photoionization_rate_coeff *= photoionization_normalization
+
+        stimulated_recombination_rate_coeff = bound_free_estimator_array2frame(
+            radfield_mc_estimators.stim_recomb_estimator,
+            self.level2continuum_edge_idx,
+        )
+        stimulated_recombination_rate_coeff *= photoionization_normalization
+
+        return photoionization_rate_coeff, stimulated_recombination_rate_coeff</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 04 Nov 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
