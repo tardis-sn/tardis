@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.plasma.equilibrium.rates.collision_strengths module &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=b900848c"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tardis.plasma.equilibrium.rates.collisional_ionization_rates module" href="tardis.plasma.equilibrium.rates.collisional_ionization_rates.html" />
+    <link rel="prev" title="tardis.plasma.equilibrium.rates package" href="tardis.plasma.equilibrium.rates.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tardis.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="tardis.configuration.html">tardis.configuration package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.html">tardis.energy_input package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.grid.html">tardis.grid package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.html">tardis.io package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.model.html">tardis.model package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.opacities.html">tardis.opacities package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="tardis.plasma.html">tardis.plasma package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.scripts.html">tardis.scripts package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.simulation.html">tardis.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.spectrum.html">tardis.spectrum package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.stats.html">tardis.stats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.html">tardis.transport package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.util.html">tardis.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.html">tardis.visualization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.html">tardis.workflows package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#module-tardis">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">tardis</a></li>
+          <li class="breadcrumb-item"><a href="tardis.html">tardis package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.plasma.html">tardis.plasma package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.plasma.equilibrium.html">tardis.plasma.equilibrium package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.plasma.equilibrium.rates.html">tardis.plasma.equilibrium.rates package</a></li>
+      <li class="breadcrumb-item active">tardis.plasma.equilibrium.rates.collision_strengths module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/tardis.plasma.equilibrium.rates.collision_strengths.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-tardis.plasma.equilibrium.rates.collision_strengths">
+<span id="tardis-plasma-equilibrium-rates-collision-strengths-module"></span><h1>tardis.plasma.equilibrium.rates.collision_strengths module<a class="headerlink" href="#module-tardis.plasma.equilibrium.rates.collision_strengths" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collision_strengths.</span></span><span class="sig-name descname"><span class="pre">CollDeexcRateCoeff</span></span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#CollDeexcRateCoeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_deexc_coeff</strong><span class="classifier">pandas.DataFrame, dtype float</span></dt><dd><p>Rate coefficient for collisional deexcitation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_lte_level_boltzmann_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#CollDeexcRateCoeff.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff.calculate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff.latex_name">
+<span class="sig-name descname"><span class="pre">latex_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('c_{ul}',)</span></em><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff.latex_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('coll_deexc_coeff',)</span></em><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff.outputs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collision_strengths.</span></span><span class="sig-name descname"><span class="pre">CollExcRateCoeff</span></span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#CollExcRateCoeff"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_exc_coeff</strong><span class="classifier">pandas.DataFrame, dtype float</span></dt><dd><p>Rate coefficient for collisional excitation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yg_interp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yg_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#CollExcRateCoeff.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff.calculate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff.latex_name">
+<span class="sig-name descname"><span class="pre">latex_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('c_{lu}',)</span></em><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff.latex_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('coll_exc_coeff',)</span></em><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollExcRateCoeff.outputs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollisionalCrossSections">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collision_strengths.</span></span><span class="sig-name descname"><span class="pre">CollisionalCrossSections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collision_cross_sections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#CollisionalCrossSections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollisionalCrossSections" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.CollisionalCrossSections.solve_collisional_cross_sections">
+<span class="sig-name descname"><span class="pre">solve_collisional_cross_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature_electron</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#CollisionalCrossSections.solve_collisional_cross_sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.CollisionalCrossSections.solve_collisional_cross_sections" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.UpsilonCMFGENSolver">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collision_strengths.</span></span><span class="sig-name descname"><span class="pre">UpsilonCMFGENSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">upsilon_temperatures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upsilon_g_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#UpsilonCMFGENSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.UpsilonCMFGENSolver" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>yg_data</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Table of thermally averaged effective collision strengths
+(divided by the statistical weight of the lower level) Y_ij / g_i .
+Columns are temperatures.</p>
+</dd>
+<dt><strong>t_yg</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Temperatures at which collision strengths are tabulated.</p>
+</dd>
+<dt><strong>yg_index</strong><span class="classifier">Pandas MultiIndex</span></dt><dd></dd>
+<dt><strong>delta_E_yg</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Energy difference between upper and lower levels coupled by collisions.</p>
+</dd>
+<dt><strong>yg_idx</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Source_level_idx and destination_level_idx of collision transitions.
+Indexed by atomic_number, ion_number, level_number_lower,
+level_number_upper.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.UpsilonCMFGENSolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#UpsilonCMFGENSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.UpsilonCMFGENSolver.solve" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.UpsilonChiantiSolver">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collision_strengths.</span></span><span class="sig-name descname"><span class="pre">UpsilonChiantiSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">upsilon_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#UpsilonChiantiSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.UpsilonChiantiSolver" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Solver for Upsilon / g_i for Chianti data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.UpsilonChiantiSolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#UpsilonChiantiSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.UpsilonChiantiSolver.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Solve the Upsilon / g_lower collisional values for arbitrary temperatures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>t_electrons</strong><span class="classifier">np.ndarray</span></dt><dd><p>1D array of electron temperatures to interpolate over</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>DataFrame with columns of Upsilon / g_lower per transition and temperature.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.UpsilonChiantiSolver.upsilon_scaling">
+<span class="sig-name descname"><span class="pre">upsilon_scaling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#UpsilonChiantiSolver.upsilon_scaling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.UpsilonChiantiSolver.upsilon_scaling" title="Link to this definition">¶</a></dt>
+<dd><p>Scales Upsilon from Chianti data using equations
+23-38 from Burgess &amp; Tully 1992 - A&amp;A 254, 436B.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>row</strong><span class="classifier">pd.Series</span></dt><dd><p>DataFrame row of Chianti collisional data</p>
+</dd>
+<dt><strong>t_electrons</strong><span class="classifier">np.ndarray</span></dt><dd><p>1D array of electron temperatures to interpolate over</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.Series</dt><dd><p>Scaled Upsilon / g_lower</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>Incorrect scaling type provided</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.UpsilonRegemorterSolver">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collision_strengths.</span></span><span class="sig-name descname"><span class="pre">UpsilonRegemorterSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#UpsilonRegemorterSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.UpsilonRegemorterSolver" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.UpsilonRegemorterSolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#UpsilonRegemorterSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.UpsilonRegemorterSolver.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate collision strengths in the van Regemorter approximation.</p>
+<p>This function calculates thermally averaged effective collision
+strengths (divided by the statistical weight of the lower level)
+Y_ij / g_i using the van Regemorter approximation. A very good description can be found in
+Mihalas Chapter on collisional rates</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>atomic_data</strong><span class="classifier">tardis.io.atom_data.AtomData</span></dt><dd></dd>
+<dt><strong>t_electrons</strong><span class="classifier">numpy.ndarray</span></dt><dd></dd>
+<dt><strong>continuum_interaction_species</strong><span class="classifier">pandas.MultiIndex</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Thermally averaged effective collision strengths
+(divided by the statistical weight of the lower level) Y_ij / g_i</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See Eq. 9.58 in [2].</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="r4eba39c3f14d-1" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>van Regemorter, H., “Rate of Collisional Excitation in Stellar
+Atmospheres.”, The Astrophysical Journal, vol. 136, p. 906, 1962.
+doi:10.1086/147445.</p>
+</div>
+<div class="citation" id="r4eba39c3f14d-2" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Hubeny, I. and Mihalas, D., “Theory of Stellar Atmospheres”. 2014.</p>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.calculate_upsilon_g_2_collisional_rates">
+<span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collision_strengths.</span></span><span class="sig-name descname"><span class="pre">calculate_upsilon_g_2_collisional_rates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_energies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#calculate_upsilon_g_2_collisional_rates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.calculate_upsilon_g_2_collisional_rates" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.collision_strengths.exp1_times_exp">
+<span class="sig-prename descclassname"><span class="pre">tardis.plasma.equilibrium.rates.collision_strengths.</span></span><span class="sig-name descname"><span class="pre">exp1_times_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/collision_strengths.html#exp1_times_exp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.collision_strengths.exp1_times_exp" title="Link to this definition">¶</a></dt>
+<dd><p>Product of the Exponential integral E1 and an exponential.</p>
+<p>This function calculates the product of the Exponential integral E1
+and an exponential in a way that also works for large values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>x</strong><span class="classifier">array_like</span></dt><dd><p>Input values.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>array_like</dt><dd><p>Output array.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tardis.plasma.equilibrium.rates.html" class="btn btn-neutral float-left" title="tardis.plasma.equilibrium.rates package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.plasma.equilibrium.rates.collisional_ionization_rates.html" class="btn btn-neutral float-right" title="tardis.plasma.equilibrium.rates.collisional_ionization_rates module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 06 Nov 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
