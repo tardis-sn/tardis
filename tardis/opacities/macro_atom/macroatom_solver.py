@@ -934,7 +934,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self.lines.line_id.to_numpy(),
         )
         emission_down_metadata[
-            "continuum_transition_idx"
+            "photoionization_key_idx"
         ] = -99  # Bound-bound transitions don't have continuum ids
         p_internal_down, internal_down_metadata = line_transition_internal_down(
             self._oscillator_strength_ul,
@@ -945,7 +945,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self.lines.line_id.to_numpy(),
         )
         internal_down_metadata[
-            "continuum_transition_idx"
+            "photoionization_key_idx"
         ] = -99  # Bound-bound transitions don't have continuum ids
         p_internal_up, internal_up_metadata = line_transition_internal_up(
             self._oscillator_strength_lu,
@@ -958,7 +958,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self.lines.line_id.to_numpy(),
         )
         internal_up_metadata[
-            "continuum_transition_idx"
+            "photoionization_key_idx"
         ] = -99  # Bound-bound transitions don't have continuum ids
 
         # Then assemble continuum transitions
@@ -1096,11 +1096,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             == MacroAtomTransitionType.BB_EMISSION
         ].transition_line_idx.to_numpy()
 
-        # I WILL NEED TO KEEP TRACK OF THE CONTINUUM TRANSITION INDICES AS WELL.
         continuum_photoionization_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION
-        ].continuum_transition_idx.to_numpy()
+        ].photoionization_key_idx.to_numpy()
 
         probabilities_df = pd.DataFrame(
             np.zeros(

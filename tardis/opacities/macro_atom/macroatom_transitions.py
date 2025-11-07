@@ -398,7 +398,7 @@ def continuum_transition_recombination_internal(
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.RECOMB_INTERNAL,
             "transition_line_idx": -99,
-            "continuum_transition_idx": range(
+            "photoionization_key_idx": range(
                 len(photoionization_data_level_energies)
             ),
         },
@@ -470,7 +470,7 @@ def continuum_transition_recombination_emission(
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.RECOMB_EMISSION,
             "transition_line_idx": -99,
-            "continuum_transition_idx": range(
+            "photoionization_key_idx": range(
                 len(photoionization_data_frequencies)
             ),
         },
@@ -546,7 +546,7 @@ def continuum_transition_photoionization(
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.PHOTOIONIZATION,
             "transition_line_idx": -99,
-            "continuum_transition_idx": range(
+            "photoionization_key_idx": range(
                 len(photoionization_data_level_energies)
             ),
         },
@@ -601,15 +601,55 @@ def probability_photoionization(
 #     pass
 
 
-# def probability_adiabatic_cooling(
-#     electron_densities, t_electrons, time_explosion
-# ):
-#     # Calculate the probability of adiabatic cooling
-#     p_adiabatic_cooling = (
-#         3.0 * electron_densities * K_B * t_electrons
-#     ) / time_explosion
+def continuum_adiabatic_cooling(
+    electron_densities, t_electrons, time_explosion
+):
+    """
+    Calculate the adiabatic cooling rate.
 
-#     return p_adiabatic_cooling
+    Parameters
+    ----------
+    electron_densities : pd.DataFrame
+        Electron densities.
+    t_electrons : pd.DataFrame
+        Electron temperatures.
+    time_explosion : float
+        Time since explosion.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the adiabatic cooling rates.
+    """
+    p_adiabatic_cool = probability_adiabatic_cooling(
+        electron_densities, t_electrons, time_explosion
+    )
+
+    adiabatic_cool_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": ("k"),
+            "destination": ("adiabatic"),
+            "transition_type": MacroAtomTransitionType.ADIABATIC_COOLING,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": -99,
+        },
+        index=p_adiabatic_cool.index,
+    )
+
+    return p_adiabatic_cool, adiabatic_cool_metadata
+
+
+def probability_adiabatic_cooling(
+    electron_densities, t_electrons, time_explosion
+):
+    # Find where this comes from and document - this could be wrong
+    # Calculate the probability of adiabatic cooling
+    p_adiabatic_cooling = (
+        3.0 * electron_densities * K_B * t_electrons
+    ) / time_explosion
+
+    return p_adiabatic_cooling
 
 
 # def continuum_transition_bound_free_cooling():
@@ -735,7 +775,7 @@ def probability_photoionization(
 #             ).values,
 #             "transition_type": MacroAtomTransitionType.COLL_DEEXCITATION_DEACTIVATION,
 #             "transition_line_idx": -99,
-#             "continuum_transition_idx": range(len(delta_E_yg)),
+#             "photoionization_key_idx": range(len(delta_E_yg)),
 #         },
 #         index=p_deexc_deactivation.index,
 #     )
