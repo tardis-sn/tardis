@@ -188,6 +188,9 @@
       "name": "Black, William"
     },
     {
+      "name": "Dutta, Anirban"
+    },
+    {
       "name": "Lu, Jing"
     },
     {
@@ -195,9 +198,6 @@
     },
     {
       "name": "Groneck, Ryan"
-    },
-    {
-      "name": "Dutta, Anirban"
     },
     {
       "name": "Eguren, Jordi",
@@ -213,13 +213,13 @@
       "name": "Kumar, Ansh"
     },
     {
-      "name": "Alam, Arib"
-    },
-    {
       "name": "Magee, Mark"
     },
     {
       "name": "Varma Buddaraju, Rohith"
+    },
+    {
+      "name": "Alam, Arib"
     },
     {
       "name": "Daksh, Ayushi"
@@ -231,32 +231,35 @@
       "name": "Livneh, Ran"
     },
     {
-      "name": "Mishra, Sashank",
-      "orcid": "0000-0001-8302-1584"
+      "name": "Powers, Cecelia"
     },
     {
-      "name": "Rajagopalan, Srinath"
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
     },
     {
       "name": "Bhakar, Jayant"
     },
     {
-      "name": "Powers, Cecelia"
+      "name": "Rajagopalan, Srinath"
     },
     {
       "name": "Roldan, Israel"
     },
     {
-      "name": "Nitish, P"
+      "name": "Actions, GitHub"
     },
     {
-      "name": "Reichenbach, John"
+      "name": "Nitish, P"
     },
     {
       "name": "Jain, Rinkle"
     },
     {
-      "name": "Actions, GitHub"
+      "name": "Reichenbach, John"
+    },
+    {
+      "name": "Singh, Sourav"
     },
     {
       "name": "Gupta, Harshul"
@@ -265,19 +268,16 @@
       "name": "Brar, Antreev"
     },
     {
-      "name": "Singh, Sourav"
-    },
-    {
       "name": "Chaumal, Aarya"
     },
     {
       "name": "Selsing, Jonatan"
     },
     {
-      "name": "Sofiatti, Caroline"
+      "name": "Talegaonkar, Chinmay"
     },
     {
-      "name": "Talegaonkar, Chinmay"
+      "name": "Gangbhoj, Riddhi"
     },
     {
       "name": "Kowalski, Nathan"
@@ -286,7 +286,7 @@
       "name": "Matsumura, Yuki"
     },
     {
-      "name": "Gangbhoj, Riddhi"
+      "name": "Sofiatti, Caroline"
     },
     {
       "name": "Patidar, Abhishek"
