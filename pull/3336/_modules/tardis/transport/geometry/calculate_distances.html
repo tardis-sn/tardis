@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.transport.geometry.calculate_distances &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=d03970e6"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.transport.geometry.calculate_distances</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.transport.geometry.calculate_distances</h1><div class="highlight"><pre>
+<span></span>import math
+
+from numba import njit
+
+from tardis.transport.montecarlo import (
+    njit_dict_no_parallel,
+)
+from tardis.transport.montecarlo.configuration.constants import (
+    C_SPEED_OF_LIGHT,
+    CLOSE_LINE_THRESHOLD,
+    MISS_DISTANCE,
+    SIGMA_THOMSON,
+)
+from tardis.transport.montecarlo.utils import MonteCarloException
+
+
+<div class="viewcode-block" id="calculate_distance_boundary">
+<a class="viewcode-back" href="../../../../api/tardis.transport.geometry.calculate_distances.html#tardis.transport.geometry.calculate_distances.calculate_distance_boundary">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def calculate_distance_boundary(r, mu, r_inner, r_outer):
+    &quot;&quot;&quot;
+    Calculate distance to shell boundary in cm.
+
+    Parameters
+    ----------
+    r : float
+       radial coordinate of the RPacket
+    mu : float
+       cosine of the direction of movement
+    r_inner : float
+       inner radius of current shell
+    r_outer : float
+       outer radius of current shell
+    &quot;&quot;&quot;
+    delta_shell = 0
+    if mu &gt; 0.0:
+        # direction outward
+        distance = math.sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (
+            r * mu
+        )
+        delta_shell = 1
+    else:
+        # going inward
+        check = r_inner * r_inner + (r * r * (mu * mu - 1.0))
+
+        if check &gt;= 0.0:
+            # hit inner boundary
+            distance = -r * mu - math.sqrt(check)
+            delta_shell = -1
+        else:
+            # miss inner boundary
+            distance = math.sqrt(
+                r_outer * r_outer + ((mu * mu - 1.0) * r * r)
+            ) - (r * mu)
+            delta_shell = 1
+
+    return distance, delta_shell</div>
+
+
+
+<div class="viewcode-block" id="calculate_distance_line">
+<a class="viewcode-back" href="../../../../api/tardis.transport.geometry.calculate_distances.html#tardis.transport.geometry.calculate_distances.calculate_distance_line">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def calculate_distance_line(
+    r_packet,
+    comov_nu,
+    is_last_line,
+    nu_line,
+    time_explosion,
+    enable_full_relativity,
+):
+    &quot;&quot;&quot;
+    Calculate distance until RPacket is in resonance with the next line
+
+    Parameters
+    ----------
+    r_packet : tardis.transport.montecarlo.r_packet.RPacket
+    comov_nu : float
+        comoving frequency at the CURRENT position of the RPacket
+    is_last_line : bool
+        return MISS_DISTANCE if at the end of the line list
+    nu_line : float
+        line to check the distance to
+    time_explosion : float
+        time since explosion in seconds
+
+    Returns
+    -------
+    &quot;&quot;&quot;
+    nu = r_packet.nu
+
+    if is_last_line:
+        return MISS_DISTANCE
+
+    nu_diff = comov_nu - nu_line
+
+    # for numerical reasons, if line is too close, we set the distance to 0.
+    if abs(nu_diff / nu) &lt; CLOSE_LINE_THRESHOLD:
+        nu_diff = 0.0
+
+    if nu_diff &gt;= 0:
+        distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
+    else:
+        raise MonteCarloException(&quot;nu difference is less than 0.0&quot;)
+
+    if enable_full_relativity:
+        return calculate_distance_line_full_relativity(
+            nu_line, nu, time_explosion, r_packet
+        )
+    return distance</div>
+
+
+
+<div class="viewcode-block" id="calculate_distance_line_full_relativity">
+<a class="viewcode-back" href="../../../../api/tardis.transport.geometry.calculate_distances.html#tardis.transport.geometry.calculate_distances.calculate_distance_line_full_relativity">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def calculate_distance_line_full_relativity(
+    nu_line, nu, time_explosion, r_packet
+):
+    # distance = - mu * r + (ct - nu_r * nu_r * sqrt(ct * ct - (1 + r * r * (1 - mu * mu) * (1 + pow(nu_r, -2))))) / (1 + nu_r * nu_r);
+    nu_r = nu_line / nu
+    ct = C_SPEED_OF_LIGHT * time_explosion
+    distance = -r_packet.mu * r_packet.r + (
+        ct
+        - nu_r
+        * nu_r
+        * math.sqrt(
+            ct * ct
+            - (
+                1
+                + r_packet.r
+                * r_packet.r
+                * (1 - r_packet.mu * r_packet.mu)
+                * (1 + 1.0 / (nu_r * nu_r))
+            )
+        )
+    ) / (1 + nu_r * nu_r)
+    return distance</div>
+
+
+
+<div class="viewcode-block" id="calculate_distance_electron">
+<a class="viewcode-back" href="../../../../api/tardis.transport.geometry.calculate_distances.html#tardis.transport.geometry.calculate_distances.calculate_distance_electron">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def calculate_distance_electron(electron_density, tau_event):
+    &quot;&quot;&quot;
+    Calculate distance to Thomson Scattering
+
+    Parameters
+    ----------
+    electron_density : float
+    tau_event : float
+    &quot;&quot;&quot;
+    # add full_relativity here
+    return tau_event / (electron_density * SIGMA_THOMSON)</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 09 Nov 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,1704 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chianti rates &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=d03970e6"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Chianti rates</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/physics_walkthrough/plasma/equilibrium/comparison.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/physics_walkthrough/plasma/equilibrium/comparison.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.equilibrium.rates</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RadiativeRatesSolver</span><span class="p">,</span>
+    <span class="n">ThermalCollisionalRateSolver</span><span class="p">,</span>
+    <span class="n">UpsilonRegemorterSolver</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.radiation_field</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DilutePlanckianRadiationField</span><span class="p">,</span>
+    <span class="n">PlanckianRadiationField</span><span class="p">,</span>
+<span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6ce91876833548fe8cd8c4c486b6e70a", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5fd7f05b61ff4d5080726af72e29fd6c", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationState</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;test_continuum_template_wkerzen_rate_coeffs.yml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_radiative_rates</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">):</span>
+    <span class="n">rad_rate_solver</span> <span class="o">=</span> <span class="n">RadiativeRatesSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rad_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_estimated_upsilon_rates</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">):</span>
+    <span class="n">col_strength_solver</span> <span class="o">=</span> <span class="n">UpsilonRegemorterSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">col_strength_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_cmfgen_collisional_rates</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
+    <span class="n">col_strength_temperatures</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data_temperatures</span>
+    <span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">yg_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
+    <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s1">&#39;cmfgen&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">collisional_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_chianti_collisional_rates</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
+    <span class="n">col_strength_temperatures</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data_temperatures</span>
+    <span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
+    <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s1">&#39;chianti&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">collisional_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Chianti-rates">
+<h1>Chianti rates<a class="headerlink" href="#Chianti-rates" title="Link to this heading">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_atom_data</span>
+
+<span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He_latest&#39;</span><span class="p">)</span>
+<span class="n">chianti_atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He_latest.h5&#39;</span><span class="p">)</span>
+<span class="n">chianti_radiative_transitions</span> <span class="o">=</span> <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">chianti_sim_state</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="o">=</span><span class="n">chianti_atom_data</span><span class="p">)</span>
+
+<span class="n">reference_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="s2">&quot;collisional_rate_coefficients.h5&quot;</span><span class="p">)</span>
+<span class="n">reference_rate_coeff_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_exc_coeff&quot;</span><span class="p">],</span> <span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_deexc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">])])</span>
+
+<span class="n">temperature</span> <span class="o">=</span> <span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;t_electrons&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span>
+<span class="n">rad_field</span> <span class="o">=</span> <span class="n">PlanckianRadiationField</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Number of density points larger than number of shells. Assuming inner point irrelevant
+</pre></div></div>
+</div>
+<p>Chianti data comes from Carsus as <code class="docutils literal notranslate"><span class="pre">g_ratio</span> <span class="pre">=</span> <span class="pre">g_lower</span> <span class="pre">/</span> <span class="pre">g_upper</span></code>, <code class="docutils literal notranslate"><span class="pre">delta_E</span> <span class="pre">=</span> <span class="pre">energy_upper</span> <span class="pre">-</span> <span class="pre">energy_lower</span></code>, and a table of <code class="docutils literal notranslate"><span class="pre">beta_coll</span> <span class="pre">*</span> <span class="pre">upsilon</span> <span class="pre">/</span> <span class="pre">(g_upper</span> <span class="pre">*</span> <span class="pre">sqrt(T))</span></code>. See eq 9.57 Hubeny and Mihelas. Multiply by the boltzmann factor <code class="docutils literal notranslate"><span class="pre">exp(-delta_E</span> <span class="pre">/</span> <span class="pre">k</span> <span class="pre">*</span> <span class="pre">T)</span></code> to get the excitation rate. De-excitation rate should be <code class="docutils literal notranslate"><span class="pre">Excitation</span> <span class="pre">rate</span> <span class="pre">*</span> <span class="pre">(g_upper</span> <span class="pre">/</span> <span class="pre">g_lower)</span> <span class="pre">/</span> <span class="pre">boltzmann_factor</span></code> which for the Chianti data is <code class="docutils literal notranslate"><span class="pre">Excitation</span> <span class="pre">rate</span> <span class="pre">*</span> <span class="pre">(1</span> <span class="pre">/</span> <span class="pre">g_ratio)</span> <span class="pre">/</span> <span class="pre">boltzmann_factor</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_radiative_rates</span> <span class="o">=</span> <span class="n">get_radiative_rates</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">chianti_radiative_transitions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_upsilon_rates</span> <span class="o">=</span> <span class="n">get_estimated_upsilon_rates</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">chianti_radiative_transitions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_collisional_rates</span> <span class="o">=</span> <span class="n">get_chianti_collisional_rates</span><span class="p">(</span><span class="n">chianti_atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">chianti_radiative_transitions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Raw Chianti upsilon/g values currently differ from CMFGEN by factor of ~10^-7. Delta energies are the same (within data error). Chianti level data is very different. <code class="docutils literal notranslate"><span class="pre">g</span></code> values are basically the same ballpark though. Conversion of Chianti rate data into upsilon/g seems correct, but there may be an extra Boltzmann factor in the Chianti data. Changed to divide by lower level <code class="docutils literal notranslate"><span class="pre">g</span></code> to match CMFGEN.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_exc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_deexc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;Shell&#39;, ylabel=&#39;Coeff&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_14_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_14_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_exc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_deexc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;Shell&#39;, ylabel=&#39;Coeff&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_15_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_15_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_exc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_deexc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;Shell&#39;, ylabel=&#39;Coeff&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_16_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_16_1.png" />
+</div>
+</div>
+</section>
+<section id="CMFGEN-collisional-rates">
+<h1>CMFGEN collisional rates<a class="headerlink" href="#CMFGEN-collisional-rates" title="Link to this heading">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s1">&#39;/home/afullard/tardis-refdata/nlte_atom_data/TestNLTE_He_Ti.h5&#39;</span><span class="p">)</span>
+<span class="n">cmfgen_radiative_transitions</span> <span class="o">=</span> <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_sim_state</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="o">=</span><span class="n">cmfgen_atom_data</span><span class="p">)</span>
+
+<span class="n">temperature</span> <span class="o">=</span> <span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;t_electrons&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span>
+<span class="n">rad_field</span> <span class="o">=</span> <span class="n">PlanckianRadiationField</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Number of density points larger than number of shells. Assuming inner point irrelevant
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_radiative_rates</span> <span class="o">=</span> <span class="n">get_radiative_rates</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">cmfgen_radiative_transitions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_upsilon_rates</span> <span class="o">=</span> <span class="n">get_estimated_upsilon_rates</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">cmfgen_radiative_transitions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_collisional_rates</span> <span class="o">=</span> <span class="n">get_cmfgen_collisional_rates</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">cmfgen_radiative_transitions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_collisional_rates</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+    </tr>
+    <tr>
+      <th>atomic_number</th>
+      <th>ion_number</th>
+      <th>level_number_source</th>
+      <th>level_number_destination</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="11" valign="top">1</th>
+      <th rowspan="11" valign="top">0</th>
+      <th rowspan="5" valign="top">0</th>
+      <th>1</th>
+      <td>1.267799e-13</td>
+      <td>7.409859e-14</td>
+      <td>4.118523e-14</td>
+      <td>2.162077e-14</td>
+      <td>1.063159e-14</td>
+      <td>4.847581e-15</td>
+      <td>2.024099e-15</td>
+      <td>7.620206e-16</td>
+      <td>2.536409e-16</td>
+      <td>7.279789e-17</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3.356946e-15</td>
+      <td>1.788862e-15</td>
+      <td>8.989059e-16</td>
+      <td>4.223418e-16</td>
+      <td>1.836457e-16</td>
+      <td>7.299014e-17</td>
+      <td>2.611509e-17</td>
+      <td>8.253727e-18</td>
+      <td>2.250262e-18</td>
+      <td>5.134854e-19</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.989207e-16</td>
+      <td>9.873436e-17</td>
+      <td>4.586649e-17</td>
+      <td>1.978074e-17</td>
+      <td>7.842777e-18</td>
+      <td>2.825076e-18</td>
+      <td>9.111826e-19</td>
+      <td>2.584272e-19</td>
+      <td>6.299419e-20</td>
+      <td>1.281514e-20</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.370295e-16</td>
+      <td>6.868098e-17</td>
+      <td>3.227971e-17</td>
+      <td>1.410044e-17</td>
+      <td>5.663413e-18</td>
+      <td>2.064314e-18</td>
+      <td>6.719253e-19</td>
+      <td>1.914254e-19</td>
+      <td>4.654151e-20</td>
+      <td>9.350735e-21</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6.270420e-17</td>
+      <td>3.114708e-17</td>
+      <td>1.449558e-17</td>
+      <td>6.263862e-18</td>
+      <td>2.486059e-18</td>
+      <td>8.942955e-19</td>
+      <td>2.868524e-19</td>
+      <td>8.039333e-20</td>
+      <td>1.918916e-20</td>
+      <td>3.775645e-21</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <th>26</th>
+      <td>7.195997e-03</td>
+      <td>7.293750e-03</td>
+      <td>7.396148e-03</td>
+      <td>7.503646e-03</td>
+      <td>7.616808e-03</td>
+      <td>7.736337e-03</td>
+      <td>7.863108e-03</td>
+      <td>7.998223e-03</td>
+      <td>8.143076e-03</td>
+      <td>8.299442e-03</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <th>26</th>
+      <td>1.417282e-03</td>
+      <td>1.436124e-03</td>
+      <td>1.455952e-03</td>
+      <td>1.476829e-03</td>
+      <td>1.498839e-03</td>
+      <td>1.522089e-03</td>
+      <td>1.546719e-03</td>
+      <td>1.572907e-03</td>
+      <td>1.600884e-03</td>
+      <td>1.630950e-03</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <th>27</th>
+      <td>1.326055e-01</td>
+      <td>1.345468e-01</td>
+      <td>1.365893e-01</td>
+      <td>1.387426e-01</td>
+      <td>1.410185e-01</td>
+      <td>1.434318e-01</td>
+      <td>1.460005e-01</td>
+      <td>1.487475e-01</td>
+      <td>1.517012e-01</td>
+      <td>1.548981e-01</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">29</th>
+      <th>27</th>
+      <td>8.433900e-03</td>
+      <td>8.553185e-03</td>
+      <td>8.679063e-03</td>
+      <td>8.811975e-03</td>
+      <td>8.952486e-03</td>
+      <td>9.101318e-03</td>
+      <td>9.259392e-03</td>
+      <td>9.427886e-03</td>
+      <td>9.608311e-03</td>
+      <td>9.802624e-03</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>1.551432e-01</td>
+      <td>1.574200e-01</td>
+      <td>1.598144e-01</td>
+      <td>1.623386e-01</td>
+      <td>1.650073e-01</td>
+      <td>1.678385e-01</td>
+      <td>1.708545e-01</td>
+      <td>1.740831e-01</td>
+      <td>1.775591e-01</td>
+      <td>1.813264e-01</td>
+    </tr>
+  </tbody>
+</table>
+<p>870 rows × 10 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_collisional_rates</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+    </tr>
+    <tr>
+      <th>atomic_number</th>
+      <th>ion_number</th>
+      <th>level_number_source</th>
+      <th>level_number_destination</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="11" valign="top">1</th>
+      <th rowspan="11" valign="top">0</th>
+      <th rowspan="5" valign="top">0</th>
+      <th>1</th>
+      <td>1.947332e-14</td>
+      <td>1.150685e-14</td>
+      <td>6.471781e-15</td>
+      <td>3.439696e-15</td>
+      <td>1.712729e-15</td>
+      <td>7.906211e-16</td>
+      <td>3.340165e-16</td>
+      <td>1.271031e-16</td>
+      <td>4.270088e-17</td>
+      <td>1.234665e-17</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3.641834e-14</td>
+      <td>2.151969e-14</td>
+      <td>1.210328e-14</td>
+      <td>6.432783e-15</td>
+      <td>3.203073e-15</td>
+      <td>1.478585e-15</td>
+      <td>6.246623e-16</td>
+      <td>2.377021e-16</td>
+      <td>7.985702e-17</td>
+      <td>2.309004e-17</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3.896169e-14</td>
+      <td>2.302253e-14</td>
+      <td>1.294850e-14</td>
+      <td>6.881995e-15</td>
+      <td>3.426742e-15</td>
+      <td>1.581830e-15</td>
+      <td>6.682786e-16</td>
+      <td>2.542985e-16</td>
+      <td>8.543234e-17</td>
+      <td>2.470200e-17</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5.387536e-16</td>
+      <td>2.876504e-16</td>
+      <td>1.448241e-16</td>
+      <td>6.817268e-17</td>
+      <td>2.969700e-17</td>
+      <td>1.182313e-17</td>
+      <td>4.236734e-18</td>
+      <td>1.340854e-18</td>
+      <td>3.659825e-19</td>
+      <td>8.358726e-20</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1.026299e-15</td>
+      <td>5.479599e-16</td>
+      <td>2.758829e-16</td>
+      <td>1.298656e-16</td>
+      <td>5.657133e-17</td>
+      <td>2.252248e-17</td>
+      <td>8.070772e-18</td>
+      <td>2.554261e-18</td>
+      <td>6.971787e-19</td>
+      <td>1.592296e-19</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <th>14</th>
+      <td>1.012879e-08</td>
+      <td>1.010773e-08</td>
+      <td>1.008320e-08</td>
+      <td>1.005477e-08</td>
+      <td>1.002191e-08</td>
+      <td>9.984012e-09</td>
+      <td>9.940370e-09</td>
+      <td>9.890124e-09</td>
+      <td>9.832251e-09</td>
+      <td>9.765511e-09</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <th>14</th>
+      <td>1.613469e-05</td>
+      <td>1.610114e-05</td>
+      <td>1.606207e-05</td>
+      <td>1.601678e-05</td>
+      <td>1.596443e-05</td>
+      <td>1.590407e-05</td>
+      <td>1.583455e-05</td>
+      <td>1.575451e-05</td>
+      <td>1.566232e-05</td>
+      <td>1.555601e-05</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <th>15</th>
+      <td>2.025768e-07</td>
+      <td>2.021555e-07</td>
+      <td>2.016650e-07</td>
+      <td>2.010963e-07</td>
+      <td>2.004391e-07</td>
+      <td>1.996813e-07</td>
+      <td>1.988084e-07</td>
+      <td>1.978035e-07</td>
+      <td>1.966460e-07</td>
+      <td>1.953112e-07</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <th>15</th>
+      <td>1.153401e-06</td>
+      <td>1.151002e-06</td>
+      <td>1.148210e-06</td>
+      <td>1.144972e-06</td>
+      <td>1.141230e-06</td>
+      <td>1.136915e-06</td>
+      <td>1.131945e-06</td>
+      <td>1.126223e-06</td>
+      <td>1.119633e-06</td>
+      <td>1.112033e-06</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <th>15</th>
+      <td>1.848863e-05</td>
+      <td>1.845018e-05</td>
+      <td>1.840541e-05</td>
+      <td>1.835351e-05</td>
+      <td>1.829353e-05</td>
+      <td>1.822436e-05</td>
+      <td>1.814470e-05</td>
+      <td>1.805298e-05</td>
+      <td>1.794734e-05</td>
+      <td>1.782552e-05</td>
+    </tr>
+  </tbody>
+</table>
+<p>210 rows × 10 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">reference_rate_coeff_df</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mf">0.000015</span><span class="p">),</span><span class="n">reference_rate_coeff_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(),</span><span class="n">check_names</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reference_rate_coeff_df</span> <span class="o">=</span> <span class="n">reference_rate_coeff_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reference_rate_coeff_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="o">=</span><span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">cmfgen_collisional_rates</span> <span class="o">-</span> <span class="n">reference_rate_coeff_df</span><span class="p">)</span> <span class="o">/</span> <span class="n">reference_rate_coeff_df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+    </tr>
+    <tr>
+      <th>atomic_number</th>
+      <th>ion_number</th>
+      <th>level_number_source</th>
+      <th>level_number_destination</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="11" valign="top">1</th>
+      <th rowspan="11" valign="top">0</th>
+      <th rowspan="5" valign="top">0</th>
+      <th>1</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000014</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000014</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000014</td>
+      <td>0.000014</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">29</th>
+      <th>24</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+      <td>0.000015</td>
+    </tr>
+  </tbody>
+</table>
+<p>870 rows × 10 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">beta_coll</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">h</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="p">(</span><span class="mi">8</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">k_B</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">m_e</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">3</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
+<span class="p">)</span><span class="o">.</span><span class="n">cgs</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">abs</span><span class="p">(</span><span class="mf">8.63e-6</span> <span class="o">-</span> <span class="n">beta_coll</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">/</span> <span class="nb">min</span><span class="p">(</span><span class="mf">8.63e-6</span><span class="p">,</span> <span class="n">beta_coll</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.00010054083203834371
+</pre></div></div>
+</div>
+</section>
+<section id="CMFGEN-data-compared-to-reference-data">
+<h1>CMFGEN data compared to reference data<a class="headerlink" href="#CMFGEN-data-compared-to-reference-data" title="Link to this heading">¶</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#plasma.coll_exc_coeff.loc[1,0,1,2].plot(logy=True,label=&quot;TARDIS old exc&quot;,legend=True)</span>
+<span class="c1">#plasma.coll_deexc_coeff.loc[1,0,1,2].plot(logy=True,label=&quot;TARDIS old deexc&quot;,legend=True)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_exc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_deexc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;Shell&#39;, ylabel=&#39;Coeff&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_33_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_33_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#plasma.coll_exc_coeff.loc[1,0,1,2].plot(logy=True,label=&quot;TARDIS old exc&quot;,legend=True)</span>
+<span class="c1">#plasma.coll_deexc_coeff.loc[1,0,1,2].plot(logy=True,label=&quot;TARDIS old deexc&quot;,legend=True)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_exc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_deexc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;Shell&#39;, ylabel=&#39;Coeff&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_34_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_34_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">29</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">29</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_exc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">29</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_deexc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">29</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;Shell&#39;, ylabel=&#39;Coeff&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_35_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_35_1.png" />
+</div>
+</div>
+</section>
+<section id="New-Chianti-method-compared-to-2014-Chianti-method">
+<h1>New Chianti method compared to 2014 Chianti method<a class="headerlink" href="#New-Chianti-method-compared-to-2014-Chianti-method" title="Link to this heading">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_atom_data_old</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s1">&#39;/home/afullard/tardis-refdata/atom_data/kurucz_atom_chianti_many.h5&#39;</span><span class="p">)</span>
+<span class="n">chianti_atom_data_old</span><span class="o">.</span><span class="n">prepare_atom_data</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;macroatom&#39;</span><span class="p">,[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],[])</span>
+<span class="n">coll_matrix</span> <span class="o">=</span> <span class="n">chianti_atom_data_old</span><span class="o">.</span><span class="n">nlte_data</span><span class="o">.</span><span class="n">get_collision_matrix</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">temperature</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">coll_matrix</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.image.AxesImage at 0x7fc1941f8b90&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_38_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_38_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">coll_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,:],</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Old TARDIS scheme&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;New TARDIS scheme&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Shell&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Coeff&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fc194328f20&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_39_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_39_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">coll_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">-</span> <span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0    0.003541
+1    0.004709
+2    0.004400
+3    0.002548
+4    0.001518
+5    0.005794
+6    0.007756
+7    0.007275
+8    0.004203
+9    0.002876
+Name: (1, 0, 1, 0), dtype: float64
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">coll_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,:],</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Old TARDIS scheme&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;New TARDIS scheme&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Shell&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Coeff&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7fc194087f20&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_41_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_41_1.png" />
+</div>
+</div>
+</section>
+<section id="Chianti-compared-to-CMFGEN,-new-method">
+<h1>Chianti compared to CMFGEN, new method<a class="headerlink" href="#Chianti-compared-to-CMFGEN,-new-method" title="Link to this heading">¶</a></h1>
+<p>Differences seem likely to be related to splitting of levels in Chianti compared to CMFGEN. Need to get more detailed CMFGEN data to do a direct comparison.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_levels_h</span> <span class="o">=</span> <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+<span class="n">chianti_levels_h</span> <span class="o">=</span> <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_levels_h</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chianti_levels_h</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">grouped_chianti</span> <span class="o">=</span> <span class="n">chianti_levels_h</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;energy&quot;</span><span class="p">)[</span><span class="s1">&#39;g&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_2973239/2570574510.py:1: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  chianti_levels_h[&#34;energy&#34;] = chianti_levels_h[&#34;energy&#34;].round(14)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_levels_h</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;CMFGEN&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">grouped_chianti</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Chianti&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Level&quot;</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Energy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;Level&#39;, ylabel=&#39;Energy&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_45_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_45_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_levels</span> <span class="o">=</span> <span class="n">grouped_chianti</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">chianti_levels_full</span> <span class="o">=</span> <span class="n">chianti_levels</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">matched_chianti_atom_data</span> <span class="o">=</span> <span class="n">chianti_atom_data</span>
+<span class="n">matched_chianti_atom_data</span><span class="o">.</span><span class="n">levels</span> <span class="o">=</span> <span class="n">chianti_levels_full</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmfgen_lines_h</span> <span class="o">=</span> <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+<span class="n">chianti_lines_h</span> <span class="o">=</span> <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_lines_h</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chianti_lines_h</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_2973239/2336803656.py:1: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  chianti_lines_h[&#34;wavelength&#34;] = chianti_lines_h[&#34;wavelength&#34;].round(2)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_collisional_rates</span> <span class="o">=</span> <span class="n">get_chianti_collisional_rates</span><span class="p">(</span><span class="n">matched_chianti_atom_data</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="n">chianti_radiative_transitions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/afullard/tardis/tardis/plasma/detailed_balance/rates/collisional_rates.py:98: RuntimeWarning: divide by zero encountered in divide
+  (self.g_u / self.g_l)[np.newaxis].T
+/home/afullard/tardis/tardis/plasma/detailed_balance/rates/collisional_rates.py:98: RuntimeWarning: invalid value encountered in divide
+  (self.g_u / self.g_l)[np.newaxis].T
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Chianti exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">chianti_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Chianti deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;CMFGEN exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;CMFGEN deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: &gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_51_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_51_1.png" />
+</div>
+</div>
+</section>
+<section id="Compare-Plasma-module-style-solver-to-reference-data">
+<h1>Compare Plasma module-style solver to reference data<a class="headerlink" href="#Compare-Plasma-module-style-solver-to-reference-data" title="Link to this heading">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.assembly.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PlasmaSolverFactory</span><span class="p">,</span>
+    <span class="n">convert_species_to_multi_index</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.atomic</span><span class="w"> </span><span class="kn">import</span> <span class="n">YgData</span><span class="p">,</span> <span class="n">YgInterpolator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.continuum_processes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CollDeexcRateCoeff</span><span class="p">,</span>
+    <span class="n">CollExcRateCoeff</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.general</span><span class="w"> </span><span class="kn">import</span> <span class="n">BetaElectron</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.partition_function</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ThermalLevelBoltzmannFactorLTE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.plasma_input</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContinuumInteractionSpecies</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">legacy_cmfgen_collision_rate_plasma_solver</span><span class="p">(</span><span class="n">nlte_atomic_dataset</span><span class="p">,</span> <span class="n">rad_field</span><span class="p">):</span>
+    <span class="n">atom_data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">nlte_atomic_dataset</span><span class="p">)</span>
+    <span class="c1"># almost all settings are irrelevant for collisional strength data</span>
+    <span class="n">number_densities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">temperature</span><span class="p">)})</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">time_explosion</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+
+    <span class="n">plasma_solver_factory</span> <span class="o">=</span> <span class="n">PlasmaSolverFactory</span><span class="p">(</span><span class="n">atom_data</span><span class="p">)</span>
+
+    <span class="c1"># plasma_solver_factory.continuum_interaction_species = [&quot;He I&quot;]</span>
+    <span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">line_interaction_type</span> <span class="o">=</span> <span class="s2">&quot;macroatom&quot;</span>
+    <span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">prepare_factory</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">plasma_modules</span> <span class="o">+=</span> <span class="p">[</span>
+        <span class="n">YgData</span><span class="p">,</span>
+        <span class="n">ContinuumInteractionSpecies</span><span class="p">,</span>
+        <span class="n">CollExcRateCoeff</span><span class="p">,</span>
+        <span class="n">CollDeexcRateCoeff</span><span class="p">,</span>
+        <span class="n">YgInterpolator</span><span class="p">,</span>
+        <span class="n">ThermalLevelBoltzmannFactorLTE</span><span class="p">,</span>
+        <span class="n">BetaElectron</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">species_mindex</span> <span class="o">=</span> <span class="n">convert_species_to_multi_index</span><span class="p">([</span><span class="s2">&quot;H I&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
+        <span class="n">number_densities</span><span class="p">,</span>
+        <span class="n">rad_field</span><span class="p">,</span>
+        <span class="n">time_explosion</span><span class="p">,</span>
+        <span class="n">continuum_interaction_species</span><span class="o">=</span><span class="n">species_mindex</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dilute_rad_field</span> <span class="o">=</span>  <span class="n">dilute_planck_rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span>
+        <span class="n">temperature</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">temperature</span><span class="p">))</span>
+    <span class="p">)</span>
+
+<span class="n">legacy_solver</span> <span class="o">=</span> <span class="n">legacy_cmfgen_collision_rate_plasma_solver</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="p">,</span> <span class="n">dilute_rad_field</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">legacy_solver</span><span class="o">.</span><span class="n">coll_exc_coeff</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">legacy_solver</span><span class="o">.</span><span class="n">coll_deexc_coeff</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_exc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">reference_coeff</span><span class="p">[</span><span class="s2">&quot;coll_deexc_coeff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;reference deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Coeff&quot;</span><span class="p">,</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Shell&quot;</span><span class="p">,</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span><span class="p">)</span>
+<span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS new exc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS new deexc&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: xlabel=&#39;Shell&#39;, ylabel=&#39;Coeff&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_55_1.png" src="../../../_images/physics_walkthrough_plasma_equilibrium_comparison_55_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">legacy_solver</span><span class="o">.</span><span class="n">coll_exc_coeff</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">cmfgen_collisional_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0    1.0
+1    1.0
+2    1.0
+3    1.0
+4    1.0
+5    1.0
+6    1.0
+7    1.0
+8    1.0
+9    1.0
+Name: (1, 0, 0, 1), dtype: float64
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 09 Nov 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
