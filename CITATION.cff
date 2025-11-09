@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2025.10.12'
-doi: 10.5281/zenodo.17330175
+title: 'tardis-sn/tardis: TARDIS v2025.11.09'
+doi: 10.5281/zenodo.17561758
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -179,6 +179,9 @@ authors:
 - given-names: William
   family-names: Black
   affiliation:
+- given-names: Anirban
+  family-names: Dutta
+  affiliation:
 - given-names: Jing
   family-names: Lu
   affiliation:
@@ -187,9 +190,6 @@ authors:
   affiliation:
 - given-names: Ryan
   family-names: Groneck
-  affiliation:
-- given-names: Anirban
-  family-names: Dutta
   affiliation:
 - given-names: Jordi
   family-names: Eguren
@@ -204,14 +204,14 @@ authors:
 - given-names: Ansh
   family-names: Kumar
   affiliation:
-- given-names: Arib
-  family-names: Alam
-  affiliation:
 - given-names: Mark
   family-names: Magee
   affiliation:
 - given-names: Rohith
   family-names: Varma Buddaraju
+  affiliation:
+- given-names: Arib
+  family-names: Alam
   affiliation:
 - given-names: Ayushi
   family-names: Daksh
@@ -222,33 +222,36 @@ authors:
 - given-names: Ran
   family-names: Livneh
   affiliation:
+- given-names: Cecelia
+  family-names: Powers
+  affiliation:
 - given-names: Sashank
   family-names: Mishra
   affiliation:
   orcid: https://orcid.org/0000-0001-8302-1584
-- given-names: Srinath
-  family-names: Rajagopalan
-  affiliation:
 - given-names: Jayant
   family-names: Bhakar
   affiliation:
-- given-names: Cecelia
-  family-names: Powers
+- given-names: Srinath
+  family-names: Rajagopalan
   affiliation:
 - given-names: Israel
   family-names: Roldan
   affiliation:
+- given-names: GitHub
+  family-names: Actions
+  affiliation:
 - given-names: P
   family-names: Nitish
-  affiliation:
-- given-names: John
-  family-names: Reichenbach
   affiliation:
 - given-names: Rinkle
   family-names: Jain
   affiliation:
-- given-names: GitHub
-  family-names: Actions
+- given-names: John
+  family-names: Reichenbach
+  affiliation:
+- given-names: Sourav
+  family-names: Singh
   affiliation:
 - given-names: Harshul
   family-names: Gupta
@@ -256,20 +259,17 @@ authors:
 - given-names: Antreev
   family-names: Brar
   affiliation:
-- given-names: Sourav
-  family-names: Singh
-  affiliation:
 - given-names: Aarya
   family-names: Chaumal
   affiliation:
 - given-names: Jonatan
   family-names: Selsing
   affiliation:
-- given-names: Caroline
-  family-names: Sofiatti
-  affiliation:
 - given-names: Chinmay
   family-names: Talegaonkar
+  affiliation:
+- given-names: Riddhi
+  family-names: Gangbhoj
   affiliation:
 - given-names: Nathan
   family-names: Kowalski
@@ -277,8 +277,8 @@ authors:
 - given-names: Yuki
   family-names: Matsumura
   affiliation:
-- given-names: Riddhi
-  family-names: Gangbhoj
+- given-names: Caroline
+  family-names: Sofiatti
   affiliation:
 - given-names: Abhishek
   family-names: Patidar
@@ -382,7 +382,7 @@ authors:
 - given-names: Shilpi
   family-names: Prasad
   affiliation:
-version: release-2025.10.12
-date-released: 2025-10-12
+version: release-2025.11.09
+date-released: 2025-11-09
 repository-code: https://github.com/tardis-sn/tardis
 license: cc-by-4.0
