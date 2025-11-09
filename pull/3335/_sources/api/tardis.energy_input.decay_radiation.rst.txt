@@ -1,0 +1,7 @@
+tardis.energy\_input.decay\_radiation module
+============================================
+
+.. automodule:: tardis.energy_input.decay_radiation
+   :members:
+   :show-inheritance:
+   :undoc-members:
