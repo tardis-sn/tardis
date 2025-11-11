@@ -328,6 +328,9 @@ def continuum_free_free_cooling(
     return p_free_free_cool, free_free_cool_metadata
 
 
+# Collisional transitions below
+
+
 def probability_collision_deexc_to_k_packet(
     coll_deexc_coeff, electron_densities, delta_E_yg
 ):
@@ -386,7 +389,7 @@ def collisional_transition_deexc_to_k_packet(
     return p_deexc_deactivation, coll_deexc_deactivate_metadata
 
 
-def probability_collision_deexc_internal(
+def probability_collision_internal_down(
     coll_deexc_coeff, electron_densities, energy_lowers
 ):
     """
@@ -406,37 +409,93 @@ def probability_collision_deexc_internal(
     pd.DataFrame
         DataFrame containing collisional de-excitation and deactivation probabilities.
     """
-    p_deexc_internal = (coll_deexc_coeff * electron_densities).multiply(
+    p_coll_internal_down = (coll_deexc_coeff * electron_densities).multiply(
         energy_lowers.values, axis=0
     )
 
-    return p_deexc_internal
+    return p_coll_internal_down
 
 
-def collisional_transition_deexcite_internal(
+def collisional_transition_internal_down(
     coll_deexc_coeff, electron_densities, atom_data
 ):
     lower_indices = coll_deexc_coeff.index.droplevel(
         "level_number_upper"
-    )  # TODO: Move this to the continuum solver so we can reuse in iterations
+    )  # TODO: Move this and next 4 lines to the continuum solver so we can reuse in iterations
     energy_lowers = atom_data.levels.energy.loc[lower_indices]
+    sources = coll_deexc_coeff.droplevel("level_number_lower").values
+    destinations = coll_deexc_coeff.droplevel("level_number_upper").values
 
-    p_deexc_to_k_packet = probability_collision_deexc_internal(
+    p_coll_internal_down = probability_collision_internal_down(
         coll_deexc_coeff, electron_densities, energy_lowers
     )
 
-    coll_deexc_deactivate_metadata = pd.DataFrame(
+    coll_internal_down_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
-            "source": (
-                p_deexc_to_k_packet.index.values
-            ),  # Need to check source and destination
-            "destination": ("k"),
+            "source": sources,
+            "destination": destinations,
             "transition_type": MacroAtomTransitionType.COLL_DOWN_INTERNAL,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
         },
-        index=p_deexc_to_k_packet.index,
+        index=p_coll_internal_down.index,
     )
 
-    return p_deexc_to_k_packet, coll_deexc_deactivate_metadata
+    return p_coll_internal_down, coll_internal_down_metadata
+
+
+def probability_collision_internal_up(
+    coll_deexc_coeff, electron_densities, energy_lowers
+):
+    """
+    Calculate collisional de-excitation and deactivation probabilities.
+
+    Parameters
+    ----------
+    coll_deexc_coeff : pd.DataFrame
+        Collisional de-excitation coefficients.
+    electron_densities : pd.DataFrame
+        Electron densities.
+    energy_lowers : pd.Series
+        Energy values of the lower levels.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing collisional de-excitation and deactivation probabilities.
+    """
+    p_coll_internal_up = (coll_deexc_coeff * electron_densities).multiply(
+        energy_lowers.values, axis=0
+    )
+
+    return p_coll_internal_up
+
+
+def collisional_transition_internal_up(
+    coll_deexc_coeff, electron_densities, atom_data
+):
+    lower_indices = coll_deexc_coeff.index.droplevel(
+        "level_number_upper"
+    )  # TODO: Move this and next 4 lines to the continuum solver so we can reuse in iterations
+    energy_lowers = atom_data.levels.energy.loc[lower_indices]
+    sources = coll_deexc_coeff.droplevel("level_number_upper").values
+    destinations = coll_deexc_coeff.droplevel("level_number_lower").values
+
+    p_coll_internal_up = probability_collision_internal_down(
+        coll_deexc_coeff, electron_densities, energy_lowers
+    )
+
+    coll_internal_up_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.COLL_UP_INTERNAL,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": -99,
+        },
+        index=p_coll_internal_up.index,
+    )
+
+    return p_coll_internal_up, coll_internal_up_metadata
