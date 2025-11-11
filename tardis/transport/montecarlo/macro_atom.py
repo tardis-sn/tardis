@@ -11,6 +11,7 @@ class MacroAtomError(ValueError):
 
 
 class MacroAtomTransitionType(IntEnum):
+    FF_COOLING = 5
     ADIABATIC_COOLING = 4
     PHOTOIONIZATION = 3
     RECOMB_INTERNAL = 2
@@ -22,7 +23,10 @@ class MacroAtomTransitionType(IntEnum):
     BF_COOLING = -4  # TODO: Maybe merge this with BF_EMISSION
     TWO_PHOTON = -5
     RECOMB_EMISSION = -6
-    # COLL_DEEXCITATION_DEACTIVATION = -10
+    COLL_DOWN_DEACTIVATION = -10
+    COLL_DOWN_INTERNAL = 10
+    COLL_UP_INTERNAL = 11
+    COLL_UP_COOLING = 12
 
 
 # Think more about the specific values here. Maybe negatives are for deactivating the macroatom, and positive values are internal?

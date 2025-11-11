@@ -8,23 +8,25 @@ from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
     initialize_transition_probabilities,
 )
+from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
+    continuum_transition_photoionization,
+    continuum_transition_recombination_emission,
+    continuum_transition_recombination_internal,
+    probability_photoionization,
+    probability_recombination_emission,
+    probability_recombination_internal,
+)
 from tardis.opacities.macro_atom.macroatom_state import (
     LegacyMacroAtomState,
     MacroAtomState,
 )
-from tardis.opacities.macro_atom.macroatom_transitions import (
-    continuum_transition_photoionization,
-    continuum_transition_recombination_emission,
-    continuum_transition_recombination_internal,
+from tardis.opacities.macro_atom.macroatom_line_transitions import (
     line_transition_emission_down,
     line_transition_internal_down,
     line_transition_internal_up,
     probability_emission_down,
     probability_internal_down,
     probability_internal_up,
-    probability_photoionization,
-    probability_recombination_emission,
-    probability_recombination_internal,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 

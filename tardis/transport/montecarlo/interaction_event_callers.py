@@ -7,10 +7,6 @@ from tardis.transport.frame_transformations import (
     get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.macro_atom import (
-    MacroAtomTransitionType,
-    macro_atom_interaction,
-)
 from tardis.transport.montecarlo.interaction_event_handlers import (
     LineInteractionType,
     adiabatic_cooling,
@@ -20,6 +16,10 @@ from tardis.transport.montecarlo.interaction_event_handlers import (
     free_free_emission,
     line_emission,
     recombination_emission,
+)
+from tardis.transport.montecarlo.macro_atom import (
+    MacroAtomTransitionType,
+    macro_atom_interaction,
 )
 from tardis.transport.montecarlo.utils import get_random_mu
 
@@ -90,7 +90,9 @@ def macro_atom_event(
     elif transition_type == MacroAtomTransitionType.RECOMB_EMISSION:
         recombination_emission()
     else:
-        raise Exception(f"Interaction {transition_type} not Found!")
+        raise Exception(
+            f"Interaction {transition_type} not known or implemented!"
+        )
 
 
 @njit(**njit_dict_no_parallel)

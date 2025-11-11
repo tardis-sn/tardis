@@ -1,5 +1,8 @@
 from enum import IntEnum
+
 import numpy as np
+from numba import njit
+
 from tardis import constants as const
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
@@ -7,19 +10,16 @@ from tardis.transport.frame_transformations import (
     get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-
-from numba import njit
-
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
 from tardis.transport.montecarlo.utils import get_random_mu
-
 
 K_B = const.k_B.cgs.value
 H = const.h.cgs.value
 
+
 @njit(**njit_dict_no_parallel)
 def recombination_emission():
-    pass
+    pass  # Need to check with Christian - Unsure if this is supposed to be handled here. If so, sampled the FB_CDF and set the r_packet.nu accordingly.
 
 
 @njit(**njit_dict_no_parallel)

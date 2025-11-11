@@ -1,10 +1,7 @@
-from tardis import constants as const
 import numpy as np
 import pandas as pd
-from tardis.plasma.properties.continuum_processes.rates import (
-    K_B,
-    get_ground_state_multi_index,
-)
+
+from tardis import constants as const
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 CONST_C_CGS: float = const.c.cgs.value
@@ -363,294 +360,47 @@ def probability_emission_down(
 ### Below are continuum transition specific functions
 
 
-def continuum_transition_recombination_internal(
-    spontaneous_recombination_coeff: pd.DataFrame,  # These will all be changes to spontaneous recombination coefficient
-    photoionization_data_level_energies: pd.Series,  # This is just energy of the excitation state in the atomic data
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Calculate unnormalized probabilities of radiative recombination.
+# class FreeFreeCoolingRate(TransitionProbabilitiesProperty):
+#     """
+#     Attributes
+#     ----------
+#     cool_rate_ff : pandas.DataFrame, dtype float
+#         The free-free cooling rate of the electron gas.
+#     ff_cooling_factor : pandas.Series, dtype float
+#         Pre-factor needed in the calculation of the free-free cooling rate and
+#         the free-free opacity.
 
-    Parameters
-    ----------
-    spontaneous_recombination_coeff : pd.Series
-        Rate coefficient for spontaneous recombination from `k` to level `i`.
-    photoionization_data_level_energies : pd.Series
-        Energies of levels with bound-free transitions.
+#     Notes
+#     -----
+#     This implementation uses a free-free Gaunt factor of one for all species
+#     and ionization stages, which is an approximation.
+#     """
 
-    Returns
-    -------
-    p_recombination : pd.DataFrame
-        DataFrame containing recombination probabilities.
-    recombination_metadata : pd.DataFrame
-        DataFrame containing metadata for the recombination transitions.
-    """
-    p_recomb_internal = probability_recombination_internal(
-        spontaneous_recombination_coeff, photoionization_data_level_energies
-    )
+#     outputs = ("cool_rate_ff", "ff_cooling_factor")
+#     transition_probabilities_outputs = ("cool_rate_ff",)
+#     latex_name = (r"C^{\textrm{ff}}",)
 
-    destinations = p_recomb_internal.index.values
-    sources = get_ground_state_multi_index(p_recomb_internal.index).values
+#     def calculate(self, ion_number_density, electron_densities, t_electrons):
+#         ff_cooling_factor = self._calculate_ff_cooling_factor(
+#             ion_number_density, electron_densities
+#         )
+#         cool_rate_ff = F_K * np.sqrt(t_electrons) * ff_cooling_factor
+#         cool_rate_ff = cooling_rate_series2dataframe(
+#             cool_rate_ff, destination_level_idx="ff"
+#         )
+#         return cool_rate_ff, ff_cooling_factor.values
 
-    recombination_internal_metadata = pd.DataFrame(
-        {
-            "transition_line_id": -99,
-            "source": sources,
-            "destination": destinations,
-            "transition_type": MacroAtomTransitionType.RECOMB_INTERNAL,
-            "transition_line_idx": -99,
-            "photoionization_key_idx": range(
-                len(photoionization_data_level_energies)
-            ),
-        },
-        index=p_recomb_internal.index,
-    )
-
-    p_recomb_internal["source"] = sources
-
-    return p_recomb_internal, recombination_internal_metadata
+#     @staticmethod
+#     def _calculate_ff_cooling_factor(ion_number_density, electron_densities):
+#         ion_charge = ion_number_density.index.get_level_values(1).values
+#         factor = (
+#             electron_densities
+#             * ion_number_density.multiply(ion_charge**2, axis=0).sum()
+#         )
+#         return factor
 
 
-def probability_recombination_internal(
-    spontaneous_recombination_coeff: pd.DataFrame,
-    photoionization_data_level_energies: pd.Series,
-) -> pd.DataFrame:
-    """
-    Calculate unnormalized probabilities of radiative recombination (internal transitions).
-
-    Parameters
-    ----------
-    spontaneous_recombination_coeff : pd.DataFrame
-        Rate coefficient for spontaneous recombination from `k` to level `i`.
-    photoionization_data_level_energies : pd.Series
-        Energies of levels with bound-free transitions.
-
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing unnormalized recombination probabilities for internal transitions.
-    """
-    p_recomb_internal = spontaneous_recombination_coeff.multiply(
-        photoionization_data_level_energies, axis=0
-    )
-    return p_recomb_internal
-
-
-def continuum_transition_recombination_emission(
-    spontaneous_recombination_coeff: pd.DataFrame,
-    photoionization_data_frequencies: pd.Series,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Calculate unnormalized probabilities and metadata for radiative recombination emission transitions (continuum).
-
-    Parameters
-    ----------
-    spontaneous_recombination_coeff : pd.DataFrame
-        Rate coefficient for spontaneous recombination from `k` to level `i`.
-    photoionization_data_frequencies : pd.Series
-        Ionization threshold frequencies for the levels.
-
-    Returns
-    -------
-    p_recomb_emission : pd.DataFrame
-        DataFrame containing unnormalized recombination emission probabilities.
-    recombination_emission_metadata : pd.DataFrame
-        DataFrame containing metadata for the recombination emission transitions.
-    """
-    p_recomb_emission = probability_recombination_emission(
-        spontaneous_recombination_coeff, photoionization_data_frequencies
-    )
-
-    destinations = p_recomb_emission.index.values
-    sources = get_ground_state_multi_index(p_recomb_emission.index).values
-
-    recombination_emission_metadata = pd.DataFrame(
-        {
-            "transition_line_id": -99,
-            "source": sources,
-            "destination": destinations,
-            "transition_type": MacroAtomTransitionType.RECOMB_EMISSION,
-            "transition_line_idx": -99,
-            "photoionization_key_idx": range(
-                len(photoionization_data_frequencies)
-            ),
-        },
-        index=p_recomb_emission.index,
-    )
-
-    p_recomb_emission["source"] = sources
-
-    return p_recomb_emission, recombination_emission_metadata
-
-
-def probability_recombination_emission(
-    spontaneous_recombination_coeff: pd.DataFrame,
-    photoionization_data_frequencies: pd.Series,
-) -> pd.DataFrame:
-    """
-    Calculate unnormalized probabilities of radiative recombination emission transitions.
-
-    Parameters
-    ----------
-    spontaneous_recombination_coeff : pd.DataFrame
-        Rate coefficient for spontaneous recombination from `k` to level `i`.
-    photoionization_data_frequencies : pd.Series
-        Ionization threshold frequencies for the levels.
-
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing unnormalized recombination emission probabilities.
-    """
-    p_recomb_emission = (
-        spontaneous_recombination_coeff.multiply(
-            photoionization_data_frequencies, axis=0
-        )
-        * CONST_H_CGS
-    )  # photoionization_data_frequencies is ionization threshold, so I guess delta e is just photoionization_data_frequencies * h?
-    return p_recomb_emission
-
-
-def continuum_transition_photoionization(
-    stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
-    photoionization_data_level_energies: pd.Series,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Calculate photoionization probability unnormalized.
-
-    Parameters
-    ----------
-    stim_recomb_corrected_photoionization_rate_coeff : pd.Series
-        Corrected photoionization rate coefficient from level `i` to `k`.
-    photoionization_data_level_energies : pd.Series
-        Energies of the levels involved in photoionization.
-
-    Returns
-    -------
-    p_photoionization : pd.DataFrame
-        DataFrame containing photoionization probabilities.
-    photoionization_metadata : pd.DataFrame
-        DataFrame containing metadata for the photoionization transitions.
-    """
-    p_photoionization = probability_photoionization(
-        stim_recomb_corrected_photoionization_rate_coeff,
-        photoionization_data_level_energies,
-    )
-
-    sources = p_photoionization.index.values
-    destinations = get_ground_state_multi_index(p_photoionization.index).values
-
-    photoionization_metadata = pd.DataFrame(
-        {
-            "transition_line_id": -99,
-            "source": sources,
-            "destination": destinations,
-            "transition_type": MacroAtomTransitionType.PHOTOIONIZATION,
-            "transition_line_idx": -99,
-            "photoionization_key_idx": range(
-                len(photoionization_data_level_energies)
-            ),
-        },
-        index=p_photoionization.index,
-    )
-
-    p_photoionization["source"] = sources
-
-    return p_photoionization, photoionization_metadata
-
-
-def probability_photoionization(
-    stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
-    photoionization_data_level_energies: pd.Series,
-) -> pd.DataFrame:
-    """
-    Calculate photoionization probability unnormalized.
-
-    Parameters
-    ----------
-    stim_recomb_corrected_photoionization_rate_coeff : pd.Series
-        Corrected photoionization rate coefficient from level `i` to `k`.
-    photoionization_data_level_energies : pd.Series
-        Energies of the levels involved in photoionization.
-
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing photoionization probabilities.
-    """
-    p_photoionization = (
-        stim_recomb_corrected_photoionization_rate_coeff.multiply(
-            photoionization_data_level_energies, axis=0
-        )
-    )
-    return p_photoionization
-
-
-# def continuum_adiabatic_cooling(
-#     electron_densities, t_electrons, time_explosion
-# ):
-#     # def calculate(self, electron_densities, t_electrons, time_explosion):
-#     # cool_rate_adiabatic = (
-#     #     3.0 * electron_densities * K_B * t_electrons
-#     # ) / time_explosion
-
-#     # cool_rate_adiabatic = cooling_rate_series2dataframe(
-#     #     cool_rate_adiabatic, destination_level_idx="adiabatic"
-#     # )
-#     # return cool_rate_adiabatic
-
-#     pass
-
-
-def continuum_adiabatic_cooling(
-    electron_densities, t_electrons, time_explosion
-):
-    """
-    Calculate the adiabatic cooling rate.
-
-    Parameters
-    ----------
-    electron_densities : pd.DataFrame
-        Electron densities.
-    t_electrons : pd.DataFrame
-        Electron temperatures.
-    time_explosion : float
-        Time since explosion.
-
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing the adiabatic cooling rates.
-    """
-    p_adiabatic_cool = probability_adiabatic_cooling(
-        electron_densities, t_electrons, time_explosion
-    )
-
-    adiabatic_cool_metadata = pd.DataFrame(
-        {
-            "transition_line_id": -99,
-            "source": ("k"),
-            "destination": ("adiabatic"),
-            "transition_type": MacroAtomTransitionType.ADIABATIC_COOLING,
-            "transition_line_idx": -99,
-            "photoionization_key_idx": -99,
-        },
-        index=p_adiabatic_cool.index,
-    )
-
-    return p_adiabatic_cool, adiabatic_cool_metadata
-
-
-def probability_adiabatic_cooling(
-    electron_densities, t_electrons, time_explosion
-):
-    # Find where this comes from and document - this could be wrong
-    # Calculate the probability of adiabatic cooling
-    p_adiabatic_cooling = (
-        3.0 * electron_densities * K_B * t_electrons
-    ) / time_explosion
-
-    return p_adiabatic_cooling
-
+# ALL COLLISIONAL TRANSITIONS BELOW ARE COMMENTED OUT FOR NOW
 
 # def continuum_transition_bound_free_cooling():
 #     pass
@@ -750,62 +500,3 @@ def probability_adiabatic_cooling(
 #     #         cool_rate_adiabatic, destination_level_idx="adiabatic"
 #     #     )
 #     #     return cool_rate_adiabatic
-
-
-# def collisional_transition_deexcite_deactivate(
-#     coll_deexc_coeff, yg_idx, electron_densities, delta_E_yg
-# ):
-#     p_deexc_deactivation = probability_collision_deexc_deactivate(
-#         coll_deexc_coeff, electron_densities, delta_E_yg
-#     )
-#     # yg idx is just source_level_idx, destination_level_idx
-#     # p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
-#     # index_dd = pd.MultiIndex.from_product(
-#     #     [p_deexc_deactivation.index.values, ["k"], [0]],
-#     #     names=list(yg_idx.columns) + ["transition_type"],
-#     # )
-#     # p_deexc_deactivation = p_deexc_deactivation.set_index(index_dd)
-
-#     coll_deexc_deactivate_metadata = pd.DataFrame(
-#         {
-#             "transition_line_id": -99,
-#             "source": p_deexc_deactivation.index.values,
-#             "destination": get_ground_state_multi_index(
-#                 p_deexc_deactivation.index
-#             ).values,
-#             "transition_type": MacroAtomTransitionType.COLL_DEEXCITATION_DEACTIVATION,
-#             "transition_line_idx": -99,
-#             "photoionization_key_idx": range(len(delta_E_yg)),
-#         },
-#         index=p_deexc_deactivation.index,
-#     )
-
-#     return p_deexc_deactivation, coll_deexc_deactivate_metadata
-
-
-# def probability_collision_deexc_deactivate(
-#     coll_deexc_coeff, electron_densities, delta_E_yg
-# ) -> pd.DataFrame:
-#     """
-#     Calculate collisional de-excitation and deactivation probabilities.
-
-#     Parameters
-#     ----------
-#     coll_deexc_coeff : pd.DataFrame
-#         Collisional de-excitation coefficients.
-#     electron_densities : pd.DataFrame
-#         Electron densities.
-#     delta_E_yg : pd.Series
-#         Energy differences.
-
-#     Returns
-#     -------
-#     pd.DataFrame
-#         DataFrame containing collisional de-excitation and deactivation probabilities.
-#     """
-#     p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
-#         delta_E_yg.values, axis=0
-#     )
-#     p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
-
-#     return p_deexc_deactivation
