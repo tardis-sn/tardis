@@ -264,7 +264,7 @@ def probability_adiabatic_cooling(
     p_adiabatic_cooling = (
         3.0 * electron_densities * K_B * t_electrons
     ) / time_explosion
-
+    raise NotImplementedError
     return p_adiabatic_cooling
 
 
@@ -341,12 +341,9 @@ def probability_free_free_cooling(
         * ion_number_density.multiply(ion_charge**2, axis=0).sum()
     )
     ff_cool_rate = F_K * np.sqrt(t_electrons) * cooling_factor
-    # NOT DONE
-    p_free_free_cooling = (
-        3.0 * electron_densities * K_B * t_electrons
-    ) / time_explosion
-
-    return p_free_free_cooling
+    # NOT DONE, return probability, not the rate
+    raise NotImplementedError
+    # return ff_cool_rate
 
 
 def continuum_free_free_cooling(
@@ -418,7 +415,9 @@ def probability_collision_deexc_to_k_packet(
     p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
         delta_E_yg.values, axis=0
     )
-    p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
+    # IMPORTANT NOTE: Below was from the source but seems incorrect.
+    # I don't know why you'd want a single value for the atom rather than for each level.
+    # p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
 
     return p_deexc_deactivation
 
@@ -454,13 +453,14 @@ def collisional_transition_deexc_to_k_packet(
     p_deexc_deactivation = probability_collision_deexc_to_k_packet(
         coll_deexc_coeff, electron_densities, delta_E_yg
     )
-    # yg idx is just source_level_idx, destination_level_idx
     coll_deexc_deactivate_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": (
-                p_deexc_deactivation.index.values
-            ),  # Need to check source and destination
+                p_deexc_deactivation.index.droplevel(
+                    "level_number_lower"
+                ).values
+            ),
             "destination": ("k"),
             "transition_type": MacroAtomTransitionType.COLL_DOWN_DEACTIVATION,
             "transition_line_idx": -99,
@@ -657,7 +657,7 @@ def probability_collision_excitation_cool(
     ) * level_number_density.loc[lower_indices].values
 
     p_coll_excitation_cool = p_coll_excitation_cool.groupby(
-        level="destination_level_idx"
+        level="level_number_upper"
     ).sum()
 
     return p_coll_excitation_cool
@@ -707,8 +707,12 @@ def collisional_transition_excitation_cool(
     coll_excitation_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
-            "source": ("k"),  # Need to check source and destination
-            "destination": p_coll_excitation_cool.index.values,
+            "source": ("k"),
+            "destination": coll_exc_coeff.index.droplevel(
+                ["level_number_lower"]
+            )
+            .unique()
+            .values,  # These destinations seem wrong, need to match to macroatom levels
             "transition_type": MacroAtomTransitionType.COLL_UP_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
