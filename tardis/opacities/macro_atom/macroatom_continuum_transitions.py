@@ -446,15 +446,15 @@ def collisional_transition_internal_down(
 
 
 def probability_collision_internal_up(
-    coll_deexc_coeff, electron_densities, energy_lowers
+    coll_exc_coeff, electron_densities, energy_lowers
 ):
     """
     Calculate collisional de-excitation and deactivation probabilities.
 
     Parameters
     ----------
-    coll_deexc_coeff : pd.DataFrame
-        Collisional de-excitation coefficients.
+    coll_exc_coeff : pd.DataFrame
+        Collisional excitation coefficients.
     electron_densities : pd.DataFrame
         Electron densities.
     energy_lowers : pd.Series
@@ -465,7 +465,7 @@ def probability_collision_internal_up(
     pd.DataFrame
         DataFrame containing collisional de-excitation and deactivation probabilities.
     """
-    p_coll_internal_up = (coll_deexc_coeff * electron_densities).multiply(
+    p_coll_internal_up = (coll_exc_coeff * electron_densities).multiply(
         energy_lowers.values, axis=0
     )
 
@@ -473,17 +473,17 @@ def probability_collision_internal_up(
 
 
 def collisional_transition_internal_up(
-    coll_deexc_coeff, electron_densities, atom_data
+    coll_exc_coeff, electron_densities, atom_data
 ):
-    lower_indices = coll_deexc_coeff.index.droplevel(
+    lower_indices = coll_exc_coeff.index.droplevel(
         "level_number_upper"
     )  # TODO: Move this and next 4 lines to the continuum solver so we can reuse in iterations
     energy_lowers = atom_data.levels.energy.loc[lower_indices]
-    sources = coll_deexc_coeff.droplevel("level_number_upper").values
-    destinations = coll_deexc_coeff.droplevel("level_number_lower").values
+    sources = coll_exc_coeff.droplevel("level_number_upper").values
+    destinations = coll_exc_coeff.droplevel("level_number_lower").values
 
     p_coll_internal_up = probability_collision_internal_down(
-        coll_deexc_coeff, electron_densities, energy_lowers
+        coll_exc_coeff, electron_densities, energy_lowers
     )
 
     coll_internal_up_metadata = pd.DataFrame(
@@ -499,3 +499,54 @@ def collisional_transition_internal_up(
     )
 
     return p_coll_internal_up, coll_internal_up_metadata
+
+
+def probability_collision_excitation_cool(
+    coll_exc_coeff,
+    electron_densities,
+    delta_E_yg,
+    level_number_density,
+    lower_indices,
+):
+    p_coll_excitation_cool = (coll_exc_coeff * electron_densities).multiply(
+        delta_E_yg.values, axis=0
+    ) * level_number_density.loc[lower_indices].values
+
+    p_coll_excitation_cool = p_coll_excitation_cool.groupby(
+        level="destination_level_idx"
+    ).sum()
+
+    return p_coll_excitation_cool
+
+
+def collisional_transition_excitation_cool(
+    coll_exc_coeff,
+    electron_densities,
+    delta_E_yg,
+    level_number_density,
+):
+    lower_indices = coll_exc_coeff.index.droplevel("level_number_upper")
+
+    p_coll_excitation_cool = probability_collision_excitation_cool(
+        coll_exc_coeff,
+        electron_densities,
+        delta_E_yg,
+        level_number_density,
+        lower_indices,
+    )
+
+    coll_excitation_cool_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": ("k"),  # Need to check source and destination
+            "destination": p_coll_excitation_cool.index.values,
+            "transition_type": MacroAtomTransitionType.COLL_UP_COOLING,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": -99,
+        },
+        index=p_coll_excitation_cool.index,
+    )
+
+    return p_coll_excitation_cool, coll_excitation_cool_metadata
+
+def collision

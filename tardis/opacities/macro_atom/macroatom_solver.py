@@ -963,7 +963,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             "photoionization_key_idx"
         ] = -99  # Bound-bound transitions don't have continuum ids
 
-        # Then assemble continuum transitions
+        # Then assemble photoionization transitions
         p_photoionization, photoionization_metadata = (
             continuum_transition_photoionization(
                 stim_recomb_corrected_photoionization_rate_coeff,
@@ -981,6 +981,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 self.photoionization_data_level_energies,
             )
         )
+
+        # Then assemble the collisional transitions
 
         probabilities_df = pd.concat(
             [
