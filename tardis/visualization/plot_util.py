@@ -166,7 +166,6 @@ def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=F
             ),
         }
     else:
-        df = transport_state.tracker_full_df
         df_last = transport_state.tracker_last_interaction_df
 
         df_last_emitted = df_last[transport_state.emitted_packet_mask]
