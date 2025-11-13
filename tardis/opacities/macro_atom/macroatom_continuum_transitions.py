@@ -237,8 +237,30 @@ def continuum_transition_photoionization(
 def probability_adiabatic_cooling(
     electron_densities, t_electrons, time_explosion
 ):
-    # Find where this comes from and document - this could be wrong
-    # Calculate the probability of adiabatic cooling
+    """
+    Calculate the adiabatic cooling rate (unnormalized).
+
+    This function computes a simple adiabatic cooling term used as an
+    unnormalized probability for macro-atom transitions that represent
+    adiabatic losses.
+
+    Parameters
+    ----------
+    electron_densities : pd.DataFrame or pd.Series
+        Electron number densities (per shell / spatial zone).
+    t_electrons : pd.DataFrame or pd.Series
+        Electron temperatures (same index/shape as electron_densities).
+    time_explosion : float
+        Time since explosion (seconds).
+
+    Returns
+    -------
+    pd.DataFrame or pd.Series
+        Unnormalized adiabatic cooling rates with the same index as
+        `electron_densities` / `t_electrons`.
+    """
+    # Calculate the probability (unnormalized cooling rate)
+    # Not sure this is right yet - I think this is the rate not the probability
     p_adiabatic_cooling = (
         3.0 * electron_densities * K_B * t_electrons
     ) / time_explosion
@@ -287,18 +309,39 @@ def continuum_adiabatic_cooling(
     return p_adiabatic_cool, adiabatic_cool_metadata
 
 
+# I THINK THIS ONE IS WRONG
 def probability_free_free_cooling(
     ion_number_density, electron_densities, t_electrons
 ):
-    # Find where this comes from and document - this could be wrong
-    # Calculate the probability of free-free cooling
+    """
+    Calculate an unnormalized free-free (bremsstrahlung) cooling probability.
+
+    This routine estimates a free-free cooling rate used as an unnormalized
+    probability for macro-atom cooling transitions. The implementation uses
+    an approximate scaling with electron temperature and ion charge.
+
+    Parameters
+    ----------
+    ion_number_density : pd.MultiIndex or pd.DataFrame index
+        Index or Series containing ion number densities (levelled by ion).
+    electron_densities : pd.DataFrame or pd.Series
+        Electron number densities per zone.
+    t_electrons : pd.DataFrame or pd.Series
+        Electron temperatures per zone.
+
+    Returns
+    -------
+    pd.DataFrame or pd.Series
+        Unnormalized free-free cooling rates with the same index as
+        `electron_densities` / `t_electrons`.
+    """
     ion_charge = ion_number_density.get_level_values(1).values
     cooling_factor = (
         electron_densities
         * ion_number_density.multiply(ion_charge**2, axis=0).sum()
     )
     ff_cool_rate = F_K * np.sqrt(t_electrons) * cooling_factor
-
+    # NOT DONE
     p_free_free_cooling = (
         3.0 * electron_densities * K_B * t_electrons
     ) / time_explosion
@@ -309,6 +352,27 @@ def probability_free_free_cooling(
 def continuum_free_free_cooling(
     ion_number_density, electron_densities, t_electrons
 ):
+    """
+    Wrap free-free cooling rates with metadata for macro-atom use.
+
+    Parameters
+    ----------
+    ion_number_density : pd.MultiIndex or pd.DataFrame index
+        Index or Series containing ion number densities (levelled by ion).
+    electron_densities : pd.DataFrame or pd.Series
+        Electron number densities per zone.
+    t_electrons : pd.DataFrame or pd.Series
+        Electron temperatures per zone.
+
+    Returns
+    -------
+    p_free_free_cool : pd.DataFrame or pd.Series
+        Unnormalized free-free cooling rates.
+    free_free_cool_metadata : pd.DataFrame
+        Metadata DataFrame describing the cooling transitions. The index
+        matches `p_free_free_cool` and includes fields such as
+        `transition_type` and `photoionization_key_idx`.
+    """
     p_free_free_cool = probability_free_free_cooling(
         ion_number_density, electron_densities, t_electrons
     )
@@ -335,7 +399,7 @@ def probability_collision_deexc_to_k_packet(
     coll_deexc_coeff, electron_densities, delta_E_yg
 ):
     """
-    Calculate collisional de-excitation and deactivation probabilities.
+    Calculate collisional de-excitation to k packet probabilities.
 
     Parameters
     ----------
@@ -349,7 +413,7 @@ def probability_collision_deexc_to_k_packet(
     Returns
     -------
     pd.DataFrame
-        DataFrame containing collisional de-excitation and deactivation probabilities.
+        DataFrame containing collisional de-excitation to k packet probabilities.
     """
     p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
         delta_E_yg.values, axis=0
@@ -362,16 +426,35 @@ def probability_collision_deexc_to_k_packet(
 def collisional_transition_deexc_to_k_packet(
     coll_deexc_coeff, electron_densities, delta_E_yg
 ):
+    """
+    Create collisional de-excitation and deactivation transitions to a 'k' packet.
+
+    This function wraps the `probability_collision_deexc_to_k_packet` probability
+    calculation and produces a metadata DataFrame describing the resulting
+    de-excitation transitions that deposit energy into the k-packet
+    channel.
+
+    Parameters
+    ----------
+    coll_deexc_coeff : pd.DataFrame
+        Collisional de-excitation coefficients indexed by transition.
+    electron_densities : pd.DataFrame or pd.Series
+        Electron number densities per zone.
+    delta_E_yg : pd.Series
+        Energy differences for the transitions.
+
+    Returns
+    -------
+    p_deexc_deactivation : pd.DataFrame
+        Unnormalized probabilities (rates) for de-excitation/deactivation.
+    coll_deexc_deactivate_metadata : pd.DataFrame
+        Metadata for the de-excitation transitions; index matches
+        `p_deexc_deactivation`.
+    """
     p_deexc_deactivation = probability_collision_deexc_to_k_packet(
         coll_deexc_coeff, electron_densities, delta_E_yg
     )
     # yg idx is just source_level_idx, destination_level_idx
-    # p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
-    # index_dd = pd.MultiIndex.from_product(
-    #     [p_deexc_deactivation.index.values, ["k"], [0]],
-    #     names=list(yg_idx.columns) + ["transition_type"],
-    # )
-    # p_deexc_deactivation = p_deexc_deactivation.set_index(index_dd)
     coll_deexc_deactivate_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -393,7 +476,7 @@ def probability_collision_internal_down(
     coll_deexc_coeff, electron_densities, energy_lowers
 ):
     """
-    Calculate collisional de-excitation and deactivation probabilities.
+    Calculate collisional internal de-excitation probabilities.
 
     Parameters
     ----------
@@ -407,7 +490,7 @@ def probability_collision_internal_down(
     Returns
     -------
     pd.DataFrame
-        DataFrame containing collisional de-excitation and deactivation probabilities.
+        DataFrame containing collisional de-excitation probabilities.
     """
     p_coll_internal_down = (coll_deexc_coeff * electron_densities).multiply(
         energy_lowers.values, axis=0
@@ -419,6 +502,25 @@ def probability_collision_internal_down(
 def collisional_transition_internal_down(
     coll_deexc_coeff, electron_densities, atom_data
 ):
+    """
+    Build collisional internal-down transition probabilities and metadata.
+
+    Parameters
+    ----------
+    coll_deexc_coeff : pd.DataFrame
+        Collisional de-excitation coefficients indexed by transitions.
+    electron_densities : pd.DataFrame or pd.Series
+        Electron number densities per zone.
+    atom_data : object
+        Atomic data object providing `levels` with energy values.
+
+    Returns
+    -------
+    p_coll_internal_down : pd.DataFrame
+        Unnormalized collisional internal down transition probabilities.
+    coll_internal_down_metadata : pd.DataFrame
+        Metadata for the collisional internal down transitions.
+    """
     lower_indices = coll_deexc_coeff.index.droplevel(
         "level_number_upper"
     )  # TODO: Move this and next 4 lines to the continuum solver so we can reuse in iterations
@@ -449,7 +551,7 @@ def probability_collision_internal_up(
     coll_exc_coeff, electron_densities, energy_lowers
 ):
     """
-    Calculate collisional de-excitation and deactivation probabilities.
+    Calculate collisional internal up probabilities.
 
     Parameters
     ----------
@@ -463,7 +565,7 @@ def probability_collision_internal_up(
     Returns
     -------
     pd.DataFrame
-        DataFrame containing collisional de-excitation and deactivation probabilities.
+        DataFrame containing collisional internal up probabilities.
     """
     p_coll_internal_up = (coll_exc_coeff * electron_densities).multiply(
         energy_lowers.values, axis=0
@@ -475,6 +577,25 @@ def probability_collision_internal_up(
 def collisional_transition_internal_up(
     coll_exc_coeff, electron_densities, atom_data
 ):
+    """
+    Build collisional internal-up transition probabilities and metadata.
+
+    Parameters
+    ----------
+    coll_exc_coeff : pd.DataFrame
+        Collisional excitation coefficients indexed by transitions.
+    electron_densities : pd.DataFrame or pd.Series
+        Electron number densities per zone.
+    atom_data : object
+        Atomic data object providing `levels` with energy values.
+
+    Returns
+    -------
+    p_coll_internal_up : pd.DataFrame
+        Unnormalized collisional internal up transition probabilities.
+    coll_internal_up_metadata : pd.DataFrame
+        Metadata for the collisional internal up transitions.
+    """
     lower_indices = coll_exc_coeff.index.droplevel(
         "level_number_upper"
     )  # TODO: Move this and next 4 lines to the continuum solver so we can reuse in iterations
@@ -508,6 +629,29 @@ def probability_collision_excitation_cool(
     level_number_density,
     lower_indices,
 ):
+    """
+    Calculate collisional excitation cooling rates (unnormalized) and aggregate by destination level.
+
+    Parameters
+    ----------
+    coll_exc_coeff : pd.DataFrame
+        Collisional excitation coefficients indexed by transitions.
+    electron_densities : pd.DataFrame or pd.Series
+        Electron number densities per zone.
+    delta_E_yg : pd.Series
+        Energy differences for the excitation transitions (level -> g).
+    level_number_density : pd.Series
+        Number density for the lower levels involved in the transitions.
+    lower_indices : pd.Index
+        Index of lower level identifiers that aligns `level_number_density` with
+        the rows of `coll_exc_coeff`.
+
+    Returns
+    -------
+    pd.DataFrame or pd.Series
+        Aggregated collisional excitation cooling rates grouped by
+        `destination_level_idx`.
+    """
     p_coll_excitation_cool = (coll_exc_coeff * electron_densities).multiply(
         delta_E_yg.values, axis=0
     ) * level_number_density.loc[lower_indices].values
@@ -525,6 +669,31 @@ def collisional_transition_excitation_cool(
     delta_E_yg,
     level_number_density,
 ):
+    """
+    Build collisional excitation cooling transitions and metadata.
+
+    This function computes the collisional excitation cooling rates (an
+    unnormalized probability) and packages them together with metadata
+    describing the cooling transitions.
+
+    Parameters
+    ----------
+    coll_exc_coeff : pd.DataFrame
+        Collisional excitation coefficients indexed by transitions.
+    electron_densities : pd.DataFrame or pd.Series
+        Electron number densities per zone.
+    delta_E_yg : pd.Series
+        Energy differences for the excitations.
+    level_number_density : pd.Series
+        Number density for the lower levels involved in the transitions.
+
+    Returns
+    -------
+    p_coll_excitation_cool : pd.DataFrame
+        Unnormalized collisional excitation cooling rates.
+    coll_excitation_cool_metadata : pd.DataFrame
+        Metadata for the excitation cooling transitions.
+    """
     lower_indices = coll_exc_coeff.index.droplevel("level_number_upper")
 
     p_coll_excitation_cool = probability_collision_excitation_cool(
@@ -548,5 +717,3 @@ def collisional_transition_excitation_cool(
     )
 
     return p_coll_excitation_cool, coll_excitation_cool_metadata
-
-def collision
