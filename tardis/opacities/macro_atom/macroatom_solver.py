@@ -9,16 +9,20 @@ from tardis.opacities.macro_atom.base import (
     initialize_transition_probabilities,
 )
 from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
+    collisional_transition_deexc_to_k_packet,
+    collisional_transition_excitation_cool,
+    collisional_transition_internal_down,
+    collisional_transition_internal_up,
     continuum_transition_photoionization,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
+    probability_collision_deexc_to_k_packet,
+    probability_collision_excitation_cool,
+    probability_collision_internal_down,
+    probability_collision_internal_up,
     probability_photoionization,
     probability_recombination_emission,
     probability_recombination_internal,
-)
-from tardis.opacities.macro_atom.macroatom_state import (
-    LegacyMacroAtomState,
-    MacroAtomState,
 )
 from tardis.opacities.macro_atom.macroatom_line_transitions import (
     line_transition_emission_down,
@@ -27,6 +31,10 @@ from tardis.opacities.macro_atom.macroatom_line_transitions import (
     probability_emission_down,
     probability_internal_down,
     probability_internal_up,
+)
+from tardis.opacities.macro_atom.macroatom_state import (
+    LegacyMacroAtomState,
+    MacroAtomState,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
@@ -671,7 +679,6 @@ class BoundBoundMacroAtomSolver:
             data=range(len(macro_atom_transition_metadata.source.unique())),
         )
         line2macro_level_upper = unique_source_series.loc[lines_level_upper]
-
         return line2macro_level_upper, unique_source_series
 
     def normalize_transition_probabilities(
@@ -766,6 +773,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         levels: pd.DataFrame,
         lines: pd.DataFrame,
         photoionization_data: pd.DataFrame,
+        delta_E_yg: pd.Series,
         # selected_continuum_transitions: np.ndarray,
         line_interaction_type: str = "macroatom",
     ) -> None:
@@ -809,6 +817,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         self.ionization_frequency_thresholds = (
             self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         )
+        self.delta_E_yg = (
+            delta_E_yg  # Might need to restrict this to hydrogen too
+        )
 
     def solve(
         self,
@@ -817,6 +828,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         stimulated_emission_factors: np.ndarray,
         stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
         spontaneous_recombination_coeff: pd.DataFrame,
+        coll_deexc_coeff: pd.DataFrame,
+        coll_exc_coeff: pd.DataFrame,
+        electron_densities: pd.DataFrame,
+        level_number_density: pd.DataFrame,
     ) -> MacroAtomState:
         """
         Solve the Macro Atom State including continuum transitions.
@@ -859,6 +874,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 stimulated_emission_factors,
                 stim_recomb_corrected_photoionization_rate_coeff,
                 spontaneous_recombination_coeff,
+                coll_deexc_coeff,
+                coll_exc_coeff,
+                electron_densities,
+                level_number_density,
             )
         else:
             normalized_probabilities = self._solve_next_macroatom_iteration(
@@ -867,6 +886,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 stimulated_emission_factors,
                 stim_recomb_corrected_photoionization_rate_coeff,
                 spontaneous_recombination_coeff,
+                coll_deexc_coeff,
+                coll_exc_coeff,
+                electron_densities,
+                level_number_density,
             )
             (
                 macro_atom_transition_metadata,
@@ -890,6 +913,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         stimulated_emission_factors: np.ndarray,
         stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
         spontaneous_recombination_coeff: pd.DataFrame,
+        coll_deexc_coeff: pd.DataFrame,
+        coll_exc_coeff: pd.DataFrame,
+        electron_densities: pd.DataFrame,
+        level_number_density: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
         """
         Handle the first iteration of the solve method for continuum macro atom.
@@ -981,8 +1008,38 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 self.photoionization_data_level_energies,
             )
         )
-
         # Then assemble the collisional transitions
+        self._coll_energies_lower = self.levels.energy.loc[
+            coll_deexc_coeff.index.droplevel("level_number_upper")
+        ]  # This should probably be moved to init - static data,
+        # but needs coll_deexc_coeff which does change per iteration
+
+        p_coll_down_to_k_packet, coll_down_to_packet_metadata = (
+            collisional_transition_deexc_to_k_packet(
+                coll_deexc_coeff,
+                electron_densities,
+                self.delta_E_yg,
+            )
+        )
+        p_coll_internal_down, coll_internal_down_metadata = (
+            collisional_transition_internal_down(
+                coll_deexc_coeff, electron_densities, self._coll_energies_lower
+            )
+        )
+        p_coll_internal_up, coll_internal_up_metadata = (
+            collisional_transition_internal_up(
+                coll_exc_coeff, electron_densities, self._coll_energies_lower
+            )
+        )
+
+        p_coll_excitation_cool, coll_excitation_cool_metadata = (
+            collisional_transition_excitation_cool(
+                coll_exc_coeff,
+                electron_densities,
+                self.delta_E_yg,
+                level_number_density,
+            )
+        )
 
         probabilities_df = pd.concat(
             [
@@ -992,9 +1049,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 p_photoionization,
                 p_recombination_emission,
                 p_recombination_internal,
+                p_coll_down_to_k_packet,
+                p_coll_internal_down,
+                p_coll_internal_up,
+                p_coll_excitation_cool,
             ],
             ignore_index=True,
         )
+
         macro_atom_transition_metadata = pd.concat(
             [
                 emission_down_metadata,
@@ -1003,15 +1065,20 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 photoionization_metadata,
                 recombination_emission_metadata,
                 recombination_internal_metadata,
+                coll_down_to_packet_metadata,
+                coll_internal_down_metadata,
+                coll_internal_up_metadata,
+                coll_excitation_cool_metadata,
             ],
             ignore_index=True,
         )
+
         probabilities_df, macro_atom_transition_metadata = (
             self.reindex_sort_and_clean_probabilities_and_metadata(
                 probabilities_df, macro_atom_transition_metadata
             )
         )
-
+        probabilities_df["source"] = macro_atom_transition_metadata["source"]
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )
@@ -1050,6 +1117,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         stimulated_emission_factors: np.ndarray,
         stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
         spontaneous_recombination_coeff: pd.DataFrame,
+        coll_deexc_coeff: pd.DataFrame,
+        coll_exc_coeff: pd.DataFrame,
+        electron_densities: pd.DataFrame,
+        level_number_density: pd.DataFrame,
     ) -> pd.DataFrame:
         """
         Handle subsequent iterations of the solve method.

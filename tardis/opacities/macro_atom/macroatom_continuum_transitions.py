@@ -291,14 +291,13 @@ def continuum_adiabatic_cooling(
     p_adiabatic_cool = probability_adiabatic_cooling(
         electron_densities, t_electrons, time_explosion
     )
-
+    sources = [("k", -99, -99)] * len(p_adiabatic_cool.index)
+    destinations = [("adiabatic", -99, -99)] * len(p_adiabatic_cool.index)
     adiabatic_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
-            "source": (
-                "k"
-            ),  # this should probably be a number - also check what properties the k packet would need to retain
-            "destination": ("adiabatic"),  # there are adiabatic, ff, bf
+            "source": sources,  # this should probably be a number - also check what properties the k packet would need to retain
+            "destination": destinations,  # there are adiabatic, ff, bf
             "transition_type": MacroAtomTransitionType.ADIABATIC_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
@@ -351,6 +350,7 @@ def continuum_free_free_cooling(
 ):
     """
     Wrap free-free cooling rates with metadata for macro-atom use.
+    CHECK IF THIS IS DEACTIVATION
 
     Parameters
     ----------
@@ -373,13 +373,13 @@ def continuum_free_free_cooling(
     p_free_free_cool = probability_free_free_cooling(
         ion_number_density, electron_densities, t_electrons
     )
+    sources = [("k", -99, -99)] * len(p_free_free_cool.index)
+    destinations = [("free_free", -99, -99)] * len(p_free_free_cool.index)
     free_free_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
-            "source": (
-                "k"
-            ),  # this should probably be a number - also check what properties the k packet would need to retain
-            "destination": ("free_free"),  # there are adiabatic, ff, bf
+            "source": sources,  # this should probably be a number - also check what properties the k packet would need to retain
+            "destination": destinations,  # there are adiabatic, ff, bf
             "transition_type": MacroAtomTransitionType.FF_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
@@ -412,14 +412,14 @@ def probability_collision_deexc_to_k_packet(
     pd.DataFrame
         DataFrame containing collisional de-excitation to k packet probabilities.
     """
-    p_deexc_deactivation = (coll_deexc_coeff * electron_densities).multiply(
+    p_coll_down_to_k_packet = (coll_deexc_coeff * electron_densities).multiply(
         delta_E_yg.values, axis=0
     )
     # IMPORTANT NOTE: Below was from the source but seems incorrect.
     # I don't know why you'd want a single value for the atom rather than for each level.
-    # p_deexc_deactivation = p_deexc_deactivation.groupby(level=[0]).sum()
+    # p_coll_down_to_k_packet = p_coll_down_to_k_packet.groupby(level=[0]).sum()
 
-    return p_deexc_deactivation
+    return p_coll_down_to_k_packet
 
 
 def collisional_transition_deexc_to_k_packet(
@@ -444,36 +444,38 @@ def collisional_transition_deexc_to_k_packet(
 
     Returns
     -------
-    p_deexc_deactivation : pd.DataFrame
+    p_coll_down_to_k_packet : pd.DataFrame
         Unnormalized probabilities (rates) for de-excitation/deactivation.
-    coll_deexc_deactivate_metadata : pd.DataFrame
+    coll_down_to_k_packet_metadata : pd.DataFrame
         Metadata for the de-excitation transitions; index matches
-        `p_deexc_deactivation`.
+        `p_coll_down_to_k_packet`.
     """
-    p_deexc_deactivation = probability_collision_deexc_to_k_packet(
+    p_coll_down_to_k_packet = probability_collision_deexc_to_k_packet(
         coll_deexc_coeff, electron_densities, delta_E_yg
     )
-    coll_deexc_deactivate_metadata = pd.DataFrame(
+
+    sources = p_coll_down_to_k_packet.index.droplevel(
+        "level_number_lower"
+    ).values
+    destinations = [("k", -99, -99)] * len(p_coll_down_to_k_packet.index)
+
+    coll_down_to_k_packet_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
-            "source": (
-                p_deexc_deactivation.index.droplevel(
-                    "level_number_lower"
-                ).values
-            ),
-            "destination": ("k"),
+            "source": sources,
+            "destination": destinations,
             "transition_type": MacroAtomTransitionType.COLL_DOWN_DEACTIVATION,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
         },
-        index=p_deexc_deactivation.index,
+        index=p_coll_down_to_k_packet.index,
     )
 
-    return p_deexc_deactivation, coll_deexc_deactivate_metadata
+    return p_coll_down_to_k_packet, coll_down_to_k_packet_metadata
 
 
 def probability_collision_internal_down(
-    coll_deexc_coeff, electron_densities, energy_lowers
+    coll_deexc_coeff, electron_densities, energies_lowers
 ):
     """
     Calculate collisional internal de-excitation probabilities.
@@ -484,7 +486,7 @@ def probability_collision_internal_down(
         Collisional de-excitation coefficients.
     electron_densities : pd.DataFrame
         Electron densities.
-    energy_lowers : pd.Series
+    energies_lowers : pd.Series
         Energy values of the lower levels.
 
     Returns
@@ -493,14 +495,13 @@ def probability_collision_internal_down(
         DataFrame containing collisional de-excitation probabilities.
     """
     p_coll_internal_down = (coll_deexc_coeff * electron_densities).multiply(
-        energy_lowers.values, axis=0
+        energies_lowers.values, axis=0
     )
-
     return p_coll_internal_down
 
 
 def collisional_transition_internal_down(
-    coll_deexc_coeff, electron_densities, atom_data
+    coll_deexc_coeff, electron_densities, energies_lowers
 ):
     """
     Build collisional internal-down transition probabilities and metadata.
@@ -511,8 +512,8 @@ def collisional_transition_internal_down(
         Collisional de-excitation coefficients indexed by transitions.
     electron_densities : pd.DataFrame or pd.Series
         Electron number densities per zone.
-    atom_data : object
-        Atomic data object providing `levels` with energy values.
+    energies_lowers : pd.Series
+        Energy values of the lower levels.
 
     Returns
     -------
@@ -521,15 +522,10 @@ def collisional_transition_internal_down(
     coll_internal_down_metadata : pd.DataFrame
         Metadata for the collisional internal down transitions.
     """
-    lower_indices = coll_deexc_coeff.index.droplevel(
-        "level_number_upper"
-    )  # TODO: Move this and next 4 lines to the continuum solver so we can reuse in iterations
-    energy_lowers = atom_data.levels.energy.loc[lower_indices]
-    sources = coll_deexc_coeff.droplevel("level_number_lower").values
-    destinations = coll_deexc_coeff.droplevel("level_number_upper").values
-
+    sources = coll_deexc_coeff.index.droplevel("level_number_lower").values
+    destinations = coll_deexc_coeff.index.droplevel("level_number_upper").values
     p_coll_internal_down = probability_collision_internal_down(
-        coll_deexc_coeff, electron_densities, energy_lowers
+        coll_deexc_coeff, electron_densities, energies_lowers
     )
 
     coll_internal_down_metadata = pd.DataFrame(
@@ -543,7 +539,6 @@ def collisional_transition_internal_down(
         },
         index=p_coll_internal_down.index,
     )
-
     return p_coll_internal_down, coll_internal_down_metadata
 
 
@@ -575,7 +570,7 @@ def probability_collision_internal_up(
 
 
 def collisional_transition_internal_up(
-    coll_exc_coeff, electron_densities, atom_data
+    coll_exc_coeff, electron_densities, energies_lowers
 ):
     """
     Build collisional internal-up transition probabilities and metadata.
@@ -586,7 +581,7 @@ def collisional_transition_internal_up(
         Collisional excitation coefficients indexed by transitions.
     electron_densities : pd.DataFrame or pd.Series
         Electron number densities per zone.
-    atom_data : object
+    energies_lowers : object
         Atomic data object providing `levels` with energy values.
 
     Returns
@@ -596,17 +591,12 @@ def collisional_transition_internal_up(
     coll_internal_up_metadata : pd.DataFrame
         Metadata for the collisional internal up transitions.
     """
-    lower_indices = coll_exc_coeff.index.droplevel(
-        "level_number_upper"
-    )  # TODO: Move this and next 4 lines to the continuum solver so we can reuse in iterations
-    energy_lowers = atom_data.levels.energy.loc[lower_indices]
-    sources = coll_exc_coeff.droplevel("level_number_upper").values
-    destinations = coll_exc_coeff.droplevel("level_number_lower").values
+    sources = coll_exc_coeff.index.droplevel("level_number_upper").values
+    destinations = coll_exc_coeff.index.droplevel("level_number_lower").values
 
     p_coll_internal_up = probability_collision_internal_down(
-        coll_exc_coeff, electron_densities, energy_lowers
+        coll_exc_coeff, electron_densities, energies_lowers
     )
-
     coll_internal_up_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -618,7 +608,6 @@ def collisional_transition_internal_up(
         },
         index=p_coll_internal_up.index,
     )
-
     return p_coll_internal_up, coll_internal_up_metadata
 
 
@@ -659,7 +648,6 @@ def probability_collision_excitation_cool(
     p_coll_excitation_cool = p_coll_excitation_cool.groupby(
         level="level_number_upper"
     ).sum()
-
     return p_coll_excitation_cool
 
 
@@ -703,16 +691,16 @@ def collisional_transition_excitation_cool(
         level_number_density,
         lower_indices,
     )
+    sources = [("k", -99, -99)] * len(p_coll_excitation_cool)
+    destinations = (
+        coll_exc_coeff.index.droplevel(["level_number_lower"]).unique().values
+    )
 
     coll_excitation_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
-            "source": ("k"),
-            "destination": coll_exc_coeff.index.droplevel(
-                ["level_number_lower"]
-            )
-            .unique()
-            .values,  # These destinations seem wrong, need to match to macroatom levels
+            "source": sources,
+            "destination": destinations,
             "transition_type": MacroAtomTransitionType.COLL_UP_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
