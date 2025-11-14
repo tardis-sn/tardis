@@ -40,7 +40,7 @@ stars (*supernovae*).
 .. _tardiscredits:
 
 ******************************
-Credits & Publication Policies
+## Credits & Publication Policies
 ******************************
 
 |DOI_BADGE|
