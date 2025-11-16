@@ -34,3 +34,34 @@ class BoundFreeOpacity(ProcessingPlasmaProperty):
         if num_neg_elements:
             raise PlasmaException("Negative values in bound-free opacity.")
         return chi_bf
+
+
+class BoundFreeOpacityState:
+    ...
+
+class BoundFreeOpacitySolver:
+    """
+    Attributes
+    ----------
+    chi_bf : pandas.DataFrame, dtype float
+        Bound-free opacity corrected for stimulated emission.
+    """
+
+    def __init__(self, photoionization_cross_sections):
+
+        self.photoionization_cross_sections = photoionization_cross_sections
+
+    def solve(self, level_number_density, lte_level_number_density, boltzmann_factor_photo_ion):
+
+        cross_section = self.photoionization_cross_sections["x_sect"].values
+
+        n_i = level_number_density.loc[self.photoionization_cross_sections.index]
+        lte_n_i = lte_level_number_density.loc[self.photoionization_cross_sections.index]
+        chi_bf = (n_i - lte_n_i * boltzmann_factor_photo_ion).multiply(
+            cross_section, axis=0
+        )
+
+        num_neg_elements = (chi_bf < 0).sum().sum()
+        if num_neg_elements:
+            raise PlasmaException("Negative values in bound-free opacity.")
+        return chi_bf
