@@ -54,7 +54,8 @@ class MonteCarloTransportState(HDFWriterMixin):
         geometry_state,
         opacity_state,
         time_explosion,
-        rpacket_tracker=None,
+        tracker_full_df=None,
+        tracker_last_interaction_df=None,
         vpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
@@ -64,7 +65,8 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.time_explosion = time_explosion
         self.geometry_state = geometry_state
         self.opacity_state = opacity_state
-        self.rpacket_tracker = rpacket_tracker
+        self.tracker_full_df = tracker_full_df
+        self.tracker_last_interaction_df = tracker_last_interaction_df
         self.vpacket_tracker = vpacket_tracker
 
     @property

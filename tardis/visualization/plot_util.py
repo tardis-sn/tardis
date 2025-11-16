@@ -115,7 +115,7 @@ def get_hex_color_strings(length, name="jet"):
     return [mcolors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
 
 
-def extract_and_process_packet_data(simulation, packets_mode):
+def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=False):
     """
     Extract and process packet data from the simulation object.
 
@@ -132,6 +132,9 @@ def extract_and_process_packet_data(simulation, packets_mode):
         Type of packets to extract:
         - 'virtual': Use virtual packet tracker.
         - 'real': Use emitted real packets.
+
+    include_shell_id : bool, optional
+        Whether to include shell_id information in the output (default: False)
 
     Returns
     -------
@@ -163,30 +166,29 @@ def extract_and_process_packet_data(simulation, packets_mode):
             ),
         }
     else:
-        mask = transport_state.emitted_packet_mask
+        df_last = transport_state.tracker_last_interaction_df
+
+        df_last_emitted = df_last[transport_state.emitted_packet_mask]
+
+        # Extract packet collection data for these packets
+        packet_indices = df_last_emitted.index.values
         packet_nus = u.Quantity(
-            transport_state.packet_collection.output_nus[mask], u.Hz
+            transport_state.packet_collection.output_nus[packet_indices], u.Hz
         )
+
         packet_data = {
-            "last_interaction_type": transport_state.last_interaction_type[
-                mask
-            ],
-            "last_line_interaction_in_id": transport_state.last_line_interaction_in_id[
-                mask
-            ],
-            "last_line_interaction_out_id": transport_state.last_line_interaction_out_id[
-                mask
-            ],
-            "last_line_interaction_in_nu": transport_state.last_interaction_in_nu[
-                mask
-            ],
-            "last_interaction_in_r": transport_state.last_interaction_in_r[
-                mask
-            ],
+            "last_interaction_type": df_last_emitted["last_interaction_type"].values,
+            "last_line_interaction_in_id": df_last_emitted["line_absorb_id"].values,
+            "last_line_interaction_out_id": df_last_emitted["line_emit_id"].values,
+            "last_line_interaction_in_nu": df_last_emitted["before_nu"].values,
+            "last_interaction_in_r": df_last_emitted["radius"].values,
             "nus": packet_nus,
-            "energies": transport_state.packet_collection.output_energies[mask],
+            "energies": transport_state.packet_collection.output_energies[packet_indices],
             "lambdas": packet_nus.to("angstrom", u.spectral()),
         }
+
+        if include_shell_id:
+            packet_data["last_line_interaction_shell_id"] = df_last_emitted["after_shell_id"].values
 
     packet_data["packets_df"] = pd.DataFrame(packet_data)
     process_line_interactions(packet_data, lines_df)
@@ -213,7 +215,7 @@ def process_line_interactions(packet_data, lines_df):
 
     if packets_df is not None:
         # Create dataframe of packets that experience line interaction
-        line_mask = (packets_df["last_interaction_type"] > InteractionType.NO_INTERACTION) & (
+        line_mask = (packets_df["last_interaction_type"] != "NO_INTERACTION") & (
             packets_df["last_line_interaction_in_id"] > -1
         )
         packet_data["packets_df_line_interaction"] = packets_df.loc[
@@ -246,9 +248,8 @@ def process_line_interactions(packet_data, lines_df):
                     "last_line_interaction_out_id"
                 ]
             ]
-            .to_numpy()
-            ,
-            + lines_df["ion_number"]
+            .to_numpy(),
+            lines_df["ion_number"]
             .iloc[
                 packet_data["packets_df_line_interaction"][
                     "last_line_interaction_out_id"
@@ -578,12 +579,15 @@ def create_wavelength_mask(
 
     Parameters
     ----------
-    packets_mode : str
-        'virtual' or 'real' packets mode
+    packet_data : dict or pd.DataFrame
+        Either a nested dict with packet data or a DataFrame directly
+    packets_mode : str or None
+        'virtual' or 'real' packets mode. Required if packet_data is a dict, ignored if DataFrame
     packet_wvl_range : astropy.Quantity or None
         Wavelength range to filter packets
-    df_key : str
-        Key for the dataframe in packet_data ('packets_df' or 'packets_df_line_interaction')
+    df_key : str or None
+        Key for the dataframe in packet_data ('packets_df' or 'packets_df_line_interaction').
+        Required if packet_data is a dict, ignored if DataFrame
     column_name : str
         Column name to filter on ('nus' or 'last_line_interaction_in_nu')
 
@@ -592,14 +596,15 @@ def create_wavelength_mask(
     np.array
         Boolean mask for packets in the specified wavelength range
     """
+    if isinstance(packet_data, pd.DataFrame):
+        df = packet_data
+    else:
+        df = packet_data[packets_mode][df_key]
+
     if packet_wvl_range is None:
-        return np.ones(
-            packet_data[packets_mode][df_key].shape[0],
-            dtype=bool,
-        )
+        return np.ones(df.shape[0], dtype=bool)
 
     packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
-    df = packet_data[packets_mode][df_key]
 
     return (df[column_name] < packet_nu_range[0]) & (
         df[column_name] > packet_nu_range[1]

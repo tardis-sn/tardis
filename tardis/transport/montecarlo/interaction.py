@@ -495,10 +495,6 @@ def line_emission(
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
-    r_packet.last_line_interaction_out_id = emission_line_id
-    r_packet.last_line_interaction_shell_id = r_packet.current_shell_id
-    r_packet.last_interaction_in_r = r_packet.r
-
     if emission_line_id != r_packet.next_line_id:
         pass
     inverse_doppler_factor = get_inverse_doppler_factor(
@@ -508,7 +504,6 @@ def line_emission(
         opacity_state.line_list_nu[emission_line_id] * inverse_doppler_factor
     )
     r_packet.next_line_id = emission_line_id + 1
-    nu_line = opacity_state.line_list_nu[emission_line_id]
 
     if enable_full_relativity:
         r_packet.mu = angle_aberration_CMF_to_LF(

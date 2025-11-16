@@ -28,7 +28,6 @@ class InteractionType(IntEnum):
     CONTINUUM_PROCESS : int
         Packet underwent continuum process interaction (value = 8)
     """
-
     NO_INTERACTION = -1
     BOUNDARY = 1
     LINE = 2
@@ -54,12 +53,6 @@ class RPacket:
     status: nb.int64  # type: ignore[misc]
     seed: nb.int64  # type: ignore[misc]
     index: nb.int64  # type: ignore[misc]
-    last_interaction_type: nb.int64  # type: ignore[misc]
-    last_interaction_in_nu: nb.float64  # type: ignore[misc]
-    last_interaction_in_r: nb.float64  # type: ignore[misc]
-    last_line_interaction_in_id: nb.int64  # type: ignore[misc]
-    last_line_interaction_out_id: nb.int64  # type: ignore[misc]
-    last_line_interaction_shell_id: nb.int64  # type: ignore[misc]
 
     def __init__(
         self,
@@ -97,12 +90,6 @@ class RPacket:
         self.status = PacketStatus.IN_PROCESS
         self.seed = seed
         self.index = index
-        self.last_interaction_type = InteractionType.NO_INTERACTION
-        self.last_interaction_in_nu = 0.0
-        self.last_interaction_in_r = 0.0
-        self.last_line_interaction_in_id = -1
-        self.last_line_interaction_out_id = -1
-        self.last_line_interaction_shell_id = -1
 
     def initialize_line_id(
         self, opacity_state, time_explosion, enable_full_relativity

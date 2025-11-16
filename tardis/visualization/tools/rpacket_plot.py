@@ -64,34 +64,34 @@ class RPacketPlotter:
 
         self.no_of_packets = no_of_packets
         self.sim = sim
-        # Create a dictionary mapping interaction type values to display properties
-        # This allows direct lookup using int(interaction_type) values
+        # Create a dictionary mapping interaction type string values to display properties
+        # This allows direct lookup using string interaction_type values
         self.interaction_from_num = {
-            int(InteractionType.NO_INTERACTION): {
+            "NO_INTERACTION": {
                 "text": "No Interaction",
                 "color": "#2E86AB",
                 "color_dark": "#2E86AB",
                 "opacity": 0.8,
             },
-            int(InteractionType.BOUNDARY): {
+            "BOUNDARY": {
                 "text": "Boundary",
                 "color": "#A23B72",
                 "color_dark": "#A23B72",
                 "opacity": 0.8,
             },
-            int(InteractionType.LINE): {
+            "LINE": {
                 "text": "Line Interaction",
                 "color": "#F18F01",
                 "color_dark": "#F18F01",
                 "opacity": 0.8,
             },
-            int(InteractionType.ESCATTERING): {
+            "ESCATTERING": {
                 "text": "E-Scattering",
                 "color": "#C73E1D",
                 "color_dark": "#C73E1D",
                 "opacity": 0.8,
             },
-            int(InteractionType.CONTINUUM_PROCESS): {
+            "CONTINUUM_PROCESS": {
                 "text": "Continuum",
                 "color": "#6A4C93",
                 "color_dark": "#6A4C93",
@@ -212,7 +212,7 @@ class RPacketPlotter:
             If requested no_of_packets exceeds available packets.
         """
         logger = logging.getLogger(__name__)
-        if hasattr(sim.transport.transport_state, "rpacket_tracker_df"):
+        if hasattr(sim.transport.transport_state, "tracker_full_df"):
             if sim.last_no_of_packets >= no_of_packets:
                 return cls(sim, no_of_packets)
             logger.warning(
@@ -267,7 +267,7 @@ class RPacketPlotter:
             rpacket_y,
             rpacket_interactions,
         ) = self.get_coordinates_multiple_packets(
-            self.sim.transport.transport_state.rpacket_tracker_df.loc[
+            self.sim.transport.transport_state.tracker_full_df.loc[
                 0 : (self.no_of_packets)
             ],
         )
@@ -358,14 +358,14 @@ class RPacketPlotter:
                 ),
                 name="e-scattering",
                 hoverlabel=dict(font=dict(color="#222")),
-                marker=dict(color=self.interaction_from_num[int(InteractionType.ESCATTERING)]["color"]),
+                marker=dict(color=self.interaction_from_num["ESCATTERING"]["color"]),
             )
         )
         self.fig.add_trace(
             go.Scatter(
                 **legend_props,
                 name="Line Interaction",
-                marker=dict(color=self.interaction_from_num[int(InteractionType.LINE)]["color"]),
+                marker=dict(color=self.interaction_from_num["LINE"]["color"]),
             )
         )
 
@@ -492,7 +492,7 @@ class RPacketPlotter:
 
         # getting thetas at different steps of the packet movement
 
-        for step_no in range(len(r_track)):
+        for step_no in range(0, len(r_track)):
             # for the first step the packet is at photosphere, so theta will be equal to the intial angle we are launching the packet from
             if step_no == 0:
                 theta.append(theta_initial)
@@ -513,6 +513,7 @@ class RPacketPlotter:
                     new_theta += np.asin(-1 * sin_term)
                 theta.append(new_theta)
 
+
         # converting the thetas into x and y coordinates using radius as radius*cos(theta) and radius*sin(theta) respectively
         rpacket_x = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
         rpacket_y = (np.array(r_track)) * np.sin(np.array(theta)) * 1e-5 / time
@@ -523,7 +524,7 @@ class RPacketPlotter:
         for step_no in range(len(r_track)):
             # when packet is at its starting and ending point in its trajectory, we consider it as no interaction
             if step_no == 0 or step_no == len(r_track) - 1:
-                rpacket_interactions.append(int(InteractionType.NO_INTERACTION))
+                rpacket_interactions.append("NO_INTERACTION")
             else:
                 # current slope is the slope of line from previous position of the packet to the current position
                 rpacket_interactions.append(last_interaction_type[step_no])
@@ -558,6 +559,9 @@ class RPacketPlotter:
         Launch angles are distributed uniformly around the photosphere to
         provide representative coverage of packet trajectories.
         """
+        # Remove rows with any NaN values
+        r_packet_tracker = r_packet_tracker.dropna()
+        
         # for plotting packets at equal intervals throught the circle, we choose thetas distributed uniformly
         thetas = np.linspace(0, 2 * np.pi, self.no_of_packets + 1)
         all_rpackets_x_coords = []
@@ -566,15 +570,17 @@ class RPacketPlotter:
 
         # getting coordinates and interaction arrays for all packets
         for packet_no in range(self.no_of_packets):
-            interaction_types = r_packet_tracker.loc[packet_no]["interaction_type"]
+            packet_data = r_packet_tracker.loc[packet_no]
+            interaction_types = packet_data["interaction_type"]
+            mu_data = packet_data["after_mu"]
             
             (
                 rpacket_x,
                 rpacket_y,
                 rpacket_interactions,
             ) = self.get_coordinates_with_theta_init(
-                r_packet_tracker.loc[packet_no]["r"],
-                r_packet_tracker.loc[packet_no]["mu"],
+                packet_data["radius"],
+                mu_data,
                 self.sim.simulation_state.time_explosion.value,
                 interaction_types,
                 thetas[packet_no],
@@ -632,9 +638,7 @@ class RPacketPlotter:
             if padding_size > 0:
                 x_padding = np.ones(padding_size) * rpacket_x[packet_no][-1]
                 y_padding = np.ones(padding_size) * rpacket_y[packet_no][-1]
-                interactions_padding = (
-                    np.ones(padding_size) * interactions[packet_no][-1]
-                )
+                interactions_padding = np.full(padding_size, interactions[packet_no][-1])
 
                 rpacket_x[packet_no] = np.append(
                     rpacket_x[packet_no], x_padding
@@ -747,15 +751,15 @@ class RPacketPlotter:
             interaction_vals = interaction_vals[:frame]
 
         text_labels = [
-            self.interaction_from_num[int(interaction)]["text"]
+            self.interaction_from_num[interaction]["text"]
             for interaction in interaction_vals
         ]
         opacity_values = [
-            self.interaction_from_num[int(interaction)]["opacity"]
+            self.interaction_from_num[interaction]["opacity"]
             for interaction in interaction_vals
         ]
         color_values = [
-            self.interaction_from_num[int(interaction)]["color"]
+            self.interaction_from_num[interaction]["color"]
             for interaction in interaction_vals
         ]
 
