@@ -1,5 +1,9 @@
 ## Changelog
 
+### release-2025.11.16 (2025/11/15 20:31)
+- [3343](https://github.com/tardis-sn/tardis/pull/3343) Pre-release 2025.11.16 (3343) (@tardis-bot)
+- [3334](https://github.com/tardis-sn/tardis/pull/3334) Fix broken link in installation instructions (3334) (@ClydeME)
+- [3336](https://github.com/tardis-sn/tardis/pull/3336) Post-release 2025.11.09 (3336) (@tardis-bot)
 ### release-2025.11.09 (2025/11/08 20:37)
 - [3335](https://github.com/tardis-sn/tardis/pull/3335) Pre-release 2025.11.09 (3335) (@tardis-bot)
 - [3328](https://github.com/tardis-sn/tardis/pull/3328) Bump actions/upload-artifact from 4 to 5 (3328) (@dependabot[bot])
