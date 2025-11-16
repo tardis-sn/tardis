@@ -1,0 +1,603 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.spectrum.formal_integral.formal_integral_solver &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=bbf38989"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.spectrum.formal_integral.formal_integral_solver</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.spectrum.formal_integral.formal_integral_solver</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import numpy as np
+from astropy import units as u
+from scipy.interpolate import interp1d
+
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.spectrum.base import TARDISSpectrum
+from tardis.spectrum.formal_integral.base import check_formal_integral_requirements
+from tardis.spectrum.formal_integral.formal_integral_cuda import (
+    CudaFormalIntegrator,
+)
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    NumbaFormalIntegrator,
+)
+from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="FormalIntegralSolver">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver">[docs]</a>
+class FormalIntegralSolver:
+    &quot;&quot;&quot;
+    Formal integral solver for TARDIS spectra.
+
+    Attributes
+    ----------
+    points : int
+        Number of points for the formal integral calculation
+    interpolate_shells : int
+        Number of shells to interpolate to. If &gt; 0, interpolation is performed
+        to the specified number of shells. If &lt;= 0, no interpolation is performed
+        and original shell structure is used.
+    method : str or None
+        Method to use for the formal integral solver (&#39;numba&#39; or &#39;cuda&#39;)
+    &quot;&quot;&quot;
+
+    points: int
+    interpolate_shells: int
+    method: str | None
+
+    def __init__(
+        self, points: int, interpolate_shells: int, method: str | None = None
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Initialize the formal integral solver.
+
+        Parameters
+        ----------
+        points : int
+            Number of points for the formal integral calculation
+        interpolate_shells : int
+            Number of shells to interpolate to. If &gt; 0, interpolation is performed
+            to the specified number of shells. If &lt;= 0, no interpolation is performed
+            and original shell structure is used.
+        method : str, optional
+            Method to use for the formal integral solver (&#39;numba&#39; or &#39;cuda&#39;).
+            If None, will be determined based on GPU availability.
+        &quot;&quot;&quot;
+        self.points = points
+        self.interpolate_shells = interpolate_shells
+        self.method = method
+
+<div class="viewcode-block" id="FormalIntegralSolver.setup">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup">[docs]</a>
+    def setup(
+        self,
+        transport,
+        opacity_state=None,
+        macro_atom_state=None,
+    ) -&gt; object:
+        &quot;&quot;&quot;
+        Prepare the necessary data for the formal integral solver.
+
+        Parameters
+        ----------
+        transport : tardis.transport.montecarlo.MontecarloTransport
+            The transport configuration object
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            The regular (non-numba) opacity state object to be converted
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional
+            The macro atom state object
+
+        Returns
+        -------
+        opacity_state_numba : tardis.opacities.opacity_state.OpacityStateNumba
+            The opacity state converted to numba format
+        &quot;&quot;&quot;
+        if opacity_state is None or macro_atom_state is None:
+            raise NotImplementedError(
+                &quot;This functionality does not work anymore. Both opacity_state and macro_atom_state must be provided.&quot;
+            )
+
+        self.montecarlo_configuration = transport.montecarlo_configuration
+
+        # check method selection
+        if self.method in [ # TODO: better way to handle this
+            &quot;numba&quot;,
+            &quot;cuda&quot;,
+        ]:
+            pass
+        elif self.method is None:
+            logger.warning(
+                f&quot;The formal integral implementation was not specified. &quot;
+                &quot;Please run with config option numba or cuda.&quot;
+                &quot;Defaulting to numba implementation.&quot;
+            )
+            self.method = &quot;numba&quot;
+        else:
+            logger.warning(
+                &quot;Computing formal integral via the %s method isn&#39;t supported. &quot;
+                &quot;Please run with config option numba or cuda. &quot;
+                &quot;Defaulting to numba implementation&quot;,
+                self.method,
+            )
+            self.method = &quot;numba&quot;
+
+        if opacity_state and macro_atom_state:
+            opacity_state_numba = opacity_state.to_numba(
+                macro_atom_state,
+                transport.line_interaction_type,
+            )
+
+        return opacity_state_numba</div>
+
+
+<div class="viewcode-block" id="FormalIntegralSolver.setup_integrator">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.setup_integrator">[docs]</a>
+    def setup_integrator(
+        self,
+        opacity_state_numba,
+        time_explosion: u.Quantity,
+        r_inner: np.ndarray,
+        r_outer: np.ndarray,
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Set up the integrator depending on the choice of method.
+
+        Parameters
+        ----------
+        opacity_state_numba : tardis.opacities.opacity_state.OpacityStateNumba
+            The opacity state (numba format) to use for the formal integral
+        time_explosion : u.Quantity
+            The time of the explosion
+        r_inner : np.ndarray
+            The inner radii of the shells
+        r_outer : np.ndarray
+            The outer radii of the shells
+        &quot;&quot;&quot;
+        numba_radial_1d_geometry = NumbaRadial1DGeometry(
+            r_inner,
+            r_outer,
+            r_inner / time_explosion.to(&quot;s&quot;).value,
+            r_outer / time_explosion.to(&quot;s&quot;).value,
+        )
+
+        if self.method == &quot;cuda&quot;:
+            self.integrator = CudaFormalIntegrator(
+                numba_radial_1d_geometry,
+                time_explosion.cgs.value,
+                opacity_state_numba,
+                self.points,
+            )
+        else:
+            self.integrator = NumbaFormalIntegrator(
+                numba_radial_1d_geometry,
+                time_explosion.cgs.value,
+                opacity_state_numba,
+                self.points,
+            )</div>
+
+
+<div class="viewcode-block" id="FormalIntegralSolver.solve">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.solve">[docs]</a>
+    def solve(
+        self,
+        frequencies: u.Quantity,
+        simulation_state,
+        transport_solver,
+        opacity_state,
+        atomic_data,
+        electron_densities,
+        macro_atom_state=None,
+    ) -&gt; TARDISSpectrum:
+        &quot;&quot;&quot;
+        Solve the formal integral.
+
+        Parameters
+        ----------
+        frequencies : u.Quantity
+            The frequency grid for the formal integral
+        simulation_state : tardis.model.SimulationState
+            State which holds information about each shell
+        transport_solver : tardis.transport.montecarlo.MonteCarloTransportSolver
+            The transport solver
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            Regular (non-numba) opacity state; will be converted to numba via `setup`
+        atomic_data : tardis.atomic.AtomicData
+            Atomic data containing atomic properties
+        electron_densities : pd.Series
+            Electron densities for each shell
+        macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState, optional
+            State of the macro atom (required for converting opacity_state to numba)
+
+        Returns
+        -------
+        TARDISSpectrum
+            The formal integral spectrum
+        &quot;&quot;&quot;
+        # check objects and configs
+        check_formal_integral_requirements(simulation_state, opacity_state, transport_solver)
+
+        # Convert to numba opacity state for source function and integrator
+        opacity_state_numba = self.setup(
+            transport_solver, opacity_state, macro_atom_state
+        )
+        transport_state = transport_solver.transport_state
+
+        points = self.points
+        interpolate_shells = self.interpolate_shells
+        line_interaction_type = transport_solver.line_interaction_type
+
+        if interpolate_shells == 0:  # Default Value
+            interpolate_shells = max(2 * simulation_state.no_of_shells, 80)
+            logger.warning(
+                &quot;The number of interpolate_shells was not &quot;
+                &quot;specified. The value was set to %d.&quot;,
+                interpolate_shells,
+            )
+        self.interpolate_shells = interpolate_shells
+
+        source_function_solver = SourceFunctionSolver(line_interaction_type)
+        source_function_state = source_function_solver.solve(
+            simulation_state,
+            opacity_state_numba,
+            transport_state,
+            atomic_data,
+            macro_atom_state,
+        )
+
+        # Generate interpolated radii if needed
+        mct_state = transport_solver.transport_state
+        if interpolate_shells &gt; 0:
+            radius_interpolated = np.linspace(
+                mct_state.geometry_state.r_inner[0],
+                mct_state.geometry_state.r_outer[-1],
+                interpolate_shells,
+            )
+            r_inner_interpolated = radius_interpolated[:-1]
+            r_outer_interpolated = radius_interpolated[1:]
+        elif interpolate_shells &lt;= 0:
+            # Use original radii values when interpolate_shells &lt; 0
+            r_inner_interpolated = mct_state.geometry_state.r_inner
+            r_outer_interpolated = mct_state.geometry_state.r_outer
+
+        (
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
+            r_inner_interpolated,
+            r_outer_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
+        ) = self.interpolate_integrator_quantities(
+            mct_state.geometry_state.r_inner,
+            mct_state.geometry_state.r_outer,
+            r_inner_interpolated,
+            r_outer_interpolated,
+            source_function_state,
+            simulation_state,
+            opacity_state,
+            electron_densities,
+        )
+
+        att_S_ul_interpolated = att_S_ul_interpolated.flatten(order=&quot;F&quot;)
+        Jred_lu_interpolated = Jred_lu_interpolated.flatten(order=&quot;F&quot;)
+        Jblue_lu_interpolated = Jblue_lu_interpolated.flatten(order=&quot;F&quot;)
+
+        self.setup_integrator(
+            opacity_state_numba,
+            simulation_state.time_explosion,
+            r_inner_interpolated,
+            r_outer_interpolated,
+        )
+
+        luminosity_densities, intensities_nu_p = self.integrator.formal_integral(
+            simulation_state.t_inner,
+            frequencies,
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
+            points,
+        )
+
+        luminosity_densities = np.array(luminosity_densities, dtype=np.float64)
+        delta_frequency = frequencies[1] - frequencies[0]
+
+        assert np.allclose(
+            frequencies.diff(), delta_frequency, atol=0, rtol=1e-12
+        ), &quot;Frequency grid must be uniform&quot;
+
+        luminosity = (
+            u.Quantity(luminosity_densities, &quot;erg/s/Hz&quot;) * delta_frequency
+        )
+
+        frequencies = frequencies.to(&quot;Hz&quot;, u.spectral())
+
+        # Ugly hack to convert to &#39;bin edges&#39;
+        frequencies = u.Quantity(
+            np.concatenate(
+                [
+                    frequencies.value,
+                    [frequencies.value[-1] + np.diff(frequencies.value)[-1]],
+                ]
+            ),
+            frequencies.unit,
+        )
+
+        return TARDISSpectrum(frequencies, luminosity)</div>
+
+
+<div class="viewcode-block" id="FormalIntegralSolver.interpolate_integrator_quantities">
+<a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.formal_integral_solver.html#tardis.spectrum.formal_integral.formal_integral_solver.FormalIntegralSolver.interpolate_integrator_quantities">[docs]</a>
+    def interpolate_integrator_quantities(
+        self,
+        r_inner_original: np.ndarray,
+        r_outer_original: np.ndarray,
+        r_inner_interpolated: np.ndarray,
+        r_outer_interpolated: np.ndarray,
+        source_function_state,
+        simulation_state,
+        opacity_state,
+        electron_densities,
+    ) -&gt; tuple[
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+    ]:
+        &quot;&quot;&quot;
+        Interpolate the integrator quantities to interpolate_shells.
+
+        Parameters
+        ----------
+        r_inner_original : np.ndarray
+            Original inner radii of the shells
+        r_outer_original : np.ndarray
+            Original outer radii of the shells
+        r_inner_interpolated : np.ndarray
+            Pre-computed inner radii for interpolation
+        r_outer_interpolated : np.ndarray
+            Pre-computed outer radii for interpolation
+        source_function_state : tardis.spectrum.formal_integral.source_function.SourceFunctionState
+            Data class that holds the computed source function values which will be interpolated
+        simulation_state : tardis.model.SimulationState
+            The simulation state object
+        opacity_state : tardis.opacities.opacity_state.OpacityState
+            The opacity state object (regular, non-numba)
+        electron_densities : pd.Series
+            Electron densities for each shell
+
+        Returns
+        -------
+        tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+            Interpolated values of att_S_ul_interpolated, Jred_lu_interpolated, Jblue_lu_interpolated, r_inner_interpolated, r_outer_interpolated, tau_sobolevs_interpolated, and electron_densities_interpolated
+        &quot;&quot;&quot;
+        # Extract values from source function state
+        att_S_ul = source_function_state.att_S_ul
+        Jred_lu = source_function_state.Jred_lu
+        Jblue_lu = source_function_state.Jblue_lu
+
+        r_middle_original = (r_inner_original + r_outer_original) / 2.0
+
+        r_middle_interpolated = (
+            r_inner_interpolated + r_outer_interpolated
+        ) / 2.0
+
+        electron_densities_interpolated = interp1d(
+            r_middle_original,
+            electron_densities.iloc[
+                simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+            ],
+            fill_value=&quot;extrapolate&quot;,  # type: ignore[arg-type]
+            kind=&quot;nearest&quot;,
+        )(r_middle_interpolated)
+        # Assume tau_sobolevs to be constant within a shell
+        # (as in the MC simulation)
+        v_inner_boundary_index = (
+            simulation_state.geometry.v_inner_boundary_index
+        )
+        v_outer_boundary_index = (
+            simulation_state.geometry.v_outer_boundary_index
+        )
+        tau_sobolevs_interpolated = interp1d(
+            r_middle_original,
+            opacity_state.tau_sobolev.values[
+                :, v_inner_boundary_index:v_outer_boundary_index
+            ],
+            fill_value=&quot;extrapolate&quot;,  # type: ignore[arg-type]
+            kind=&quot;nearest&quot;,
+        )(r_middle_interpolated)
+        att_S_ul_interpolated = interp1d(
+            r_middle_original,
+            att_S_ul,
+            fill_value=&quot;extrapolate&quot;,  # type: ignore[arg-type]
+        )(r_middle_interpolated)
+        Jred_lu_interpolated = interp1d(
+            r_middle_original,
+            Jred_lu,
+            fill_value=&quot;extrapolate&quot;,  # type: ignore[arg-type]
+        )(r_middle_interpolated)
+        Jblue_lu_interpolated = interp1d(
+            r_middle_original,
+            Jblue_lu,
+            fill_value=&quot;extrapolate&quot;,  # type: ignore[arg-type]
+        )(r_middle_interpolated)
+
+        # Set negative values from the extrapolation to zero
+        att_S_ul_interpolated = att_S_ul_interpolated.clip(0.0)
+        Jblue_lu_interpolated = Jblue_lu_interpolated.clip(0.0)
+        Jred_lu_interpolated = Jred_lu_interpolated.clip(0.0)
+        return (
+            att_S_ul_interpolated,
+            Jred_lu_interpolated,
+            Jblue_lu_interpolated,
+            r_inner_interpolated,
+            r_outer_interpolated,
+            tau_sobolevs_interpolated,
+            electron_densities_interpolated,
+        )</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 16 Nov 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
