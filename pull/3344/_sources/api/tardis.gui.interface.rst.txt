@@ -1,0 +1,7 @@
+tardis.gui.interface module
+===========================
+
+.. automodule:: tardis.gui.interface
+   :members:
+   :show-inheritance:
+   :undoc-members:

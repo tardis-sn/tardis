@@ -1,0 +1,1410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.visualization.widgets.grotrian &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=0ae8db40"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.visualization.widgets.grotrian</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.visualization.widgets.grotrian</h1><div class="highlight"><pre>
+<span></span>&quot;&quot;&quot;
+Grotrian Diagram Widget for TARDIS simulation models.
+
+This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
+&quot;&quot;&quot;
+import ipywidgets as ipw
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+from astropy import units as u
+from plotly.subplots import make_subplots
+
+from tardis.analysis import LastLineInteraction
+from tardis.util.base import (
+    int_to_roman,
+    species_string_to_tuple,
+    species_tuple_to_string,
+)
+
+ANGSTROM_SYMBOL = &quot;\u212B&quot;
+
+
+<div class="viewcode-block" id="is_zero_defined">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.is_zero_defined">[docs]</a>
+def is_zero_defined(transform):
+    &quot;&quot;&quot;
+    Utility function to decide if a certain transform is defined at zero
+
+    Parameters
+    ----------
+    transform : function
+
+    Returns
+    -------
+    bool
+        True if transform is defined at 0 else False
+    &quot;&quot;&quot;
+    if transform in [np.log, np.log10]:
+        return True
+    return False</div>
+
+
+
+<div class="viewcode-block" id="standardize">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.standardize">[docs]</a>
+def standardize(
+    values,
+    transform=lambda x: x,
+    min_value=None,
+    max_value=None,
+    zero_undefined_offset=0,
+):
+    &quot;&quot;&quot;
+    Utility function to standardize displayed values like wavelengths, num_packets, levels populations to the range [0, 1]
+    This helps in computing visual elements like widths, colors, etc.
+
+    Parameters
+    ----------
+    values : pandas.Series
+        The data to standardize
+    transform : function, optional
+        Transformations like np.log, np.exp, etc. to apply on the data. Defaults to identity
+    min_value : float, optional
+        The lower bound of the range
+    max_value : float, optional
+        The upper bound of the range
+    zero_undefined_offset : int, optional
+        This is useful for log transformation because log(0) is -inf.
+        Hence, value=0 gives y=0 while the
+        output for other values start at `zero_undefined_offset` (y = log(value) + zero_undefined_offset)
+        Default value is 0
+
+    Returns
+    -------
+    pandas.Series
+        Values after standardization
+    &quot;&quot;&quot;
+    zero_undefined = is_zero_defined(transform)  # Is function defined at 0?
+
+    if zero_undefined and zero_undefined_offset == 0:
+        raise ValueError(
+            &quot;If zero of the transformation is undefined, then provide an offset greater than 0&quot;
+        )
+
+    # Compute lower and upper bounds of values
+    if min_value is None:
+        if zero_undefined:
+            min_value = (
+                values[values &gt; 0].min() if len(values[values &gt; 0]) &gt; 0 else 0
+            )
+        else:
+            min_value = values.min() if len(values) &gt; 0 else 0
+    if max_value is None:
+        if zero_undefined:
+            max_value = (
+                values[values &gt; 0].max() if len(values[values &gt; 0]) &gt; 0 else 0
+            )
+        else:
+            max_value = values.max() if len(values) &gt; 0 else 0
+
+    # Apply transformation if given
+    transformed_min_value = (
+        transform(min_value) if (min_value &gt; 0 or not zero_undefined) else 0
+    )
+    transformed_max_value = (
+        transform(max_value) if (max_value &gt; 0 or not zero_undefined) else 0
+    )
+    transformed_values = transform(values)
+
+    # Compute range
+    value_range = transformed_max_value - transformed_min_value
+
+    # Apply standardization
+    if value_range &gt; 0:
+        transformed_values = (
+            transformed_values - transformed_min_value
+        ) / value_range
+        if zero_undefined:
+            transformed_values = transformed_values + zero_undefined_offset
+            transformed_values = np.where(values == 0, 0, transformed_values)
+    else:
+        # If only single value present in table, then place it at 0
+        transformed_values = 0 * values
+
+    return transformed_values</div>
+
+
+
+<div class="viewcode-block" id="GrotrianPlot">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot">[docs]</a>
+class GrotrianPlot:
+    &quot;&quot;&quot;
+    Class for the Grotrian Diagram
+
+    Parameters
+    ----------
+    atom_data : pandas.DataFrame
+        Mapping from atomic number to symbol and name
+    level_energy_data : pandas.Series
+        Level energies (in eV) indexed by (atomic_number, ion_number, level_number)
+    level_population_data : pandas.DataFrame
+        Level populations indexed by (atomic_number, ion_number, level_number)
+        and each column representing the supernova shell
+    line_interaction_analysis : tardis.analysis.LastLineInteraction
+        LastLineInteraction object with the appropriate filters
+
+    Configurable Attributes
+    -----------------------
+    atomic_number : int
+        Atomic number of the ion for which the diagram is plotted
+        Note: User should set the atomic_number and ion_number together using set_ion function.
+    ion_number : int
+        Ion number of the ion for which the diagram is plotted
+        Note: User should set the atomic_number and ion_number together using set_ion function.
+    shell : int or None
+        The supernova shell to filter on.
+        If None, the level populations are averaged across all shells,
+        and all last line interaction are considered
+        Default value is None
+    max_levels : int
+        The maximum number of levels to plot.
+        Default value is 10
+    level_diff_threshold : float
+        The percentage threshold under which levels are merged
+        Default value is 1% (0.01)
+    min_wavelength : float
+        The minimum wavelength allowed for the transitions
+    max_wavelength : float
+        The maximum wavelength allowed for the transitions
+    filter_mode : {&quot;packet_out_nu&quot;, &quot;packet_in_nu&quot;}
+        The type of wavelength to apply wavelength range filter on
+        Default value is packet_out_nu
+    y_scale : {&quot;Log&quot;, &quot;Linear&quot;}
+        The scale to plot the energy levels on the y-axis
+        Default value is Log
+    cmapname : str
+        The name of the colormap used to denote wavelengths. Default value is &quot;rainbow&quot;
+    level_width_scale : float
+        The multiplier to convert standardized level populations to level widths
+        Default value is 3
+    level_width_offset : float
+        The offset for level widths (to add to the scaled standardized level populations)
+        Default value is 1
+    transition_width_scale : float
+        The multiplier to convert standardized packet count to transition widths
+        Default value is 2
+    transition_width_offset : float
+        The offset for transition widths (to add to the scaled standardized packet counts)
+        Default value is 1
+    &quot;&quot;&quot;
+
+    FILTER_MODES = (&quot;packet_out_nu&quot;, &quot;packet_in_nu&quot;)
+    FILTER_MODES_DESC = (&quot;Emitted Wavelength&quot;, &quot;Absorbed Wavelength&quot;)
+    Y_SCALE_OPTION = {&quot;Linear&quot;: (lambda x: x), &quot;Log&quot;: np.log}
+
+<div class="viewcode-block" id="GrotrianPlot.from_simulation">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.from_simulation">[docs]</a>
+    @classmethod
+    def from_simulation(cls, sim, **kwargs):
+        &quot;&quot;&quot;
+        Creates a GrotrianPlot object from a Simulation object
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS simulation object
+
+        Returns
+        -------
+        tardis.visualization.widgets.grotrian.GrotrianPlot
+            GrotrianPlot object
+        &quot;&quot;&quot;
+        atom_data = sim.plasma.atomic_data.atom_data
+        level_energy_data = pd.Series(
+            sim.plasma.atomic_data.levels.energy * u.erg.to(u.electronvolt),
+            name=&quot;energy&quot;,
+        )
+        level_population_data = sim.plasma.level_number_density
+        line_interaction_analysis = {
+            filter_mode: LastLineInteraction.from_simulation(sim, filter_mode)
+            for filter_mode in cls.FILTER_MODES
+        }
+        return cls(
+            atom_data=atom_data,
+            level_energy_data=level_energy_data,
+            level_population_data=level_population_data,
+            line_interaction_analysis=line_interaction_analysis,
+            **kwargs,
+        )</div>
+
+
+    def __init__(
+        self,
+        atom_data,
+        level_energy_data,
+        level_population_data,
+        line_interaction_analysis,
+    ):
+        # Set data members
+        self._atom_data = atom_data
+        self._level_energy_data = level_energy_data
+        self._level_population_data = level_population_data
+        self._line_interaction_analysis = line_interaction_analysis
+
+        # Max number of levels to display
+        self._max_levels = 10
+
+        # Energy difference threshold below which levels are merged
+        self._level_diff_threshold = 0.01
+
+        # Filter mode for the wavelength range
+        self._min_wavelength = None
+        self._max_wavelength = None
+        self._filter_mode = self.FILTER_MODES[0]
+
+        # Selected Species
+        self._atomic_number = None
+        self._ion_number = None
+        self._shell = None
+
+        ### Define default parameters for visual elements related to energy levels
+        self.level_width_scale, self.level_width_offset = 3, 1
+        self._level_width_transform = np.log  # Scale of the level widths
+        self._population_spacer = np.geomspace  # To space width bar counts
+        ### Scale of the y-axis
+        self._y_scale = &quot;Log&quot;
+        self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
+
+        ### Define default parameters for visual elements related to transitions
+        self.transition_width_scale, self.transition_width_offset = 2, 1
+        self._transition_width_transform = np.log  # Scale of the arrow widths
+        self._transition_count_spacer = (
+            np.geomspace
+        )  # To space width bar counts
+        self.arrowhead_size = 9
+
+        ### Define default parameters for visual elements related to wavelengths
+        self.cmapname = &quot;rainbow&quot;
+        self._wavelength_color_transform = np.log  # Scale of wavelength color
+        self._wavelength_spacer = np.geomspace  # To space colorbar wavelengths
+
+        # Coordinate end points of levels
+        self.x_min, self.x_max = 0, 1
+
+    @property
+    def min_wavelength(self):
+        return self._min_wavelength
+
+    @min_wavelength.setter
+    def min_wavelength(self, value):
+        self._min_wavelength = value
+        self._compute_transitions()
+
+    @property
+    def max_wavelength(self):
+        return self._max_wavelength
+
+    @max_wavelength.setter
+    def max_wavelength(self, value):
+        self._max_wavelength = value
+        self._compute_transitions()
+
+<div class="viewcode-block" id="GrotrianPlot.reset_selected_plot_wavelength_range">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.reset_selected_plot_wavelength_range">[docs]</a>
+    def reset_selected_plot_wavelength_range(self):
+        &quot;&quot;&quot;
+        Resets the wavelength range of the selected plot
+        &quot;&quot;&quot;
+        self.min_wavelength = None
+        self.max_wavelength = None</div>
+
+
+    @property
+    def max_levels(self):
+        return self._max_levels
+
+    @max_levels.setter
+    def max_levels(self, value):
+        assert type(value) is int
+        self._max_levels = value
+        self._compute_level_data()
+        self.reset_selected_plot_wavelength_range()  # calls _compute_transitions() as well
+
+    @property
+    def level_diff_threshold(self):
+        return self._level_diff_threshold
+
+    @level_diff_threshold.setter
+    def level_diff_threshold(self, value):
+        assert 0 &gt;= value and value &lt; 1
+        self._level_diff_threshold = value
+        self._compute_level_data()
+        self._compute_transitions()
+
+    @property
+    def filter_mode(self):
+        return self._filter_mode
+
+    @filter_mode.setter
+    def filter_mode(self, value):
+        assert value in self.FILTER_MODES
+
+        # Set the atomic_number and ion_number in the appropriate analysis object
+        self._line_interaction_analysis[value].set_ion(
+            self.atomic_number, self.ion_number
+        )
+        self._line_interaction_analysis[value].shell = self.shell
+
+        self._filter_mode = value
+
+        self._compute_transitions()
+
+    @property
+    def atomic_number(self):
+        if self._atomic_number is None:
+            raise ValueError(&quot;Atomic number is not set&quot;)
+        return self._atomic_number
+
+<div class="viewcode-block" id="GrotrianPlot.set_ion">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.set_ion">[docs]</a>
+    def set_ion(self, atomic_number, ion_number):
+        &quot;&quot;&quot;
+        Sets the atomic number and ion number
+        &quot;&quot;&quot;
+        assert type(atomic_number) is int and type(ion_number) is int
+        if (atomic_number, ion_number) not in self._level_energy_data.index or (
+            atomic_number,
+            ion_number,
+        ) not in self._level_population_data.index:
+            raise ValueError(
+                &quot;The (atomic_number, ion_number) pair doesn&#39;t exist in model&quot;
+            )
+        self._line_interaction_analysis[self.filter_mode].set_ion(
+            atomic_number, ion_number
+        )
+
+        self._atomic_number = atomic_number
+        self._ion_number = ion_number
+        self._compute_level_data()
+
+        # Reset any custom wavelengths if user changes ion
+        self.reset_selected_plot_wavelength_range()  # Also computes transition lines so we don&#39;t need to call it &quot;_compute_transitions()&quot; explicitly</div>
+
+
+    @property
+    def ion_number(self):
+        if self._ion_number is None:
+            raise ValueError(&quot;Ion number is not set&quot;)
+        return self._ion_number
+
+    @property
+    def atomic_name(self):
+        return self._atom_data.loc[self.atomic_number][&quot;name&quot;]
+
+    @property
+    def atomic_symbol(self):
+        return self._atom_data.loc[self.atomic_number][&quot;symbol&quot;]
+
+    @property
+    def shell(self):
+        return self._shell
+
+    @shell.setter
+    def shell(self, value):
+        assert value is None or type(value) is int
+        self._line_interaction_analysis[self.filter_mode].shell = value
+        self._shell = value
+        self._compute_level_data()
+        self._compute_transitions()
+
+    @property
+    def y_scale(self):
+        return self._y_scale
+
+    @y_scale.setter
+    def y_scale(self, value):
+        assert value in self.Y_SCALE_OPTION
+        self._y_scale = value
+        self._y_coord_transform = self.Y_SCALE_OPTION[self._y_scale]
+
+    def _compute_transitions(self):
+        &quot;&quot;&quot;
+        Computes the excitation/de-excitation line transition data for the arrows in the widget
+        &quot;&quot;&quot;
+        ### Get the excitation/de-excitation transitions from LastLineInteraction object
+        excite_lines = (
+            self._line_interaction_analysis[self.filter_mode]
+            .last_line_in.reset_index()
+            .groupby([&quot;level_number_lower&quot;, &quot;level_number_upper&quot;])
+            .agg(
+                num_electrons=(&quot;line_id&quot;, &quot;count&quot;),  # Take count of lines
+                wavelength=(&quot;wavelength&quot;, &quot;first&quot;),  # Take first of wavelengths
+            )
+            .reset_index()
+        )
+
+        deexcite_lines = (
+            self._line_interaction_analysis[self.filter_mode]
+            .last_line_out.reset_index()
+            .groupby([&quot;level_number_lower&quot;, &quot;level_number_upper&quot;])
+            .agg(
+                num_electrons=(&quot;line_id&quot;, &quot;count&quot;),  # Take count of lines
+                wavelength=(&quot;wavelength&quot;, &quot;first&quot;),  # Take first of wavelengths
+            )
+            .reset_index()
+        )
+
+        ### Filter transitions to only include transitions up to the self.max_levels
+        excite_lines = excite_lines.loc[
+            excite_lines.level_number_upper &lt;= self.max_levels
+        ]
+        deexcite_lines = deexcite_lines.loc[
+            deexcite_lines.level_number_upper &lt;= self.max_levels
+        ]
+
+        ### Map the levels to merged levels
+        excite_lines[
+            &quot;merged_level_number_lower&quot;
+        ] = excite_lines.level_number_lower.map(self.level_mapping)
+        excite_lines[
+            &quot;merged_level_number_upper&quot;
+        ] = excite_lines.level_number_upper.map(self.level_mapping)
+        deexcite_lines[
+            &quot;merged_level_number_lower&quot;
+        ] = deexcite_lines.level_number_lower.map(self.level_mapping)
+        deexcite_lines[
+            &quot;merged_level_number_upper&quot;
+        ] = deexcite_lines.level_number_upper.map(self.level_mapping)
+
+        ### Group by level pairs
+        excite_lines = (
+            excite_lines.groupby(
+                [&quot;merged_level_number_lower&quot;, &quot;merged_level_number_upper&quot;]
+            )
+            .agg(
+                wavelength=(&quot;wavelength&quot;, &quot;mean&quot;),  # Take mean of wavelength
+                num_electrons=(&quot;num_electrons&quot;, &quot;sum&quot;),  # Take sum of counts
+            )
+            .reset_index()
+        )
+        deexcite_lines = (
+            deexcite_lines.groupby(
+                [&quot;merged_level_number_lower&quot;, &quot;merged_level_number_upper&quot;]
+            )
+            .agg(
+                wavelength=(&quot;wavelength&quot;, &quot;mean&quot;),  # Take mean of wavelength
+                num_electrons=(&quot;num_electrons&quot;, &quot;sum&quot;),  # Take sum of counts
+            )
+            .reset_index()
+        )
+
+        ### Remove the rows where start and end (merged) level is the same
+        excite_lines = excite_lines.loc[
+            excite_lines.merged_level_number_lower
+            != excite_lines.merged_level_number_upper
+        ]
+        deexcite_lines = deexcite_lines.loc[
+            deexcite_lines.merged_level_number_lower
+            != deexcite_lines.merged_level_number_upper
+        ]
+
+        ### Compute default wavelengths if not set by user
+        if len(excite_lines) + len(deexcite_lines) &gt; 0:
+            if self.min_wavelength is None:  # Compute default wavelength
+                self._min_wavelength = np.min(
+                    np.concatenate(
+                        (excite_lines.wavelength, deexcite_lines.wavelength)
+                    )
+                )
+            if self.max_wavelength is None:  # Compute default wavelength
+                self._max_wavelength = np.max(
+                    np.concatenate(
+                        (excite_lines.wavelength, deexcite_lines.wavelength)
+                    )
+                )
+
+            ### Remove the rows outside the wavelength range for the plot
+            excite_lines = excite_lines.loc[
+                (excite_lines.wavelength &gt;= self.min_wavelength)
+                &amp; (excite_lines.wavelength &lt;= self.max_wavelength)
+            ]
+            deexcite_lines = deexcite_lines.loc[
+                (deexcite_lines.wavelength &gt;= self.min_wavelength)
+                &amp; (deexcite_lines.wavelength &lt;= self.max_wavelength)
+            ]
+
+            ### Compute the standardized log number of electrons for arrow line width
+            transition_width_coefficient = standardize(
+                np.concatenate(
+                    (excite_lines.num_electrons, deexcite_lines.num_electrons)
+                ),
+                transform=self._transition_width_transform,
+                zero_undefined_offset=1e-3,
+            )
+            excite_lines[
+                &quot;transition_width_coefficient&quot;
+            ] = transition_width_coefficient[: len(excite_lines)]
+            deexcite_lines[
+                &quot;transition_width_coefficient&quot;
+            ] = transition_width_coefficient[len(excite_lines) :]
+
+        self.excite_lines = excite_lines
+        self.deexcite_lines = deexcite_lines
+
+    def _compute_level_data(self):
+        &quot;&quot;&quot;
+        Computes the level population data for the horizontal platforms in the widget
+        &quot;&quot;&quot;
+        ### Get energy levels and convert to eV
+        raw_energy_levels = self._level_energy_data.loc[
+            self.atomic_number, self.ion_number
+        ].loc[0 : self.max_levels]
+
+        ### Get level populations
+        raw_level_populations = self._level_population_data.loc[
+            self.atomic_number, self.ion_number
+        ].loc[0 : self.max_levels]
+
+        ### Average out the level populations across all zones, if zone not selected
+        if self.shell is None:
+            raw_level_populations = raw_level_populations.mean(axis=1)
+        else:
+            raw_level_populations = raw_level_populations[self.shell]
+
+        raw_level_populations = pd.Series(
+            raw_level_populations, name=&quot;population&quot;
+        )
+
+        ### Join level populations and energy values
+        raw_level_data = pd.merge(
+            raw_energy_levels,
+            raw_level_populations,
+            left_index=True,
+            right_index=True,
+        )
+
+        ### Merge the levels if energy difference is less than threshold
+        # Get new level numbers
+        # TODO: Find a better way to find close levels (less than 0.03 diff in y-coord)
+        raw_level_data[&quot;merged_level_number&quot;] = (
+            (raw_level_data[&quot;energy&quot;] + 1).pct_change().abs()
+            &gt; self.level_diff_threshold
+        ).cumsum()
+
+        # Group data with new level numbers
+        self.level_data = (
+            raw_level_data.reset_index()
+            .groupby(&quot;merged_level_number&quot;)
+            .agg(
+                energy=(
+                    &quot;energy&quot;,
+                    &quot;mean&quot;,
+                ),  # Set energy as mean of merged levels
+                population=(&quot;population&quot;, &quot;sum&quot;),
+            )
+        )  # Add the populations of merged levels
+
+        ### Standardize the level populations to get width coefficient of levels
+        self.level_data[&quot;level_width_coefficient&quot;] = standardize(
+            self.level_data.population,
+            transform=self._level_width_transform,
+            zero_undefined_offset=1e-3,
+        )
+
+        ### Create a mapping from original levels to merged levels
+        self.level_mapping = raw_level_data.merged_level_number
+
+    def _draw_energy_levels(self):
+        &quot;&quot;&quot;
+        Draws the horizontal energy levels on the widget
+        &quot;&quot;&quot;
+        # Transform energies and standardize result to get y-coordinate in range [0, 1]
+        self.level_data[&quot;y_coord&quot;] = standardize(
+            self.level_data.energy,
+            transform=self._y_coord_transform,
+            zero_undefined_offset=0.1,
+        )
+
+        ### Create the energy levels from level data
+        for level_number, level_info in self.level_data.iterrows():
+            # Add the horizontal line
+            self.fig.add_trace(
+                go.Scatter(
+                    x=np.linspace(self.x_min - 0.05, self.x_max + 0.05, 10),
+                    y=level_info.y_coord * np.ones(10),
+                    mode=&quot;lines&quot;,
+                    hovertemplate=f&quot;Energy: {level_info.energy:.2e} eV&lt;br&gt;&quot;
+                    + f&quot;Population: {level_info.population:.2e}&quot;
+                    + &quot;&lt;extra&gt;&lt;/extra&gt;&quot;,
+                    line=dict(
+                        color=&quot;black&quot;,
+                        width=level_info.level_width_coefficient
+                        * self.level_width_scale
+                        + self.level_width_offset,
+                    )
+                    if level_info.population &gt; 0
+                    else dict(color=&quot;grey&quot;, dash=&quot;dash&quot;),
+                    showlegend=False,
+                ),
+                row=1,
+                col=2,
+            )
+
+            # Add label for energy
+            self.fig.add_annotation(
+                x=self.x_max + 0.1,
+                y=level_info.y_coord,
+                text=f&quot;{level_number}&quot;,
+                showarrow=False,
+                xref=&quot;x2&quot;,
+                yref=&quot;y2&quot;,
+            )
+
+    def _draw_population_width_scale(self):
+        &quot;&quot;&quot;
+        Displays the level population width reference bar
+        &quot;&quot;&quot;
+        ### Create width scale
+        ### Find lower and upper bounds of populations and corresponding widths
+        min_population_idx = self.level_data.population[
+            self.level_data.population &gt; 0
+        ].idxmin()
+        max_population_idx = self.level_data.population.idxmax()
+
+        min_population = self.level_data.population[min_population_idx]
+        max_population = self.level_data.population[max_population_idx]
+
+        min_width = (
+            self.level_data.level_width_coefficient[min_population_idx]
+            * self.level_width_scale
+            + self.level_width_offset
+        )
+        max_width = (
+            self.level_data.level_width_coefficient[max_population_idx]
+            * self.level_width_scale
+            + self.level_width_offset
+        )
+
+        ### Space the populations (log) and corresponding widths (linear) equally
+        scale_granularity = 10  # Number of scale ticks to display
+        population_ticks = self._population_spacer(
+            min_population, max_population, scale_granularity
+        )
+        width_ticks = np.linspace(min_width, max_width, scale_granularity)
+        y_positions = np.linspace(0, 1, scale_granularity)
+
+        ### Draw the scale lines
+        for population, width, y_pos in zip(
+            population_ticks, width_ticks, y_positions
+        ):
+            self.fig.add_shape(
+                type=&quot;line&quot;,
+                line_width=width,
+                x0=0.1,
+                x1=0.2,
+                y0=y_pos,
+                y1=y_pos,
+                xref=&quot;x1&quot;,
+                yref=&quot;y1&quot;,
+            )
+            self.fig.add_annotation(
+                x=0.35,
+                y=y_pos,
+                text=f&quot;{population:.1e}&quot;,
+                showarrow=False,
+                xref=&quot;x1&quot;,
+                yref=&quot;y1&quot;,
+            )
+        # Add title of the width bar
+        self.fig.add_annotation(
+            x=0.28,
+            y=-0.08,
+            text=&quot;Populations&quot;,
+            showarrow=False,
+            xref=&quot;x1&quot;,
+            yref=&quot;y1&quot;,
+        )
+
+    def _draw_transitions(self, is_excitation):
+        &quot;&quot;&quot;
+        Draws the transition arrows on the widget
+        &quot;&quot;&quot;
+        lines = self.excite_lines if is_excitation else self.deexcite_lines
+        lines[&quot;color_coefficient&quot;] = standardize(
+            lines.wavelength,
+            transform=self._wavelength_color_transform,
+            zero_undefined_offset=1e-5,
+            min_value=self.min_wavelength,
+            max_value=self.max_wavelength,
+        )
+
+        self._cmap = plt.get_cmap(self.cmapname)  # Float to color map
+
+        ### Plot excitation transitions
+        for _, line_info in lines.iterrows():
+            lower, upper = (
+                line_info.merged_level_number_lower,
+                line_info.merged_level_number_upper,
+            )
+            wavelength, transition_width_coefficient = (
+                line_info.wavelength,
+                line_info.transition_width_coefficient,
+            )
+            energy_lower, energy_upper = (
+                self.level_data.loc[lower].energy,
+                self.level_data.loc[upper].energy,
+            )
+
+            # Get the end x-coordinate (proportional to energy difference between levels)
+            merged_max_energy_level = self.level_data.energy.max()
+            x_end = (
+                (energy_upper - energy_lower)
+                * (self.x_max - self.x_min)
+                / (merged_max_energy_level - energy_lower)
+            )
+
+            # Get the appropriate y-coordinate (computed in _draw_energy_levels)
+            y_lower = self.level_data.loc[lower].y_coord
+            y_upper = self.level_data.loc[upper].y_coord
+
+            # Get the end arrow color (proportional to log wavelength)
+            color_coef = line_info.color_coefficient
+            color = mpl.colors.rgb2hex(self._cmap(color_coef)[:3])
+
+            # Draw arrow
+            self.fig.add_trace(
+                go.Scatter(
+                    x=[self.x_min, x_end],
+                    y=[y_lower, y_upper]
+                    if is_excitation
+                    else [y_upper, y_lower],
+                    hovertemplate=f&quot;Count: {int(line_info.num_electrons)}&lt;br&gt;&quot;
+                    + f&quot;Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}&quot;
+                    + &quot;&lt;extra&gt;&lt;/extra&gt;&quot;,
+                    marker=dict(
+                        size=self.arrowhead_size,
+                        color=color,
+                        symbol=&quot;arrow-up&quot;,
+                        angleref=&quot;previous&quot;,
+                    ),
+                    line=dict(
+                        color=color,
+                        width=transition_width_coefficient
+                        * self.transition_width_scale
+                        + self.transition_width_offset,
+                    ),
+                ),
+                row=1,
+                col=2,
+            )
+
+    def _draw_transition_width_scale(self):
+        &quot;&quot;&quot;
+        Displays the transition count width reference bar
+        &quot;&quot;&quot;
+        ### Find lower and upper bounds of num_electrons and corresponding widths
+        max_num_electrons = np.max(
+            np.concatenate(
+                (
+                    self.excite_lines.num_electrons,
+                    self.deexcite_lines.num_electrons,
+                )
+            )
+        )
+        min_num_electrons = np.min(
+            np.concatenate(
+                (
+                    self.excite_lines.num_electrons,
+                    self.deexcite_lines.num_electrons,
+                )
+            )
+        )
+
+        max_width_coefficient = np.max(
+            np.concatenate(
+                (
+                    self.excite_lines.transition_width_coefficient,
+                    self.deexcite_lines.transition_width_coefficient,
+                )
+            )
+        )
+        min_width_coefficient = np.min(
+            np.concatenate(
+                (
+                    self.excite_lines.transition_width_coefficient,
+                    self.deexcite_lines.transition_width_coefficient,
+                )
+            )
+        )
+
+        min_width = (
+            min_width_coefficient * self.transition_width_scale
+            + self.transition_width_offset
+        )
+        max_width = (
+            max_width_coefficient * self.transition_width_scale
+            + self.transition_width_offset
+        )
+
+        ### Space the num_electrons (log) and corresponding widths (linear) equally
+        scale_granularity = 10
+        num_electrons_ticks = self._transition_count_spacer(
+            min_num_electrons, max_num_electrons, scale_granularity
+        )
+        width_ticks = np.linspace(min_width, max_width, scale_granularity)
+        y_positions = np.linspace(0, 1, scale_granularity)
+
+        ### Draw the width bar
+        for num_electrons, width, y_pos in zip(
+            num_electrons_ticks, width_ticks, y_positions
+        ):
+            self.fig.add_shape(
+                type=&quot;line&quot;,
+                line_width=width,
+                x0=0.65,
+                x1=0.75,
+                y0=y_pos,
+                y1=y_pos,
+                xref=&quot;x1&quot;,
+                yref=&quot;y1&quot;,
+            )
+            self.fig.add_annotation(
+                x=0.9,
+                y=y_pos,
+                text=f&quot;{num_electrons:.1e}&quot;,
+                showarrow=False,
+                xref=&quot;x1&quot;,
+                yref=&quot;y1&quot;,
+            )
+        # Add title of the width bar
+        self.fig.add_annotation(
+            x=0.83,
+            y=-0.08,
+            text=&quot;#Packets&quot;,
+            showarrow=False,
+            xref=&quot;x1&quot;,
+            yref=&quot;y1&quot;,
+        )
+
+    def _draw_transition_color_scale(self):
+        &quot;&quot;&quot;
+        Displays the transition wavelength colorbar
+        &quot;&quot;&quot;
+        # Add a dummy Scatter trace to display colorbar
+        tickvals = self._wavelength_spacer(
+            self.min_wavelength, self.max_wavelength, 10
+        )
+        ticktext = [f&quot;{val:.1e}&quot; for val in tickvals]
+        self.fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode=&quot;markers&quot;,
+                marker=dict(
+                    colorscale=self.cmapname,
+                    showscale=True,
+                    cmin=self._wavelength_color_transform(self.min_wavelength),
+                    cmax=self._wavelength_color_transform(self.max_wavelength),
+                    colorbar=dict(
+                        title=dict(
+                            text=f&quot;Wavelength ({ANGSTROM_SYMBOL})&lt;br&gt;&amp;nbsp;&quot;,
+                            font_size=12,
+                        ),
+                        thickness=5,
+                        tickvals=self._wavelength_color_transform(tickvals),
+                        ticktext=ticktext,
+                        outlinewidth=0,
+                    ),
+                ),
+                hoverinfo=&quot;none&quot;,
+            ),
+            row=1,
+            col=2,
+        )
+
+<div class="viewcode-block" id="GrotrianPlot.display">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.display">[docs]</a>
+    def display(self):
+        &quot;&quot;&quot;
+        Function to draw the plot and the reference scales (calls other draw methods independently)
+        &quot;&quot;&quot;
+        ### Create figure and set metadata
+        self.fig = go.FigureWidget(
+            make_subplots(
+                rows=1,
+                cols=2,
+                column_width=[0.3, 0.7],
+                specs=[[{}, {}]],
+                horizontal_spacing=0.14,
+            )
+        )
+
+        # Update fig layout
+        self.fig.update_layout(
+            title=(
+                f&quot;Energy Level Diagram for {self.atomic_name} {int_to_roman(self.ion_number + 1)} &quot;
+                f&quot;(Shell: {self.shell if self.shell is not None else &#39;All&#39;})&quot;
+            ),
+            title_x=0.5,
+            plot_bgcolor=&quot;white&quot;,
+            autosize=False,
+            width=1000,
+            height=700,
+            margin={},
+            showlegend=False,
+        )
+
+        # Remove ticklabels in the reference bars subplot
+        self.fig.update_yaxes(
+            showticklabels=False, fixedrange=True, row=1, col=1
+        )
+        self.fig.update_xaxes(
+            showticklabels=False, fixedrange=True, row=1, col=1
+        )
+
+        ### Create energy level platforms and width reference scale
+        self._draw_energy_levels()
+        self._draw_population_width_scale()
+
+        # Remove ticklabels from x-axis
+        self.fig.update_xaxes(
+            showticklabels=False, fixedrange=True, row=1, col=2
+        )
+        # Update y-ticks to reflect actual energy values
+        self.fig.update_yaxes(
+            title=dict(text=&quot;Energy (eV)&quot;, standoff=5),
+            range=[0, None],
+            tickmode=&quot;array&quot;,
+            tickvals=self.level_data.y_coord,
+            ticktext=[f&quot;{energy:.2e}&quot; for energy in self.level_data.energy],
+            fixedrange=True,
+            row=1,
+            col=2,
+        )
+
+        # Add separator between width scales
+        self.fig.add_shape(
+            type=&quot;line&quot;,
+            line=dict(color=&quot;grey&quot;, dash=&quot;dash&quot;),
+            line_width=0.5,
+            x0=0.55,
+            x1=0.55,
+            y0=0,
+            y1=1,
+            xref=&quot;x1&quot;,
+            yref=&quot;y1&quot;,
+        )
+
+        ### Create transition lines and corresponding width and color scales
+        if len(self.excite_lines) &gt; 0:
+            self._draw_transitions(is_excitation=True)
+
+        if len(self.deexcite_lines) &gt; 0:
+            self._draw_transitions(is_excitation=False)
+
+        if len(self.excite_lines) + len(self.deexcite_lines) &gt; 0:
+            self._draw_transition_width_scale()
+            self._draw_transition_color_scale()
+
+        return self.fig</div>
+</div>
+
+
+
+<div class="viewcode-block" id="GrotrianWidget">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianWidget">[docs]</a>
+class GrotrianWidget:
+    &quot;&quot;&quot;
+    A wrapper class for the Grotrian Diagram, containing the Grotrian Plot and the IpyWidgets
+
+    Parameters
+    ----------
+    plot : tardis.visualization.widgets.grotrian.GrotrianPlot
+        GrotrianPlot object
+    num_shells : int
+        Number of shells in the sim.simulation_state.v_inner
+    &quot;&quot;&quot;
+
+<div class="viewcode-block" id="GrotrianWidget.from_simulation">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianWidget.from_simulation">[docs]</a>
+    @classmethod
+    def from_simulation(cls, sim, **kwargs):
+        &quot;&quot;&quot;
+        Creates a GrotrianWidget object from a Simulation object
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS simulation object
+
+        Returns
+        -------
+        tardis.visualization.widgets.grotrian.GrotrianWidget
+            GrotrianWidget object
+        &quot;&quot;&quot;
+        plot = GrotrianPlot.from_simulation(sim, **kwargs)
+        num_shells = len(sim.simulation_state.v_inner)
+        return cls(plot, num_shells, **kwargs)</div>
+
+
+    def __init__(self, plot, num_shells, **kwargs):
+        self.plot = plot
+        self.num_shells = num_shells
+
+        species_list = self._get_species()
+        self.ion_selector = ipw.Dropdown(
+            options=species_list,
+            index=0,
+            description=&quot;Ion&quot;,
+        )
+        self.plot.set_ion(*species_string_to_tuple(self.ion_selector.value))
+        self.ion_selector.observe(
+            self._ion_change_handler,
+            names=&quot;value&quot;,
+        )
+        self.ion_selector.observe(
+            self._wavelength_resetter,
+            names=&quot;value&quot;,
+        )
+
+        shell_list = [&quot;All&quot;] + [str(i) for i in range(1, num_shells + 1)]
+        self.shell_selector = ipw.Dropdown(
+            options=shell_list,
+            index=0,
+            description=&quot;Shell&quot;,
+        )
+        self.shell_selector.observe(
+            lambda change: self._change_handler(
+                &quot;shell&quot;, None if change[&quot;new&quot;] == &quot;All&quot; else int(change[&quot;new&quot;])
+            ),
+            names=&quot;value&quot;,
+        )
+        self.shell_selector.observe(
+            self._wavelength_resetter,
+            names=&quot;value&quot;,
+        )
+
+        self.max_level_selector = ipw.BoundedIntText(
+            value=plot.max_levels,
+            min=1,
+            max=40,
+            step=1,
+            description=&quot;Max Levels&quot;,
+        )
+        self.max_level_selector.observe(
+            lambda change: self._change_handler(&quot;max_levels&quot;, change[&quot;new&quot;]),
+            names=&quot;value&quot;,
+        )
+        self.max_level_selector.observe(
+            self._wavelength_resetter,
+            names=&quot;value&quot;,
+        )
+
+        self.y_scale_selector = ipw.ToggleButtons(
+            options=GrotrianPlot.Y_SCALE_OPTION.keys(),
+            index=1,
+            description=&quot;Y-Scale&quot;,
+            layout=ipw.Layout(width=&quot;auto&quot;),
+            style={&quot;button_width&quot;: &quot;100px&quot;},
+        )
+        self.y_scale_selector.observe(
+            lambda change: self._change_handler(&quot;y_scale&quot;, change[&quot;new&quot;]),
+            names=&quot;value&quot;,
+        )
+
+        self.wavelength_range_selector = ipw.FloatRangeSlider(
+            value=[self.plot.min_wavelength, self.plot.max_wavelength],
+            min=self.plot.min_wavelength,
+            max=self.plot.max_wavelength,
+            step=0.1,
+            description=&quot;Wavelength&quot;,
+            layout=ipw.Layout(width=&quot;605px&quot;),
+            readout_format=&quot;.1e&quot;,
+        )
+        self.wavelength_range_selector.observe(
+            self._wavelength_change_handler,
+            names=&quot;value&quot;,
+        )
+
+    def _get_species(self):
+        &quot;&quot;&quot;
+        Computes the ions list for the ion dropdown of the plot
+        &quot;&quot;&quot;
+        line_interaction_analysis = self.plot._line_interaction_analysis
+        selected_species_group = line_interaction_analysis[
+            self.plot.filter_mode
+        ].last_line_in.groupby([&quot;atomic_number&quot;, &quot;ion_number&quot;])
+
+        if selected_species_group.groups:
+            selected_species_symbols = [
+                species_tuple_to_string(item)
+                for item in selected_species_group.groups.keys()
+            ]
+        return selected_species_symbols
+
+    def _change_handler(self, attribute, value):
+        &quot;&quot;&quot;
+        Generic function to update the configurable attributes of GrotrianPlot object
+
+        Parameters
+        ----------
+        attribute : str
+            The name of the attribute of the GrotrianPlot object
+        value :
+            The new value of the attribute
+        &quot;&quot;&quot;
+        index = self.fig.children.index(self.plot.fig)
+        setattr(self.plot, attribute, value)  # Set the value of the attribute
+
+        # Set the updated plot in the figure
+        children_list = list(self.fig.children)
+        children_list[index] = self.plot.display()
+        self.fig.children = tuple(children_list)
+
+    def _ion_change_handler(self, change):
+        &quot;&quot;&quot;
+        Function to update ion of GrotrianPlot object
+
+        Parameters
+        ----------
+        change : dict
+            Change information of the event
+        &quot;&quot;&quot;
+        atomic_number, ion_number = species_string_to_tuple(change[&quot;new&quot;])
+        index = self.fig.children.index(self.plot.fig)
+        self.plot.set_ion(atomic_number, ion_number)
+
+        # Set the updated plot in the figure
+        children_list = list(self.fig.children)
+        children_list[index] = self.plot.display()
+        self.fig.children = tuple(children_list)
+        # self._wavelength_resetter()
+
+    def _wavelength_change_handler(self, change):
+        &quot;&quot;&quot;
+        Function to update the wavelength range of GrotrianPlot object
+
+        Parameters
+        ----------
+        change : dict
+            Change information of the event
+        &quot;&quot;&quot;
+        min_wavelength, max_wavelength = change[&quot;new&quot;]
+        index = self.fig.children.index(self.plot.fig)
+        self.plot.min_wavelength = min_wavelength
+        self.plot.max_wavelength = max_wavelength + 1
+
+        # Set the updated plot in the figure
+        children_list = list(self.fig.children)
+        children_list[index] = self.plot.display()
+        self.fig.children = tuple(children_list)
+
+    def _wavelength_resetter(self, change):
+        &quot;&quot;&quot;
+        Resets the range of the wavelength slider whenever the ion, level or shell changes
+        &quot;&quot;&quot;
+        min_wavelength = self.plot.min_wavelength
+        max_wavelength = self.plot.max_wavelength
+
+        if min_wavelength is None or max_wavelength is None:
+            self.wavelength_range_selector.layout.visibility = &quot;hidden&quot;
+            return
+
+        elif min_wavelength == max_wavelength:
+            self.wavelength_range_selector.layout.visibility = &quot;visible&quot;
+            self.wavelength_range_selector.disabled = True
+        else:
+            self.wavelength_range_selector.layout.visibility = &quot;visible&quot;
+            self.wavelength_range_selector.disabled = False
+
+        self.wavelength_range_selector.min = 0.0
+        self.wavelength_range_selector.max = max_wavelength
+        self.wavelength_range_selector.min = min_wavelength
+        self.wavelength_range_selector.value = [
+            self.wavelength_range_selector.min,
+            self.wavelength_range_selector.max,
+        ]
+
+<div class="viewcode-block" id="GrotrianWidget.display">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianWidget.display">[docs]</a>
+    def display(self):
+        &quot;&quot;&quot;
+        Function to render the Grotrian Widget containing the plot and IpyWidgets together
+        &quot;&quot;&quot;
+        fig = self.plot.display()
+        self.fig = ipw.VBox(
+            [
+                ipw.HBox(
+                    [
+                        self.ion_selector,
+                        self.shell_selector,
+                        self.max_level_selector,
+                    ]
+                ),
+                ipw.HBox(
+                    [self.y_scale_selector, self.wavelength_range_selector]
+                ),
+                fig,
+            ]
+        )
+        return self.fig</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 16 Nov 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
