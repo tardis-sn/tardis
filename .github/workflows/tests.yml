@@ -128,8 +128,11 @@ jobs:
           cd tardis-regression-data
           git lfs install
           git config lfs.url http://46.62.152.119:8080/tardis-sn/tardis-regression-data
-          git lfs fetch --all
+          echo "Starting LFS fetch from server..."
+          GIT_LFS_PROGRESS=1 git lfs fetch --all
+          echo "LFS fetch complete, checking out files..."
           git lfs checkout
+          echo "LFS checkout complete"
 
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main
