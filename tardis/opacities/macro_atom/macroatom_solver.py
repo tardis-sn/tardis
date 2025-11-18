@@ -817,7 +817,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         self.ionization_frequency_thresholds = (
             self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         )
-        self.delta_E_yg = (
+        self._delta_E_yg = (
             delta_E_yg  # Might need to restrict this to hydrogen too
         )
 
@@ -953,29 +953,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Series with unique source levels as index and their assigned indices as values.
         """
         # Assemble bound-bound transitions first.
-        p_emission_down, emission_down_metadata = line_transition_emission_down(
-            self._oscillator_strength_ul,
-            self._nus,
-            self._energies_upper,
-            self._energies_lower,
-            beta_sobolevs,
-            self._transition_a_i_l_u_array,
-            self.lines.line_id.to_numpy(),
-        )
-        emission_down_metadata[
-            "photoionization_key_idx"
-        ] = -99  # Bound-bound transitions don't have continuum ids
-        p_internal_down, internal_down_metadata = line_transition_internal_down(
-            self._oscillator_strength_ul,
-            self._nus,
-            self._energies_lower,
-            beta_sobolevs,
-            self._transition_a_i_l_u_array,
-            self.lines.line_id.to_numpy(),
-        )
-        internal_down_metadata[
-            "photoionization_key_idx"
-        ] = -99  # Bound-bound transitions don't have continuum ids
         p_internal_up, internal_up_metadata = line_transition_internal_up(
             self._oscillator_strength_lu,
             self._nus,
@@ -989,6 +966,38 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         internal_up_metadata[
             "photoionization_key_idx"
         ] = -99  # Bound-bound transitions don't have continuum ids
+        internal_up_metadata[
+            "collision_key_idx"
+        ] = -99  # Bound-bound transitions don't have collision ids
+        p_internal_down, internal_down_metadata = line_transition_internal_down(
+            self._oscillator_strength_ul,
+            self._nus,
+            self._energies_lower,
+            beta_sobolevs,
+            self._transition_a_i_l_u_array,
+            self.lines.line_id.to_numpy(),
+        )
+        internal_down_metadata[
+            "photoionization_key_idx"
+        ] = -99  # Bound-bound transitions don't have continuum ids
+        internal_down_metadata[
+            "collision_key_idx"
+        ] = -99  # Bound-bound transitions don't have collision ids
+        p_emission_down, emission_down_metadata = line_transition_emission_down(
+            self._oscillator_strength_ul,
+            self._nus,
+            self._energies_upper,
+            self._energies_lower,
+            beta_sobolevs,
+            self._transition_a_i_l_u_array,
+            self.lines.line_id.to_numpy(),
+        )
+        emission_down_metadata[
+            "photoionization_key_idx"
+        ] = -99  # Bound-bound transitions don't have continuum ids
+        emission_down_metadata[
+            "collision_key_idx"
+        ] = -99  # Bound-bound transitions don't have collision ids
 
         # Then assemble photoionization transitions
         p_photoionization, photoionization_metadata = (
@@ -1012,13 +1021,16 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         self._coll_energies_lower = self.levels.energy.loc[
             coll_deexc_coeff.index.droplevel("level_number_upper")
         ]  # This should probably be moved to init - static data,
+        self._coll_indices_lower = coll_exc_coeff.index.droplevel(
+            "level_number_upper"
+        )
         # but needs coll_deexc_coeff which does change per iteration
 
         p_coll_down_to_k_packet, coll_down_to_packet_metadata = (
             collisional_transition_deexc_to_k_packet(
                 coll_deexc_coeff,
                 electron_densities,
-                self.delta_E_yg,
+                self._delta_E_yg,
             )
         )
         p_coll_internal_down, coll_internal_down_metadata = (
@@ -1036,8 +1048,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             collisional_transition_excitation_cool(
                 coll_exc_coeff,
                 electron_densities,
-                self.delta_E_yg,
+                self._delta_E_yg,
                 level_number_density,
+                self._coll_indices_lower,
             )
         )
 
@@ -1082,6 +1095,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )
+        # normalized_probabilities = probabilities_df
 
         line2macro_level_upper, reference_index = (
             self.create_line2macro_level_upper_and_reference_idx(
@@ -1171,10 +1185,29 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             == MacroAtomTransitionType.BB_EMISSION
         ].transition_line_idx.to_numpy()
 
+        # Photoionization and recombination indices
         continuum_photoionization_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION
         ].photoionization_key_idx.to_numpy()
+
+        # collisional indices
+        collisional_down_k_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET
+        ].collision_key_idx.to_numpy()
+        collisional_up_cool_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_UP_COOLING
+        ].collision_key_idx.to_numpy()
+        collisional_down_internal_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_DOWN_INTERNAL
+        ].collision_key_idx.to_numpy()
+        collisional_up_internal_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_UP_INTERNAL
+        ].collision_key_idx.to_numpy()
 
         probabilities_df = pd.DataFrame(
             np.zeros(
@@ -1265,13 +1298,53 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             ],
         ).to_numpy()
 
+        # verify these below are right
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET
+        ] = probability_collision_deexc_to_k_packet(
+            coll_deexc_coeff.iloc[collisional_down_k_idxs],
+            electron_densities,
+            self._delta_E_yg.iloc[collisional_down_k_idxs],
+        ).to_numpy()
+
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_DOWN_INTERNAL
+        ] = probability_collision_internal_down(
+            coll_deexc_coeff.iloc[collisional_down_internal_idxs],
+            electron_densities,
+            self._coll_energies_lower.iloc[collisional_down_internal_idxs],
+        ).to_numpy()
+
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_UP_INTERNAL
+        ] = probability_collision_internal_up(
+            coll_exc_coeff.iloc[collisional_up_internal_idxs],
+            electron_densities,
+            self._coll_energies_lower.iloc[collisional_up_internal_idxs],
+        ).to_numpy()
+
+        # collisional indices are hard here because we sum along an axis
+        # if they don't get reordered this should be fine
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_UP_COOLING
+        ] = probability_collision_excitation_cool(
+            coll_exc_coeff,
+            electron_densities,
+            self._delta_E_yg,
+            level_number_density,
+            self._coll_indices_lower,
+        ).to_numpy()
+
         probabilities_df["source"] = (
             macro_atom_transition_metadata.source.values
         )
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )
-
         return normalized_probabilities
 
     def reindex_sort_and_clean_probabilities_and_metadata(

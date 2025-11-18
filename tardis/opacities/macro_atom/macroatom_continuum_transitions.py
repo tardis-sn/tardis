@@ -75,6 +75,7 @@ def continuum_transition_recombination_internal(
             "photoionization_key_idx": range(
                 len(photoionization_data_level_energies)
             ),
+            "collision_key_idx": -99,
         },
         index=p_recomb_internal.index,
     )
@@ -150,6 +151,7 @@ def continuum_transition_recombination_emission(
             "photoionization_key_idx": range(
                 len(photoionization_data_frequencies)
             ),
+            "collision_key_idx": -99,
         },
         index=p_recomb_emission.index,
     )
@@ -225,6 +227,7 @@ def continuum_transition_photoionization(
             "photoionization_key_idx": range(
                 len(photoionization_data_level_energies)
             ),
+            "collision_key_idx": -99,
         },
         index=p_photoionization.index,
     )
@@ -301,6 +304,7 @@ def continuum_adiabatic_cooling(
             "transition_type": MacroAtomTransitionType.ADIABATIC_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
+            "collision_key_idx": -99,
         },
         index=p_adiabatic_cool.index,
     )
@@ -383,6 +387,7 @@ def continuum_free_free_cooling(
             "transition_type": MacroAtomTransitionType.FF_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
+            "collision_key_idx": -99,
         },
         index=p_free_free_cool.index,
     )
@@ -464,9 +469,10 @@ def collisional_transition_deexc_to_k_packet(
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.COLL_DOWN_DEACTIVATION,
+            "transition_type": MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
+            "collision_key_idx": range(len(coll_deexc_coeff)),
         },
         index=p_coll_down_to_k_packet.index,
     )
@@ -536,6 +542,7 @@ def collisional_transition_internal_down(
             "transition_type": MacroAtomTransitionType.COLL_DOWN_INTERNAL,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
+            "collision_key_idx": range(len(coll_deexc_coeff)),
         },
         index=p_coll_internal_down.index,
     )
@@ -605,6 +612,7 @@ def collisional_transition_internal_up(
             "transition_type": MacroAtomTransitionType.COLL_UP_INTERNAL,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
+            "collision_key_idx": range(len(coll_exc_coeff)),
         },
         index=p_coll_internal_up.index,
     )
@@ -656,6 +664,7 @@ def collisional_transition_excitation_cool(
     electron_densities,
     delta_E_yg,
     level_number_density,
+    lower_indices,
 ):
     """
     Build collisional excitation cooling transitions and metadata.
@@ -674,6 +683,9 @@ def collisional_transition_excitation_cool(
         Energy differences for the excitations.
     level_number_density : pd.Series
         Number density for the lower levels involved in the transitions.
+    lower_indices : pd.Index
+        Index of lower level identifiers that aligns `level_number_density` with
+        the rows of `coll_exc_coeff`.
 
     Returns
     -------
@@ -682,8 +694,6 @@ def collisional_transition_excitation_cool(
     coll_excitation_cool_metadata : pd.DataFrame
         Metadata for the excitation cooling transitions.
     """
-    lower_indices = coll_exc_coeff.index.droplevel("level_number_upper")
-
     p_coll_excitation_cool = probability_collision_excitation_cool(
         coll_exc_coeff,
         electron_densities,
@@ -695,7 +705,6 @@ def collisional_transition_excitation_cool(
     destinations = (
         coll_exc_coeff.index.droplevel(["level_number_lower"]).unique().values
     )
-
     coll_excitation_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -704,6 +713,7 @@ def collisional_transition_excitation_cool(
             "transition_type": MacroAtomTransitionType.COLL_UP_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
+            "collision_key_idx": -99,  # NOT SURE HOW TO DO THIS YET
         },
         index=p_coll_excitation_cool.index,
     )

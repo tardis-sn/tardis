@@ -23,7 +23,7 @@ class MacroAtomTransitionType(IntEnum):
     BF_COOLING = -4  # TODO: Maybe merge this with BF_EMISSION
     TWO_PHOTON = -5
     RECOMB_EMISSION = -6
-    COLL_DOWN_DEACTIVATION = -10
+    COLL_DOWN_TO_K_PACKET = -10
     COLL_DOWN_INTERNAL = 10
     COLL_UP_INTERNAL = 11
     COLL_UP_COOLING = 12
