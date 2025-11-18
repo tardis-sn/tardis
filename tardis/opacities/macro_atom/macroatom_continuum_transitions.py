@@ -113,6 +113,17 @@ def probability_recombination_emission(
     return p_recomb_emission
 
 
+def probability_recombination_cooling(
+    spontaneous_recombination_cooling_coeff,
+    electron_densities,
+    ion_number_density,
+):
+    # Spontaneous recombination cooling rate can come from Andrew
+    # Check BoundFreeThermalRates in plasma.equilibrium.rates.heating_cooling_rates
+    # Implement from FreeBoundCoolingRate in plasma.properties.continuum_processes.rates
+    pass
+
+
 def continuum_transition_recombination_emission(
     spontaneous_recombination_coeff: pd.DataFrame,
     photoionization_data_frequencies: pd.Series,
@@ -141,13 +152,20 @@ def continuum_transition_recombination_emission(
     destinations = p_recomb_emission.index.values
     sources = get_ground_state_multi_index(p_recomb_emission.index).values
 
+    unique_idx = photoionization_data_frequencies.index.unique()
+    mapping = {idx: i for i, idx in enumerate(unique_idx)}
+    ids = pd.Series(
+        photoionization_data_frequencies.index.map(mapping),
+        index=photoionization_data_frequencies.index,
+    ).astype(int)
+
     recombination_emission_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.RECOMB_EMISSION,
-            "transition_line_idx": -99,
+            "transition_type": MacroAtomTransitionType.BF_EMISSION,
+            "transition_line_idx": ids,  # this is used to indicate which block of the photoionization data the transition relates to - make it a different column later
             "photoionization_key_idx": range(
                 len(photoionization_data_frequencies)
             ),
@@ -263,11 +281,10 @@ def probability_adiabatic_cooling(
         `electron_densities` / `t_electrons`.
     """
     # Calculate the probability (unnormalized cooling rate)
-    # Not sure this is right yet - I think this is the rate not the probability
-    p_adiabatic_cooling = (
+    adiabatic_cooling_rate = (
         3.0 * electron_densities * K_B * t_electrons
     ) / time_explosion
-    raise NotImplementedError
+    raise NotImplementedError  # Adiabatic cooling rate needs to be transformed to probability
     return p_adiabatic_cooling
 
 
@@ -384,7 +401,7 @@ def continuum_free_free_cooling(
             "transition_line_id": -99,
             "source": sources,  # this should probably be a number - also check what properties the k packet would need to retain
             "destination": destinations,  # there are adiabatic, ff, bf
-            "transition_type": MacroAtomTransitionType.FF_COOLING,
+            "transition_type": MacroAtomTransitionType.FF_EMISSION,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": -99,

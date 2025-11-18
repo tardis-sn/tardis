@@ -15,7 +15,6 @@ from tardis.transport.montecarlo.interaction_event_handlers import (
     determine_bf_macro_activation_idx,
     free_free_emission,
     line_emission,
-    recombination_emission,
 )
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
@@ -77,7 +76,7 @@ def macro_atom_event(
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
     ):
-        adiabatic_cooling(r_packet)
+        adiabatic_cooling(r_packet)  # Not sure this does anything yet
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
         line_emission(
@@ -87,8 +86,6 @@ def macro_atom_event(
             opacity_state,
             enable_full_relativity,
         )
-    elif transition_type == MacroAtomTransitionType.RECOMB_EMISSION:
-        recombination_emission()
     else:
         raise Exception(
             f"Interaction {transition_type} not known or implemented!"

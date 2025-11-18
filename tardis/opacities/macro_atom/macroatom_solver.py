@@ -766,15 +766,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
     lines: pd.DataFrame
     line_interaction_type: str
     photoionization_data: pd.DataFrame
-    # selected_continuum_transitions: np.ndarray
+    selected_continuum_transitions: np.ndarray
 
     def __init__(
         self,
         levels: pd.DataFrame,
         lines: pd.DataFrame,
         photoionization_data: pd.DataFrame,
-        delta_E_yg: pd.Series,
-        # selected_continuum_transitions: np.ndarray,
+        selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = "macroatom",
     ) -> None:
         """
@@ -802,23 +801,29 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
 
         ### TODO: Remove this
-        selected_continuum_transitions = [
-            (1, 0),
-            (1, 1),
-        ]  # Temporary hack to test the continuum macro atom implementation.
-        included_species = photoionization_data.index.droplevel(
-            "level_number"
-        ).isin(selected_continuum_transitions)
-        self.photoionization_data = photoionization_data[included_species]
+        if selected_continuum_transitions.size > 0:
+            included_species = photoionization_data.index.droplevel(
+                "level_number"
+            ).isin(selected_continuum_transitions)
+            self.photoionization_data = photoionization_data[included_species]
+        else:
+            self.photoionization_data = photoionization_data
+
+        # selected_continuum_transitions = [
+        #     (1, 0),
+        #     (1, 1),
+        # ]  # Temporary hack to test the continuum macro atom implementation.
+        # included_species = photoionization_data.index.droplevel(
+        #     "level_number"
+        # ).isin(selected_continuum_transitions)
+        # self.photoionization_data = photoionization_data[included_species]
+
         # Here we probably want to check and throw an error if the photoionization data contains atoms not in the lines and levels dataframes.
         self.photoionization_data_level_energies = levels.loc[
             self.photoionization_data.index.unique()
         ].energy
         self.ionization_frequency_thresholds = (
             self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
-        )
-        self._delta_E_yg = (
-            delta_E_yg  # Might need to restrict this to hydrogen too
         )
 
     def solve(
@@ -832,6 +837,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_exc_coeff: pd.DataFrame,
         electron_densities: pd.DataFrame,
         level_number_density: pd.DataFrame,
+        delta_E_yg: pd.DataFrame,
     ) -> MacroAtomState:
         """
         Solve the Macro Atom State including continuum transitions.
@@ -862,6 +868,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         is_first_iteration = not hasattr(self, "computed_metadata")
 
         if is_first_iteration:
+            self._delta_E_yg = delta_E_yg
             (
                 normalized_probabilities,
                 macro_atom_transition_metadata,
@@ -1198,7 +1205,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ].collision_key_idx.to_numpy()
         collisional_up_cool_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_UP_COOLING
+            == MacroAtomTransitionType.COLL_UP_COOLING  # TODO: Something with this - Currently not used
         ].collision_key_idx.to_numpy()
         collisional_down_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
@@ -1273,7 +1280,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.RECOMB_EMISSION
+            == MacroAtomTransitionType.BF_EMISSION
         ] = probability_recombination_emission(
             spontaneous_recombination_coeff,
             self.photoionization_data.nu,
@@ -1341,7 +1348,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df["source"] = (
             macro_atom_transition_metadata.source.values
-        )
+        )  # Normalize by source in the next line, so need source column.
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )

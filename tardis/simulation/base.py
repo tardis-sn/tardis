@@ -17,6 +17,7 @@ from tardis.io.model.parse_simulation_state import (
 from tardis.opacities.macro_atom.macroatom_solver import (
     LegacyMacroAtomSolver,
     BoundBoundMacroAtomSolver,
+    ContinuumMacroAtomSolver,
 )
 from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver

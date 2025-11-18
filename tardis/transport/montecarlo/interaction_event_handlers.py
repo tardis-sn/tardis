@@ -18,11 +18,6 @@ H = const.h.cgs.value
 
 
 @njit(**njit_dict_no_parallel)
-def recombination_emission():
-    pass  # Need to check with Christian - Unsure if this is supposed to be handled here. If so, sampled the FB_CDF and set the r_packet.nu accordingly.
-
-
-@njit(**njit_dict_no_parallel)
 def get_current_line_id(nu, line_list):
     """
     Get the line id corresponding to a frequency nu in a line list

@@ -103,7 +103,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 atom_data.levels,
                 atom_data.lines,
                 atom_data.photoionization_data,
-                line_interaction_type,
+                line_interaction_type=line_interaction_type,
             )
         else:
             self.macro_atom_solver = BoundBoundMacroAtomSolver(
@@ -388,6 +388,11 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 self.plasma_solver.stimulated_emission_factor,
                 self.plasma_solver.gamma_corr,
                 self.plasma_solver.alpha_sp,
+                self.plasma_solver.coll_deexc_coeff,
+                self.plasma_solver.coll_exc_coeff,
+                self.plasma_solver.electron_densities,
+                self.plasma_solver.level_number_density,
+                self.plasma_solver.delta_E_yg,
             )
         else:
             macro_atom_state = self.macro_atom_solver.solve(
