@@ -129,7 +129,7 @@ jobs:
           git lfs install
           git config lfs.url http://46.62.152.119:8080/tardis-sn/tardis-regression-data
           echo "Starting LFS fetch from server..."
-          GIT_LFS_PROGRESS=1 git lfs fetch --all
+          git lfs fetch
           echo "LFS fetch complete, checking out files..."
           git lfs checkout
           echo "LFS checkout complete"
