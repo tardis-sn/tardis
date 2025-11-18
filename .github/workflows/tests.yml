@@ -37,17 +37,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-cache:
-    uses: ./.github/workflows/lfs-cache.yml
-    with:
-      atom-data-sparse: false
-      regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
-
   tests:
     name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
-    needs: [test-cache]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -124,8 +116,20 @@ jobs:
         
    
 
-      - name: Setup LFS
-        uses: tardis-sn/tardis-actions/setup-lfs@main
+      - name: Clone tardis-regression-data
+        uses: actions/checkout@v4
+        with:
+          repository: tardis-sn/tardis-regression-data
+          path: tardis-regression-data
+          lfs: false
+
+      - name: Download LFS objects from server
+        run: |
+          cd tardis-regression-data
+          git lfs install
+          git config lfs.url http://46.62.152.119:8080/tardis-sn/tardis-regression-data.git/info/lfs
+          git lfs fetch --all
+          git lfs checkout
 
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main
