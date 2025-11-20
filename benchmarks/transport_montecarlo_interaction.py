@@ -4,8 +4,8 @@ Basic TARDIS Benchmark.
 
 import functools
 
-import tardis.transport.montecarlo.interaction as interaction
 from benchmarks.benchmark_base import BenchmarkBase
+import tardis.transport.montecarlo.interaction_event_handlers
 
 
 class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
@@ -13,7 +13,7 @@ class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
     Class to benchmark the numba interaction function.
     """
 
-    repeat = 3 
+    repeat = 3
 
     @functools.cache
     def setup(self):
@@ -23,7 +23,7 @@ class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
         self.opacity_state = self.verysimple_opacity_state
 
     def time_thomson_scatter(self):
-        interaction.thomson_scatter(
+        tardis.transport.montecarlo.interaction_event_handlers.thomson_scatter(
             self.Packet, self.time_explosion, self.enable_full_relativity
         )
 
@@ -31,7 +31,7 @@ class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
         self.Packet.initialize_line_id(
             self.opacity_state, self.time_explosion, self.enable_full_relativity
         )
-        interaction.line_scatter(
+        tardis.transport.montecarlo.interaction_event_handlers.line_scatter(
             self.Packet,
             self.time_explosion,
             "SCATTER",
@@ -47,7 +47,7 @@ class BenchmarkTransportMontecarloInteraction(BenchmarkBase):
             self.opacity_state, self.time_explosion, self.enable_full_relativity
         )
 
-        interaction.line_emission(
+        tardis.transport.montecarlo.interaction_event_handlers.line_emission(
             self.Packet,
             emission_line_id,
             self.time_explosion,
