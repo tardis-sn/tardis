@@ -671,7 +671,7 @@ def probability_collision_excitation_cool(
     ) * level_number_density.loc[lower_indices].values
 
     p_coll_excitation_cool = p_coll_excitation_cool.groupby(
-        level="level_number_upper"
+        level=["atomic_number", "ion_number", "level_number_upper"]
     ).sum()
     return p_coll_excitation_cool
 
