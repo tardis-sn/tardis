@@ -456,9 +456,24 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-                self.macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
-                    self.plasma
-                )  # TODO: Impliment
+                # self.macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
+                #     self.plasma
+                # )  # TODO: Impliment
+                self.macro_atom_state = self.macro_atom.solve(
+                    self.plasma.j_blues,
+                    self.opacity_state.beta_sobolev,
+                    self.plasma.stimulated_emission_factor,
+                    self.plasma.gamma_corr,
+                    self.plasma.alpha_sp,
+                    self.plasma.coll_deexc_coeff,
+                    self.plasma.coll_exc_coeff,
+                    self.plasma.electron_densities,
+                    self.plasma.level_number_density,
+                    self.plasma.delta_E_yg,
+                )
+                self.opacity_state.continuum_state.k_packet_idx = self.macro_atom_state.references_index.iloc[
+                    -1
+                ]  # Hacky way to point to k-packet activation level - continuum state needs to be reexamined
             else:
                 self.macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
@@ -786,12 +801,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "downbranch",
                 "macroatom",
             ):
-                macro_atom = BoundBoundMacroAtomSolver(
-                    atom_data.levels,
-                    atom_data.lines,
-                    line_interaction_type=config.plasma.line_interaction_type,
-                )
-
+                if config.plasma.continuum_interaction:
+                    macro_atom = ContinuumMacroAtomSolver(
+                        atom_data.levels,
+                        atom_data.lines,
+                        atom_data.photoionization_data,
+                        line_interaction_type=config.plasma.line_interaction_type,
+                    )
+                else:
+                    macro_atom = BoundBoundMacroAtomSolver(
+                        atom_data.levels,
+                        atom_data.lines,
+                        line_interaction_type=config.plasma.line_interaction_type,
+                    )
         convergence_plots_config_options = [
             "plasma_plot_config",
             "t_inner_luminosities_config",

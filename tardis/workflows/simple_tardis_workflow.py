@@ -98,7 +98,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         if line_interaction_type == "scatter":
             self.macro_atom_solver = None
-        if continuum_interactions:
+        elif continuum_interactions:
             self.macro_atom_solver = ContinuumMacroAtomSolver(
                 atom_data.levels,
                 atom_data.lines,
@@ -394,6 +394,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
             )
+            opacity_state.continuum_state.k_packet_idx = macro_atom_state.references_index.iloc[
+                -1
+            ]  # Hacky way to point to k-packet activation level - continuum state needs to be reexamined
         else:
             macro_atom_state = self.macro_atom_solver.solve(
                 self.plasma_solver.j_blues,

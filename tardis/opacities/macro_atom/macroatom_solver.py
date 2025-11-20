@@ -800,7 +800,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 "ContinuumMacroAtomSolver only supports line_interaction_type='macroatom' currently."
             )
 
-        ### TODO: Remove this
         if selected_continuum_transitions.size > 0:
             included_species = photoionization_data.index.droplevel(
                 "level_number"
@@ -868,7 +867,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         is_first_iteration = not hasattr(self, "computed_metadata")
 
         if is_first_iteration:
-            self._delta_E_yg = delta_E_yg
+            self._delta_E_yg = delta_E_yg  # This should be moved to the init, but can't yet because delta_E_yg comes from the plasma which isn't given to macroatom init
             (
                 normalized_probabilities,
                 macro_atom_transition_metadata,
