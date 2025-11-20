@@ -11,7 +11,6 @@ class MacroAtomError(ValueError):
 
 
 class MacroAtomTransitionType(IntEnum):
-    ADIABATIC_COOLING = 4
     PHOTOIONIZATION = 3
     RECOMB_INTERNAL = 2
     INTERNAL_UP = 1
@@ -19,8 +18,9 @@ class MacroAtomTransitionType(IntEnum):
     BB_EMISSION = -1
     BF_EMISSION = -2  # This is recombination emission
     FF_EMISSION = -3
-    BF_COOLING = -4  # TODO: Maybe merge this with BF_EMISSION
-    TWO_PHOTON = -5
+    ADIABATIC_COOLING = -4
+    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
+    TWO_PHOTON = -6
     COLL_DOWN_TO_K_PACKET = 9
     COLL_DOWN_INTERNAL = 10
     COLL_UP_INTERNAL = 11
