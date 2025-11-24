@@ -52,7 +52,7 @@ jobs:
     if: github.repository_owner == 'tardis-sn'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.regression-data-repo }}
           path: tardis-regression-data

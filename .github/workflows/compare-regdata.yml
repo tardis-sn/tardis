@@ -109,17 +109,17 @@ jobs:
           echo "Final disk usage:"
           df -h
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: github.event_name != 'pull_request_target'
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
       
       - name: Checkout tardisbase repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: tardis-sn/tardisbase
           path: tardisbase

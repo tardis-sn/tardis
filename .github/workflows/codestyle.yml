@@ -21,14 +21,14 @@ jobs:
   ruff: 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: github.event_name == 'push'
         with:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
         if: github.event_name == 'pull_request_target'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
