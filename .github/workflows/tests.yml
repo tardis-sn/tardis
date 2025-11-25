@@ -127,9 +127,9 @@ jobs:
         run: |
           cd tardis-regression-data
           git lfs install
-          git config lfs.url http://46.62.152.119:8080/tardis-sn/tardis-regression-data
+          git config lfs.url ${{ secrets.ATHARVA_MORIA_SERVER }}
           echo "Starting LFS fetch from server..."
-          git lfs fetch
+          git lfs fetch --all
           echo "LFS fetch complete, checking out files..."
           git lfs checkout
           echo "LFS checkout complete"
