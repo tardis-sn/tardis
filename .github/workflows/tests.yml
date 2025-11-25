@@ -116,23 +116,10 @@ jobs:
         
    
 
-      - name: Clone tardis-regression-data
-        uses: actions/checkout@v4
+      - name: Setup LFS
+        uses: tardis-sn/tardis-actions/setup-lfs@alt-lfs
         with:
-          repository: tardis-sn/tardis-regression-data
-          path: tardis-regression-data
-          lfs: false
-
-      - name: Download LFS objects from server
-        run: |
-          cd tardis-regression-data
-          git lfs install
-          git config lfs.url ${{ secrets.ATHARVA_MORIA_SERVER }}
-          echo "Starting LFS fetch from server..."
-          git lfs fetch --all
-          echo "LFS fetch complete, checking out files..."
-          git lfs checkout
-          echo "LFS checkout complete"
+          use_server: 'true'
 
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main
