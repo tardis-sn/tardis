@@ -2,13 +2,19 @@ import numpy as np
 import pandas as pd
 
 
-class ContinuumInputData(object):
+class ContinuumInputData:
     """
     The common input data object for all continuum calculations.
     """
 
-    def __init__(self, atom_data, plasma_array, ws,
-                 radiative_transition_probabilities, estimators):
+    def __init__(
+        self,
+        atom_data,
+        plasma_array,
+        ws,
+        radiative_transition_probabilities,
+        estimators,
+    ):
         self.selected_continuum_species = plasma_array.nlte_species
         # Plasma quantities
         self.electron_densities = plasma_array.electron_densities.values
@@ -32,34 +38,47 @@ class ContinuumInputData(object):
         # Atom data
         self.atom_data = atom_data
         # TODO: Unclear if necessary. Is lines used?
-        mask = self._get_continuum_species_mask(self.atom_data,
-                                                self.selected_continuum_species)
+        mask = self._get_continuum_species_mask(
+            self.atom_data, self.selected_continuum_species
+        )
         self.lines = atom_data.lines[mask]
-        #self.lines = atom_data.lines[atom_data.lines['atomic_number'].isin(selected_continuum_species)]
+        # self.lines = atom_data.lines[atom_data.lines['atomic_number'].isin(selected_continuum_species)]
 
         self.levels = atom_data.levels
         self.ionization_energies = atom_data.ionization_data
-        self.photoionization_data = atom_data.continuum_data.photoionization_data
+        self.photoionization_data = (
+            atom_data.continuum_data.photoionization_data
+        )
 
-        #
         self.macro_atom_references = atom_data.macro_atom_references
-        self.macro_atom_references_by_idx = atom_data.macro_atom_references.reset_index().set_index('references_idx')
+        self.macro_atom_references_by_idx = (
+            atom_data.macro_atom_references.reset_index().set_index(
+                "references_idx"
+            )
+        )
         self.macro_atom_data = atom_data.macro_atom_data
         # self.macro_atom_continuum_data = atom_data.continuum_data.macro_atom_data
-        self.radiative_transition_probabilities = radiative_transition_probabilities
-        self.radiative_transition_probabilities_prep = self._prepare_radiative_probabilities(
-            radiative_transition_probabilities)
+        self.radiative_transition_probabilities = (
+            radiative_transition_probabilities
+        )
+        self.radiative_transition_probabilities_prep = (
+            self._prepare_radiative_probabilities(
+                radiative_transition_probabilities
+            )
+        )
 
-        #
-        self.continuum_references = atom_data.continuum_data.continuum_references
+        self.continuum_references = (
+            atom_data.continuum_data.continuum_references
+        )
         self.continuum_data = atom_data.continuum_data.continuum_data
 
-        #
         self.ion_charges = self._get_ion_charges()
 
         # Computed quantities
         self.no_lvls_cont_species = self._get_no_lvls_continuum_species()
-        self.ref_idx_lvls_cont_species = self._get_references_idx_continuum_species_lvls()
+        self.ref_idx_lvls_cont_species = (
+            self._get_references_idx_continuum_species_lvls()
+        )
         self.is_diag_macro_level = self._get_diag_levels_mask()
         self.diag_lvls_start_idx = self._get_diag_lvls_start_idx(
             atom_data.macro_atom_references, self.selected_continuum_species
@@ -70,31 +89,34 @@ class ContinuumInputData(object):
         self.nu_i = self._get_nu_i()
 
     @staticmethod
-    def _get_diag_lvls_start_idx(macro_atom_references,
-                                 selected_continuum_species):
+    def _get_diag_lvls_start_idx(
+        macro_atom_references, selected_continuum_species
+    ):
         diag_lvls_start_idx = [
-            macro_atom_references.loc[species, 'references_idx'].iloc[0]
+            macro_atom_references.loc[species, "references_idx"].iloc[0]
             for species in selected_continuum_species
         ]
         return np.array(diag_lvls_start_idx)
 
     @staticmethod
-    def _get_diag_lvls_block_ref(macro_atom_references,
-                                 selected_continuum_species):
+    def _get_diag_lvls_block_ref(
+        macro_atom_references, selected_continuum_species
+    ):
         diag_lvls_block_ref = [
-            len(macro_atom_references.loc[species, 'references_idx'])
+            len(macro_atom_references.loc[species, "references_idx"])
             for species in selected_continuum_species
         ]
         return np.hstack([[0], np.array(diag_lvls_block_ref).cumsum()])
 
     @staticmethod
     def _get_continuum_species_mask(atom_data, selected_continuum_species):
-        atomic_number = atom_data.lines['atomic_number'].values
-        ion_number = atom_data.lines['ion_number'].values
+        atomic_number = atom_data.lines["atomic_number"].values
+        ion_number = atom_data.lines["ion_number"].values
         mask = np.zeros_like(atomic_number, dtype=bool)
         for species in selected_continuum_species:
-            species_mask = np.logical_and(atomic_number==species[0],
-                                          ion_number==species[1])
+            species_mask = np.logical_and(
+                atomic_number == species[0], ion_number == species[1]
+            )
             mask = np.logical_or(mask, species_mask)
         return mask
 
@@ -115,8 +137,7 @@ class ContinuumInputData(object):
         species_idx_list = []
         for species in self.selected_continuum_species:
             species_idx_list.append(
-                self.macro_atom_references.loc[
-                    species, 'references_idx'].values
+                self.macro_atom_references.loc[species, "references_idx"].values
             )
         return np.hstack(species_idx_list)
 
@@ -134,17 +155,28 @@ class ContinuumInputData(object):
 
     def _prepare_radiative_probabilities(self, radiative_prob):
         source_level_idx = self._get_source_level_idx()
-        destination_level_idx = self.macro_atom_data.destination_level_idx.values
-        new_index = pd.MultiIndex.from_arrays([source_level_idx, destination_level_idx],
-                                              names=['source_level_idx', 'destination_level_idx'])
+        destination_level_idx = (
+            self.macro_atom_data.destination_level_idx.values
+        )
+        new_index = pd.MultiIndex.from_arrays(
+            [source_level_idx, destination_level_idx],
+            names=["source_level_idx", "destination_level_idx"],
+        )
         radiative_prob_prep = radiative_prob.set_index(new_index)
         return radiative_prob_prep
 
     def _get_source_level_idx(self):
         macro_atom_data = self.macro_atom_data
-        source_level_index = pd.MultiIndex.from_arrays([macro_atom_data['atomic_number'], macro_atom_data['ion_number'],
-                                                        macro_atom_data['source_level_number']])
+        source_level_index = pd.MultiIndex.from_arrays(
+            [
+                macro_atom_data["atomic_number"],
+                macro_atom_data["ion_number"],
+                macro_atom_data["source_level_number"],
+            ]
+        )
         return self._get_level_idx(source_level_index)
 
     def _get_level_idx(self, multi_index):
-        return self.macro_atom_references.loc[multi_index, 'references_idx'].values
+        return self.macro_atom_references.loc[
+            multi_index, "references_idx"
+        ].values

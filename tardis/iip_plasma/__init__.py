@@ -1,2 +1,2 @@
-from tardis.plasma.base import BasePlasma
-from tardis.plasma.standard_plasmas import LTEPlasma
+from tardis.iip_plasma.base import BasePlasma
+from tardis.iip_plasma.standard_plasmas import LTEPlasma

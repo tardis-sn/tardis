@@ -1,7 +1,16 @@
-from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
+from tardis.iip_plasma.properties.base import ArrayInput, DataFrameInput, Input
 
-__all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlues', 'LinkTRadTElectron']
+__all__ = [
+    "Abundance",
+    "AtomicData",
+    "Density",
+    "DilutionFactor",
+    "JBlues",
+    "LinkTRadTElectron",
+    "TRadiative",
+    "TimeExplosion",
+]
+
 
 class TRadiative(ArrayInput):
     """
@@ -9,8 +18,10 @@ class TRadiative(ArrayInput):
     ----------
     t_rad : Numpy Array, dtype float
     """
-    outputs = ('t_rad',)
-    latex_name = ('T_{\\textrm{rad}}',)
+
+    outputs = ("t_rad",)
+    latex_name = ("T_{\\textrm{rad}}",)
+
 
 class DilutionFactor(ArrayInput):
     """
@@ -20,8 +31,10 @@ class DilutionFactor(ArrayInput):
         Factor used in nebular ionisation / dilute excitation calculations
         to account for the dilution of the radiation field.
     """
-    outputs = ('w',)
-    latex_name = ('W',)
+
+    outputs = ("w",)
+    latex_name = ("W",)
+
 
 class AtomicData(Input):
     """
@@ -29,7 +42,9 @@ class AtomicData(Input):
     ----------
     atomic_data : Object
     """
-    outputs = ('atomic_data',)
+
+    outputs = ("atomic_data",)
+
 
 class Abundance(Input):
     """
@@ -38,7 +53,9 @@ class Abundance(Input):
     abundance : Numpy array, dtype float
                 Fractional abundance of elements
     """
-    outputs = ('abundance',)
+
+    outputs = ("abundance",)
+
 
 class Density(ArrayInput):
     """
@@ -47,18 +64,23 @@ class Density(ArrayInput):
     density : Numpy array, dtype float
               Total density values
     """
-    outputs = ('density',)
-    latex_name = ('\\rho',)
+
+    outputs = ("density",)
+    latex_name = ("\\rho",)
+
 
 class TimeExplosion(Input):
     """
     Attributes
+    ----------
     ----------s
     time_explosion : Float
                      Time since explosion in seconds
     """
-    outputs = ('time_explosion',)
-    latex_name = ('t_{\\textrm{exp}}',)
+
+    outputs = ("time_explosion",)
+    latex_name = ("t_{\\textrm{exp}}",)
+
 
 class JBlues(DataFrameInput):
     """
@@ -67,8 +89,10 @@ class JBlues(DataFrameInput):
     j_blues : Pandas DataFrame
               Mean intensity in the blue wing of each line.
     """
-    outputs = ('j_blues',)
-    latex_name = ('J_{lu}^{b}',)
+
+    outputs = ("j_blues",)
+    latex_name = ("J_{lu}^{b}",)
+
 
 class LinkTRadTElectron(Input):
     """
@@ -78,5 +102,6 @@ class LinkTRadTElectron(Input):
                             Value used for estimate of electron temperature.
                             Default is 0.9.
     """
-    outputs = ('link_t_rad_t_electron',)
-    latex_name = ('T_{\\textrm{electron}}/T_{\\textrm{rad}}',)
+
+    outputs = ("link_t_rad_t_electron",)
+    latex_name = ("T_{\\textrm{electron}}/T_{\\textrm{rad}}",)

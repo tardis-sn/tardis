@@ -7,31 +7,31 @@ from astropy import units as units
 def data_type_selection(data_getter):
     def wrapped_data_getter(*args, **kwargs):
         output = data_getter(*args)
-        if not kwargs or kwargs['dtype'] == 'array':
+        if not kwargs or kwargs["dtype"] == "array":
             return output.values
-        elif kwargs['dtype'] == 'dataframe':
+        if kwargs["dtype"] == "dataframe":
             return output
-        else:
-            raise AttributeError
+        raise AttributeError
 
     return wrapped_data_getter
 
 
-class ContinuumProcess(object):
+class ContinuumProcess:
     """
-        Base class for all continuum calculations. Defines a common interface for accessing the input data
-        (~ `tardis.continuum.input_data.ContinuumInputData`-object) and provides some common utility functions.
+    Base class for all continuum calculations. Defines a common interface for accessing the input data
+    (~ `tardis.iip_plasma.continuum.input_data.ContinuumInputData`-object) and provides some common utility functions.
 
-        Attributes
-        ----------
-        input: `tardis.continuum.input_data.ContinuumInputData`-object
+    Attributes
+    ----------
+    input: `tardis.iip_plasma.continuum.input_data.ContinuumInputData`-object
     """
+
     def __init__(self, input_data):
         self.input = input_data
 
     @data_type_selection
     def _get_level_energy(self, multi_index):
-        return self.input.levels.loc[multi_index, 'energy']
+        return self.input.levels.loc[multi_index, "energy"]
 
     @data_type_selection
     def _get_lte_level_pop(self, multi_index):
@@ -42,11 +42,17 @@ class ContinuumProcess(object):
         return self.input.level_pop.loc[multi_index]
 
     def _get_level_idx(self, multi_index):
-        return self.input.macro_atom_references.loc[multi_index, 'references_idx'].values
+        return self.input.macro_atom_references.loc[
+            multi_index, "references_idx"
+        ].values
 
     def _get_continuum_idx(self, multi_index_full):
-        ion_number_index = self._get_ion_multi_index(multi_index_full, next_higher=False)
-        return self.input.continuum_references.loc[ion_number_index, 'references_idx'].values
+        ion_number_index = self._get_ion_multi_index(
+            multi_index_full, next_higher=False
+        )
+        return self.input.continuum_references.loc[
+            ion_number_index, "references_idx"
+        ].values
 
     @staticmethod
     def _get_ion_multi_index(multi_index_full, next_higher=True):
@@ -69,24 +75,38 @@ class ContinuumProcess(object):
     @data_type_selection
     def _get_ionization_energy(self, multi_index_full):
         ion_number_index = self._get_ion_multi_index(multi_index_full)
-        return self.input.ionization_energies.loc[ion_number_index, 'ionization_energy']
+        return self.input.ionization_energies.loc[
+            ion_number_index, "ionization_energy"
+        ]
 
     def _get_continuum_edge_idx(self, multi_index):
-        return self.input.continuum_data.loc[multi_index, 'continuum_edge_idx']
+        return self.input.continuum_data.loc[multi_index, "continuum_edge_idx"]
 
     @staticmethod
     def _normalize_transition_probabilities(dataframe, no_ref_columns=0):
         normalization_fct = lambda x: (x / x.sum())
-        normalized_dataframe = dataframe.ix[:, no_ref_columns:].groupby(level=0).transform(normalization_fct)
-        normalized_dataframe = pd.concat([dataframe.ix[:, :no_ref_columns], normalized_dataframe], axis=1,
-                                         join_axes=[normalized_dataframe.index])
+        normalized_dataframe = (
+            dataframe.iloc[:, no_ref_columns:]
+            .groupby(level=0)
+            .transform(normalization_fct)
+        )
+        normalized_dataframe = pd.concat(
+            [dataframe.iloc[:, :no_ref_columns], normalized_dataframe],
+            axis=1,
+            join_axes=[normalized_dataframe.index],
+        )
         normalized_dataframe = normalized_dataframe.fillna(0.0)
         return normalized_dataframe
 
     def _get_level_multi_index(self, level_idx):
         tmp = self.input.macro_atom_references_by_idx.iloc[level_idx]
-        level_multi_index = pd.MultiIndex.from_arrays([tmp['atomic_number'].values, tmp['ion_number'].values,
-                                                       tmp['source_level_number'].values])
+        level_multi_index = pd.MultiIndex.from_arrays(
+            [
+                tmp["atomic_number"].values,
+                tmp["ion_number"].values,
+                tmp["source_level_number"].values,
+            ]
+        )
         return level_multi_index
 
     def _set_ionization_rates_index(self, probabilities):
@@ -97,13 +117,17 @@ class ContinuumProcess(object):
     def _get_ion_prob_index(self, level_lower_index):
         source_level_idx = self._get_level_idx(level_lower_index)
         destination_level_idx = self._get_continuum_idx(level_lower_index)
-        tmp_multi_index = pd.MultiIndex.from_arrays([source_level_idx, destination_level_idx],
-                                                    names=['source_level_idx', 'destination_level_idx'])
+        tmp_multi_index = pd.MultiIndex.from_arrays(
+            [source_level_idx, destination_level_idx],
+            names=["source_level_idx", "destination_level_idx"],
+        )
         return tmp_multi_index
 
     @data_type_selection
     def _get_xsect_i(self):
-        return self.photoionization_data.groupby(level=[0, 1, 2]).first()['x_sect']
+        return self.photoionization_data.groupby(level=[0, 1, 2]).first()[
+            "x_sect"
+        ]
 
     @property
     def electron_densities(self):
@@ -151,7 +175,7 @@ class ContinuumProcess(object):
 
     @property
     def nu_0(self):
-        return self.nu_i_series.groupby(level=[0,1]).first()
+        return self.nu_i_series.groupby(level=[0, 1]).first()
 
     @property
     def photoionization_data(self):
@@ -167,22 +191,21 @@ class ContinuumProcess(object):
 
     @property
     def photo_ion_estimator(self):
-        return self.input.estimators['photo_ion_estimator']
+        return self.input.estimators["photo_ion_estimator"]
 
     @property
     def stim_recomb_estimator(self):
-        return self.input.estimators['stim_recomb_estimator']
+        return self.input.estimators["stim_recomb_estimator"]
 
-    #@property
-    #def photo_ion_estimator_norm_factor(self):
+    # @property
+    # def photo_ion_estimator_norm_factor(self):
     #    return self.input.estimators['photo_ion_norm_factor']
 
     @property
     def has_estimators(self):
         if self.input.estimators:
             return True
-        else:
-            return False
+        return False
 
     @property
     def replace_values_with_low_statistics(self):
@@ -190,7 +213,11 @@ class ContinuumProcess(object):
 
     # Helper functions for physical calculations
     def _calculate_u0s(self, nu):
-        u0s = nu[np.newaxis].T / self.t_electrons * (const.h.cgs.value / const.k_B.cgs.value)
+        u0s = (
+            nu[np.newaxis].T
+            / self.t_electrons
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
         return u0s
 
     # Data preparation
@@ -202,7 +229,7 @@ class ContinuumProcess(object):
         return np.ones(dataframe.shape[0], dtype)
 
 
-class TransitionProbabilitiesMixin(object):
+class TransitionProbabilitiesMixin:
     @property
     def internal_jump_probabilities(self):
         level_lower_energy = self.level_lower_energy * units.erg.to(units.eV)
@@ -210,7 +237,9 @@ class TransitionProbabilitiesMixin(object):
 
     @property
     def deactivation_probabilities(self):
-        energy_difference = (self.level_upper_energy - self.level_lower_energy) * units.erg.to(units.eV)
+        energy_difference = (
+            self.level_upper_energy - self.level_lower_energy
+        ) * units.erg.to(units.eV)
         return self.rate_coefficient.multiply(energy_difference, axis=0)
 
 
@@ -220,7 +249,7 @@ class PhysicalContinuumProcess(ContinuumProcess, TransitionProbabilitiesMixin):
 
     Attributes
     ----------
-    input: `tardis.continuum.input_data.ContinuumInputData`-object
+    input: `tardis.iip_plasma.continuum.input_data.ContinuumInputData`-object
     rate_coefficient: pd.DataFrame
         Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
         per unit volume of the transition.
@@ -237,6 +266,7 @@ class PhysicalContinuumProcess(ContinuumProcess, TransitionProbabilitiesMixin):
     macro_atom_transitions: str
         The type of transitions in the macro atom.
     """
+
     name = None
     cooling = True
     macro_atom_transitions = None
@@ -254,7 +284,7 @@ class PhysicalContinuumProcess(ContinuumProcess, TransitionProbabilitiesMixin):
         raise NotImplementedError
 
 
-class BoundFreeEnergyMixIn(object):
+class BoundFreeEnergyMixIn:
     @property
     def level_lower_energy(self):
         return self._get_level_energy(self.rate_coefficient.index)
@@ -273,7 +303,7 @@ class InverseProcess(ContinuumProcess, TransitionProbabilitiesMixin):
 
     Attributes
     ----------
-    input: `tardis.continuum.input_data.ContinuumInputData`-object
+    input: `tardis.iip_plasma.continuum.input_data.ContinuumInputData`-object
     rate_coefficient: pd.DataFrame
         Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
         per unit volume of the transition.
@@ -292,6 +322,7 @@ class InverseProcess(ContinuumProcess, TransitionProbabilitiesMixin):
     macro_atom_transitions: str
         The type of transitions in the macro atom.
     """
+
     name = None
     name_of_inverse_process = None
     cooling = False
