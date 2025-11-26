@@ -7,7 +7,7 @@ from scipy.integrate import simpson, trapezoid
 from scipy.interpolate import PchipInterpolator
 
 from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
-from tardis.spectrum.formal_integral.base import intensity_black_body
+from tardis.util.base import intensity_black_body
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +174,9 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         photoion_coeff = photoion_coeff.groupby(level=[0, 1, 2])
         tmp = {}
         for i in range(len(w)):
-            tmp[i] = photoion_coeff.apply(lambda sub: trapz(sub[i], sub["nu"]))
+            tmp[i] = photoion_coeff.apply(
+                lambda sub: trapezoid(sub[i], sub["nu"])
+            )
         photoion_coeff = pd.DataFrame(tmp)
 
         # if photo_ion_estimator is not None:
@@ -1036,7 +1038,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         alpha_sp_E = pd.DataFrame(alpha_sp_E.multiply(boltzmann_factor))
         alpha_sp_E.insert(0, "nu", nu)
         alpha_sp_E = alpha_sp_E.groupby(level=[0, 1, 2]).apply(
-            lambda sub: trapz(sub[0], sub["nu"])
+            lambda sub: trapezoid(sub[0], sub["nu"])
         )
         return alpha_sp_E
 
@@ -1056,7 +1058,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         alpha_sp_E = pd.DataFrame(alpha_sp_E.multiply(boltzmann_factor))
         alpha_sp_E.insert(0, "nu", nu)
         alpha_sp_E = alpha_sp_E.groupby(level=[0, 1, 2]).apply(
-            lambda sub: trapz(sub[0], sub["nu"])
+            lambda sub: trapezoid(sub[0], sub["nu"])
         )
         return alpha_sp_E
 

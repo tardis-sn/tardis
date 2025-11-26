@@ -477,15 +477,11 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
                     initial = (
                         self.plasma_parent.level_number_density[i]
-                        .iloc[species]
+                        .loc[species]
                         .values
                     )
                     initial /= initial.sum()
                     initial = np.hstack([initial, np.array(next_ion_density)])
-
-                    import pdb
-
-                    pdb.set_trace()
 
                     res = root(self._rate_equations, x0=initial, args=args)
 
@@ -507,13 +503,9 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     level_boltzmann_factor = res.x[:-1]
                     ion_ratio[i] = res.x[-1]
 
-                    general_level_boltzmann_factor[i].iloc[species] = (
+                    general_level_boltzmann_factor.loc[species, i] = (
                         level_boltzmann_factor
                     )
-
-                    import pdb
-
-                    pdb.set_trace()
 
         return general_level_boltzmann_factor, ion_ratio
 
@@ -668,9 +660,9 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         # import ipdb; ipdb.set_trace()
         beta_sobolev = np.zeros_like(tau_sobolev.values)
 
-        calculate_beta_sobolev(tau_sobolev.values.ravel(), beta_sobolev.ravel())
+        beta_sobolev = calculate_beta_sobolev(tau_sobolev)
 
-        return beta_sobolev
+        return beta_sobolev.values
 
     @staticmethod
     def _setup_bb_rates(
@@ -750,21 +742,16 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _setup_collision_rate_matrix(
         self, coll_exc_coeff, coll_deexc_coeff, no_of_levels, shell, n_e
     ):
+        coll_exc_coeff.index = coll_exc_coeff.index.swaplevel(0, 1)
         coll_deexc_coeff.index = coll_deexc_coeff.index.swaplevel(0, 1)
 
-        index = self._get_rate_index(no_of_levels)
-        coll_excitation_rates = (
-            (coll_exc_coeff.iloc[index, shell])
-            .fillna(0)
-            .values.reshape((no_of_levels, no_of_levels))
-            * n_e
-        )
+        index = list(self._get_rate_index(no_of_levels))
+        coll_excitation_rates = (coll_exc_coeff[shell].reindex(index)).fillna(
+            0
+        ).values.reshape((no_of_levels, no_of_levels)) * n_e
         coll_deexcitation_rates = (
-            (coll_deexc_coeff.iloc[index, shell])
-            .fillna(0)
-            .values.reshape((no_of_levels, no_of_levels))
-            * n_e
-        )
+            coll_deexc_coeff[shell].reindex(index)
+        ).fillna(0).values.reshape((no_of_levels, no_of_levels)) * n_e
 
         diag_exc = np.zeros(no_of_levels)
         diag_deexc = np.zeros(no_of_levels)
