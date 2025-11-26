@@ -27,7 +27,7 @@ def plasma_compare_data(plasma_compare_data_fname):
 
 
 @pytest.mark.skipif(
-    not pytest.config.getvalue("atomic-dataset"),
+    not pytest.Config.getvalue(name="atomic-dataset"),
     reason="--atomic_database was not specified",
 )
 class TestPlasmas:
@@ -35,7 +35,7 @@ class TestPlasmas:
     @pytest.fixture(scope="class", autouse=True)
     def setup(self):
         self.atom_data_filename = os.path.expanduser(
-            os.path.expandvars(pytest.config.getvalue("atomic-dataset"))
+            os.path.expandvars(pytest.Config.getvalue(name="atomic-dataset"))
         )
         assert os.path.exists(self.atom_data_filename), (
             f"{self.atom_data_filename} atomic datafiles does not seem to exist"
