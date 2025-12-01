@@ -101,7 +101,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         if line_interaction_type == "scatter":
             self.macro_atom_solver = None
-        elif continuum_interactions:
+        elif continuum_interactions.species:
             self.macro_atom_solver = ContinuumMacroAtomSolver(
                 atom_data.levels,
                 atom_data.lines,

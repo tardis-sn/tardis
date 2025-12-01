@@ -801,7 +801,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "downbranch",
                 "macroatom",
             ):
-                if config.plasma.continuum_interaction:
+                if config.plasma.continuum_interaction.species:
                     macro_atom = ContinuumMacroAtomSolver(
                         atom_data.levels,
                         atom_data.lines,
