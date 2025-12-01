@@ -7,7 +7,7 @@ from tardis.transport.frame_transformations import (
     get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.interaction_event_handlers import (
+from tardis.transport.montecarlo.interaction_events import (
     LineInteractionType,
     adiabatic_cooling,
     bf_cooling,

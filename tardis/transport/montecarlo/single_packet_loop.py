@@ -17,7 +17,7 @@ from tardis.transport.montecarlo.interaction_event_callers import (
     continuum_event,
     line_scatter_event,
 )
-from tardis.transport.montecarlo.interaction_event_handlers import (
+from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (

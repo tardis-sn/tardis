@@ -4,7 +4,7 @@ from numba import boolean, float64, int64
 from numba.experimental import jitclass
 
 from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.transport.montecarlo.interaction_event_handlers import (
+from tardis.transport.montecarlo.interaction_events import (
     LineInteractionType,
 )
 
