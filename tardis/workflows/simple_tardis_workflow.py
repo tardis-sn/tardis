@@ -23,6 +23,9 @@ from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
+    MCContinuumPropertiesSolver,
+)
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
 from tardis.workflows.workflow_logging import WorkflowLogging
@@ -363,7 +366,21 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             raise ValueError(
                 f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
             )
-
+        if isinstance(self.macro_atom_solver, ContinuumMacroAtomSolver):
+            continuum_property_solver = MCContinuumPropertiesSolver(
+                self.plasma_solver.atomic_data
+            )
+            estimated_continuum_properties = continuum_property_solver.solve(
+                self.transport_state.radfield_mc_estimators,
+                self.transport_state.time_of_simulation,
+                self.transport_state.geometry_state.volume,
+            )
+            update_properties.update(
+                gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
+                alpha_stim_factor=estimated_continuum_properties.stimulated_recombination_rate_factor,
+                bf_heating_coeff_estimator=self.transport_state.radfield_mc_estimators.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=self.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator,
+            )
         self.plasma_solver.update(**update_properties)
 
     def solve_opacity(self):

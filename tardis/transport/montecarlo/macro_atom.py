@@ -24,10 +24,7 @@ class MacroAtomTransitionType(IntEnum):
     COLL_DOWN_TO_K_PACKET = 9
     COLL_DOWN_INTERNAL = 10
     COLL_UP_INTERNAL = 11
-    COLL_UP_COOLING = 12
-
-
-# Think more about the specific values here. Maybe negatives are for deactivating the macroatom, and positive values are internal?
+    COLL_UP_COOLING = 12  # I think this should be a deactivation event
 
 
 @njit(**njit_dict_no_parallel)

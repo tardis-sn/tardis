@@ -110,6 +110,7 @@ def probability_recombination_emission(
         )
         * CONST_H_CGS
     )  # photoionization_data_frequencies is ionization threshold, so I guess delta e is just photoionization_data_frequencies * h?
+    # The above comment comes from the source code, which was a plasma property
     return p_recomb_emission
 
 
@@ -118,9 +119,9 @@ def probability_recombination_cooling(
     electron_densities,
     ion_number_density,
 ):
-    # Spontaneous recombination cooling rate can come from Andrew
     # Check BoundFreeThermalRates in plasma.equilibrium.rates.heating_cooling_rates
     # Implement from FreeBoundCoolingRate in plasma.properties.continuum_processes.rates
+    # This will use MacroAtomTransitionType.BF_COOLING
     pass
 
 
@@ -311,12 +312,14 @@ def continuum_adiabatic_cooling(
     p_adiabatic_cool = probability_adiabatic_cooling(
         electron_densities, t_electrons, time_explosion
     )
-    sources = [("k", -99, -99)] * len(p_adiabatic_cool.index)
+    sources = [("k", -99, -99)] * len(
+        p_adiabatic_cool.index
+    )  # k packets could use a better convention
     destinations = [("adiabatic", -99, -99)] * len(p_adiabatic_cool.index)
     adiabatic_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
-            "source": sources,  # this should probably be a number - also check what properties the k packet would need to retain
+            "source": sources,
             "destination": destinations,  # there are adiabatic, ff, bf
             "transition_type": MacroAtomTransitionType.ADIABATIC_COOLING,
             "transition_line_idx": -99,
@@ -329,7 +332,6 @@ def continuum_adiabatic_cooling(
     return p_adiabatic_cool, adiabatic_cool_metadata
 
 
-# I THINK THIS ONE IS WRONG
 def probability_free_free_cooling(
     ion_number_density, electron_densities, t_electrons
 ):
@@ -371,7 +373,7 @@ def continuum_free_free_cooling(
 ):
     """
     Wrap free-free cooling rates with metadata for macro-atom use.
-    CHECK IF THIS IS DEACTIVATION
+    NOTE: This I believe is a deactivation transition. It is not implemented or hooked up to the solver yet.
 
     Parameters
     ----------
@@ -399,8 +401,8 @@ def continuum_free_free_cooling(
     free_free_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
-            "source": sources,  # this should probably be a number - also check what properties the k packet would need to retain
-            "destination": destinations,  # there are adiabatic, ff, bf
+            "source": sources,
+            "destination": destinations,
             "transition_type": MacroAtomTransitionType.FF_EMISSION,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
@@ -437,9 +439,6 @@ def probability_collision_deexc_to_k_packet(
     p_coll_down_to_k_packet = (coll_deexc_coeff * electron_densities).multiply(
         delta_E_yg.values, axis=0
     )
-    # IMPORTANT NOTE: Below was from the source but seems incorrect.
-    # I don't know why you'd want a single value for the atom rather than for each level.
-    # p_coll_down_to_k_packet = p_coll_down_to_k_packet.groupby(level=[0]).sum()
 
     return p_coll_down_to_k_packet
 
