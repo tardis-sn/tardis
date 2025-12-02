@@ -122,7 +122,7 @@ def probability_recombination_cooling(
     # Check BoundFreeThermalRates in plasma.equilibrium.rates.heating_cooling_rates
     # Implement from FreeBoundCoolingRate in plasma.properties.continuum_processes.rates
     # This will use MacroAtomTransitionType.BF_COOLING
-    pass
+    raise NotImplementedError
 
 
 def continuum_transition_recombination_emission(
@@ -286,7 +286,7 @@ def probability_adiabatic_cooling(
         3.0 * electron_densities * K_B * t_electrons
     ) / time_explosion
     raise NotImplementedError  # Adiabatic cooling rate needs to be transformed to probability
-    return p_adiabatic_cooling
+    # return p_adiabatic_cooling
 
 
 def continuum_adiabatic_cooling(
@@ -365,7 +365,7 @@ def probability_free_free_cooling(
     ff_cool_rate = F_K * np.sqrt(t_electrons) * cooling_factor
     # NOT DONE, return probability, not the rate
     raise NotImplementedError
-    # return ff_cool_rate
+    # return probability_free_free_cooling
 
 
 def continuum_free_free_cooling(
@@ -729,7 +729,7 @@ def collisional_transition_excitation_cool(
             "transition_type": MacroAtomTransitionType.COLL_UP_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
-            "collision_key_idx": -99,  # NOT SURE HOW TO DO THIS YET
+            "collision_key_idx": -99,  # Collapsed along level_number_lower, so can't be mapped to collision keys
         },
         index=p_coll_excitation_cool.index,
     )
