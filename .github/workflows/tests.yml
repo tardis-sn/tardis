@@ -67,61 +67,61 @@ jobs:
     steps:
       - uses: actions/checkout@v5  
      
-      # - name: Free Disk Space (Ubuntu)
-      #   if: matrix.os == 'ubuntu-latest'
-      #   uses: jlumbroso/free-disk-space@main
-      #   with:
-      #     # this might remove tools that are actually needed,
-      #     # if set to "true" but frees about 6 GB
-      #     tool-cache: false
+      - name: Free Disk Space (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
           
-      #     # other packages
-      #     android: true
-      #     dotnet: true
-      #     haskell: true
-      #     large-packages: true
-      #     swap-storage: true
+          # other packages
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
       
-      # - name: Free up disk space on macOS
-      #   if: matrix.os == 'macos-latest'
-      #   continue-on-error: True
-      #   run: |
-      #     echo "Initial disk usage:"
-      #     df -h
+      - name: Free up disk space on macOS
+        if: matrix.os == 'macos-latest'
+        continue-on-error: True
+        run: |
+          echo "Initial disk usage:"
+          df -h
           
-      #     # Remove unnecessary Xcode versions (if any)
-      #     if ls /Applications/Xcode_*.app 1> /dev/null 2>&1; then
-      #       echo "Removing old Xcode versions..."
-      #       sudo rm -rf /Applications/Xcode_*.app
-      #     else
-      #       echo "No additional Xcode versions found"
-      #     fi
+          # Remove unnecessary Xcode versions (if any)
+          if ls /Applications/Xcode_*.app 1> /dev/null 2>&1; then
+            echo "Removing old Xcode versions..."
+            sudo rm -rf /Applications/Xcode_*.app
+          else
+            echo "No additional Xcode versions found"
+          fi
           
-      #     # Clean Homebrew cache
-      #     echo "Cleaning Homebrew cache..."
-      #     brew cleanup --prune=all || true
+          # Clean Homebrew cache
+          echo "Cleaning Homebrew cache..."
+          brew cleanup --prune=all || true
           
-      #     # Remove iOS simulators (only if simctl is available)
-      #     if command -v xcrun simctl &> /dev/null; then
-      #       echo "Cleaning iOS simulators..."
-      #       xcrun simctl delete unavailable || true
-      #     else
-      #       echo "simctl not available, skipping iOS simulator cleanup"
-      #     fi
+          # Remove iOS simulators (only if simctl is available)
+          if command -v xcrun simctl &> /dev/null; then
+            echo "Cleaning iOS simulators..."
+            xcrun simctl delete unavailable || true
+          else
+            echo "simctl not available, skipping iOS simulator cleanup"
+          fi
           
-      #     # Clear system caches (be more selective)
-      #     echo "Clearing system caches..."
-      #     rm -rf ~/Library/Caches/* 2>/dev/null || true
+          # Clear system caches (be more selective)
+          echo "Clearing system caches..."
+          rm -rf ~/Library/Caches/* 2>/dev/null || true
           
-      #     # Remove other large files
-      #     sudo rm -rf /usr/local/lib/android 2>/dev/null || true
-      #     sudo rm -rf /usr/local/share/dotnet 2>/dev/null || true
-      #     sudo rm -rf /usr/share/dotnet 2>/dev/null || true
-      #     sudo rm -rf /opt/ghc 2>/dev/null || true
-      #     sudo rm -rf "/usr/local/share/boost" 2>/dev/null || true
-      #     sudo rm -rf "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
-      #     echo "Final disk usage:"
-      #     df -h
+          # Remove other large files
+          sudo rm -rf /usr/local/lib/android 2>/dev/null || true
+          sudo rm -rf /usr/local/share/dotnet 2>/dev/null || true
+          sudo rm -rf /usr/share/dotnet 2>/dev/null || true
+          sudo rm -rf /opt/ghc 2>/dev/null || true
+          sudo rm -rf "/usr/local/share/boost" 2>/dev/null || true
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
+          echo "Final disk usage:"
+          df -h
         
    
 
