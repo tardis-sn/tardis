@@ -293,7 +293,7 @@ def simulation_verysimple_vpacket_tracking(config_verysimple, atomic_dataset):
 
 
 @pytest.fixture(scope="session")
-def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
+def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset, atomic_data_fname):
     """
     Creating a simulation object using a simple configuration
 
@@ -311,11 +311,10 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
     config_rpacket_tracking.montecarlo.last_no_of_packets = -1
 
     config_rpacket_tracking.montecarlo.tracking.track_rpacket = True
+    # config_rpacket_tracking["atom_data"] = atomic_data_fname
 
-    atomic_data = deepcopy(atomic_dataset)
     sim = run_tardis(
         config_rpacket_tracking,
-        atom_data=atomic_data,
         show_convergence_plots=False,
     )
     return sim
