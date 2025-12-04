@@ -85,10 +85,10 @@ def multiindex_port(olddata, templatedata, templatekey, oldkey=None):
         newdata[col] = newdata[col].astype(templatedata[templatekey].dtype)
 
     # Convert datatypes of each level of the multi-index
-    if isinstance(newdata.index, pd.Index):
+    if not isinstance(newdata.index, pd.MultiIndex):
         template_ind_dtype = templatedata[templatekey].index.dtype
         newdata.index = newdata.index.astype(template_ind_dtype)
-    elif isinstance(newdata.index, pd.MultiIndex):
+    else:
         for i, indname in enumerate(newdata.index.names):
             template_ind_dtype = templatedata[templatekey].index.dtypes[indname]
             converted_index = newdata.index.levels[i].astype(template_ind_dtype)
@@ -108,22 +108,25 @@ def simple_port(olddata, templatedata, templatekey, oldkey=None):
 
     return newdata
 
+
 ## Files used to convert Christian's atomic data:
-# oldatomdata = "merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg.h5"
-# pi_filename = "photoionization_data_H30_He.h5"
-# template = "/home/connor/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5"
+#default_oldatomdata = "merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg.h5"
+#default_pi_filename = "photoionization_data_H30_He.h5"
+#default_template = "/home/connor/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5"
+#default_new = "test2.h5"
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("oldatomdata", type=str)
-    parser.add_argument("oldPIdata", type=str)
-    parser.add_argument("template", type=str)
-    parser.add_argument("newatomdata", type=str)
+    parser.add_argument("--oldatomdata", type=str)#, default=default_oldatomdata)
+    parser.add_argument("--oldPIdata", type=str)#, default=default_pi_filename)
+    parser.add_argument("--template", type=str)#, default=default_template)
+    parser.add_argument("--newatomdata", type=str)#, default=default_new)
     args = parser.parse_args()
 
-    # Load data in old format - use h5py for now, not pandas
-    old = h5py.File(args.oldatomdata)
+    # Atomic data in old format - "/Y/g" seems to be the only accessible dataset when
+    # using pandas for some reason (contains collision data)
+    old_df = pd.HDFStore(args.oldatomdata)
 
     # Photoionization data stored in separate file in Christian's version
     pi_data = pd.HDFStore(args.oldPIdata)
@@ -134,43 +137,28 @@ if __name__ == "__main__":
     # Open up a new pandas HDFStore to port the old data into
     new = pd.HDFStore(args.newatomdata)
 
+    ### COLLISIONS DATA
+    multiindex_cols = list(old_df["/Y/g"].columns[:4])
+    new["collisions_data"] = old_df["/Y/g"].set_index(multiindex_cols)
+    tempcols = list(new['collisions_data'].columns)
+    new["collisions_data_temperatures"] = pd.Series(tempcols, dtype=np.int64)
+    new['collisions_data'] = new['collisions_data'].rename(lambda f: tempcols.index(f), axis=1)
+
+    # We've gotten all useful info out of the old dataframe using pandas
+    # so now load the same file with h5py directly to get the rest
+    old_df.close()
+    old = h5py.File(args.oldatomdata)
+
+    ### COLLISIONS METADATA
+    new_metadata = template["collisions_metadata"].copy()
+    new_metadata["temperatures"] = new['collisions_data_temperatures'].values
+    new["collisions_metadata"] = new_metadata
+
     ### ATOM DATA
     new_atom_data = multiindex_port(
         old, template, "atom_data", oldkey="basic_atom_data"
     )
     new["atom_data"] = new_atom_data
-
-    ### COLLISIONS DATA
-    # Note: this can actually just be done by re-loading the filename with pd.HDFStore
-    # The main dataset is already formatted correctly but with temperatures in the
-    # columns instead of in the metadata. Leaving as-is for now since I already wrote
-    # all this nonsense below.
-
-    # Collision strengths and temperature bins are stored in block 0
-    collisions_data = np.array(old["Y/g"]["block0_values"][:])
-    collisions_temps = np.array(
-        old["Y/g"]["block0_items"][:]
-    )  # these go in the metadata in the new format
-
-    # The multi-index is stored in block 1
-    collisions_index_names = np.array(old["Y/g"]["block1_items"][:].astype(str))
-    collisions_index_values = np.array(old["Y/g"]["block1_values"][:])
-    collisions_multiindex = pd.MultiIndex.from_arrays(
-        collisions_index_values.T, names=collisions_index_names
-    )
-    collisions_df = pd.DataFrame(
-        collisions_data,
-        index=collisions_multiindex,
-        columns=template["collisions_data"].columns,
-    )
-
-    # Write the new pandas dataframe for collisions_data to the HDFStore
-    new["collisions_data"] = collisions_df
-
-    ### COLLISIONS METADATA
-    new_metadata = template["collisions_metadata"].copy()
-    new_metadata["temperatures"] = collisions_temps.astype(np.int64)
-    new["collisions_metadata"] = new_metadata
 
     ### IONIZATION DATA
     new["ionization_data"] = multiindex_port(old, template, "ionization_data")
