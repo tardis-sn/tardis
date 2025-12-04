@@ -527,7 +527,3 @@ class TestEdgeCases:
 
         result = probability_recombination_internal(neg_df, pos_series)
         assert (result < 0).all().all()  # Result should be negative
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])
