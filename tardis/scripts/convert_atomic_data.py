@@ -141,7 +141,6 @@ if __name__ == "__main__":
     multiindex_cols = list(old_df["/Y/g"].columns[:4])
     new["collisions_data"] = old_df["/Y/g"].set_index(multiindex_cols)
     tempcols = list(new['collisions_data'].columns)
-    new["collisions_data_temperatures"] = pd.Series(tempcols, dtype=np.int64)
     new['collisions_data'] = new['collisions_data'].rename(lambda f: tempcols.index(f), axis=1)
 
     # We've gotten all useful info out of the old dataframe using pandas
@@ -151,7 +150,7 @@ if __name__ == "__main__":
 
     ### COLLISIONS METADATA
     new_metadata = template["collisions_metadata"].copy()
-    new_metadata["temperatures"] = new['collisions_data_temperatures'].values
+    new_metadata["temperatures"] = np.array(tempcols, dtype=np.int64)
     new["collisions_metadata"] = new_metadata
 
     ### ATOM DATA
