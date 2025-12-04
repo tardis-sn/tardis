@@ -200,7 +200,7 @@ if __name__ == "__main__":
     ### METADATA
     # Copied over from Andrew's notebook demonstrating how to do this
     meta = []
-    meta.append(("format", "version", "2.0"))
+    meta.append(("format", "version", "1.0"))
 
     total_checksum = hashlib.md5()
     for key in new.keys():
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     uuid1 = uuid.uuid1().hex
     new.root._v_attrs["MD5"] = total_checksum.hexdigest()
     new.root._v_attrs["UUID1"] = uuid1
-    new.root._v_attrs["FORMAT_VERSION"] = "2.0"
+    new.root._v_attrs["FORMAT_VERSION"] = "1.0"
     tz = pytz.timezone("UTC")
     date = datetime.now(tz).isoformat()
     new.root._v_attrs["DATE"] = date
