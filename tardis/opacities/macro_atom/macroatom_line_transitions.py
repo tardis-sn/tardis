@@ -1,6 +1,7 @@
-from tardis import constants as const
 import numpy as np
 import pandas as pd
+
+from tardis import constants as const
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 CONST_C_CGS: float = const.c.cgs.value
@@ -26,30 +27,30 @@ def line_transition_internal_up(
 
     Parameters
     ----------
-    line_f_lus : array_like
+    line_f_lus : np.ndarray
         Oscillator strengths for line transitions from lower to upper levels.
-    line_nus : array_like
+    line_nus : np.ndarray
         Frequencies of the line transitions in Hz.
-    energies_lower : array_like
+    energies_lower : np.ndarray
         Energy values of the lower levels in the transitions.
     mean_intensities_blue_wing : pd.DataFrame
         Mean radiation field intensities at the blue wing of the lines.
     beta_sobolevs : pd.DataFrame
         Sobolev escape probabilities for the line transitions.
-    stimulated_emission_factors : array_like
+    stimulated_emission_factors : pd.DataFrame
         Factors accounting for stimulated emission in the transitions.
-    transition_a_i_l_u_array : array_like
+    transition_a_i_l_u_array : np.ndarray
         2D array containing atomic number, ion number, lower level, and upper level
         indices for each transition. Shape should be (n_transitions, 4).
-    line_ids : array_like
+    line_ids : np.ndarray
         Unique identifiers for each line transition.
 
     Returns
     -------
-    p_internal_up : pandas.DataFrame
+    p_internal_up : pd.DataFrame
         DataFrame containing the calculated internal upward transition probabilities
         with source information, indexed by transition.
-    internal_up_metadata : pandas.DataFrame
+    internal_up_metadata : pd.DataFrame
         DataFrame containing metadata for the transitions including transition line IDs,
         source and destination level information, transition type, and line indices.
 
@@ -150,26 +151,26 @@ def line_transition_internal_down(
 
     Parameters
     ----------
-    line_f_uls : array_like
+    line_f_uls : np.ndarray
         Oscillator strengths for line transitions.
-    line_nus : array_like
+    line_nus : np.ndarray
         Frequencies of line transitions.
-    energies_lower : array_like
+    energies_lower : np.ndarray
         Energies of the lower levels involved in transitions.
     beta_sobolevs : pd.DataFrame
         Sobolev beta factors for the transitions.
-    transition_a_i_l_u_array : array_like
+    transition_a_i_l_u_array : np.ndarray
         Array containing atomic number, ion number, lower level, and upper level
         indices for each transition. Shape should be (n_transitions, 4).
-    line_ids : array_like
+    line_ids : np.ndarray
         Identifiers for each line transition.
 
     Returns
     -------
-    p_internal_down : pandas.DataFrame
+    p_internal_down : pd.DataFrame
         DataFrame containing the calculated internal downward transition
         probabilities with source information.
-    internal_down_metadata : pandas.DataFrame
+    internal_down_metadata : pd.DataFrame
         DataFrame containing metadata for the transitions including
         transition line IDs, source and destination level information,
         transition type, and transition line indices.
@@ -257,29 +258,29 @@ def line_transition_emission_down(
 
     Parameters
     ----------
-    line_f_uls : array_like
+    line_f_uls : np.ndarray
         Oscillator strengths for the line transitions.
-    line_nus : array_like
+    line_nus : np.ndarray
         Frequencies of the line transitions in Hz.
-    energies_upper : array_like
+    energies_upper : np.ndarray
         Energy values of the upper levels in the transitions.
-    energies_lower : array_like
+    energies_lower : np.ndarray
         Energy values of the lower levels in the transitions.
     beta_sobolevs : pd.DataFrame
         Sobolev escape probabilities for the transitions.
-    transition_a_i_l_u_array : array_like
+    transition_a_i_l_u_array : np.ndarray
         Array containing atomic number, ion number, lower level, and upper level
         indices for each transition. Shape should be (n_transitions, 4).
-    line_ids : array_like
+    line_ids : np.ndarray
         Unique identifiers for each line transition.
 
     Returns
     -------
-    p_emission_down : pandas.DataFrame
+    p_emission_down : pd.DataFrame
         DataFrame containing the calculated emission down probabilities with
         source information. Contains columns for the probability values and
         'source' tuples.
-    emission_down_metadata : pandas.DataFrame
+    emission_down_metadata : pd.DataFrame
         DataFrame containing metadata for the transitions including transition
         line IDs, source and destination level information, transition type,
         and transition line indices.

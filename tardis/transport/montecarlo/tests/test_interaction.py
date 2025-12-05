@@ -2,9 +2,9 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-import tardis.transport.montecarlo.interaction as interaction
-from tardis.transport.montecarlo.interaction import (
-    LineInteractionType,
+import tardis.transport.montecarlo.interaction_events as interaction_events
+from tardis.transport.montecarlo.interaction_event_callers import (
+    line_scatter_event,
 )
 
 
@@ -14,7 +14,7 @@ def test_thomson_scatter(packet, verysimple_time_explosion):
     init_energy = packet.energy
     time_explosion = verysimple_time_explosion
 
-    interaction.thomson_scatter(packet, time_explosion, False)
+    interaction_events.thomson_scatter(packet, time_explosion, False)
 
     assert np.abs(packet.mu - init_mu) > 1e-7
     assert np.abs(packet.nu - init_nu) > 1e-7
@@ -24,9 +24,9 @@ def test_thomson_scatter(packet, verysimple_time_explosion):
 @pytest.mark.parametrize(
     "line_interaction_type",
     [
-        LineInteractionType.SCATTER,
-        LineInteractionType.DOWNBRANCH,
-        LineInteractionType.MACROATOM,
+        interaction_events.LineInteractionType.SCATTER,
+        interaction_events.LineInteractionType.DOWNBRANCH,
+        interaction_events.LineInteractionType.MACROATOM,
     ],
 )
 def test_line_scatter(
@@ -44,7 +44,7 @@ def test_line_scatter(
     )
     time_explosion = verysimple_time_explosion
 
-    interaction.line_scatter(
+    line_scatter_event(
         packet,
         time_explosion,
         line_interaction_type,
@@ -106,7 +106,7 @@ def test_line_emission(
 
     time_explosion = verysimple_time_explosion
 
-    interaction.line_emission(
+    interaction_events.line_emission(
         packet,
         emission_line_id,
         time_explosion,

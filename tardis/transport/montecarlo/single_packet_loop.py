@@ -13,9 +13,11 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_bound_free_estimators,
 )
-from tardis.transport.montecarlo.interaction import (
+from tardis.transport.montecarlo.interaction_event_callers import (
     continuum_event,
-    line_scatter,
+    line_scatter_event,
+)
+from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
@@ -28,7 +30,9 @@ from tardis.transport.montecarlo.r_packet_transport import (
     move_r_packet,
     trace_packet,
 )
-from tardis.transport.montecarlo.packets.virtual_packet import trace_vpacket_volley
+from tardis.transport.montecarlo.packets.virtual_packet import (
+    trace_vpacket_volley,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -184,7 +188,7 @@ def single_packet_loop(
                 estimators,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
-            line_scatter(
+            line_scatter_event(
                 r_packet,
                 time_explosion,
                 line_interaction_type,
