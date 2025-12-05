@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6a4b6f85"></script>
+      <script src="../../../_static/documentation_options.js?v=2bb8ba8d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -148,8 +148,9 @@ from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
 from tardis.opacities.macro_atom.macroatom_solver import (
-    LegacyMacroAtomSolver,
     BoundBoundMacroAtomSolver,
+    ContinuumMacroAtomSolver,
+    LegacyMacroAtomSolver,
 )
 from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
@@ -607,9 +608,21 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.opacity_state = self.opacity.legacy_solve(self.plasma)
         if self.macro_atom is not None:
             if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-                self.macro_atom_state = LegacyMacroAtomState.from_legacy_plasma(
-                    self.plasma
-                )  # TODO: Impliment
+                self.macro_atom_state = self.macro_atom.solve(
+                    self.plasma.j_blues,
+                    self.opacity_state.beta_sobolev,
+                    self.plasma.stimulated_emission_factor,
+                    self.plasma.gamma_corr,
+                    self.plasma.alpha_sp,
+                    self.plasma.coll_deexc_coeff,
+                    self.plasma.coll_exc_coeff,
+                    self.plasma.electron_densities,
+                    self.plasma.level_number_density,
+                    self.plasma.delta_E_yg,
+                )
+                self.opacity_state.continuum_state.k_packet_idx = self.macro_atom_state.references_index.iloc[
+                    -1
+                ]  # Hacky way to point to k-packet activation level - continuum state needs to be reexamined
             else:
                 self.macro_atom_state = self.macro_atom.solve(
                     self.plasma.j_blues,
@@ -958,12 +971,19 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 &quot;downbranch&quot;,
                 &quot;macroatom&quot;,
             ):
-                macro_atom = BoundBoundMacroAtomSolver(
-                    atom_data.levels,
-                    atom_data.lines,
-                    line_interaction_type=config.plasma.line_interaction_type,
-                )
-
+                if config.plasma.continuum_interaction.species:
+                    macro_atom = ContinuumMacroAtomSolver(
+                        atom_data.levels,
+                        atom_data.lines,
+                        atom_data.photoionization_data,
+                        line_interaction_type=config.plasma.line_interaction_type,
+                    )
+                else:
+                    macro_atom = BoundBoundMacroAtomSolver(
+                        atom_data.levels,
+                        atom_data.lines,
+                        line_interaction_type=config.plasma.line_interaction_type,
+                    )
         convergence_plots_config_options = [
             &quot;plasma_plot_config&quot;,
             &quot;t_inner_luminosities_config&quot;,
@@ -1028,7 +1048,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Nov 2025.
+      <span class="lastupdated">Last updated on 05 Dec 2025.
       </span></p>
   </div>
 

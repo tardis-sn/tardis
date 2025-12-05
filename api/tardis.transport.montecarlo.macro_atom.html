@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6a4b6f85"></script>
+      <script src="../_static/documentation_options.js?v=2bb8ba8d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -36,7 +36,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tardis.transport.montecarlo.montecarlo_main_loop module" href="tardis.transport.montecarlo.montecarlo_main_loop.html" />
-    <link rel="prev" title="tardis.transport.montecarlo.interaction module" href="tardis.transport.montecarlo.interaction.html" />
+    <link rel="prev" title="tardis.transport.montecarlo.interaction_events module" href="tardis.transport.montecarlo.interaction_events.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -196,6 +196,26 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_INTERNAL">
+<span class="sig-name descname"><span class="pre">COLL_DOWN_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_INTERNAL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET">
+<span class="sig-name descname"><span class="pre">COLL_DOWN_TO_K_PACKET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_UP_COOLING">
+<span class="sig-name descname"><span class="pre">COLL_UP_COOLING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_UP_COOLING" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_UP_INTERNAL">
+<span class="sig-name descname"><span class="pre">COLL_UP_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_UP_INTERNAL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.FF_EMISSION">
 <span class="sig-name descname"><span class="pre">FF_EMISSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-3</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.FF_EMISSION" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -208,6 +228,16 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.INTERNAL_UP">
 <span class="sig-name descname"><span class="pre">INTERNAL_UP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.INTERNAL_UP" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION">
+<span class="sig-name descname"><span class="pre">PHOTOIONIZATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.RECOMB_INTERNAL">
+<span class="sig-name descname"><span class="pre">RECOMB_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.RECOMB_INTERNAL" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -240,7 +270,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tardis.transport.montecarlo.interaction.html" class="btn btn-neutral float-left" title="tardis.transport.montecarlo.interaction module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.transport.montecarlo.interaction_events.html" class="btn btn-neutral float-left" title="tardis.transport.montecarlo.interaction_events module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="tardis.transport.montecarlo.montecarlo_main_loop.html" class="btn btn-neutral float-right" title="tardis.transport.montecarlo.montecarlo_main_loop module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -248,7 +278,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Nov 2025.
+      <span class="lastupdated">Last updated on 05 Dec 2025.
       </span></p>
   </div>
 

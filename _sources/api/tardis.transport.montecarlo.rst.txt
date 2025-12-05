@@ -19,7 +19,8 @@ Submodules
    :maxdepth: 4
 
    tardis.transport.montecarlo.base
-   tardis.transport.montecarlo.interaction
+   tardis.transport.montecarlo.interaction_event_callers
+   tardis.transport.montecarlo.interaction_events
    tardis.transport.montecarlo.macro_atom
    tardis.transport.montecarlo.montecarlo_main_loop
    tardis.transport.montecarlo.montecarlo_transport_state

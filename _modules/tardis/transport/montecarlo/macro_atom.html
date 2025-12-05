@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=6a4b6f85"></script>
+      <script src="../../../../_static/documentation_options.js?v=2bb8ba8d"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -149,21 +149,29 @@ class MacroAtomError(ValueError):
 <div class="viewcode-block" id="MacroAtomTransitionType">
 <a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType">[docs]</a>
 class MacroAtomTransitionType(IntEnum):
+    PHOTOIONIZATION = 3
+    RECOMB_INTERNAL = 2
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
-    BF_EMISSION = -2
+    BF_EMISSION = -2  # This is recombination emission
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
-    TWO_PHOTON = -6</div>
+    TWO_PHOTON = -6
+    COLL_DOWN_TO_K_PACKET = 9
+    COLL_DOWN_INTERNAL = 10
+    COLL_UP_INTERNAL = 11
+    COLL_UP_COOLING = 12  # I think this should be a deactivation event</div>
 
 
 
 <div class="viewcode-block" id="macro_atom_interaction">
 <a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.macro_atom_interaction">[docs]</a>
 @njit(**njit_dict_no_parallel)
-def macro_atom_interaction(activation_level_id, current_shell_id, opacity_state):
+def macro_atom_interaction(
+    activation_level_id, current_shell_id, opacity_state
+):
     &quot;&quot;&quot;
     Parameters
     ----------
@@ -187,7 +195,6 @@ def macro_atom_interaction(activation_level_id, current_shell_id, opacity_state)
 
         # looping through the transition probabilities
         for transition_id in range(block_start, block_end):
-
             transition_probability = opacity_state.transition_probabilities[
                 transition_id, current_shell_id
             ]
@@ -226,7 +233,7 @@ def macro_atom_interaction(activation_level_id, current_shell_id, opacity_state)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Nov 2025.
+      <span class="lastupdated">Last updated on 05 Dec 2025.
       </span></p>
   </div>
 

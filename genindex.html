@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=6a4b6f85"></script>
+      <script src="_static/documentation_options.js?v=2bb8ba8d"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -176,7 +176,7 @@
         <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.PacketStatus.ADIABATIC_COOLING">(tardis.transport.montecarlo.packets.radiative_packet.PacketStatus attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.adiabatic_cooling">adiabatic_cooling() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.adiabatic_cooling">adiabatic_cooling() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.AdiabaticCoolingRate">AdiabaticCoolingRate (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
@@ -280,7 +280,7 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_COOLING">BF_COOLING (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.bf_cooling">bf_cooling() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.bf_cooling">bf_cooling() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_EMISSION">BF_EMISSION (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
@@ -312,7 +312,7 @@
       </ul></li>
       <li><a href="api/tardis.io.atom_data.macro_atom_data.html#tardis.io.atom_data.macro_atom_data.MacroAtomData.block_reference_data">block_reference_data (tardis.io.atom_data.macro_atom_data.MacroAtomData attribute)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.bound_free_emission">bound_free_emission() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.bound_free_emission">bound_free_emission() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.util.html#tardis.transport.montecarlo.estimators.util.bound_free_estimator_array2frame">bound_free_estimator_array2frame() (in module tardis.transport.montecarlo.estimators.util)</a>
 </li>
@@ -638,8 +638,6 @@
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.check_formal_integral_requirements">check_formal_integral_requirements() (in module tardis.spectrum.formal_integral.base)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.checked_list">checked_list (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget property)</a>
 </li>
       <li><a href="api/tardis.opacities.continuum.continuum_state.html#tardis.opacities.continuum.continuum_state.ContinuumState.chi_bf">chi_bf (tardis.opacities.continuum.continuum_state.ContinuumState property)</a>
@@ -656,6 +654,8 @@
 </li>
       <li><a href="api/tardis.io.atom_data.collision_data.html#tardis.io.atom_data.collision_data.ChiantiCollisionData">ChiantiCollisionData (class in tardis.io.atom_data.collision_data)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacket.class_type">class_type (tardis.energy_input.transport.GXPacket.GXPacket attribute)</a>
 
       <ul>
@@ -688,6 +688,14 @@
 </li>
       <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.cns_representer">cns_representer() (in module tardis.io.configuration.config_reader)</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_INTERNAL">COLL_DOWN_INTERNAL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET">COLL_DOWN_TO_K_PACKET (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_UP_COOLING">COLL_UP_COOLING (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_UP_INTERNAL">COLL_UP_INTERNAL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
       <li><a href="api/tardis.plasma.equilibrium.rates.collision_strengths.html#tardis.plasma.equilibrium.rates.collision_strengths.CollDeexcRateCoeff">CollDeexcRateCoeff (class in tardis.plasma.equilibrium.rates.collision_strengths)</a>
 
       <ul>
@@ -701,6 +709,14 @@
 </li>
       </ul></li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CollIonRateCoeffSeaton">CollIonRateCoeffSeaton (class in tardis.plasma.properties.continuum_processes.rates)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_deexc_to_k_packet">collisional_transition_deexc_to_k_packet() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_cool">collisional_transition_excitation_cool() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_down">collisional_transition_internal_down() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_up">collisional_transition_internal_up() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.heating_cooling_rates.html#tardis.plasma.equilibrium.rates.heating_cooling_rates.CollisionalBoundThermalRates">CollisionalBoundThermalRates (class in tardis.plasma.equilibrium.rates.heating_cooling_rates)</a>
 </li>
@@ -756,7 +772,11 @@
 </li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.YAMLLoader.construct_quantity">construct_quantity() (tardis.io.util.YAMLLoader method)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.continuum_event">continuum_event() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_adiabatic_cooling">continuum_adiabatic_cooling() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.continuum_event">continuum_event() (in module tardis.transport.montecarlo.interaction_event_callers)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_free_free_cooling">continuum_free_free_cooling() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.continuum_interaction_species">continuum_interaction_species (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
@@ -764,9 +784,17 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.CONTINUUM_PROCESS">CONTINUUM_PROCESS (tardis.transport.montecarlo.packets.radiative_packet.InteractionType attribute)</a>
 </li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization">continuum_transition_photoionization() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_recombination_emission">continuum_transition_recombination_emission() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_recombination_internal">continuum_transition_recombination_internal() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.ContinuumInteractionHandler">ContinuumInteractionHandler (class in tardis.plasma.properties.atomic)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.ContinuumInteractionSpecies">ContinuumInteractionSpecies (class in tardis.plasma.properties.plasma_input)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver">ContinuumMacroAtomSolver (class in tardis.opacities.macro_atom.macroatom_solver)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.ContinuumProperties">ContinuumProperties (class in tardis.transport.montecarlo.estimators.continuum_radfield_properties)</a>
 </li>
@@ -802,9 +830,9 @@
 </li>
       <li><a href="api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.create_isotope_dicts">create_isotope_dicts() (in module tardis.energy_input.gamma_ray_channel)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.create_line2macro_level_upper_and_reference_idx">create_line2macro_level_upper_and_reference_idx() (in module tardis.opacities.macro_atom.macroatom_solver)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_line2macro_level_upper_and_reference_idx">create_line2macro_level_upper_and_reference_idx() (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver method)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.create_macro_block_references">create_macro_block_references() (in module tardis.opacities.macro_atom.macroatom_solver)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_macro_block_references">create_macro_block_references() (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver method)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packet_source.html#tardis.transport.montecarlo.packet_source.GammaRayPacketSource.create_packet_directions">create_packet_directions() (tardis.transport.montecarlo.packet_source.GammaRayPacketSource method)</a>
 
@@ -930,6 +958,8 @@
         <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.FullProfile.create_profile">(tardis.io.model.readers.arepo.FullProfile method)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_source_and_destination_idx_columns">create_source_and_destination_idx_columns() (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver method)</a>
+</li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.create_synpp_yaml">create_synpp_yaml() (in module tardis.util.base)</a>
 </li>
       <li><a href="api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.create_t_inner_luminosities_plot">create_t_inner_luminosities_plot() (tardis.visualization.tools.convergence_plot.ConvergencePlots method)</a>
@@ -998,9 +1028,9 @@
 </li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.deprecated">deprecated() (in module tardis.util.base)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.determine_bf_macro_activation_idx">determine_bf_macro_activation_idx() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.determine_bf_macro_activation_idx">determine_bf_macro_activation_idx() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.determine_continuum_macro_activation_idx">determine_continuum_macro_activation_idx() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.determine_continuum_macro_activation_idx">determine_continuum_macro_activation_idx() (in module tardis.transport.montecarlo.interaction_event_callers)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.PanelTableWidget.df">df (tardis.visualization.widgets.util.PanelTableWidget property)</a>
 </li>
@@ -1040,7 +1070,7 @@
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.doppler_factor_3D_all_packets">doppler_factor_3D_all_packets() (in module tardis.energy_input.util)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType.DOWNBRANCH">DOWNBRANCH (tardis.transport.montecarlo.interaction.LineInteractionType attribute)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.LineInteractionType.DOWNBRANCH">DOWNBRANCH (tardis.transport.montecarlo.interaction_events.LineInteractionType attribute)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.atom_web_download.html#tardis.io.atom_data.atom_web_download.download_atom_data">download_atom_data() (in module tardis.io.atom_data.atom_web_download)</a>
 </li>
@@ -1196,7 +1226,7 @@
 </li>
       <li><a href="api/tardis.io.logger.colored_logger.html#tardis.io.logger.colored_logger.formatter_message">formatter_message() (in module tardis.io.logger.colored_logger)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.free_free_emission">free_free_emission() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.free_free_emission">free_free_emission() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.FreeBoundCoolingRate">FreeBoundCoolingRate (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
@@ -1384,7 +1414,7 @@
 </li>
       <li><a href="api/tardis.util.environment.html#tardis.util.environment.Environment.get_current_environment">get_current_environment() (tardis.util.environment.Environment class method)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.get_current_line_id">get_current_line_id() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.get_current_line_id">get_current_line_id() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.io.configuration.config_internal.html#tardis.io.configuration.config_internal.get_data_dir">get_data_dir() (in module tardis.io.configuration.config_internal)</a>
 </li>
@@ -2009,39 +2039,49 @@
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Levels">Levels (class in tardis.plasma.properties.atomic)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.levels">levels (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver attribute)</a>
-</li>
-      <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.LINE">LINE (tardis.transport.montecarlo.packets.radiative_packet.InteractionType attribute)</a>
-</li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.line_emission">line_emission() (in module tardis.transport.montecarlo.interaction)</a>
-</li>
-      <li><a href="api/tardis.opacities.opacity_solver.html#tardis.opacities.opacity_solver.OpacitySolver.line_interaction_type">line_interaction_type (tardis.opacities.opacity_solver.OpacitySolver attribute)</a>
 
       <ul>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.levels">(tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.LINE">LINE (tardis.transport.montecarlo.packets.radiative_packet.InteractionType attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.line_emission">line_emission() (in module tardis.transport.montecarlo.interaction_events)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.line_interaction_type">line_interaction_type (tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.opacities.opacity_solver.html#tardis.opacities.opacity_solver.OpacitySolver.line_interaction_type">(tardis.opacities.opacity_solver.OpacitySolver attribute)</a>
+</li>
         <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.line_interaction_type">(tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.line_scatter">line_scatter() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.line_scatter_event">line_scatter_event() (in module tardis.transport.montecarlo.interaction_event_callers)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.line_search">line_search() (in module tardis.spectrum.formal_integral.formal_integral_numba)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.line_search_cuda">line_search_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.line_transition_emission_down">line_transition_emission_down() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#tardis.opacities.macro_atom.macroatom_line_transitions.line_transition_emission_down">line_transition_emission_down() (in module tardis.opacities.macro_atom.macroatom_line_transitions)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_down">line_transition_internal_down() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#tardis.opacities.macro_atom.macroatom_line_transitions.line_transition_internal_down">line_transition_internal_down() (in module tardis.opacities.macro_atom.macroatom_line_transitions)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.line_transition_internal_up">line_transition_internal_up() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#tardis.opacities.macro_atom.macroatom_line_transitions.line_transition_internal_up">line_transition_internal_up() (in module tardis.opacities.macro_atom.macroatom_line_transitions)</a>
 </li>
       <li><a href="api/tardis.visualization.tools.lineid_plotter.html#tardis.visualization.tools.lineid_plotter.lineid_plotter">lineid_plotter() (in module tardis.visualization.tools.lineid_plotter)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget">LineInfoWidget (class in tardis.visualization.widgets.line_info)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType">LineInteractionType (class in tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.LineInteractionType">LineInteractionType (class in tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.Lines">Lines (class in tardis.plasma.properties.atomic)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.lines">lines (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.lines">(tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LinesLowerLevelIndex">LinesLowerLevelIndex (class in tardis.plasma.properties.atomic)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.LinesUpperLevelIndex">LinesUpperLevelIndex (class in tardis.plasma.properties.atomic)</a>
@@ -2088,11 +2128,11 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.macro_atom_event">macro_atom_event() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.macro_atom_event">macro_atom_event() (in module tardis.transport.montecarlo.interaction_event_callers)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.macro_atom_interaction">macro_atom_interaction() (in module tardis.transport.montecarlo.macro_atom)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType.MACROATOM">MACROATOM (tardis.transport.montecarlo.interaction.LineInteractionType attribute)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.LineInteractionType.MACROATOM">MACROATOM (tardis.transport.montecarlo.interaction_events.LineInteractionType attribute)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.macro_atom_data.html#tardis.io.atom_data.macro_atom_data.MacroAtomData">MacroAtomData (class in tardis.io.atom_data.macro_atom_data)</a>
 
@@ -2322,11 +2362,13 @@
 </li>
         <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#module-tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob">tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob</a>
 </li>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#module-tardis.opacities.macro_atom.macroatom_continuum_transitions">tardis.opacities.macro_atom.macroatom_continuum_transitions</a>
+</li>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#module-tardis.opacities.macro_atom.macroatom_line_transitions">tardis.opacities.macro_atom.macroatom_line_transitions</a>
+</li>
         <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#module-tardis.opacities.macro_atom.macroatom_solver">tardis.opacities.macro_atom.macroatom_solver</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.macroatom_state.html#module-tardis.opacities.macro_atom.macroatom_state">tardis.opacities.macro_atom.macroatom_state</a>
-</li>
-        <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#module-tardis.opacities.macro_atom.macroatom_transitions">tardis.opacities.macro_atom.macroatom_transitions</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#module-tardis.opacities.macro_atom.transition_probabilities">tardis.opacities.macro_atom.transition_probabilities</a>
 </li>
@@ -2506,7 +2548,9 @@
 </li>
         <li><a href="api/tardis.transport.montecarlo.estimators.util.html#module-tardis.transport.montecarlo.estimators.util">tardis.transport.montecarlo.estimators.util</a>
 </li>
-        <li><a href="api/tardis.transport.montecarlo.interaction.html#module-tardis.transport.montecarlo.interaction">tardis.transport.montecarlo.interaction</a>
+        <li><a href="api/tardis.transport.montecarlo.interaction_event_callers.html#module-tardis.transport.montecarlo.interaction_event_callers">tardis.transport.montecarlo.interaction_event_callers</a>
+</li>
+        <li><a href="api/tardis.transport.montecarlo.interaction_events.html#module-tardis.transport.montecarlo.interaction_events">tardis.transport.montecarlo.interaction_events</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.macro_atom.html#module-tardis.transport.montecarlo.macro_atom">tardis.transport.montecarlo.macro_atom</a>
 </li>
@@ -2685,7 +2729,7 @@
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.normalize">normalize (tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver attribute)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.normalize_transition_probabilities">normalize_transition_probabilities() (in module tardis.opacities.macro_atom.macroatom_solver)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.normalize_transition_probabilities">normalize_transition_probabilities() (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver method)</a>
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.normalize_vector">normalize_vector() (in module tardis.energy_input.util)</a>
 </li>
@@ -3041,14 +3085,16 @@
 </li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.PhotoIonBoltzmannFactor">PhotoIonBoltzmannFactor (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION">PHOTOIONIZATION (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.photoionization_data">photoionization_data (tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver attribute)</a>
+</li>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.PhotoIonizationData">PhotoIonizationData (class in tardis.plasma.properties.atomic)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.html#tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff.PhotoIonRateCoeff">PhotoIonRateCoeff (class in tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff)</a>
 </li>
       <li><a href="api/tardis.plasma.radiation_field.planck_rad_field.html#tardis.plasma.radiation_field.planck_rad_field.PlanckianRadiationField">PlanckianRadiationField (class in tardis.plasma.radiation_field.planck_rad_field)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_collection">plasma_collection (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_modules">plasma_modules (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
@@ -3057,6 +3103,8 @@
 </li>
       <li><a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaConfigError">PlasmaConfigError</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaException">PlasmaException</a>
 </li>
       <li><a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaIonizationError">PlasmaIonizationError</a>
@@ -3121,11 +3169,31 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.print_r_packet_properties">print_r_packet_properties() (in module tardis.transport.montecarlo.packets.radiative_packet)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_emission_down">probability_emission_down() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_adiabatic_cooling">probability_adiabatic_cooling() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_internal_down">probability_internal_down() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_deexc_to_k_packet">probability_collision_deexc_to_k_packet() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#tardis.opacities.macro_atom.macroatom_transitions.probability_internal_up">probability_internal_up() (in module tardis.opacities.macro_atom.macroatom_transitions)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_excitation_cool">probability_collision_excitation_cool() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_down">probability_collision_internal_down() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_up">probability_collision_internal_up() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#tardis.opacities.macro_atom.macroatom_line_transitions.probability_emission_down">probability_emission_down() (in module tardis.opacities.macro_atom.macroatom_line_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_free_free_cooling">probability_free_free_cooling() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#tardis.opacities.macro_atom.macroatom_line_transitions.probability_internal_down">probability_internal_down() (in module tardis.opacities.macro_atom.macroatom_line_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#tardis.opacities.macro_atom.macroatom_line_transitions.probability_internal_up">probability_internal_up() (in module tardis.opacities.macro_atom.macroatom_line_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization">probability_photoionization() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_cooling">probability_recombination_cooling() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_emission">probability_recombination_emission() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_internal">probability_recombination_internal() (in module tardis.opacities.macro_atom.macroatom_continuum_transitions)</a>
 </li>
       <li><a href="api/tardis.energy_input.decay_radiation.html#tardis.energy_input.decay_radiation.process_decay_radiation_data">process_decay_radiation_data() (in module tardis.energy_input.decay_radiation)</a>
 </li>
@@ -3253,10 +3321,10 @@
 </li>
       <li><a href="api/tardis.io.model.readers.base.html#tardis.io.model.readers.base.read_density_file">read_density_file() (in module tardis.io.model.readers.base)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.base.html#tardis.io.model.readers.base.read_mass_fractions_file">read_mass_fractions_file() (in module tardis.io.model.readers.base)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_simple_ascii_density">read_simple_ascii_density() (in module tardis.io.model.readers.generic_readers)</a>
 </li>
       <li><a href="api/tardis.io.model.readers.generic_readers.html#tardis.io.model.readers.generic_readers.read_simple_ascii_mass_fractions">read_simple_ascii_mass_fractions() (in module tardis.io.model.readers.generic_readers)</a>
@@ -3283,6 +3351,8 @@
 </li>
       <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.Profile.rebin">rebin() (tardis.io.model.readers.arepo.Profile method)</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.RECOMB_INTERNAL">RECOMB_INTERNAL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.recreate_legacy_macro_atom_state">recreate_legacy_macro_atom_state() (tardis.opacities.macro_atom.macroatom_state.MacroAtomState method)</a>
 </li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.reformat_element_symbol">reformat_element_symbol() (in module tardis.util.base)</a>
@@ -3291,8 +3361,12 @@
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.util.html#tardis.plasma.equilibrium.rates.util.reindex_ionization_rate_dataframe">reindex_ionization_rate_dataframe() (in module tardis.plasma.equilibrium.rates.util)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.reindex_sort_and_clean_probabilities_and_metadata">reindex_sort_and_clean_probabilities_and_metadata() (in module tardis.opacities.macro_atom.macroatom_solver)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata">reindex_sort_and_clean_probabilities_and_metadata() (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver method)</a>
+
+      <ul>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata">(tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver method)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.related_groups">related_groups (tardis.io.atom_data.base.AtomData attribute)</a>
 </li>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.remove_callback">remove_callback() (tardis.simulation.base.Simulation method)</a>
@@ -3363,19 +3437,21 @@
 </li>
       <li><a href="api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.sample_mass">sample_mass() (in module tardis.energy_input.samplers)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.sample_nu_free_bound">sample_nu_free_bound() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.sample_nu_free_bound">sample_nu_free_bound() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.sample_nu_free_free">sample_nu_free_free() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.sample_nu_free_free">sample_nu_free_free() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.grid.base.html#tardis.grid.base.TardisGrid.save_grid">save_grid() (tardis.grid.base.TardisGrid method)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.LineInteractionType.SCATTER">SCATTER (tardis.transport.montecarlo.interaction.LineInteractionType attribute)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.LineInteractionType.SCATTER">SCATTER (tardis.transport.montecarlo.interaction_events.LineInteractionType attribute)</a>
 </li>
       <li><a href="api/tardis.energy_input.transport.gamma_ray_interactions.html#tardis.energy_input.transport.gamma_ray_interactions.scatter_type">scatter_type() (in module tardis.energy_input.transport.gamma_ray_interactions)</a>
 </li>
       <li><a href="api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter">SDECPlotter (class in tardis.visualization.tools.sdec_plot)</a>
 </li>
       <li><a href="resources/zreferences.html#term-Seed"><strong>Seed</strong></a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.selected_continuum_transitions">selected_continuum_transitions (tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.general.html#tardis.plasma.properties.general.SelectedAtoms">SelectedAtoms (class in tardis.plasma.properties.general)</a>
 </li>
@@ -3468,6 +3544,8 @@
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.solve">solve() (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver method)</a>
 
       <ul>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.solve">(tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver method)</a>
+</li>
         <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.solve">(tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver method)</a>
 </li>
         <li><a href="api/tardis.opacities.opacity_solver.html#tardis.opacities.opacity_solver.OpacitySolver.solve">(tardis.opacities.opacity_solver.OpacitySolver method)</a>
@@ -4142,6 +4220,20 @@
 </li>
       </ul></li>
       <li>
+    tardis.opacities.macro_atom.macroatom_continuum_transitions
+
+      <ul>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#module-tardis.opacities.macro_atom.macroatom_continuum_transitions">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.opacities.macro_atom.macroatom_line_transitions
+
+      <ul>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_line_transitions.html#module-tardis.opacities.macro_atom.macroatom_line_transitions">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.opacities.macro_atom.macroatom_solver
 
       <ul>
@@ -4153,13 +4245,6 @@
 
       <ul>
         <li><a href="api/tardis.opacities.macro_atom.macroatom_state.html#module-tardis.opacities.macro_atom.macroatom_state">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.opacities.macro_atom.macroatom_transitions
-
-      <ul>
-        <li><a href="api/tardis.opacities.macro_atom.macroatom_transitions.html#module-tardis.opacities.macro_atom.macroatom_transitions">module</a>
 </li>
       </ul></li>
       <li>
@@ -4788,10 +4873,17 @@
 </li>
       </ul></li>
       <li>
-    tardis.transport.montecarlo.interaction
+    tardis.transport.montecarlo.interaction_event_callers
 
       <ul>
-        <li><a href="api/tardis.transport.montecarlo.interaction.html#module-tardis.transport.montecarlo.interaction">module</a>
+        <li><a href="api/tardis.transport.montecarlo.interaction_event_callers.html#module-tardis.transport.montecarlo.interaction_event_callers">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.transport.montecarlo.interaction_events
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.interaction_events.html#module-tardis.transport.montecarlo.interaction_events">module</a>
 </li>
       </ul></li>
       <li>
@@ -5143,7 +5235,7 @@
 </li>
       <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.ThermalPhiSahaLTE">ThermalPhiSahaLTE (class in tardis.plasma.properties.ion_population)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction.html#tardis.transport.montecarlo.interaction.thomson_scatter">thomson_scatter() (in module tardis.transport.montecarlo.interaction)</a>
+      <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.thomson_scatter">thomson_scatter() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.time_evolve_cumulative_decay">time_evolve_cumulative_decay() (in module tardis.energy_input.gamma_ray_channel)</a>
 </li>
@@ -5484,7 +5576,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Nov 2025.
+      <span class="lastupdated">Last updated on 05 Dec 2025.
       </span></p>
   </div>
 

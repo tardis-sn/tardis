@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6a4b6f85"></script>
+      <script src="../_static/documentation_options.js?v=2bb8ba8d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -36,7 +36,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tardis.opacities.macro_atom.macroatom_state module" href="tardis.opacities.macro_atom.macroatom_state.html" />
-    <link rel="prev" title="tardis.opacities.macro_atom.base module" href="tardis.opacities.macro_atom.base.html" />
+    <link rel="prev" title="tardis.opacities.macro_atom.macroatom_line_transitions module" href="tardis.opacities.macro_atom.macroatom_line_transitions.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -182,6 +182,72 @@
 </dl>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_line2macro_level_upper_and_reference_idx">
+<span class="sig-name descname"><span class="pre">create_line2macro_level_upper_and_reference_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macro_atom_transition_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines_level_upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiIndex</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#BoundBoundMacroAtomSolver.create_line2macro_level_upper_and_reference_idx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_line2macro_level_upper_and_reference_idx" title="Link to this definition">¶</a></dt>
+<dd><p>Create a mapping from line transitions to macro atom level indices for upper levels.
+This method creates a mapping that connects line transition upper levels to their
+corresponding macro atom level indices. It first extracts unique source levels
+from the macro atom transition metadata and assigns sequential indices to them,
+then maps the line upper levels to these indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>macro_atom_transition_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing macro atom transition metadata</p>
+</dd>
+<dt><strong>lines_level_upper</strong><span class="classifier">pd.MultiIndex</span></dt><dd><p>MultiIndex containing line upper level information</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.Series</dt><dd><p>Series mapping line transitions to macro atom level indices</p>
+</dd>
+<dt>pd.Series</dt><dd><p>Series with unique source levels as index and their assigned indices as values</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_macro_block_references">
+<span class="sig-name descname"><span class="pre">create_macro_block_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macro_atom_transition_metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#BoundBoundMacroAtomSolver.create_macro_block_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_macro_block_references" title="Link to this definition">¶</a></dt>
+<dd><p>Create macro block references from the macro atom transition metadata.
+This method creates a mapping from unique source levels to their first occurrence index in the metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>macro_atom_transition_metadata</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>DataFrame containing metadata for macro atom transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.Series</dt><dd><p>Series with unique source levels as index and their first occurrence index in the metadata as values.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_source_and_destination_idx_columns">
+<span class="sig-name descname"><span class="pre">create_source_and_destination_idx_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macro_atom_transition_metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#BoundBoundMacroAtomSolver.create_source_and_destination_idx_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_source_and_destination_idx_columns" title="Link to this definition">¶</a></dt>
+<dd><p>This function creates numerical indices for source and destination levels
+by mapping unique source levels to sequential integers. The destination
+indices use -99 for destinations that are not sources (emission-only levels).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>macro_atom_transition_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing macro atom transition metadata with ‘source’ and
+‘destination’ columns.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.levels">
 <span class="sig-name descname"><span class="pre">levels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.levels" title="Link to this definition">¶</a></dt>
@@ -191,6 +257,52 @@
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.lines">
 <span class="sig-name descname"><span class="pre">lines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.lines" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.normalize_transition_probabilities">
+<span class="sig-name descname"><span class="pre">normalize_transition_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probabilities_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#BoundBoundMacroAtomSolver.normalize_transition_probabilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.normalize_transition_probabilities" title="Link to this definition">¶</a></dt>
+<dd><p>Normalize transition probabilities by their source levels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probabilities_df</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing transition probabilities with a ‘source’ column
+for grouping.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>Normalized probabilities where each source group sums to 1.0.
+NaN values are replaced with 0.0 for cases where all transition
+probabilities are zero (typically ground levels in macroatom).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata">
+<span class="sig-name descname"><span class="pre">reindex_sort_and_clean_probabilities_and_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_transition_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#BoundBoundMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probabilities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing normalized transition probabilities.</p>
+</dd>
+<dt><strong>macro_atom_transition_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing metadata for macro atom transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[pd.DataFrame, pd.DataFrame]</dt><dd><p>Reindexed normalized probabilities and cleaned metadata sorted by
+atomic number, ion number, and source level.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.solve">
@@ -216,6 +328,108 @@ Referenced as ‘J^b_{lu}’ internally, or ‘J^b_{ji}’ in the original paper
 <dd class="field-even"><dl class="simple">
 <dt>MacroAtomState</dt><dd><p>A MacroAtomState object containing the transition probabilities, transition metadata,
 and a mapping from line IDs to macro atom level upper indices.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_solver.</span></span><span class="sig-name descname"><span class="pre">ContinuumMacroAtomSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photoionization_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_continuum_transitions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([],</span> <span class="pre">dtype=float64)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'macroatom'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#ContinuumMacroAtomSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver" title="tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoundBoundMacroAtomSolver</span></code></a></p>
+<p>Initialize the ContinuumMacroAtomSolver.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>levels</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing atomic level information.</p>
+</dd>
+<dt><strong>lines</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing spectral line information.</p>
+</dd>
+<dt><strong>photoionization_data</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing photoionization cross-section information.</p>
+</dd>
+<dt><strong>line_interaction_type</strong><span class="classifier">str, optional</span></dt><dd><p>Type of line interaction to use. Default is “macroatom”.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.levels">
+<span class="sig-name descname"><span class="pre">levels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.levels" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.line_interaction_type">
+<span class="sig-name descname"><span class="pre">line_interaction_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.line_interaction_type" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.lines">
+<span class="sig-name descname"><span class="pre">lines</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.lines" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.photoionization_data">
+<span class="sig-name descname"><span class="pre">photoionization_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.photoionization_data" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata">
+<span class="sig-name descname"><span class="pre">reindex_sort_and_clean_probabilities_and_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_transition_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#ContinuumMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.reindex_sort_and_clean_probabilities_and_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Adapted for continuum macroatom, where continuum transitions do not have the same dataframe indices.
+Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>probabilities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing normalized transition probabilities.</p>
+</dd>
+<dt><strong>macro_atom_transition_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing metadata for macro atom transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>tuple[pd.DataFrame, pd.DataFrame]</dt><dd><p>Reindexed normalized probabilities and cleaned metadata sorted by
+atomic number, ion number, and source level.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.selected_continuum_transitions">
+<span class="sig-name descname"><span class="pre">selected_continuum_transitions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.selected_continuum_transitions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean_intensities_blue_wing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_sobolevs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stimulated_emission_factors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stim_recomb_corrected_photoionization_rate_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spontaneous_recombination_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState" title="tardis.opacities.macro_atom.macroatom_state.MacroAtomState"><span class="pre">MacroAtomState</span></a></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#ContinuumMacroAtomSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.ContinuumMacroAtomSolver.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Solve the Macro Atom State including continuum transitions.</p>
+<p>This method calculates transition probabilities for both bound-bound (line) and continuum
+transitions and returns a MacroAtomState object with the probabilities and macro atom transition metadata.
+Referenced as $p_i$ in Lucy 2003, <a class="reference external" href="https://doi.org/10.1051/0004-6361:20030357">https://doi.org/10.1051/0004-6361:20030357</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mean_intensities_blue_wing</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Mean intensity of the radiation field of each line in the blue wing for each shell.
+Referenced as ‘J^b_{lu}’ internally, or ‘J^b_{ji}’ in the original paper.</p>
+</dd>
+<dt><strong>beta_sobolevs</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Escape probabilities for the Sobolev approximation.</p>
+</dd>
+<dt><strong>stimulated_emission_factors</strong><span class="classifier">np.ndarray</span></dt><dd><p>Stimulated emission factors for the lines.</p>
+</dd>
+<dt><strong>stim_recomb_corrected_photoionization_rate_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Corrected photoionization rate coefficients for continuum transitions.</p>
+</dd>
+<dt><strong>spontaneous_recombination_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Spontaneous recombination coefficients for continuum transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>MacroAtomState</dt><dd><p>State of the macro atom including continuum transitions, ready to be placed into the OpacityState.</p>
 </dd>
 </dl>
 </dd>
@@ -324,108 +538,13 @@ For more detail see Lucy 2003, <a class="reference external" href="https://doi.o
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.create_line2macro_level_upper_and_reference_idx">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_solver.</span></span><span class="sig-name descname"><span class="pre">create_line2macro_level_upper_and_reference_idx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macro_atom_transition_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines_level_upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiIndex</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#create_line2macro_level_upper_and_reference_idx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.create_line2macro_level_upper_and_reference_idx" title="Link to this definition">¶</a></dt>
-<dd><p>Create a mapping from line transitions to macro atom level indices for upper levels.
-This method creates a mapping that connects line transition upper levels to their
-corresponding macro atom level indices. It first extracts unique source levels
-from the macro atom transition metadata and assigns sequential indices to them,
-then maps the line upper levels to these indices.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>macro_atom_transition_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing macro atom transition metadata</p>
-</dd>
-<dt><strong>lines_level_upper</strong><span class="classifier">pd.MultiIndex</span></dt><dd><p>MultiIndex containing line upper level information</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>pd.Series</dt><dd><p>Series mapping line transitions to macro atom level indices</p>
-</dd>
-<dt>pd.Series</dt><dd><p>Series with unique source levels as index and their assigned indices as values</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.create_macro_block_references">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_solver.</span></span><span class="sig-name descname"><span class="pre">create_macro_block_references</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">macro_atom_transition_metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#create_macro_block_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.create_macro_block_references" title="Link to this definition">¶</a></dt>
-<dd><p>Create macro block references from the macro atom transition metadata.
-This method creates a mapping from unique source levels to their first occurrence index in the metadata.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>macro_atom_transition_metadata</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>DataFrame containing metadata for macro atom transitions.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>pandas.Series</dt><dd><p>Series with unique source levels as index and their first occurrence index in the metadata as values.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.normalize_transition_probabilities">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_solver.</span></span><span class="sig-name descname"><span class="pre">normalize_transition_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probabilities_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#normalize_transition_probabilities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.normalize_transition_probabilities" title="Link to this definition">¶</a></dt>
-<dd><p>Normalize transition probabilities by their source levels.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>probabilities_df</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing transition probabilities with a ‘source’ column
-for grouping.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>Normalized probabilities where each source group sums to 1.0.
-NaN values are replaced with 0.0 for cases where all transition
-probabilities are zero (typically ground levels in macroatom).</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_solver.reindex_sort_and_clean_probabilities_and_metadata">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_solver.</span></span><span class="sig-name descname"><span class="pre">reindex_sort_and_clean_probabilities_and_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalized_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_transition_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_solver.html#reindex_sort_and_clean_probabilities_and_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_solver.reindex_sort_and_clean_probabilities_and_metadata" title="Link to this definition">¶</a></dt>
-<dd><p>Reindex and sort macro atom transition probabilities and metadata. Also creates the unique metadata ID.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>normalized_probabilities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing normalized transition probabilities.</p>
-</dd>
-<dt><strong>macro_atom_transition_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing metadata for macro atom transitions.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>tuple[pd.DataFrame, pd.DataFrame]</dt><dd><p>Reindexed normalized probabilities and cleaned metadata sorted by
-atomic number, ion number, and source level.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tardis.opacities.macro_atom.base.html" class="btn btn-neutral float-left" title="tardis.opacities.macro_atom.base module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.opacities.macro_atom.macroatom_line_transitions.html" class="btn btn-neutral float-left" title="tardis.opacities.macro_atom.macroatom_line_transitions module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="tardis.opacities.macro_atom.macroatom_state.html" class="btn btn-neutral float-right" title="tardis.opacities.macro_atom.macroatom_state module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -433,7 +552,7 @@ atomic number, ion number, and source level.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Nov 2025.
+      <span class="lastupdated">Last updated on 05 Dec 2025.
       </span></p>
   </div>
 
