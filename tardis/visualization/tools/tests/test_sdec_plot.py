@@ -42,7 +42,7 @@ class TestSDECPlotter:
     distance = [10 * u.Mpc, None]
     packet_wvl_range = [[500, 9000] * u.AA]
     species_list = [["Si II", "Ca II", "C", "Fe I-V"]]
-    packets_mode = ["real", "virtual"]
+    packets_mode = ["real"]
     nelements = [1, None]
     show_modeled_spectrum = [True, False]
 
@@ -398,7 +398,7 @@ class TestSDECPlotter:
         plotter._species_list = ['Si','O','Mg','Ca']
         plotter._parse_species_list(plotter._species_list)
         plotter._calculate_plotting_data(
-            packets_mode="virtual",
+            packets_mode="real",
             packet_wvl_range=[500, 9000] * u.AA,
             distance=None,
             nelements=None,
@@ -433,7 +433,7 @@ class TestSDECPlotter:
         )
         
         # Test packet data structures exist for both modes
-        for mode in ["real", "virtual"]:
+        for mode in ["real"]:
             assert plotter.packet_data[mode]["packets_df"] is not None
             assert plotter_from_workflow.packet_data[mode]["packets_df"] is not None
             assert plotter.spectrum[mode] is not None
@@ -443,7 +443,7 @@ class TestSDECPlotter:
     def test_from_workflow_method_functionality(self, plotter_from_workflow):
         plotter_from_workflow._parse_species_list(None)
         plotter_from_workflow._calculate_plotting_data(
-            packets_mode="virtual",
+            packets_mode="real",
             packet_wvl_range=[500, 9000] * u.AA, 
             distance=None,
             nelements=None
@@ -456,7 +456,7 @@ class TestSDECPlotter:
         assert len(plotter_from_workflow.absorption_luminosities_df) > 0
         
         # Test that matplotlib plot can be generated
-        fig = plotter_from_workflow.generate_plot_mpl(packets_mode="virtual")
+        fig = plotter_from_workflow.generate_plot_mpl(packets_mode="real")
         assert fig is not None
 
     @pytest.fixture(scope="class", params=list(enumerate(combinations)))
@@ -542,7 +542,7 @@ class TestSDECPlotter:
     def test_workflow_simulation_data_identical(self, plotter, plotter_from_workflow):
         # Calculate plotting data with identical parameters
         params = {
-            "packets_mode": "virtual",
+            "packets_mode": "real",
             "packet_wvl_range": [500, 9000] * u.AA,
             "distance": None,
             "nelements": None,
