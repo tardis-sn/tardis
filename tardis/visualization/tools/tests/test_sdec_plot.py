@@ -1,6 +1,5 @@
 """Tests for SDEC Plots."""
 from itertools import product
-from copy import deepcopy
 
 import astropy
 import astropy.units as u
@@ -13,7 +12,6 @@ from matplotlib.testing.compare import compare_images
 
 from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 from tardis.visualization.tools.sdec_plot import SDECPlotter
-from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 RELATIVE_TOLERANCE_SDEC=1e-12
 
@@ -335,7 +333,7 @@ class TestSDECPlotter:
         plot_data = PlotDataHDF(**property_group)
         return plot_data
 
-    def test_generate_plot_mpl(
+    def test_generate_plot_ply(
         self, generate_plot_plotly_hdf, plotter_generate_plot_ply, regression_data
     ):
         fig, _ = plotter_generate_plot_ply
