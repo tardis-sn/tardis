@@ -362,7 +362,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             )
         else:
             raise ValueError(
-                f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
+                f"radiative_rates_type type unknown - {self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
             )
         if isinstance(self.macro_atom_solver, ContinuumMacroAtomSolver):
             continuum_property_solver = MCContinuumPropertiesSolver(
