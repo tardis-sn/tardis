@@ -156,7 +156,7 @@ jobs:
 
       - run: mv .coverage .coverage.${{ strategy.job-index }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: coverage-${{ matrix.continuum }}-continuum-${{ matrix.pip_git && 'pip-git-' || '' }}${{ matrix.os }}
           include-hidden-files: true
@@ -178,7 +178,7 @@ jobs:
           lockfile-path: ./conda-linux-64.lock
 
       # will download all artifacts(in this case all are coverage reports)
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: .
           merge-multiple: true

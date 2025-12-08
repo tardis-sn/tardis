@@ -357,7 +357,7 @@ def probability_free_free_cooling(
         Unnormalized free-free cooling rates with the same index as
         `electron_densities` / `t_electrons`.
     """
-    ion_charge = ion_number_density.get_level_values(1).values
+    ion_charge = ion_number_density.index.get_level_values(1).values
     cooling_factor = (
         electron_densities
         * ion_number_density.multiply(ion_charge**2, axis=0).sum()

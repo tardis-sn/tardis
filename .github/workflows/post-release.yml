@@ -26,7 +26,7 @@ jobs:
         env:
           OUTPUT: CHANGELOG.md
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: changelog
           path: CHANGELOG.md
@@ -52,7 +52,7 @@ jobs:
           rm CITATION.cff
           doi2cff init 10.5281/zenodo.592480
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: citation
           path: CITATION.cff
@@ -76,7 +76,7 @@ jobs:
       - name: Update README.rst
         run: python .ci-helpers/update_credits.py
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: credits
           path: |
@@ -98,7 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           path: /tmp
 
@@ -106,7 +106,6 @@ jobs:
         run: |
           cp /tmp/changelog/CHANGELOG.md .
           cp /tmp/citation/CITATION.cff .
-          cp /tmp/zenodo_json/.zenodo.json .
           cp -r /tmp/credits/* .
 
       - name: Get current date

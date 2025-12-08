@@ -1,9 +1,9 @@
 import numpy as np
 from numba import float64, int64
-from numba.experimental import jitclass
 
 from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
@@ -31,118 +31,6 @@ opacity_state_spec = [
     ("photo_ion_activation_idx", int64[:]),
     ("k_packet_idx", int64),
 ]
-
-
-@jitclass(opacity_state_spec)
-class OpacityStateNumba:
-    def __init__(
-        self,
-        electron_density,
-        t_electrons,
-        line_list_nu,
-        tau_sobolev,
-        transition_probabilities,
-        line2macro_level_upper,
-        macro_block_references,
-        transition_type,
-        destination_level_id,
-        transition_line_id,
-        bf_threshold_list_nu,
-        p_fb_deactivation,
-        photo_ion_nu_threshold_mins,
-        photo_ion_nu_threshold_maxs,
-        photo_ion_block_references,
-        chi_bf,
-        x_sect,
-        phot_nus,
-        ff_opacity_factor,
-        emissivities,
-        photo_ion_activation_idx,
-        k_packet_idx,
-    ):
-        """
-        Plasma for the Numba code
-
-        Parameters
-        ----------
-        electron_density : numpy.ndarray
-        t_electrons : numpy.ndarray
-        line_list_nu : numpy.ndarray
-        tau_sobolev : numpy.ndarray
-        transition_probabilities : numpy.ndarray
-        line2macro_level_upper : numpy.ndarray
-        macro_block_references : numpy.ndarray
-        transition_type : numpy.ndarray
-        destination_level_id : numpy.ndarray
-        transition_line_id : numpy.ndarray
-        bf_threshold_list_nu : numpy.ndarray
-        """
-        self.electron_density = electron_density
-        self.t_electrons = t_electrons
-        self.line_list_nu = line_list_nu
-        self.tau_sobolev = tau_sobolev
-        self.bf_threshold_list_nu = bf_threshold_list_nu
-
-        #### Macro Atom transition probabilities
-        self.transition_probabilities = transition_probabilities
-        self.line2macro_level_upper = line2macro_level_upper
-
-        self.macro_block_references = macro_block_references
-        self.transition_type = transition_type
-
-        # Destination level is not needed and/or generated for downbranch
-        self.destination_level_id = destination_level_id
-        self.transition_line_id = transition_line_id
-        self.p_fb_deactivation = p_fb_deactivation
-
-        # Continuum Opacity Data
-        self.photo_ion_nu_threshold_mins = photo_ion_nu_threshold_mins
-        self.photo_ion_nu_threshold_maxs = photo_ion_nu_threshold_maxs
-
-        self.photo_ion_block_references = photo_ion_block_references
-        self.chi_bf = chi_bf
-        self.x_sect = x_sect
-        self.phot_nus = phot_nus
-        self.ff_opacity_factor = ff_opacity_factor
-        self.emissivities = emissivities
-        self.photo_ion_activation_idx = photo_ion_activation_idx
-        self.k_packet_idx = k_packet_idx
-
-    def __getitem__(self, i: slice):
-        """Get a shell or slice of shells of the attributes of the opacity state
-
-        Args:
-            i (slice): shell slice.  Will fail if slice is int since class only supports array types
-
-        Returns:
-            OpacityState : a shallow copy of the current instance
-        """
-        # NOTE: This currently will not work with continuum processes since it does not slice those arrays
-        return OpacityStateNumba(
-            self.electron_density[i],
-            self.t_electrons[i],
-            self.line_list_nu,
-            self.tau_sobolev[:, i],
-            self.transition_probabilities[:, i],
-            self.line2macro_level_upper,
-            self.macro_block_references,
-            self.transition_type,
-            self.destination_level_id,
-            self.transition_line_id,
-            self.bf_threshold_list_nu,
-            self.p_fb_deactivation,
-            self.photo_ion_nu_threshold_mins,
-            self.photo_ion_nu_threshold_maxs,
-            self.photo_ion_block_references,
-            self.chi_bf,
-            self.x_sect,
-            self.phot_nus,
-            self.ff_opacity_factor,
-            self.emissivities,
-            self.photo_ion_activation_idx,
-            self.k_packet_idx,
-        )
-
 
 class OpacityState:
     def __init__(
@@ -252,7 +140,6 @@ class OpacityState:
         macro_atom_state : tardis.opacities.macro_atom.macroatom_state.MacroAtomState
         line_interaction_type : enum
         """
-
         electron_densities = self.electron_density.values
         t_electrons = self.t_electrons
         line_list_nu = self.line_list_nu.values
