@@ -1,5 +1,9 @@
 """
 Quick-and-dirty script for converting an older atomic data format to one compatible with modern TARDIS.
+
+Arguments are
+{old_atomdata_to_convert} {old_photoionization_data_to_convert}
+{new_atom_data_as_template} {output_atomdata}
 """
 
 import argparse
@@ -8,6 +12,7 @@ import pickle
 import platform
 import uuid
 from datetime import datetime
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -113,29 +118,41 @@ def simple_port(olddata, templatedata, templatekey, oldkey=None):
 #default_oldatomdata = "merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg.h5"
 #default_pi_filename = "photoionization_data_H30_He.h5"
 #default_template = "/home/connor/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5"
-#default_new = "test2.h5"
+#default_new = "test.h5"
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--oldatomdata", type=str)#, default=default_oldatomdata)
-    parser.add_argument("--oldPIdata", type=str)#, default=default_pi_filename)
-    parser.add_argument("--template", type=str)#, default=default_template)
-    parser.add_argument("--newatomdata", type=str)#, default=default_new)
+    parser.add_argument("oldatomdata", type=str)#, default=default_oldatomdata)
+    parser.add_argument("oldPIdata", type=str)#, default=default_pi_filename)
+    parser.add_argument("template", type=str)#, default=default_template)
+    parser.add_argument("newatomdata", type=str)#, default=default_new)
     args = parser.parse_args()
 
     # Atomic data in old format - "/Y/g" seems to be the only accessible dataset when
     # using pandas for some reason (contains collision data)
-    old_df = pd.HDFStore(args.oldatomdata)
+    if Path(args.oldatomdata).is_file():
+        old_df = pd.HDFStore(args.oldatomdata)
+    else:
+        raise FileNotFoundError()
 
     # Photoionization data stored in separate file in Christian's version
-    pi_data = pd.HDFStore(args.oldPIdata)
+    if Path(args.oldPIdata).is_file():
+        pi_data = pd.HDFStore(args.oldPIdata)
+    else:
+        raise FileNotFoundError()
 
     # Reference atomic data file for the format we want to convert to
-    template = pd.HDFStore(args.template)
+    if Path(args.template).is_file():
+        template = pd.HDFStore(args.template)
+    else:
+        raise FileNotFoundError()
 
     # Open up a new pandas HDFStore to port the old data into
-    new = pd.HDFStore(args.newatomdata)
+    if Path(args.newatomdata).is_file():
+        raise FileExistsError(f"Destination file {args.newatomdata} already exists. Delete it or specify a different destination.")
+    else:
+        new = pd.HDFStore(args.newatomdata)
 
     ### COLLISIONS DATA
     multiindex_cols = list(old_df["/Y/g"].columns[:4])
