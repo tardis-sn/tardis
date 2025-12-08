@@ -122,13 +122,10 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
           echo "Final disk usage:"
           df -h
-        
-   
 
       - name: Setup LFS
         uses: tardis-sn/tardis-actions/setup-lfs@alt-lfs
         with:
-          use_server: 'true'
           lfs_server_url: ${{ secrets.ATHARVA_MORIA_SERVER }}
 
       - name: Setup environment
