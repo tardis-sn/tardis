@@ -1,0 +1,430 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.model.base module &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=69ae8bb6"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="tardis.opacities package" href="tardis.opacities.html" />
+    <link rel="prev" title="tardis.model.matter.decay module" href="tardis.model.matter.decay.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tardis.html">tardis package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tardis.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="tardis.configuration.html">tardis.configuration package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.energy_input.html">tardis.energy_input package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.grid.html">tardis.grid package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.html">tardis.io package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="tardis.model.html">tardis.model package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.opacities.html">tardis.opacities package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.plasma.html">tardis.plasma package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.scripts.html">tardis.scripts package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.simulation.html">tardis.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.spectrum.html">tardis.spectrum package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.stats.html">tardis.stats package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.html">tardis.transport package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.util.html">tardis.util package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.visualization.html">tardis.visualization package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.workflows.html">tardis.workflows package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.html#module-tardis">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">tardis</a></li>
+          <li class="breadcrumb-item"><a href="tardis.html">tardis package</a></li>
+          <li class="breadcrumb-item"><a href="tardis.model.html">tardis.model package</a></li>
+      <li class="breadcrumb-item active">tardis.model.base module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/tardis.model.base.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-tardis.model.base">
+<span id="tardis-model-base-module"></span><h1>tardis.model.base module<a class="headerlink" href="#module-tardis.model.base" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.model.base.</span></span><span class="sig-name descname"><span class="pre">SimulationState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/model/base.html#SimulationState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.model.base.SimulationState" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin" title="tardis.io.hdf_writer_mixin.HDFWriterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code></a></p>
+<p>An object that hold information about the individual shells.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>velocity</strong><span class="classifier">np.ndarray</span></dt><dd><p>An array with n+1 (for n shells) velocities “cut” to the provided
+boundaries</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To access the entire, “uncut”, velocity array, use <code class="xref py py-obj docutils literal notranslate"><span class="pre">raw_velocity</span></code></p>
+</div>
+</dd>
+<dt><strong>abundance</strong><span class="classifier">pd.DataFrame</span></dt><dd></dd>
+<dt><strong>time_explosion</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>Time since explosion</p>
+</dd>
+<dt><strong>t_inner</strong><span class="classifier">astropy.units.Quantity</span></dt><dd></dd>
+<dt><strong>elemental_mass: pd.Series</strong></dt><dd></dd>
+<dt><strong>luminosity_requested</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>t_radiative</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>Radiative temperature for the shells</p>
+</dd>
+<dt><strong>dilution_factor</strong><span class="classifier">np.ndarray</span></dt><dd><p>If None, the dilution_factor will be initialized with the geometric
+dilution factor.</p>
+</dd>
+<dt><strong>v_inner_boundary</strong><span class="classifier">astropy.units.Quantity</span></dt><dd></dd>
+<dt><strong>v_outer_boundary</strong><span class="classifier">astropy.units.Quantity</span></dt><dd></dd>
+<dt><strong>raw_velocity</strong><span class="classifier">np.ndarray</span></dt><dd><p>The complete array of the velocities, without being cut by
+<a class="reference internal" href="#tardis.model.base.SimulationState.v_inner_boundary" title="tardis.model.base.SimulationState.v_inner_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_inner_boundary</span></code></a> and <a class="reference internal" href="#tardis.model.base.SimulationState.v_outer_boundary" title="tardis.model.base.SimulationState.v_outer_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_outer_boundary</span></code></a></p>
+</dd>
+<dt><strong>electron_densities</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>w</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Shortcut for <a class="reference internal" href="#tardis.model.base.SimulationState.dilution_factor" title="tardis.model.base.SimulationState.dilution_factor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dilution_factor</span></code></a></p>
+</dd>
+<dt><strong>t_rad</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd><p>Shortcut for <a class="reference internal" href="#tardis.model.base.SimulationState.t_radiative" title="tardis.model.base.SimulationState.t_radiative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">t_radiative</span></code></a></p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>r_inner</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>r_outer</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>r_middle</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>v_inner</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>v_outer</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>v_middle</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>density</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>volume</strong><span class="classifier">astropy.units.quantity.Quantity</span></dt><dd></dd>
+<dt><strong>no_of_shells</strong><span class="classifier">int</span></dt><dd><p>The number of shells as formed by <a class="reference internal" href="#tardis.model.base.SimulationState.v_inner_boundary" title="tardis.model.base.SimulationState.v_inner_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_inner_boundary</span></code></a> and
+<a class="reference internal" href="#tardis.model.base.SimulationState.v_outer_boundary" title="tardis.model.base.SimulationState.v_outer_boundary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_outer_boundary</span></code></a></p>
+</dd>
+<dt><strong>no_of_raw_shells</strong><span class="classifier">int</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p>Create a new instance and initialize HDF properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>*args</strong><span class="classifier">Any</span></dt><dd><p>Positional arguments passed to the parent class.</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">Any</span></dt><dd><p>Keyword arguments passed to the parent class.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>HDFWriterMixin</dt><dd><p>The new instance with initialized HDF properties.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.abundance">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">abundance</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.abundance" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.blackbody_packet_source">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">blackbody_packet_source</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.blackbody_packet_source" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.calculate_elemental_number_density">
+<span class="sig-name descname"><span class="pre">calculate_elemental_number_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_masses</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/model/base.html#SimulationState.calculate_elemental_number_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.model.base.SimulationState.calculate_elemental_number_density" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.density">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">density</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.density" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.dilution_factor">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dilution_factor</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.dilution_factor" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.from_config">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legacy_mode_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/model/base.html#SimulationState.from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.model.base.SimulationState.from_config" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new SimulationState instance from a Configuration object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">tardis.io.config_reader.Configuration</span></dt><dd></dd>
+<dt><strong>atom_data</strong><span class="classifier">tardis.io.AtomData</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>SimulationState</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.from_csvy">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legacy_mode_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/model/base.html#SimulationState.from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.model.base.SimulationState.from_csvy" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new SimulationState instance from a Configuration object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">tardis.io.config_reader.Configuration</span></dt><dd></dd>
+<dt><strong>atom_data</strong><span class="classifier">tardis.io.AtomData</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>SimulationState</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.hdf_name">
+<span class="sig-name descname"><span class="pre">hdf_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'simulation_state'</span></em><a class="headerlink" href="#tardis.model.base.SimulationState.hdf_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.hdf_properties">
+<span class="sig-name descname"><span class="pre">hdf_properties</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['t_inner',</span> <span class="pre">'dilution_factor',</span> <span class="pre">'t_radiative',</span> <span class="pre">'v_inner',</span> <span class="pre">'v_outer',</span> <span class="pre">'density',</span> <span class="pre">'r_inner',</span> <span class="pre">'time_explosion',</span> <span class="pre">'abundance']</span></em><a class="headerlink" href="#tardis.model.base.SimulationState.hdf_properties" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.isotopic_number_density">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">isotopic_number_density</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.isotopic_number_density" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.no_of_raw_shells">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">no_of_raw_shells</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.no_of_raw_shells" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.no_of_shells">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">no_of_shells</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.no_of_shells" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.r_inner">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_inner</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.r_inner" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.r_middle">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_middle</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.r_middle" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.r_outer">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r_outer</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.r_outer" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.radius">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.radius" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.t_inner">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_inner</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.t_inner" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.t_radiative">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">t_radiative</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.t_radiative" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.v_inner">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_inner</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.v_inner" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.v_inner_boundary">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_inner_boundary</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.v_inner_boundary" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.v_middle">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_middle</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.v_middle" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.v_outer">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_outer</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.v_outer" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.v_outer_boundary">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v_outer_boundary</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.v_outer_boundary" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.velocity">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">velocity</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.velocity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tardis.model.base.SimulationState.volume">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume</span></span><a class="headerlink" href="#tardis.model.base.SimulationState.volume" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tardis.model.matter.decay.html" class="btn btn-neutral float-left" title="tardis.model.matter.decay module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tardis.opacities.html" class="btn btn-neutral float-right" title="tardis.opacities package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 08 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
