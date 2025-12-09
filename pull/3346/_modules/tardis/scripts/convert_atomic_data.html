@@ -1,0 +1,435 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.scripts.convert_atomic_data &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=a14cb2f4"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.scripts.convert_atomic_data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.scripts.convert_atomic_data</h1><div class="highlight"><pre>
+<span></span>&quot;&quot;&quot;
+Quick-and-dirty script for converting an older atomic data format to one compatible with modern TARDIS.
+
+Arguments are
+{old_atomdata_to_convert} {old_photoionization_data_to_convert}
+{new_atom_data_as_template} {output_atomdata}
+&quot;&quot;&quot;
+
+import argparse
+import hashlib
+import pickle
+import platform
+import uuid
+from datetime import datetime
+from pathlib import Path
+
+import h5py
+import numpy as np
+import pandas as pd
+import pytz
+
+
+<div class="viewcode-block" id="serialize_pandas_object">
+<a class="viewcode-back" href="../../../api/tardis.scripts.convert_atomic_data.html#tardis.scripts.convert_atomic_data.serialize_pandas_object">[docs]</a>
+def serialize_pandas_object(pd_object):
+    &quot;&quot;&quot;
+    Serialize Pandas objects with Pickle.
+
+    Parameters
+    ----------
+    pd_object : pandas.Series or pandas.DataFrame
+        Pandas object to be serialized with Pickle.
+
+    Returns
+    -------
+    Pickle serialized Python object.
+    &quot;&quot;&quot;
+    return pickle.dumps(pd_object)</div>
+
+
+
+<div class="viewcode-block" id="hash_pandas_object">
+<a class="viewcode-back" href="../../../api/tardis.scripts.convert_atomic_data.html#tardis.scripts.convert_atomic_data.hash_pandas_object">[docs]</a>
+def hash_pandas_object(pd_object, algorithm=&quot;md5&quot;):
+    &quot;&quot;&quot;
+    Hash Pandas objects.
+
+    Parameters
+    ----------
+    pd_object : pandas.Series or pandas.DataFrame
+        Pandas object to be hashed.
+    algorithm : str, optional
+        Algorithm available in `hashlib`, by default &quot;md5&quot;
+
+    Returns
+    -------
+    str
+        Hash values.
+
+    Raises
+    ------
+    ValueError
+        If `algorithm` is not available in `hashlib`.
+    &quot;&quot;&quot;
+    algorithm = algorithm.lower()
+
+    if hasattr(hashlib, algorithm):
+        hash_func = getattr(hashlib, algorithm)
+
+    else:
+        raise ValueError(&#39;algorithm not supported&#39;)
+
+    return hash_func(serialize_pandas_object(pd_object)).hexdigest()</div>
+
+
+
+<div class="viewcode-block" id="multiindex_port">
+<a class="viewcode-back" href="../../../api/tardis.scripts.convert_atomic_data.html#tardis.scripts.convert_atomic_data.multiindex_port">[docs]</a>
+def multiindex_port(olddata, templatedata, templatekey, oldkey=None):
+    if oldkey is None:
+        oldkey = templatekey
+
+    # Get the format of the multi-index from the desired template
+    index_names = templatedata[templatekey].index.names
+
+    # Attempt conversion of the old structured array to a pd DataFrame
+    newdata = pd.DataFrame(olddata[oldkey][:]).set_index(index_names)
+
+    # Check datatypes of columns, convert if necessary
+    if hasattr(templatedata[templatekey], &quot;columns&quot;):
+        for col in templatedata[templatekey].columns:
+            desired_dtype = templatedata[templatekey][col].dtype
+            if desired_dtype == np.dtype(&quot;object&quot;):
+                desired_dtype = str
+            newdata[col] = newdata[col].astype(desired_dtype)
+    else:
+        col = [templatedata[templatekey].name]
+        newdata[col] = newdata[col].astype(templatedata[templatekey].dtype)
+
+    # Convert datatypes of each level of the multi-index
+    if not isinstance(newdata.index, pd.MultiIndex):
+        template_ind_dtype = templatedata[templatekey].index.dtype
+        newdata.index = newdata.index.astype(template_ind_dtype)
+    else:
+        for i, indname in enumerate(newdata.index.names):
+            template_ind_dtype = templatedata[templatekey].index.dtypes[indname]
+            converted_index = newdata.index.levels[i].astype(template_ind_dtype)
+            newdata.index = newdata.index.set_levels(converted_index, level=i)
+    return newdata</div>
+
+
+
+<div class="viewcode-block" id="simple_port">
+<a class="viewcode-back" href="../../../api/tardis.scripts.convert_atomic_data.html#tardis.scripts.convert_atomic_data.simple_port">[docs]</a>
+def simple_port(olddata, templatedata, templatekey, oldkey=None):
+    if oldkey is None:
+        oldkey = templatekey
+
+    newdata = pd.DataFrame(olddata[oldkey][:])
+
+    # Check datatypes of columns, convert if necessary
+    for col in templatedata[templatekey].columns:
+        newdata[col] = newdata[col].astype(templatedata[templatekey][col].dtype)
+
+    return newdata</div>
+
+
+
+## Files used to convert Christian&#39;s atomic data:
+#default_oldatomdata = &quot;merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg.h5&quot;
+#default_pi_filename = &quot;photoionization_data_H30_He.h5&quot;
+#default_template = &quot;/home/connor/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5&quot;
+#default_new = &quot;test.h5&quot;
+
+if __name__ == &quot;__main__&quot;:
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(&quot;oldatomdata&quot;, type=str)#, default=default_oldatomdata)
+    parser.add_argument(&quot;oldPIdata&quot;, type=str)#, default=default_pi_filename)
+    parser.add_argument(&quot;template&quot;, type=str)#, default=default_template)
+    parser.add_argument(&quot;newatomdata&quot;, type=str)#, default=default_new)
+    args = parser.parse_args()
+
+    # Atomic data in old format - &quot;/Y/g&quot; seems to be the only accessible dataset when
+    # using pandas for some reason (contains collision data)
+    if Path(args.oldatomdata).is_file():
+        old_df = pd.HDFStore(args.oldatomdata)
+    else:
+        raise FileNotFoundError()
+
+    # Photoionization data stored in separate file in Christian&#39;s version
+    if Path(args.oldPIdata).is_file():
+        pi_data = pd.HDFStore(args.oldPIdata)
+    else:
+        raise FileNotFoundError()
+
+    # Reference atomic data file for the format we want to convert to
+    if Path(args.template).is_file():
+        template = pd.HDFStore(args.template)
+    else:
+        raise FileNotFoundError()
+
+    # Open up a new pandas HDFStore to port the old data into
+    if Path(args.newatomdata).is_file():
+        raise FileExistsError(f&quot;Destination file {args.newatomdata} already exists. Delete it or specify a different destination.&quot;)
+    else:
+        new = pd.HDFStore(args.newatomdata)
+
+    ### COLLISIONS DATA
+    multiindex_cols = list(old_df[&quot;/Y/g&quot;].columns[:4])
+    new[&quot;collisions_data&quot;] = old_df[&quot;/Y/g&quot;].set_index(multiindex_cols)
+    tempcols = list(new[&#39;collisions_data&#39;].columns)
+    new[&#39;collisions_data&#39;] = new[&#39;collisions_data&#39;].rename(lambda f: tempcols.index(f), axis=1)
+
+    # We&#39;ve gotten all useful info out of the old dataframe using pandas
+    # so now load the same file with h5py directly to get the rest
+    old_df.close()
+    old = h5py.File(args.oldatomdata)
+
+    ### COLLISIONS METADATA
+    new_metadata = template[&quot;collisions_metadata&quot;].copy()
+    new_metadata[&quot;temperatures&quot;] = np.array(tempcols, dtype=np.int64)
+    new[&quot;collisions_metadata&quot;] = new_metadata
+
+    ### ATOM DATA
+    new_atom_data = multiindex_port(
+        old, template, &quot;atom_data&quot;, oldkey=&quot;basic_atom_data&quot;
+    )
+    new[&quot;atom_data&quot;] = new_atom_data
+
+    ### IONIZATION DATA
+    new[&quot;ionization_data&quot;] = multiindex_port(old, template, &quot;ionization_data&quot;)
+
+    ### LEVELS DATA
+    new[&quot;levels_data&quot;] = multiindex_port(old, template, &quot;levels_data&quot;)
+
+    ### LINES DATA
+    new[&quot;lines_data&quot;] = multiindex_port(old, template, &quot;lines_data&quot;)
+
+    ### LINES METADATA
+    new[&quot;lines_metadata&quot;] = template[&quot;lines_metadata&quot;].copy()
+
+    ### MACRO ATOM DATA
+    new[&quot;macro_atom_data&quot;] = simple_port(old, template, &quot;macro_atom_data&quot;)
+
+    ### MACRO ATOM REFERENCES
+    new[&quot;macro_atom_references&quot;] = multiindex_port(
+        old, template, &quot;macro_atom_references&quot;
+    )
+
+    ### PHOTOIONIZATION DATA
+    ### Note this comes from a DIFFERENT file!
+    new[&quot;photoionization_data&quot;] = pi_data[&quot;photoionization_data&quot;].copy()
+
+    ### ZETA DATA
+    zeta_index = pd.MultiIndex.from_arrays(
+        old[&quot;zeta_data&quot;][:, :2].T.astype(np.int64),
+        names=template[&quot;zeta_data&quot;].index.names,
+    )
+    zeta_temps = pd.Index(
+        old[&quot;zeta_data&quot;].attrs[&quot;t_rad&quot;].astype(np.float64), name=&quot;temp&quot;
+    )
+    new_zeta_data = pd.DataFrame(
+        old[&quot;zeta_data&quot;][:, 2:], index=zeta_index, columns=zeta_temps
+    )
+    new[&quot;zeta_data&quot;] = new_zeta_data
+
+    ### METADATA
+    # Copied over from Andrew&#39;s notebook demonstrating how to do this
+    meta = []
+    meta.append((&quot;format&quot;, &quot;version&quot;, &quot;1.0&quot;))
+
+    total_checksum = hashlib.md5()
+    for key in new.keys():
+        # update the total checksum to sign the file
+        total_checksum.update(serialize_pandas_object(new[key]))
+
+        # save individual DataFrame/Series checksum
+        checksum = hash_pandas_object(new[key])
+        meta.append((&quot;md5sum&quot;, key.lstrip(&quot;/&quot;), checksum))
+
+    # relevant package versions
+    meta.append((&quot;software&quot;, &quot;python&quot;, platform.python_version()))
+    imports = [
+        &quot;carsus&quot;,
+        &quot;astropy&quot;,
+        &quot;numpy&quot;,
+        &quot;pandas&quot;,
+        &quot;tables&quot;,
+        &quot;ChiantiPy&quot;,
+    ]
+    for package in imports:
+        meta.append((&quot;software&quot;, package, __import__(package).__version__))
+    meta_df = pd.DataFrame.from_records(
+        meta, columns=[&quot;field&quot;, &quot;key&quot;, &quot;value&quot;], index=[&quot;field&quot;, &quot;key&quot;]
+    )
+    uuid1 = uuid.uuid1().hex
+    new.root._v_attrs[&quot;MD5&quot;] = total_checksum.hexdigest()
+    new.root._v_attrs[&quot;UUID1&quot;] = uuid1
+    new.root._v_attrs[&quot;FORMAT_VERSION&quot;] = &quot;1.0&quot;
+    tz = pytz.timezone(&quot;UTC&quot;)
+    date = datetime.now(tz).isoformat()
+    new.root._v_attrs[&quot;DATE&quot;] = date
+    new.put(&quot;/metadata&quot;, meta_df)
+
+    # Close / write out files
+    old.close()
+    template.close()
+    pi_data.close()
+    new.close()
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 09 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
