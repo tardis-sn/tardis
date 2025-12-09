@@ -30,9 +30,7 @@ class BaseContinuumData(object):
         self.levels = self._prepare_levels()
         self.continuum_references = self._create_continuum_references()
         self.continuum_data = self._create_continuum_data_from_levels()
-        self.photoionization_data = PhotoionizationData.from_hdf5(
-            fname=photo_dat_fname, atom_data=self
-        )
+        self.photoionization_data = atom_data.photoionization_data
         self.no_levels_with_photdata = len(
             np.unique(self.photoionization_data.index.values)
         )

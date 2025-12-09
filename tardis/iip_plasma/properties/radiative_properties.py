@@ -15,7 +15,7 @@ from tardis.opacities.macro_atom.util import (
     fast_calculate_transition_probabilities,
 )
 from tardis.opacities.macro_atom.macroatom_solver import (
-    normalize_transition_probabilities,
+    BoundBoundMacroAtomSolver,
 )
 
 logger = logging.getLogger(__name__)
@@ -343,8 +343,10 @@ class TransitionProbabilities(ConvergedPlasmaProperty):
         return transition_probabilities
 
     def _normalize_transition_probabilities(self, transition_probabilities):
-        self.block_references = normalize_transition_probabilities(
-            transition_probabilities
+        self.block_references = (
+            BoundBoundMacroAtomSolver.normalize_transition_probabilities(
+                transition_probabilities
+            )
         )
 
     def _new_normalize_transition_probabilities(self, transition_probabilites):
