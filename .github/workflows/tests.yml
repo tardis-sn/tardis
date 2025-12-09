@@ -125,8 +125,6 @@ jobs:
 
       - name: Setup LFS
         uses: tardis-sn/tardis-actions/setup-lfs@alt-lfs
-        with:
-          lfs_server_url: ${{ secrets.ATHARVA_MORIA_SERVER }}
 
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main
