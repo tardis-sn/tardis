@@ -82,13 +82,12 @@ Mission Statement
     :caption: How-to Guides
     :hidden:
 
-    how_to_guides
+    how_to/index
     workflows
     analyzing_tardis/index
     io/configuration/tutorial_read_configuration
     io/optional/index
     io/output/index
-    how-to/code_comparison/index
 
 .. toctree::
     :maxdepth: 2
