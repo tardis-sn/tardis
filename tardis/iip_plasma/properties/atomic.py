@@ -315,18 +315,18 @@ class YgData(BaseAtomicDataProperty):
     """
     Attributes
     ----------
-    Yg_data : Pandas DataFrame
+    yg_data : Pandas DataFrame
         Table of effective collision strengths (divided by g_i). Columns are temperatures.
     T_Yg: Numpy Array
         Temperatures at which collision strengths are tabulated.
     Yg_index: Pandas MultiIndex
     """
 
-    outputs = ("Yg_data", "T_Yg", "Yg_index")
+    outputs = ("yg_data", "T_Yg", "Yg_index")
     latex_name = ("Y__{\\textrm{ij} / g_i}", "T_\\textrm{Yg}", "Yg_index")
 
-    def _filter_atomic_property(self, Yg_data, selected_atoms):
-        return Yg_data
+    def _filter_atomic_property(self, yg_data, selected_atoms):
+        return yg_data
 
-    def _set_index(self, Yg_data):
-        return (Yg_data, Yg_data.columns.values.astype(float), Yg_data.index)
+    def _set_index(self, yg_data):
+        return (yg_data, yg_data.columns.values.astype(float), yg_data.index)

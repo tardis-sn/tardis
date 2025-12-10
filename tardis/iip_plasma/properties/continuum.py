@@ -426,9 +426,9 @@ class CollIonRateCoeff(ProcessingPlasmaProperty):
         )
         collion_coeff = 1.55e13 * collion_coeff["x_sect"]
         ion_number = collion_coeff.index.get_level_values(1).values
-        collion_coeff.iloc[ion_number == 0] *= 0.1
-        collion_coeff.iloc[ion_number == 1] *= 0.2
-        collion_coeff.iloc[ion_number >= 2] *= 0.3
+        collion_coeff[ion_number == 0] *= 0.1
+        collion_coeff[ion_number == 1] *= 0.2
+        collion_coeff[ion_number >= 2] *= 0.3
         collion_coeff = factor.multiply(collion_coeff, axis=0)
         collion_coeff = collion_coeff.divide(np.sqrt(t_electrons), axis=1)
         return collion_coeff
@@ -475,11 +475,11 @@ class YgInterpolator(ProcessingPlasmaProperty):
     outputs = ("Yg_interp", "yg_allowed_index", "yg_forbidden_index")
     latex_name = ("Yg_interp",)
 
-    def calculate(self, Yg_data, T_Yg, lines_multi_index):
-        allowed_mask = Yg_data.index.isin(lines_multi_index)
-        yg_allowed_index = Yg_data.index[allowed_mask]
-        yg_forbidden_index = Yg_data.index[~allowed_mask]
-        interp = PchipInterpolator(T_Yg, Yg_data, axis=1, extrapolate=True)
+    def calculate(self, yg_data, T_Yg, lines_multi_index):
+        allowed_mask = yg_data.index.isin(lines_multi_index)
+        yg_allowed_index = yg_data.index[allowed_mask]
+        yg_forbidden_index = yg_data.index[~allowed_mask]
+        interp = PchipInterpolator(T_Yg, yg_data, axis=1, extrapolate=True)
         return interp, yg_allowed_index, yg_forbidden_index
 
 
