@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=274122fc"></script>
+      <script src="../_static/documentation_options.js?v=343c6099"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -112,7 +112,6 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.scripts.html">tardis.scripts package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.simulation.html">tardis.simulation package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.spectrum.html">tardis.spectrum package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.stats.html">tardis.stats package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.html">tardis.transport package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.util.html">tardis.util package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.visualization.html">tardis.visualization package</a></li>
@@ -169,8 +168,119 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tardis-io-model-parse-mass-fraction-configuration-module">
-<h1>tardis.io.model.parse_mass_fraction_configuration module<a class="headerlink" href="#tardis-io-model-parse-mass-fraction-configuration-module" title="Link to this heading">¶</a></h1>
+  <section id="module-tardis.io.model.parse_mass_fraction_configuration">
+<span id="tardis-io-model-parse-mass-fraction-configuration-module"></span><h1>tardis.io.model.parse_mass_fraction_configuration module<a class="headerlink" href="#module-tardis.io.model.parse_mass_fraction_configuration" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.parse_mass_fraction_configuration.convert_to_nuclide_mass_fractions">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_mass_fraction_configuration.</span></span><span class="sig-name descname"><span class="pre">convert_to_nuclide_mass_fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotopic_mass_fractions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_fractions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_mass_fraction_configuration.html#convert_to_nuclide_mass_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_mass_fraction_configuration.convert_to_nuclide_mass_fractions" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>isotope_mass_fraction</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>The isotope mass fraction data.</p>
+</dd>
+<dt><strong>mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>The mass fraction data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>nuclide_mass_fraction</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>The converted nuclide mass fraction.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>None.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function converts the mass fraction and isotope mass fraction data to nuclide mass fraction.
+If the mass fraction data is not None, it is converted to nuclide mass fraction by mapping
+the mass fraction index to nuclide indices using the ‘convert_element2nuclide_index’ function.
+The resulting mass fraction data is then concatenated with the isotope mass fraction data to
+obtain the final nuclide mass fraction.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_config">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_mass_fraction_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_mass_fractions_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_mass_fraction_configuration.html#parse_mass_fractions_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_config" title="Link to this definition">¶</a></dt>
+<dd><p>Parse the mass fraction configuration data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">object</span></dt><dd><p>The configuration data.</p>
+</dd>
+<dt><strong>geometry</strong><span class="classifier">object</span></dt><dd><p>The geometry of the model.</p>
+</dd>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>The time of the explosion.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>nuclide_mass_fractions</strong><span class="classifier">object</span></dt><dd><p>The parsed nuclide mass fraction.</p>
+</dd>
+<dt><strong>raw_isotope_mass_fractions</strong><span class="classifier">object</span></dt><dd><p>The parsed raw isotope mass fraction. This is the isotope mass fraction data before decay.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>None.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function parses the abundance configuration data and returns the parsed nuclide
+mass fraction. The mass fraction configuration can be of type ‘uniform’ or ‘file’. If it
+is of type ‘uniform’, the mass fraction and isotope mass fraction are read using the
+‘read_uniform_mass fractions’ function. If it is of type ‘file’, the mass fraction and
+isotope mass fraction are read from a file using the ‘read_abundances_file’ function.
+The parsed data is then processed to replace NaN values with 0.0, remove rows with
+zero sum, and normalize the data if necessary. The resulting nuclide mass fraction
+is returned.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_csvy">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_mass_fraction_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_mass_fractions_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csvy_model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csvy_model_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_mass_fraction_configuration.html#parse_mass_fractions_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_csvy" title="Link to this definition">¶</a></dt>
+<dd><p>Parse the mass fraction data from a CSVY model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>csvy_model_config</strong><span class="classifier">object</span></dt><dd><p>The configuration data of the CSVY model.</p>
+</dd>
+<dt><strong>csvy_model_data</strong><span class="classifier">object</span></dt><dd><p>The data of the CSVY model.</p>
+</dd>
+<dt><strong>geometry</strong><span class="classifier">object</span></dt><dd><p>The geometry of the model.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mass_fractions</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>The parsed mass fraction data.</p>
+</dd>
+<dt><strong>isotope_mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>The parsed isotope mass fraction data.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>None.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function parses the mass fraction data from a CSVY model. If the CSVY model
+configuration contains an ‘abundance’ attribute, it uses the ‘read_uniform_mass_fractions’
+function to parse the mass fraction and isotope mass fraction data. Otherwise, it uses the
+‘parse_csv_mass_fractions’ function to parse the data. The parsed data is then processed
+to replace NaN values with 0.0, remove rows with zero sum, and normalize the data
+if necessary. The resulting mass fraction and isotope mass fraction arrays are returned.</p>
+</dd></dl>
+
 </section>
 
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=274122fc"></script>
+      <script src="../../../../../_static/documentation_options.js?v=343c6099"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -143,6 +143,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from astropy import units as u
+
+from tardis.io.model.artis.data import ArtisData
 
 
 <div class="viewcode-block" id="read_artis_density">
@@ -288,7 +290,7 @@ def read_artis_mass_fractions(
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model">[docs]</a>
 def read_artis_model(
     density_fname: str | Path, abundance_fname: str | Path
-) -&gt; &quot;ArtisData&quot;:
+) -&gt; ArtisData:
     &quot;&quot;&quot;
     Read density and abundance files, combine them, and return a single model dataset.
 
@@ -304,8 +306,6 @@ def read_artis_model(
     ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     &quot;&quot;&quot;
-    from tardis.io.model.artis.data import ArtisData
-
     time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density( # type: ignore
         density_fname, legacy_return=False
     )

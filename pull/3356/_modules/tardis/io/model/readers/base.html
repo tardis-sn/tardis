@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=274122fc"></script>
+      <script src="../../../../../_static/documentation_options.js?v=343c6099"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -140,7 +140,6 @@
 <span></span>import numpy as np
 import pandas as pd
 
-from tardis.io.model.artis.readers import read_artis_density
 from tardis.io.model.readers.cmfgen_deprecated import (
     read_cmfgen_composition,
     read_cmfgen_density,
@@ -231,6 +230,9 @@ def read_density_file(filename, filetype):
     temperature : np.ndarray
         The array containing temperatures
     &quot;&quot;&quot;
+    # Lazy import to avoid circular dependency
+    from tardis.io.model.artis.readers import read_artis_density
+
     file_parsers = {
         &quot;artis&quot;: read_artis_density,
         &quot;simple_ascii&quot;: read_simple_ascii_density,
