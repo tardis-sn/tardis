@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.io.model.parse_mass_fraction_configuration &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=c336f1e7"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.io.model.parse_mass_fraction_configuration</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.io.model.parse_mass_fraction_configuration</h1><div class="highlight"><pre>
+<span></span>import logging
+from pathlib import Path
+
+import astropy.units as u
+import numpy as np
+import pandas as pd
+
+from tardis.io.model.readers.base import read_mass_fractions_file
+from tardis.io.model.readers.csvy import parse_csv_mass_fractions
+from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
+from tardis.model.matter.composition import Composition
+from tardis.model.matter.decay import IsotopicMassFraction
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="parse_mass_fractions_from_config">
+<a class="viewcode-back" href="../../../../api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_config">[docs]</a>
+def parse_mass_fractions_from_config(config, geometry, time_explosion):
+    &quot;&quot;&quot;
+    Parse the mass fraction configuration data.
+
+    Parameters
+    ----------
+    config : object
+        The configuration data.
+    geometry : object
+        The geometry of the model.
+    time_explosion : float
+        The time of the explosion.
+
+    Returns
+    -------
+    nuclide_mass_fractions : object
+        The parsed nuclide mass fraction.
+
+    raw_isotope_mass_fractions : object
+        The parsed raw isotope mass fraction. This is the isotope mass fraction data before decay.
+
+    Raises
+    ------
+    None.
+
+    Notes
+    -----
+    This function parses the abundance configuration data and returns the parsed nuclide
+    mass fraction. The mass fraction configuration can be of type &#39;uniform&#39; or &#39;file&#39;. If it
+    is of type &#39;uniform&#39;, the mass fraction and isotope mass fraction are read using the
+    &#39;read_uniform_mass fractions&#39; function. If it is of type &#39;file&#39;, the mass fraction and
+    isotope mass fraction are read from a file using the &#39;read_abundances_file&#39; function.
+    The parsed data is then processed to replace NaN values with 0.0, remove rows with
+    zero sum, and normalize the data if necessary. The resulting nuclide mass fraction
+    is returned.
+    &quot;&quot;&quot;
+    mass_fractions_section = config.model.abundances
+    isotope_mass_fractions = pd.DataFrame()
+
+    if mass_fractions_section.type == &quot;uniform&quot;:
+        mass_fractions, isotope_mass_fractions = read_uniform_mass_fractions(
+            mass_fractions_section, geometry.no_of_shells
+        )
+
+    elif mass_fractions_section.type == &quot;file&quot;:
+        if Path(mass_fractions_section.filename).is_absolute():
+            mass_fractions_fname = mass_fractions_section.filename
+        else:
+            mass_fractions_fname = Path(config.config_dirname) / mass_fractions_section.filename
+
+        (
+            index,
+            mass_fractions,
+            isotope_mass_fractions,
+        ) = read_mass_fractions_file(
+            mass_fractions_fname, mass_fractions_section.filetype
+        )
+
+    mass_fractions = mass_fractions.replace(np.nan, 0.0)
+    mass_fractions = mass_fractions[mass_fractions.sum(axis=1) &gt; 0]
+
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
+
+    if np.any(np.abs(norm_factor - 1) &gt; 1e-12):
+        logger.warning(&quot;Mass fractions have not been normalized to 1. - normalizing&quot;)
+        mass_fractions /= norm_factor
+        isotope_mass_fractions /= norm_factor
+    # The next line is if the mass_fractions are given via dict
+    # and not gone through the schema validator
+
+    model_isotope_time_0 = config.model.abundances.model_isotope_time_0
+
+    if not np.isnan(model_isotope_time_0):
+        assert model_isotope_time_0 &lt; time_explosion
+        isotope_mass_fractions = IsotopicMassFraction(
+            isotope_mass_fractions, time_0=model_isotope_time_0
+        ).calculate_decayed_mass_fractions(time_explosion)
+    else:
+        logger.warning(
+            &quot;model_isotope_time_0 is not set in the configuration. &quot;
+            &quot;Isotopic mass fractions will not be decayed and is assumed to be correct for the time_explosion. THIS IS NOT RECOMMENDED!&quot;
+        )
+        isotope_mass_fractions = IsotopicMassFraction(isotope_mass_fractions)
+    nuclide_mass_fractions = convert_to_nuclide_mass_fractions(
+        isotope_mass_fractions, mass_fractions
+    )
+    return nuclide_mass_fractions</div>
+
+
+
+<div class="viewcode-block" id="parse_mass_fractions_from_csvy">
+<a class="viewcode-back" href="../../../../api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_csvy">[docs]</a>
+def parse_mass_fractions_from_csvy(
+    csvy_model_config, csvy_model_data, geometry, time_explosion
+):
+    &quot;&quot;&quot;
+    Parse the mass fraction data from a CSVY model.
+
+    Parameters
+    ----------
+    csvy_model_config : object
+        The configuration data of the CSVY model.
+    csvy_model_data : object
+        The data of the CSVY model.
+    geometry : object
+        The geometry of the model.
+
+    Returns
+    -------
+    mass_fractions : pd.DataFrame
+        The parsed mass fraction data.
+    isotope_mass_fractions : pandas.DataFrame
+        The parsed isotope mass fraction data.
+
+    Raises
+    ------
+    None.
+
+    Notes
+    -----
+    This function parses the mass fraction data from a CSVY model. If the CSVY model
+    configuration contains an &#39;abundance&#39; attribute, it uses the &#39;read_uniform_mass_fractions&#39;
+    function to parse the mass fraction and isotope mass fraction data. Otherwise, it uses the
+    &#39;parse_csv_mass_fractions&#39; function to parse the data. The parsed data is then processed
+    to replace NaN values with 0.0, remove rows with zero sum, and normalize the data
+    if necessary. The resulting mass fraction and isotope mass fraction arrays are returned.
+    &quot;&quot;&quot;
+    if hasattr(csvy_model_config, &quot;abundance&quot;):
+        mass_fractions_section = csvy_model_config.abundance
+        mass_fractions, isotope_mass_fractions = read_uniform_mass_fractions(
+            mass_fractions_section, geometry.no_of_shells
+        )
+    else:
+        _, mass_fractions, isotope_mass_fractions = parse_csv_mass_fractions(
+            csvy_model_data
+        )
+        mass_fractions = mass_fractions.loc[:, 1:]
+        mass_fractions.columns = np.arange(mass_fractions.shape[1])
+        isotope_mass_fractions = isotope_mass_fractions.loc[:, 1:]
+        isotope_mass_fractions.columns = np.arange(isotope_mass_fractions.shape[1])
+
+    mass_fractions = mass_fractions.replace(np.nan, 0.0)
+    mass_fractions = mass_fractions[mass_fractions.sum(axis=1) &gt; 0]
+    isotope_mass_fractions = isotope_mass_fractions.replace(np.nan, 0.0)
+    isotope_mass_fractions = isotope_mass_fractions[
+        isotope_mass_fractions.sum(axis=1) &gt; 0
+    ]
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
+
+    if np.any(np.abs(norm_factor - 1) &gt; 1e-12):
+        logger.warning(&quot;Mass fractions have not been normalized to 1. - normalizing&quot;)
+        mass_fractions /= norm_factor
+        isotope_mass_fractions /= norm_factor
+
+    isotope_mass_fractions = IsotopicMassFraction(
+        isotope_mass_fractions, time_0=csvy_model_config.model_isotope_time_0
+    ).calculate_decayed_mass_fractions(time_explosion)
+    return convert_to_nuclide_mass_fractions(isotope_mass_fractions, mass_fractions)</div>
+
+
+
+<div class="viewcode-block" id="convert_to_nuclide_mass_fractions">
+<a class="viewcode-back" href="../../../../api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.convert_to_nuclide_mass_fractions">[docs]</a>
+def convert_to_nuclide_mass_fractions(isotopic_mass_fractions, mass_fractions):
+    &quot;&quot;&quot;
+    Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.
+
+    Parameters
+    ----------
+    isotope_mass_fraction : pandas.DataFrame
+        The isotope mass fraction data.
+    mass_fractions : pandas.DataFrame
+        The mass fraction data.
+
+    Returns
+    -------
+    nuclide_mass_fraction : pandas.DataFrame
+        The converted nuclide mass fraction.
+
+    Raises
+    ------
+    None.
+
+    Notes
+    -----
+    This function converts the mass fraction and isotope mass fraction data to nuclide mass fraction.
+    If the mass fraction data is not None, it is converted to nuclide mass fraction by mapping
+    the mass fraction index to nuclide indices using the &#39;convert_element2nuclide_index&#39; function.
+    The resulting mass fraction data is then concatenated with the isotope mass fraction data to
+    obtain the final nuclide mass fraction.
+    &quot;&quot;&quot;
+    nuclide_mass_fractions = pd.DataFrame()
+    if mass_fractions is not None:
+        mass_fractions.index = Composition.convert_element2nuclide_index(
+            mass_fractions.index
+        )
+        nuclide_mass_fractions = mass_fractions
+    else:
+        nuclide_mass_fractions = pd.DataFrame()
+
+    if isotopic_mass_fractions is not None:
+        nuclide_mass_fractions = pd.concat(
+            [nuclide_mass_fractions, isotopic_mass_fractions]
+        )
+    return nuclide_mass_fractions</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 10 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
