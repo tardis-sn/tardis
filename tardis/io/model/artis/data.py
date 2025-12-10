@@ -1,12 +1,10 @@
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
-
+from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
 from astropy import units as u
 
-
-from dataclasses import dataclass, field
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 
 
 @dataclass
@@ -18,9 +16,7 @@ class ArtisData:
 
     def to_geometry(self):
         """
-        Construct a HomologousRadial1DGeometry object from this ArtisModelData.
-
-        We create v_inner and v_outer by treating the velocity array as boundary
+        Construct a HomologousRadial1DGeometry object from this ArtisData.
         points for the shells. The time_of_model is used as the time_explosion.
         """
         geometry = HomologousRadial1DGeometry(
