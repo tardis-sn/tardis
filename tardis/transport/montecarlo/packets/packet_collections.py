@@ -156,8 +156,12 @@ class LastInteractionTracker:
         self.types[i] = r_packet.last_interaction_type
         self.in_nus[i] = r_packet.last_interaction_in_nu
         self.in_rs[i] = r_packet.last_interaction_in_r
-        self.in_ids[i] = r_packet.last_line_interaction_in_id
-        self.out_ids[i] = r_packet.last_line_interaction_out_id
+        if r_packet.last_interaction_type == InteractionType.LINE:
+            self.in_ids[i] = r_packet.last_line_interaction_in_id
+            self.out_ids[i] = r_packet.last_line_interaction_out_id
+        else:
+            self.in_ids[i] = -1
+            self.out_ids[i] = -1
         self.shell_ids[i] = r_packet.last_line_interaction_shell_id
 
 
