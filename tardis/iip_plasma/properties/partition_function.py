@@ -742,7 +742,6 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _setup_collision_rate_matrix(
         self, coll_exc_coeff, coll_deexc_coeff, no_of_levels, shell, n_e
     ):
-        coll_exc_coeff.index = coll_exc_coeff.index.swaplevel(0, 1)
         coll_deexc_coeff.index = coll_deexc_coeff.index.swaplevel(0, 1)
 
         index = list(self._get_rate_index(no_of_levels))
