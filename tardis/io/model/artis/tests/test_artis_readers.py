@@ -3,7 +3,7 @@ import numpy.testing as npt
 import pytest
 from astropy import units as u
 
-from tardis.io.model.readers.artis import (
+from tardis.io.model.artis.readers import (
     read_artis_density,
     read_artis_mass_fractions,
     read_artis_model,
