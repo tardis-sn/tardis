@@ -1,0 +1,7 @@
+tardis.plasma.equilibrium.rates.photoionization\_rates module
+=============================================================
+
+.. automodule:: tardis.plasma.equilibrium.rates.photoionization_rates
+   :members:
+   :show-inheritance:
+   :undoc-members:
