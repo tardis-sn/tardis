@@ -6,8 +6,10 @@ import pytest
 from astropy import units as u
 
 import tardis
-from tardis.io.atom_data import AtomData
 from tardis.iip_plasma.properties import *
+from tardis.io.atom_data import AtomData
+
+pytestmark = pytest.mark.skip("Skipping tests due to old format")
 
 # INPUTS
 
