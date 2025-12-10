@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 
+from tardis.io.model.artis.data import ArtisData
+
 
 def read_artis_density(
     fname: str | Path, legacy_return: bool = True
@@ -141,7 +143,7 @@ def read_artis_mass_fractions(
 
 def read_artis_model(
     density_fname: str | Path, abundance_fname: str | Path
-) -> "ArtisData":
+) -> ArtisData:
     """
     Read density and abundance files, combine them, and return a single model dataset.
 
@@ -157,8 +159,6 @@ def read_artis_model(
     ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     """
-    from tardis.io.model.artis.data import ArtisData
-
     time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density( # type: ignore
         density_fname, legacy_return=False
     )
