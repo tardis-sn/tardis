@@ -201,7 +201,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 level_boltzmann_factor = np.linalg.solve(
                     rates_matrix[:, :, i], x
                 )
-                general_level_boltzmann_factor[i].iloc[species] = (
+                general_level_boltzmann_factor[i].loc[species] = (
                     level_boltzmann_factor
                 )
         return general_level_boltzmann_factor

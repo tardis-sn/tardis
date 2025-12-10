@@ -105,21 +105,21 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             g,
             w,
         )
-        helium_population.iloc[0].update(he_one_population)
+        helium_population.loc[0].update(he_one_population)
         # He I metastable states
-        helium_population.iloc[0, 1] *= 1 / w
-        helium_population.iloc[0, 2] *= 1 / w
+        helium_population.loc[0, 1] *= 1 / w
+        helium_population.loc[0, 2] *= 1 / w
         # He I ground state
-        helium_population.iloc[0, 0] = 0.0
+        helium_population.loc[0, 0] = 0.0
         # He II excited states
-        he_two_population = level_boltzmann_factor.iloc[2, 1].mul(
-            g.iloc[2, 1].iloc[0] ** (-1)
+        he_two_population = level_boltzmann_factor.loc[2, 1].mul(
+            g.loc[2, 1].loc[0] ** (-1)
         )
-        helium_population.iloc[1].update(he_two_population)
+        helium_population.loc[1].update(he_two_population)
         # He II ground state
-        helium_population.iloc[1, 0] = 1.0
+        helium_population.loc[1, 0] = 1.0
         # He III states
-        helium_population.iloc[2, 0] = self.calculate_helium_three(
+        helium_population.loc[2, 0] = self.calculate_helium_three(
             t_rad,
             w,
             zeta_data,
@@ -150,11 +150,11 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         Calculates the He I level population values, in equilibrium with the He II ground state.
         """
         return (
-            level_boltzmann_factor.iloc[2, 0].mul(g.iloc[2, 0], axis=0)
-            * (1.0 / (2 * g.iloc[2, 1, 0]))
+            level_boltzmann_factor.loc[2, 0].mul(g.loc[2, 0], axis=0)
+            * (1.0 / (2 * g.loc[2, 1, 0]))
             * (1 / g_electron)
             * (1 / (w**2))
-            * np.exp(ionization_data.ionization_energy.iloc[2, 1] * beta_rad)
+            * np.exp(ionization_data.ionization_energy.loc[2, 1] * beta_rad)
             * electron_densities
         )
 
@@ -177,11 +177,11 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
         he_three_population = (
             (2 / electron_densities)
-            * (float(g.iloc[2, 2, 0]) / g.iloc[2, 1, 0])
+            * (float(g.loc[2, 2, 0]) / g.loc[2, 1, 0])
             * g_electron
-            * np.exp(-ionization_data.ionization_energy.iloc[2, 2] * beta_rad)
+            * np.exp(-ionization_data.ionization_energy.loc[2, 2] * beta_rad)
             * w
-            * (delta.iloc[2, 2] * zeta + w * (1.0 - zeta))
+            * (delta.loc[2, 2] * zeta + w * (1.0 - zeta))
             * (t_electrons / t_rad) ** 0.5
         )
 
@@ -242,7 +242,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                 for element in range(1, 31):
                     try:
                         number_density = (
-                            ion_number_density[zone].iloc[element].sum()
+                            ion_number_density[zone].loc[element].sum()
                         )
                     except:
                         number_density = 0.0
@@ -255,17 +255,13 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                 f"He_NLTE_Files/discradfield_{zone}.txt", "w"
             ) as output_file:
                 j_blues = pd.DataFrame(j_blues, index=lines.index)
-                helium_j_blues = j_blues[zone].iloc[helium_lines.index]
+                helium_j_blues = j_blues[zone].loc[helium_lines.index]
                 for value in helium_lines.index:
-                    if helium_lines.level_number_lower.iloc[value] < 35:
+                    if helium_lines.level_number_lower.loc[value] < 35:
                         output_file.write(
-                            int(
-                                helium_lines.level_number_lower.iloc[value] + 1
-                            ),
-                            int(
-                                helium_lines.level_number_upper.iloc[value] + 1
-                            ),
-                            j_blues[zone].iloc[value],
+                            int(helium_lines.level_number_lower.loc[value] + 1),
+                            int(helium_lines.level_number_upper.loc[value] + 1),
+                            j_blues[zone].loc[value],
                         )
         # Running numerical simulations
         for zone, _ in enumerate(electron_densities):
@@ -302,8 +298,8 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                 for level in range(35):
                     level_population = read_file.readline()
                     level_population = float(level_population)
-                    helium_population[zone].iloc[0][level] = level_population
-                helium_population[zone].iloc[1].iloc[0] = float(
+                    helium_population[zone].loc[0][level] = level_population
+                helium_population[zone].loc[1].loc[0] = float(
                     read_file.readline()
                 )
         # Performing He LTE level populations (upper two energy levels,
