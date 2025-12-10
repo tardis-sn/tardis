@@ -1,18 +1,18 @@
 import logging
 
+import astropy.units as units
 import numpy as np
 import pandas as pd
-import astropy.units as units
 from astropy import constants as const
-from scipy.integrate import simps, cumtrapz, trapz
+from scipy.integrate import cumulative_trapezoid, trapezoid
 
-from tardis.util import intensity_black_body
 from tardis.iip_plasma.continuum.base import (
-    PhysicalContinuumProcess,
     BoundFreeEnergyMixIn,
+    PhysicalContinuumProcess,
 )
 from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
-
+from tardis.plasma.exceptions import PlasmaException
+from tardis.util.base import intensity_black_body
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +118,7 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         tmp = {}
         for i in range(self.no_of_shells):
             tmp[i] = corrected_photoion_coeff.apply(
-                lambda sub: trapz(sub[i], sub["nu"])
+                lambda sub: trapezoid(sub[i], sub["nu"])
             )
 
         corrected_photoion_coeff = pd.DataFrame(tmp)
@@ -131,6 +131,10 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
             self.photo_ion_estimator
             - lte_nonlte_level_pop_ratio * self.stim_recomb_estimator
         )
+        if (corrected_photoion_coeff < 0).any().any():
+            raise PlasmaException(
+                "Negative values in _calculate_rate_coefficient_from_estimator. Try raising the number of montecarlo packets."
+            )
         corrected_photoion_coeff = pd.DataFrame(
             corrected_photoion_coeff,
             index=index,
@@ -313,7 +317,8 @@ class RadiativeRecombination(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
             for i in range(self.no_of_shells):
                 emissivities = em.apply(
                     lambda sub: pd.DataFrame(
-                        cumtrapz(sub[i], sub["nu"], initial=0.0), columns=[i]
+                        cumulative_trapezoid(sub[i], sub["nu"], initial=0.0),
+                        columns=[i],
                     )
                 )
                 emissivities.index = emissivities.index.droplevel(3)
@@ -337,7 +342,9 @@ class RadiativeRecombination(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         recomb_coeff = recomb_coeff.groupby(level=[0, 1, 2])
         tmp = {}
         for i in range(self.no_of_shells):
-            tmp[i] = recomb_coeff.apply(lambda sub: trapz(sub[i], sub["nu"]))
+            tmp[i] = recomb_coeff.apply(
+                lambda sub: trapezoid(sub[i], sub["nu"])
+            )
             if modified == True:
                 tmp[i] /= self.nu_i
         recomb_coeff = pd.DataFrame(tmp)
