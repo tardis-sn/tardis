@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 
 from tardis.io.model.readers.base import read_mass_fractions_file
-from tardis.io.model.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
@@ -144,6 +143,8 @@ def parse_mass_fractions_from_csvy(
             mass_fractions_section, geometry.no_of_shells
         )
     else:
+        from tardis.io.model.csvy import parse_csv_mass_fractions
+
         _, mass_fractions, isotope_mass_fractions = parse_csv_mass_fractions(
             csvy_model_data
         )

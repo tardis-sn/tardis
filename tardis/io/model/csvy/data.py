@@ -18,19 +18,26 @@ class CSVYData:
         YAML metadata from the CSVY file.
     velocity : np.ndarray
         Velocity array for the model shells.
-    density : np.ndarray
+    density : np.ndarray or None
         Density array for the model shells.
     mass_fractions : pd.DataFrame, optional
         Mass fractions DataFrame with atomic_number as index.
     isotope_mass_fractions : pd.DataFrame, optional
         Isotope mass fractions DataFrame with MultiIndex of (atomic_number, mass_number).
+    raw_data : pd.DataFrame or None, optional
+        Raw CSV data from the CSVY file.
     """
 
     yaml_dict: dict
     velocity: np.ndarray
-    density: np.ndarray
+    density: np.ndarray | None
     mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
     isotope_mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
+    raw_data: pd.DataFrame | None = None
+
+    def __iter__(self):
+        """Allow tuple unpacking for backward compatibility: yaml_dict, data = load_csvy()"""
+        return iter((self.yaml_dict, self.raw_data))
 
     def to_geometry(
         self, time_explosion: u.Quantity | None = None
