@@ -107,7 +107,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
             partition_function,
         )
         if helium_population is not None:
-            level_number_density.iloc[2].update(helium_population)
+            level_number_density.loc[2].update(helium_population)
         return level_number_density
 
 

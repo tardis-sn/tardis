@@ -6,7 +6,7 @@ def test_phi_saha_lte(beta_rad, g_electron, ionization_data, phi_saha_lte):
     assert np.all(
         np.isclose(
             g_electron * 4 * np.exp(-ionization_data.loc[2, 1] * beta_rad),
-            phi_saha_lte.iloc[2].iloc[1],
+            phi_saha_lte.loc[2].loc[1],
         )
     )
 
@@ -33,8 +33,8 @@ def test_electron_densities(electron_densities):
 
 
 def test_radiation_field_correction(delta):
-    assert np.allclose(delta.iloc[2].iloc[2], 0.000807200897)
+    assert np.allclose(delta.loc[2].loc[2], 0.000807200897)
 
 
 def test_phi_saha_nebular(phi_saha_nebular):
-    assert np.allclose(phi_saha_nebular.iloc[2].iloc[1], 4.496818e08)
+    assert np.allclose(phi_saha_nebular.loc[2].loc[1], 4.496818e08)

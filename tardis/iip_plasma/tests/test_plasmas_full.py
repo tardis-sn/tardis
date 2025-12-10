@@ -26,27 +26,29 @@ def plasma_compare_data(plasma_compare_data_fname):
     return h5py.File(plasma_compare_data_fname, "r")
 
 
-@pytest.mark.skipif(
-    not pytest.Config.getvalue(name="atomic-dataset"),
-    reason="--atomic_database was not specified",
-)
 class TestPlasmas:
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self):
+    def setup(self, request):
+        atomic_dataset = request.config.getoption("--atomic-dataset")
+        if not atomic_dataset:
+            pytest.skip("--atomic-dataset was not specified")
+
         self.atom_data_filename = os.path.expanduser(
-            os.path.expandvars(pytest.Config.getvalue(name="atomic-dataset"))
+            os.path.expandvars(atomic_dataset)
         )
         assert os.path.exists(self.atom_data_filename), (
             f"{self.atom_data_filename} atomic datafiles does not seem to exist"
         )
         self.config_yaml = yaml.load(
-            open("tardis/iip_plasma/tests/data/plasma_test_config_lte.yml")
+            open("tardis/iip_plasma/tests/data/plasma_test_config_lte.yml"),
+            Loader=yaml.CLoader,
         )
         self.config_yaml["atom_data"] = self.atom_data_filename
         self.lte_model = run_tardis(self.config_yaml)
         self.config_yaml = yaml.load(
-            open("tardis/iip_plasma/tests/data/plasma_test_config_nlte.yml")
+            open("tardis/iip_plasma/tests/data/plasma_test_config_nlte.yml"),
+            Loader=yaml.CLoader,
         )
         self.config_yaml["atom_data"] = self.atom_data_filename
         self.nlte_model = run_tardis(self.config_yaml)
@@ -75,8 +77,8 @@ class TestPlasmas:
         new_plasma_t_rads = self.nlte_model.t_rads / u.Unit("K")
         new_plasma_levels = (
             self.nlte_model.plasma_array.get_value("level_number_density")
-            .iloc[2]
-            .iloc[1][10]
+            .loc[2]
+            .loc[1][10]
             .values
         )
         np.testing.assert_allclose(

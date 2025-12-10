@@ -94,7 +94,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         """
         Updates all of the helium level populations according to the helium NLTE recomb approximation.
         """
-        helium_population = level_boltzmann_factor.iloc[2].copy()
+        helium_population = level_boltzmann_factor.loc[2].copy()
         # He I excited states
         he_one_population = self.calculate_helium_one(
             g_electron,
@@ -132,9 +132,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             g,
         )
         unnormalised = helium_population.sum()
-        normalised = helium_population.mul(
-            number_density.iloc[2] / unnormalised
-        )
+        normalised = helium_population.mul(number_density.loc[2] / unnormalised)
         helium_population.update(normalised)
         return helium_population
 
@@ -227,7 +225,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             with open(
                 f"He_NLTE_Files/shellconditions_{zone}.txt", "w"
             ) as output_file:
-                output_file.write(ion_number_density.iloc[2].sum()[zone])
+                output_file.write(ion_number_density.loc[2].sum()[zone])
                 output_file.write(electron_densities[zone])
                 output_file.write(t_electrons[zone])
                 output_file.write(heating_rate_data[zone])
@@ -298,7 +296,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             )
             os.rename("debug_occs.dat", f"He_NLTE_Files/occs{zone}.txt")
         # Reading in populations from files
-        helium_population = level_boltzmann_factor.iloc[2].copy()
+        helium_population = level_boltzmann_factor.loc[2].copy()
         for zone, _ in enumerate(electron_densities):
             with open(f"He_NLTE_Files/discradfield{zone}.txt") as read_file:
                 for level in range(35):
@@ -322,18 +320,18 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             t_rad,
             t_electrons,
         )
-        helium_population.iloc[0].iloc[35].update(he_one_population.iloc[35])
-        helium_population.iloc[0].iloc[36].update(he_one_population.iloc[36])
+        helium_population.loc[0].loc[35].update(he_one_population.loc[35])
+        helium_population.loc[0].loc[36].update(he_one_population.loc[36])
 
         he_two_population = (
-            level_boltzmann_factor.iloc[2]
-            .iloc[1]
-            .iloc[1:]
-            .mul((g.iloc[2, 1, 0] ** (-1)) * helium_population.iloc[s1, 0])
+            level_boltzmann_factor.loc[2]
+            .loc[1]
+            .loc[1:]
+            .mul((g.loc[2, 1, 0] ** (-1)) * helium_population.loc[s1, 0])
         )
-        helium_population.iloc[1].iloc[1:].update(he_two_population)
+        helium_population.loc[1].loc[1:].update(he_two_population)
 
-        helium_population.iloc[2].iloc[0] = HeliumNLTE.calculate_helium_three(
+        helium_population.loc[2].loc[0] = HeliumNLTE.calculate_helium_three(
             t_rad,
             w,
             zeta_data,
@@ -347,7 +345,7 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         )
         unnormalised = helium_population.sum()
         normalised = helium_population.mul(
-            ion_number_density.iloc[2].sum() / unnormalised
+            ion_number_density.loc[2].sum() / unnormalised
         )
         helium_population.update(normalised)
         return helium_population

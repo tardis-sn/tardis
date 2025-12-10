@@ -14,19 +14,19 @@ def test_he_nlte_plasma(
     )
     he_nlte_plasma.update_radiationfield(t_rad, w, j_blues, nlte_config=None)
     assert np.allclose(
-        he_nlte_plasma.get_value("ion_number_density").iloc[2].iloc[1],
-        number_density.iloc[2],
+        he_nlte_plasma.get_value("ion_number_density").loc[2].loc[1],
+        number_density.loc[2],
     )
     assert (
         np.all(
             he_nlte_plasma.get_value("level_number_density")
-            .iloc[2]
-            .iloc[0]
-            .iloc[0]
+            .loc[2]
+            .loc[0]
+            .loc[0]
         )
         == 0.0
     )
     assert np.allclose(
-        he_nlte_plasma.get_value("level_number_density").iloc[2].sum(),
-        number_density.iloc[2],
+        he_nlte_plasma.get_value("level_number_density").loc[2].sum(),
+        number_density.loc[2],
     )

@@ -286,9 +286,9 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         self.block_ids = None
 
     def update_helium_nlte(self, ion_number_density, number_density):
-        ion_number_density.iloc[2].iloc[0] = 0.0
-        ion_number_density.iloc[2].iloc[2] = 0.0
-        ion_number_density.iloc[2].iloc[1].update(number_density.iloc[2])
+        ion_number_density.loc[2].loc[0] = 0.0
+        ion_number_density.loc[2].loc[2] = 0.0
+        ion_number_density.loc[2].loc[1].update(number_density.loc[2])
         return ion_number_density
 
     def calculate_with_n_electron(
