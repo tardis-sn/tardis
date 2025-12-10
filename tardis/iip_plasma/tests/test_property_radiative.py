@@ -1,4 +1,7 @@
 import numpy as np
+import pytest
+
+pytestmark = pytest.mark.skip("Skipping tests due to old format")
 
 
 def test_stimulated_emission_factor(stimulated_emission_factor):

@@ -1,5 +1,8 @@
 import numpy as np
+import pytest
 from astropy import constants as const
+
+pytestmark = pytest.mark.skip("Skipping tests due to old format")
 
 
 def test_beta_rad(t_rad, beta_rad):

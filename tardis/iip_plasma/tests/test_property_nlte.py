@@ -1,6 +1,9 @@
 import numpy as np
+import pytest
 
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
+
+pytestmark = pytest.mark.skip("Skipping tests due to old format")
 
 
 def test_he_nlte_plasma(

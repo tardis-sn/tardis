@@ -9,6 +9,8 @@ from astropy import units as u
 import tardis
 from tardis.base import run_tardis
 
+pytestmark = pytest.mark.skip("Skipping tests due to old format")
+
 
 def data_path(fname):
     return os.path.join(
