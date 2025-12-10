@@ -200,7 +200,8 @@ class BasePlasma:
         descendants_ob.sort(key=lambda val: sort_order.index(val))
 
         logger.debug(
-            "Updating modules in the following order:"
+            f"Updating modules in the following order:"
+            f"{'->'.join(descendants_ob)}"
         )
 
         return descendants_ob
@@ -209,7 +210,7 @@ class BasePlasma:
         #        self._update_module_type_str()
 
         try:
-            pass
+            import pygraphviz
         except:
             logger.warning(
                 "pygraphviz missing. Plasma graph will not be generated."
@@ -234,7 +235,9 @@ class BasePlasma:
         try:
             import dot2tex
         except:
-            logger.warning("dot2tex missing. Plasma graph will not be generated.")
+            logger.warning(
+                "dot2tex missing. Plasma graph will not be generated."
+            )
             return
 
         temp_fname = tempfile.NamedTemporaryFile().name

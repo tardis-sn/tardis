@@ -1,7 +1,7 @@
-import astropy.constants as const
 import numpy as np
 import pandas as pd
 
+import tardis.constants as const
 from tardis.iip_plasma.continuum.base import (
     BoundFreeEnergyMixIn,
     InverseProcess,

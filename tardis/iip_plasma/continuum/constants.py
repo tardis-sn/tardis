@@ -1,8 +1,9 @@
 from collections import namedtuple
 
-import astropy.constants as const
 import astropy.units as units
 import numpy as np
+
+import tardis.constants as const
 
 Constants = namedtuple("Constants", ["c_einstein", "C0_ff", "c0_reg", "I_H"])
 
