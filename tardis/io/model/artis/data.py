@@ -14,10 +14,16 @@ class ArtisData:
     mean_density: u.Quantity
     mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
 
-    def to_geometry(self):
+    def to_geometry(self) -> HomologousRadial1DGeometry:
         """
         Construct a HomologousRadial1DGeometry object from this ArtisData.
-        points for the shells. The time_of_model is used as the time_explosion.
+
+        The time_of_model is used as the time_explosion.
+
+        Returns
+        -------
+        tardis.model.geometry.radial1d.HomologousRadial1DGeometry
+            The geometry object constructed from the ARTIS data.
         """
         geometry = HomologousRadial1DGeometry(
             v_inner=self.velocity[:-1],

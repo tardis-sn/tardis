@@ -1,4 +1,6 @@
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -6,7 +8,9 @@ from astropy import units as u
 from tardis.io.model.artis.data import ArtisData
 
 
-def read_artis_density(fname, legacy_return=True):
+def read_artis_density(
+    fname: str | Path, legacy_return: bool = True
+) -> tuple[u.Quantity, u.Quantity, u.Quantity] | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]:
     """
     Read an ARTIS density file.
 
@@ -22,11 +26,12 @@ def read_artis_density(fname, legacy_return=True):
 
     Parameters
     ----------
-    fname : str
+    fname : str or pathlib.Path
         Path to the ARTIS density file.
-    legacy_return : bool, optional (default: True)
+    legacy_return : bool, optional
         If True, returns (time_of_model, velocity, mean_density).
         If False, returns (time_of_model, velocity, mean_density, isotope_mass_fractions).
+        Default is True.
 
     Returns
     -------
@@ -40,8 +45,9 @@ def read_artis_density(fname, legacy_return=True):
         Mass fractions for Ni56, Co56, Fe52, and Cr48 if legacy_return=False.
         The DataFrame has a MultiIndex of (Z, A) for rows and the cell_id for columns.
     """
-    with open(fname) as fh:
-        for i, line in enumerate(open(fname)):
+    fname = Path(fname)
+    with fname.open() as fh:
+        for i, line in enumerate(fh):
             if i == 0:
                 no_of_shells = np.int64(line.strip())
             elif i == 1:
@@ -63,7 +69,7 @@ def read_artis_density(fname, legacy_return=True):
         fname,
         skiprows=2,
         usecols=(0, 1, 2, 4, 5, 6, 7),
-        dtype={item: np.float64 for item in artis_model_columns},
+        dtype=dict.fromkeys(artis_model_columns, np.float64),
         names=artis_model_columns,
         sep=r"\s+",
     )
@@ -93,11 +99,12 @@ def read_artis_density(fname, legacy_return=True):
 
     if legacy_return:
         return time_of_model, velocity, mean_density[1:]
-    else:
-        return time_of_model, velocity, mean_density, isotope_mass_fractions
+    return time_of_model, velocity, mean_density, isotope_mass_fractions
 
 
-def read_artis_mass_fractions(fname, normalize=True):
+def read_artis_mass_fractions(
+    fname: str | Path, normalize: bool = True
+) -> pd.DataFrame:
     """
     Reads mass fractions from an ARTIS abundance file.
 
@@ -106,10 +113,11 @@ def read_artis_mass_fractions(fname, normalize=True):
 
     Parameters
     ----------
-    fname : str
+    fname : str or pathlib.Path
         Path to the ARTIS abundance file.
     normalize : bool, optional
         If True, normalizes each row so the sum of mass fractions is 1.
+        Default is True.
 
     Returns
     -------
@@ -117,6 +125,7 @@ def read_artis_mass_fractions(fname, normalize=True):
         A DataFrame with 'atomic_number' as its index and 'cell_index'
         as columns, holding the mass fractions for each element and shell.
     """
+    fname = Path(fname)
     mass_fractions_df = pd.read_csv(
         fname, comment="#", sep=r"\s+", header=None, index_col=0
     )
@@ -132,23 +141,25 @@ def read_artis_mass_fractions(fname, normalize=True):
     return mass_fractions_df
 
 
-def read_artis_model(density_fname, abundance_fname):
+def read_artis_model(
+    density_fname: str | Path, abundance_fname: str | Path
+) -> ArtisData:
     """
     Read density and abundance files, combine them, and return a single model dataset.
 
     Parameters
     ----------
-    density_fname : str
+    density_fname : str or pathlib.Path
         Path to the ARTIS density file.
-    abundance_fname : str
+    abundance_fname : str or pathlib.Path
         Path to the ARTIS abundance file.
 
     Returns
     -------
-    ArtisModelData
+    ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     """
-    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density(
+    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density( # type: ignore
         density_fname, legacy_return=False
     )
     mass_fractions = read_artis_mass_fractions(abundance_fname)

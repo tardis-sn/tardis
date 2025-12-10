@@ -8,11 +8,12 @@ from tardis.io.model.artis.readers import (
     read_artis_mass_fractions,
     read_artis_model,
 )
+from pathlib import Path
 
 
 @pytest.fixture
-def artis_density_fname(example_model_file_dir):
-    return example_model_file_dir / "artis_model.dat"
+def artis_density_fname(artis_data_dir):
+    return artis_data_dir / "artis_model.dat"
 
 
 def test_artis_density_reader(artis_density_fname: str):
@@ -31,10 +32,10 @@ def test_artis_density_reader(artis_density_fname: str):
     assert (mean_density.value > 0).all(), "All mean_density values should be positive"
 
 
-def test_artis_mass_fractions_reader(example_model_file_dir):
+def test_artis_mass_fractions_reader(artis_data_dir):
     # Using a test ARTIS abundance file.
     mass_fractions = read_artis_mass_fractions(
-        example_model_file_dir / "artis_abundances.dat"
+        artis_data_dir / "artis_abundances.dat"
     )
     # Verify index and data shape (adjust expected shape as appropriate)
     assert mass_fractions.index.name == "atomic_number"
@@ -43,11 +44,11 @@ def test_artis_mass_fractions_reader(example_model_file_dir):
     npt.assert_(mass_fractions.size > 0, "Mass fractions should not be empty")
 
 
-def test_artis_model_reader(example_model_file_dir):
+def test_artis_model_reader(artis_data_dir):
     # Combine both density and abundance test files.
     artis_model_data = read_artis_model(
-        example_model_file_dir / "artis_model.dat",
-        example_model_file_dir / "artis_abundances.dat",
+        artis_data_dir / "artis_model.dat",
+        artis_data_dir / "artis_abundances.dat",
     )
     # Check that the returned object has proper attributes.
     assert hasattr(artis_model_data, "time_of_model")
