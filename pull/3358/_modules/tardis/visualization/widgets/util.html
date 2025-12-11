@@ -1,0 +1,537 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.visualization.widgets.util &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=1275b8b0"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.visualization.widgets.util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.visualization.widgets.util</h1><div class="highlight"><pre>
+<span></span>&quot;&quot;&quot;Utility classes and functions for widgets.&quot;&quot;&quot;
+
+import asyncio
+import logging
+import re
+import panel as pn
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="PanelTableWidget">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget">[docs]</a>
+class PanelTableWidget:
+    &quot;&quot;&quot;Panel-based table widget that mimics qgrid functionality.&quot;&quot;&quot;
+
+    def __init__(self, data, table_options=None):
+        &quot;&quot;&quot;Initialize the Panel table widget.
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data to display in table widget
+        table_options : dict, optional
+            Table configuration options
+        &quot;&quot;&quot;
+        self._df = data.copy()
+        self.table_options = table_options or {}
+        self._selected_rows = []
+        self._selection_callbacks = []
+
+        # Create the Panel table
+        self._create_table()
+
+    def _create_table(self):
+        &quot;&quot;&quot;Create the Panel table widget.&quot;&quot;&quot;
+        # Configure table parameters
+        pagination = &#39;remote&#39; if self.table_options.get(&#39;maxVisibleRows&#39;) else None
+        page_size = self.table_options.get(&#39;maxVisibleRows&#39;, len(self._df))
+
+        # Create the table
+        self.table = pn.widgets.Tabulator(
+            self._df,
+            pagination=pagination,
+            page_size=page_size,
+            selectable=True,  # Single row selection (radio button style)
+            show_index=True,
+            sizing_mode=&#39;stretch_width&#39;,
+            height=min(400, max(200, len(self._df) * 30 + 50)),
+            disabled=True,  # Make cells non-editable
+            configuration={
+                &#39;selectable&#39;: &#39;highlight&#39;,  # Make entire row selectable/highlightable
+                &#39;selectableRangeMode&#39;: &#39;click&#39;,  # Allow clicking anywhere on row to select
+            }
+        )
+
+        # Set up selection callback
+        self.table.param.watch(self._on_selection_change, &#39;selection&#39;)
+
+    def _on_selection_change(self, event):
+        &quot;&quot;&quot;Handle selection changes in the table.&quot;&quot;&quot;
+        if event.new:
+            # With single selection, Panel sends a list with one item or just the index
+            if isinstance(event.new, list):
+                selected_indices = [int(i) for i in event.new]
+            else:
+                selected_indices = [int(event.new)]
+            self._selected_rows = selected_indices
+        else:
+            self._selected_rows = []
+            selected_indices = []
+
+        # Call registered callbacks
+        for callback in self._selection_callbacks:
+            # Create event dict similar to qgrid format
+            event_dict = {
+                &#39;new&#39;: selected_indices,
+                &#39;old&#39;: [int(i) for i in getattr(event, &#39;old&#39;, [])] if hasattr(event, &#39;old&#39;) and event.old else [],
+                &#39;source&#39;: &#39;user&#39;
+            }
+            callback(event_dict, self)
+
+    @property
+    def df(self):
+        &quot;&quot;&quot;Get the current dataframe.&quot;&quot;&quot;
+        return self._df
+
+    @df.setter
+    def df(self, value):
+        &quot;&quot;&quot;Set the dataframe and update the table.&quot;&quot;&quot;
+        self._df = value.copy()
+        self.table.value = self._df
+
+<div class="viewcode-block" id="PanelTableWidget.get_selected_rows">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.get_selected_rows">[docs]</a>
+    def get_selected_rows(self):
+        &quot;&quot;&quot;Get the currently selected row indices.&quot;&quot;&quot;
+        return self._selected_rows</div>
+
+
+<div class="viewcode-block" id="PanelTableWidget.change_selection">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.change_selection">[docs]</a>
+    def change_selection(self, index_values):
+        &quot;&quot;&quot;Programmatically change the selection by index values.&quot;&quot;&quot;
+        if not index_values:
+            self.table.selection = []
+            self._selected_rows = []
+        else:
+            # For single selection, only take the first index value
+            idx_val = index_values[0] if isinstance(index_values, list) else index_values
+            try:
+                row_pos = self._df.index.get_loc(idx_val)
+                row_position = int(row_pos)  # Convert to Python int
+                self.table.selection = [row_position]  # Panel expects a list even for single selection
+                self._selected_rows = [row_position]
+            except (KeyError, TypeError) as e:
+                print(f&quot;Error selecting index {idx_val}: {e}&quot;)
+                self.table.selection = []
+                self._selected_rows = []</div>
+
+
+<div class="viewcode-block" id="PanelTableWidget.on">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.on">[docs]</a>
+    def on(self, event_type, callback):
+        &quot;&quot;&quot;Register an event callback.&quot;&quot;&quot;
+        if event_type == &#39;selection_changed&#39;:
+            self._selection_callbacks.append(callback)</div>
+
+
+    @property
+    def layout(self):
+        &quot;&quot;&quot;Get the layout object for compatibility.&quot;&quot;&quot;
+        return self.table.param
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        &quot;&quot;&quot;Display the table widget.&quot;&quot;&quot;
+        return self.table._repr_mimebundle_(include, exclude)
+
+<div class="viewcode-block" id="PanelTableWidget.show">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.show">[docs]</a>
+    def show(self):
+        &quot;&quot;&quot;Show the table widget using Panel&#39;s show method.&quot;&quot;&quot;
+        return self.table.show()</div>
+</div>
+
+
+
+<div class="viewcode-block" id="create_table_widget">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.create_table_widget">[docs]</a>
+def create_table_widget(data, table_options=None):
+    &quot;&quot;&quot;
+    Create table widget object which supports interaction and updating the data.
+
+    Parameters
+    ----------
+    data : pandas.DataFrame
+        Data you want to display in table widget
+    table_options : dict, optional
+        A dictionary to specify options to use when creating interactive table
+        widget. Supported options: maxVisibleRows.
+
+    Returns
+    -------
+    PanelTableWidget
+        Table widget object
+    &quot;&quot;&quot;
+    return PanelTableWidget(data, table_options)</div>
+
+
+
+<div class="viewcode-block" id="TableSummaryLabel">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.TableSummaryLabel">[docs]</a>
+class TableSummaryLabel:
+    &quot;&quot;&quot;
+    Label like widget to show summary of a Panel table widget.
+
+    Also handles aligning the label with the table columns exactly like a
+    summary row.
+    &quot;&quot;&quot;
+
+    def __init__(self, target_table, table_col_widths, label_key, label_value):
+        &quot;&quot;&quot;
+        Initialize a TableSummaryLabel for a table widget.
+
+        Parameters
+        ----------
+        target_table : PanelTableWidget
+            Table widget whose summary label it is
+        table_col_widths : list
+            A list containing width of each column of table in order (including
+            the index as 1st column). The width values must be proportions of
+            100 i.e. they must sum to 100
+        label_key : str
+            Brief description of what label summarizes about table
+        label_value : int
+            Initial summary value of the table to be shown in label
+
+        Notes
+        -----
+        TableSummaryLabel can only be created for a table with two
+        columns (including index as 1st column) as of now
+        &quot;&quot;&quot;
+        if len(table_col_widths) != 2:
+            raise NotImplementedError(
+                &quot;Currently TableSummaryLabel can only be created for a table &quot;
+                &quot;widget with exactly two columns (including index column)&quot;
+            )
+
+        self.target_table = target_table
+        self.table_col_widths = table_col_widths
+        self.widget = self._create(label_key, label_value)
+
+<div class="viewcode-block" id="TableSummaryLabel.update_and_resize">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.TableSummaryLabel.update_and_resize">[docs]</a>
+    def update_and_resize(self, value):
+        &quot;&quot;&quot;
+        Update the label value and resize it as per the size of target table.
+
+        Resizing is done in such a way so as to match the width of components
+        of label with columns of target table, making it look like another row.
+        This method should be called whenever there is any update in data or
+        layout of target table.
+
+        Parameters
+        ----------
+        value : int
+            Value to be shown in label
+        &quot;&quot;&quot;
+        # Update the value component with new value
+        self.widget[1].object = f&quot;&lt;div style=&#39;padding:0px 2px; margin:0px;&#39;&gt;{str(value)}&lt;/div&gt;&quot;</div>
+
+
+        # For Panel components, sizing is handled automatically with sizing_mode=&#39;stretch_width&#39;
+        # No manual width calculation needed as Panel handles responsive sizing
+
+<div class="viewcode-block" id="TableSummaryLabel.get_value">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.TableSummaryLabel.get_value">[docs]</a>
+    def get_value(self):
+        &quot;&quot;&quot;
+        Get the current value displayed in the label.
+
+        Returns
+        -------
+        str
+            The current value as a string
+        &quot;&quot;&quot;
+        # Extract value from HTML content
+        html_content = self.widget[1].object
+        match = re.search(r&#39;&lt;div[^&gt;]*&gt;([^&lt;]*)&lt;/div&gt;&#39;, html_content)
+        if match:
+            return match.group(1)
+        return &quot;0&quot;</div>
+
+
+    def _create(self, key, value):
+        &quot;&quot;&quot;
+        Create widget for TableSummaryLabel.
+
+        Parameters
+        ----------
+        key : str
+            Brief description of what label summarizes about target table
+        value : int
+            Initial summary value of the target table to be shown in label
+
+        Returns
+        -------
+        panel.Row
+            Widget containing all components of label
+        &quot;&quot;&quot;
+        # Create Panel HTML components with styling
+        key_component = pn.pane.HTML(
+            f&quot;&lt;div style=&#39;text-align:right; padding:0px 2px; margin:0px;&#39;&gt; &lt;b&gt;{key}:&lt;/b&gt; &lt;/div&gt;&quot;,
+            sizing_mode=&#39;stretch_width&#39;
+        )
+
+        value_component = pn.pane.HTML(
+            f&quot;&lt;div style=&#39;padding:0px 2px; margin:0px;&#39;&gt;{str(value)}&lt;/div&gt;&quot;,
+            sizing_mode=&#39;stretch_width&#39;
+        )
+
+        return pn.Row(
+            key_component,
+            value_component,
+            sizing_mode=&#39;stretch_width&#39;
+        )</div>
+
+
+
+<div class="viewcode-block" id="Timer">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.Timer">[docs]</a>
+class Timer:
+    &quot;&quot;&quot;Timer to implement debouncing using an asynchronous loop.
+
+    Notes
+    -----
+    This class is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debounce
+    &quot;&quot;&quot;
+
+    def __init__(self, timeout, callback):
+        &quot;&quot;&quot;Initialize the Timer with delay time and delayed function.
+
+        Parameters
+        ----------
+            timeout : float
+            callback : function
+        &quot;&quot;&quot;
+        self._timeout = timeout
+        self._callback = callback
+
+    async def _job(self):
+        await asyncio.sleep(self._timeout)
+        self._callback()
+
+<div class="viewcode-block" id="Timer.start">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.Timer.start">[docs]</a>
+    def start(self):
+        self._task = asyncio.ensure_future(self._job())</div>
+
+
+<div class="viewcode-block" id="Timer.cancel">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.Timer.cancel">[docs]</a>
+    def cancel(self):
+        self._task.cancel()</div>
+</div>
+
+
+
+<div class="viewcode-block" id="debounce">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.debounce">[docs]</a>
+def debounce(wait):
+    &quot;&quot;&quot;Decorator that will postpone a function&#39;s execution until after
+     `wait` seconds have elapsed since the last time it was invoked.
+
+    Parameters
+    ----------
+        wait : float
+
+    Returns
+    -------
+        function
+
+    Notes
+    -----
+    This decorator is reproduced from ipywidgets documentation, for more information
+    please see https://ipywidgets.readthedocs.io/en/latest/examples/Widget%20Events.html#debounce
+    &quot;&quot;&quot;
+
+    def decorator(fn):
+        timer = None
+
+        def debounced(*args, **kwargs):
+            nonlocal timer
+
+            def call_it():
+                fn(*args, **kwargs)
+
+            if timer is not None:
+                timer.cancel()
+            timer = Timer(wait, call_it)
+            timer.start()
+
+        return debounced
+
+    return decorator</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 11 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
