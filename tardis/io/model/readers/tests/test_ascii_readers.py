@@ -21,9 +21,9 @@ def test_simple_ascii_density_reader_time(example_model_file_dir):
     assert velocity.unit == u.Unit("cm/s")
 
 
-def test_simple_ascii_abundance_reader(example_model_file_dir):
+def test_simple_ascii_abundance_reader(artis_data_dir):
     (index, abundances,) = read_simple_ascii_mass_fractions(
-        example_model_file_dir / "artis_abundances.dat"
+        artis_data_dir / "artis_abundances.dat"
     )
 
     npt.assert_almost_equal(abundances.loc[1, 0], 1.542953e-08)

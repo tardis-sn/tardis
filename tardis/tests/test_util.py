@@ -1,4 +1,5 @@
 from io import StringIO
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -24,8 +25,13 @@ from tardis.util.base import (
 
 
 @pytest.fixture
-def artis_abundances_fname(example_model_file_dir):
-    return example_model_file_dir / "artis_abundances.dat"
+def artis_data_dir():
+    return Path("tardis/io/model/artis/tests/data")
+
+@pytest.fixture
+def artis_abundances_fname(artis_data_dir):
+    return artis_data_dir / "artis_abundances.dat"
+
 
 
 @pytest.fixture(scope="session")

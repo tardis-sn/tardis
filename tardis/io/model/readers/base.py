@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from tardis.io.model.readers.artis import read_artis_density
 from tardis.io.model.readers.cmfgen_deprecated import (
     read_cmfgen_composition,
     read_cmfgen_density,
@@ -87,6 +86,9 @@ def read_density_file(filename, filetype):
     temperature : np.ndarray
         The array containing temperatures
     """
+    # Lazy import to avoid circular dependency
+    from tardis.io.model.artis.readers import read_artis_density
+
     file_parsers = {
         "artis": read_artis_density,
         "simple_ascii": read_simple_ascii_density,

@@ -3,7 +3,6 @@ import pytest
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.model.readers.artis import read_artis_density
 from tardis.io.model.readers.cmfgen_deprecated import (
     read_cmfgen_composition,
     read_cmfgen_density,
@@ -40,8 +39,10 @@ def isotope_uniform_abundance(example_model_file_dir):
 
 
 # Artis files are currently read with read ascii files function
-def test_read_simple_ascii_mass_fractions(artis_abundances_fname):
-    index, abundances = read_simple_ascii_mass_fractions(artis_abundances_fname)
+def test_read_simple_ascii_mass_fractions(artis_data_dir):
+    index, abundances = read_simple_ascii_mass_fractions(
+        artis_data_dir / "artis_abundances.dat"
+    )
     assert len(abundances.columns) == 69
     assert np.isclose(abundances[23].loc[2], 2.672351e-08, atol=1.0e-12)
 
@@ -58,6 +59,7 @@ def test_read_simple_isotope_abundances(csv_composition_fname):
     assert abundances.shape == (4, 10)
     assert isotope_abundance.shape == (2, 10)
 
+
 def test_read_csv_composition_default_skip_rows(csv_composition_fname):
     from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
 
@@ -71,6 +73,7 @@ def test_read_csv_composition_default_skip_rows(csv_composition_fname):
     assert np.isclose(isotope_abundance.loc[(28, 56), 0], 0.4, atol=1.0e-12)
     assert np.isclose(isotope_abundance.loc[(28, 58), 2], 0.7, atol=1.0e-12)
 
+
 def test_read_csv_composition_with_skip_rows(csv_composition_fname):
     from tardis.io.model.readers.util import read_csv_isotope_mass_fractions
 
@@ -83,6 +86,7 @@ def test_read_csv_composition_with_skip_rows(csv_composition_fname):
     assert np.isclose(abundances.loc[14, 1], 0.1, atol=1.0e-12)
     assert np.isclose(isotope_abundance.loc[(28, 56), 0], 0.4, atol=1.0e-12)
     assert np.isclose(isotope_abundance.loc[(28, 58), 2], 0.7, atol=1.0e-12)
+
 
 def test_read_cmfgen_isotope_abundances(cmfgen_fname):
     index, abundances, isotope_abundance = read_cmfgen_composition(cmfgen_fname)
