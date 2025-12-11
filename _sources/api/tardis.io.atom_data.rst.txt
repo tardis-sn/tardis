@@ -12,6 +12,7 @@ Submodules
    tardis.io.atom_data.collision_data
    tardis.io.atom_data.macro_atom_data
    tardis.io.atom_data.nlte_data
+   tardis.io.atom_data.parse_atom_data
    tardis.io.atom_data.util
 
 Module contents

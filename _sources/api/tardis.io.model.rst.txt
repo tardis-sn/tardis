@@ -16,7 +16,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   tardis.io.model.parse_atom_data
    tardis.io.model.parse_composition_configuration
    tardis.io.model.parse_density_configuration
    tardis.io.model.parse_geometry_configuration
