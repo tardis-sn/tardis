@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5a948fe0"></script>
+      <script src="../../../_static/documentation_options.js?v=39664a65"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -75,13 +75,19 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul class="current">
@@ -91,8 +97,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Plasma</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#the-plasma-graph">The Plasma Graph</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../io/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-plasma-graph">The Plasma Graph</a><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#updating-the-plasma">Updating the Plasma</a></li>
@@ -201,13 +206,6 @@ by the Legacy Plasma when creating the plasma calculation structure include:</p>
 <h2>The Plasma Graph<a class="headerlink" href="#the-plasma-graph" title="Link to this heading">¶</a></h2>
 <p>If the necessary Python modules (<a class="reference external" href="https://pygraphviz.github.io/">PyGraphviz</a> and <a class="reference external" href="https://dot2tex.readthedocs.io/en/latest/">dot2tex</a>) are available, TARDIS can output a .dot and a .tex file at the beginning of each run that can be compiled to produce a PDF image of the plasma module graph via the <code class="code docutils literal notranslate"><span class="pre">write_to_dot()</span></code> and <code class="code docutils literal notranslate"><span class="pre">write_to_tex()</span></code> functions, respectively. The nodes on this graph are the names of plasma properties, e.g. <code class="xref py py-obj docutils literal notranslate"><span class="pre">Levels</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">TauSobolev</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">IonNumberDensity</span></code>, along with a list of outputs from those properties. These nodes are connected by edges linking them with the sources of their inputs. The .tex file contains the name of the input/output linking the properties (e.g. <code class="xref py py-obj docutils literal notranslate"><span class="pre">levels</span></code>, <span class="math notranslate nohighlight">\(\tau_{\textrm{sobolev}}\)</span>, <span class="math notranslate nohighlight">\(n_{e}\)</span>), as well as the equations used to calculate them, written in LaTeX. See the tutorial below!</p>
 <div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../io/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../io/output/how_to_plasma_graph.html#Displaying-the-Graph-Within-A-Jupyter-Notebook">Displaying the Graph Within A Jupyter Notebook</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../io/output/how_to_plasma_graph.html#Saving-the-Graph-Onto-a-.tex-File">Saving the Graph Onto a .tex File</a></li>
-</ul>
-</li>
-</ul>
 </div>
 </section>
 <section id="updating-the-plasma">
@@ -286,7 +284,7 @@ by the Legacy Plasma when creating the plasma calculation structure include:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 10 Dec 2025.
+      <span class="lastupdated">Last updated on 11 Dec 2025.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5a948fe0"></script>
+      <script src="../_static/documentation_options.js?v=39664a65"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -73,13 +73,19 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../how_to_guides.html">How-To Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../how-to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -162,8 +168,99 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tardis-io-model-parse-geometry-configuration-module">
-<h1>tardis.io.model.parse_geometry_configuration module<a class="headerlink" href="#tardis-io-model-parse-geometry-configuration-module" title="Link to this heading">¶</a></h1>
+  <section id="module-tardis.io.model.parse_geometry_configuration">
+<span id="tardis-io-model-parse-geometry-configuration-module"></span><h1>tardis.io.model.parse_geometry_configuration module<a class="headerlink" href="#module-tardis.io.model.parse_geometry_configuration" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.parse_geometry_configuration.parse_geometry_from_config">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_geometry_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_geometry_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_geometry_configuration.html#parse_geometry_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_geometry_configuration.parse_geometry_from_config" title="Link to this definition">¶</a></dt>
+<dd><p>Parse the geometry data from a TARDIS config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">object</span></dt><dd><p>Configuration object.</p>
+</dd>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>The time of the explosion</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>HomologousRadial1DGeometry</dt><dd><p>The parsed geometry</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.parse_geometry_configuration.parse_geometry_from_csvy">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_geometry_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_geometry_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csvy_model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csvy_model_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_geometry_configuration.html#parse_geometry_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_geometry_configuration.parse_geometry_from_csvy" title="Link to this definition">¶</a></dt>
+<dd><p>Parse the geometry data from a CSVY model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">object</span></dt><dd><p>The configuration data.</p>
+</dd>
+<dt><strong>csvy_model_config</strong><span class="classifier">object</span></dt><dd><p>The configuration data of the CSVY model.</p>
+</dd>
+<dt><strong>csvy_model_data</strong><span class="classifier">object</span></dt><dd><p>The data of the CSVY model.</p>
+</dd>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>The time of the explosion.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>geometry</strong><span class="classifier">object</span></dt><dd><p>The parsed geometry.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>None.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function parses the geometry data from a CSVY model. It extracts the velocity
+information from the CSVY model configuration or data. The parsed velocity data is
+used to create a homologous radial 1D geometry object, which is returned.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.parse_geometry_configuration.parse_structure_from_config">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_geometry_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_structure_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_geometry_configuration.html#parse_structure_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_geometry_configuration.parse_structure_from_config" title="Link to this definition">¶</a></dt>
+<dd><p>Parses the structure section from a config object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">object</span></dt><dd><p>The configuration to parse</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Quantity</dt><dd><p>Time at which densities are valid</p>
+</dd>
+<dt>Quantity</dt><dd><p>Velocities</p>
+</dd>
+<dt>Quantity</dt><dd><p>Densities</p>
+</dd>
+<dt>Quantity</dt><dd><p>Electron densities</p>
+</dd>
+<dt>Quantity</dt><dd><p>Temperatures</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>NotImplementedError</dt><dd><p>For structure types that are not “specific” or “file”</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -178,7 +275,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 10 Dec 2025.
+      <span class="lastupdated">Last updated on 11 Dec 2025.
       </span></p>
   </div>
 
