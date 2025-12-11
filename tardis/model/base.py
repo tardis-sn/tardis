@@ -21,7 +21,7 @@ from tardis.io.model.parse_radiation_field_configuration import (
     parse_radiation_field_state_from_config,
     parse_radiation_field_state_from_csvy,
 )
-from tardis.io.model.readers.csvy import (
+from tardis.io.model.csvy import (
     load_csvy,
 )
 from tardis.io.hdf_writer_mixin import HDFWriterMixin

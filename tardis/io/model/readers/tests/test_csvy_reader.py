@@ -5,7 +5,7 @@ import pytest
 
 import tardis
 from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.model.readers import csvy
+from tardis.io.model import csvy
 
 
 @pytest.fixture

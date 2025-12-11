@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -14,21 +15,26 @@ YAML_DELIMITER = "---"
 logger = logging.getLogger(__name__)
 
 
-def load_csvy(fname):
+def load_csvy(
+    fname: str | Path,
+) -> tuple[dict, pd.DataFrame | None]:
     """
+    Load CSVY file and return YAML metadata and CSV data.
+
     Parameters
     ----------
-    fname : string
-            Path to csvy file
+    fname : str or pathlib.Path
+        Path to csvy file.
 
     Returns
     -------
-    yaml_dict : dictionary
-                YAML part of the csvy file
-    data : pandas.DataFrame
-            csv data from csvy file
+    yaml_dict : dict
+        YAML part of the csvy file.
+    data : pandas.DataFrame or None
+        CSV data from csvy file, or None if no CSV data is present.
     """
-    with open(fname) as fh:
+    fname = Path(fname)
+    with fname.open() as fh:
         yaml_lines = []
         yaml_end_ind = -1
         for i, line in enumerate(fh):
@@ -52,19 +58,22 @@ def load_csvy(fname):
     return yaml_dict, data
 
 
-def load_yaml_from_csvy(fname):
+def load_yaml_from_csvy(fname: str | Path) -> dict:
     """
+    Load only the YAML metadata from a CSVY file.
+
     Parameters
     ----------
-    fname : string
-            Path to csvy file
+    fname : str or pathlib.Path
+        Path to csvy file.
 
     Returns
     -------
-    yaml_dict : dictionary
-                YAML part of the csvy file
+    yaml_dict : dict
+        YAML part of the csvy file.
     """
-    with open(fname) as fh:
+    fname = Path(fname)
+    with fname.open() as fh:
         yaml_lines = []
         yaml_end_ind = -1
         for i, line in enumerate(fh):
@@ -82,35 +91,47 @@ def load_yaml_from_csvy(fname):
     return yaml_dict
 
 
-def load_csv_from_csvy(fname):
+def load_csv_from_csvy(fname: str | Path) -> pd.DataFrame | None:
     """
+    Load only the CSV data from a CSVY file.
+
     Parameters
     ----------
-    fname : string
-            Path to csvy file
+    fname : str or pathlib.Path
+        Path to csvy file.
 
     Returns
     -------
-    data : pandas.dataframe
-           csv data from csvy file
+    data : pandas.DataFrame or None
+        CSV data from csvy file, or None if no CSV data is present.
     """
     yaml_dict, data = load_csvy(fname)
     return data
 
 
-def parse_csv_mass_fractions(csvy_data):
+def parse_csv_mass_fractions(
+    csvy_data: pd.DataFrame,
+) -> tuple[pd.Index, pd.DataFrame, pd.DataFrame]:
     """
-    A parser for the csv data part of a csvy model file. This function filters out columns that are not mass fractions.
+    Parse the CSV data part of a CSVY model file and extract mass fractions.
+
+    This function filters out columns that are not mass fractions and separates
+    elemental and isotopic mass fractions.
 
     Parameters
     ----------
     csvy_data : pandas.DataFrame
+        CSV data from CSVY file containing mass fraction columns.
 
     Returns
     -------
-    index : np.ndarray
+    index : pandas.Index
+        Index of atomic numbers for elemental mass fractions.
     mass_fractions : pandas.DataFrame
-    isotope_mass_fraction : pandas.MultiIndex
+        DataFrame of elemental mass fractions with atomic_number as index.
+    isotope_mass_fractions : pandas.DataFrame
+        DataFrame of isotopic mass fractions with MultiIndex of
+        (atomic_number, mass_number).
     """
     mass_fraction_col_names = [
         name for name in csvy_data.columns if is_valid_nuclide_or_elem(name)

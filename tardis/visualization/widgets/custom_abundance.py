@@ -20,7 +20,7 @@ from tardis.io.model.parse_density_configuration import (
     calculate_exponential_density,
     calculate_power_law_density,
 )
-from tardis.io.model.readers.csvy import (
+from tardis.io.model.csvy import (
     load_csvy,
     parse_csv_mass_fractions,
 )
