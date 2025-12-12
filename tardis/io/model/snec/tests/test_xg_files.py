@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 from astropy import units as u
 
-from tardis.io.model.readers.snec.xg_files import xg_block_size, read_xg_file, XGData
+from tardis.io.model.snec.xg_files import xg_block_size, read_xg_file, XGData
 
 @pytest.fixture
 def regression_test_xg_file(regression_data):
