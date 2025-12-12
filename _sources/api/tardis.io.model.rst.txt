@@ -9,6 +9,7 @@ Subpackages
 
    tardis.io.model.artis
    tardis.io.model.readers
+   tardis.io.model.snec
 
 Submodules
 ----------
