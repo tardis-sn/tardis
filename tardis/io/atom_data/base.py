@@ -206,13 +206,12 @@ class AtomData:
                 # Checks for various collisional data from Carsus files
                 if "collisions_data" in store:
                     try:
-                        if carsus_version == (1, 0):
-                            dataframes["collision_data_temperatures"] = store[
-                                "collisions_metadata"
-                            ].temperatures
                         if "cmfgen" in store["collisions_metadata"].dataset:
                             dataframes["yg_data"] = store["collisions_data"]
                             dataframes["collision_data"] = "dummy value"
+                            dataframes["collision_data_temperatures"] = store[
+                                "collisions_metadata"
+                            ].temperatures
                         elif "chianti" in store["collisions_metadata"].dataset:
                             dataframes["collision_data"] = store[
                                 "collisions_data"
@@ -525,7 +524,9 @@ class AtomData:
 
         self.level2continuum_edge_idx = pd.Series(
             np.arange(len(nu_ion_threshold)),
-            nu_ion_threshold.sort_values(ascending=False, kind=SORTING_ALGORITHM).index,
+            nu_ion_threshold.sort_values(
+                ascending=False, kind=SORTING_ALGORITHM
+            ).index,
             name="continuum_idx",
         )
 

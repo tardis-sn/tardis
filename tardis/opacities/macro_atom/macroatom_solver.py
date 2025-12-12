@@ -681,8 +681,8 @@ class BoundBoundMacroAtomSolver:
         line2macro_level_upper = unique_source_series.loc[lines_level_upper]
         return line2macro_level_upper, unique_source_series
 
+    @staticmethod
     def normalize_transition_probabilities(
-        self,
         probabilities_df: pd.DataFrame,
     ) -> pd.DataFrame:
         """
