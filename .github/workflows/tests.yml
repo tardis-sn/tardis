@@ -15,6 +15,7 @@ on:
       - opened
       - reopened
       - synchronize
+      - labeled
   workflow_call:
     inputs:
       pip_git:
@@ -47,8 +48,8 @@ jobs:
   tests:
     name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
-    needs: [test-cache]
     runs-on: ${{ matrix.os }}
+    needs: [test-cache]
     strategy:
       fail-fast: false
       matrix:
@@ -121,11 +122,9 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
           echo "Final disk usage:"
           df -h
-        
-   
 
       - name: Setup LFS
-        uses: tardis-sn/tardis-actions/setup-lfs@main
+        uses: tardis-sn/tardis-actions/setup-lfs@alt-lfs
 
       - name: Setup environment
         uses: tardis-sn/tardis-actions/setup-env@main
