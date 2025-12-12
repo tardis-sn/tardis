@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -8,7 +10,11 @@ from tardis.io.model.artis.readers import (
     read_artis_mass_fractions,
     read_artis_model,
 )
-from pathlib import Path
+
+
+@pytest.fixture
+def artis_data_dir():
+    return Path("tardis/io/model/artis/tests/data")
 
 
 @pytest.fixture

@@ -8,18 +8,16 @@ from astropy import units as u
 
 import tardis
 from tardis import constants as const
+from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.io.configuration.config_reader import ConfigurationError
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
-from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.io.model.parse_simulation_state import (
     parse_simulation_state,
 )
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
     ContinuumMacroAtomSolver,
-    LegacyMacroAtomSolver,
 )
-from tardis.opacities.macro_atom.macroatom_state import LegacyMacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
