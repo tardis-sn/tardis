@@ -1,0 +1,67 @@
+# Example YAML configuration for TARDIS
+tardis_config_version: v1.0
+
+supernova:
+  luminosity_requested: 7.9 log_lsun
+  time_explosion: 11 day
+
+atom_data: merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg_CONVERTED.h5
+
+model:
+  structure:
+    type: specific
+    velocity:
+      start: 6500 km/s
+      stop: 12000 km/s
+      num: 20
+    density:
+      type : power_law
+      time_0: 16.0 day
+      rho_0: 1.948e-15 g/cm^3
+      v_0: 8000 km/s
+      exponent: -10
+
+  abundances:
+    type: uniform
+    H: 1.0
+
+  
+plasma:
+  disable_electron_scattering: no
+  ionization: nebular
+  excitation: dilute-lte
+  radiative_rates_type:  detailed
+  line_interaction_type: macroatom
+  initial_t_inner: 12000 K
+  # nlte_ionization_species: [H I, H II] #, He I, He II]
+  # nlte_solver: root
+  continuum_interaction:
+      species:
+          - H I
+          - H II
+      enable_adiabatic_cooling: False
+  link_t_rad_t_electron: 0.9
+
+
+montecarlo:
+  seed: 23111963
+  no_of_packets: 5.0e+3
+  iterations: 10
+  nthreads: 8
+
+  last_no_of_packets: 3.0e+4
+
+  convergence_strategy:
+    type: damped
+    damping_constant: 1.0
+    threshold: 0.05
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 0.5
+    stop_if_converged: True
+
+spectrum:
+  start: 500 angstrom
+  stop: 20000 angstrom
+  num: 10000
