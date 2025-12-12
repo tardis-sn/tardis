@@ -43,7 +43,7 @@ stars (*supernovae*).
 Credits & Publication Policies
 ******************************
 
-|DOI_BADGE|
+[DOI Badge](https://doi.org/10.5281/zenodo.17561758)
 
 We provide TARDIS as a free, open-source tool. If you are using it, please
 adhere to a few policies and acknowledge the TARDIS Team.
