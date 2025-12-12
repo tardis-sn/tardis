@@ -335,7 +335,7 @@ class TestSDECPlotter:
         plot_data = PlotDataHDF(**property_group)
         return plot_data
 
-    def test_generate_plot_mpl(
+    def test_generate_plot_ply(
         self, generate_plot_plotly_hdf, plotter_generate_plot_ply, regression_data
     ):
         fig, _ = plotter_generate_plot_ply
