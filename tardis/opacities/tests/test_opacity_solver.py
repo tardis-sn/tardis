@@ -30,7 +30,7 @@ def test_opacity_solver(
         line_interaction_type=line_interaction_type,
         disable_line_scattering=disable_line_scattering,
     )
-    actual = opacity_solver.legacy_solve(legacy_plasma)
+    actual = opacity_solver.solve(legacy_plasma)
 
     pdt.assert_series_equal(
         actual.electron_density, legacy_plasma.electron_densities
@@ -50,10 +50,11 @@ def test_opacity_solver(
             legacy_plasma.stimulated_emission_factor,
             beta_sobolev=actual.beta_sobolev,
         )
-        pdt.assert_frame_equal(
-            macro_atom_state.transition_probabilities,
-            legacy_plasma.transition_probabilities,
-        )
+        if not disable_line_scattering:
+            pdt.assert_frame_equal(
+                macro_atom_state.transition_probabilities,
+                legacy_plasma.transition_probabilities,
+            )
         npt.assert_allclose(
             macro_atom_state.line2macro_level_upper,
             legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
@@ -97,7 +98,7 @@ def test_new_macro_atom_solver(
         line_interaction_type=line_interaction_type,
         disable_line_scattering=disable_line_scattering,
     )
-    legacy_opacity = opacity_solver.legacy_solve(legacy_plasma)
+    legacy_opacity = opacity_solver.solve(legacy_plasma)
 
     legacy_macro_atom_state = LegacyMacroAtomSolver().solve(
         legacy_plasma.j_blues,

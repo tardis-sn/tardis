@@ -27,7 +27,7 @@ def test_opacity_state_to_numba(
         line_interaction_type=line_interaction_type,
         disable_line_scattering=False,
     )
-    opacity_state = opacity_solver.legacy_solve(legacy_plasma)
+    opacity_state = opacity_solver.solve(legacy_plasma)
     if line_interaction_type in ("downbranch", "macroatom"):
         macro_atom_state = BoundBoundMacroAtomSolver(
             legacy_plasma.atomic_data.levels, legacy_plasma.atomic_data.lines

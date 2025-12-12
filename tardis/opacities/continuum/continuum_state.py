@@ -62,26 +62,17 @@ class ContinuumState:
         -------
         ContinuumState
         """
-        nu_i = plasma.nu_i
-        level2continuum_idx = plasma.level2continuum_idx
-        p_fb_deactivation = plasma.p_fb_deactivation
-        photo_ion_cross_sections = plasma.photo_ion_cross_sections
-        chi_bf = plasma.chi_bf
-        ff_cooling_factor = plasma.ff_cooling_factor
-        fb_emission_cdf = plasma.fb_emission_cdf
-        photo_ion_idx = plasma.photo_ion_idx
-        k_packet_idx = plasma.k_packet_idx
 
         return cls(
-            nu_i,
-            level2continuum_idx,
-            p_fb_deactivation,
-            photo_ion_cross_sections,
-            chi_bf,
-            ff_cooling_factor,
-            fb_emission_cdf,
-            photo_ion_idx,
-            k_packet_idx,
+            nu_i = plasma.nu_i,
+            level2continuum_idx = plasma.level2continuum_idx,
+            p_fb_deactivation = plasma.p_fb_deactivation,
+            photo_ion_cross_sections = plasma.photo_ion_cross_sections,
+            chi_bf = plasma.chi_bf,
+            ff_cooling_factor = plasma.ff_cooling_factor,
+            fb_emission_cdf = plasma.fb_emission_cdf,
+            photo_ion_idx = plasma.photo_ion_idx,
+            k_packet_idx = plasma.k_packet_idx,
         )
 
     @property
