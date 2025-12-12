@@ -1,0 +1,891 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Convert atomic data &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=9a8dff47"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Convert atomic data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/how_to/convert_atomic_data.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/how_to/convert_atomic_data.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><section id="Convert-atomic-data">
+<h1>Convert atomic data<a class="headerlink" href="#Convert-atomic-data" title="Link to this heading">¶</a></h1>
+<p>This notebook demonstrates how a specific atomic data file is converted from an old continuum TARDIS version to modern TARDIS so the two can be compared directly without re-generating atomic data for a deprecated and unsupported atom data format.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytz</span>
+</pre></div>
+</div>
+</div>
+<section id="Utility-functions">
+<h2>Utility functions<a class="headerlink" href="#Utility-functions" title="Link to this heading">¶</a></h2>
+<p>The basic procedure here is to convert a structured array into a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe matching the structure of our template atomic data.</p>
+<p>To accomplish this, the structures we need to create from the old data format are an <code class="docutils literal notranslate"><span class="pre">pd.Index</span></code> object to organize the rows, columns with datatypes matching the template, and the table data itself.</p>
+<p>Most of these table conversions can be reduced to two basic operations - porting a table that has a multi-index, and porting a table that has a simple index.</p>
+<section id="Multi-Index-Port">
+<h3>Multi-Index Port<a class="headerlink" href="#Multi-Index-Port" title="Link to this heading">¶</a></h3>
+<p>Tables with a multi-index in the new format are missing the formal <code class="docutils literal notranslate"><span class="pre">pd.MultiIndex</span></code> structure, but contain all the same indices in the same format. These are fairly straightforward to convert.</p>
+<p>The only trick is making sure the dtypes of the ported data columns match the format of the template atom data. After the <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> is created from the old data, we loop through each column and set its dtype to be equal to that of the template.</p>
+<p>The same procedure is applied to each level of the <code class="docutils literal notranslate"><span class="pre">pd.MultiIndex</span></code>, as these are converted to floats by default, but we typically want <code class="docutils literal notranslate"><span class="pre">int</span></code> for atomic number, levels, etc.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">multiindex_port</span><span class="p">(</span><span class="n">olddata</span><span class="p">,</span> <span class="n">templatedata</span><span class="p">,</span> <span class="n">templatekey</span><span class="p">,</span> <span class="n">oldkey</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert an structured-array dataset into a pandas.DataFrame that matches the</span>
+<span class="sd">    index names and dtypes of a provided template.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    olddata : h5py.File object</span>
+<span class="sd">        Structured array(s) from the data to be converted. The structured array is</span>
+<span class="sd">        accessed as olddata[oldkey].</span>
+<span class="sd">    templatedata : pandas.DataFrame</span>
+<span class="sd">        Container providing a template pandas object (DataFrame or Series) whose</span>
+<span class="sd">        index names and column/element dtypes should be matched.</span>
+<span class="sd">    templatekey : hashable</span>
+<span class="sd">        Key to select the template object from templatedata.</span>
+<span class="sd">    oldkey : hashable, optional</span>
+<span class="sd">        Key to select the old structured array from olddata. If None, templatekey</span>
+<span class="sd">        is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        A DataFrame constructed from the old structured array with its index set to</span>
+<span class="sd">        the template&#39;s index names, column dtypes coerced to the template dtypes,</span>
+<span class="sd">        and index-level dtypes converted to match the template.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If templatekey or oldkey is not present in the provided containers.</span>
+<span class="sd">    TypeError, ValueError</span>
+<span class="sd">        If coercion to the template dtypes or index conversions fail.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">oldkey</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">oldkey</span> <span class="o">=</span> <span class="n">templatekey</span>
+
+    <span class="c1"># Get the format of the multi-index from the desired template</span>
+    <span class="n">index_names</span> <span class="o">=</span> <span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
+
+    <span class="c1"># Attempt conversion of the old structured array to a pd DataFrame</span>
+    <span class="n">newdata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">olddata</span><span class="p">[</span><span class="n">oldkey</span><span class="p">][:])</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_names</span><span class="p">)</span>
+
+    <span class="c1"># Check datatypes of columns, convert if necessary</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">],</span> <span class="s2">&quot;columns&quot;</span><span class="p">):</span>
+        <span class="c1"># Handle multiple columns</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">desired_dtype</span> <span class="o">=</span> <span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="k">if</span> <span class="n">desired_dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">):</span>
+                <span class="n">desired_dtype</span> <span class="o">=</span> <span class="nb">str</span>
+            <span class="n">newdata</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">newdata</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">desired_dtype</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Handle single columns - in this case, we don&#39;t need to loop over multiple</span>
+        <span class="c1"># column names or data types</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">newdata</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">newdata</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="c1"># Convert datatypes of each level of the multi-index</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">newdata</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">):</span>
+        <span class="c1"># Handle single index object</span>
+        <span class="n">template_ind_dtype</span> <span class="o">=</span> <span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="n">newdata</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">template_ind_dtype</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">newdata</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+        <span class="c1"># Handle multi-index - need to loop over each index level</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">indname</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">newdata</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
+            <span class="n">template_ind_dtype</span> <span class="o">=</span> <span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">indname</span><span class="p">]</span>
+            <span class="n">converted_index</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">template_ind_dtype</span><span class="p">)</span>
+            <span class="n">newdata</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_levels</span><span class="p">(</span><span class="n">converted_index</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">newdata</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Simple-Port">
+<h3>Simple Port<a class="headerlink" href="#Simple-Port" title="Link to this heading">¶</a></h3>
+<p>For tables that only have a single index, the conversion is much simpler. We just need to create the <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> from the old structured array and then ensure the dtypes of the columns and (single) index match up.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">simple_port</span><span class="p">(</span><span class="n">olddata</span><span class="p">,</span> <span class="n">templatedata</span><span class="p">,</span> <span class="n">templatekey</span><span class="p">,</span> <span class="n">oldkey</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert an old structured-array dataset into a pandas.DataFrame that matches the</span>
+<span class="sd">    column names and dtypes of a provided template DataFrame.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    olddata : h5py.File object</span>
+<span class="sd">        Container holding the old structured array(s). The structured array is read</span>
+<span class="sd">        as olddata[oldkey].</span>
+<span class="sd">    templatedata : pandas.DataFrame</span>
+<span class="sd">        Container providing a template DataFrame whose column dtypes should be matched.</span>
+<span class="sd">    templatekey : hashable</span>
+<span class="sd">        Key to select the template object from templatedata.</span>
+<span class="sd">    oldkey : hashable, optional</span>
+<span class="sd">        Key to select the old structured array from olddata. If None, templatekey</span>
+<span class="sd">        is used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        A DataFrame constructed from the old structured array with column dtypes</span>
+<span class="sd">        coerced to match the template&#39;s dtypes.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    KeyError</span>
+<span class="sd">        If templatekey or oldkey is not present in the provided containers.</span>
+<span class="sd">    TypeError, ValueError</span>
+<span class="sd">        If coercion to the template dtypes fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">oldkey</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">oldkey</span> <span class="o">=</span> <span class="n">templatekey</span>
+
+    <span class="n">newdata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">olddata</span><span class="p">[</span><span class="n">oldkey</span><span class="p">][:])</span>
+
+    <span class="c1"># Check datatypes of columns, convert if necessary</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">desired_dtype</span> <span class="o">=</span> <span class="n">templatedata</span><span class="p">[</span><span class="n">templatekey</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="k">if</span> <span class="n">desired_dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">):</span>
+            <span class="n">desired_dtype</span> <span class="o">=</span> <span class="nb">str</span>
+        <span class="n">newdata</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">newdata</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">desired_dtype</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">newdata</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Checksum-Utility-Functions">
+<h3>Checksum Utility Functions<a class="headerlink" href="#Checksum-Utility-Functions" title="Link to this heading">¶</a></h3>
+<p>These are included directly from the <code class="docutils literal notranslate"><span class="pre">carsus</span></code> utilities for writing checksum metadata for an HDF5 file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">serialize_pandas_object</span><span class="p">(</span><span class="n">pd_object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serialize Pandas objects with Pickle.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pd_object : pandas.Series or pandas.DataFrame</span>
+<span class="sd">        Pandas object to be serialized with Pickle.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pickle serialized Python object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">pd_object</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hash_pandas_object</span><span class="p">(</span><span class="n">pd_object</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;md5&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hash Pandas objects.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pd_object : pandas.Series or pandas.DataFrame</span>
+<span class="sd">        Pandas object to be hashed.</span>
+<span class="sd">    algorithm : str, optional</span>
+<span class="sd">        Algorithm available in `hashlib`, by default &quot;md5&quot;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Hash values.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `algorithm` is not available in `hashlib`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">algorithm</span> <span class="o">=</span> <span class="n">algorithm</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">hashlib</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">):</span>
+        <span class="n">hash_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">hashlib</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;algorithm not supported&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">hash_func</span><span class="p">(</span><span class="n">serialize_pandas_object</span><span class="p">(</span><span class="n">pd_object</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Converting-the-atomic-data">
+<h2>Converting the atomic data<a class="headerlink" href="#Converting-the-atomic-data" title="Link to this heading">¶</a></h2>
+<p>The utility functions above are included for completeness. For the rest of this script, I’ll import these functions directly from the Python script in <code class="docutils literal notranslate"><span class="pre">./tardis/scripts/convert_atomic_data.py</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.scripts</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_atomic_data</span>
+</pre></div>
+</div>
+</div>
+<section id="Loading-the-files">
+<h3>Loading the files<a class="headerlink" href="#Loading-the-files" title="Link to this heading">¶</a></h3>
+<p>We need to use three existing atomic data files to produce our new file in the modern TARDIS format:</p>
+<ol class="arabic simple">
+<li><p>Old atomic data</p></li>
+<li><p>Old photoionization data</p></li>
+<li><p>A template to use as a reference for what our desired format should be</p></li>
+</ol>
+<p><strong>Be sure to change the file paths below to reflect the directory structure of your system</strong>. By default, I’ve selected an NLTE atom data file to use as a template for conversion.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">oldatomdata_filename</span> <span class="o">=</span> <span class="s2">&quot;merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg.h5&quot;</span>
+<span class="n">oldpidata_filename</span> <span class="o">=</span> <span class="s2">&quot;photoionization_data_H30_He.h5&quot;</span>
+<span class="n">template_filename</span> <span class="o">=</span> <span class="s2">&quot;/home/connor/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5&quot;</span>
+<span class="n">new_filename</span> <span class="o">=</span> <span class="s2">&quot;converted_atom_data.h5&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Open HDFStore file objects for each of the paths defined above</span>
+<span class="c1"># By default, HDFStore will *create* the file if it doesn&#39;t exist,</span>
+<span class="c1"># which we don&#39;t want for the old files we&#39;re trying to convert.</span>
+<span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">oldatomdata_filename</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+    <span class="n">old_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">oldatomdata_filename</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">oldpidata_filename</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+    <span class="n">pi_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">oldpidata_filename</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">template_filename</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">template_filename</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">new_filename</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+    <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Destination file </span><span class="si">{</span><span class="n">new_filename</span><span class="si">}</span><span class="s2"> already exists. Delete it or specify a different destination.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="n">new_filename</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Collisions-data">
+<h3>Collisions data<a class="headerlink" href="#Collisions-data" title="Link to this heading">¶</a></h3>
+<p>Let’s take a look at the structure of our data to see what we’re working with.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">old_df</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;/Y/g&#39;]
+</pre></div></div>
+</div>
+<p>There’s certainly more data in this file, but the only dataframe <code class="docutils literal notranslate"><span class="pre">pandas</span></code> can access from this format is <code class="docutils literal notranslate"><span class="pre">/Y/g</span></code>, which contains the collision data. We can extract and convert this first and then re-load the dataframe with <code class="docutils literal notranslate"><span class="pre">h5py</span></code> directly to get the rest of the information we need.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">template</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;/atom_data&#39;,
+ &#39;/collisions_data&#39;,
+ &#39;/collisions_metadata&#39;,
+ &#39;/ionization_data&#39;,
+ &#39;/levels_data&#39;,
+ &#39;/lines_data&#39;,
+ &#39;/lines_metadata&#39;,
+ &#39;/macro_atom_data&#39;,
+ &#39;/macro_atom_references&#39;,
+ &#39;/metadata&#39;,
+ &#39;/photoionization_data&#39;,
+ &#39;/zeta_data&#39;]
+</pre></div></div>
+</div>
+<p>The keys above represent the format into which we want to convert the old atom data. We’ll start with the collisions data and then proceed through this list.</p>
+<p>Here we convert the first four columns of the collisions data to a <code class="docutils literal notranslate"><span class="pre">pd.MultiIndex</span></code> to match the template data structure and rename the columns to the index of the temperature bin each column represents.</p>
+<p>(In the old atomic data format, the temperatures themselves are used as the column headers. In the new format, the <em>index</em> of these temperatures is used as the column header and the temperatures themselves are stored in the <code class="docutils literal notranslate"><span class="pre">collisions_metadata</span></code> field.)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### COLLISIONS DATA</span>
+<span class="n">multiindex_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">old_df</span><span class="p">[</span><span class="s2">&quot;/Y/g&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">new</span><span class="p">[</span><span class="s2">&quot;collisions_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">old_df</span><span class="p">[</span><span class="s2">&quot;/Y/g&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">multiindex_cols</span><span class="p">)</span>
+<span class="n">tempcols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">new</span><span class="p">[</span><span class="s1">&#39;collisions_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="n">new</span><span class="p">[</span><span class="s1">&#39;collisions_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new</span><span class="p">[</span><span class="s1">&#39;collisions_data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">tempcols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Re-load-Old-Atom-Data-with-h5py">
+<h3>Re-load Old Atom Data with h5py<a class="headerlink" href="#Re-load-Old-Atom-Data-with-h5py" title="Link to this heading">¶</a></h3>
+<p>We’ve gotten all useful info out of the old dataframe using <code class="docutils literal notranslate"><span class="pre">pandas</span></code>, so now load the same file with h5py directly to get the rest.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">old_df</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">old</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">oldatomdata_filename</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">old</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;KeysViewHDF5 [&#39;Y&#39;, &#39;basic_atom_data&#39;, &#39;ionization_data&#39;, &#39;levels_data&#39;, &#39;lines_data&#39;, &#39;macro_atom_data&#39;, &#39;macro_atom_references&#39;, &#39;synpp_refs&#39;, &#39;zeta_data&#39;]&gt;
+</pre></div></div>
+</div>
+<p>Now we can see the other fields that will populate our new atom data file—we just have to convert them to the same data structures and key names as the template.</p>
+</section>
+<section id="Collisions-Metadata">
+<h3>Collisions Metadata<a class="headerlink" href="#Collisions-Metadata" title="Link to this heading">¶</a></h3>
+<p>This particular atomic data format stores the temperatures for the collisions data table as a separate array stored in a “metadata” field. The <code class="docutils literal notranslate"><span class="pre">AtomData</span></code> loader class in TARDIS checks for this field when loading data written in this format.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">tempcols</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;2000&#39;, &#39;5000&#39;, &#39;10000&#39;, &#39;20000&#39;, &#39;50000&#39;, &#39;100000&#39;, &#39;200000&#39;, &#39;500000&#39;, &#39;1000000&#39;]
+</pre></div></div>
+</div>
+<p>These are the temperatures associated with the <code class="docutils literal notranslate"><span class="pre">collisions_data</span></code> we loaded in previously - let’s insert these values in the existing metadata structure of the template atom data file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_metadata</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;collisions_metadata&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">new_metadata</span><span class="p">[</span><span class="s2">&quot;temperatures&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">tempcols</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+<span class="n">new</span><span class="p">[</span><span class="s2">&quot;collisions_metadata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_metadata</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_29087/3968176321.py:3: PerformanceWarning:
+your performance may suffer as PyTables will pickle object types that it cannot
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None]
+
+  new[&#34;collisions_metadata&#34;] = new_metadata
+</pre></div></div>
+</div>
+</section>
+<section id="Atom-Data">
+<h3>Atom Data<a class="headerlink" href="#Atom-Data" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_atom_data</span> <span class="o">=</span> <span class="n">convert_atomic_data</span><span class="o">.</span><span class="n">multiindex_port</span><span class="p">(</span>
+    <span class="n">old</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="s2">&quot;atom_data&quot;</span><span class="p">,</span> <span class="n">oldkey</span><span class="o">=</span><span class="s2">&quot;basic_atom_data&quot;</span>
+<span class="p">)</span>
+<span class="n">new</span><span class="p">[</span><span class="s2">&quot;atom_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_atom_data</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Ionization-Data">
+<h3>Ionization Data<a class="headerlink" href="#Ionization-Data" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new</span><span class="p">[</span><span class="s2">&quot;ionization_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_atomic_data</span><span class="o">.</span><span class="n">multiindex_port</span><span class="p">(</span>
+    <span class="n">old</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="s2">&quot;ionization_data&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Levels-Data">
+<h3>Levels Data<a class="headerlink" href="#Levels-Data" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new</span><span class="p">[</span><span class="s2">&quot;levels_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_atomic_data</span><span class="o">.</span><span class="n">multiindex_port</span><span class="p">(</span>
+    <span class="n">old</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="s2">&quot;levels_data&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Lines-Data">
+<h3>Lines Data<a class="headerlink" href="#Lines-Data" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new</span><span class="p">[</span><span class="s2">&quot;lines_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_atomic_data</span><span class="o">.</span><span class="n">multiindex_port</span><span class="p">(</span>
+    <span class="n">old</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="s2">&quot;lines_data&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Lines-Metadata">
+<h3>Lines Metadata<a class="headerlink" href="#Lines-Metadata" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">template</span><span class="p">[</span><span class="s2">&quot;lines_metadata&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+               value
+field  key
+format version   1.0
+</pre></div></div>
+</div>
+<p>This is a super simple field that doesn’t exist in the original format, so we can just copy it over for consistency in case a particular atom data reader needs it.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new</span><span class="p">[</span><span class="s2">&quot;lines_metadata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">template</span><span class="p">[</span><span class="s2">&quot;lines_metadata&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Macroatom-Data">
+<h3>Macroatom Data<a class="headerlink" href="#Macroatom-Data" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new</span><span class="p">[</span><span class="s2">&quot;macro_atom_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_atomic_data</span><span class="o">.</span><span class="n">simple_port</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="s2">&quot;macro_atom_data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Macroatom-References">
+<h3>Macroatom References<a class="headerlink" href="#Macroatom-References" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new</span><span class="p">[</span><span class="s2">&quot;macro_atom_references&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">convert_atomic_data</span><span class="o">.</span><span class="n">multiindex_port</span><span class="p">(</span>
+    <span class="n">old</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="s2">&quot;macro_atom_references&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Photoionization-Data">
+<h3>Photoionization Data<a class="headerlink" href="#Photoionization-Data" title="Link to this heading">¶</a></h3>
+<p>Note that this data is stored in an entirely different file - in this case, it is already in the correct format for our new atomic data file, so we can just copy it into our new dataframe.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">pi_data</span><span class="p">[</span><span class="s1">&#39;photoionization_data&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+                                                 nu        x_sect
+atomic_number ion_number level_number
+1             0          0             3.288087e+15  6.307684e-18
+                         0             3.333138e+15  6.081111e-18
+                         0             3.378806e+15  5.862911e-18
+                         0             3.425100e+15  5.652766e-18
+                         0             3.472028e+15  5.450373e-18
+...                                             ...           ...
+2             0          50            1.168172e+14  5.755967e-20
+                         50            1.184178e+14  5.527215e-20
+                         50            1.200402e+14  5.307454e-20
+                         50            1.216849e+14  5.096434e-20
+                         50            1.233522e+14  4.893821e-20
+
+[16200 rows x 2 columns]
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new</span><span class="p">[</span><span class="s2">&quot;photoionization_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pi_data</span><span class="p">[</span><span class="s2">&quot;photoionization_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Zeta-Data">
+<h3>Zeta Data<a class="headerlink" href="#Zeta-Data" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">old</span><span class="p">[</span><span class="s1">&#39;zeta_data&#39;</span><span class="p">][:])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[ 1.      1.      0.339  ...  0.5342  0.5373  0.5401]
+ [ 1.      2.      0.     ...  0.      0.      0.    ]
+ [ 2.      1.      0.4012 ...  0.679   0.6835  0.6878]
+ ...
+ [28.     26.      0.0859 ...  0.1413  0.1417  0.1421]
+ [28.     27.      0.0645 ...  0.1095  0.1098  0.1101]
+ [28.     28.      0.1149 ...  0.1938  0.195   0.1963]]
+</pre></div></div>
+</div>
+<p>This isn’t formatted as a structured array, so the <code class="docutils literal notranslate"><span class="pre">multiindex_port</span></code> function won’t be able to grab specific columns by name. We could add this functionality to the porting function, but this is the only field for which this is a problem. We’ll just handle this one by hand.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">zeta_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
+    <span class="n">old</span><span class="p">[</span><span class="s2">&quot;zeta_data&quot;</span><span class="p">][:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+    <span class="n">names</span><span class="o">=</span><span class="n">template</span><span class="p">[</span><span class="s2">&quot;zeta_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">zeta_temps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span>
+    <span class="n">old</span><span class="p">[</span><span class="s2">&quot;zeta_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;t_rad&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span>
+<span class="p">)</span>
+<span class="n">new_zeta_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">old</span><span class="p">[</span><span class="s2">&quot;zeta_data&quot;</span><span class="p">][:,</span> <span class="mi">2</span><span class="p">:],</span> <span class="n">index</span><span class="o">=</span><span class="n">zeta_index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">zeta_temps</span>
+<span class="p">)</span>
+<span class="n">new</span><span class="p">[</span><span class="s2">&quot;zeta_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_zeta_data</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Metadata">
+<h3>Metadata<a class="headerlink" href="#Metadata" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copied over from Andrew&#39;s notebook demonstrating how to do this</span>
+<span class="n">meta</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">meta</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;format&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">))</span>
+
+<span class="n">total_checksum</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">new</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+   <span class="c1"># update the total checksum to sign the file</span>
+   <span class="n">total_checksum</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">convert_atomic_data</span><span class="o">.</span><span class="n">serialize_pandas_object</span><span class="p">(</span><span class="n">new</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+
+   <span class="c1"># save individual DataFrame/Series checksum</span>
+   <span class="n">checksum</span> <span class="o">=</span> <span class="n">convert_atomic_data</span><span class="o">.</span><span class="n">hash_pandas_object</span><span class="p">(</span><span class="n">new</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+   <span class="n">meta</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;md5sum&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">),</span> <span class="n">checksum</span><span class="p">))</span>
+
+<span class="c1"># relevant package versions</span>
+<span class="n">meta</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;software&quot;</span><span class="p">,</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">()))</span>
+<span class="n">imports</span> <span class="o">=</span> <span class="p">[</span>
+   <span class="s2">&quot;carsus&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;astropy&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;tables&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;ChiantiPy&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">imports</span><span class="p">:</span>
+   <span class="n">meta</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;software&quot;</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="nb">__import__</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">__version__</span><span class="p">))</span>
+<span class="n">meta_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span>
+   <span class="n">meta</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;key&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">uuid1</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+<span class="n">new</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">_v_attrs</span><span class="p">[</span><span class="s2">&quot;MD5&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_checksum</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+<span class="n">new</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">_v_attrs</span><span class="p">[</span><span class="s2">&quot;UUID1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uuid1</span>
+<span class="n">new</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">_v_attrs</span><span class="p">[</span><span class="s2">&quot;FORMAT_VERSION&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
+<span class="n">tz</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s2">&quot;UTC&quot;</span><span class="p">)</span>
+<span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+<span class="n">new</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">_v_attrs</span><span class="p">[</span><span class="s2">&quot;DATE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ ChiantiPy version 0.15.2
+</pre></div></div>
+</div>
+</section>
+<section id="Write-out-/-Close-files">
+<h3>Write out / Close files<a class="headerlink" href="#Write-out-/-Close-files" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">old</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">template</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">pi_data</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">new</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 12 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

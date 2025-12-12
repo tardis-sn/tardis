@@ -1,0 +1,7 @@
+tardis.model.mesh.geometry module
+=================================
+
+.. automodule:: tardis.model.mesh.geometry
+   :members:
+   :show-inheritance:
+   :undoc-members:

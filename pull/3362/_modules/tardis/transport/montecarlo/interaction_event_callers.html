@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.transport.montecarlo.interaction_event_callers &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=9a8dff47"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.transport.montecarlo.interaction_event_callers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.transport.montecarlo.interaction_event_callers</h1><div class="highlight"><pre>
+<span></span>import numpy as np
+from numba import njit
+
+import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
+from tardis.transport.frame_transformations import (
+    get_doppler_factor,
+    get_inverse_doppler_factor,
+)
+from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.interaction_events import (
+    LineInteractionType,
+    adiabatic_cooling,
+    bf_cooling,
+    bound_free_emission,
+    determine_bf_macro_activation_idx,
+    free_free_emission,
+    line_emission,
+)
+from tardis.transport.montecarlo.macro_atom import (
+    MacroAtomTransitionType,
+    macro_atom_interaction,
+)
+from tardis.transport.montecarlo.utils import get_random_mu
+
+
+<div class="viewcode-block" id="macro_atom_event">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.macro_atom_event">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def macro_atom_event(
+    destination_level_idx,
+    r_packet,
+    time_explosion,
+    opacity_state,
+    enable_full_relativity,
+):
+    &quot;&quot;&quot;
+    Macroatom event handler - run the macroatom and handle the result
+
+    Parameters
+    ----------
+    destination_level_idx : int
+    r_packet : tardis.transport.montecarlo.r_packet.RPacket
+    time_explosion : float
+    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+    &quot;&quot;&quot;
+    transition_id, transition_type = macro_atom_interaction(
+        destination_level_idx, r_packet.current_shell_id, opacity_state
+    )
+
+    if (
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
+        and transition_type == MacroAtomTransitionType.FF_EMISSION
+    ):
+        free_free_emission(
+            r_packet, time_explosion, opacity_state, enable_full_relativity
+        )
+
+    elif (
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
+        and transition_type == MacroAtomTransitionType.BF_EMISSION
+    ):
+        bound_free_emission(
+            r_packet,
+            time_explosion,
+            opacity_state,
+            transition_id,
+            enable_full_relativity,
+        )
+    elif (
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
+        and transition_type == MacroAtomTransitionType.BF_COOLING
+    ):
+        bf_cooling(
+            r_packet, time_explosion, opacity_state, enable_full_relativity
+        )
+
+    elif (
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
+        and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
+    ):
+        adiabatic_cooling(r_packet)  # Not sure this does anything yet
+
+    elif transition_type == MacroAtomTransitionType.BB_EMISSION:
+        line_emission(
+            r_packet,
+            transition_id,
+            time_explosion,
+            opacity_state,
+            enable_full_relativity,
+        )
+    else:
+        raise Exception(
+            f&quot;Interaction {transition_type} not known or implemented!&quot;
+        )</div>
+
+
+
+<div class="viewcode-block" id="determine_continuum_macro_activation_idx">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.determine_continuum_macro_activation_idx">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def determine_continuum_macro_activation_idx(
+    opacity_state, nu, chi_bf, chi_ff, chi_bf_contributions, active_continua
+):
+    &quot;&quot;&quot;
+    Determine the macro atom activation level after a continuum absorption.
+
+    Parameters
+    ----------
+    nu : float
+        Comoving frequency of the r-packet.
+    chi_bf : numpy.ndarray, dtype float
+        Bound-free opacity.
+    chi_bf : numpy.ndarray, dtype float
+        Free-free opacity.
+    chi_bf_contributions : numpy.ndarray, dtype float
+        Cumulative distribution of bound-free opacities at frequency
+        `nu`.
+    active_continua : numpy.ndarray, dtype int
+        Continuum ids for which absorption is possible for frequency `nu`.
+
+    Returns
+    -------
+    float
+        Macro atom activation idx.
+    &quot;&quot;&quot;
+    fraction_bf = chi_bf / (chi_bf + chi_ff)
+    # TODO: In principle, we can also decide here whether a Thomson
+    # scattering event happens and need one less RNG call.
+    if np.random.random() &lt; fraction_bf:  # Bound-free absorption
+        destination_level_idx = determine_bf_macro_activation_idx(
+            opacity_state, nu, chi_bf_contributions, active_continua
+        )
+    else:  # Free-free absorption (i.e. k-packet creation)
+        destination_level_idx = opacity_state.k_packet_idx
+    return destination_level_idx</div>
+
+
+
+<div class="viewcode-block" id="continuum_event">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.continuum_event">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def continuum_event(
+    r_packet,
+    time_explosion,
+    opacity_state,
+    chi_bf_tot,
+    chi_ff,
+    chi_bf_contributions,
+    current_continua,
+    enable_full_relativity,
+):
+    &quot;&quot;&quot;
+    continuum event handler - activate the macroatom and run the handler
+
+    Parameters
+    ----------
+    r_packet : tardis.transport.montecarlo.r_packet.RPacket
+    time_explosion : float
+    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+    continuum : tardis.transport.montecarlo.numba_interface.Continuum
+    &quot;&quot;&quot;
+    old_doppler_factor = get_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+    )
+
+    r_packet.mu = get_random_mu()
+    inverse_doppler_factor = get_inverse_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+    )
+    comov_energy = r_packet.energy * old_doppler_factor
+    comov_nu = (
+        r_packet.nu * old_doppler_factor
+    )  # make sure frequency should be updated
+    r_packet.energy = comov_energy * inverse_doppler_factor
+    r_packet.nu = comov_nu * inverse_doppler_factor
+
+    destination_level_idx = determine_continuum_macro_activation_idx(
+        opacity_state,
+        comov_nu,
+        chi_bf_tot,
+        chi_ff,
+        chi_bf_contributions,
+        current_continua,
+    )
+
+    macro_atom_event(
+        destination_level_idx,
+        r_packet,
+        time_explosion,
+        opacity_state,
+        enable_full_relativity,
+    )</div>
+
+
+
+<div class="viewcode-block" id="line_scatter_event">
+<a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.line_scatter_event">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def line_scatter_event(
+    r_packet,
+    time_explosion,
+    line_interaction_type,
+    opacity_state,
+    enable_full_relativity,
+):
+    &quot;&quot;&quot;
+    Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
+
+    Parameters
+    ----------
+    r_packet : tardis.transport.montecarlo.r_packet.RPacket
+    time_explosion : float
+    line_interaction_type : enum
+    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+    &quot;&quot;&quot;
+    old_doppler_factor = get_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+    )
+    r_packet.mu = get_random_mu()
+
+    inverse_new_doppler_factor = get_inverse_doppler_factor(
+        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+    )
+
+    comov_energy = r_packet.energy * old_doppler_factor
+    r_packet.energy = comov_energy * inverse_new_doppler_factor
+
+    if line_interaction_type == LineInteractionType.SCATTER:
+        line_emission(
+            r_packet,
+            r_packet.next_line_id,
+            time_explosion,
+            opacity_state,
+            enable_full_relativity,
+        )
+    else:  # includes both macro atom and downbranch - encoded in the transition probabilities
+        comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
+        r_packet.nu = comov_nu * inverse_new_doppler_factor
+        activation_level_id = opacity_state.line2macro_level_upper[
+            r_packet.next_line_id
+        ]
+        macro_atom_event(
+            activation_level_id,
+            r_packet,
+            time_explosion,
+            opacity_state,
+            enable_full_relativity,
+        )</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 12 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

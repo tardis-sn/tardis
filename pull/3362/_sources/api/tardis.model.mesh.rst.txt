@@ -1,0 +1,20 @@
+tardis.model.mesh package
+=========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.model.mesh.base
+   tardis.model.mesh.geometry
+   tardis.model.mesh.mesh
+
+Module contents
+---------------
+
+.. automodule:: tardis.model.mesh
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,7 @@
+tardis.model.mesh.mesh module
+=============================
+
+.. automodule:: tardis.model.mesh.mesh
+   :members:
+   :show-inheritance:
+   :undoc-members:
