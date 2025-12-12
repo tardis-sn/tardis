@@ -143,9 +143,9 @@ jobs:
         run: |
           pip install "tardis[tardisbase] @ git+https://github.com/tardis-sn/tardis.git@master"
 
-      - name: Install qgridnext and lineid_plot
+      - name: Install lineid_plot
         run: |
-          pip install --no-deps qgridnext lineid_plot
+          pip install --no-deps lineid_plot
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
