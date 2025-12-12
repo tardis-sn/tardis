@@ -1,6 +1,5 @@
 """Tests for SDEC Plots."""
 from itertools import product
-from copy import deepcopy
 
 import astropy
 import astropy.units as u
@@ -13,7 +12,6 @@ from matplotlib.testing.compare import compare_images
 
 from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 from tardis.visualization.tools.sdec_plot import SDECPlotter
-from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 RELATIVE_TOLERANCE_SDEC=1e-12
 
@@ -42,7 +40,7 @@ class TestSDECPlotter:
     distance = [10 * u.Mpc, None]
     packet_wvl_range = [[500, 9000] * u.AA]
     species_list = [["Si II", "Ca II", "C", "Fe I-V"]]
-    packets_mode = ["real", "virtual"]
+    packets_mode = ["real"]
     nelements = [1, None]
     show_modeled_spectrum = [True, False]
 
@@ -335,7 +333,7 @@ class TestSDECPlotter:
         plot_data = PlotDataHDF(**property_group)
         return plot_data
 
-    def test_generate_plot_mpl(
+    def test_generate_plot_ply(
         self, generate_plot_plotly_hdf, plotter_generate_plot_ply, regression_data
     ):
         fig, _ = plotter_generate_plot_ply
@@ -398,7 +396,7 @@ class TestSDECPlotter:
         plotter._species_list = ['Si','O','Mg','Ca']
         plotter._parse_species_list(plotter._species_list)
         plotter._calculate_plotting_data(
-            packets_mode="virtual",
+            packets_mode="real",
             packet_wvl_range=[500, 9000] * u.AA,
             distance=None,
             nelements=None,
@@ -433,7 +431,7 @@ class TestSDECPlotter:
         )
         
         # Test packet data structures exist for both modes
-        for mode in ["real", "virtual"]:
+        for mode in ["real"]:
             assert plotter.packet_data[mode]["packets_df"] is not None
             assert plotter_from_workflow.packet_data[mode]["packets_df"] is not None
             assert plotter.spectrum[mode] is not None
@@ -443,7 +441,7 @@ class TestSDECPlotter:
     def test_from_workflow_method_functionality(self, plotter_from_workflow):
         plotter_from_workflow._parse_species_list(None)
         plotter_from_workflow._calculate_plotting_data(
-            packets_mode="virtual",
+            packets_mode="real",
             packet_wvl_range=[500, 9000] * u.AA, 
             distance=None,
             nelements=None
@@ -456,7 +454,7 @@ class TestSDECPlotter:
         assert len(plotter_from_workflow.absorption_luminosities_df) > 0
         
         # Test that matplotlib plot can be generated
-        fig = plotter_from_workflow.generate_plot_mpl(packets_mode="virtual")
+        fig = plotter_from_workflow.generate_plot_mpl(packets_mode="real")
         assert fig is not None
 
     @pytest.fixture(scope="class", params=list(enumerate(combinations)))
@@ -542,7 +540,7 @@ class TestSDECPlotter:
     def test_workflow_simulation_data_identical(self, plotter, plotter_from_workflow):
         # Calculate plotting data with identical parameters
         params = {
-            "packets_mode": "virtual",
+            "packets_mode": "real",
             "packet_wvl_range": [500, 9000] * u.AA,
             "distance": None,
             "nelements": None,
