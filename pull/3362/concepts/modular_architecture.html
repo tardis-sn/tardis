@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TARDIS Modular Architecture &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=671b41d2"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Physics Walkthrough Introduction" href="../physics_walkthrough/intro/index.html" />
+    <link rel="prev" title="TARDIS Concepts" href="index.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/build_model.html">Building TARDIS Models from Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/model/index.html">TARDIS Model Input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">TARDIS Concepts</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">TARDIS Modular Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-architectural-principles">Core Architectural Principles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#separation-of-concerns">Separation of Concerns</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-three-layer-architecture">The Three-Layer Architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#why-this-architecture">Why This Architecture?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#benefits">Benefits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#comparison-with-legacy-approach">Comparison with Legacy Approach</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#topology-vs-physics">Topology vs. Physics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#understanding-meshlocation">Understanding MeshLocation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#why-location-matters">Why Location Matters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-types">Mesh Types</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#radial1dmesh">Radial1DMesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homologousradial1dmesh">HomologousRadial1DMesh</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#design-decisions">Design Decisions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#why-explicit-meshlocation">Why Explicit MeshLocation?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#why-immutable-meshquantity">Why Immutable MeshQuantity?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#why-not-unstructured-meshes">Why Not Unstructured Meshes?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#extensibility">Extensibility</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#future-directions">Future Directions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#migration-path">Migration Path</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#core-architectural-concepts">Core Architectural Concepts</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">TARDIS Concepts</a></li>
+      <li class="breadcrumb-item active">TARDIS Modular Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/concepts/modular_architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tardis-modular-architecture">
+<span id="modular-architecture"></span><h1>TARDIS Modular Architecture<a class="headerlink" href="#tardis-modular-architecture" title="Link to this heading">¶</a></h1>
+<p>TARDIS uses a modular architecture that separates topology, physics, and simulation into distinct, composable layers. This guide explains the conceptual foundations and design philosophy.</p>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#core-architectural-principles" id="id1">Core Architectural Principles</a></p>
+<ul>
+<li><p><a class="reference internal" href="#separation-of-concerns" id="id2">Separation of Concerns</a></p></li>
+<li><p><a class="reference internal" href="#the-three-layer-architecture" id="id3">The Three-Layer Architecture</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#why-this-architecture" id="id4">Why This Architecture?</a></p>
+<ul>
+<li><p><a class="reference internal" href="#benefits" id="id5">Benefits</a></p></li>
+<li><p><a class="reference internal" href="#comparison-with-legacy-approach" id="id6">Comparison with Legacy Approach</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#topology-vs-physics" id="id7">Topology vs. Physics</a></p>
+<ul>
+<li><p><a class="reference internal" href="#understanding-meshlocation" id="id8">Understanding MeshLocation</a></p></li>
+<li><p><a class="reference internal" href="#why-location-matters" id="id9">Why Location Matters</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#mesh-types" id="id10">Mesh Types</a></p>
+<ul>
+<li><p><a class="reference internal" href="#radial1dmesh" id="id11">Radial1DMesh</a></p></li>
+<li><p><a class="reference internal" href="#homologousradial1dmesh" id="id12">HomologousRadial1DMesh</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#design-decisions" id="id13">Design Decisions</a></p>
+<ul>
+<li><p><a class="reference internal" href="#why-explicit-meshlocation" id="id14">Why Explicit MeshLocation?</a></p></li>
+<li><p><a class="reference internal" href="#why-immutable-meshquantity" id="id15">Why Immutable MeshQuantity?</a></p></li>
+<li><p><a class="reference internal" href="#why-not-unstructured-meshes" id="id16">Why Not Unstructured Meshes?</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#extensibility" id="id17">Extensibility</a></p>
+<ul>
+<li><p><a class="reference internal" href="#future-directions" id="id18">Future Directions</a></p></li>
+<li><p><a class="reference internal" href="#migration-path" id="id19">Migration Path</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#see-also" id="id20">See Also</a></p></li>
+</ul>
+</nav>
+<section id="core-architectural-principles">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Core Architectural Principles</a><a class="headerlink" href="#core-architectural-principles" title="Link to this heading">¶</a></h2>
+<section id="separation-of-concerns">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">Separation of Concerns</a><a class="headerlink" href="#separation-of-concerns" title="Link to this heading">¶</a></h3>
+<p>TARDIS separates three distinct aspects of supernova modeling:</p>
+<dl class="simple">
+<dt><strong>Topology (Spatial Structure)</strong></dt><dd><p>The mesh defines the geometric structure without any physics attached.</p>
+<ul class="simple">
+<li><p>Cell boundaries (interfaces)</p></li>
+<li><p>Cell centers (volumes)</p></li>
+<li><p>Coordinate systems (radial, velocity-based)</p></li>
+</ul>
+</dd>
+<dt><strong>Physics (Physical Quantities)</strong></dt><dd><p>Physical data bound to specific mesh locations via <code class="docutils literal notranslate"><span class="pre">MeshQuantity</span></code>.</p>
+<ul class="simple">
+<li><p>Density, temperature, abundances</p></li>
+<li><p>Each quantity knows where it lives (interface or volume)</p></li>
+<li><p>Type-safe binding prevents location errors</p></li>
+</ul>
+</dd>
+<dt><strong>Simulation (High-Level Components)</strong></dt><dd><p>Simulation components use mesh + physics together.</p>
+<ul class="simple">
+<li><p>Monte Carlo transport</p></li>
+<li><p>Plasma calculations</p></li>
+<li><p>Convergence strategies</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="the-three-layer-architecture">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">The Three-Layer Architecture</a><a class="headerlink" href="#the-three-layer-architecture" title="Link to this heading">¶</a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────────┐
+│                 SIMULATION LAYER                    │
+│  (SimulationState, Transport, Plasma)              │
+└─────────────────────────────────────────────────────┘
+                        ▲
+                        │ uses
+                        │
+┌─────────────────────────────────────────────────────┐
+│                  PHYSICS LAYER                      │
+│  (MeshQuantity: density, temperature, abundances)   │
+└─────────────────────────────────────────────────────┘
+                        ▲
+                        │ bound to
+                        │
+┌─────────────────────────────────────────────────────┐
+│                 TOPOLOGY LAYER                      │
+│  (Radial1DMesh, HomologousRadial1DMesh)            │
+└─────────────────────────────────────────────────────┘
+</pre></div>
+</div>
+<p>Each layer can be developed, tested, and modified independently.</p>
+</section>
+</section>
+<section id="why-this-architecture">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Why This Architecture?</a><a class="headerlink" href="#why-this-architecture" title="Link to this heading">¶</a></h2>
+<section id="benefits">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Benefits</a><a class="headerlink" href="#benefits" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><strong>Modularity</strong></dt><dd><p>Components have single, well-defined responsibilities. Change one layer without affecting others.</p>
+</dd>
+<dt><strong>Testability</strong></dt><dd><p>Test topology, physics, and simulation independently. No need for full simulation setup to test mesh creation or density solvers.</p>
+</dd>
+<dt><strong>Physical Clarity</strong></dt><dd><p>Matches how physicists think: define spatial structure, specify conditions, solve equations.</p>
+</dd>
+<dt><strong>Flexibility</strong></dt><dd><p>Easy to extend with new mesh types, physical models, or simulation strategies.</p>
+</dd>
+<dt><strong>Type Safety</strong></dt><dd><p><code class="docutils literal notranslate"><span class="pre">MeshLocation</span></code> enum prevents accidentally using interface values where volume values are expected (and vice versa).</p>
+</dd>
+</dl>
+</section>
+<section id="comparison-with-legacy-approach">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Comparison with Legacy Approach</a><a class="headerlink" href="#comparison-with-legacy-approach" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><strong>Legacy (Configuration-Driven)</strong>:</dt><dd><p>Everything mixed in YAML - spatial structure, physics parameters, solver configs all together. Implicit dependencies, hard to test components in isolation.</p>
+</dd>
+<dt><strong>Modular Architecture</strong>:</dt><dd><p>Explicit separation. Create mesh → calculate physics → build simulation. Each step is clear, testable, and composable.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="topology-vs-physics">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Topology vs. Physics</a><a class="headerlink" href="#topology-vs-physics" title="Link to this heading">¶</a></h2>
+<section id="understanding-meshlocation">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Understanding MeshLocation</a><a class="headerlink" href="#understanding-meshlocation" title="Link to this heading">¶</a></h3>
+<p>Physical quantities exist at specific locations on the mesh:</p>
+<dl>
+<dt><strong>INTERFACE</strong></dt><dd><p>Values at cell boundaries (N+1 values for N cells)</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Interface:  |-------|-------|-------|
+            0       1       2       3
+
+4 interfaces define 3 cells
+</pre></div>
+</div>
+<p><em>Examples</em>: radii, interface velocities</p>
+</dd>
+<dt><strong>VOLUME</strong></dt><dd><p>Values at cell centers (N values for N cells)</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Volume:     |   0   |   1   |   2   |
+Interface:  0       1       2       3
+
+3 volumes between 4 interfaces
+</pre></div>
+</div>
+<p><em>Examples</em>: density, temperature, abundances</p>
+</dd>
+</dl>
+</section>
+<section id="why-location-matters">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Why Location Matters</a><a class="headerlink" href="#why-location-matters" title="Link to this heading">¶</a></h3>
+<dl>
+<dt><strong>Physical Correctness</strong></dt><dd><p>Different quantities naturally live at different locations:</p>
+<ul class="simple">
+<li><p>Boundary conditions (velocity) → interfaces</p></li>
+<li><p>Bulk properties (density) → volumes</p></li>
+<li><p>Fluxes → interfaces</p></li>
+</ul>
+</dd>
+<dt><strong>Numerical Stability</strong></dt><dd><p>Proper location prevents interpolation errors and maintains conservation laws.</p>
+</dd>
+<dt><strong>Explicit Semantics</strong></dt><dd><p>Code clearly states where data lives:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">density</span> <span class="o">=</span> <span class="n">MeshQuantity</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">rho_data</span><span class="p">,</span>
+    <span class="n">defined_at</span><span class="o">=</span><span class="n">MeshLocation</span><span class="o">.</span><span class="n">VOLUME</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;density&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="mesh-types">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Mesh Types</a><a class="headerlink" href="#mesh-types" title="Link to this heading">¶</a></h2>
+<p>TARDIS provides mesh types for different use cases:</p>
+<section id="radial1dmesh">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Radial1DMesh</a><a class="headerlink" href="#radial1dmesh" title="Link to this heading">¶</a></h3>
+<p><strong>Purpose</strong>: Direct spatial mesh with physical radii</p>
+<p><strong>Use Case</strong>: When spatial structure comes from external sources (e.g., hydrodynamic simulations)</p>
+<dl class="simple">
+<dt><strong>Features</strong>:</dt><dd><ul class="simple">
+<li><p>N+1 interface radii define N cells</p></li>
+<li><p>No time dependence</p></li>
+<li><p>Pure spatial structure</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="homologousradial1dmesh">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">HomologousRadial1DMesh</a><a class="headerlink" href="#homologousradial1dmesh" title="Link to this heading">¶</a></h3>
+<p><strong>Purpose</strong>: Velocity-based mesh with homologous expansion (<span class="math notranslate nohighlight">\(r = v \times t\)</span>)</p>
+<p><strong>Use Case</strong>: Standard supernova models</p>
+<dl class="simple">
+<dt><strong>Features</strong>:</dt><dd><ul class="simple">
+<li><p>Define using velocity interfaces</p></li>
+<li><p>Requires explosion time</p></li>
+<li><p>Converts to spatial mesh when needed</p></li>
+<li><p>Preserves velocity field</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+<section id="design-decisions">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">Design Decisions</a><a class="headerlink" href="#design-decisions" title="Link to this heading">¶</a></h2>
+<section id="why-explicit-meshlocation">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Why Explicit MeshLocation?</a><a class="headerlink" href="#why-explicit-meshlocation" title="Link to this heading">¶</a></h3>
+<p><strong>Alternative</strong>: Infer location from array shape</p>
+<dl class="simple">
+<dt><strong>Why Explicit</strong>:</dt><dd><ul class="simple">
+<li><p>No ambiguity</p></li>
+<li><p>Self-documenting code</p></li>
+<li><p>Catches errors at creation time</p></li>
+<li><p>Easy to extend (EDGE, CORNER, etc.)</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="why-immutable-meshquantity">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Why Immutable MeshQuantity?</a><a class="headerlink" href="#why-immutable-meshquantity" title="Link to this heading">¶</a></h3>
+<p><strong>Design</strong>: <code class="docutils literal notranslate"><span class="pre">MeshQuantity</span></code> is a frozen dataclass</p>
+<dl class="simple">
+<dt><strong>Rationale</strong>:</dt><dd><ul class="simple">
+<li><p>Prevents accidental modification</p></li>
+<li><p>Thread-safe</p></li>
+<li><p>Clear separation: “calculate” not “modify”</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Pattern</strong>: Create new objects rather than modifying existing ones</p>
+</section>
+<section id="why-not-unstructured-meshes">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Why Not Unstructured Meshes?</a><a class="headerlink" href="#why-not-unstructured-meshes" title="Link to this heading">¶</a></h3>
+<p><strong>Current</strong>: Radial 1D with regular structure</p>
+<dl class="simple">
+<dt><strong>Rationale</strong>:</dt><dd><ul class="simple">
+<li><p>Matches TARDIS’s 1D spherical symmetry</p></li>
+<li><p>Simpler and more efficient</p></li>
+<li><p>Can extend to 2D/3D later without breaking API</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+<section id="extensibility">
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">Extensibility</a><a class="headerlink" href="#extensibility" title="Link to this heading">¶</a></h2>
+<section id="future-directions">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Future Directions</a><a class="headerlink" href="#future-directions" title="Link to this heading">¶</a></h3>
+<p>The architecture supports future extensions:</p>
+<dl class="simple">
+<dt><strong>Multi-Dimensional Meshes</strong></dt><dd><p>Architecture allows 2D/3D meshes without breaking existing code.</p>
+</dd>
+<dt><strong>Adaptive Meshes</strong></dt><dd><p>Can add adaptive refinement while keeping same <code class="docutils literal notranslate"><span class="pre">MeshQuantity</span></code> interface.</p>
+</dd>
+<dt><strong>New Physical Models</strong></dt><dd><p>New solvers plug into existing mesh framework.</p>
+</dd>
+<dt><strong>Alternative Geometries</strong></dt><dd><p>Cartesian, cylindrical, etc. can coexist with radial meshes.</p>
+</dd>
+</dl>
+</section>
+<section id="migration-path">
+<h3><a class="toc-backref" href="#id19" role="doc-backlink">Migration Path</a><a class="headerlink" href="#migration-path" title="Link to this heading">¶</a></h3>
+<p>Existing YAML configs still work - they’re parsed to create mesh and physics objects explicitly.</p>
+<p>New code can use modular approach directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create mesh</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">HomologousRadial1DMesh</span><span class="o">.</span><span class="n">from_velocity_interfaces</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># Calculate physics</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">UniformDensitySolver</span><span class="p">(</span><span class="n">density_value</span><span class="o">=...</span><span class="p">)</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+
+<span class="c1"># Build simulation</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="o">.</span><span class="n">from_mesh_and_quantities</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="see-also">
+<h2><a class="toc-backref" href="#id20" role="doc-backlink">See Also</a><a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt><strong>How-To Guides</strong>:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="../how_to/build_model.html"><span class="doc">Building TARDIS Models from Components</span></a> - Practical model building</p></li>
+<li><p><a class="reference internal" href="../io/model/geometry_mesh_classes.html"><span class="doc">TARDIS Geometry Mesh Classes</span></a> - Mesh usage examples</p></li>
+</ul>
+</dd>
+<dt><strong>API Reference</strong>:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">tardis.model.mesh</span></code> - Mesh classes</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshQuantity</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshLocation</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="TARDIS Concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../physics_walkthrough/intro/index.html" class="btn btn-neutral float-right" title="Physics Walkthrough Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 13 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

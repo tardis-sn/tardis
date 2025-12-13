@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=9a8dff47"></script>
+      <script src="../../_static/documentation_options.js?v=671b41d2"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -38,6 +38,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Import" href="parse_snec_to_tardis.html" />
+    <link rel="prev" title="TARDIS Model Input" href="index.html" />
     <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -73,7 +75,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/build_model.html">Building TARDIS Models from Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../how_to/read_external_models/index.html">How-to read external models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
@@ -84,9 +87,34 @@
 <li class="toctree-l1"><a class="reference internal" href="../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">TARDIS Model Input</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#architecture-guide">Architecture Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#practical-guide">Practical Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#practical-guides">Practical Guides</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">TARDIS Geometry Mesh Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Core-Components">Core Components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#1.-Radial1DMesh:-Spatial-Mesh">1. Radial1DMesh: Spatial Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.-HomologousRadial1DMesh:-Velocity-Based-Mesh">2. HomologousRadial1DMesh: Velocity-Based Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#3.-Practical-Example:-Type-Ia-Supernova-Mesh">3. Practical Example: Type Ia Supernova Mesh</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#4.-Visualization">4. Visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#additional-examples">Additional Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#key-concepts">Key Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#see-also">See Also</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts/index.html">TARDIS Concepts</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul>
@@ -130,6 +158,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">TARDIS Model Input</a></li>
       <li class="breadcrumb-item active">TARDIS Geometry Mesh Classes</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/io/model/geometry_mesh_classes.ipynb.txt" rel="nofollow"> View page source</a>
@@ -450,13 +479,16 @@ Mid-point radii (first 3): [7.1712e+14 7.6896e+14 8.2080e+14] cm
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="TARDIS Model Input" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="parse_snec_to_tardis.html" class="btn btn-neutral float-right" title="Import" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 12 Dec 2025.
+      <span class="lastupdated">Last updated on 13 Dec 2025.
       </span></p>
   </div>
 

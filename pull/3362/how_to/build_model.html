@@ -1,0 +1,602 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building TARDIS Models from Components &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=671b41d2"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How-to read external models" href="read_external_models/index.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="index.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Building TARDIS Models from Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#three-step-model-building">Three-Step Model Building</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-creating-meshes">Step 1: Creating Meshes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#from-velocity-structure-homologous-expansion">From Velocity Structure (Homologous Expansion)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-spatial-structure-radial-mesh">From Spatial Structure (Radial Mesh)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-calculating-density">Step 2: Calculating Density</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-density-solvers">Using Density Solvers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#direct-assignment">Direct Assignment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-working-with-configurations">Step 3: Working with Configurations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#from-yaml-config-files">From YAML Config Files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-1-creating-test-meshes">Pattern 1: Creating Test Meshes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-2-verifying-consistency">Pattern 2: Verifying Consistency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-3-converting-between-mesh-types">Pattern 3: Converting Between Mesh Types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#complete-example-type-ia-model">Complete Example: Type Ia Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-errors">Common Errors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/model/index.html">TARDIS Model Input</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../concepts/index.html">TARDIS Concepts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">&lt;no title&gt;</a></li>
+      <li class="breadcrumb-item active">Building TARDIS Models from Components</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/how_to/build_model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="building-tardis-models-from-components">
+<span id="build-model"></span><h1>Building TARDIS Models from Components<a class="headerlink" href="#building-tardis-models-from-components" title="Link to this heading">¶</a></h1>
+<p>This guide shows you how to build TARDIS supernova models using the modular architecture. You’ll learn to create meshes, calculate physical quantities, and assemble complete models.</p>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#prerequisites" id="id1">Prerequisites</a></p></li>
+<li><p><a class="reference internal" href="#quick-start" id="id2">Quick Start</a></p>
+<ul>
+<li><p><a class="reference internal" href="#three-step-model-building" id="id3">Three-Step Model Building</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#step-1-creating-meshes" id="id4">Step 1: Creating Meshes</a></p>
+<ul>
+<li><p><a class="reference internal" href="#from-velocity-structure-homologous-expansion" id="id5">From Velocity Structure (Homologous Expansion)</a></p></li>
+<li><p><a class="reference internal" href="#from-spatial-structure-radial-mesh" id="id6">From Spatial Structure (Radial Mesh)</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#step-2-calculating-density" id="id7">Step 2: Calculating Density</a></p>
+<ul>
+<li><p><a class="reference internal" href="#using-density-solvers" id="id8">Using Density Solvers</a></p></li>
+<li><p><a class="reference internal" href="#direct-assignment" id="id9">Direct Assignment</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#step-3-working-with-configurations" id="id10">Step 3: Working with Configurations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#from-yaml-config-files" id="id11">From YAML Config Files</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#common-patterns" id="id12">Common Patterns</a></p>
+<ul>
+<li><p><a class="reference internal" href="#pattern-1-creating-test-meshes" id="id13">Pattern 1: Creating Test Meshes</a></p></li>
+<li><p><a class="reference internal" href="#pattern-2-verifying-consistency" id="id14">Pattern 2: Verifying Consistency</a></p></li>
+<li><p><a class="reference internal" href="#pattern-3-converting-between-mesh-types" id="id15">Pattern 3: Converting Between Mesh Types</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#complete-example-type-ia-model" id="id16">Complete Example: Type Ia Model</a></p></li>
+<li><p><a class="reference internal" href="#troubleshooting" id="id17">Troubleshooting</a></p>
+<ul>
+<li><p><a class="reference internal" href="#common-errors" id="id18">Common Errors</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#next-steps" id="id19">Next Steps</a></p></li>
+</ul>
+</nav>
+<section id="prerequisites">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Prerequisites</a><a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h2>
+<p>You should understand:</p>
+<ul class="simple">
+<li><p>Basic TARDIS concepts (supernova ejecta, 1D models)</p></li>
+<li><p>Python programming basics</p></li>
+<li><p>The <a class="reference internal" href="../concepts/modular_architecture.html"><span class="doc">TARDIS Modular Architecture</span></a> (recommended)</p></li>
+</ul>
+</section>
+<section id="quick-start">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Quick Start</a><a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h2>
+<section id="three-step-model-building">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Three-Step Model Building</a><a class="headerlink" href="#three-step-model-building" title="Link to this heading">¶</a></h3>
+<p>Building a TARDIS model follows three steps:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">HomologousRadial1DMesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.classic.parse_density</span><span class="w"> </span><span class="kn">import</span> <span class="n">UniformDensitySolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Step 1: Create mesh (define spatial structure)</span>
+<span class="n">velocities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">HomologousRadial1DMesh</span><span class="o">.</span><span class="n">from_velocity_interfaces</span><span class="p">(</span>
+    <span class="n">velocity</span><span class="o">=</span><span class="n">velocities</span><span class="p">,</span>
+    <span class="n">time_explosion</span><span class="o">=</span><span class="mi">10</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+<span class="p">)</span>
+
+<span class="c1"># Step 2: Calculate density (add physics)</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">UniformDensitySolver</span><span class="p">(</span><span class="n">density_value</span><span class="o">=</span><span class="mf">1e-14</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+
+<span class="c1"># Step 3: Add more physics and create simulation</span>
+<span class="c1"># (abundances, temperature, etc.)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-1-creating-meshes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Step 1: Creating Meshes</a><a class="headerlink" href="#step-1-creating-meshes" title="Link to this heading">¶</a></h2>
+<section id="from-velocity-structure-homologous-expansion">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">From Velocity Structure (Homologous Expansion)</a><a class="headerlink" href="#from-velocity-structure-homologous-expansion" title="Link to this heading">¶</a></h3>
+<p>Most supernova models use homologous expansion where <span class="math notranslate nohighlight">\(r = v \times t\)</span>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">HomologousRadial1DMesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Define velocity boundaries (N+1 interfaces for N cells)</span>
+<span class="n">N_SHELLS</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">V_INNER</span> <span class="o">=</span> <span class="mi">8000</span>  <span class="c1"># km/s</span>
+<span class="n">V_OUTER</span> <span class="o">=</span> <span class="mi">20000</span>  <span class="c1"># km/s</span>
+
+<span class="n">velocity_interfaces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+    <span class="n">V_INNER</span><span class="p">,</span> <span class="n">V_OUTER</span><span class="p">,</span> <span class="n">N_SHELLS</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>
+
+<span class="c1"># Create mesh</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">HomologousRadial1DMesh</span><span class="o">.</span><span class="n">from_velocity_interfaces</span><span class="p">(</span>
+    <span class="n">velocity</span><span class="o">=</span><span class="n">velocity_interfaces</span><span class="p">,</span>
+    <span class="n">time_explosion</span><span class="o">=</span><span class="mi">10</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created mesh with </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span><span class="si">}</span><span class="s2"> cells&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Velocity range: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">velocity</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">velocity</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt><strong>Key Points</strong>:</dt><dd><ul class="simple">
+<li><p>N+1 velocity interfaces define N cells</p></li>
+<li><p>Velocities are at INTERFACE locations</p></li>
+<li><p>Time explosion is required for <span class="math notranslate nohighlight">\(r = v \times t\)</span></p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="from-spatial-structure-radial-mesh">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">From Spatial Structure (Radial Mesh)</a><a class="headerlink" href="#from-spatial-structure-radial-mesh" title="Link to this heading">¶</a></h3>
+<p>If you have radii directly (e.g., from hydro simulations):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">Radial1DMesh</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+
+<span class="c1"># Define radii at cell interfaces</span>
+<span class="n">radii</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1e8</span><span class="p">,</span> <span class="mf">2e8</span><span class="p">,</span> <span class="mf">3e8</span><span class="p">,</span> <span class="mf">4e8</span><span class="p">,</span> <span class="mf">5e8</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span>
+
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">Radial1DMesh</span><span class="o">.</span><span class="n">from_cell_interfaces</span><span class="p">(</span><span class="n">radii</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cells: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Radii: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">radius</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-2-calculating-density">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Step 2: Calculating Density</a><a class="headerlink" href="#step-2-calculating-density" title="Link to this heading">¶</a></h2>
+<section id="using-density-solvers">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Using Density Solvers</a><a class="headerlink" href="#using-density-solvers" title="Link to this heading">¶</a></h3>
+<p>TARDIS provides several density solvers:</p>
+<p><strong>Uniform Density</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.classic.parse_density</span><span class="w"> </span><span class="kn">import</span> <span class="n">UniformDensitySolver</span>
+
+<span class="n">solver</span> <span class="o">=</span> <span class="n">UniformDensitySolver</span><span class="p">(</span><span class="n">density_value</span><span class="o">=</span><span class="mf">1e-14</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+
+<span class="c1"># density is a MeshQuantity with N values (one per cell)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density shape: </span><span class="si">{</span><span class="n">density</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Defined at: </span><span class="si">{</span><span class="n">density</span><span class="o">.</span><span class="n">defined_at</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># VOLUME</span>
+</pre></div>
+</div>
+<p><strong>Power Law Density</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.classic.parse_density</span><span class="w"> </span><span class="kn">import</span> <span class="n">PowerLawDensitySolver</span>
+
+<span class="n">solver</span> <span class="o">=</span> <span class="n">PowerLawDensitySolver</span><span class="p">(</span>
+    <span class="n">density_0</span><span class="o">=</span><span class="mf">3e-13</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">velocity_0</span><span class="o">=</span><span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">,</span>
+    <span class="n">exponent</span><span class="o">=</span><span class="mi">2</span>  <span class="c1"># rho ~ v^(-2)</span>
+<span class="p">)</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>W7 Type Ia Density (Branch85)</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.classic.parse_density</span><span class="w"> </span><span class="kn">import</span> <span class="n">W7DensitySolver</span>
+
+<span class="n">solver</span> <span class="o">=</span> <span class="n">W7DensitySolver</span><span class="p">(</span>
+    <span class="n">time_0</span><span class="o">=</span><span class="mf">0.000231481</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+    <span class="n">density_0</span><span class="o">=</span><span class="mf">3e29</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">velocity_0</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="p">)</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="direct-assignment">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Direct Assignment</a><a class="headerlink" href="#direct-assignment" title="Link to this heading">¶</a></h3>
+<p>For custom density profiles:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">MeshQuantity</span><span class="p">,</span> <span class="n">MeshLocation</span>
+
+<span class="c1"># Create custom density profile (N values for N cells)</span>
+<span class="n">density_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1e-13</span><span class="p">,</span> <span class="mf">8e-14</span><span class="p">,</span> <span class="mf">5e-14</span><span class="p">,</span> <span class="mf">3e-14</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span>
+
+<span class="n">density</span> <span class="o">=</span> <span class="n">MeshQuantity</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">density_data</span><span class="p">,</span>
+    <span class="n">defined_at</span><span class="o">=</span><span class="n">MeshLocation</span><span class="o">.</span><span class="n">VOLUME</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;density&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Verify it matches mesh</span>
+<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">density</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-3-working-with-configurations">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Step 3: Working with Configurations</a><a class="headerlink" href="#step-3-working-with-configurations" title="Link to this heading">¶</a></h2>
+<section id="from-yaml-config-files">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">From YAML Config Files</a><a class="headerlink" href="#from-yaml-config-files" title="Link to this heading">¶</a></h3>
+<p>TARDIS configs work with the modular architecture:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.classic.parse_density</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">parse_density_solver_from_density_config</span>
+<span class="p">)</span>
+
+<span class="c1"># Load configuration</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;my_config.yml&quot;</span><span class="p">)</span>
+
+<span class="c1"># Extract mesh parameters</span>
+<span class="n">v_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">velocity</span>
+<span class="n">velocities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+    <span class="n">v_config</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="n">v_config</span><span class="o">.</span><span class="n">stop</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="n">v_config</span><span class="o">.</span><span class="n">num</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>
+
+<span class="c1"># Create mesh</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">HomologousRadial1DMesh</span><span class="o">.</span><span class="n">from_velocity_interfaces</span><span class="p">(</span>
+    <span class="n">velocity</span><span class="o">=</span><span class="n">velocities</span><span class="p">,</span>
+    <span class="n">time_explosion</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">supernova</span><span class="o">.</span><span class="n">time_explosion</span>
+<span class="p">)</span>
+
+<span class="c1"># Parse density configuration and solve</span>
+<span class="n">density_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">density</span>
+<span class="n">solver</span> <span class="o">=</span> <span class="n">parse_density_solver_from_density_config</span><span class="p">(</span><span class="n">density_config</span><span class="p">)</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-patterns">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Common Patterns</a><a class="headerlink" href="#common-patterns" title="Link to this heading">¶</a></h2>
+<section id="pattern-1-creating-test-meshes">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Pattern 1: Creating Test Meshes</a><a class="headerlink" href="#pattern-1-creating-test-meshes" title="Link to this heading">¶</a></h3>
+<p>For unit tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simple_mesh</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple test mesh with 5 cells.&quot;&quot;&quot;</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>
+    <span class="k">return</span> <span class="n">HomologousRadial1DMesh</span><span class="o">.</span><span class="n">from_velocity_interfaces</span><span class="p">(</span>
+        <span class="n">velocity</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
+        <span class="n">time_explosion</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+    <span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_density_solver</span><span class="p">(</span><span class="n">simple_mesh</span><span class="p">):</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">UniformDensitySolver</span><span class="p">(</span><span class="n">density_value</span><span class="o">=</span><span class="mf">1e-14</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">simple_mesh</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">simple_mesh</span><span class="o">.</span><span class="n">n_cells</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">defined_at</span> <span class="o">==</span> <span class="n">MeshLocation</span><span class="o">.</span><span class="n">VOLUME</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-2-verifying-consistency">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Pattern 2: Verifying Consistency</a><a class="headerlink" href="#pattern-2-verifying-consistency" title="Link to this heading">¶</a></h3>
+<p>Always check that quantities match mesh structure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">verify_mesh_quantity</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">expected_location</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify MeshQuantity is consistent with mesh.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">expected_location</span> <span class="o">==</span> <span class="n">MeshLocation</span><span class="o">.</span><span class="n">VOLUME</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantity</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span>
+    <span class="k">elif</span> <span class="n">expected_location</span> <span class="o">==</span> <span class="n">MeshLocation</span><span class="o">.</span><span class="n">INTERFACE</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">quantity</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">assert</span> <span class="n">quantity</span><span class="o">.</span><span class="n">defined_at</span> <span class="o">==</span> <span class="n">expected_location</span>
+
+<span class="c1"># Usage</span>
+<span class="n">verify_mesh_quantity</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">MeshLocation</span><span class="o">.</span><span class="n">VOLUME</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-3-converting-between-mesh-types">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Pattern 3: Converting Between Mesh Types</a><a class="headerlink" href="#pattern-3-converting-between-mesh-types" title="Link to this heading">¶</a></h3>
+<p>Convert homologous to spatial mesh:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create homologous mesh</span>
+<span class="n">hom_mesh</span> <span class="o">=</span> <span class="n">HomologousRadial1DMesh</span><span class="o">.</span><span class="n">from_velocity_interfaces</span><span class="p">(</span>
+    <span class="n">velocity</span><span class="o">=</span><span class="n">velocities</span><span class="p">,</span>
+    <span class="n">time_explosion</span><span class="o">=</span><span class="n">time_exp</span>
+<span class="p">)</span>
+
+<span class="c1"># Convert to spatial mesh</span>
+<span class="n">spatial_mesh</span><span class="p">,</span> <span class="n">velocity_field</span> <span class="o">=</span> <span class="n">hom_mesh</span><span class="o">.</span><span class="n">to_spatial_mesh</span><span class="p">()</span>
+
+<span class="c1"># spatial_mesh is a Radial1DMesh</span>
+<span class="c1"># velocity_field preserves the velocity data</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Radii: </span><span class="si">{</span><span class="n">spatial_mesh</span><span class="o">.</span><span class="n">radius</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Velocities preserved: </span><span class="si">{</span><span class="n">velocity_field</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="complete-example-type-ia-model">
+<h2><a class="toc-backref" href="#id16" role="doc-backlink">Complete Example: Type Ia Model</a><a class="headerlink" href="#complete-example-type-ia-model" title="Link to this heading">¶</a></h2>
+<p>Here’s a complete example building a W7-like Type Ia model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">HomologousRadial1DMesh</span><span class="p">,</span> <span class="n">MeshLocation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.classic.parse_density</span><span class="w"> </span><span class="kn">import</span> <span class="n">W7DensitySolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># 1. Define model parameters</span>
+<span class="n">N_SHELLS</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">V_INNER</span> <span class="o">=</span> <span class="mi">11000</span>  <span class="c1"># km/s</span>
+<span class="n">V_OUTER</span> <span class="o">=</span> <span class="mi">20000</span>  <span class="c1"># km/s</span>
+<span class="n">T_EXPLOSION</span> <span class="o">=</span> <span class="mi">13</span>  <span class="c1"># days</span>
+
+<span class="c1"># 2. Create velocity mesh</span>
+<span class="n">velocity_interfaces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+    <span class="n">V_INNER</span><span class="p">,</span> <span class="n">V_OUTER</span><span class="p">,</span> <span class="n">N_SHELLS</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>
+
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">HomologousRadial1DMesh</span><span class="o">.</span><span class="n">from_velocity_interfaces</span><span class="p">(</span>
+    <span class="n">velocity</span><span class="o">=</span><span class="n">velocity_interfaces</span><span class="p">,</span>
+    <span class="n">time_explosion</span><span class="o">=</span><span class="n">T_EXPLOSION</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+<span class="p">)</span>
+
+<span class="c1"># 3. Calculate W7 density profile</span>
+<span class="n">w7_solver</span> <span class="o">=</span> <span class="n">W7DensitySolver</span><span class="p">(</span>
+    <span class="n">time_0</span><span class="o">=</span><span class="mf">0.000231481</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+    <span class="n">density_0</span><span class="o">=</span><span class="mf">3e29</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">velocity_0</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="p">)</span>
+
+<span class="n">density</span> <span class="o">=</span> <span class="n">w7_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+
+<span class="c1"># 4. Verify results</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model created with </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span><span class="si">}</span><span class="s2"> cells&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density range: </span><span class="si">{</span><span class="n">density</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">density</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;First cell density: </span><span class="si">{</span><span class="n">density</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Last cell density: </span><span class="si">{</span><span class="n">density</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Density should decrease with radius for W7</span>
+<span class="k">assert</span> <span class="n">density</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">density</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">Troubleshooting</a><a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="common-errors">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Common Errors</a><a class="headerlink" href="#common-errors" title="Link to this heading">¶</a></h3>
+<p><strong>“MeshQuantity has wrong length”</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Wrong: N+1 values for volume quantity</span>
+<span class="n">density_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span>  <span class="c1"># ❌</span>
+
+<span class="c1"># Correct: N values for volume quantity</span>
+<span class="n">density_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">n_cells</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span>  <span class="c1"># ✓</span>
+</pre></div>
+</div>
+<p><strong>“Units not compatible”</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Always include units</span>
+<span class="n">velocities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">])</span>  <span class="c1"># ❌ No units</span>
+<span class="n">velocities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>  <span class="c1"># ✓</span>
+</pre></div>
+</div>
+<p><strong>“MeshLocation mismatch”</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check where your quantity should live</span>
+<span class="c1"># Density is always at VOLUME, not INTERFACE</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">MeshQuantity</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">rho_data</span><span class="p">,</span>
+    <span class="n">defined_at</span><span class="o">=</span><span class="n">MeshLocation</span><span class="o">.</span><span class="n">INTERFACE</span><span class="p">,</span>  <span class="c1"># ❌</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;density&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="next-steps">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink">Next Steps</a><a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt><strong>Learn More</strong>:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="../io/model/geometry_mesh_classes.html"><span class="doc">TARDIS Geometry Mesh Classes</span></a> - Interactive notebook examples</p></li>
+<li><p><a class="reference internal" href="../concepts/modular_architecture.html"><span class="doc">TARDIS Modular Architecture</span></a> - Architectural concepts</p></li>
+<li><p><a class="reference internal" href="../io/configuration/index.html"><span class="doc">Configuration Reference</span></a> - Configuration file format</p></li>
+</ul>
+</dd>
+<dt><strong>API Documentation</strong>:</dt><dd><ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">HomologousRadial1DMesh</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Radial1DMesh</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">MeshQuantity</span></code></p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">tardis.io.model.classic.parse_density</span></code> - Density solvers</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="read_external_models/index.html" class="btn btn-neutral float-right" title="How-to read external models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 13 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
