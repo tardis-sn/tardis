@@ -4,6 +4,8 @@
 Building TARDIS Models from Components
 **************************************
 
+.. rtx-admonition::
+
 This guide shows you how to build TARDIS supernova models using the modular architecture. You'll learn to create meshes, calculate physical quantities, and assemble complete models.
 
 .. contents:: Contents

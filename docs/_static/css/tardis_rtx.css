@@ -1,0 +1,70 @@
+/* TARDIS-RTX Architecture Custom Admonition Styling */
+
+.admonition.rtx {
+    border-left: 4px solid #6f42c1;
+    background-color: #f3eaff;
+    box-shadow: 0 2px 4px rgba(111, 66, 193, 0.1);
+    padding: 12px;
+    margin: 1em 0;
+}
+
+.admonition.rtx .admonition-title {
+    background-color: #6f42c1;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 6px 12px;
+    margin: -12px -12px 12px -12px;
+    border-radius: 0;
+}
+
+.admonition.rtx p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.admonition.rtx p:last-child {
+    margin-bottom: 0;
+}
+
+/* Classic Architecture Admonition Styling */
+.admonition.classic {
+    border-left: 4px solid #5a9fd4;
+    background-color: #e7f2fa;
+    box-shadow: 0 2px 4px rgba(90, 159, 212, 0.1);
+    padding: 12px;
+    margin: 1em 0;
+}
+
+.admonition.classic .admonition-title {
+    background-color: #5a9fd4;
+    color: #ffffff;
+    font-weight: bold;
+    padding: 6px 12px;
+    margin: -12px -12px 12px -12px;
+    border-radius: 0;
+}
+
+.admonition.classic p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.admonition.classic p:last-child {
+    margin-bottom: 0;
+}
+
+/* RTX Navigation Badge Styling */
+.rtx-nav-pill {
+    display: inline-block;
+    font-size: 0.7em;
+    font-weight: bold;
+    background-color: #6f42c1;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 5px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}

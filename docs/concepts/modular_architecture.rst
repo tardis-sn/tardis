@@ -4,7 +4,9 @@
 TARDIS Modular Architecture
 *****************************
 
-TARDIS uses a modular architecture that separates topology, physics, and simulation into distinct, composable layers. This guide explains the conceptual foundations and design philosophy.
+.. rtx-admonition::
+
+This guide explains the conceptual foundations and design philosophy.
 
 .. contents:: Contents
    :local:
@@ -12,6 +14,11 @@ TARDIS uses a modular architecture that separates topology, physics, and simulat
 
 Core Architectural Principles
 ==============================
+
+Separation of Concerns
+----------------------
+
+TARDIS separates three distinct aspects of supernova modeling:
 
 Separation of Concerns
 ----------------------

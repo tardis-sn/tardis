@@ -95,7 +95,7 @@ Mission Statement
     :caption: Concepts
     :hidden:
 
-    concepts/index
+    concepts/modular_architecture
 
 .. toctree::
     :maxdepth: 2
