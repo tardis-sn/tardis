@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 from astropy import units as u
 
-from tardis.io.model.classic.base import MeshLocation, MeshQuantity
+from tardis.model.mesh.base import MeshLocation, MeshQuantity
 
 
 @dataclass

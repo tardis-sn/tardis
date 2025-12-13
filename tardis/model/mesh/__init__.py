@@ -1,7 +1,7 @@
 """Classic geometry models for TARDIS IO."""
 
-from tardis.io.model.classic.base import MeshLocation, MeshQuantity
-from tardis.io.model.classic.mesh import HomologousRadial1DMesh, Radial1DMesh
+from tardis.model.mesh.base import MeshLocation, MeshQuantity
+from tardis.model.mesh.mesh import HomologousRadial1DMesh, Radial1DMesh
 
 __all__ = [
     "HomologousRadial1DMesh",

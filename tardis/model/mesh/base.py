@@ -36,4 +36,4 @@ class MeshQuantity(NamedTuple):
 
     data: u.Quantity
     defined_at: MeshLocation
-    name: str = None
+    name: str = ""
