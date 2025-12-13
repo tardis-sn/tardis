@@ -276,7 +276,7 @@ class TestSDECPlotter:
             # save artists which correspond to element contributions
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
-                    np.testing.assert_almost_equal(
+                    np.testing.assert_allclose(
                         path.vertices,
                         expected.get(
                             "plot_data_hdf/"
@@ -286,6 +286,8 @@ class TestSDECPlotter:
                             + "ind_"
                             + str(index2)
                         ),
+                        atol=0,
+                        rtol=RELATIVE_TOLERANCE_SDEC
                     )
         expected.close()
 
@@ -335,7 +337,7 @@ class TestSDECPlotter:
         plot_data = PlotDataHDF(**property_group)
         return plot_data
 
-    def test_generate_plot_mpl(
+    def test_generate_plot_ply(
         self, generate_plot_plotly_hdf, plotter_generate_plot_ply, regression_data
     ):
         fig, _ = plotter_generate_plot_ply
