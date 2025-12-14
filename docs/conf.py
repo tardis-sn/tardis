@@ -98,8 +98,8 @@ extensions = [
     "numpydoc",
     "recommonmark",
     # Custom TARDIS extensions
-    "rtx_admonition",
-    "rtx_badges",
+    "version_admonitions",
+    "version_badges",
     "page_generators",
     "redirects",
 ]
@@ -233,7 +233,7 @@ modindex_common_prefix = ["tardis."]
 
 # Custom CSS files
 html_css_files = [
-    "css/tardis_rtx.css",
+    "css/tardis_version.css",
 ]
 
 
@@ -295,7 +295,7 @@ nbsite_pyodide_conf = {
 html_js_files = [
     DEFAULT_EMBED_REQUIREJS_URL,
     "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js",
-    "js/rtx_badges.js",
+    "js/version_badges.js",
 ]
 
 # -- Turn on nitpicky mode for sphinx (to warn about references not found) ----
@@ -327,7 +327,7 @@ html_js_files = [
 
 # -- Custom Sphinx Extensions ------------------------------------------------
 # Custom extensions are now located in the _ext/ directory:
-# - rtx_badges.py: RTX badge system for navigation
+# - version_badges.py: Version badge system for navigation
 # - page_generators.py: Auto-generate tutorial and workflow index pages  
 # - redirects.py: Create redirect files for moved pages
 

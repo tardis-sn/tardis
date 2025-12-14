@@ -1,5 +1,6 @@
-/* TARDIS-RTX Architecture Custom Admonition Styling */
+/* TARDIS Version-Specific Architecture Admonition Styling */
 
+/* RTX Architecture Admonition */
 .admonition.rtx {
     border-left: 4px solid #6f42c1;
     background-color: #f3eaff;
@@ -53,18 +54,31 @@
     margin-bottom: 0;
 }
 
-/* RTX Navigation Badge Styling */
-.rtx-nav-pill {
-    display: inline-block;
+/* Navigation Badge Base Styling */
+.rtx-nav-pill,
+.classic-nav-pill {
+    display: inline-block !important;
     font-size: 0.7em;
     font-weight: bold;
-    background-color: #6f42c1;
-    color: #ffffff;
-    padding: 2px 6px;
-    border-radius: 10px;
-    margin-left: 5px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    border-radius: 8px;
     vertical-align: middle;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     white-space: nowrap;
+    pointer-events: none;
+    line-height: 1.4;
+}
+
+/* RTX Navigation Badge - Purple Theme */
+.rtx-nav-pill {
+    background-color: #6f42c1;
+    color: #ffffff;
+}
+
+/* Classic Navigation Badge - Blue Theme */
+.classic-nav-pill {
+    background-color: #5a9fd4;
+    color: #ffffff;
 }
