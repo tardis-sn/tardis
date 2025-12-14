@@ -21,12 +21,13 @@
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/tardis_version.css?v=d548b59d" />
 
   
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=671b41d2"></script>
+      <script src="../../_static/documentation_options.js?v=63b47c3c"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,6 +36,7 @@
       <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+      <script src="../../_static/js/version_badges.js?v=9d3d6ad7"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -94,7 +96,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Concepts</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../concepts/index.html">TARDIS Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts/modular_architecture.html">TARDIS Modular Architecture</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
 <ul class="current">
@@ -230,7 +232,7 @@ deriving the <a class="reference internal" href="estimators.html"><span class="d
 <div class="math notranslate nohighlight">
 \[\mu = \sqrt{z}.\]</div>
 <p>This sampling is shown in the “Code Example” section.</p>
-<p><img alt="35dce3d439cf4b349e8d4ce51b2702ea" class="no-scaled-link" src="../../_images/propagation_direction.png" style="width: 500px;" /></p>
+<p><img alt="16b85e52d5614a7190346c0a3393642a" class="no-scaled-link" src="../../_images/propagation_direction.png" style="width: 500px;" /></p>
 <p>Finally, each packet is assigned an initial frequency (or more precisely, the initial frequency of its constituent photons). Note that since each packet has the same energy, each packet will represent a different number of real photons. The sampling on packet frequencies is more involved than that of the propagation direction, as it involves sampling the Planck distribution (see below). TARDIS uses the technique described in <span id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id4" title="L. L. Carter and E. Cashwell. Particle-transport simulation with the Monte Carlo method. Technical Report, Los Alamos Scientific Laboratory, 1975. URL: http://www.iaea.org/inis/collection/NCLCollectionStore/_Public/07/227/7227109.pdf.">CarterCashwell75</a>]</span> and summarized in <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id3" title="J. E. Bjorkman and K. Wood. Radiative Equilibrium and Temperature Correction in Monte Carlo Radiation Transfer. Astrophysical Journal, 554:615-623, June 2001. arXiv:astro-ph/0103249, doi:10.1086/321336.">BjorkmanWood01</a>]</span> for this
 purpose.</p>
 <p>During the simulation, the energy of the packet remains constant in the local co-moving frame (see <a class="reference internal" href="propagation.html#reference-frames"><span class="std std-ref">Reference Frames</span></a>). This naturally ensures energy conservation and constitutes the main advantage of this discretization scheme. <strong>However, while the energy of the packets is conserved in the co-moving frame, the co-moving frequency of the packet (and thus the photons represented by the packet) may vary over the course of the simulation. Thus, a packet may
@@ -489,7 +491,7 @@ Luminosity per packet: [1.78140022e+38 1.78140022e+38 1.78140022e+38 ... 1.78140
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 13 Dec 2025.
+      <span class="lastupdated">Last updated on 14 Dec 2025.
       </span></p>
   </div>
 

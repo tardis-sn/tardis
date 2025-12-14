@@ -9,6 +9,13 @@
    ]
   },
   {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    ".. classic-admonition::\n"
+   ]
+  },
+  {
    "attachments": {},
    "cell_type": "markdown",
    "metadata": {},
