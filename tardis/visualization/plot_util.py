@@ -188,7 +188,7 @@ def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=F
         }
 
         if include_shell_id:
-            packet_data["last_line_interaction_shell_id"] = df_last_emitted["after_shell_id"].values
+            packet_data["last_line_interaction_shell_id"] = df_last_emitted["shell_id"].values
 
     packet_data["packets_df"] = pd.DataFrame(packet_data)
     process_line_interactions(packet_data, lines_df)
