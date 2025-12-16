@@ -4,6 +4,9 @@ import pandas as pd
 import pytest
 
 from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+from tardis.transport.montecarlo.packets.trackers import (
+    tracker_full_df2tracker_last_interaction_df,
+)
 from tardis.transport.montecarlo.packets.trackers.array_utils import (
     extend_array,
 )
@@ -26,34 +29,6 @@ def test_extend_array():
     assert new_array.size == new_length
     assert new_array.dtype == original_array.dtype
     npt.assert_allclose(original_array, new_array[:original_array.size])
-
-
-def test_tracker_last_interaction_df_interaction_types(simulation_rpacket_tracking, regression_data):
-    df = simulation_rpacket_tracking.transport.transport_state.tracker_last_interaction_df
-    interaction_type_labels = df['last_interaction_type'].values
-    interaction_types = np.array([InteractionType[label].value if label != 'NO_INTERACTION' else -1 for label in interaction_type_labels], dtype=np.int64)
-
-    expected_types = regression_data.sync_ndarray(interaction_types)
-    npt.assert_allclose(interaction_types, expected_types)
-
-
-def test_tracker_last_interaction_df_shell_ids(simulation_rpacket_tracking, regression_data):
-    df = simulation_rpacket_tracking.transport.transport_state.tracker_last_interaction_df
-    interaction_type_labels = df['last_interaction_type'].values
-    interaction_types = np.array([InteractionType[label].value if label != 'NO_INTERACTION' else -1 for label in interaction_type_labels], dtype=np.int64)
-    mask = interaction_types == InteractionType.LINE
-    shell_ids = df['shell_id'].values[mask]
-
-    expected_shells = regression_data.sync_ndarray(shell_ids)
-    npt.assert_allclose(shell_ids, expected_shells)
-
-
-def test_tracker_last_interaction_df_output_nus(simulation_rpacket_tracking, regression_data):
-    packet_collection = simulation_rpacket_tracking.transport.transport_state.packet_collection
-    output_nus = packet_collection.output_nus
-
-    expected_nus = regression_data.sync_ndarray(output_nus)
-    npt.assert_allclose(output_nus, expected_nus)
 
 
 def test_boundary_interactions(tracker_full_df, regression_data):
@@ -128,4 +103,15 @@ def test_tracker_last_interaction_df_contents(simulation_rpacket_tracking, regre
     tracker_df['last_interaction_type'] = tracker_df['last_interaction_type'].astype(str)
 
     expected = regression_data.sync_dataframe(tracker_df, key="tracker_last_interaction_df")
+    pd.testing.assert_frame_equal(tracker_df, expected)
+
+
+def test_tracker_full_df2tracker_last_interaction_df(tracker_full_df, regression_data):
+    tracker_full_df = tracker_full_df.copy()
+    tracker_df = tracker_full_df2tracker_last_interaction_df(tracker_full_df)
+    tracker_df['last_interaction_type'] = tracker_df['last_interaction_type'].astype(str)
+
+    regression_file = regression_data.fpath.parent / "test_tracker_last_interaction_df_contents.h5"
+    expected = pd.read_hdf(regression_file, key="tracker_last_interaction_df")
+
     pd.testing.assert_frame_equal(tracker_df, expected)
