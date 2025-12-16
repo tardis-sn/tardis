@@ -310,10 +310,9 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         gamma_corr = gamma - (alpha_stim * n_k / n_i).multiply(
             electron_densities
         )
-        num_neg_elements = (gamma_corr < 0).sum().sum()
-        if num_neg_elements:
+        if (gamma_corr < 0).any().any():
             raise PlasmaException(
-                "Negative values in CorrPhotoIonRateCoeff.  Try raising the number of montecarlo packets."
+                "Negative values in CorrPhotoIonRateCoeff. Try raising the number of montecarlo packets."
             )
         return gamma_corr
 

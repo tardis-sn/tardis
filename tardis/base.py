@@ -94,7 +94,9 @@ def run_tardis(
     if not isinstance(show_convergence_plots, bool):
         raise TypeError("Expected bool in show_convergence_plots argument")
 
-    logger_widget, tardislogger = logging_state(log_level, tardis_config, specific_log_level, display_logging_widget)
+    logger_widget, tardislogger = logging_state(
+        log_level, tardis_config, specific_log_level, display_logging_widget
+    )
 
     if atom_data is not None:
         try:
@@ -103,7 +105,6 @@ def run_tardis(
             logger.debug(
                 "Atom Data Cannot be Read from HDF. Setting to Default Atom Data"
             )
-            atom_data = atom_data
 
     simulation = Simulation.from_config(
         tardis_config,

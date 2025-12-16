@@ -57,7 +57,7 @@ jobs:
           repository: ${{ inputs.regression-data-repo }}
           path: tardis-regression-data
           sparse-checkout: ${{ inputs.atom-data-sparse == true && 'atom_data/kurucz_cd23_chianti_H_He_latest.h5' || '' }}
-    
+
       - name: Create LFS file list
         run: |
           if [ "${{ inputs.atom-data-sparse }}" == "true" ]; then
@@ -112,20 +112,3 @@ jobs:
           path: tardis-regression-data/.git/lfs
           key: tardis-regression-${{ inputs.atom-data-sparse == true && 'atom-data-sparse' || 'full-data' }}-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-${{ inputs.regression-data-repo }}-v1
 
-      - name: Remove label
-        if: ${{ inputs.allow_lfs_pull }}
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            try {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                name: 'git-lfs-pull'
-              });
-              console.log('Successfully removed git-lfs-pull label');
-            } catch (error) {
-              console.log(`Unable to remove git-lfs-pull label: ${error.message}`);
-            }

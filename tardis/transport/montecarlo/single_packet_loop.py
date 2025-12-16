@@ -21,9 +21,11 @@ from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.interaction import (
+from tardis.transport.montecarlo.interaction_event_callers import (
     continuum_event,
-    line_scatter,
+    line_scatter_event,
+)
+from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
@@ -218,7 +220,7 @@ def single_packet_loop(
 
             rpacket_tracker.track_line_interaction_before(r_packet)
             
-            line_scatter(
+            line_scatter_event(
                 r_packet,
                 time_explosion,
                 line_interaction_type,

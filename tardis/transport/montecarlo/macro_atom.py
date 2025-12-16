@@ -11,18 +11,26 @@ class MacroAtomError(ValueError):
 
 
 class MacroAtomTransitionType(IntEnum):
+    PHOTOIONIZATION = 3
+    RECOMB_INTERNAL = 2
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
-    BF_EMISSION = -2
+    BF_EMISSION = -2  # This is recombination emission
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
     TWO_PHOTON = -6
+    COLL_DOWN_TO_K_PACKET = 9
+    COLL_DOWN_INTERNAL = 10
+    COLL_UP_INTERNAL = 11
+    COLL_UP_COOLING = 12  # I think this should be a deactivation event
 
 
 @njit(**njit_dict_no_parallel)
-def macro_atom_interaction(activation_level_id, current_shell_id, opacity_state):
+def macro_atom_interaction(
+    activation_level_id, current_shell_id, opacity_state
+):
     """
     Parameters
     ----------
@@ -46,7 +54,6 @@ def macro_atom_interaction(activation_level_id, current_shell_id, opacity_state)
 
         # looping through the transition probabilities
         for transition_id in range(block_start, block_end):
-
             transition_probability = opacity_state.transition_probabilities[
                 transition_id, current_shell_id
             ]

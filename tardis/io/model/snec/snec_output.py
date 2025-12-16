@@ -10,7 +10,7 @@ import xarray as xr
 import yaml
 from tqdm.auto import tqdm
 
-from tardis.io.model.readers.snec.xg_files import XGData, read_xg_file
+from tardis.io.model.snec.xg_files import XGData, read_xg_file
 
 with open(
     Path(__file__).parent / "parser_config" / "snec_xg_output_quantities.yml",

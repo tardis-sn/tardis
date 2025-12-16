@@ -310,6 +310,7 @@ class TestSDECPlotter:
             if isinstance(data, PolyCollection):
                 for index2, path in enumerate(data.get_paths()):
                     np.testing.assert_allclose(
+                    np.testing.assert_allclose(
                         path.vertices,
                         expected.get(
                             "plot_data_hdf/"
@@ -319,6 +320,8 @@ class TestSDECPlotter:
                             + "ind_"
                             + str(index2)
                         ),
+                        atol=0,
+                        rtol=RELATIVE_TOLERANCE_SDEC
                         atol=0,
                         rtol=RELATIVE_TOLERANCE_SDEC
                     )

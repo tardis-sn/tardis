@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2025.09.14'
-doi: 10.5281/zenodo.17114929
+title: 'tardis-sn/tardis: TARDIS v2025.11.16'
+doi: 10.5281/zenodo.17620321
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -90,49 +90,50 @@ authors:
 - given-names: Gaurav
   family-names: Gautam
   affiliation:
+- given-names: Atharva
+  family-names: Arya
+  affiliation:
 - given-names: Andrew
   family-names: Fullard
   affiliation: Michigan State University
   orcid: https://orcid.org/0000-0001-7343-1678
-- given-names: Atharva
-  family-names: Arya
-  affiliation:
 - given-names: Isaac
   family-names: Smith
+  affiliation:
+- given-names: Joshua
+  family-names: Shields
   affiliation:
 - given-names: Kevin
   family-names: Cawley
   affiliation:
 - given-names: Jaladh
   family-names: Singhal
-  affiliation:
+  affiliation: Caltech
   orcid: https://orcid.org/0000-0002-8310-0829
-- given-names: Joshua
-  family-names: Shields
-  affiliation:
-- given-names: Jack
-  family-names: O'Brien
-  affiliation:
 - given-names: Talytha
   family-names: Barbosa
   affiliation:
 - given-names: Dhruv
   family-names: Sondhi
   affiliation:
+- given-names: Jack
+  family-names: O'Brien
+  affiliation:
 - given-names: Jenny
   family-names: Yu
   affiliation:
+- given-names: Josh
+  family-names: Shields
+  affiliation: Michigan State University
+  orcid: https://orcid.org/0000-0002-1560-5286
 - given-names: Maryam
   family-names: Patel
   affiliation:
-- given-names: Josh
-  family-names: Shields
+- given-names: Shikha
+  family-names: Rathi
   affiliation:
 - given-names: Kaushik
   family-names: Varanasi
-  affiliation:
-- given-names: Shikha
-  family-names: Rathi
   affiliation:
 - given-names: Sona
   family-names: Chitchyan
@@ -144,75 +145,91 @@ authors:
 - given-names: Shreyas
   family-names: Singh
   affiliation:
-- given-names: Arjun
-  family-names: Savel
-  affiliation:
 - given-names: Sumit
   family-names: Gupta
   affiliation:
+- given-names: Arjun
+  family-names: Savel
+  affiliation:
+- given-names: Haille
+  family-names: Marie Lynn
+  affiliation:
+- given-names: Youssef
+  family-names: Eweis
+  affiliation:
+- given-names: Swayam
+  family-names: Shah
+  affiliation:
+  orcid: https://orcid.org/0009-0005-8092-547X
 - given-names: Martin
   family-names: Reinecke
   affiliation:
 - given-names: Alexander
   family-names: Holas
   affiliation:
-- given-names: Youssef
-  family-names: Eweis
+- given-names: Erin
+  family-names: Visser
   affiliation:
 - given-names: Tomas
   family-names: Bylund
   affiliation:
-- given-names: William
-  family-names: Black
-  affiliation:
 - given-names: Laud
   family-names: Bentil
   affiliation:
+- given-names: William
+  family-names: Black
+  affiliation:
+- given-names: Anirban
+  family-names: Dutta
+  affiliation:
 - given-names: Asish
   family-names: Kumar
+  affiliation:
+- given-names: Jing
+  family-names: Lu
+  affiliation:
+- given-names: Ryan
+  family-names: Groneck
   affiliation:
 - given-names: Jordi
   family-names: Eguren
   affiliation:
   orcid: https://orcid.org/0000-0002-2328-8030
-- given-names: Ansh
-  family-names: Kumar
-  affiliation:
 - given-names: Matthew
   family-names: Bartnik
   affiliation:
-- given-names: Arib
-  family-names: Alam
-  affiliation:
-- given-names: Mark
-  family-names: Magee
-  affiliation:
-- given-names: Anirban
-  family-names: Dutta
+- given-names: Ansh
+  family-names: Kumar
   affiliation:
 - given-names: Sarthak
   family-names: Srivastava
   affiliation:
+- given-names: Mark
+  family-names: Magee
+  affiliation:
+- given-names: Arib
+  family-names: Alam
+  affiliation:
 - given-names: Rohith
   family-names: Varma Buddaraju
-  affiliation:
-- given-names: Erin
-  family-names: Visser
   affiliation:
 - given-names: Ayushi
   family-names: Daksh
   affiliation:
-- given-names: Jing
-  family-names: Lu
+- given-names: Satwik
+  family-names: Kambham
   affiliation:
 - given-names: Ran
   family-names: Livneh
   affiliation:
-- given-names: Satwik
-  family-names: Kambham
+- given-names: Srinath
+  family-names: Rajagopalan
   affiliation:
 - given-names: Israel
   family-names: Roldan
+  affiliation:
+- given-names: Cecelia
+  family-names: Powers
   affiliation:
 - given-names: Jayant
   family-names: Bhakar
@@ -221,35 +238,47 @@ authors:
   family-names: Mishra
   affiliation:
   orcid: https://orcid.org/0000-0001-8302-1584
-- given-names: Srinath
-  family-names: Rajagopalan
-  affiliation:
-- given-names: John
-  family-names: Reichenbach
-  affiliation:
-- given-names: Rinkle
-  family-names: Jain
+- given-names: P
+  family-names: Nitish
   affiliation:
 - given-names: GitHub
   family-names: Actions
   affiliation:
-- given-names: Andreas
-  family-names: Floers
+- given-names: Rinkle
+  family-names: Jain
   affiliation:
-- given-names: Harshul
-  family-names: Gupta
-  affiliation:
-- given-names: Aarya
-  family-names: Chaumal
-  affiliation:
-- given-names: Antreev
-  family-names: Brar
+- given-names: John
+  family-names: Reichenbach
   affiliation:
 - given-names: Sourav
   family-names: Singh
   affiliation:
+- given-names: Aarya
+  family-names: Chaumal
+  affiliation:
+- given-names: Harshul
+  family-names: Gupta
+  affiliation:
+- given-names: Antreev
+  family-names: Brar
+  affiliation:
+- given-names: Chinmay
+  family-names: Talegaonkar
+  affiliation:
+- given-names: Caroline
+  family-names: Sofiatti
+  affiliation:
+- given-names: Riddhi
+  family-names: Gangbhoj
+  affiliation:
+- given-names: Jonatan
+  family-names: Selsing
+  affiliation:
 - given-names: Nathan
   family-names: Kowalski
+  affiliation:
+- given-names: Haille
+  family-names: Perkins
   affiliation:
 - given-names: Abhishek
   family-names: Patidar
@@ -257,32 +286,35 @@ authors:
 - given-names: Yuki
   family-names: Matsumura
   affiliation:
-- given-names: Jonatan
-  family-names: Selsing
+- given-names: Yash
+  family-names: Aggarwal
   affiliation:
-- given-names: Caroline
-  family-names: Sofiatti
+- given-names: Pratik
+  family-names: Patel
   affiliation:
-- given-names: Chinmay
-  family-names: Talegaonkar
+- given-names: Parikshit
+  family-names: Singh Rathore
   affiliation:
-- given-names: Aman
-  family-names: Kumar
-  affiliation:
-- given-names: Sampark
-  family-names: Sharma
-  affiliation:
-- given-names: Johannes
-  family-names: Buchner
+- given-names: P.
+  family-names: L. Lim
   affiliation:
 - given-names: Kevin
   family-names: Yap
   affiliation:
+- given-names: Jhalak
+  family-names: Bhandari
+  affiliation:
+- given-names: Johannes
+  family-names: Buchner
+  affiliation:
+- given-names: Nilesh
+  family-names: Patra
+  affiliation:
 - given-names: Laureano
   family-names: Martinez
   affiliation:
-- given-names: Le
-  family-names: Truong
+- given-names: Nutan
+  family-names: Chen
   affiliation:
 - given-names: Michael
   family-names: Zingale
@@ -296,29 +328,8 @@ authors:
 - given-names: Nance
   family-names: Sarafina
   affiliation:
-- given-names: Debajyoti
-  family-names: Dasgupta
-  affiliation:
-- given-names: Nilesh
-  family-names: Patra
-  affiliation:
-- given-names: Parikshit
-  family-names: Singh Rathore
-  affiliation:
-- given-names: Pratik
-  family-names: Patel
-  affiliation:
-- given-names: Dmitry
-  family-names: Volodin
-  affiliation:
-- given-names: Shashank
-  family-names: Venkat
-  affiliation:
-- given-names: Shilpi
-  family-names: Prasad
-  affiliation:
-- given-names: Suyash
-  family-names: Gupta
+- given-names: Nicholas
+  family-names: Vieira
   affiliation:
 - given-names: Thom
   family-names: Lemoine
@@ -326,17 +337,11 @@ authors:
 - given-names: Ujjwal
   family-names: Wahi
   affiliation:
-- given-names: Yash
-  family-names: Aggarwal
+- given-names: Debajyoti
+  family-names: Dasgupta
   affiliation:
-- given-names: Nutan
-  family-names: Chen
-  affiliation:
-- given-names: Chaitanya
-  family-names: Kolliboyina
-  affiliation:
-- given-names: ABHISHEK
-  family-names: PATIDAR
+- given-names: Suyash
+  family-names: Gupta
   affiliation:
 - given-names: Ashwin
   family-names: Nayak U
@@ -344,10 +349,43 @@ authors:
 - given-names: Atul
   family-names: Kumar
   affiliation:
-- given-names: Atharwa
-  family-names: Kharkar
+- given-names: Dmitry
+  family-names: Volodin
   affiliation:
-version: release-2025.09.14
-date-released: 2025-09-14
+- given-names: Aman
+  family-names: Kumar
+  affiliation:
+- given-names: Connor
+  family-names: McClellan
+  affiliation:
+- given-names: Clyde
+  family-names: Watson
+  affiliation:
+- given-names: Le
+  family-names: Truong
+  affiliation:
+- given-names: ABHISHEK
+  family-names: PATIDAR
+  affiliation:
+- given-names: Harshitha
+  family-names: Diddige
+  affiliation:
+- given-names: Rohit
+  family-names: Prasad
+  affiliation:
+- given-names: Rudraksh
+  family-names: Gajanan Nalbalwar
+  affiliation:
+- given-names: Sampark
+  family-names: Sharma
+  affiliation:
+- given-names: Shashank
+  family-names: Venkat
+  affiliation:
+- given-names: Shilpi
+  family-names: Prasad
+  affiliation:
+version: release-2025.11.16
+date-released: 2025-11-16
 repository-code: https://github.com/tardis-sn/tardis
 license: cc-by-4.0

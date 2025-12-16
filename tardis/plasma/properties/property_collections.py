@@ -1,4 +1,5 @@
 from tardis.plasma.properties import *
+from tardis.opacities.continuum.bound_free import BoundFreeOpacity
 
 
 class PlasmaPropertyCollection(list):
@@ -119,6 +120,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         CollIonRateCoeffSeaton,
         CollRecombRateCoeff,
         ContinuumInteractionHandler,
+        BoundFreeOpacity,  # Adding this property for continuum - probably shouldn't be there long term
     ]
 )
 adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])

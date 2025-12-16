@@ -31,7 +31,7 @@ We strongly recommend installing TARDIS using this method by following the steps
 
    .. code-block:: bash
 
-       wget -q https://github.com/tardis-sn/tardisbase/master/conda-{platform}.lock
+       wget https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/conda-{platform}.lock
 
    Replace ``{platform}`` with ``linux-64``, ``osx-arm64``, or ``osx-64`` (Mac Intel CPU) based on your operating system and CPU architecture.
 

@@ -2,7 +2,7 @@ import astropy
 import pytest
 from astropy import units as u
 
-from tardis.io.model.readers.snec.snec_input import (
+from tardis.io.model.snec.snec_input import (
     SNECIsotopeProfile,
     read_snec_isotope_profile,
 )
