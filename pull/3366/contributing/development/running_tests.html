@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=c21f6890"></script>
+      <script src="../../_static/documentation_options.js?v=1d9a2849"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -118,6 +118,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Running tests</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#running-the-unit-tests">Running the Unit Tests</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#running-regression-data-tests">Running Regression Data Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#faq">FAQ</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#generating-plasma-reference">Generating Plasma Reference</a></li>
 </ul>
 </li>
@@ -172,21 +173,25 @@ tests, you can run this with:</p>
 </section>
 <section id="running-regression-data-tests">
 <h2>Running Regression Data Tests<a class="headerlink" href="#running-regression-data-tests" title="Link to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We have migrated from <code class="docutils literal notranslate"><span class="pre">tardis-refdata</span></code> to <code class="docutils literal notranslate"><span class="pre">tardis-regression-data</span></code>.</p>
+</div>
 <p>Running the more advanced unit tests requires TARDIS Regression data that can be
 downloaded from the <a class="reference external" href="https://github.com/tardis-sn/tardis-regression-data">tardis-regression-data</a> repository.
-The regression data contains python objects as binaries which are used by the testing pipeline to verify the accuracy of the codebase.
+The regression data contains data in different formats (npy, hdf5, csv etc.) which is used by the testing pipeline to verify the accuracy of the codebase.
 <a class="reference external" href="https://www.atlassian.com/git/tutorials/git-lfs">Git LFS</a> is used to download and track the files in the tardis-regression-data repository.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt;<span class="w"> </span><span class="nv">GIT_LFS_SKIP_SMUDGE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tardis-sn/tardis-regression-data.git
 &gt;<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>tardis-regression-data
 &gt;<span class="w"> </span>git<span class="w"> </span>lfs<span class="w"> </span>fetch<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>lfs<span class="w"> </span>checkout
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">tardis-regression-data</span></code> repository should be located outside of the main <code class="docutils literal notranslate"><span class="pre">tardis</span></code> repository, rather than being nested within it.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We have migrated from <code class="docutils literal notranslate"><span class="pre">tardis-refdata</span></code> to``tardis-regression-data``.</p>
+<p><code class="docutils literal notranslate"><span class="pre">GIT_LFS_SKIP_SMUDGE=1</span></code> defers downloading large files until the explicit <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">lfs</span> <span class="pre">fetch</span></code> command, which provides better visibility into download progress and allows you to monitor which files are being retrieved.</p>
 </div>
-<p>Finally, the tests can be run using the following command</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">tardis-regression-data</span></code> repository should be located outside of the main <code class="docutils literal notranslate"><span class="pre">tardis</span></code> repository, rather than being nested within it.
+Finally, the tests can be run using the following command</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt;<span class="w"> </span>pytest<span class="w"> </span>tardis<span class="w"> </span>--tardis-regression-data<span class="o">=</span>/path/to/tardis-regression-data/
 </pre></div>
 </div>
@@ -209,8 +214,9 @@ The LFS cache generated in the master branch should be available in all child br
 You can check if cache was generated by looking in the <code class="docutils literal notranslate"><span class="pre">Setup</span> <span class="pre">LFS</span></code> step of the workflow run.
 Cache can also be found under the “Management” Section under “Actions” tab.</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">¶</a></h2>
 <p>In case you encounter an error similar to this:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>&lt;branch-name&gt;
 Uploading<span class="w"> </span>LFS<span class="w"> </span>objects:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">1</span>/1<span class="o">)</span>,<span class="w"> </span><span class="m">13</span><span class="w"> </span>MB<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>B/s,<span class="w"> </span><span class="k">done</span>.
@@ -241,7 +247,6 @@ git<span class="w"> </span>version<span class="w"> </span><span class="m">2</spa
 </pre></div>
 </div>
 <p>If the endpoint is not this, please check your <code class="docutils literal notranslate"><span class="pre">.git/config</span></code> file and the <code class="docutils literal notranslate"><span class="pre">.lfsconfig</span></code> file. Git always prioritizes <code class="docutils literal notranslate"><span class="pre">.git/config</span></code> over <code class="docutils literal notranslate"><span class="pre">.lfsconfig</span></code>, so please make sure there are no duplicates and your <code class="docutils literal notranslate"><span class="pre">.lfsconfig</span></code> matches with that on the TARDIS Regression Data repository. See the <a class="reference external" href="https://github.com/git-lfs/git-lfs/blob/main/docs/man/git-lfs-config.adoc">git-lfs-config documentation</a> for more details.</p>
-</div>
 </section>
 <section id="generating-plasma-reference">
 <h2>Generating Plasma Reference<a class="headerlink" href="#generating-plasma-reference" title="Link to this heading">¶</a></h2>
@@ -265,7 +270,7 @@ git<span class="w"> </span>version<span class="w"> </span><span class="m">2</spa
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Dec 2025.
+      <span class="lastupdated">Last updated on 16 Dec 2025.
       </span></p>
   </div>
 
