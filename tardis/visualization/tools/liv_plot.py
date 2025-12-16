@@ -258,6 +258,7 @@ class LIVPlotter:
 
     def _prepare_plot_data(
         self,
+        packets_mode,
         packet_wvl_range,
         species_list,
         cmapname,
@@ -380,6 +381,7 @@ class LIVPlotter:
         species_list=None,
         nelements=None,
         packet_wvl_range=None,
+        packets_mode=None,
         ax=None,
         figsize=(11, 5),
         cmapname="jet",
@@ -430,6 +432,7 @@ class LIVPlotter:
             nelements = None
 
         self._prepare_plot_data(
+            packets_mode,
             packet_wvl_range,
             species_list,
             cmapname,
@@ -477,6 +480,7 @@ class LIVPlotter:
         self,
         species_list=None,
         nelements=None,
+        packets_mode=None,
         packet_wvl_range=None,
         fig=None,
         graph_height=600,
@@ -528,6 +532,7 @@ class LIVPlotter:
             nelements = None
 
         self._prepare_plot_data(
+            packets_mode,
             packet_wvl_range,
             species_list,
             cmapname,
