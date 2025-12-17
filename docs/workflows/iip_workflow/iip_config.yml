@@ -3,7 +3,7 @@ tardis_config_version: v1.0
 
 supernova:
   luminosity_requested: 7.9 log_lsun
-  time_explosion: 11 day
+  time_explosion: 16.084 day
 
 atom_data: merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg_CONVERTED.h5
 
@@ -11,8 +11,8 @@ model:
   structure:
     type: specific
     velocity:
-      start: 6500 km/s
-      stop: 12000 km/s
+      start: 10000 km/s
+      stop: 15000 km/s
       num: 20
     density:
       type : power_law
@@ -28,19 +28,21 @@ model:
   
 plasma:
   disable_electron_scattering: no
-  ionization: nebular
+  ionization: nebular # should be nlte
   excitation: dilute-lte
   radiative_rates_type:  detailed
   line_interaction_type: macroatom
   initial_t_inner: 12000 K
-  # nlte_ionization_species: [H I, H II] #, He I, He II]
+  nlte_ionization_species: [H I]
+  nlte_excitation_species: [H I]
+  # nlte_species[(1, 0)]
   # nlte_solver: root
   continuum_interaction:
       species:
           - H I
-          - H II
+          # - H II
       enable_adiabatic_cooling: False
-  link_t_rad_t_electron: 0.9
+  link_t_rad_t_electron: 1.0
 
 
 montecarlo:

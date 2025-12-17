@@ -5,13 +5,15 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
+from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
-from tardis.plasma.assembly import PlasmaSolverFactory
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
@@ -73,25 +75,52 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
 
-        plasma_solver_factory = PlasmaSolverFactory(
-            atom_data,
-            configuration,
+        atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+        atom_data.continuum_data = ContinuumData(
+            atom_data, selected_continuum_species=[(1, 0)]
         )
+        atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
+        atom_data.nlte_data._init_indices()
+        atom_data.has_collision_data = False
 
-        plasma_solver_factory.prepare_factory(
-            self.simulation_state.abundance.index,
-            "tardis.plasma.properties.property_collections",
-            configuration,
-        )
-
-        self.plasma_solver = plasma_solver_factory.assemble(
+        self.plasma_solver = LegacyPlasmaArray(
             self.simulation_state.calculate_elemental_number_density(
                 atom_data.atom_data.mass
             ),
-            self.simulation_state.radiation_field_state,
-            self.simulation_state.time_explosion,
-            self.simulation_state._electron_densities,
+            atom_data,
+            configuration.supernova.time_explosion.to("s"),
+            nlte_config=configuration.plasma.nlte,
+            delta_treatment=None,
+            ionization_mode="nlte",  # configuration.plasma.ionization, nlte is currently not an allowed value - should be included
+            excitation_mode=configuration.plasma.excitation,
+            line_interaction_type=configuration.plasma.line_interaction_type,
+            link_t_rad_t_electron=configuration.plasma.link_t_rad_t_electron,
+            helium_treatment="none",
+            heating_rate_data_file=None,
+            v_inner=None,
+            v_outer=None,
+            continuum_treatment=True,
         )
+
+        # plasma_solver_factory = PlasmaSolverFactory(
+        #     atom_data,
+        #     configuration,
+        # )
+
+        # plasma_solver_factory.prepare_factory(
+        #     self.simulation_state.abundance.index,
+        #     "tardis.plasma.properties.property_collections",
+        #     configuration,
+        # )
+
+        # self.plasma_solver = plasma_solver_factory.assemble(
+        #     self.simulation_state.calculate_elemental_number_density(
+        #         atom_data.atom_data.mass
+        #     ),
+        #     self.simulation_state.radiation_field_state,
+        #     self.simulation_state.time_explosion,
+        #     self.simulation_state._electron_densities,
+        # )
 
         line_interaction_type = configuration.plasma.line_interaction_type
         continuum_interactions = configuration.plasma.continuum_interaction
