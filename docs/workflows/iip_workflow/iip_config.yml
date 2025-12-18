@@ -2,10 +2,10 @@
 tardis_config_version: v1.0
 
 supernova:
-  luminosity_requested: 7.9 log_lsun
+  luminosity_requested: 2.8e9 solLum
   time_explosion: 16.084 day
 
-atom_data: merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg_CONVERTED.h5
+atom_data: christians_atomdata_converted_04Dec25.h5
 
 model:
   structure:
@@ -19,7 +19,7 @@ model:
       time_0: 16.0 day
       rho_0: 1.948e-15 g/cm^3
       v_0: 8000 km/s
-      exponent: -10
+      exponent: -7
 
   abundances:
     type: uniform
@@ -30,9 +30,9 @@ plasma:
   disable_electron_scattering: no
   ionization: nebular # should be nlte
   excitation: dilute-lte
-  radiative_rates_type:  detailed
+  radiative_rates_type:  detailed # Doesn't do anything currently but needed for validation
   line_interaction_type: macroatom
-  initial_t_inner: 12000 K
+  initial_t_inner: 15000 K
   nlte_ionization_species: [H I]
   nlte_excitation_species: [H I]
   # nlte_species[(1, 0)]

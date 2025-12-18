@@ -127,7 +127,6 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         previous_t_electrons,
         photo_ion_cross_sections,
         previous_b,
-        phi_lucy,
     ):
         # print "Calculate gamma \n"
         if photo_ion_estimator is not None:

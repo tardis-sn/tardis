@@ -7,7 +7,7 @@ from astropy import units as u
 from tardis import constants as const
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
-from tardis.io.model.parse_atom_data import parse_atom_data
+from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
@@ -74,6 +74,9 @@ class TypeIIPWorkflow(WorkflowLogging):
                 atom_data=atom_data,
             )
 
+        configuration.plasma.nlte.species = [
+            (1, 0)
+        ]  # Hack to force config necessary for Christian's plasma
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
 
         atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
@@ -103,25 +106,26 @@ class TypeIIPWorkflow(WorkflowLogging):
             continuum_treatment=True,
         )
 
-        # plasma_solver_factory = PlasmaSolverFactory(
-        #     atom_data,
-        #     configuration,
-        # )
+        radiation_field = DilutePlanckianRadiationField(
+            temperature=self.simulation_state.t_radiative,
+            dilution_factor=self.simulation_state.dilution_factor,
+        )
 
-        # plasma_solver_factory.prepare_factory(
-        #     self.simulation_state.abundance.index,
-        #     "tardis.plasma.properties.property_collections",
-        #     configuration,
-        # )
+        j_blues = radiation_field.calculate_mean_intensity(
+            self.plasma_solver.atomic_data.lines.nu.values
+        )
 
-        # self.plasma_solver = plasma_solver_factory.assemble(
-        #     self.simulation_state.calculate_elemental_number_density(
-        #         atom_data.atom_data.mass
-        #     ),
-        #     self.simulation_state.radiation_field_state,
-        #     self.simulation_state.time_explosion,
-        #     self.simulation_state._electron_densities,
-        # )
+        self.plasma_solver.update_radiationfield(
+            self.simulation_state.t_radiative.value,
+            self.simulation_state.dilution_factor,
+            pd.DataFrame(
+                j_blues, index=self.plasma_solver.atomic_data.lines.index
+            ),
+            configuration.plasma.nlte,
+            initialize_nlte=True,
+            n_e_convergence_threshold=0.05,
+            **{},
+        )
 
         line_interaction_type = configuration.plasma.line_interaction_type
         continuum_interactions = configuration.plasma.continuum_interaction
@@ -423,8 +427,8 @@ class TypeIIPWorkflow(WorkflowLogging):
         """
         opacity_state = self.opacity_solver.solve(self.plasma_solver)
 
-        # if self.completed_iterations == 0:
-        if True:
+        if self.completed_iterations == 0:
+            # if True:
             # On first iteration, use Bound-Bound macro atom solver because don't have continuum estimators
             bb_macro_atom_solver = BoundBoundMacroAtomSolver(
                 self.plasma_solver.atomic_data.levels,
@@ -555,7 +559,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.converged = False
 
         # Create blackbody radiation field and j_blues for first iteration
-        self.initialize_plasma_with_dilute_blackbody()
 
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
@@ -600,20 +603,3 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.opacity_states,
             virtual_packet_energies,
         )
-
-    def initialize_plasma_with_dilute_blackbody(self):
-        """Initialize the plasma with a dilute blackbody radiation field"""
-        radiation_field = DilutePlanckianRadiationField(
-            temperature=self.simulation_state.t_radiative,
-            dilution_factor=self.simulation_state.dilution_factor,
-        )
-        update_properties = {}
-
-        j_blues = radiation_field.calculate_mean_intensity(
-            self.plasma_solver.atomic_data.lines.nu.values
-        )
-        update_properties["j_blues"] = pd.DataFrame(
-            j_blues, index=self.plasma_solver.atomic_data.lines.index
-        )
-
-        self.plasma_solver.update(**update_properties)
