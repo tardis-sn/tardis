@@ -77,6 +77,8 @@ class TypeIIPWorkflow(WorkflowLogging):
         configuration.plasma.nlte.species = [
             (1, 0)
         ]  # Hack to force config necessary for Christian's plasma
+        self.configuration = configuration
+
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
 
         atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
@@ -92,13 +94,13 @@ class TypeIIPWorkflow(WorkflowLogging):
                 atom_data.atom_data.mass
             ),
             atom_data,
-            configuration.supernova.time_explosion.to("s"),
-            nlte_config=configuration.plasma.nlte,
+            self.configuration.supernova.time_explosion.to("s"),
+            nlte_config=self.configuration.plasma.nlte,
             delta_treatment=None,
             ionization_mode="nlte",  # configuration.plasma.ionization, nlte is currently not an allowed value - should be included
-            excitation_mode=configuration.plasma.excitation,
-            line_interaction_type=configuration.plasma.line_interaction_type,
-            link_t_rad_t_electron=configuration.plasma.link_t_rad_t_electron,
+            excitation_mode=self.configuration.plasma.excitation,
+            line_interaction_type=self.configuration.plasma.line_interaction_type,
+            link_t_rad_t_electron=self.configuration.plasma.link_t_rad_t_electron,
             helium_treatment="none",
             heating_rate_data_file=None,
             v_inner=None,
@@ -121,7 +123,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             pd.DataFrame(
                 j_blues, index=self.plasma_solver.atomic_data.lines.index
             ),
-            configuration.plasma.nlte,
+            self.configuration.plasma.nlte,
             initialize_nlte=True,
             n_e_convergence_threshold=0.05,
             **{},
@@ -341,7 +343,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         return next_values
 
-    def solve_plasma(self, estimated_radfield_properties):
+    def solve_plasma(self):
         """Update the plasma solution with the new radiation field estimates
 
         Parameters
@@ -354,65 +356,33 @@ class TypeIIPWorkflow(WorkflowLogging):
         ValueError
             If the plasma solver radiative rates type is unknown
         """
-        radiation_field = DilutePlanckianRadiationField(
-            temperature=self.simulation_state.t_radiative,
-            dilution_factor=self.simulation_state.dilution_factor,
-        )
-        # update_properties = dict(
-        #     dilute_planckian_radiation_field=radiation_field
-        # )
-        update_properties = {}
-        # A check to see if the plasma is set with JBluesDetailed, in which
-        # case it needs some extra kwargs.
-        # if (
-        #     self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
-        #     == "blackbody"
-        # ):
-        #     planckian_radiation_field = (
-        #         radiation_field.to_planckian_radiation_field()
-        #     )
-        #     j_blues = planckian_radiation_field.calculate_mean_intensity(
-        #         self.plasma_solver.atomic_data.lines.nu.values
-        #     )
-        #     update_properties["j_blues"] = pd.DataFrame(
-        #         j_blues, index=self.plasma_solver.atomic_data.lines.index
-        #     )
 
-        j_blues = radiation_field.calculate_mean_intensity(
-            self.plasma_solver.atomic_data.lines.nu.values
+        continuum_estimators = {}
+
+        continuum_estimators["photo_ion_estimator"] = (
+            self.transport_state.radfield_mc_estimators.photo_ion_estimator
         )
-        update_properties["j_blues"] = pd.DataFrame(
-            j_blues, index=self.plasma_solver.atomic_data.lines.index
+        continuum_estimators["stim_recomb_estimator"] = (
+            self.transport_state.radfield_mc_estimators.stim_recomb_estimator
         )
-        # elif (
-        #     self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
-        #     == "detailed"
-        # ):
-        #     update_properties["j_blues"] = pd.DataFrame(
-        #         estimated_radfield_properties.j_blues,
-        #         index=self.plasma_solver.atomic_data.lines.index,
-        #     )
-        # else:
-        #     raise ValueError(
-        #         f"radiative_rates_type type unknown - {self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
-        #     )
-        # if isinstance(self.macro_atom_solver, ContinuumMacroAtomSolver):
-        #     print(self.completed_iterations)
-        #     continuum_property_solver = MCContinuumPropertiesSolver(
-        #         self.plasma_solver.atomic_data
-        #     )
-        #     estimated_continuum_properties = continuum_property_solver.solve(
-        #         self.transport_state.radfield_mc_estimators,
-        #         self.transport_state.time_of_simulation,
-        #         self.transport_state.geometry_state.volume,
-        #     )
-        #     update_properties.update(
-        #         gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
-        #         alpha_stim_factor=estimated_continuum_properties.stimulated_recombination_rate_factor,
-        #         bf_heating_coeff_estimator=self.transport_state.radfield_mc_estimators.bf_heating_estimator,
-        #         stim_recomb_cooling_coeff_estimator=self.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator,
-        #     )
-        self.plasma_solver.update(**update_properties)
+        continuum_estimators["bf_heating_estimator"] = (
+            self.transport_state.radfield_mc_estimators.bf_heating_estimator
+        )
+        continuum_estimators["stim_recomb_cooling_estimator"] = (
+            self.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator
+        )
+        continuum_estimators["coll_deexc_heating_estimator"] = None
+        continuum_estimators["ff_heating_estimator"] = None
+
+        self.plasma_solver.update_radiationfield(
+            self.simulation_state.t_radiative.value,
+            self.simulation_state.dilution_factor,
+            self.transport_state.radfield_mc_estimators.j_blue_estimator,
+            self.configuration.plasma.nlte,
+            initialize_nlte=False,
+            n_e_convergence_threshold=0.05,
+            **continuum_estimators,
+        )
 
     def solve_opacity(self):
         """Solves the opacity state and any associated objects
@@ -428,7 +398,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         opacity_state = self.opacity_solver.solve(self.plasma_solver)
 
         if self.completed_iterations == 0:
-            # if True:
             # On first iteration, use Bound-Bound macro atom solver because don't have continuum estimators
             bb_macro_atom_solver = BoundBoundMacroAtomSolver(
                 self.plasma_solver.atomic_data.levels,
@@ -454,9 +423,6 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
             )
-            # opacity_state.continuum_state.k_packet_idx = macro_atom_state.references_index.iloc[
-            #     -1
-            # ]  # Hacky way to point to k-packet activation level - continuum state needs to be reexamined
 
         return {
             "opacity_state": opacity_state,
@@ -558,8 +524,6 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         self.converged = False
 
-        # Create blackbody radiation field and j_blues for first iteration
-
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
@@ -578,7 +542,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.solve_simulation_state(estimated_values)
 
-            self.solve_plasma(estimated_radfield_properties)
+            self.solve_plasma()
 
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1

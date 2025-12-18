@@ -1362,7 +1362,7 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         ff_cooling_factor = (
             electron_densities
             * ion_number_density.multiply(ion_charge**2, axis=0).sum()
-        )
+        ).values
 
         # NOW FB_EMISSION_CDF
 
