@@ -8,7 +8,7 @@ from scipy.interpolate import PchipInterpolator
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.iip_plasma.continuum.util import get_ion_multi_index
-from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
+from tardis.iip_plasma.properties.base import Input, ProcessingPlasmaProperty
 from tardis.plasma.properties.continuum_processes.fast_array_util import (
     cumulative_integrate_array_by_blocks,
 )
@@ -127,6 +127,7 @@ class PhotoIonRateCoeff(ProcessingPlasmaProperty):
         previous_t_electrons,
         photo_ion_cross_sections,
         previous_b,
+        phi_lucy,
     ):
         # print "Calculate gamma \n"
         if photo_ion_estimator is not None:
@@ -1299,6 +1300,7 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         "k_packet_idx",
         "gamma_corr",
         "delta_E_yg",
+        "continuum_interaction_species",
     )
     latex_name = ("",)
     latex_formula = ("",)
@@ -1415,6 +1417,12 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values
         delta_E_yg = pd.Series(delta_E, index=index)
 
+        # ALSO MISSING A CONTINUUM_INTERACTION_SPECIES MULTINDEX
+        continuum_interaction_species = index.droplevel([2, 3]).unique()
+        # continuum_interaction_species = pd.Index(
+        #     {}
+        # )  # This is bad and will turn off continuum interactions in the montecarlo
+        # part, but need to figure out how to get a first iteration gamma before removing
         return (
             nu_i,
             level2continuum_idx,
@@ -1426,6 +1434,7 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             k_packet_idx,
             gamma_corr,
             delta_E_yg,
+            continuum_interaction_species,
         )
 
 

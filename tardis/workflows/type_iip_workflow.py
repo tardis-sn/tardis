@@ -5,14 +5,15 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.model.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
+    BoundBoundMacroAtomSolver,
     ContinuumMacroAtomSolver,
 )
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
@@ -353,61 +354,60 @@ class TypeIIPWorkflow(WorkflowLogging):
             temperature=self.simulation_state.t_radiative,
             dilution_factor=self.simulation_state.dilution_factor,
         )
-        update_properties = dict(
-            dilute_planckian_radiation_field=radiation_field
-        )
+        # update_properties = dict(
+        #     dilute_planckian_radiation_field=radiation_field
+        # )
+        update_properties = {}
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
-        if (
-            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
-            == "blackbody"
-        ):
-            planckian_radiation_field = (
-                radiation_field.to_planckian_radiation_field()
-            )
-            j_blues = planckian_radiation_field.calculate_mean_intensity(
-                self.plasma_solver.atomic_data.lines.nu.values
-            )
-            update_properties["j_blues"] = pd.DataFrame(
-                j_blues, index=self.plasma_solver.atomic_data.lines.index
-            )
-        elif (
-            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
-            == "dilute-blackbody"
-        ):
-            j_blues = radiation_field.calculate_mean_intensity(
-                self.plasma_solver.atomic_data.lines.nu.values
-            )
-            update_properties["j_blues"] = pd.DataFrame(
-                j_blues, index=self.plasma_solver.atomic_data.lines.index
-            )
-        elif (
-            self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
-            == "detailed"
-        ):
-            update_properties["j_blues"] = pd.DataFrame(
-                estimated_radfield_properties.j_blues,
-                index=self.plasma_solver.atomic_data.lines.index,
-            )
-        else:
-            raise ValueError(
-                f"radiative_rates_type type unknown - {self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
-            )
-        if isinstance(self.macro_atom_solver, ContinuumMacroAtomSolver):
-            continuum_property_solver = MCContinuumPropertiesSolver(
-                self.plasma_solver.atomic_data
-            )
-            estimated_continuum_properties = continuum_property_solver.solve(
-                self.transport_state.radfield_mc_estimators,
-                self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
-            )
-            update_properties.update(
-                gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
-                alpha_stim_factor=estimated_continuum_properties.stimulated_recombination_rate_factor,
-                bf_heating_coeff_estimator=self.transport_state.radfield_mc_estimators.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=self.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator,
-            )
+        # if (
+        #     self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
+        #     == "blackbody"
+        # ):
+        #     planckian_radiation_field = (
+        #         radiation_field.to_planckian_radiation_field()
+        #     )
+        #     j_blues = planckian_radiation_field.calculate_mean_intensity(
+        #         self.plasma_solver.atomic_data.lines.nu.values
+        #     )
+        #     update_properties["j_blues"] = pd.DataFrame(
+        #         j_blues, index=self.plasma_solver.atomic_data.lines.index
+        #     )
+
+        j_blues = radiation_field.calculate_mean_intensity(
+            self.plasma_solver.atomic_data.lines.nu.values
+        )
+        update_properties["j_blues"] = pd.DataFrame(
+            j_blues, index=self.plasma_solver.atomic_data.lines.index
+        )
+        # elif (
+        #     self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE
+        #     == "detailed"
+        # ):
+        #     update_properties["j_blues"] = pd.DataFrame(
+        #         estimated_radfield_properties.j_blues,
+        #         index=self.plasma_solver.atomic_data.lines.index,
+        #     )
+        # else:
+        #     raise ValueError(
+        #         f"radiative_rates_type type unknown - {self.plasma_solver.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
+        #     )
+        # if isinstance(self.macro_atom_solver, ContinuumMacroAtomSolver):
+        #     print(self.completed_iterations)
+        #     continuum_property_solver = MCContinuumPropertiesSolver(
+        #         self.plasma_solver.atomic_data
+        #     )
+        #     estimated_continuum_properties = continuum_property_solver.solve(
+        #         self.transport_state.radfield_mc_estimators,
+        #         self.transport_state.time_of_simulation,
+        #         self.transport_state.geometry_state.volume,
+        #     )
+        #     update_properties.update(
+        #         gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
+        #         alpha_stim_factor=estimated_continuum_properties.stimulated_recombination_rate_factor,
+        #         bf_heating_coeff_estimator=self.transport_state.radfield_mc_estimators.bf_heating_estimator,
+        #         stim_recomb_cooling_coeff_estimator=self.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator,
+        #     )
         self.plasma_solver.update(**update_properties)
 
     def solve_opacity(self):
@@ -423,22 +423,36 @@ class TypeIIPWorkflow(WorkflowLogging):
         """
         opacity_state = self.opacity_solver.solve(self.plasma_solver)
 
-        # macro atom must be a ContinuumMacroAtomSolver for Type IIP workflow
-        macro_atom_state = self.macro_atom_solver.solve(
-            self.plasma_solver.j_blues,
-            opacity_state.beta_sobolev,
-            self.plasma_solver.stimulated_emission_factor,
-            self.plasma_solver.gamma_corr,
-            self.plasma_solver.alpha_sp,
-            self.plasma_solver.coll_deexc_coeff,
-            self.plasma_solver.coll_exc_coeff,
-            self.plasma_solver.electron_densities,
-            self.plasma_solver.level_number_density,
-            self.plasma_solver.delta_E_yg,
-        )
-        opacity_state.continuum_state.k_packet_idx = macro_atom_state.references_index.iloc[
-            -1
-        ]  # Hacky way to point to k-packet activation level - continuum state needs to be reexamined
+        # if self.completed_iterations == 0:
+        if True:
+            # On first iteration, use Bound-Bound macro atom solver because don't have continuum estimators
+            bb_macro_atom_solver = BoundBoundMacroAtomSolver(
+                self.plasma_solver.atomic_data.levels,
+                self.plasma_solver.atomic_data.lines,
+                line_interaction_type=self.opacity_solver.line_interaction_type,
+            )
+            macro_atom_state = bb_macro_atom_solver.solve(
+                self.plasma_solver.j_blues,
+                opacity_state.beta_sobolev,
+                self.plasma_solver.stimulated_emission_factor,
+            )
+
+        else:
+            macro_atom_state = self.macro_atom_solver.solve(
+                self.plasma_solver.j_blues,
+                opacity_state.beta_sobolev,
+                self.plasma_solver.stimulated_emission_factor,
+                self.plasma_solver.gamma_corr,
+                self.plasma_solver.alpha_sp,
+                self.plasma_solver.coll_deexc_coeff,
+                self.plasma_solver.coll_exc_coeff,
+                self.plasma_solver.electron_densities,
+                self.plasma_solver.level_number_density,
+                self.plasma_solver.delta_E_yg,
+            )
+            # opacity_state.continuum_state.k_packet_idx = macro_atom_state.references_index.iloc[
+            #     -1
+            # ]  # Hacky way to point to k-packet activation level - continuum state needs to be reexamined
 
         return {
             "opacity_state": opacity_state,
@@ -539,6 +553,10 @@ class TypeIIPWorkflow(WorkflowLogging):
             initialize_iterations_pbar(self.total_iterations)
 
         self.converged = False
+
+        # Create blackbody radiation field and j_blues for first iteration
+        self.initialize_plasma_with_dilute_blackbody()
+
         while self.completed_iterations < self.total_iterations - 1:
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
@@ -582,3 +600,20 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.opacity_states,
             virtual_packet_energies,
         )
+
+    def initialize_plasma_with_dilute_blackbody(self):
+        """Initialize the plasma with a dilute blackbody radiation field"""
+        radiation_field = DilutePlanckianRadiationField(
+            temperature=self.simulation_state.t_radiative,
+            dilution_factor=self.simulation_state.dilution_factor,
+        )
+        update_properties = {}
+
+        j_blues = radiation_field.calculate_mean_intensity(
+            self.plasma_solver.atomic_data.lines.nu.values
+        )
+        update_properties["j_blues"] = pd.DataFrame(
+            j_blues, index=self.plasma_solver.atomic_data.lines.index
+        )
+
+        self.plasma_solver.update(**update_properties)
