@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=1d9a2849"></script>
+      <script src="../../_static/documentation_options.js?v=df7a7fe9"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -121,7 +121,10 @@
 <li class="toctree-l2"><a class="reference internal" href="developer_faq.html">Developer FAQ</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#tardis-core-team-instructions">TARDIS core team Instructions</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="continuous_integration.html">Continuous Integration</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Update the Regression Data</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Update the Regression Data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#faq">FAQ</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="matterbridge.html">Matterbridge Server</a></li>
 <li class="toctree-l3"><a class="reference internal" href="debug_numba.html">Debugging numba_montecarlo</a></li>
 </ul>
@@ -178,6 +181,39 @@
 <li><p>Make a new branch in <code class="docutils literal notranslate"><span class="pre">tardis-regression-data</span></code>, push your new regression data, and open a pull request.</p></li>
 </ol>
 <p>If any issues arise during this process, please tag a <a class="reference external" href="https://tardis-sn.github.io/people/collaboration/">TARDIS team member</a> responsible for CI/CD.</p>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">¶</a></h2>
+<p>In case you encounter an error similar to this:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>&lt;branch-name&gt;
+Uploading<span class="w"> </span>LFS<span class="w"> </span>objects:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">1</span>/1<span class="o">)</span>,<span class="w"> </span><span class="m">13</span><span class="w"> </span>MB<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>B/s,<span class="w"> </span><span class="k">done</span>.
+Enumerating<span class="w"> </span>objects:<span class="w"> </span><span class="m">17</span>,<span class="w"> </span><span class="k">done</span>.
+Counting<span class="w"> </span>objects:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">17</span>/17<span class="o">)</span>,<span class="w"> </span><span class="k">done</span>.
+Delta<span class="w"> </span>compression<span class="w"> </span>using<span class="w"> </span>up<span class="w"> </span>to<span class="w"> </span><span class="m">192</span><span class="w"> </span>threads
+Compressing<span class="w"> </span>objects:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">7</span>/7<span class="o">)</span>,<span class="w"> </span><span class="k">done</span>.
+Writing<span class="w"> </span>objects:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">9</span>/9<span class="o">)</span>,<span class="w"> </span><span class="m">732</span><span class="w"> </span>bytes<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">366</span>.00<span class="w"> </span>KiB/s,<span class="w"> </span><span class="k">done</span>.
+Total<span class="w"> </span><span class="m">9</span><span class="w"> </span><span class="o">(</span>delta<span class="w"> </span><span class="m">4</span><span class="o">)</span>,<span class="w"> </span>reused<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">(</span>delta<span class="w"> </span><span class="m">0</span><span class="o">)</span>,<span class="w"> </span>pack-reused<span class="w"> </span><span class="m">0</span>
+remote:<span class="w"> </span>Resolving<span class="w"> </span>deltas:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">4</span>/4<span class="o">)</span>,<span class="w"> </span>completed<span class="w"> </span>with<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="nb">local</span><span class="w"> </span>objects.
+remote:<span class="w"> </span>error:<span class="w"> </span>GH008:<span class="w"> </span>Your<span class="w"> </span>push<span class="w"> </span>referenced<span class="w"> </span>at<span class="w"> </span>least<span class="w"> </span><span class="m">1</span><span class="w"> </span>unknown<span class="w"> </span>Git<span class="w"> </span>LFS<span class="w"> </span>object:
+remote:<span class="w">     </span>&lt;file-hash&gt;
+remote:<span class="w"> </span>Try<span class="w"> </span>to<span class="w"> </span>push<span class="w"> </span>them<span class="w"> </span>with<span class="w"> </span><span class="s1">&#39;git lfs push --all&#39;</span>.
+To<span class="w"> </span>https://github.com/&lt;username&gt;/tardis-regression-data.git
+!<span class="w"> </span><span class="o">[</span>remote<span class="w"> </span>rejected<span class="o">]</span><span class="w"> </span>&lt;branch-name&gt;<span class="w"> </span>-&gt;<span class="w"> </span>&lt;branch-name&gt;<span class="w"> </span><span class="o">(</span>pre-receive<span class="w"> </span>hook<span class="w"> </span>declined<span class="o">)</span>
+error:<span class="w"> </span>failed<span class="w"> </span>to<span class="w"> </span>push<span class="w"> </span>some<span class="w"> </span>refs<span class="w"> </span>to<span class="w"> </span><span class="s1">&#39;https://github.com/&lt;username&gt;/tardis-regression-data.git&#39;</span>
+</pre></div>
+</div>
+<p>Please check your LFS endpoint like so:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>lfs<span class="w"> </span>env
+</pre></div>
+</div>
+<p>And you should get:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>lfs<span class="w"> </span>env
+git-lfs/3.4.1<span class="w"> </span><span class="o">(</span>GitHub<span class="p">;</span><span class="w"> </span>linux<span class="w"> </span>amd64<span class="p">;</span><span class="w"> </span>go<span class="w"> </span><span class="m">1</span>.22.2<span class="o">)</span>
+git<span class="w"> </span>version<span class="w"> </span><span class="m">2</span>.43.0
+<span class="nv">Endpoint</span><span class="o">=</span>https://tardis:tardis-2025-lfs@registry.moria.egr.msu.edu/repository/tardis-lfs/info/lfs<span class="w"> </span><span class="o">(</span><span class="nv">auth</span><span class="o">=</span>basic<span class="o">)</span>
+</pre></div>
+</div>
+<p>If the endpoint is not this, please check your <code class="docutils literal notranslate"><span class="pre">.git/config</span></code> file and the <code class="docutils literal notranslate"><span class="pre">.lfsconfig</span></code> file. Git always prioritizes <code class="docutils literal notranslate"><span class="pre">.git/config</span></code> over <code class="docutils literal notranslate"><span class="pre">.lfsconfig</span></code>, so please make sure there are no duplicates and your <code class="docutils literal notranslate"><span class="pre">.lfsconfig</span></code> matches with that on the TARDIS Regression Data repository. See the <a class="reference external" href="https://github.com/git-lfs/git-lfs/blob/main/docs/man/git-lfs-config.adoc">git-lfs-config documentation</a> for more details.</p>
+</section>
 </section>
 
 
@@ -192,7 +228,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Dec 2025.
+      <span class="lastupdated">Last updated on 18 Dec 2025.
       </span></p>
   </div>
 
