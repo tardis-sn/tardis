@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import pytest
 from astropy import units as u
@@ -6,6 +8,11 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.model.matter.decay import IsotopicMassFraction
+
+
+@pytest.fixture
+def artis_data_dir():
+    return Path("tardis/io/model/artis/tests/data")
 
 
 class TestModelFromPaper1Config:
@@ -75,9 +82,9 @@ class TestModelFromASCIIDensity:
 
 class TestModelFromArtisDensity:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir, atomic_dataset):
+    def setup(self, artis_data_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
-            example_model_file_dir / "tardis_configv1_artis_density.yml"
+            artis_data_dir / "tardis_configv1_artis_density.yml"
         )
 
         self.simulation_state = SimulationState.from_config(
@@ -99,9 +106,9 @@ class TestModelFromArtisDensity:
 
 class TestModelFromArtisDensityAbundances:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir, atomic_dataset):
+    def setup(self, artis_data_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
-            example_model_file_dir / "tardis_configv1_artis_density.yml"
+            artis_data_dir / "tardis_configv1_artis_density.yml"
         )
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"
@@ -124,9 +131,9 @@ class TestModelFromArtisDensityAbundances:
 
 class TestModelFromArtisDensityAbundancesVSlice:
     @pytest.fixture(autouse=True)
-    def setup(self, example_model_file_dir, atomic_dataset):
+    def setup(self, artis_data_dir, atomic_dataset):
         self.config = Configuration.from_yaml(
-            example_model_file_dir / "tardis_configv1_artis_density_v_slice.yml"
+            artis_data_dir / "tardis_configv1_artis_density_v_slice.yml"
         )
         self.config.model.abundances.type = "file"
         self.config.model.abundances.filename = "artis_abundances.dat"

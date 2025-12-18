@@ -5,7 +5,7 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
-from tardis.io.model.parse_atom_data import parse_atom_data
+from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
