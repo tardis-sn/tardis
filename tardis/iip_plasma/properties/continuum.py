@@ -1310,6 +1310,7 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         alpha_sp,
         electron_densities,
         ion_number_density,
+        lte_ion_number_density,
         t_electrons,
         level_number_density,
         lte_level_number_density,
@@ -1348,11 +1349,34 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             * (const.h.cgs.value / const.k_B.cgs.value)
         )
 
-        n_i = level_number_density.loc[photoionization_data.index]
-        lte_n_i = lte_level_number_density.loc[photoionization_data.index]
-        chi_bf = (n_i - lte_n_i * boltzmann_factor).multiply(
-            photoionization_data["x_sect"].values, axis=0
+        level_number_density = level_number_density.loc[
+            photoionization_data.index
+        ]
+        lte_level_number_density = lte_level_number_density.loc[
+            photoionization_data.index
+        ]
+        level_number_density_ratio = level_number_density.divide(
+            lte_level_number_density
         )
+
+        ion_index = get_ion_multi_index(
+            photoionization_data.index, next_higher=True
+        )
+
+        ion_number_density = ion_number_density.loc[ion_index]
+        lte_ion_number_density = lte_ion_number_density.loc[ion_index]
+        ion_number_density_ratio = ion_number_density.divide(
+            lte_ion_number_density
+        )
+
+        level_number_density_ratio = level_number_density_ratio.multiply(
+            ion_number_density_ratio.values
+        )
+
+        chi_bf = (
+            level_number_density
+            * (1.0 - level_number_density_ratio * boltzmann_factor)
+        ).multiply(photoionization_data["x_sect"].values, axis=0)
         num_neg_elements = (chi_bf < 0).sum().sum()
         if num_neg_elements:
             raise ValueError("Negative values in bound-free opacity.")
