@@ -356,7 +356,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         ValueError
             If the plasma solver radiative rates type is unknown
         """
-
         continuum_estimators = {}
 
         continuum_estimators["photo_ion_estimator"] = (
@@ -374,15 +373,76 @@ class TypeIIPWorkflow(WorkflowLogging):
         continuum_estimators["coll_deexc_heating_estimator"] = None
         continuum_estimators["ff_heating_estimator"] = None
 
+        continuum_estimators, j_blues = self.normalize_continuum_estimators(
+            continuum_estimators,
+            self.transport_state.radfield_mc_estimators.j_blue_estimator,
+            self.transport_state.radfield_mc_estimators.j_estimator,
+        )
         self.plasma_solver.update_radiationfield(
             self.simulation_state.t_radiative.value,
             self.simulation_state.dilution_factor,
-            self.transport_state.radfield_mc_estimators.j_blue_estimator,
+            j_blues,
             self.configuration.plasma.nlte,
             initialize_nlte=False,
             n_e_convergence_threshold=0.05,
             **continuum_estimators,
         )
+
+    def normalize_continuum_estimators(
+        self, continuum_estimators, j_blues, j_estimators
+    ):
+        photo_ion_norm_factor = (
+            1.0
+            / (
+                self.transport_state.time_of_simulation
+                * self.transport_state.geometry_state.volume
+                * const.h.cgs.value
+            ).value
+        )
+        damp = self.get_radiation_field_damping_factor(j_estimators)
+
+        continuum_estimators["photo_ion_estimator"] *= (
+            photo_ion_norm_factor * damp
+        )
+        continuum_estimators["stim_recomb_estimator"] *= (
+            photo_ion_norm_factor * damp
+        )
+        continuum_estimators["bf_heating_estimator"] *= (
+            photo_ion_norm_factor * const.h.cgs.value * damp
+        )
+        continuum_estimators["stim_recomb_cooling_estimator"] *= (
+            photo_ion_norm_factor * const.h.cgs.value * damp
+        )
+        # continuum_estimators["coll_deexc_heating_estimator"] *= (
+        #    photo_ion_norm_factor * const.h.cgs.value
+        # )
+
+        # until we get free-free heating estimated
+        # ff_norm_factor = self.get_ff_heating_norm_factor(
+        #    self.plasma_solver.ion_number_density,
+        #    self.plasma_solver.electron_densities.values,
+        #    self.plasma_solver.t_electrons,
+        # )
+        # ff_norm_factor *= photo_ion_norm_factor * const.h.cgs.value * damp
+        # continuum_estimators["ff_heating_estimator"] *= ff_norm_factor
+        j_blues *= damp
+        return continuum_estimators, j_blues
+
+    def get_radiation_field_damping_factor(self, j_estimators):
+        J = (
+            self.simulation_state.dilution_factor
+            * self.simulation_state.t_radiative.value**4
+            * const.sigma_sb.cgs.value
+            / np.pi
+        )
+        J_estim = j_estimators / (
+            4.0
+            * np.pi
+            * self.transport_state.time_of_simulation.value
+            * self.transport_state.geometry_state.volume
+        )
+        damping_factor = J / J_estim
+        return damping_factor
 
     def solve_opacity(self):
         """Solves the opacity state and any associated objects
