@@ -1,0 +1,7 @@
+tardis.iip\_plasma.properties.ion\_population module
+====================================================
+
+.. automodule:: tardis.iip_plasma.properties.ion_population
+   :members:
+   :show-inheritance:
+   :undoc-members:
