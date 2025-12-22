@@ -28,12 +28,12 @@ jobs:
 
       - name: Update CITATION.cff with retry
         run: |
-          rm CITATION.cff
-          max_attempts=5
+          max_attempts=10
           attempt=1
           until doi2cff init 10.5281/zenodo.592480 || [ $attempt -eq $max_attempts ]; do
-            echo "Attempt $attempt failed. Retrying in $((attempt * 60)) seconds..."
-            sleep $((attempt * 60))
+            echo "Attempt $attempt failed. Retrying in 60 seconds..."
+            rm -f CITATION.cff
+            sleep 60
             attempt=$((attempt + 1))
           done
 
