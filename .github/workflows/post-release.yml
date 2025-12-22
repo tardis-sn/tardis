@@ -36,6 +36,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Wait for Zenodo webhook
+        run: sleep 180
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -65,6 +68,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+
+      - name: Wait for Zenodo webhook
+        run: sleep 180
 
       - name: Setup Python
         uses: actions/setup-python@v5
