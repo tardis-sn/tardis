@@ -46,6 +46,7 @@ jobs:
 
       - name: Update CITATION.cff
         run: |
+          rm -f CITATION.cff
           max_attempts=10
           attempt=1
           until doi2cff init 10.5281/zenodo.592480 || [ $attempt -eq $max_attempts ]; do
