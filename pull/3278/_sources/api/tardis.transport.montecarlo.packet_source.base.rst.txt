@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.packet\_source.base module
-======================================================
-
-.. automodule:: tardis.transport.montecarlo.packet_source.base
-   :members:
-   :show-inheritance:
-   :undoc-members:
