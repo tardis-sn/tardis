@@ -63,6 +63,9 @@ montecarlo:
       damping_constant: 0.5
     stop_if_converged: True
 
+  tracking:
+    track_rpacket: True
+
 spectrum:
   start: 500 angstrom
   stop: 20000 angstrom
