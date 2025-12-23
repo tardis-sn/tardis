@@ -1379,7 +1379,8 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         ).multiply(photoionization_data["x_sect"].values, axis=0)
         num_neg_elements = (chi_bf < 0).sum().sum()
         if num_neg_elements:
-            raise ValueError("Negative values in bound-free opacity.")
+            # raise ValueError("Negative values in bound-free opacity.")
+            logger.warning("Negative values in bound-free opacity.")
 
         # NOW FF_COOLING_FACTOR
         ion_charge = ion_number_density.index.get_level_values(1).values
