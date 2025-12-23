@@ -7,14 +7,17 @@ from scipy.interpolate import interp1d
 
 from tardis import constants as const
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
+from tardis.iip_plasma.continuum.input_data import ContinuumInputData
+from tardis.iip_plasma.continuum.radiative_processes import (
+    RadiativeIonization,
+    RadiativeRecombination,
+)
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
-    BoundBoundMacroAtomSolver,
     ContinuumMacroAtomSolver,
 )
-from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
@@ -27,9 +30,6 @@ from tardis.spectrum.luminosity import (
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
-from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
-    MCContinuumPropertiesSolver,
-)
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
 from tardis.workflows.workflow_logging import WorkflowLogging
@@ -124,6 +124,8 @@ class TypeIIPWorkflow(WorkflowLogging):
             temperature=t_radiative,
             dilution_factor=dilution_factor,
         )
+
+        self.simulation_state.radiation_field_state = radiation_field
 
         j_blues = radiation_field.calculate_mean_intensity(
             self.plasma_solver.atomic_data.lines.nu.values
@@ -523,17 +525,30 @@ class TypeIIPWorkflow(WorkflowLogging):
         opacity_state = self.opacity_solver.solve(self.plasma_solver)
 
         if self.completed_iterations == 0:
-            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = False
-            empty_photoion_estimator = self.plasma_solver.phi_lucy * 0.0
+            inputs = ContinuumInputData(
+                self.plasma_solver.atomic_data,
+                self.plasma_solver,
+                self.simulation_state.radiation_field_state.dilution_factor,
+                self.plasma_solver.transition_probabilities,
+                None,
+            )
+
+            photoion_rates_solver = RadiativeIonization(inputs)
+            recomb_rates_solver = RadiativeRecombination(inputs)
+
+            photoion_rate = photoion_rates_solver._calculate_rate_coefficient()
+            recombination_rate = (
+                recomb_rates_solver._calculate_rate_coefficient()
+            )
 
             macro_atom_state = self.macro_atom_solver.solve(
                 self.plasma_solver.j_blues,
                 opacity_state.beta_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
-                empty_photoion_estimator,
-                empty_photoion_estimator,
-                self.plasma_solver.coll_deexc_coeff * 0.0,
-                self.plasma_solver.coll_exc_coeff * 0.0,
+                photoion_rate,
+                recombination_rate,
+                self.plasma_solver.coll_deexc_coeff,
+                self.plasma_solver.coll_exc_coeff,
                 self.plasma_solver.electron_densities,
                 self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
