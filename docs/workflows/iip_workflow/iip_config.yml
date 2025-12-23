@@ -13,11 +13,11 @@ model:
     velocity:
       start: 10000 km/s
       stop: 15000 km/s
-      num: 20
+      num: 10
     density:
       type : power_law
       time_0: 16.0 day
-      rho_0: 1.948e-15 g/cm^3
+      rho_0: 1.948e-14 g/cm^3
       v_0: 8000 km/s
       exponent: -7
 
@@ -32,7 +32,7 @@ plasma:
   excitation: dilute-lte
   radiative_rates_type:  detailed # Doesn't do anything currently but needed for validation
   line_interaction_type: macroatom
-  initial_t_inner: 15000 K
+  initial_t_inner: 10000 K
   nlte_ionization_species: [H I]
   nlte_excitation_species: [H I]
   # nlte_species[(1, 0)]
@@ -47,11 +47,11 @@ plasma:
 
 montecarlo:
   seed: 23111963
-  no_of_packets: 5.0e+3
+  no_of_packets: 2.0e+4
   iterations: 10
-  nthreads: 8
+  nthreads: 1
 
-  last_no_of_packets: 3.0e+4
+  last_no_of_packets: 5.0e+5
 
   convergence_strategy:
     type: damped
