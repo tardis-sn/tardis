@@ -3,6 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 from astropy import units as u
+from scipy.interpolate import interp1d
 
 from tardis import constants as const
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
@@ -89,10 +90,14 @@ class TypeIIPWorkflow(WorkflowLogging):
         atom_data.nlte_data._init_indices()
         atom_data.has_collision_data = False
 
-        self.plasma_solver = LegacyPlasmaArray(
+        elemental_number_density = (
             self.simulation_state.calculate_elemental_number_density(
                 atom_data.atom_data.mass
-            ),
+            )
+        )
+
+        self.plasma_solver = LegacyPlasmaArray(
+            elemental_number_density,
             atom_data,
             self.configuration.supernova.time_explosion.to("s"),
             nlte_config=self.configuration.plasma.nlte,
@@ -108,9 +113,16 @@ class TypeIIPWorkflow(WorkflowLogging):
             continuum_treatment=True,
         )
 
+        t_radiative, dilution_factor = self.initialize_radiation_field(
+            self.simulation_state.geometry,
+            elemental_number_density,
+            self.configuration.plasma.initial_t_inner,
+            self.simulation_state.dilution_factor,
+        )
+
         radiation_field = DilutePlanckianRadiationField(
-            temperature=self.simulation_state.t_radiative,
-            dilution_factor=self.simulation_state.dilution_factor,
+            temperature=t_radiative,
+            dilution_factor=dilution_factor,
         )
 
         j_blues = radiation_field.calculate_mean_intensity(
@@ -118,8 +130,8 @@ class TypeIIPWorkflow(WorkflowLogging):
         )
 
         self.plasma_solver.update_radiationfield(
-            self.simulation_state.t_radiative.value,
-            self.simulation_state.dilution_factor,
+            t_radiative,
+            dilution_factor,
             pd.DataFrame(
                 j_blues, index=self.plasma_solver.atomic_data.lines.index
             ),
@@ -219,6 +231,54 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.convergence_solvers["t_inner"] = ConvergenceSolver(
             self.convergence_strategy.t_inner
         )
+
+    @staticmethod
+    def initialize_radiation_field(
+        geometry_state, number_density, initial_t_inner, ws
+    ):
+        r_inner = geometry_state.r_inner_active.value
+        r_outer = geometry_state.r_outer_active.value
+        r_middle = geometry_state.r_middle_active.value
+        delta_r = r_outer - r_inner
+        t_inner = initial_t_inner
+
+        v_inner = geometry_state.v_inner_active.value
+        doppler_factor = 1.0 - v_inner / const.c.cgs.value
+
+        sigma_T = const.sigma_T.cgs.value
+
+        N_H = number_density.loc[1].values
+
+        tau_e_shell = sigma_T * delta_r * N_H
+
+        tau = tau_e_shell - (1 - doppler_factor) * tau_e_shell ** (
+            2.25 * doppler_factor
+        )
+        tau = tau_e_shell
+        tau = tau[::-1].cumsum()[::-1]
+        T_eff4 = t_inner**4 / (tau[0] + 2.0 / 3.0)
+        tau_middle = interp1d(r_inner, tau, fill_value="extrapolate")(r_middle)
+        t_rads = (T_eff4 * (tau_middle + 2.0 / 3.0)) ** 0.25
+
+        flat_T_start = np.where(tau_middle < 12.0)[0][0]
+        t_rads[tau_middle < 12.0] = t_rads[flat_T_start]
+
+        # Setup ws
+        tau_flat = 10
+        tau_geom = 0.08
+
+        geometric_mask = tau_middle < tau_geom
+        flat_mask = tau_middle > tau_flat
+
+        a = (1.0 - tau_geom) / (np.log(tau_flat) - np.log(tau_geom))
+        b = 1.0 - np.log(tau_flat) * a
+        ws[flat_mask] = 1.0
+        lin_mask = np.logical_and(
+            np.logical_not(flat_mask), np.logical_not(geometric_mask)
+        )
+        ws[lin_mask] = a * np.log(tau_middle[lin_mask]) + b
+
+        return t_rads, ws
 
     def get_convergence_estimates(self):
         """Compute convergence estimates from the transport state
@@ -373,15 +433,20 @@ class TypeIIPWorkflow(WorkflowLogging):
         continuum_estimators["coll_deexc_heating_estimator"] = None
         continuum_estimators["ff_heating_estimator"] = None
 
+        j_blues_df = pd.DataFrame(
+            self.transport_state.radfield_mc_estimators.j_blue_estimator,
+            index=self.plasma_solver.lines.index,
+        )
+
         continuum_estimators, j_blues = self.normalize_continuum_estimators(
             continuum_estimators,
-            self.transport_state.radfield_mc_estimators.j_blue_estimator,
+            j_blues_df,
             self.transport_state.radfield_mc_estimators.j_estimator,
         )
         self.plasma_solver.update_radiationfield(
             self.simulation_state.t_radiative.value,
             self.simulation_state.dilution_factor,
-            j_blues,
+            j_blues_df,
             self.configuration.plasma.nlte,
             initialize_nlte=False,
             n_e_convergence_threshold=0.05,
@@ -458,21 +523,30 @@ class TypeIIPWorkflow(WorkflowLogging):
         opacity_state = self.opacity_solver.solve(self.plasma_solver)
 
         if self.completed_iterations == 0:
-            # On first iteration, use Bound-Bound macro atom solver because don't have continuum estimators
-            bb_macro_atom_solver = BoundBoundMacroAtomSolver(
-                self.plasma_solver.atomic_data.levels,
-                self.plasma_solver.atomic_data.lines,
-                line_interaction_type=self.opacity_solver.line_interaction_type,
-            )
-            macro_atom_state = bb_macro_atom_solver.solve(
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = False
+            empty_photoion_estimator = self.plasma_solver.phi_lucy * 0.0
+
+            macro_atom_state = self.macro_atom_solver.solve(
                 self.plasma_solver.j_blues,
                 opacity_state.beta_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
+                empty_photoion_estimator,
+                empty_photoion_estimator,
+                self.plasma_solver.coll_deexc_coeff * 0.0,
+                self.plasma_solver.coll_exc_coeff * 0.0,
+                self.plasma_solver.electron_densities,
+                self.plasma_solver.level_number_density,
+                self.plasma_solver.delta_E_yg,
             )
 
         else:
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
+            j_blues_df = pd.DataFrame(
+                self.transport_state.radfield_mc_estimators.j_blue_estimator,
+                index=self.plasma_solver.lines.index,
+            )
             macro_atom_state = self.macro_atom_solver.solve(
-                self.plasma_solver.j_blues,
+                j_blues_df,
                 opacity_state.beta_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
                 self.plasma_solver.gamma_corr,
@@ -589,8 +663,11 @@ class TypeIIPWorkflow(WorkflowLogging):
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
 
+            print("Solving opacity")
+
             self.opacity_states = self.solve_opacity()
 
+            print("Solving Monte Carlo transport")
             virtual_packet_energies = self.solve_montecarlo(
                 self.opacity_states, self.real_packet_count
             )
@@ -600,8 +677,10 @@ class TypeIIPWorkflow(WorkflowLogging):
                 estimated_radfield_properties,
             ) = self.get_convergence_estimates()
 
+            print("Updating simulation")
             self.solve_simulation_state(estimated_values)
 
+            print("Solving plasma")
             self.solve_plasma()
 
             self.converged = self.check_convergence(estimated_values)
