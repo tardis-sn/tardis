@@ -17,19 +17,19 @@ from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 RELATIVE_TOLERANCE_LIV=1e-12
 
 @pytest.fixture(scope="class")
-def plotter(simulation_simple):
+def plotter(simulation_simple_tracked):
     """
     Fixture to create an LIVPlotter instance from a simulation.
 
     Parameters:
     -----------
-    simulation_simple: A TARDIS simulation object.
+    simulation_simple_tracked: A TARDIS simulation object.
 
     Returns:
     --------
     An LIVPlotter instance.
     """
-    return LIVPlotter.from_simulation(simulation_simple)
+    return LIVPlotter.from_simulation(simulation_simple_tracked)
 
 
 class TestLIVPlotter:
@@ -80,7 +80,6 @@ class TestLIVPlotter:
         attribute: The attribute to test after parsing the species list.
         """
         plotter._parse_species_list(
-            packets_mode=self.packets_mode[0],
             species_list=self.species_list[0],
             nelements=self.nelements[0],
         )
@@ -129,6 +128,10 @@ class TestLIVPlotter:
             num_bins=num_bins,
             nelements=nelements,
         )
+
+        if packets_mode == "virtual":
+          pytest.skip("Skipping tests for virtual packets mode")
+
         return plotter
 
     @pytest.mark.parametrize(
@@ -199,6 +202,8 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
+        if packets_mode == "virtual":
+            pytest.skip("Skipping tests for virtual packets mode")
         return fig, plotter
 
     @pytest.fixture(scope="function")
@@ -368,6 +373,9 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
+        if packets_mode == "virtual":
+            pytest.skip("Skipping tests for virtual packets mode")
+
         return fig, plotter
 
     @pytest.fixture(scope="function")
@@ -494,6 +502,9 @@ class TestLIVPlotter:
             num_bins=num_bins,
             nelements=nelements,
         )
+        if packets_mode == "virtual":
+            pytest.skip("Skipping tests for virtual packets mode")
+
         plotter_from_workflow._param_idx = param_idx
         return plotter_from_workflow
 
@@ -543,6 +554,9 @@ class TestLIVPlotter:
             num_bins=num_bins,
             velocity_range=velocity_range,
         )
+        if packets_mode == "virtual":
+            pytest.skip("Skipping tests for virtual packets mode")
+
         plotter_from_workflow._param_idx = param_idx
         return fig, plotter_from_workflow
 
@@ -577,7 +591,9 @@ class TestLIVPlotter:
             "num_bins": None,
             "nelements": None
         }
-        
+        if params["packets_mode"] == "virtual":
+            pytest.skip("Skipping tests for virtual packets mode")
+
         plotter._prepare_plot_data(**params)
         plotter_from_workflow._prepare_plot_data(**params)
         

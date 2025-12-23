@@ -43,7 +43,7 @@ class TestRPacketPlotter:
         rpacket_plotter : tardis.visualization.RPacketPlotter
             Plotter object used to generate the r-packet visualization.
         """
-        single_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+        single_packet_df = simulation_rpacket_tracking.transport.transport_state.tracker_full_df.loc[
             0
         ]
         (
@@ -51,8 +51,8 @@ class TestRPacketPlotter:
             rpacket_y,
             rpacket_interactions,
         ) = rpacket_plotter.get_coordinates_with_theta_init(
-            single_packet_df["r"],
-            single_packet_df["mu"],
+            single_packet_df["radius"],
+            single_packet_df["after_mu"],
             simulation_rpacket_tracking.simulation_state.time_explosion.value,
             single_packet_df["interaction_type"],
             0,
@@ -66,7 +66,7 @@ class TestRPacketPlotter:
         # compairing the radius obtained from x and y coordinates using the formula r^2 = x^2 + y^2,  with the radius present in the rpacket_tracker
         radius_array = np.sqrt(rpacket_x**2 + rpacket_y**2)
         expected_radius_array = (
-            (single_packet_df["r"].to_numpy())
+            (single_packet_df["radius"].to_numpy())
             * 1e-5
             / simulation_rpacket_tracking.simulation_state.time_explosion.value
         )
@@ -86,7 +86,7 @@ class TestRPacketPlotter:
             Plotter object used to generate the r-packet visualization.
         """
         no_of_packets = rpacket_plotter.no_of_packets
-        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.tracker_full_df.loc[
             0 : (no_of_packets - 1)
         ]
         (
@@ -103,7 +103,7 @@ class TestRPacketPlotter:
 
         # checking coordinates of every packet
         for rpacket in range(no_of_packets):
-            single_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+            single_packet_df = simulation_rpacket_tracking.transport.transport_state.tracker_full_df.loc[
                 rpacket
             ]
             (
@@ -111,8 +111,8 @@ class TestRPacketPlotter:
                 expected_rpacket_y,
                 expected_rpacket_interactions,
             ) = rpacket_plotter.get_coordinates_with_theta_init(
-                single_packet_df["r"],
-                single_packet_df["mu"],
+                single_packet_df["radius"],
+                single_packet_df["after_mu"],
                 simulation_rpacket_tracking.simulation_state.time_explosion.value,
                 single_packet_df["interaction_type"],
                 thetas[rpacket],
@@ -137,7 +137,7 @@ class TestRPacketPlotter:
             Plotter object used to generate the r-packet visualization.
         """
         no_of_packets = rpacket_plotter.no_of_packets
-        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.tracker_full_df.loc[
             0 : (no_of_packets - 1)
         ]
         (
@@ -177,12 +177,9 @@ class TestRPacketPlotter:
             )
             expected_rpacket_interactions = np.append(
                 multiple_packet_interaction[rpacket],
-                multiple_packet_interaction[rpacket][-1]
-                * np.ones(
-                    [
-                        expected_max_array_size
-                        - len(multiple_packet_interaction[rpacket])
-                    ]
+                np.full(
+                    expected_max_array_size - len(multiple_packet_interaction[rpacket]),
+                    multiple_packet_interaction[rpacket][-1]
                 ),
             )
 
@@ -209,7 +206,7 @@ class TestRPacketPlotter:
             Theme of plot.
         """
         no_of_packets = rpacket_plotter.no_of_packets
-        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.tracker_full_df.loc[
             0 : (no_of_packets - 1)
         ]
         (
@@ -262,7 +259,7 @@ class TestRPacketPlotter:
             Theme of plot.
         """
         no_of_packets = rpacket_plotter.no_of_packets
-        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.tracker_full_df.loc[
             0 : (no_of_packets - 1)
         ]
         (
@@ -303,7 +300,7 @@ class TestRPacketPlotter:
             npt.assert_allclose(packet.y, rpackets_y[packet_no])
             assert list(packet.marker.color) == [
                 rpacket_plotter.interaction_from_num[
-                    int(rpackets_interactions[packet_no][step_no])
+                    rpackets_interactions[packet_no][step_no]
                 ]["color"]
                 for step_no in range(len(rpackets_x[packet_no]))
             ]
@@ -332,7 +329,7 @@ class TestRPacketPlotter:
         no_of_packets = rpacket_plotter.no_of_packets
         frame = 2
 
-        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.rpacket_tracker_df.loc[
+        multiple_packet_df = simulation_rpacket_tracking.transport.transport_state.tracker_full_df.loc[
             0 : (no_of_packets - 1)
         ]
         (
@@ -355,15 +352,15 @@ class TestRPacketPlotter:
             npt.assert_allclose(scatter.x, multiple_packet_x[packet_no])
             npt.assert_allclose(scatter.y, multiple_packet_y[packet_no])
             assert list(scatter.marker.color) == [
-                rpacket_plotter.interaction_from_num[int(interaction)]["color"]
+                rpacket_plotter.interaction_from_num[interaction]["color"]
                 for interaction in multiple_packet_interaction[packet_no]
             ]
             assert list(scatter.marker.opacity) == [
-                rpacket_plotter.interaction_from_num[int(interaction)]["opacity"]
+                rpacket_plotter.interaction_from_num[interaction]["opacity"]
                 for interaction in multiple_packet_interaction[packet_no]
             ]
             assert list(scatter.text) == [
-                rpacket_plotter.interaction_from_num[int(interaction)]["text"]
+                rpacket_plotter.interaction_from_num[interaction]["text"]
                 for interaction in multiple_packet_interaction[packet_no]
             ]
 
@@ -387,6 +384,6 @@ class TestRPacketPlotter:
             npt.assert_allclose(scatter.x, multiple_packet_x[packet_no][:frame])
             npt.assert_allclose(scatter.y, multiple_packet_y[packet_no][:frame])
             assert list(scatter.marker.color) == [
-                rpacket_plotter.interaction_from_num[int(interaction)]["color"]
+                rpacket_plotter.interaction_from_num[interaction]["color"]
                 for interaction in multiple_packet_interaction[packet_no][:frame]
             ]

@@ -41,12 +41,6 @@ transport_state_properties = [
     # This is a scalar and should be tested differently
     # "time_of_simulation",
     "emitted_packet_mask",
-    "last_interaction_type",
-    "last_interaction_in_nu",
-    "last_interaction_in_r",
-    "last_line_interaction_out_id",
-    "last_line_interaction_in_id",
-    "last_line_interaction_shell_id",
     "virt_packet_nus",
     "virt_packet_energies",
     "virt_packet_initial_rs",

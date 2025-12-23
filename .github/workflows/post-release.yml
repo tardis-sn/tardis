@@ -49,8 +49,15 @@ jobs:
 
       - name: Update CITATION.cff
         run: |
-          rm CITATION.cff
-          doi2cff init 10.5281/zenodo.592480
+          rm -f CITATION.cff
+          max_attempts=10
+          attempt=1
+          until doi2cff init 10.5281/zenodo.592480 || [ $attempt -eq $max_attempts ]; do
+            echo "Attempt $attempt failed. Retrying in 60 seconds..."
+            rm -f CITATION.cff
+            sleep 60
+            attempt=$((attempt + 1))
+          done
 
       - uses: actions/upload-artifact@v5
         with:
@@ -128,7 +135,7 @@ jobs:
 
             These are the changes required after the latest TARDIS release.
 
-            > :warning: **Warning:** 
+            > :warning: **Warning:**
             >
             > The `post_release` workflow waits for a webhook and then updates the citation files. If the file is not modified by this pull request, please check the latest release on [Zenodo's website](https://zenodo.org/record/592480), close this pull request, and [manually run the workflow](https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow).
             >

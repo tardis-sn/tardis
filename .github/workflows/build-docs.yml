@@ -114,9 +114,9 @@ jobs:
       - name: Install package
         run: pip install -e ".[tardisbase]"
 
-      - name: Install qgridnext and lineid_plot
+      - name: Install lineid_plot
         run: |
-          pip install --no-deps qgridnext lineid_plot
+          pip install --no-deps lineid_plot
 
       - name: Install Sphinx extensions
         run: |
