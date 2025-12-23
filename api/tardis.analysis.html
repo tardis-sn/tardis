@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=82d60e4e"></script>
+      <script src="../_static/documentation_options.js?v=eb5b5362"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -76,7 +76,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/read_external_models/index.html">How-to read external models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
@@ -154,122 +153,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-tardis.analysis">
-<span id="tardis-analysis-module"></span><h1>tardis.analysis module<a class="headerlink" href="#module-tardis.analysis" title="Link to this heading">¶</a></h1>
-<p>Code to analyse the model.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.analysis.</span></span><span class="sig-name descname"><span class="pre">LastLineInteraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_line_interaction_in_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_out_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_line_interaction_shell_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_filter_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'packet_out_nu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#LastLineInteraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.LastLineInteraction" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.atomic_number">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atomic_number</span></span><a class="headerlink" href="#tardis.analysis.LastLineInteraction.atomic_number" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.from_simulation">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_filter_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'packet_out_nu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#LastLineInteraction.from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.LastLineInteraction.from_simulation" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.ion_number">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ion_number</span></span><a class="headerlink" href="#tardis.analysis.LastLineInteraction.ion_number" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.plot_wave_in_out">
-<span class="sig-name descname"><span class="pre">plot_wave_in_out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_clf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_resonance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#LastLineInteraction.plot_wave_in_out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.LastLineInteraction.plot_wave_in_out" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.set_ion">
-<span class="sig-name descname"><span class="pre">set_ion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_number</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#LastLineInteraction.set_ion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.LastLineInteraction.set_ion" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.shell">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shell</span></span><a class="headerlink" href="#tardis.analysis.LastLineInteraction.shell" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.update_last_interaction_filter">
-<span class="sig-name descname"><span class="pre">update_last_interaction_filter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#LastLineInteraction.update_last_interaction_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.LastLineInteraction.update_last_interaction_filter" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.wavelength_end">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wavelength_end</span></span><a class="headerlink" href="#tardis.analysis.LastLineInteraction.wavelength_end" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="tardis.analysis.LastLineInteraction.wavelength_start">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wavelength_start</span></span><a class="headerlink" href="#tardis.analysis.LastLineInteraction.wavelength_start" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.analysis.</span></span><span class="sig-name descname"><span class="pre">TARDISHistory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf5_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Records the history of the model</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.calculate_departure_coefficients">
-<span class="sig-name descname"><span class="pre">calculate_departure_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.calculate_departure_coefficients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.calculate_departure_coefficients" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.calculate_relative_lte_level_populations">
-<span class="sig-name descname"><span class="pre">calculate_relative_lte_level_populations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.calculate_relative_lte_level_populations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.calculate_relative_lte_level_populations" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.get_last_line_interaction">
-<span class="sig-name descname"><span class="pre">get_last_line_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.get_last_line_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.get_last_line_interaction" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.load_atom_data">
-<span class="sig-name descname"><span class="pre">load_atom_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.load_atom_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.load_atom_data" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.load_ion_populations">
-<span class="sig-name descname"><span class="pre">load_ion_populations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.load_ion_populations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.load_ion_populations" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.load_jblues">
-<span class="sig-name descname"><span class="pre">load_jblues</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.load_jblues"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.load_jblues" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.load_level_populations">
-<span class="sig-name descname"><span class="pre">load_level_populations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.load_level_populations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.load_level_populations" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.load_spectrum">
-<span class="sig-name descname"><span class="pre">load_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iteration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectrum_keyword</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'luminosity_density'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.load_spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.load_spectrum" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.load_t_inner">
-<span class="sig-name descname"><span class="pre">load_t_inner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.load_t_inner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.load_t_inner" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.load_t_rads">
-<span class="sig-name descname"><span class="pre">load_t_rads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.load_t_rads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.load_t_rads" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.analysis.TARDISHistory.load_ws">
-<span class="sig-name descname"><span class="pre">load_ws</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/analysis.html#TARDISHistory.load_ws"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.analysis.TARDISHistory.load_ws" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+  <section id="tardis-analysis-module">
+<h1>tardis.analysis module<a class="headerlink" href="#tardis-analysis-module" title="Link to this heading">¶</a></h1>
 </section>
 
 

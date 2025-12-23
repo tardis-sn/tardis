@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=82d60e4e"></script>
+      <script src="../../../_static/documentation_options.js?v=eb5b5362"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -73,7 +73,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/read_external_models/index.html">How-to read external models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
@@ -268,7 +267,7 @@ def get_hex_color_strings(length, name=&quot;jet&quot;):
 
 <div class="viewcode-block" id="extract_and_process_packet_data">
 <a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.extract_and_process_packet_data">[docs]</a>
-def extract_and_process_packet_data(simulation, packets_mode):
+def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=False):
     &quot;&quot;&quot;
     Extract and process packet data from the simulation object.
 
@@ -285,6 +284,9 @@ def extract_and_process_packet_data(simulation, packets_mode):
         Type of packets to extract:
         - &#39;virtual&#39;: Use virtual packet tracker.
         - &#39;real&#39;: Use emitted real packets.
+
+    include_shell_id : bool, optional
+        Whether to include shell_id information in the output (default: False)
 
     Returns
     -------
@@ -316,30 +318,29 @@ def extract_and_process_packet_data(simulation, packets_mode):
             ),
         }
     else:
-        mask = transport_state.emitted_packet_mask
+        df_last = transport_state.tracker_last_interaction_df
+
+        df_last_emitted = df_last[transport_state.emitted_packet_mask]
+
+        # Extract packet collection data for these packets
+        packet_indices = df_last_emitted.index.values
         packet_nus = u.Quantity(
-            transport_state.packet_collection.output_nus[mask], u.Hz
+            transport_state.packet_collection.output_nus[packet_indices], u.Hz
         )
+
         packet_data = {
-            &quot;last_interaction_type&quot;: transport_state.last_interaction_type[
-                mask
-            ],
-            &quot;last_line_interaction_in_id&quot;: transport_state.last_line_interaction_in_id[
-                mask
-            ],
-            &quot;last_line_interaction_out_id&quot;: transport_state.last_line_interaction_out_id[
-                mask
-            ],
-            &quot;last_line_interaction_in_nu&quot;: transport_state.last_interaction_in_nu[
-                mask
-            ],
-            &quot;last_interaction_in_r&quot;: transport_state.last_interaction_in_r[
-                mask
-            ],
+            &quot;last_interaction_type&quot;: df_last_emitted[&quot;last_interaction_type&quot;].values,
+            &quot;last_line_interaction_in_id&quot;: df_last_emitted[&quot;line_absorb_id&quot;].values,
+            &quot;last_line_interaction_out_id&quot;: df_last_emitted[&quot;line_emit_id&quot;].values,
+            &quot;last_line_interaction_in_nu&quot;: df_last_emitted[&quot;before_nu&quot;].values,
+            &quot;last_interaction_in_r&quot;: df_last_emitted[&quot;radius&quot;].values,
             &quot;nus&quot;: packet_nus,
-            &quot;energies&quot;: transport_state.packet_collection.output_energies[mask],
+            &quot;energies&quot;: transport_state.packet_collection.output_energies[packet_indices],
             &quot;lambdas&quot;: packet_nus.to(&quot;angstrom&quot;, u.spectral()),
         }
+
+        if include_shell_id:
+            packet_data[&quot;last_line_interaction_shell_id&quot;] = df_last_emitted[&quot;shell_id&quot;].values
 
     packet_data[&quot;packets_df&quot;] = pd.DataFrame(packet_data)
     process_line_interactions(packet_data, lines_df)
@@ -369,7 +370,7 @@ def process_line_interactions(packet_data, lines_df):
 
     if packets_df is not None:
         # Create dataframe of packets that experience line interaction
-        line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; InteractionType.NO_INTERACTION) &amp; (
+        line_mask = (packets_df[&quot;last_interaction_type&quot;] != &quot;NO_INTERACTION&quot;) &amp; (
             packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1
         )
         packet_data[&quot;packets_df_line_interaction&quot;] = packets_df.loc[
@@ -402,9 +403,8 @@ def process_line_interactions(packet_data, lines_df):
                     &quot;last_line_interaction_out_id&quot;
                 ]
             ]
-            .to_numpy()
-            ,
-            + lines_df[&quot;ion_number&quot;]
+            .to_numpy(),
+            lines_df[&quot;ion_number&quot;]
             .iloc[
                 packet_data[&quot;packets_df_line_interaction&quot;][
                     &quot;last_line_interaction_out_id&quot;
@@ -752,12 +752,15 @@ def create_wavelength_mask(
 
     Parameters
     ----------
-    packets_mode : str
-        &#39;virtual&#39; or &#39;real&#39; packets mode
+    packet_data : dict or pd.DataFrame
+        Either a nested dict with packet data or a DataFrame directly
+    packets_mode : str or None
+        &#39;virtual&#39; or &#39;real&#39; packets mode. Required if packet_data is a dict, ignored if DataFrame
     packet_wvl_range : astropy.Quantity or None
         Wavelength range to filter packets
-    df_key : str
-        Key for the dataframe in packet_data (&#39;packets_df&#39; or &#39;packets_df_line_interaction&#39;)
+    df_key : str or None
+        Key for the dataframe in packet_data (&#39;packets_df&#39; or &#39;packets_df_line_interaction&#39;).
+        Required if packet_data is a dict, ignored if DataFrame
     column_name : str
         Column name to filter on (&#39;nus&#39; or &#39;last_line_interaction_in_nu&#39;)
 
@@ -766,14 +769,15 @@ def create_wavelength_mask(
     np.array
         Boolean mask for packets in the specified wavelength range
     &quot;&quot;&quot;
+    if isinstance(packet_data, pd.DataFrame):
+        df = packet_data
+    else:
+        df = packet_data[packets_mode][df_key]
+
     if packet_wvl_range is None:
-        return np.ones(
-            packet_data[packets_mode][df_key].shape[0],
-            dtype=bool,
-        )
+        return np.ones(df.shape[0], dtype=bool)
 
     packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
-    df = packet_data[packets_mode][df_key]
 
     return (df[column_name] &lt; packet_nu_range[0]) &amp; (
         df[column_name] &gt; packet_nu_range[1]

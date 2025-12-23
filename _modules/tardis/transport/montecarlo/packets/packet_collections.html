@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=82d60e4e"></script>
+      <script src="../../../../../_static/documentation_options.js?v=eb5b5362"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -73,7 +73,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
@@ -242,74 +241,6 @@ def initialize_last_interaction_tracker(no_of_packets):
         last_line_interaction_shell_ids,
     )</div>
 
-
-
-<div class="viewcode-block" id="LastInteractionTracker">
-<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.LastInteractionTracker">[docs]</a>
-@jitclass
-class LastInteractionTracker:
-    types: nb.int64[:]  # type: ignore[misc]
-    in_nus: nb.float64[:]  # type: ignore[misc]
-    in_rs: nb.float64[:]  # type: ignore[misc]
-    in_ids: nb.int64[:]  # type: ignore[misc]
-    out_ids: nb.int64[:]  # type: ignore[misc]
-    shell_ids: nb.int64[:]  # type: ignore[misc]
-
-    def __init__(
-        self,
-        types: np.ndarray,
-        in_nus: np.ndarray,
-        in_rs: np.ndarray,
-        in_ids: np.ndarray,
-        out_ids: np.ndarray,
-        shell_ids: np.ndarray,
-    ) -&gt; None:
-        &quot;&quot;&quot;
-        Initialize last interaction tracker for Monte Carlo packets.
-
-        Parameters
-        ----------
-        types : numpy.ndarray
-            Types of last interactions.
-        in_nus : numpy.ndarray
-            Incoming frequencies of last interactions [Hz].
-        in_rs : numpy.ndarray
-            Radii of last interactions [cm].
-        in_ids : numpy.ndarray
-            Input line IDs for last interactions.
-        out_ids : numpy.ndarray
-            Output line IDs for last interactions.
-        shell_ids : numpy.ndarray
-            Shell IDs where last interactions occurred.
-        &quot;&quot;&quot;
-        self.types = types
-        self.in_nus = in_nus
-        self.in_rs = in_rs
-        self.in_ids = in_ids
-        self.out_ids = out_ids
-        self.shell_ids = shell_ids
-
-    def update_last_interaction(self, r_packet, i: int) -&gt; None:
-        &quot;&quot;&quot;
-        Update the last interaction information for a packet.
-
-        Parameters
-        ----------
-        r_packet : RPacket
-            The R-packet with interaction information.
-        i : int
-            Index of the packet to update.
-        &quot;&quot;&quot;
-        self.types[i] = r_packet.last_interaction_type
-        self.in_nus[i] = r_packet.last_interaction_in_nu
-        self.in_rs[i] = r_packet.last_interaction_in_r
-        if r_packet.last_interaction_type == InteractionType.LINE:
-            self.in_ids[i] = r_packet.last_line_interaction_in_id
-            self.out_ids[i] = r_packet.last_line_interaction_out_id
-        else:
-            self.in_ids[i] = -1
-            self.out_ids[i] = -1
-        self.shell_ids[i] = r_packet.last_line_interaction_shell_id</div>
 
 
 

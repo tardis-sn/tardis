@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=82d60e4e"></script>
+      <script src="../_static/documentation_options.js?v=eb5b5362"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -76,7 +76,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/read_external_models/index.html">How-to read external models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
@@ -738,35 +737,7 @@
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="tardis.analysis.html">tardis.analysis module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.atomic_number"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.atomic_number</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.from_simulation"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.from_simulation()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.ion_number"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.ion_number</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.plot_wave_in_out"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.plot_wave_in_out()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.set_ion"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.set_ion()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.shell"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.shell</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.update_last_interaction_filter"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.update_last_interaction_filter()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.wavelength_end"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.wavelength_end</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.LastLineInteraction.wavelength_start"><code class="docutils literal notranslate"><span class="pre">LastLineInteraction.wavelength_start</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory"><code class="docutils literal notranslate"><span class="pre">TARDISHistory</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.calculate_departure_coefficients"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.calculate_departure_coefficients()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.calculate_relative_lte_level_populations"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.calculate_relative_lte_level_populations()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.get_last_line_interaction"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.get_last_line_interaction()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.load_atom_data"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.load_atom_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.load_ion_populations"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.load_ion_populations()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.load_jblues"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.load_jblues()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.load_level_populations"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.load_level_populations()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.load_spectrum"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.load_spectrum()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.load_t_inner"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.load_t_inner()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.load_t_rads"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.load_t_rads()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.analysis.html#tardis.analysis.TARDISHistory.load_ws"><code class="docutils literal notranslate"><span class="pre">TARDISHistory.load_ws()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="tardis.analysis.html">tardis.analysis module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.base.html">tardis.base module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tardis.base.html#tardis.base.run_tardis"><code class="docutils literal notranslate"><span class="pre">run_tardis()</span></code></a></li>
 </ul>

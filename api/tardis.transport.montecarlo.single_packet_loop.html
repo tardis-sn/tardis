@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=82d60e4e"></script>
+      <script src="../_static/documentation_options.js?v=eb5b5362"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -76,7 +76,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/read_external_models/index.html">How-to read external models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
@@ -173,13 +172,24 @@
 <span id="tardis-transport-montecarlo-single-packet-loop-module"></span><h1>tardis.transport.montecarlo.single_packet_loop module<a class="headerlink" href="#module-tardis.transport.montecarlo.single_packet_loop" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.single_packet_loop.set_packet_props_full_relativity">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.single_packet_loop.</span></span><span class="sig-name descname"><span class="pre">set_packet_props_full_relativity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/single_packet_loop.html#set_packet_props_full_relativity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.single_packet_loop.set_packet_props_full_relativity" title="Link to this definition">¶</a></dt>
-<dd><p>Sets properties of the packets given full relativity</p>
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.single_packet_loop.</span></span><span class="sig-name descname"><span class="pre">set_packet_props_full_relativity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.RPacket" title="tardis.transport.montecarlo.packets.radiative_packet.RPacket"><span class="pre">RPacket</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/single_packet_loop.html#set_packet_props_full_relativity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.single_packet_loop.set_packet_props_full_relativity" title="Link to this definition">¶</a></dt>
+<dd><p>Set packet properties using full relativistic corrections.</p>
+<p>This function applies inverse Doppler corrections to the packet frequency,
+energy, and direction cosine based on full relativistic treatment, including
+aberration effects on the direction cosine.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>r_packet</strong><span class="classifier">tardis.transport.montecarlo.r_packet.RPacket</span></dt><dd></dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd></dd>
+<dt><strong>r_packet</strong><span class="classifier">RPacket</span></dt><dd><p>The radiative packet whose properties will be modified.</p>
+</dd>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>Time since explosion in seconds, used to calculate velocity.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None</dt><dd><p>Modifies r_packet.nu, r_packet.energy, and r_packet.mu in-place.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -187,13 +197,23 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.single_packet_loop.set_packet_props_partial_relativity">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.single_packet_loop.</span></span><span class="sig-name descname"><span class="pre">set_packet_props_partial_relativity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/single_packet_loop.html#set_packet_props_partial_relativity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.single_packet_loop.set_packet_props_partial_relativity" title="Link to this definition">¶</a></dt>
-<dd><p>Sets properties of the packets given partial relativity</p>
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.single_packet_loop.</span></span><span class="sig-name descname"><span class="pre">set_packet_props_partial_relativity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.RPacket" title="tardis.transport.montecarlo.packets.radiative_packet.RPacket"><span class="pre">RPacket</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/single_packet_loop.html#set_packet_props_partial_relativity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.single_packet_loop.set_packet_props_partial_relativity" title="Link to this definition">¶</a></dt>
+<dd><p>Set packet properties using partial relativistic corrections.</p>
+<p>This function applies inverse Doppler corrections to the packet frequency
+and energy based on partial relativistic treatment (first-order in v/c).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>r_packet</strong><span class="classifier">tardis.transport.montecarlo.r_packet.RPacket</span></dt><dd></dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd></dd>
+<dt><strong>r_packet</strong><span class="classifier">RPacket</span></dt><dd><p>The radiative packet whose properties will be modified.</p>
+</dd>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>Time since explosion in seconds, used to calculate velocity.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None</dt><dd><p>Modifies r_packet.nu and r_packet.energy in-place.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -201,23 +221,37 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.single_packet_loop.single_packet_loop">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.single_packet_loop.</span></span><span class="sig-name descname"><span class="pre">single_packet_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numba_radial_1d_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vpacket_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_tracker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">montecarlo_configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/single_packet_loop.html#single_packet_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.single_packet_loop.single_packet_loop" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.single_packet_loop.</span></span><span class="sig-name descname"><span class="pre">single_packet_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.RPacket" title="tardis.transport.montecarlo.packets.radiative_packet.RPacket"><span class="pre">RPacket</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">numba_radial_1d_geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.NumbaRadial1DGeometry" title="tardis.model.geometry.radial1d.NumbaRadial1DGeometry"><span class="pre">NumbaRadial1DGeometry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.OpacityStateNumba" title="tardis.opacities.opacity_state_numba.OpacityStateNumba"><span class="pre">OpacityStateNumba</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators" title="tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators"><span class="pre">RadiationFieldMCEstimators</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vpacket_collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.VPacketCollection" title="tardis.transport.montecarlo.packets.packet_collections.VPacketCollection"><span class="pre">VPacketCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpacket_tracker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">montecarlo_configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration" title="tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration"><span class="pre">MonteCarloConfiguration</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/single_packet_loop.html#single_packet_loop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.single_packet_loop.single_packet_loop" title="Link to this definition">¶</a></dt>
+<dd><p>Execute Monte Carlo transport for a single radiative packet.</p>
+<p>This function performs the complete Monte Carlo transport simulation for a
+single r-packet, handling all interactions including line scattering,
+electron scattering, and continuum processes. The packet is traced through
+the ejecta until it escapes or is absorbed.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>r_packet</strong><span class="classifier">tardis.transport.montecarlo.r_packet.RPacket</span></dt><dd></dd>
-<dt><strong>numba_radial_1d_geometry</strong><span class="classifier">tardis.transport.montecarlo.numba_interface.NumbaRadial1DGeometry</span></dt><dd></dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd></dd>
-<dt><strong>opacity_state</strong><span class="classifier">tardis.transport.montecarlo.numba_interface.OpacityState</span></dt><dd></dd>
-<dt><strong>estimators</strong><span class="classifier">tardis.transport.montecarlo.numba_interface.Estimators</span></dt><dd></dd>
-<dt><strong>vpacket_collection</strong><span class="classifier">tardis.transport.montecarlo.numba_interface.VPacketCollection</span></dt><dd></dd>
-<dt><strong>rpacket_collection</strong><span class="classifier">tardis.transport.montecarlo.numba_interface.RPacketCollection</span></dt><dd></dd>
+<dt><strong>r_packet</strong><span class="classifier">RPacket</span></dt><dd><p>The radiative packet to transport through the ejecta.</p>
+</dd>
+<dt><strong>numba_radial_1d_geometry</strong><span class="classifier">NumbaRadial1DGeometry</span></dt><dd><p>The spherically symmetric geometry of the supernova ejecta.</p>
+</dd>
+<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>Time since explosion in seconds.</p>
+</dd>
+<dt><strong>opacity_state</strong><span class="classifier">OpacityStateNumba</span></dt><dd><p>Current opacity state containing line and continuum opacities.</p>
+</dd>
+<dt><strong>estimators</strong><span class="classifier">RadiationFieldMCEstimators</span></dt><dd><p>Monte Carlo estimators for radiation field quantities.</p>
+</dd>
+<dt><strong>vpacket_collection</strong><span class="classifier">VPacketCollection</span></dt><dd><p>Collection for storing virtual packets when enabled.</p>
+</dd>
+<dt><strong>rpacket_tracker</strong><span class="classifier">RPacketTracker or RPacketLastInteractionTracker</span></dt><dd><p>Tracker for recording packet interactions and trajectories.</p>
+</dd>
+<dt><strong>montecarlo_configuration</strong><span class="classifier">MonteCarloConfiguration</span></dt><dd><p>Configuration parameters for the Monte Carlo simulation.</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>None</dt><dd><p>This function does not return anything but changes the r_packet object
-and if virtual packets are requested - also updates the vpacket_collection</p>
+<dt>None</dt><dd><p>This function modifies the r_packet object in-place and updates
+estimators and collections. No return value.</p>
 </dd>
 </dl>
 </dd>

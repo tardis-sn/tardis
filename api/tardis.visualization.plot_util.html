@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=82d60e4e"></script>
+      <script src="../_static/documentation_options.js?v=eb5b5362"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -76,7 +76,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/read_external_models/index.html">How-to read external models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_rpacket_tracking.html">How to Track the Properties of Real Packets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
@@ -203,11 +202,14 @@ using latex) or not. Default value is True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>packets_mode</strong><span class="classifier">str</span></dt><dd><p>‘virtual’ or ‘real’ packets mode</p>
+<dt><strong>packet_data</strong><span class="classifier">dict or pd.DataFrame</span></dt><dd><p>Either a nested dict with packet data or a DataFrame directly</p>
+</dd>
+<dt><strong>packets_mode</strong><span class="classifier">str or None</span></dt><dd><p>‘virtual’ or ‘real’ packets mode. Required if packet_data is a dict, ignored if DataFrame</p>
 </dd>
 <dt><strong>packet_wvl_range</strong><span class="classifier">astropy.Quantity or None</span></dt><dd><p>Wavelength range to filter packets</p>
 </dd>
-<dt><strong>df_key</strong><span class="classifier">str</span></dt><dd><p>Key for the dataframe in packet_data (‘packets_df’ or ‘packets_df_line_interaction’)</p>
+<dt><strong>df_key</strong><span class="classifier">str or None</span></dt><dd><p>Key for the dataframe in packet_data (‘packets_df’ or ‘packets_df_line_interaction’).
+Required if packet_data is a dict, ignored if DataFrame</p>
 </dd>
 <dt><strong>column_name</strong><span class="classifier">str</span></dt><dd><p>Column name to filter on (‘nus’ or ‘last_line_interaction_in_nu’)</p>
 </dd>
@@ -253,7 +255,7 @@ using latex) or not. Default value is True</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.visualization.plot_util.extract_and_process_packet_data">
-<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">extract_and_process_packet_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#extract_and_process_packet_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.extract_and_process_packet_data" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.plot_util.</span></span><span class="sig-name descname"><span class="pre">extract_and_process_packet_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_shell_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/plot_util.html#extract_and_process_packet_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.plot_util.extract_and_process_packet_data" title="Link to this definition">¶</a></dt>
 <dd><p>Extract and process packet data from the simulation object.</p>
 <p>This includes converting the packet data into a DataFrame and appending
 processed line interaction information.</p>
@@ -266,6 +268,8 @@ and atomic data.</p>
 <dt><strong>packets_mode</strong><span class="classifier">str</span></dt><dd><p>Type of packets to extract:
 - ‘virtual’: Use virtual packet tracker.
 - ‘real’: Use emitted real packets.</p>
+</dd>
+<dt><strong>include_shell_id</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to include shell_id information in the output (default: False)</p>
 </dd>
 </dl>
 </dd>
