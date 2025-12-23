@@ -1,7 +1,0 @@
-tardis.model.matter.decay module
-================================
-
-.. automodule:: tardis.model.matter.decay
-   :members:
-   :show-inheritance:
-   :undoc-members:
