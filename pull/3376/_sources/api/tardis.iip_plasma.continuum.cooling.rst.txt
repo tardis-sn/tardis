@@ -1,0 +1,7 @@
+tardis.iip\_plasma.continuum.cooling module
+===========================================
+
+.. automodule:: tardis.iip_plasma.continuum.cooling
+   :members:
+   :show-inheritance:
+   :undoc-members:

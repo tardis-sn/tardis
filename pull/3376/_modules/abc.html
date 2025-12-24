@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>abc &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5187799d"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">abc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for abc</h1><div class="highlight"><pre>
+<span></span># Copyright 2007 Google, Inc. All Rights Reserved.
+# Licensed to PSF under a Contributor Agreement.
+
+&quot;&quot;&quot;Abstract Base Classes (ABCs) according to PEP 3119.&quot;&quot;&quot;
+
+
+def abstractmethod(funcobj):
+    &quot;&quot;&quot;A decorator indicating abstract methods.
+
+    Requires that the metaclass is ABCMeta or derived from it.  A
+    class that has a metaclass derived from ABCMeta cannot be
+    instantiated unless all of its abstract methods are overridden.
+    The abstract methods can be called using any of the normal
+    &#39;super&#39; call mechanisms.  abstractmethod() may be used to declare
+    abstract methods for properties and descriptors.
+
+    Usage:
+
+        class C(metaclass=ABCMeta):
+            @abstractmethod
+            def my_abstract_method(self, arg1, arg2, argN):
+                ...
+    &quot;&quot;&quot;
+    funcobj.__isabstractmethod__ = True
+    return funcobj
+
+
+class abstractclassmethod(classmethod):
+    &quot;&quot;&quot;A decorator indicating abstract classmethods.
+
+    Deprecated, use &#39;classmethod&#39; with &#39;abstractmethod&#39; instead:
+
+        class C(ABC):
+            @classmethod
+            @abstractmethod
+            def my_abstract_classmethod(cls, ...):
+                ...
+
+    &quot;&quot;&quot;
+
+    __isabstractmethod__ = True
+
+    def __init__(self, callable):
+        callable.__isabstractmethod__ = True
+        super().__init__(callable)
+
+
+class abstractstaticmethod(staticmethod):
+    &quot;&quot;&quot;A decorator indicating abstract staticmethods.
+
+    Deprecated, use &#39;staticmethod&#39; with &#39;abstractmethod&#39; instead:
+
+        class C(ABC):
+            @staticmethod
+            @abstractmethod
+            def my_abstract_staticmethod(...):
+                ...
+
+    &quot;&quot;&quot;
+
+    __isabstractmethod__ = True
+
+    def __init__(self, callable):
+        callable.__isabstractmethod__ = True
+        super().__init__(callable)
+
+
+class abstractproperty(property):
+    &quot;&quot;&quot;A decorator indicating abstract properties.
+
+    Deprecated, use &#39;property&#39; with &#39;abstractmethod&#39; instead:
+
+        class C(ABC):
+            @property
+            @abstractmethod
+            def my_abstract_property(self):
+                ...
+
+    &quot;&quot;&quot;
+
+    __isabstractmethod__ = True
+
+
+try:
+    from _abc import (get_cache_token, _abc_init, _abc_register,
+                      _abc_instancecheck, _abc_subclasscheck, _get_dump,
+                      _reset_registry, _reset_caches)
+except ImportError:
+    from _py_abc import ABCMeta, get_cache_token
+    ABCMeta.__module__ = &#39;abc&#39;
+else:
+    class ABCMeta(type):
+        &quot;&quot;&quot;Metaclass for defining Abstract Base Classes (ABCs).
+
+        Use this metaclass to create an ABC.  An ABC can be subclassed
+        directly, and then acts as a mix-in class.  You can also register
+        unrelated concrete classes (even built-in classes) and unrelated
+        ABCs as &#39;virtual subclasses&#39; -- these and their descendants will
+        be considered subclasses of the registering ABC by the built-in
+        issubclass() function, but the registering ABC won&#39;t show up in
+        their MRO (Method Resolution Order) nor will method
+        implementations defined by the registering ABC be callable (not
+        even via super()).
+        &quot;&quot;&quot;
+        def __new__(mcls, name, bases, namespace, /, **kwargs):
+            cls = super().__new__(mcls, name, bases, namespace, **kwargs)
+            _abc_init(cls)
+            return cls
+
+        def register(cls, subclass):
+            &quot;&quot;&quot;Register a virtual subclass of an ABC.
+
+            Returns the subclass, to allow usage as a class decorator.
+            &quot;&quot;&quot;
+            return _abc_register(cls, subclass)
+
+        def __instancecheck__(cls, instance):
+            &quot;&quot;&quot;Override for isinstance(instance, cls).&quot;&quot;&quot;
+            return _abc_instancecheck(cls, instance)
+
+        def __subclasscheck__(cls, subclass):
+            &quot;&quot;&quot;Override for issubclass(subclass, cls).&quot;&quot;&quot;
+            return _abc_subclasscheck(cls, subclass)
+
+        def _dump_registry(cls, file=None):
+            &quot;&quot;&quot;Debug helper to print the ABC registry.&quot;&quot;&quot;
+            print(f&quot;Class: {cls.__module__}.{cls.__qualname__}&quot;, file=file)
+            print(f&quot;Inv. counter: {get_cache_token()}&quot;, file=file)
+            (_abc_registry, _abc_cache, _abc_negative_cache,
+             _abc_negative_cache_version) = _get_dump(cls)
+            print(f&quot;_abc_registry: {_abc_registry!r}&quot;, file=file)
+            print(f&quot;_abc_cache: {_abc_cache!r}&quot;, file=file)
+            print(f&quot;_abc_negative_cache: {_abc_negative_cache!r}&quot;, file=file)
+            print(f&quot;_abc_negative_cache_version: {_abc_negative_cache_version!r}&quot;,
+                  file=file)
+
+        def _abc_registry_clear(cls):
+            &quot;&quot;&quot;Clear the registry (for debugging or testing).&quot;&quot;&quot;
+            _reset_registry(cls)
+
+        def _abc_caches_clear(cls):
+            &quot;&quot;&quot;Clear the caches (for debugging or testing).&quot;&quot;&quot;
+            _reset_caches(cls)
+
+
+def update_abstractmethods(cls):
+    &quot;&quot;&quot;Recalculate the set of abstract methods of an abstract class.
+
+    If a class has had one of its abstract methods implemented after the
+    class was created, the method will not be considered implemented until
+    this function is called. Alternatively, if a new abstract method has been
+    added to the class, it will only be considered an abstract method of the
+    class after this function is called.
+
+    This function should be called before any use is made of the class,
+    usually in class decorators that add methods to the subject class.
+
+    Returns cls, to allow usage as a class decorator.
+
+    If cls is not an instance of ABCMeta, does nothing.
+    &quot;&quot;&quot;
+    if not hasattr(cls, &#39;__abstractmethods__&#39;):
+        # We check for __abstractmethods__ here because cls might by a C
+        # implementation or a python implementation (especially during
+        # testing), and we want to handle both cases.
+        return cls
+
+    abstracts = set()
+    # Check the existing abstract methods of the parents, keep only the ones
+    # that are not implemented.
+    for scls in cls.__bases__:
+        for name in getattr(scls, &#39;__abstractmethods__&#39;, ()):
+            value = getattr(cls, name, None)
+            if getattr(value, &quot;__isabstractmethod__&quot;, False):
+                abstracts.add(name)
+    # Also add any other newly added abstract methods.
+    for name, value in cls.__dict__.items():
+        if getattr(value, &quot;__isabstractmethod__&quot;, False):
+            abstracts.add(name)
+    cls.__abstractmethods__ = frozenset(abstracts)
+    return cls
+
+
+class ABC(metaclass=ABCMeta):
+    &quot;&quot;&quot;Helper class that provides a standard way to create an ABC using
+    inheritance.
+    &quot;&quot;&quot;
+    __slots__ = ()
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 24 Dec 2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
