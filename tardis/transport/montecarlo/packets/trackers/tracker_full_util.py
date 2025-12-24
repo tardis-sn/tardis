@@ -233,6 +233,7 @@ def tracker_full_df2tracker_last_interaction_df(
         # No physics interactions - create DataFrame with NO_INTERACTION for all packets
         no_interaction_df = pd.DataFrame(
             {
+                "event_id": np.full(len(all_packet_ids), 0),
                 "last_interaction_type": pd.Categorical(
                     ["NO_INTERACTION"] * len(all_packet_ids)
                 ),
@@ -281,6 +282,7 @@ def tracker_full_df2tracker_last_interaction_df(
     if packets_without_interactions:
         # Create DataFrame for packets with no interactions
         no_interaction_data = {
+            "event_id": np.full(len(packets_without_interactions), 0),
             "last_interaction_type": pd.Categorical(
                 ["NO_INTERACTION"] * len(packets_without_interactions)
             ),
