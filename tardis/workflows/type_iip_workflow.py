@@ -242,7 +242,7 @@ class TypeIIPWorkflow(WorkflowLogging):
     ):
         r_inner = geometry_state.r_inner_active.value
         r_outer = geometry_state.r_outer_active.value
-        r_middle = geometry_state.r_middle_active.value
+        r_middle = (r_outer + r_inner) / 2.0
         delta_r = r_outer - r_inner
         t_inner = initial_t_inner
 
