@@ -91,7 +91,6 @@ def update_bound_free_estimators(
         estimator_state.ff_heating_estimator[shell_id] += (
             comov_energy * distance * chi_ff
         )
-        estimator_state.coll_deexc_heating_estimator[shell_id] += comov_energy
 
 
 @njit(**njit_dict_no_parallel)
