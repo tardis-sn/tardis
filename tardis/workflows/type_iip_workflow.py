@@ -313,6 +313,12 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
+        absorbed_luminosity = calculate_filtered_luminosity(
+            self.transport_state.reabsorbed_packet_nu,
+            self.transport_state.reabsorbed_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
+        )
 
         luminosity_ratios = (
             (emitted_luminosity / self.luminosity_requested).to(1).value
@@ -322,6 +328,21 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.simulation_state.t_inner
             * luminosity_ratios
             ** self.convergence_strategy.t_inner_update_exponent
+        )
+
+        logger.info(
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
+            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
+        )
+
+        self.log_plasma_state(
+            self.simulation_state.t_radiative,
+            self.simulation_state.dilution_factor,
+            self.simulation_state.t_inner,
+            estimated_t_radiative,
+            estimated_dilution_factor,
+            estimated_t_inner,
         )
 
         return {
@@ -493,7 +514,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         initial[::2] = n_e_frac_start
         initial[1::2] = link_t_rad_t_electron_start
         no_shells = self.simulation_state.geometry.no_of_shells_active
-        first_iteration = self.completed_iterations == 0
 
         nfev = 0
 
@@ -544,47 +564,46 @@ class TypeIIPWorkflow(WorkflowLogging):
             print("Heating:", self.plasma_solver.fractional_heating)
             return output
 
-        if not first_iteration:
-            jac_sparsity = block_diag([np.ones((2, 2))] * no_shells)
-            t_floor = 1500.0 * u.K
-            link_floor = t_floor / self.simulation_state.t_radiative.min()
-            print("Floor Link:", link_floor)
+        jac_sparsity = block_diag([np.ones((2, 2))] * no_shells)
+        t_floor = 1500.0 * u.K
+        link_floor = t_floor / self.simulation_state.t_radiative.min()
+        print("Floor Link:", link_floor)
 
-            lbound = [0.0, link_floor] * no_shells
-            ubound = [1.0, 1.5] * no_shells
-            self.plasma_solver.plasma_converged = False
-            thermal_lsq_result = lsq(
-                iteration,
-                initial,
-                bounds=(lbound, ubound),
-                jac_sparsity=jac_sparsity,
-                xtol=1e-14,
-                ftol=1e-12,
-                x_scale="jac",
-                verbose=1,
-                max_nfev=100,
-                method="trf",
-                gtol=1e-14,
-                args=(
-                    n_e_max,
-                    nfev,
-                ),
-            )
-            self.plasma_solver.plasma_converged = True
-            # final iteration to set values in plasma
-            iteration(thermal_lsq_result.x, n_e_max, nfev)
+        lbound = [0.0, link_floor] * no_shells
+        ubound = [1.0, 1.5] * no_shells
+        self.plasma_solver.plasma_converged = False
+        thermal_lsq_result = lsq(
+            iteration,
+            initial,
+            bounds=(lbound, ubound),
+            jac_sparsity=jac_sparsity,
+            xtol=1e-14,
+            ftol=1e-12,
+            x_scale="jac",
+            verbose=1,
+            max_nfev=100,
+            method="trf",
+            gtol=1e-14,
+            args=(
+                n_e_max,
+                nfev,
+            ),
+        )
+        self.plasma_solver.plasma_converged = True
+        # final iteration to set values in plasma
+        iteration(thermal_lsq_result.x, n_e_max, nfev)
 
-            ion_ratio = (
-                self.plasma_solver.ion_number_density.loc[(1, 1)]
-                / self.plasma_solver.ion_number_density.loc[(1, 1)]
-            ).values
-            print("Ion Ratio:", ion_ratio, ion_ratio**-1)
-            print("Plasma Ion Ratio", self.plasma_solver.ion_ratio)
-            ion_ratio_conv = (
-                np.fabs(self.plasma_solver.ion_ratio - ion_ratio**-1)
-                / ion_ratio**-1
-            )
-            print("Ion Ratio Conv:", ion_ratio_conv)
+        ion_ratio = (
+            self.plasma_solver.ion_number_density.loc[(1, 1)]
+            / self.plasma_solver.ion_number_density.loc[(1, 1)]
+        ).values
+        print("Ion Ratio:", ion_ratio, ion_ratio**-1)
+        print("Plasma Ion Ratio", self.plasma_solver.ion_ratio)
+        ion_ratio_conv = (
+            np.fabs(self.plasma_solver.ion_ratio - ion_ratio**-1)
+            / ion_ratio**-1
+        )
+        print("Ion Ratio Conv:", ion_ratio_conv)
 
     def normalize_continuum_estimators(
         self, continuum_estimators, j_blues, j_estimators
@@ -612,7 +631,9 @@ class TypeIIPWorkflow(WorkflowLogging):
             photo_ion_norm_factor * const.h.cgs.value * damp
         )
         continuum_estimators["coll_deexc_heating_estimator"] *= (
-            photo_ion_norm_factor * const.h.cgs.value
+            photo_ion_norm_factor
+            * const.h.cgs.value
+            * 0.0  # currently missing coll deexc heating
         )
 
         ff_norm_factor = self.get_ff_heating_norm_factor(
