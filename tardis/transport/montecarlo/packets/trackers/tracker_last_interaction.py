@@ -215,10 +215,9 @@ class TrackerLastInteraction:
             Shell ID the packet is entering (default: -1).
         """
         # For last interaction tracker, boundary events don't count as interactions
-        #self.radius = r_packet.r
-        #self.shell_id = r_packet.current_shell_id
         # Don't update the radius or shell ID - we're only interested in the radius
         # and shell ID of *non*-boundary interactions
+        # *Do* increment the boundary interactions counter, though
         self._boundary_interactions_buffer += 1
 
     def get_interaction_summary(self) -> nb.int64:  # type: ignore[misc]
