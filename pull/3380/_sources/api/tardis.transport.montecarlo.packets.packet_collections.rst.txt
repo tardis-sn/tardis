@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.packets.packet\_collections module
-==============================================================
-
-.. automodule:: tardis.transport.montecarlo.packets.packet_collections
-   :members:
-   :show-inheritance:
-   :undoc-members:
