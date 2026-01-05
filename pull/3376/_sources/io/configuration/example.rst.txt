@@ -33,18 +33,18 @@ simple physical assumptions to ensure short run times.
 
 Key Monte Carlo parameters include:
 
-``nthreads``
-  Controls the number of CPU threads used during the Monte Carlo packet
-  propagation. Increasing this value can significantly reduce runtime on
-  multi-core machines. Using more threads than available physical cores
-  may reduce performance.
+``no_of_packets``
+    Controls the total number of Monte Carlo packets used to simulate the
+    radiation field. Increasing this value generally improves the statistical
+    quality of the resulting spectrum, but increases run time. Users are
+    encouraged to set this explicitly based on the desired balance between
+    accuracy and performance.
 
-``seed``
-  Sets the random seed for the Monte Carlo simulation. Defining a seed
-  ensures reproducible results across runs, which is recommended when
-  comparing model outputs.
-
-
+``iterations``
+    Specifies the number of global Monte Carlo iterations performed during the
+    simulation. After each iteration, the plasma state is updated based on the
+    radiation field from the previous step. Increasing the number of iterations
+    can improve convergence, but also increases computational cost.
 .. literalinclude:: tardis_example.yml
     :language: yaml
 
