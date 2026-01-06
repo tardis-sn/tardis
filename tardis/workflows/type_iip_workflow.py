@@ -344,11 +344,11 @@ class TypeIIPWorkflow(WorkflowLogging):
             estimated_dilution_factor,
             estimated_t_inner,
         )
-
+        # ctardis does not update t_inner
         return {
             "t_radiative": estimated_t_radiative,
             "dilution_factor": estimated_dilution_factor,
-            "t_inner": estimated_t_inner,
+            "t_inner": self.simulation_state.t_inner,
         }, estimated_radfield_properties
 
     def check_convergence(
