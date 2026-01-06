@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=3f6683af"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=82e3b18a"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -192,22 +192,17 @@ def trackers_last_interaction_to_df(tracker_list):
         tracker_full_df2tracker_last_interaction_df output:
         - last_interaction_type: Type of the last interaction (categorical)
         - status: Packet status (categorical)
-        - radius: Radius at interaction (NaN for last interaction trackers)
-        - shell_id: Shell ID where interaction occurred (-1 for last interaction trackers)
+        - radius: Radius at interaction
+        - shell_id: Shell ID where interaction occurred
         - before_nu: Frequency before interaction
         - before_mu: Direction cosine before interaction
         - before_energy: Energy before interaction
         - after_nu: Frequency after interaction
         - after_mu: Direction cosine after interaction
         - after_energy: Energy after interaction
-                - line_absorb_id: Line ID for absorbed line interactions (-1 for non-line)
+        - line_absorb_id: Line ID for absorbed line interactions (-1 for non-line)
         - line_emit_id: Line ID for emitted line interactions (-1 for non-line)
     &quot;&quot;&quot;
-    # Create categorical dtypes from enums for better performance and type safety
-    &quot;&quot;&quot;
-    from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
-    
-        &quot;&quot;&quot;
     # Create categorical dtypes from enums for better performance and type safety
     interaction_type_dtype = CategoricalDtype(
         categories=[member.name for member in InteractionType], ordered=False
@@ -229,7 +224,7 @@ def trackers_last_interaction_to_df(tracker_list):
             interaction_type_labels.append(&quot;NO_INTERACTION&quot;)
         else:
             interaction_type_labels.append(InteractionType(int_type).name)
-    
+
     last_interaction_type = pd.Categorical(
         interaction_type_labels, dtype=interaction_type_dtype
     )
@@ -239,6 +234,9 @@ def trackers_last_interaction_to_df(tracker_list):
     status_categorical = pd.Categorical(status_labels, dtype=status_dtype)
 
     # Extract interaction data
+    event_id = np.array([tracker.interactions_count for tracker in tracker_list])
+    radius = np.array([tracker.radius for tracker in tracker_list])
+    shell_id = np.array([tracker.shell_id for tracker in tracker_list])
     before_nu = np.array([tracker.before_nu for tracker in tracker_list])
     before_mu = np.array([tracker.before_mu for tracker in tracker_list])
     before_energy = np.array([tracker.before_energy for tracker in tracker_list])
@@ -251,10 +249,11 @@ def trackers_last_interaction_to_df(tracker_list):
     # Create DataFrame with same column order as tracker_full_df2tracker_last_interaction_df
     df = pd.DataFrame(
         {
+            &quot;event_id&quot;: event_id,
             &quot;last_interaction_type&quot;: last_interaction_type,
             &quot;status&quot;: status_categorical,
-            &quot;radius&quot;: np.full(len(tracker_list), np.nan),  # Not available in last interaction tracker
-            &quot;shell_id&quot;: np.full(len(tracker_list), -1),    # Not available in last interaction tracker
+            &quot;radius&quot;: radius,
+            &quot;shell_id&quot;: shell_id,
             &quot;before_nu&quot;: before_nu,
             &quot;before_mu&quot;: before_mu,
             &quot;before_energy&quot;: before_energy,
@@ -278,8 +277,8 @@ def trackers_last_interaction_to_df(tracker_list):
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 28 Dec 2025.
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 06 Jan 2026.
       </span></p>
   </div>
 

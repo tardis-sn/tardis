@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3f6683af"></script>
+      <script src="../_static/documentation_options.js?v=82e3b18a"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -210,7 +210,7 @@ Float values are initialized with NaN for better data quality tracking.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.class_type">
-<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.TrackerLastInteraction#7f1fd0f2fe30&lt;r:float64,nu:float64,mu:float64,energy:float64,shell_id:int64,interaction_type:int64,before_nu:float64,before_mu:float64,before_energy:float64,after_nu:float64,after_mu:float64,after_energy:float64,interaction_line_absorb_id:int64,interaction_line_emit_id:int64,interactions_count:int64&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.class_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.TrackerLastInteraction#7fc03b797e30&lt;radius:float64,nu:float64,mu:float64,energy:float64,shell_id:int64,interaction_type:int64,before_nu:float64,before_mu:float64,before_energy:float64,after_nu:float64,after_mu:float64,after_energy:float64,interaction_line_absorb_id:int64,interaction_line_emit_id:int64,interactions_count:int64,_boundary_interactions_buffer:int64&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.class_type" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -236,35 +236,7 @@ Float values are initialized with NaN for better data quality tracking.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interactions_count">
 <span class="sig-name descname"><span class="pre">interactions_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int64</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interactions_count" title="Link to this definition">¶</a></dt>
-<dd><p>Numba JITCLASS for storing the last interaction the RPacket undergoes,
-with unified tracking for all interaction types.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>r</strong><span class="classifier">float</span></dt><dd><p>Radius of the shell where the RPacket is present</p>
-</dd>
-<dt><strong>nu</strong><span class="classifier">float</span></dt><dd><p>Frequency of the RPacket</p>
-</dd>
-<dt><strong>energy</strong><span class="classifier">float</span></dt><dd><p>Energy possessed by the RPacket</p>
-</dd>
-<dt><strong>shell_id</strong><span class="classifier">int</span></dt><dd><p>Current Shell No in which the last interaction happened</p>
-</dd>
-<dt><strong>interaction_type: int</strong></dt><dd><p>Type of interaction the rpacket undergoes</p>
-</dd>
-<dt><strong>interaction_before_*</strong><span class="classifier">float</span></dt><dd><p>Properties before interaction (nu, mu, energy)</p>
-</dd>
-<dt><strong>interaction_after_*</strong><span class="classifier">float</span></dt><dd><p>Properties after interaction (nu, mu, energy)</p>
-</dd>
-<dt><strong>interaction_line_absorb_id</strong><span class="classifier">int</span></dt><dd><p>Line ID for absorbed line interactions (-1 for non-line interactions)</p>
-</dd>
-<dt><strong>interaction_line_emit_id</strong><span class="classifier">int</span></dt><dd><p>Line ID for emitted line interactions (-1 for non-line interactions)</p>
-</dd>
-<dt><strong>interactions_count</strong><span class="classifier">int</span></dt><dd><p>Count of interactions</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.mu">
@@ -277,8 +249,8 @@ with unified tracking for all interaction types.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.r">
-<span class="sig-name descname"><span class="pre">r</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float64</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.r" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.radius">
+<span class="sig-name descname"><span class="pre">radius</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float64</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.radius" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -301,8 +273,8 @@ with unified tracking for all interaction types.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 28 Dec 2025.
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 06 Jan 2026.
       </span></p>
   </div>
 

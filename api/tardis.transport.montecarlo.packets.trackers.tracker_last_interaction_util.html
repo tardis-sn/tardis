@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3f6683af"></script>
+      <script src="../_static/documentation_options.js?v=82e3b18a"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -195,7 +195,7 @@
 <dd><p>Convert a list of RPacketLastInteractionTracker instances to a DataFrame.</p>
 <p>This function extracts the last interaction data from each tracker and
 creates a pandas DataFrame with the same structure as tracker_full_df2tracker_last_interaction_df.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>tracker_list</strong><span class="classifier">list</span></dt><dd><p>List of RPacketLastInteractionTracker instances</p>
@@ -203,27 +203,21 @@ creates a pandas DataFrame with the same structure as tracker_full_df2tracker_la
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl>
+<dd class="field-even"><dl class="simple">
 <dt>pd.DataFrame</dt><dd><p>DataFrame containing last interaction data with columns matching
 tracker_full_df2tracker_last_interaction_df output:
 - last_interaction_type: Type of the last interaction (categorical)
 - status: Packet status (categorical)
-- radius: Radius at interaction (NaN for last interaction trackers)
-- shell_id: Shell ID where interaction occurred (-1 for last interaction trackers)
+- radius: Radius at interaction
+- shell_id: Shell ID where interaction occurred
 - before_nu: Frequency before interaction
 - before_mu: Direction cosine before interaction
 - before_energy: Energy before interaction
 - after_nu: Frequency after interaction
 - after_mu: Direction cosine after interaction
-- after_energy: Energy after interaction</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>line_absorb_id: Line ID for absorbed line interactions (-1 for non-line)</p></li>
-</ul>
-</div></blockquote>
-<ul class="simple">
-<li><p>line_emit_id: Line ID for emitted line interactions (-1 for non-line)</p></li>
-</ul>
+- after_energy: Energy after interaction
+- line_absorb_id: Line ID for absorbed line interactions (-1 for non-line)
+- line_emit_id: Line ID for emitted line interactions (-1 for non-line)</p>
 </dd>
 </dl>
 </dd>
@@ -243,8 +237,8 @@ tracker_full_df2tracker_last_interaction_df output:
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2013-2025, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 28 Dec 2025.
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 06 Jan 2026.
       </span></p>
   </div>
 
