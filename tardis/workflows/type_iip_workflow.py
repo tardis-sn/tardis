@@ -107,7 +107,8 @@ class TypeIIPWorkflow(WorkflowLogging):
             ionization_mode="nlte",  # configuration.plasma.ionization, nlte is currently not an allowed value - should be included
             excitation_mode=self.configuration.plasma.excitation,
             line_interaction_type=self.configuration.plasma.line_interaction_type,
-            link_t_rad_t_electron=self.configuration.plasma.link_t_rad_t_electron,
+            link_t_rad_t_electron=self.configuration.plasma.link_t_rad_t_electron
+            * np.ones(self.simulation_state.geometry.no_of_shells_active),
             helium_treatment="none",
             heating_rate_data_file=None,
             v_inner=None,
@@ -133,6 +134,8 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.plasma_solver.atomic_data.lines.nu.values
         )
 
+        # Initialize NLTE
+
         self.plasma_solver.update_radiationfield(
             t_radiative,
             dilution_factor,
@@ -145,6 +148,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             **{},
         )
 
+        # After initializing NLTE
         line_interaction_type = configuration.plasma.line_interaction_type
         continuum_interactions = configuration.plasma.continuum_interaction
         if "H I" not in continuum_interactions.species:
@@ -864,6 +868,8 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             print("Solving plasma")
             self.solve_plasma()
+
+            # After first MC step
 
             print("Solving thermal balance")
             self.solve_thermal_balance()
