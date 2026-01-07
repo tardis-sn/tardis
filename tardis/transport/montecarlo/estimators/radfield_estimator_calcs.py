@@ -64,6 +64,9 @@ def update_bound_free_estimators(
     """
     # TODO: Add full relativity mode
     boltzmann_factor = exp(-(H * comov_nu) / (KB * t_electron))
+    estimator_state.ff_heating_estimator[shell_id] += (
+        comov_energy * distance * chi_ff
+    )
     for i, current_continuum in enumerate(current_continua):
         photo_ion_rate_estimator_increment = (
             comov_energy * distance * x_sect_bfs[i] / comov_nu
@@ -88,9 +91,6 @@ def update_bound_free_estimators(
         estimator_state.stim_recomb_cooling_estimator[
             current_continuum, shell_id
         ] += bf_heating_estimator_increment * boltzmann_factor
-        estimator_state.ff_heating_estimator[shell_id] += (
-            comov_energy * distance * chi_ff
-        )
 
 
 @njit(**njit_dict_no_parallel)
