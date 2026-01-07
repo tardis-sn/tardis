@@ -4,22 +4,21 @@ import numpy as np
 import pandas as pd
 import panel as pn
 from astropy import units as u
-
-from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure
+
 from tardis.analysis import LastLineInteraction
-from tardis.visualization.tools.panel_util import ensure_panel_extension
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.util.base import (
     species_string_to_tuple,
     species_tuple_to_string,
 )
-
+from tardis.util.environment import Environment
+from tardis.visualization.tools.panel_util import ensure_panel_extension
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
-from tardis.util.environment import Environment
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class LineInfoWidget:

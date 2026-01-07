@@ -124,7 +124,6 @@ def close_progress_bars():
 
     This function is used for cleanup, e.g., at the end of test sessions.
     """
-    global _iterations_pbar, _packet_pbar
     if _packet_pbar is not None:
         _packet_pbar.close()
     if _iterations_pbar is not None:

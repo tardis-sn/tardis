@@ -12,3 +12,16 @@ from tardis.visualization.widgets.shell_info import (
     shell_info_from_hdf,
     shell_info_from_simulation,
 )
+
+__all__ = [
+    "ConvergencePlots",
+    "LIVPlotter",
+    "ensure_panel_extension",
+    "RPacketPlotter",
+    "SDECPlotter",
+    "CustomAbundanceWidget",
+    "GrotrianWidget",
+    "LineInfoWidget",
+    "shell_info_from_hdf",
+    "shell_info_from_simulation",
+]

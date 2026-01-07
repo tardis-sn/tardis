@@ -1,12 +1,12 @@
 import pandas as pd
 import panel as pn
 
-from tardis.visualization.tools.panel_util import ensure_panel_extension
 from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
 )
 from tardis.util.environment import Environment
+from tardis.visualization.tools.panel_util import ensure_panel_extension
 from tardis.visualization.widgets.util import create_table_widget
 
 
