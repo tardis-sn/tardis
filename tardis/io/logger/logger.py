@@ -8,7 +8,17 @@ from tardis.io.logger.colored_logger import ColoredFormatter
 from tardis.util.environment import Environment
 from tardis.io.logger.logger_widget import create_logger_columns, PanelWidgetLogHandler
 import tardis.util.panel_init as panel_init
-panel_init.auto()
+
+# Panel initialization is deferred to when the logger widget is actually used
+_panel_init_done = False
+
+
+def _ensure_panel_init():
+    """Lazily initialize panel to avoid output at import time."""
+    global _panel_init_done
+    if not _panel_init_done:
+        panel_init.auto()
+        _panel_init_done = True
 
 PYTHON_WARNINGS_LOGGER = logging.getLogger("py.warnings")
 
@@ -227,7 +237,7 @@ class LogFilter:
 
 def logging_state(log_level, tardis_config, specific_log_level=None, display_logging_widget=True, widget_start_height=10, widget_max_height=300, batch_size=10):
     """Configure and initialize the TARDIS logging system.
-    
+
     Parameters
     ----------
     log_level : str
@@ -244,12 +254,13 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
         Maximum height for widget columns. Default is 300.
     batch_size : int, optional
         Number of logs to batch before updating widget. Default is 10.
-        
+
     Returns
     -------
     dict
         Dictionary of log columns if display_logging_widget is True, otherwise None.
     """
+    _ensure_panel_init()
     log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
     tardislogger = TARDISLogger(log_columns=log_columns, batch_size=batch_size)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)

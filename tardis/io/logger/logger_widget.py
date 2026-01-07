@@ -4,8 +4,7 @@ import pandas as pd
 from tardis.util.environment import Environment
 import panel as pn
 
-import tardis.util.panel_init as panel_init
-panel_init.auto()
+# Panel initialization is deferred - will be done by logger.py when needed
 
 
 def create_logger_columns(start_height=10, max_height=300):
