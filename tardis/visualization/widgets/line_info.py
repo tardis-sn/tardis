@@ -8,6 +8,7 @@ from astropy import units as u
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
 from tardis.analysis import LastLineInteraction
+from tardis.visualization.tools.panel_util import ensure_panel_extension
 from tardis.util.base import (
     species_string_to_tuple,
     species_tuple_to_string,
@@ -695,6 +696,7 @@ class LineInfoWidget:
         if not Environment.allows_widget_display():
             print("Please use a notebook to display the widget")
         else:
+            ensure_panel_extension()
             # Panel tables handle their own sizing
             self.total_packets_label.update_and_resize(0)
 

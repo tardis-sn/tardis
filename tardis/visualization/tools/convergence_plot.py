@@ -15,14 +15,28 @@ import plotly.graph_objects as go
 
 import tardis.visualization.plot_util as pu
 
-plotly.offline.init_notebook_mode(connected=True)
-# mathjax needs to be loaded for latex labels to render correctly
-# see https://github.com/tardis-sn/tardis/issues/2446
-display(
-    HTML(
-        '<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'
-    )
-)
+# Lazy initialization flag for Plotly notebook mode
+_plotly_initialized = False
+
+
+def _ensure_plotly_notebook_mode():
+    """
+    Lazily initialize Plotly notebook mode and load MathJax.
+
+    This is called when ConvergencePlots is instantiated to avoid
+    output at module import time.
+    """
+    global _plotly_initialized
+    if not _plotly_initialized:
+        plotly.offline.init_notebook_mode(connected=True)
+        # mathjax needs to be loaded for latex labels to render correctly
+        # see https://github.com/tardis-sn/tardis/issues/2446
+        display(
+            HTML(
+                '<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'
+            )
+        )
+        _plotly_initialized = True
 
 
 class ConvergencePlots:
@@ -61,6 +75,7 @@ class ConvergencePlots:
     """
 
     def __init__(self, iterations, **kwargs):
+        _ensure_plotly_notebook_mode()
         self.iterable_data = {}
         self.value_data = defaultdict(list)
         self.iterations = iterations

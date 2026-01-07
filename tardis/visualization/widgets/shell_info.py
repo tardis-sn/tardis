@@ -1,6 +1,7 @@
 import pandas as pd
 import panel as pn
 
+from tardis.visualization.tools.panel_util import ensure_panel_extension
 from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
@@ -379,6 +380,7 @@ class ShellInfoWidget:
         if not Environment.allows_widget_display():
             print("Please use a notebook to display the widget")
         else:
+            ensure_panel_extension()
             # Panel tables handle their own sizing automatically
 
             # Attach event listeners to table widgets
