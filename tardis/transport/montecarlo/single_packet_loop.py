@@ -280,7 +280,7 @@ def single_packet_loop(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_continuum_interaction_before(r_packet)
-            continuum_event(
+            coll_down_to_k_packet_count_buffer = continuum_event(
                 r_packet,
                 time_explosion,
                 opacity_state,
@@ -290,6 +290,17 @@ def single_packet_loop(
                 current_continua,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+            # update coll_deexc_heating_estimator here
+            # not a good place to do this, should revisit
+            comov_energy = get_inverse_doppler_factor(
+                r_packet.r,
+                r_packet.mu,
+                time_explosion,
+                False,
+            )
+            estimators.coll_deexc_heating_estimator[
+                r_packet.current_shell_id
+            ] += coll_down_to_k_packet_count_buffer * comov_energy
             rpacket_tracker.track_continuum_interaction_after(r_packet)
 
             trace_vpacket_volley(

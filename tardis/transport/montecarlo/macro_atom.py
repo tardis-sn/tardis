@@ -4,6 +4,7 @@ import numpy as np
 from numba import njit
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 
 class MacroAtomError(ValueError):
@@ -19,7 +20,7 @@ class MacroAtomTransitionType(IntEnum):
     BF_EMISSION = -2  # This is recombination emission
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
-    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
+    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Don't do that - need separate for cooling estimators
     TWO_PHOTON = -6
     COLL_DOWN_TO_K_PACKET = 9
     COLL_DOWN_INTERNAL = 10
@@ -43,6 +44,7 @@ def macro_atom_interaction(
     -------
     """
     current_transition_type = 0
+    coll_down_to_k_packet_count_buffer = 0
     while current_transition_type >= 0:
         probability = 0.0
         probability_event = np.random.random()
@@ -67,8 +69,17 @@ def macro_atom_interaction(
                 current_transition_type = opacity_state.transition_type[
                     transition_id
                 ]
+                # Need to count the number of coll_deexc_down_to_k_packet interactions for the heating estimator
+                # For the markov-chain macro atom, this won't work because this is an internal transition
+                if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+                    if (
+                        current_transition_type
+                        == MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET
+                    ):
+                        # This has to be multiplied by comoving energy, and then increment
+                        # coll_deexc_heating_estimator for the shell
+                        coll_down_to_k_packet_count_buffer += 1
                 break
-
         else:
             raise MacroAtomError(
                 "MacroAtom ran out of the block. This should not happen as "
@@ -76,8 +87,8 @@ def macro_atom_interaction(
                 "the probability_event should be less than 1"
             )
 
-    # current_transition_type = MacroAtomTransitionType(current_transition_type)
     return (
         opacity_state.transition_line_id[transition_id],
         current_transition_type,
+        coll_down_to_k_packet_count_buffer,
     )

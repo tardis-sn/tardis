@@ -25,10 +25,12 @@ def test_macro_atom(
     activation_level_id = verysimple_opacity_state.line2macro_level_upper[
         static_packet.next_line_id
     ]
-    result, transition_type = macro_atom.macro_atom_interaction(
-        activation_level_id,
-        static_packet.current_shell_id,
-        verysimple_opacity_state,
+    result, transition_type, coll_down_to_k_packet_count_buffer = (
+        macro_atom.macro_atom_interaction(
+            activation_level_id,
+            static_packet.current_shell_id,
+            verysimple_opacity_state,
+        )
     )
     assert result == expected
     assert transition_type == -1  # line transition

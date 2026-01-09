@@ -59,7 +59,7 @@ def update_bound_free_estimators(
         Continuum ids for which absorption is possible for frequency `comov_nu`.
     bf_threshold_list_nu : numpy.ndarray, dtype float
         Threshold frequencies for photoionization sorted by decreasing frequency.
-    cgi_ff : float
+    chi_ff : float
         Free-free opacity coefficient in the current cell.
     """
     # TODO: Add full relativity mode
