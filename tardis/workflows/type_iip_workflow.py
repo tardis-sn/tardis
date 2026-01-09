@@ -486,6 +486,51 @@ class TypeIIPWorkflow(WorkflowLogging):
             **continuum_estimators,
         )
 
+    def thermal_balance_iteration(self, initial, n_e_max, nfev):
+        nfev += 1
+        n_e_frac = initial[::2]
+        link_t_rad_t_electron = initial[1::2]
+
+        print("Nfev: {} \n".format(nfev))
+        print("link:", link_t_rad_t_electron)
+
+        pl = self.plasma_solver
+
+        electron_densities = n_e_max * n_e_frac
+
+        self.plasma_solver.update(
+            previous_ion_number_density=pl.ion_number_density.copy(),
+            previous_electron_densities=electron_densities,
+            previous_beta_sobolev=pl.beta_sobolev.copy(),
+            link_t_rad_t_electron=link_t_rad_t_electron,
+            previous_b=pl.b,
+            previous_t_electrons=pl.t_rad * link_t_rad_t_electron,
+        )
+
+        output = np.zeros(2 * len(self.plasma_solver.fractional_heating))
+        frac_e_change = (
+            pl.electron_densities - electron_densities
+        ) / electron_densities
+        n_e_frac_new = 1 - pl.electron_densities / n_e_max
+        n_e_frac_change = (n_e_frac_new - (1.0 - n_e_frac)) / (1.0 - n_e_frac)
+
+        if (
+            np.logical_not(
+                np.isfinite(self.plasma_solver.fractional_heating)
+            ).sum()
+            > 0
+        ):
+            print("Heating not finite\n")
+        if np.logical_not(np.isfinite(frac_e_change)).sum() > 0:
+            print("frac e change not finite\n")
+
+        output[::2] = frac_e_change
+        output[1::2] = self.plasma_solver.fractional_heating
+        print("Frac e change:", frac_e_change)
+        print("n_e_frac_change", n_e_frac_change)
+        print("Heating:", self.plasma_solver.fractional_heating)
+        return output
+
     def solve_thermal_balance(self):
         link_t_rad_t_electron_start = self.plasma_solver.link_t_rad_t_electron
         if np.array_equal(
@@ -521,53 +566,6 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         nfev = 0
 
-        def iteration(initial, n_e_max, nfev):
-            nfev += 1
-            n_e_frac = initial[::2]
-            link_t_rad_t_electron = initial[1::2]
-
-            print("Nfev: {} \n".format(nfev))
-            print("link:", link_t_rad_t_electron)
-
-            pl = self.plasma_solver
-
-            electron_densities = n_e_max * n_e_frac
-
-            self.plasma_solver.update(
-                previous_ion_number_density=pl.ion_number_density.copy(),
-                previous_electron_densities=electron_densities,
-                previous_beta_sobolev=pl.beta_sobolev.copy(),
-                link_t_rad_t_electron=link_t_rad_t_electron,
-                previous_b=pl.b,
-                previous_t_electrons=pl.t_rad * link_t_rad_t_electron,
-            )
-
-            output = np.zeros(2 * len(self.plasma_solver.fractional_heating))
-            frac_e_change = (
-                pl.electron_densities - electron_densities
-            ) / electron_densities
-            n_e_frac_new = 1 - pl.electron_densities / n_e_max
-            n_e_frac_change = (n_e_frac_new - (1.0 - n_e_frac)) / (
-                1.0 - n_e_frac
-            )
-
-            if (
-                np.logical_not(
-                    np.isfinite(self.plasma_solver.fractional_heating)
-                ).sum()
-                > 0
-            ):
-                print("Heating not finite\n")
-            if np.logical_not(np.isfinite(frac_e_change)).sum() > 0:
-                print("frac e change not finite\n")
-
-            output[::2] = frac_e_change
-            output[1::2] = self.plasma_solver.fractional_heating
-            print("Frac e change:", frac_e_change)
-            print("n_e_frac_change", n_e_frac_change)
-            print("Heating:", self.plasma_solver.fractional_heating)
-            return output
-
         jac_sparsity = block_diag([np.ones((2, 2))] * no_shells)
         t_floor = 1500.0 * u.K
         link_floor = t_floor / self.simulation_state.t_radiative.min()
@@ -577,7 +575,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         ubound = [1.0, 1.5] * no_shells
         self.plasma_solver.plasma_converged = False
         thermal_lsq_result = lsq(
-            iteration,
+            self.thermal_balance_iteration,
             initial,
             bounds=(lbound, ubound),
             jac_sparsity=jac_sparsity,
@@ -594,8 +592,8 @@ class TypeIIPWorkflow(WorkflowLogging):
             ),
         )
         self.plasma_solver.plasma_converged = True
-        # final iteration to set values in plasma
-        iteration(thermal_lsq_result.x, n_e_max, nfev)
+        # final thermal_balance_iteration to set values in plasma
+        self.thermal_balance_iteration(thermal_lsq_result.x, n_e_max, nfev)
 
         ion_ratio = (
             self.plasma_solver.ion_number_density.loc[(1, 1)]
