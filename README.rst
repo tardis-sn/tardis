@@ -113,14 +113,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2025_18072609
+.. |CITATION| replace:: kerzendorf_2026_18210479
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.18072609-blue
-                 :target: https://doi.org/10.5281/zenodo.18072609
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.18210479-blue
+                 :target: https://doi.org/10.5281/zenodo.18210479
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2025_18072609,
+    @software{kerzendorf_2026_18210479,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -191,13 +191,13 @@ The following BibTeX entries are needed for the references:
                       Powers, Cecelia and
                       Bhakar, Jayant and
                       Roldan, Israel and
+                      Actions, GitHub and
                       Reichenbach, John and
                       Jain, Rinkle and
-                      Nitish, P and
-                      Actions, GitHub and
                       McClellan, Connor and
-                      Chaumal, Aarya and
+                      Nitish, P and
                       Singh, Sourav and
+                      Chaumal, Aarya and
                       Gupta, Harshul and
                       Brar, Antreev and
                       Perkins, Haille and
@@ -241,13 +241,13 @@ The following BibTeX entries are needed for the references:
                       Gajanan Nalbalwar, Rudraksh and
                       Sharma, Sampark and
                       Venkat, Shashank},
-      title        = {tardis-sn/tardis: TARDIS v2025.12.28},
-      month        = dec,
-      year         = 2025,
+      title        = {tardis-sn/tardis: TARDIS v2026.01.11},
+      month        = jan,
+      year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2025.12.28},
-      doi          = {10.5281/zenodo.18072609},
-      url          = {https://doi.org/10.5281/zenodo.18072609},
+      version      = {release-2026.01.11},
+      doi          = {10.5281/zenodo.18210479},
+      url          = {https://doi.org/10.5281/zenodo.18210479},
     }
 
 *******
