@@ -1,0 +1,65 @@
+# Example YAML configuration for TARDIS
+tardis_config_version: v1.0
+
+supernova:
+  luminosity_requested: 8.89211 log_lsun
+  time_explosion: 16.084 day
+
+atom_data: christians_atomdata_converted_04Dec25.h5
+
+model:
+  structure:
+    filename: cmfgen_stephane_density_rebin.dat
+    filetype: simple_ascii
+    type: file
+    v_inner_boundary: 10000 km/s
+    v_outer_boundary: 15000 km/s
+
+  abundances:
+    type: uniform
+    H: 1.0
+
+  
+plasma:
+  disable_electron_scattering: no
+  ionization: nebular # should be nlte
+  excitation: dilute-lte
+  radiative_rates_type:  detailed # Doesn't do anything currently but needed for validation
+  line_interaction_type: macroatom
+  initial_t_inner: 10000 K
+  nlte_ionization_species: [H I]
+  nlte_excitation_species: [H I]
+  # nlte_species[(1, 0)]
+  # nlte_solver: root
+  continuum_interaction:
+      species:
+          - H I
+          # - H II
+      enable_adiabatic_cooling: False
+  link_t_rad_t_electron: 1.0
+
+
+montecarlo:
+  seed: 23111963
+  no_of_packets: 100000
+  iterations: 4
+  nthreads: 22
+
+  last_no_of_packets: 1000000
+
+  convergence_strategy:
+    type: damped
+    damping_constant: 1.0
+    threshold: 0.05
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 1.0
+
+  tracking:
+    track_rpacket: False
+
+spectrum:
+  start: 500 angstrom
+  stop: 20000 angstrom
+  num: 10000
