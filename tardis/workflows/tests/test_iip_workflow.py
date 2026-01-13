@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import astropy.units as u
 import numpy as np
 import pandas as pd
@@ -9,6 +8,18 @@ from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
+from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
+
+
+def _max_rel_diff(actual, expected):
+    actual_vals = actual.values
+    expected_vals = expected.values
+
+    relative_difference = np.abs(actual_vals - expected_vals) / np.abs(
+        expected_vals
+    )
+
+    return float(np.nanmax(relative_difference))
 
 
 @pytest.fixture
@@ -42,14 +53,27 @@ def iip_atom_data(tardis_regression_path):
 
 
 @pytest.fixture
-def ctardis_compare_config():
+def ctardis_compare_config(tardis_regression_path):
     config = Configuration.from_yaml(
         "tardis/workflows/tests/data/ctardis_compare.yml"
     )
+
+    config.atom_data = (
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+
     config.plasma.nlte.species = [
         (1, 0)
     ]  # Hack to force config necessary for ctardis plasma
     return config
+
+
+@pytest.fixture
+def type_iip_workflow(ctardis_compare_config):
+    workflow = TypeIIPWorkflow(ctardis_compare_config)
+    return workflow
 
 
 # identical to ctardis values
@@ -142,71 +166,8 @@ def iip_plasma_nlte_init(
     return iip_plasma
 
 
-def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
-    tau_sobolevs_ctardis = pd.read_hdf(
-        iip_regression_path / "ctardis_tau_sobolevs_init_nlte.h5",
-        key="data",
-    )
-
-    beta_sobolevs_ctardis = pd.read_hdf(
-        iip_regression_path / "ctardis_beta_sobolevs_init_nlte.h5",
-        key="data",
-    )
-    ion_number_density_ctardis = pd.read_hdf(
-        iip_regression_path / "ctardis_ion_density_init_nlte.h5",
-        key="data",
-    )
-    level_number_density_ctardis = pd.read_hdf(
-        iip_regression_path / "ctardis_level_number_density_init_nlte.h5",
-        key="data",
-    )
-    transition_probabilities_ctardis = pd.read_hdf(
-        iip_regression_path / "ctardis_transition_probabilities_init_nlte.h5",
-        key="data",
-    )
-
-    pd.testing.assert_frame_equal(
-        iip_plasma_nlte_init.transition_probabilities,
-        transition_probabilities_ctardis,
-        rtol=1e-7,
-        atol=0,
-        check_dtype=False,
-    )
-
-    pd.testing.assert_frame_equal(
-        iip_plasma_nlte_init.ion_number_density,
-        ion_number_density_ctardis,
-        rtol=1e-6,
-        atol=0,
-        check_dtype=False,
-    )
-
-    # Sobolev values are stored differently between codes, so comparing raw data instead
-    np.testing.assert_allclose(
-        iip_plasma_nlte_init.tau_sobolevs.values,
-        tau_sobolevs_ctardis.values,
-        rtol=1e-6,
-        atol=0,
-    )
-
-    np.testing.assert_allclose(
-        iip_plasma_nlte_init.beta_sobolev.values,
-        beta_sobolevs_ctardis.values,
-        rtol=1e-6,
-        atol=0,
-    )
-
-    pd.testing.assert_frame_equal(
-        iip_plasma_nlte_init.level_number_density,
-        level_number_density_ctardis,
-        rtol=1e-7,
-        atol=0,
-        check_dtype=False,
-    )
-
-
-# comparison of plasma after the Monte Carlo calculations have been performed
-def test_iip_plasma_after_mc(
+@pytest.fixture
+def iip_plasma_after_mc(
     iip_regression_path, iip_plasma_nlte_init, ctardis_compare_config
 ):
     j_blues_ctardis = pd.read_hdf(
@@ -349,6 +310,117 @@ def test_iip_plasma_after_mc(
         **continuum_estimators,
     )
 
+    return iip_plasma_nlte_init
+
+
+def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
+    tau_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_tau_sobolevs_init_nlte.h5",
+        key="data",
+    )
+
+    beta_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_beta_sobolevs_init_nlte.h5",
+        key="data",
+    )
+    ion_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_ion_density_init_nlte.h5",
+        key="data",
+    )
+    level_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_level_number_density_init_nlte.h5",
+        key="data",
+    )
+    transition_probabilities_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_transition_probabilities_init_nlte.h5",
+        key="data",
+    )
+
+    print(
+        "init transition_probabilities max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.transition_probabilities,
+                transition_probabilities_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_nlte_init.transition_probabilities,
+        transition_probabilities_ctardis,
+        rtol=3e-8,
+        atol=0,
+        check_dtype=False,
+    )
+
+    print(
+        "init ion_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.ion_number_density,
+                ion_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_nlte_init.ion_number_density,
+        ion_number_density_ctardis,
+        rtol=4e-8,
+        atol=0,
+        check_dtype=False,
+    )
+
+    print(
+        "init tau_sobolevs max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.tau_sobolevs,
+                tau_sobolevs_ctardis,
+            )
+        )
+    )
+    # Sobolev values are stored differently between codes, so comparing raw data instead
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.tau_sobolevs.values,
+        tau_sobolevs_ctardis.values,
+        rtol=4e-8,
+        atol=0,
+    )
+
+    print(
+        "init beta_sobolev max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.beta_sobolev,
+                beta_sobolevs_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.beta_sobolev.values,
+        beta_sobolevs_ctardis.values,
+        rtol=3e-8,
+        atol=0,
+    )
+
+    print(
+        "init level_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.level_number_density,
+                level_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        iip_plasma_nlte_init.level_number_density,
+        level_number_density_ctardis,
+        rtol=4e-8,
+        atol=0,
+        check_dtype=False,
+    )
+
+
+# comparison of plasma after the Monte Carlo calculations have been performed
+def test_iip_plasma_after_mc(
+    iip_regression_path,
+    iip_plasma_after_mc,
+):
     tau_sobolevs_ctardis = pd.read_hdf(
         iip_regression_path / "ctardis_tau_sobolevs_after_mc.h5",
         key="data",
@@ -373,41 +445,189 @@ def test_iip_plasma_after_mc(
 
     # tolerances are much worse than after init
 
+    print(
+        "after MC transition_probabilities max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.transition_probabilities,
+                transition_probabilities_ctardis,
+            )
+        )
+    )
     pd.testing.assert_frame_equal(
-        iip_plasma_nlte_init.transition_probabilities,
+        iip_plasma_after_mc.transition_probabilities,
         transition_probabilities_ctardis,
-        rtol=1e-5,
+        rtol=7e-6,
         atol=0,
         check_dtype=False,
     )
 
+    print(
+        "after MC ion_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.ion_number_density,
+                ion_number_density_ctardis,
+            )
+        )
+    )
     pd.testing.assert_frame_equal(
-        iip_plasma_nlte_init.ion_number_density,
+        iip_plasma_after_mc.ion_number_density,
         ion_number_density_ctardis,
-        rtol=1e-5,
+        rtol=7e-6,
         atol=0,
         check_dtype=False,
     )
 
     # Sobolev values are stored differently between codes, so comparing raw data instead
+    print(
+        "after MC tau_sobolevs max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.tau_sobolevs,
+                tau_sobolevs_ctardis,
+            )
+        )
+    )
     np.testing.assert_allclose(
-        iip_plasma_nlte_init.tau_sobolevs.values,
+        iip_plasma_after_mc.tau_sobolevs.values,
         tau_sobolevs_ctardis.values,
-        rtol=1e-5,
+        rtol=7e-6,
         atol=0,
     )
 
+    print(
+        "after MC beta_sobolev max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.beta_sobolev,
+                beta_sobolevs_ctardis,
+            )
+        )
+    )
     np.testing.assert_allclose(
-        iip_plasma_nlte_init.beta_sobolev.values,
+        iip_plasma_after_mc.beta_sobolev.values,
         beta_sobolevs_ctardis.values,
-        rtol=1e-5,
+        rtol=7e-6,
         atol=0,
     )
 
+    print(
+        "after MC level_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_after_mc.level_number_density,
+                level_number_density_ctardis,
+            )
+        )
+    )
     pd.testing.assert_frame_equal(
-        iip_plasma_nlte_init.level_number_density,
+        iip_plasma_after_mc.level_number_density,
         level_number_density_ctardis,
-        rtol=1e-5,
+        rtol=7e-6,
+        atol=0,
+        check_dtype=False,
+    )
+
+
+def test_thermal_balance_solver(
+    iip_regression_path, type_iip_workflow, iip_plasma_after_mc
+):
+    type_iip_workflow.plasma_solver = iip_plasma_after_mc
+    type_iip_workflow.solve_thermal_balance()
+
+    tau_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_tau_sobolevs_after_tb.h5",
+        key="data",
+    )
+
+    beta_sobolevs_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_beta_sobolevs_after_tb.h5",
+        key="data",
+    )
+    ion_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_ion_density_after_tb.h5",
+        key="data",
+    )
+    level_number_density_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_level_number_density_after_tb.h5",
+        key="data",
+    )
+    transition_probabilities_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_transition_probabilities_after_tb.h5",
+        key="data",
+    )
+
+    print(
+        "after thermal balance transition_probabilities max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.transition_probabilities,
+                transition_probabilities_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        type_iip_workflow.plasma_solver.transition_probabilities,
+        transition_probabilities_ctardis,
+        rtol=7e-7,
+        atol=0,
+        check_dtype=False,
+    )
+
+    print(
+        "after thermal balance ion_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.ion_number_density,
+                ion_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        type_iip_workflow.plasma_solver.ion_number_density,
+        ion_number_density_ctardis,
+        rtol=6e-7,
+        atol=0,
+        check_dtype=False,
+    )
+
+    # Sobolev values are stored differently between codes, so comparing raw data instead
+    print(
+        "after thermal balance tau_sobolevs max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.tau_sobolevs,
+                tau_sobolevs_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        type_iip_workflow.plasma_solver.tau_sobolevs.values,
+        tau_sobolevs_ctardis.values,
+        rtol=7e-7,
+        atol=0,
+    )
+
+    print(
+        "after thermal balance beta_sobolev max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.beta_sobolev,
+                beta_sobolevs_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        type_iip_workflow.plasma_solver.beta_sobolev.values,
+        beta_sobolevs_ctardis.values,
+        rtol=7e-7,
+        atol=0,
+    )
+
+    print(
+        "after thermal balance level_number_density max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                type_iip_workflow.plasma_solver.level_number_density,
+                level_number_density_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_frame_equal(
+        type_iip_workflow.plasma_solver.level_number_density,
+        level_number_density_ctardis,
+        rtol=6e-7,
         atol=0,
         check_dtype=False,
     )
