@@ -23,8 +23,9 @@ def iip_atom_data(tardis_regression_path):
         tardis_regression_path
         / "atom_data"
         / "christians_atomdata_converted_04Dec25.h5"
-    )  # currently not available for public use
+    )
 
+    # need to set up macroatom and continuum data for ctardis plasma
     atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
 
     atom_data.continuum_data = ContinuumData(
@@ -47,10 +48,11 @@ def ctardis_compare_config():
     )
     config.plasma.nlte.species = [
         (1, 0)
-    ]  # Hack to force config necessary for Christian's plasma
+    ]  # Hack to force config necessary for ctardis plasma
     return config
 
 
+# identical to ctardis values
 @pytest.fixture
 def elemental_number_density(iip_regression_path):
     elemental_number_density = pd.read_hdf(
@@ -63,6 +65,7 @@ def elemental_number_density(iip_regression_path):
     return elemental_number_density
 
 
+# initial plasma setup matching ctardis
 @pytest.fixture
 def iip_plasma(iip_atom_data, elemental_number_density, ctardis_compare_config):
     plasma = LegacyPlasmaArray(
@@ -86,6 +89,7 @@ def iip_plasma(iip_atom_data, elemental_number_density, ctardis_compare_config):
     return plasma
 
 
+# "NLTE init" is the first call to update_radiationfield to set up the plasma
 @pytest.fixture
 def iip_plasma_nlte_init(
     iip_regression_path, iip_plasma, ctardis_compare_config
@@ -95,6 +99,7 @@ def iip_plasma_nlte_init(
         key="data",
     )
 
+    # ctardis starts with a constant rad temperature in all cells
     radiation_temp = 9984.96131287 * np.ones(24)
     dilution_factor = np.array(
         [
@@ -200,6 +205,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
     )
 
 
+# comparison of plasma after the Monte Carlo calculations have been performed
 def test_iip_plasma_after_mc(
     iip_regression_path, iip_plasma_nlte_init, ctardis_compare_config
 ):
@@ -277,17 +283,19 @@ def test_iip_plasma_after_mc(
     )
 
     bf_heating_estimator = pd.read_hdf(
-        iip_regression_path / "ctardis_bf_heating_estimator.h5",
+        iip_regression_path / "ctardis_bf_heating_estimator_after_mc.h5",
         key="data",
     )
 
     stim_recomb_cooling_estimator = pd.read_hdf(
-        iip_regression_path / "ctardis_stim_recomb_cooling_estimator.h5",
+        iip_regression_path
+        / "ctardis_stim_recomb_cooling_estimator_after_mc.h5",
         key="data",
     )
 
     coll_deexc_heating_estimator = pd.read_hdf(
-        iip_regression_path / "ctardis_coll_deexc_heating_estimator.h5",
+        iip_regression_path
+        / "ctardis_coll_deexc_heating_estimator_after_mc.h5",
         key="data",
     )
 
