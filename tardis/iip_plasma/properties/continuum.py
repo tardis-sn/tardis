@@ -1355,8 +1355,8 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         lte_level_number_density = lte_level_number_density.loc[
             photoionization_data.index
         ]
-        level_number_density_ratio = level_number_density.divide(
-            lte_level_number_density
+        level_number_density_ratio = lte_level_number_density.divide(
+            level_number_density
         )
 
         ion_index = get_ion_multi_index(
