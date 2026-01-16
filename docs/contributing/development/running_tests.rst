@@ -8,8 +8,14 @@ In TARDIS, we focus primarily on unit tests. These tests check the outputs of in
 
 Unit tests run quickly and are executed after every suggested change to TARDIS, allowing for immediate feedback and maintaining code quality.
 
-All of them are based on the excellent ``astropy-setup-helpers`` package and
-`pytest <https://docs.pytest.org/en/latest/>`_.
+..
+   To the Maintainer :
+   astropy tooling is mentioned for historical context only.
+   pytest is the actively used and preferred test framework.
+
+
+All tests are executed using  `pytest <https://docs.pytest.org/en/latest/>`_.   
+Some legacy infrastructure is derived from astropy tooling, but pytest is the primary test framework.
 
 Running the Unit Tests
 ======================
@@ -28,10 +34,14 @@ Running Regression Data Tests
 .. note::
     We have migrated from ``tardis-refdata`` to ``tardis-regression-data``.
 
-
-Running the more advanced unit tests requires TARDIS Regression data that can be
+..
+     To the Maintainer:
+     In the Earlier documentation assumed regression data was limited to the plasma
+    module only . this comment clarifies the current broader scope
+Running the more scientific regression  tests requires TARDIS Regression data that can be
 downloaded from the `tardis-regression-data <https://github.com/tardis-sn/tardis-regression-data>`_ repository.
-The regression data contains data in different formats (npy, hdf5, csv etc.) which is used by the testing pipeline to verify the accuracy of the codebase.
+The regression data covers multiple components of TARDIS, including plasma, transport, estimators, configuration handling, and end-to-end simulation outputs.
+It is not limited to a single module.
 `Git LFS <https://www.atlassian.com/git/tutorials/git-lfs>`_ is used to download and track the files in the tardis-regression-data repository.
 
 
@@ -60,7 +70,7 @@ Or, to run tests for a particular file or directory
 
 
 .. note::
-    In some cases you might have to update the regression data. The steps to update the regression data are outlined in the :ref:`update regression-data`.
+    In some cases, regression data may need to be updated (for example, after intentional physics or algorithmic changes). Such updates should be made with care, as they change the scientific reference outputs.
 
 .. note::
     The `tests workflow <https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml>`_ runs on 
