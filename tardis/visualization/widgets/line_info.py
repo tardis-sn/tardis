@@ -4,21 +4,17 @@ import numpy as np
 import pandas as pd
 import panel as pn
 from astropy import units as u
-
-from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
-from tardis.analysis import LastLineInteraction
-from tardis.util.base import (
-    species_string_to_tuple,
-    species_tuple_to_string,
-)
+from bokeh.plotting import figure
 
+from tardis.analysis import LastLineInteraction
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.util.base import species_string_to_tuple, species_tuple_to_string
+from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
-from tardis.util.environment import Environment
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class LineInfoWidget:
@@ -74,6 +70,9 @@ class LineInfoWidget:
             Luminosity density lambda values of a virtual spectrum, having unit
             of (erg/s)/Angstrom
         """
+        from tardis.visualization import _ensure_panel_initialized
+        _ensure_panel_initialized()
+
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
 

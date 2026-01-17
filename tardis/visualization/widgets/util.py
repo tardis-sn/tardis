@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import re
+
 import panel as pn
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,9 @@ class PanelTableWidget:
         table_options : dict, optional
             Table configuration options
         """
+        from tardis.visualization import _ensure_panel_initialized
+        _ensure_panel_initialized()
+
         self._df = data.copy()
         self.table_options = table_options or {}
         self._selected_rows = []

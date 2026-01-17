@@ -238,6 +238,9 @@ class ShellInfoWidget:
             Shell information object constructed from Simulation object or HDF
             file
         """
+        from tardis.visualization import _ensure_panel_initialized
+        _ensure_panel_initialized()
+
         self.data = shell_info_data
 
         # Creating the shells data table widget

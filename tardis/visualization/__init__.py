@@ -13,6 +13,26 @@ from tardis.visualization.widgets.shell_info import (
 )
 
 
-print("Initializing tabulator and plotly panel extensions for widgets to work")
-import panel as pn
-pn.extension("tabulator", "plotly")
+
+__all__ = [
+    "ConvergencePlots",
+    "CustomAbundanceWidget",
+    "GrotrianWidget",
+    "LIVPlotter",
+    "LineInfoWidget",
+    "RPacketPlotter",
+    "SDECPlotter",
+    "shell_info_from_hdf",
+    "shell_info_from_simulation",
+]
+
+_panel_initialized = False
+
+
+def _ensure_panel_initialized():
+    """initialize panel extensions lazily to prevent import side effects."""
+    global _panel_initialized
+    if not _panel_initialized:
+        import panel as pn
+        pn.extension("tabulator", "plotly")
+        _panel_initialized = True

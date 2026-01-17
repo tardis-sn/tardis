@@ -1,28 +1,34 @@
 """Convergence Plots to see the convergence of the simulation in real time."""
 
 from collections import defaultdict
-import warnings
 
 import ipywidgets as widgets
 import numpy as np
-from astropy import units as u
-from IPython.display import HTML, display
 
 # Added the below as a (temporary) workaround to the latex
 # labels on the convergence plots not rendering correctly.
-import plotly
 import plotly.graph_objects as go
+from astropy import units as u
+from IPython.display import HTML, display
 
 import tardis.visualization.plot_util as pu
 
-plotly.offline.init_notebook_mode(connected=True)
-# mathjax needs to be loaded for latex labels to render correctly
-# see https://github.com/tardis-sn/tardis/issues/2446
-display(
-    HTML(
-        '<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'
-    )
-)
+_notebook_mode_initialized = False
+
+
+def _initialize_notebook_mode():
+    """initialize plotly notebook mode lazily to prevent import side effects."""
+    global _notebook_mode_initialized
+    if not _notebook_mode_initialized:
+
+        # mathjax needs to be loaded for latex labels to render correctly
+        # see https://github.com/tardis-sn/tardis/issues/2446
+        display(
+            HTML(
+                '<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'
+            )
+        )
+        _notebook_mode_initialized = True
 
 
 class ConvergencePlots:
@@ -61,6 +67,7 @@ class ConvergencePlots:
     """
 
     def __init__(self, iterations, **kwargs):
+        _initialize_notebook_mode()
         self.iterable_data = {}
         self.value_data = defaultdict(list)
         self.iterations = iterations
