@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running Monte Carlo Transport Independently &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=4f98eaa9"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Running Monte Carlo Transport Independently</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/run_montecarlo_transport.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <style>
+    /* strip stderr */
+    div.nboutput.container div.output_area.stderr {
+        background: #fdd;
+        display: none;
+    }
+
+    .launch-btn {
+        background-color: #2980B9;
+        border: none;
+        border-radius: 4px;
+        color: #fcfcfc;
+        font-family: inherit;
+        text-decoration: none;
+        padding: 3px 8px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+        line-height: 1.5em;
+    }
+
+    .launch-btn:hover {
+        background-color: #1b6391;
+        color: #fcfcfc;
+    }
+
+    .launch-btn:visited {
+        color: #fcfcfc;
+    }
+
+    .note-p {
+        margin-bottom: 0.4em;
+        line-height: 2em;
+    }
+</style>
+
+<div class="admonition note">
+<p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/tutorials/run_montecarlo_transport.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
+</div><section id="Running-Monte-Carlo-Transport-Independently">
+<h1>Running Monte Carlo Transport Independently<a class="headerlink" href="#Running-Monte-Carlo-Transport-Independently" title="Link to this heading">¶</a></h1>
+<p>This tutorial demonstrates how to run the Monte Carlo transport loop directly using <code class="docutils literal notranslate"><span class="pre">Simulation.from_config</span></code> without running full TARDIS iterations. This approach gives you direct control over the Monte Carlo transport process.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">nconfig</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_tracker_last_interaction_list</span><span class="p">,</span> <span class="n">trackers_last_interaction_to_df</span>
+
+<span class="n">nconfig</span><span class="o">.</span><span class="n">DISABLE_JIT</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.estimators.radfield_mc_estimators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">initialize_estimator_statistics</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.montecarlo_main_loop</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">montecarlo_main_loop</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.packet_source.black_body</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BlackBodySimpleSource</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.packets.trackers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">generate_tracker_full_list</span><span class="p">,</span>
+    <span class="n">tracker_full_df2tracker_last_interaction_df</span><span class="p">,</span>
+    <span class="n">trackers_full_to_df</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># Import TrackerFullSolver and TrackerFullState from tardis.transport.montecarlo.packets.trackers.tracker_full_solver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.transport.montecarlo.packets.trackers.tracker_full_solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrackerFullSolver</span><span class="p">,</span> <span class="n">TrackerFullState</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "33251e0eefe649da9a7be03839a27c5b"}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "ed3455656d76407ebf1948a0c0d208b6"}</script></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wget<span class="w"> </span>-q<span class="w"> </span>-nc<span class="w"> </span>https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/tardis_example.yml
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Disable JIT compilation for debugging (WARNING: This breaks TARDIS plasma assembly)</span>
+<span class="c1"># os.environ[&quot;NUMBA_DISABLE_JIT&quot;] = &quot;1&quot;</span>
+
+<span class="c1"># Alternative: Use selective debugging with numba.set_num_threads(1) for better stack traces</span>
+
+<span class="n">CONFIG_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;tardis_example.yml&quot;</span>
+<span class="n">NUMBER_OF_PACKETS</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">NUMBER_OF_VPACKETS</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Set to 0 to disable virtual packets</span>
+<span class="n">ITERATION_NUMBER</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">SHOW_PROGRESS_BARS</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">TOTAL_ITERATIONS</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">ENABLE_RPACKET_TRACKING</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="kc">False</span>  <span class="c1"># True: full tracking, False: last interaction only</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup simulation state from config</span>
+<span class="n">config_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">CONFIG_FILE_NAME</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">config_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration file </span><span class="si">{</span><span class="n">CONFIG_FILE_NAME</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config_file</span><span class="p">))</span>
+<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s2">&quot;kurucz_cd23_chianti_H_He_latest.h5&quot;</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="o">=</span><span class="n">atom_data</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation created successfully!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Number of density points larger than number of shells. Assuming inner point irrelevant
+model_isotope_time_0 is not set in the configuration. Isotopic mass fractions will not be decayed and is assumed to be correct for the time_explosion. THIS IS NOT RECOMMENDED!
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Simulation created successfully!
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize opacity and macro atom states manually</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">opacity_state</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">opacity</span><span class="o">.</span><span class="n">legacy_solve</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">sim</span><span class="o">.</span><span class="n">macro_atom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">macro_atom_state</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">macro_atom</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+        <span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">j_blues</span><span class="p">,</span>
+        <span class="n">sim</span><span class="o">.</span><span class="n">opacity_state</span><span class="o">.</span><span class="n">beta_sobolev</span><span class="p">,</span>
+        <span class="n">sim</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">stimulated_emission_factor</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">macro_atom_state</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Opacity and macro atom states initialized!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Opacity and macro atom states initialized!
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract states from simulation</span>
+<span class="n">geometry_state</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">simulation_state</span><span class="o">.</span><span class="n">geometry</span>
+<span class="n">opacity_state</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">opacity_state</span>
+<span class="n">montecarlo_configuration</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">montecarlo_configuration</span>
+<span class="n">time_explosion</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">simulation_state</span><span class="o">.</span><span class="n">time_explosion</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+<span class="n">spectrum_frequency_grid</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_frequency_grid</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">Hz</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+<span class="c1"># Create our own independent packet source instead of reusing sim.transport.packet_source</span>
+<span class="n">packet_source</span> <span class="o">=</span> <span class="n">BlackBodySimpleSource</span><span class="p">(</span>
+    <span class="n">radius</span><span class="o">=</span><span class="n">geometry_state</span><span class="o">.</span><span class="n">r_inner_active</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="n">sim</span><span class="o">.</span><span class="n">simulation_state</span><span class="o">.</span><span class="n">t_inner</span><span class="p">,</span>
+    <span class="n">base_seed</span><span class="o">=</span><span class="mi">23111963</span><span class="p">,</span>  <span class="c1"># Use inner temperature from simulation</span>
+<span class="p">)</span>
+
+<span class="c1"># Initialize estimators</span>
+<span class="n">tau_sobolev_shape</span> <span class="o">=</span> <span class="n">opacity_state</span><span class="o">.</span><span class="n">tau_sobolev</span><span class="o">.</span><span class="n">shape</span>
+<span class="n">gamma_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">geometry_state</span><span class="o">.</span><span class="n">no_of_shells</span><span class="p">)</span>
+<span class="n">estimators</span> <span class="o">=</span> <span class="n">initialize_estimator_statistics</span><span class="p">(</span><span class="n">tau_sobolev_shape</span><span class="p">,</span> <span class="n">gamma_shape</span><span class="p">)</span>
+
+<span class="c1"># Convert to numba-compatible versions</span>
+<span class="n">geometry_state_numba</span> <span class="o">=</span> <span class="n">geometry_state</span><span class="o">.</span><span class="n">to_numba</span><span class="p">()</span>
+<span class="n">line_interaction_type</span> <span class="o">=</span> <span class="n">montecarlo_configuration</span><span class="o">.</span><span class="n">LINE_INTERACTION_TYPE</span>
+<span class="n">opacity_state_numba</span> <span class="o">=</span> <span class="n">opacity_state</span><span class="o">.</span><span class="n">to_numba</span><span class="p">(</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">macro_atom_state</span><span class="p">,</span> <span class="n">line_interaction_type</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Monte Carlo states prepared!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Monte Carlo states prepared!
+</pre></div></div>
+</div>
+<section id="Creating-Independent-Packet-Source">
+<h2>Creating Independent Packet Source<a class="headerlink" href="#Creating-Independent-Packet-Source" title="Link to this heading">¶</a></h2>
+<p>Instead of reusing the packet source from the simulation (<code class="docutils literal notranslate"><span class="pre">sim.transport.packet_source</span></code>), we create our own independent <code class="docutils literal notranslate"><span class="pre">BlackBodySimpleSource</span></code>. This gives us full control over the packet generation parameters and ensures our Monte Carlo run is completely independent of the simulation’s transport state.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ENABLE_RPACKET_TRACKING</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Test last interaction tracker</span>
+
+<span class="c1"># Initialize TrackerFullSolver and state (not connected to MC loop)</span>
+<span class="n">tracker_solver</span> <span class="o">=</span> <span class="n">TrackerFullSolver</span><span class="p">(</span><span class="n">initial_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">extend_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">tracker_state</span> <span class="o">=</span> <span class="n">tracker_solver</span><span class="o">.</span><span class="n">create_tracker_state</span><span class="p">(</span><span class="n">num_packets</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Create packet collection using our independent packet source</span>
+<span class="n">seed_offset</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">packet_collection</span> <span class="o">=</span> <span class="n">packet_source</span><span class="o">.</span><span class="n">create_packets</span><span class="p">(</span><span class="n">NUMBER_OF_PACKETS</span><span class="p">,</span> <span class="n">seed_offset</span><span class="p">)</span>
+
+<span class="c1"># Setup packet tracking</span>
+<span class="k">if</span> <span class="n">ENABLE_RPACKET_TRACKING</span><span class="p">:</span>
+    <span class="n">rpacket_trackers</span> <span class="o">=</span> <span class="n">generate_tracker_full_list</span><span class="p">(</span>
+        <span class="n">NUMBER_OF_PACKETS</span><span class="p">,</span>
+        <span class="n">montecarlo_configuration</span><span class="o">.</span><span class="n">INITIAL_TRACKING_ARRAY_LENGTH</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rpacket_tracker_collection</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using full RPacket tracking&quot;</span><span class="p">)</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Initialize the last interaction tracker collection</span>
+    <span class="c1"># Generate individual trackers for the main loop</span>
+    <span class="n">rpacket_trackers</span> <span class="o">=</span> <span class="n">generate_tracker_last_interaction_list</span><span class="p">(</span><span class="n">NUMBER_OF_PACKETS</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using last interaction tracking only&quot;</span><span class="p">)</span>
+
+<span class="c1"># Run the Monte Carlo main loop</span>
+<span class="n">v_packets_energy_hist</span><span class="p">,</span> <span class="n">vpacket_tracker</span> <span class="o">=</span> <span class="n">montecarlo_main_loop</span><span class="p">(</span>
+    <span class="n">packet_collection</span><span class="p">,</span>
+    <span class="n">geometry_state_numba</span><span class="p">,</span>
+    <span class="n">time_explosion</span><span class="p">,</span>
+    <span class="n">opacity_state_numba</span><span class="p">,</span>
+    <span class="n">montecarlo_configuration</span><span class="p">,</span>
+    <span class="n">estimators</span><span class="p">,</span>
+    <span class="n">spectrum_frequency_grid</span><span class="p">,</span>
+    <span class="n">rpacket_trackers</span><span class="p">,</span>
+    <span class="n">NUMBER_OF_VPACKETS</span><span class="p">,</span>
+    <span class="n">SHOW_PROGRESS_BARS</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Monte Carlo transport completed successfully!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using last interaction tracking only
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/work/tardis/tardis/tardis/transport/montecarlo/montecarlo_main_loop.py:146: NumbaTypeSafetyWarning: <span class="ansi-bold">unsafe cast from uint64 to int64. Precision may be lost.</span>
+  vpacket_collection = vpacket_collections[i]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Monte Carlo transport completed successfully!
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%timeit</span>
+<span class="n">v_packets_energy_hist</span><span class="p">,</span> <span class="n">vpacket_tracker</span> <span class="o">=</span> <span class="n">montecarlo_main_loop</span><span class="p">(</span>
+    <span class="n">packet_collection</span><span class="p">,</span>
+    <span class="n">geometry_state_numba</span><span class="p">,</span>
+    <span class="n">time_explosion</span><span class="p">,</span>
+    <span class="n">opacity_state_numba</span><span class="p">,</span>
+    <span class="n">montecarlo_configuration</span><span class="p">,</span>
+    <span class="n">estimators</span><span class="p">,</span>
+    <span class="n">spectrum_frequency_grid</span><span class="p">,</span>
+    <span class="n">rpacket_trackers</span><span class="p">,</span>
+    <span class="n">NUMBER_OF_VPACKETS</span><span class="p">,</span>
+    <span class="n">SHOW_PROGRESS_BARS</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+71.3 ms ± 1.72 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create DataFrame from tracker data</span>
+<span class="k">if</span> <span class="n">ENABLE_RPACKET_TRACKING</span><span class="p">:</span>
+    <span class="c1"># Full tracking: convert from rpacket_trackers list</span>
+    <span class="c1"># Create event dataframe (all events including boundary crossings)</span>
+    <span class="n">tracker_df</span> <span class="o">=</span> <span class="n">trackers_full_to_df</span><span class="p">(</span><span class="n">rpacket_trackers</span><span class="p">)</span>
+
+    <span class="c1"># Create last interaction dataframe from full tracking</span>
+    <span class="n">last_tracker_df</span> <span class="o">=</span> <span class="n">tracker_full_df2tracker_last_interaction_df</span><span class="p">(</span><span class="n">tracker_df</span><span class="p">)</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Last interaction tracking: convert from rpacket_trackers list</span>
+    <span class="n">last_tracker_df</span> <span class="o">=</span> <span class="n">trackers_last_interaction_to_df</span><span class="p">(</span><span class="n">rpacket_trackers</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {"0ee462c6e57540d299b3f9ffea8de94a": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": "20px"}}, "9d002d3d120a4bd9b54be3fb8bab18ab": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "99cfa24ca9304a1983b28089f4011a37": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "info", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_0ee462c6e57540d299b3f9ffea8de94a", "max": 1.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_9d002d3d120a4bd9b54be3fb8bab18ab", "tabbable": null, "tooltip": null, "value": 0.0}}, "bbc167b38eb04da2b8938659915d0683": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "a58dfb5d163a4f8db36e2256ba440667": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "226c934024124dd1b0c7944a267a9081": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_bbc167b38eb04da2b8938659915d0683", "placeholder": "\u200b", "style": "IPY_MODEL_a58dfb5d163a4f8db36e2256ba440667", "tabbable": null, "tooltip": null, "value": "Iterations:"}}, "e6bbf0f0739a405a9451fbcace543431": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "b867177b7aa547e8a7058f302583ea3e": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "b3cbfac26ba94168840ca020866b83c7": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_e6bbf0f0739a405a9451fbcace543431", "placeholder": "\u200b", "style": "IPY_MODEL_b867177b7aa547e8a7058f302583ea3e", "tabbable": null, "tooltip": null, "value": "0/?\u2007[00:00&lt;?,\u2007?it/s]"}}, "87886e9ae85247c09e57cd69f5dfc1b5": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "33251e0eefe649da9a7be03839a27c5b": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_226c934024124dd1b0c7944a267a9081", "IPY_MODEL_99cfa24ca9304a1983b28089f4011a37", "IPY_MODEL_b3cbfac26ba94168840ca020866b83c7"], "layout": "IPY_MODEL_87886e9ae85247c09e57cd69f5dfc1b5", "tabbable": null, "tooltip": null}}, "13505498d02045a6b2f0c961ed6ee3eb": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "d547de0772f647a9a3a55b8e4ae2bbb2": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "a2f00d9372b74e538a2c4bc5bf132de7": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_13505498d02045a6b2f0c961ed6ee3eb", "max": 10000.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_d547de0772f647a9a3a55b8e4ae2bbb2", "tabbable": null, "tooltip": null, "value": 10000.0}}, "81445061dc034b2aaf15bcb220322df9": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "6f955985babb4140a2613e53cea0562d": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "da994a0060be462d924bd106683cd9e6": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_81445061dc034b2aaf15bcb220322df9", "placeholder": "\u200b", "style": "IPY_MODEL_6f955985babb4140a2613e53cea0562d", "tabbable": null, "tooltip": null, "value": "Packets:\u2007\u2007\u2007"}}, "b61746fff5744c428c1ebac7671c5351": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "f9d3b388ffe34e1ea715ed73dfe1b527": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "1b3890888682442684b4240d259482f4": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_b61746fff5744c428c1ebac7671c5351", "placeholder": "\u200b", "style": "IPY_MODEL_f9d3b388ffe34e1ea715ed73dfe1b527", "tabbable": null, "tooltip": null, "value": "800604/?\u2007[00:05&lt;00:00,\u2007138344.14it/s]"}}, "243eaa275d204fcc965ff2202fb7caa0": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "ed3455656d76407ebf1948a0c0d208b6": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_da994a0060be462d924bd106683cd9e6", "IPY_MODEL_a2f00d9372b74e538a2c4bc5bf132de7", "IPY_MODEL_1b3890888682442684b4240d259482f4"], "layout": "IPY_MODEL_243eaa275d204fcc965ff2202fb7caa0", "tabbable": null, "tooltip": null}}, "19d89e80965544ebac949a5d8fe7de16": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "56e846867c6e4a3dac88bdcbd72253f0": {"model_name": "OutputModel", "model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_19d89e80965544ebac949a5d8fe7de16", "msg_id": "", "outputs": [], "tabbable": null, "tooltip": null}}, "27285044c3344e5caba12215fed0c9dd": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "a15ddcde934f42a3a18e31110b673482": {"model_name": "OutputModel", "model_module": "@jupyter-widgets/output", "model_module_version": "1.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/output", "_model_module_version": "1.0.0", "_model_name": "OutputModel", "_view_count": null, "_view_module": "@jupyter-widgets/output", "_view_module_version": "1.0.0", "_view_name": "OutputView", "layout": "IPY_MODEL_27285044c3344e5caba12215fed0c9dd", "msg_id": "", "outputs": [], "tabbable": null, "tooltip": null}}}, "version_major": 2, "version_minor": 0}
+</script></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 17 Jan 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,667 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.iip_plasma.properties.radiative_properties &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=4f98eaa9"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.iip_plasma.properties.radiative_properties</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.iip_plasma.properties.radiative_properties</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import numexpr as ne
+import numpy as np
+import pandas as pd
+from astropy import constants as const
+from astropy import units as u
+
+from tardis.iip_plasma.properties.base import (
+    ConvergedPlasmaProperty,
+    ProcessingPlasmaProperty,
+)
+from tardis.opacities.tau_sobolev import calculate_beta_sobolev
+from tardis.opacities.macro_atom.util import (
+    fast_calculate_transition_probabilities,
+)
+from tardis.opacities.macro_atom.macroatom_solver import (
+    BoundBoundMacroAtomSolver,
+)
+
+logger = logging.getLogger(__name__)
+
+__all__ = [
+    &quot;BetaSobolev&quot;,
+    &quot;LTEJBlues&quot;,
+    &quot;StimulatedEmissionFactor&quot;,
+    &quot;TauSobolev&quot;,
+    &quot;TauSobolevDeriv&quot;,
+    &quot;TransitionProbabilities&quot;,
+]
+
+
+<div class="viewcode-block" id="StimulatedEmissionFactor">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor">[docs]</a>
+class StimulatedEmissionFactor(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    stimulated_emission_factor : Numpy Array, dtype float
+                                 Indexed by lines, columns as zones.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;stimulated_emission_factor&quot;,)
+    latex_formula = (&quot;1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}&quot;,)
+
+    def __init__(self, plasma_parent=None, nlte_species=None):
+        super(StimulatedEmissionFactor, self).__init__(plasma_parent)
+        self._g_upper = None
+        self._g_lower = None
+        try:
+            self.nlte_species = self.plasma_parent.nlte_species
+        except:
+            self.nlte_species = nlte_species
+
+<div class="viewcode-block" id="StimulatedEmissionFactor.get_g_lower">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_lower">[docs]</a>
+    def get_g_lower(self, g, lines_lower_level_index):
+        if self._g_lower is None:
+            g_lower = np.array(
+                g.iloc[lines_lower_level_index], dtype=np.float64
+            )
+            self._g_lower = g_lower[np.newaxis].T
+        return self._g_lower</div>
+
+
+<div class="viewcode-block" id="StimulatedEmissionFactor.get_g_upper">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_upper">[docs]</a>
+    def get_g_upper(self, g, lines_upper_level_index):
+        if self._g_upper is None:
+            g_upper = np.array(
+                g.iloc[lines_upper_level_index], dtype=np.float64
+            )
+            self._g_upper = g_upper[np.newaxis].T
+        return self._g_upper</div>
+
+
+<div class="viewcode-block" id="StimulatedEmissionFactor.get_metastable_upper">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor.get_metastable_upper">[docs]</a>
+    def get_metastable_upper(self, metastability, lines_upper_level_index):
+        if getattr(self, &quot;_meta_stable_upper&quot;, None) is None:
+            self._meta_stable_upper = metastability.values[
+                lines_upper_level_index
+            ][np.newaxis].T
+        return self._meta_stable_upper</div>
+
+
+<div class="viewcode-block" id="StimulatedEmissionFactor.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor.calculate">[docs]</a>
+    def calculate(
+        self,
+        g,
+        level_number_density,
+        lines_lower_level_index,
+        lines_upper_level_index,
+        metastability,
+        lines,
+    ):
+        n_lower = level_number_density.values.take(
+            lines_lower_level_index, axis=0, mode=&quot;raise&quot;
+        )
+        n_upper = level_number_density.values.take(
+            lines_upper_level_index, axis=0, mode=&quot;raise&quot;
+        )
+        g_lower = self.get_g_lower(g, lines_lower_level_index)
+        g_upper = self.get_g_upper(g, lines_upper_level_index)
+        meta_stable_upper = self.get_metastable_upper(
+            metastability, lines_upper_level_index
+        )
+
+        stimulated_emission_factor = ne.evaluate(
+            &quot;1 - ((g_lower * n_upper) / (g_upper * n_lower))&quot;
+        )
+        stimulated_emission_factor[n_lower == 0.0] = 0.0
+        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = (
+            0.0
+        )
+        stimulated_emission_factor[
+            meta_stable_upper &amp; (stimulated_emission_factor &lt; 0)
+        ] = 0.0
+        if self.nlte_species:
+            nlte_lines_mask = (
+                lines.reset_index()
+                .apply(
+                    lambda row: (row.atomic_number, row.ion_number)
+                    in self.nlte_species,
+                    axis=1,
+                )
+                .values
+            )
+            stimulated_emission_factor[
+                (stimulated_emission_factor &lt; 0)
+                &amp; nlte_lines_mask[np.newaxis, :].T
+            ] = 0.0
+        return stimulated_emission_factor</div>
+</div>
+
+
+
+<div class="viewcode-block" id="TauSobolev">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TauSobolev">[docs]</a>
+class TauSobolev(ConvergedPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    tau_sobolev : Pandas DataFrame, dtype float
+                  Sobolev optical depth for each line. Indexed by line.
+                  Columns as zones.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;tau_sobolevs&quot;,)
+    latex_name = (&quot;\\tau_{\\textrm{sobolev}}&quot;,)
+    latex_formula = (
+        &quot;\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}\
+        n_{lower} \\Big(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\Big)&quot;,
+    )
+
+    def __init__(self, plasma_parent):
+        super(TauSobolev, self).__init__(plasma_parent)
+        self.sobolev_coefficient = (
+            (
+                ((np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs))
+                * u.cm
+                * u.s
+                / u.cm**3
+            )
+            .to(1)
+            .value
+        )
+
+<div class="viewcode-block" id="TauSobolev.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TauSobolev.calculate">[docs]</a>
+    def calculate(
+        self,
+        lines,
+        level_number_density,
+        lines_lower_level_index,
+        time_explosion,
+        stimulated_emission_factor,
+        j_blues,
+        f_lu,
+        wavelength_cm,
+    ):
+        f_lu = f_lu.values[np.newaxis].T
+        wavelength = wavelength_cm.values[np.newaxis].T
+        n_lower = level_number_density.values.take(
+            lines_lower_level_index, axis=0, mode=&quot;raise&quot;
+        )
+        tau_sobolevs = (
+            self.sobolev_coefficient
+            * f_lu
+            * wavelength
+            * time_explosion
+            * n_lower
+            * stimulated_emission_factor
+        )
+
+        if np.any(np.isnan(tau_sobolevs)) or np.any(
+            np.isinf(np.abs(tau_sobolevs))
+        ):
+            raise ValueError(
+                &quot;Some tau_sobolevs are nan, inf, -inf in tau_sobolevs.&quot;
+                &quot; Something went wrong!&quot;
+            )
+
+        return pd.DataFrame(
+            tau_sobolevs,
+            index=lines.index,
+            columns=level_number_density.columns,
+        )</div>
+</div>
+
+
+
+<div class="viewcode-block" id="BetaSobolev">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.BetaSobolev">[docs]</a>
+class BetaSobolev(ConvergedPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    beta_sobolev : Numpy Array, dtype float
+    &quot;&quot;&quot;
+
+    outputs = (&quot;beta_sobolev&quot;,)
+    latex_name = (&quot;\\beta_{\\textrm{sobolev}}&quot;,)
+
+<div class="viewcode-block" id="BetaSobolev.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.BetaSobolev.calculate">[docs]</a>
+    def calculate(self, tau_sobolevs):
+        if getattr(self, &quot;beta_sobolev&quot;, None) is None:
+            beta_sobolev = np.zeros_like(tau_sobolevs.values)
+        else:
+            beta_sobolev = self.beta_sobolev
+
+        beta_sobolev = calculate_beta_sobolev(tau_sobolevs)
+
+        # TODO: REvert
+        # beta_sobolev = np.ones_like(beta_sobolev) * 0.05
+        # self.plasma_parent.previous_beta_sobolev.update(beta_sobolev)
+        # self.plasma_parent.plasma_properties_dict[&#39;PreviousBetaSobolev&#39;].set_value(beta_sobolev)
+
+        # conv = np.fabs(beta_sobolev - self.plasma_parent.previous_beta_sobolev)/beta_sobolev
+        # print &quot;Beta_sobolev conv:&quot;, conv.max(axis=0)
+        # if (conv &gt; 1e-2).sum().sum():
+        #    self.plasma_parent.update(previous_beta_sobolev=beta_sobolev)
+        return beta_sobolev</div>
+</div>
+
+
+
+<div class="viewcode-block" id="TransitionProbabilities">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities">[docs]</a>
+class TransitionProbabilities(ConvergedPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    transition_probabilities : Pandas DataFrame, dtype float
+    &quot;&quot;&quot;
+
+    outputs = (&quot;transition_probabilities&quot;,)
+
+    def __init__(self, plasma_parent):
+        super(TransitionProbabilities, self).__init__(plasma_parent)
+        self.initialize = True
+        try:
+            self.continuum_treatment = plasma_parent.continuum_treatment
+        except:
+            self.continuum_treatment = False
+
+<div class="viewcode-block" id="TransitionProbabilities.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.calculate">[docs]</a>
+    def calculate(
+        self,
+        atomic_data,
+        beta_sobolev,
+        j_blues,
+        stimulated_emission_factor,
+        tau_sobolevs,
+    ):
+        # print &quot;Calculating Transition probabilities&quot;
+        # I wonder why?
+        # Not sure who wrote this but the answer is that when the plasma is
+        # first initialised (before the first iteration, without temperature
+        # values etc.) there are no j_blues values so this just prevents
+        # an error. Aoife.
+        if len(j_blues) == 0:
+            return None
+        macro_atom_data = self._get_macro_atom_data(atomic_data)
+        if self.initialize:
+            self.initialize_macro_atom_transition_type_filters(
+                atomic_data, macro_atom_data
+            )
+            self.transition_probability_coef = (
+                self._get_transition_probability_coefs(macro_atom_data)
+            )
+            self.initialize = False
+        transition_probabilities = self._calculate_transition_probability(
+            macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
+        )
+        transition_probabilities = pd.DataFrame(
+            transition_probabilities,
+            index=macro_atom_data.transition_line_id,
+            columns=tau_sobolevs.columns,
+        )
+        return transition_probabilities</div>
+
+
+    def _calculate_transition_probability(
+        self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
+    ):
+        transition_probabilities = np.empty(
+            (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
+        )
+        # trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
+        transition_type = macro_atom_data.transition_type.values
+        lines_idx = macro_atom_data.lines_idx.values
+        tpos = macro_atom_data.transition_probability.values
+        # optimized_calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, self.block_references, transition_probabilities)
+        fast_calculate_transition_probabilities(
+            tpos,
+            beta_sobolev.values,
+            j_blues,
+            stimulated_emission_factor,
+            transition_type,
+            lines_idx,
+            self.block_references,
+            transition_probabilities,
+            self.continuum_treatment,
+        )
+        return transition_probabilities
+
+<div class="viewcode-block" id="TransitionProbabilities.calculate_transition_probabilities">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.calculate_transition_probabilities">[docs]</a>
+    def calculate_transition_probabilities(
+        self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
+    ):
+        transition_probabilities = self.prepare_transition_probabilities(
+            macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
+        )
+        return transition_probabilities</div>
+
+
+<div class="viewcode-block" id="TransitionProbabilities.initialize_macro_atom_transition_type_filters">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.initialize_macro_atom_transition_type_filters">[docs]</a>
+    def initialize_macro_atom_transition_type_filters(
+        self, atomic_data, macro_atom_data
+    ):
+        self.transition_up_filter = macro_atom_data.transition_type.values == 1
+        self.transition_up_line_filter = macro_atom_data.lines_idx.values[
+            self.transition_up_filter
+        ]
+        self.block_references = np.hstack(
+            (
+                atomic_data.macro_atom_references.block_references,
+                len(macro_atom_data),
+            )
+        )</div>
+
+
+    @staticmethod
+    def _get_transition_probability_coefs(macro_atom_data):
+        return macro_atom_data.transition_probability.values[np.newaxis].T
+
+<div class="viewcode-block" id="TransitionProbabilities.prepare_transition_probabilities">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.prepare_transition_probabilities">[docs]</a>
+    def prepare_transition_probabilities(
+        self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
+    ):
+        current_beta_sobolev = beta_sobolev.take(
+            macro_atom_data.lines_idx.values, axis=0, mode=&quot;raise&quot;
+        )
+        transition_probabilities = (
+            self.transition_probability_coef * current_beta_sobolev
+        )
+        j_blues = j_blues.take(
+            self.transition_up_line_filter, axis=0, mode=&quot;raise&quot;
+        )
+        macro_stimulated_emission = stimulated_emission_factor.take(
+            self.transition_up_line_filter, axis=0, mode=&quot;raise&quot;
+        )
+        transition_probabilities[self.transition_up_filter] *= (
+            j_blues * macro_stimulated_emission
+        )
+        return transition_probabilities</div>
+
+
+    def _normalize_transition_probabilities(self, transition_probabilities):
+        self.block_references = (
+            BoundBoundMacroAtomSolver.normalize_transition_probabilities(
+                transition_probabilities
+            )
+        )
+
+    def _new_normalize_transition_probabilities(self, transition_probabilites):
+        for i, start_id in enumerate(self.block_references[:-1]):
+            end_id = self.block_references[i + 1]
+            block = transition_probabilites[start_id:end_id]
+            transition_probabilites[start_id:end_id] *= 1 / ne.evaluate(
+                &quot;sum(block, 0)&quot;
+            )
+
+    @staticmethod
+    def _get_macro_atom_data(atomic_data):
+        try:
+            return atomic_data.macro_atom_data
+        except:
+            return atomic_data.macro_atom_data_all</div>
+
+
+
+<div class="viewcode-block" id="LTEJBlues">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.LTEJBlues">[docs]</a>
+class LTEJBlues(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    lte_j_blues : Pandas DataFrame, dtype float
+                  J_blue values as calculated in LTE.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;lte_j_blues&quot;,)
+    latex_name = &quot;J^{b}_{lu(LTE)}&quot;
+
+<div class="viewcode-block" id="LTEJBlues.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.LTEJBlues.calculate">[docs]</a>
+    @staticmethod
+    def calculate(lines, nu, beta_rad):
+        beta_rad = pd.Series(beta_rad)
+        nu = pd.Series(nu)
+        h = const.h.cgs.value
+        c = const.c.cgs.value
+        df = pd.DataFrame(1, index=nu.index, columns=beta_rad.index)
+        df = df.mul(nu, axis=&quot;index&quot;) * beta_rad
+        exponential = (np.exp(h * df) - 1) ** (-1)
+        remainder = 2 * (h * nu.values**3) / (c**2)
+        j_blues = exponential.mul(remainder, axis=0)
+        return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="TauSobolevDeriv">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TauSobolevDeriv">[docs]</a>
+class TauSobolevDeriv(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    tau_sobolev : Pandas DataFrame, dtype float
+                  Sobolev optical depth for each line. Indexed by line.
+                  Columns as zones.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;dtau_dnl&quot;, &quot;dtau_dnu&quot;)
+    # TODO
+    latex_name = (&quot;\\tau_{\\textrm{sobolev}}&quot;,)
+    latex_formula = (
+        &quot;\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}\
+        n_{lower} \\Big(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\Big)&quot;,
+    )
+
+    def __init__(self, plasma_parent):
+        super(TauSobolevDeriv, self).__init__(plasma_parent)
+        self.sobolev_coefficient = (
+            (
+                ((np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs))
+                * u.cm
+                * u.s
+                / u.cm**3
+            )
+            .to(1)
+            .value
+        )
+
+<div class="viewcode-block" id="TauSobolevDeriv.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TauSobolevDeriv.calculate">[docs]</a>
+    def calculate(
+        self,
+        lines,
+        lines_lower_level_index,
+        lines_upper_level_index,
+        time_explosion,
+        f_lu,
+        wavelength_cm,
+        g,
+    ):
+        g_lower = np.array(g.iloc[lines_lower_level_index], dtype=np.float64)
+        g_upper = np.array(g.iloc[lines_upper_level_index], dtype=np.float64)
+
+        f_lu = f_lu.values[np.newaxis].T
+        wavelength = wavelength_cm.values[np.newaxis].T
+        dtau_dnl = self.sobolev_coefficient * f_lu * wavelength * time_explosion
+
+        dtau_dnl = pd.DataFrame(dtau_dnl, index=lines.index)
+
+        dtau_dnu = 0
+        return dtau_dnl, dtau_dnu</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 17 Jan 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
