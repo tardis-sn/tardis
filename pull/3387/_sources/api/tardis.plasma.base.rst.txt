@@ -1,7 +1,0 @@
-tardis.plasma.base module
-=========================
-
-.. automodule:: tardis.plasma.base
-   :members:
-   :show-inheritance:
-   :undoc-members:
