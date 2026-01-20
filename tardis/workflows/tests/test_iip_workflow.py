@@ -316,7 +316,6 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         iip_regression_path / "ctardis_tau_sobolevs_init_nlte.h5",
         key="data",
     )
-
     beta_sobolevs_ctardis = pd.read_hdf(
         iip_regression_path / "ctardis_beta_sobolevs_init_nlte.h5",
         key="data",
@@ -411,6 +410,73 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         rtol=4e-8,
         atol=0,
         check_dtype=False,
+    )
+
+    store = pd.HDFStore(
+        "/storage/mcconnor/ctardis_h5/opacity_state.h5", mode="r"
+    )
+    electron_densities_ctardis = store["electron_densities"]
+    t_electrons_ctardis = store["t_electrons"]
+    p_fb_deactivation_ctardis = store["p_fb_deactivation"]
+    chi_bf_ctardis = store["chi_bf"]
+    store.close()
+
+    print(
+        "init electron_densities max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.electron_densities,
+                electron_densities_ctardis,
+            )
+        )
+    )
+    pd.testing.assert_series_equal(
+        iip_plasma_nlte_init.electron_densities,
+        electron_densities_ctardis,
+        rtol=2e-12,
+        atol=0,
+        check_dtype=False,
+    )
+    print(
+        "init t_electrons max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                pd.DataFrame(iip_plasma_nlte_init.t_electrons),
+                t_electrons_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.t_electrons,
+        t_electrons_ctardis.values,
+        rtol=2e-13,
+        atol=0,
+    )
+    print(
+        "init p_fb_deactivation max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.p_fb_deactivation,
+                p_fb_deactivation_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.p_fb_deactivation.values,
+        p_fb_deactivation_ctardis.values,
+        rtol=2e-13,
+        atol=0,
+    )
+    print(
+        "init chi_bf max rel diff: {:.3e}".format(
+            _max_rel_diff(
+                iip_plasma_nlte_init.chi_bf,
+                chi_bf_ctardis,
+            )
+        )
+    )
+    np.testing.assert_allclose(
+        iip_plasma_nlte_init.chi_bf.values,
+        chi_bf_ctardis.values,
+        rtol=4e-8,
+        atol=0,
     )
 
 
