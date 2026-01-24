@@ -115,7 +115,7 @@ We strongly recommend installing TARDIS using this method by following the steps
 
 From now on, just activate the ``tardis-{project_name}`` environment before working with the TARDIS package.
 
-You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TARDIS <quickstart.ipynb>`_ 
+You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TARDIS <../quickstart.ipynb>`_ 
 to start running simulations.
 
 
