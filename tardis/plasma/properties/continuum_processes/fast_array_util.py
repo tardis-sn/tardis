@@ -52,14 +52,30 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
         Array with cumulatively integrated values. Shape is (N_freq, N_shells)
         same as f.
     """
-    n_rows = len(block_references) - 1
-    integrated = np.zeros_like(f)
-    for i in prange(f.shape[1]):  # columns
-        # TODO: Avoid this loop through vectorization of cumulative_trapezoid
-        for j in prange(n_rows):  # rows
+    """
+    Optimized cumulative integration that inlines the trapezoidal rule.
+    Eliminates slicing overhead and redundant function calls.
+    """
+    n_freq, n_shells = f.shape
+    integrated = np.zeros((n_freq, n_shells))
+    
+    for i in prange(n_shells):
+        for j in range(len(block_references) - 1):
             start = block_references[j]
             stop = block_references[j + 1]
-            integrated[start + 1 : stop, i] = numba_cumulative_trapezoid(
-                f[start:stop, i], x[start:stop]
-            )
+            
+            # Manual prefix-sum to avoid memory allocations (refer leetcode #303)
+            acc = 0.0
+            for k in range(start, stop - 1):
+                dx = x[k+1] - x[k]
+                area = dx * (f[k, i] + f[k+1, i]) * 0.5
+                acc += area
+                integrated[k+1, i] = acc
+            
+            total_area = integrated[stop - 1, i]
+            if total_area > 0:
+                inv_total = 1.0 / total_area
+                for k in range(start + 1, stop):
+                    integrated[k, i] *= inv_total
+                    
     return integrated
