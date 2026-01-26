@@ -1,5 +1,7 @@
 ## Changelog
 
+### release-2026.01.26 (2026/01/10 21:51)
+- [3384](https://github.com/tardis-sn/tardis/pull/3384) Post-release 2026.01.11 (3384) (@tardis-bot)
 ### release-2026.01.11 (2026/01/10 21:13)
 - [3383](https://github.com/tardis-sn/tardis/pull/3383) Pre-release 2026.01.11 (3383) (@tardis-bot)
 - [3378](https://github.com/tardis-sn/tardis/pull/3378) Fix last interaction tracker radius, shell_id, event_id (3378) (@connor-mcclellan)
