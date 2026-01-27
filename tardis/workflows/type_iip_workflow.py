@@ -449,23 +449,14 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         return next_values
 
-    def solve_plasma(self):
-        """Update the plasma solution with the new radiation field estimates
-
-        Parameters
-        ----------
-        estimated_radfield_properties : EstimatedRadiationFieldProperties
-            The radiation field properties to use for updating the plasma
-
-        Raises
-        ------
-        ValueError
-            If the plasma solver radiative rates type is unknown
-        """
+    def update_continuum_estimators(self):
         continuum_estimators = {}
 
         continuum_estimators["photo_ion_estimator"] = (
             self.transport_state.radfield_mc_estimators.photo_ion_estimator
+        )
+        continuum_estimators["photo_ion_statistics"] = (
+            self.transport_state.radfield_mc_estimators.photo_ion_estimator_statistics
         )
         continuum_estimators["stim_recomb_estimator"] = (
             self.transport_state.radfield_mc_estimators.stim_recomb_estimator
@@ -493,6 +484,22 @@ class TypeIIPWorkflow(WorkflowLogging):
             j_blues_df,
             self.transport_state.radfield_mc_estimators.j_estimator,
         )
+
+        return continuum_estimators, j_blues_df
+
+    def solve_plasma(self, continuum_estimators, j_blues_df):
+        """Update the plasma solution with the new radiation field estimates
+
+        Parameters
+        ----------
+        estimated_radfield_properties : EstimatedRadiationFieldProperties
+            The radiation field properties to use for updating the plasma
+
+        Raises
+        ------
+        ValueError
+            If the plasma solver radiative rates type is unknown
+        """
         self.plasma_solver.update_radiationfield(
             self.simulation_state.t_radiative.value,
             self.simulation_state.dilution_factor,
@@ -501,22 +508,6 @@ class TypeIIPWorkflow(WorkflowLogging):
             initialize_nlte=False,
             n_e_convergence_threshold=0.05,
             **continuum_estimators,
-        )
-
-        self.base_continuum = BaseContinuum(
-            plasma_array=self.plasma_solver,
-            atom_data=self.atom_data,
-            ws=self.simulation_state.dilution_factor,
-            radiative_transition_probabilities=self.plasma_solver.transition_probabilities,
-            estimators=continuum_estimators,
-        )
-
-        self.atom_data.continuum_data.set_level_number_density(
-            self.plasma_solver.level_number_density
-        )
-
-        self.atom_data.continuum_data.set_level_number_density_ratio(
-            self.plasma_solver
         )
 
     def thermal_balance_iteration(self, initial, n_e_max, nfev):
@@ -639,6 +630,23 @@ class TypeIIPWorkflow(WorkflowLogging):
             / ion_ratio**-1
         )
         print("Ion Ratio Conv:", ion_ratio_conv)
+
+    def solve_continuum_state(self, continuum_estimators):
+        self.base_continuum = BaseContinuum(
+            plasma_array=self.plasma_solver,
+            atom_data=self.atom_data,
+            ws=self.simulation_state.dilution_factor,
+            radiative_transition_probabilities=self.plasma_solver.transition_probabilities,
+            estimators=continuum_estimators,
+        )
+
+        self.atom_data.continuum_data.set_level_number_density(
+            self.plasma_solver.level_number_density
+        )
+
+        self.atom_data.continuum_data.set_level_number_density_ratio(
+            self.plasma_solver
+        )
 
     def normalize_continuum_estimators(
         self, continuum_estimators, j_blues, j_estimators
@@ -897,13 +905,16 @@ class TypeIIPWorkflow(WorkflowLogging):
             print("Updating simulation")
             self.solve_simulation_state(estimated_values)
 
+            continuum_estimators, j_blues = self.update_continuum_estimators()
+
             print("Solving plasma")
-            self.solve_plasma()
+            self.solve_plasma(continuum_estimators, j_blues)
 
             # After first MC step
-
             print("Solving thermal balance")
-            # self.solve_thermal_balance()
+            self.solve_thermal_balance()
+
+            self.solve_continuum_state(continuum_estimators)
 
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
