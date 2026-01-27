@@ -42,7 +42,7 @@ class TransitionProbabilities(BaseTransitionProbabilities):
             "collisional_deactivation": [],
             "continuum": [],
         }
-        for name, process in kwargs.iteritems():
+        for name, process in kwargs.items():
             internal_jump = process.internal_jump_probabilities
             if process.macro_atom_transitions == "down":
                 deactivation = process.deactivation_probabilities
@@ -86,7 +86,7 @@ class TransitionProbabilities(BaseTransitionProbabilities):
         for (
             transition_type,
             probabilities_list,
-        ) in transition_probabilities_dict.iteritems():
+        ) in transition_probabilities_dict.items():
             for probabilities in probabilities_list:
                 ones = self.ones(probabilities)
                 probabilities.insert(
@@ -106,10 +106,10 @@ class TransitionProbabilities(BaseTransitionProbabilities):
         for (
             transition_type,
             probabilities,
-        ) in transition_probabilities_dict.iteritems():
+        ) in transition_probabilities_dict.items():
             transition_probabilities_list.extend(probabilities)
         combined_probabilities = pd.concat(transition_probabilities_list)
-        combined_probabilities.sortlevel(sort_remaining=False, inplace=True)
+        combined_probabilities.sort_index(sort_remaining=False, inplace=True)
         self.block_references = self._get_block_references(
             combined_probabilities
         )
@@ -215,7 +215,7 @@ class RecombinationTransitionProbabilities(BaseTransitionProbabilities):
 
     def _calculate_deactivation_probabilities(self, **kwargs):
         deactivation_probabilities = []
-        for name, process in kwargs.iteritems():
+        for name, process in kwargs.items():
             trans_prob = process.deactivation_probabilities
             self._set_deactivation_references(trans_prob, process.name)
             deactivation_probabilities.append(trans_prob)
