@@ -52,10 +52,6 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
         Array with cumulatively integrated values. Shape is (N_freq, N_shells)
         same as f.
     """
-    """
-    Optimized cumulative integration that inlines the trapezoidal rule.
-    Eliminates slicing overhead and redundant function calls.
-    """
     n_freq, n_shells = f.shape
     integrated = np.zeros((n_freq, n_shells))
     
