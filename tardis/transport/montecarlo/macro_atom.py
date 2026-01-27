@@ -17,15 +17,15 @@ class MacroAtomTransitionType(IntEnum):
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
-    BF_EMISSION = -2  # This is recombination emission
+    BF_EMISSION = -2  # This is recombination emission, aka k-packet to r-packet
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
-    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Don't do that - need separate for cooling estimators
+    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Don't do that - need separate for cooling estimators - maybe is the same thing as BF EMISSION
     TWO_PHOTON = -6
     COLL_DOWN_TO_K_PACKET = 9
     COLL_DOWN_INTERNAL = 10
-    COLL_UP_INTERNAL = 11
-    COLL_UP_COOLING = 12  # I think this should be a deactivation event
+    COLL_EXC_COOL_TO_MACRO = 11
+    COLL_ION_COOL_TO_MACRO = 12
 
 
 @njit(**njit_dict_no_parallel)
