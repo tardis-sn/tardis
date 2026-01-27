@@ -17,6 +17,7 @@ from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
+from tardis.visualization import SDECPlotter
 from tardis.util.environment import Environment
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
@@ -52,6 +53,7 @@ class LineInfoWidget:
         spectrum_luminosity_density_lambda,
         virt_spectrum_wavelength,
         virt_spectrum_luminosity_density_lambda,
+        sim=None
     ):
         """
         Initialize the LineInfoWidget with line interaction and spectrum data.
@@ -73,9 +75,12 @@ class LineInfoWidget:
         virt_spectrum_luminosity_density_lambda : astropy.Quantity
             Luminosity density lambda values of a virtual spectrum, having unit
             of (erg/s)/Angstrom
+        sim : tardis.simulation.Simulation, optional
+            TARDIS Simulation object, stored for SDEC plot generation
         """
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
+        self._sim = sim
 
         # Widgets ------------------------------------------------
         max_rows_option = {"maxVisibleRows": 9}
@@ -144,6 +149,7 @@ class LineInfoWidget:
             virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
+            sim=sim,
         )
 
     def get_species_interactions(
@@ -680,12 +686,18 @@ class LineInfoWidget:
         """Get description label of a UI control with increased font size."""
         return pn.pane.HTML(f"<span style='font-size: 1.15em;'>{text}:</span>")
 
-    def display(self):
+    def display(self, show_sdec_plot=False):
         """
         Display the fully-functional line info widget.
 
         It puts together all component widgets nicely together and enables
         interaction between all the components.
+
+        Parameters
+        ----------
+        show_sdec_plot : bool, optional
+            If True, display an SDEC plot alongside the line info widget.
+            Default is False.
 
         Returns
         -------
@@ -746,8 +758,23 @@ class LineInfoWidget:
                 sizing_mode="stretch_width",
             )
 
+            widget_components = [self.figure_widget, tables_row]
+
+            # Add SDEC plot if requested
+            if show_sdec_plot:
+                sdec_plotter = SDECPlotter.from_simulation(self._sim)
+                sdec_fig = sdec_plotter.generate_plot_ply()
+                sdec_pane = pn.pane.Plotly(sdec_fig)
+                widget_components.append(
+                    pn.pane.HTML("<hr style='margin: 20px 0;'>")
+                )
+                widget_components.append(
+                    pn.pane.HTML("<h3>SDEC Plot</h3>")
+                )
+                widget_components.append(sdec_pane)
+
             widget = pn.Column(
-                self.figure_widget, tables_row, sizing_mode="stretch_width"
+                *widget_components, sizing_mode="stretch_width"
             )
 
             return widget
