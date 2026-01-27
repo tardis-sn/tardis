@@ -8,6 +8,7 @@ from scipy.optimize import least_squares as lsq
 from scipy.sparse import block_diag
 
 from tardis import constants as const
+from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
 from tardis.iip_plasma.continuum.input_data import ContinuumInputData
 from tardis.iip_plasma.continuum.radiative_processes import (
@@ -57,12 +58,12 @@ class TypeIIPWorkflow(WorkflowLogging):
             Set true if the configuration uses CSVY, by default False
         """
         super().__init__(configuration, self.log_level, self.specific_log_level)
-        atom_data = parse_atom_data(configuration)
+        self.atom_data = parse_atom_data(configuration)
 
         # set up states and solvers
         if csvy:
             self.simulation_state = SimulationState.from_csvy(
-                configuration, atom_data=atom_data
+                configuration, atom_data=self.atom_data
             )
             assert np.isclose(
                 self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
@@ -74,7 +75,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration,
-                atom_data=atom_data,
+                atom_data=self.atom_data,
             )
 
         configuration.plasma.nlte.species = [
@@ -84,23 +85,29 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
 
-        atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
-        atom_data.continuum_data = ContinuumData(
-            atom_data, selected_continuum_species=[(1, 0)]
+        self.atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+        self.atom_data.continuum_data = ContinuumData(
+            self.atom_data, selected_continuum_species=[(1, 0)]
         )
-        atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
-        atom_data.nlte_data._init_indices()
-        atom_data.has_collision_data = False
+        # hacky thing from CTARDIS
+        self.atom_data.continuum_data.photoionization_data.loc[
+            (1, 0, 0), "x_sect"
+        ] *= 0.0
+        self.atom_data.yg_data.columns = list(
+            self.atom_data.collision_data_temperatures
+        )
+        self.atom_data.nlte_data._init_indices()
+        self.atom_data.has_collision_data = False
 
         elemental_number_density = (
             self.simulation_state.calculate_elemental_number_density(
-                atom_data.atom_data.mass
+                self.atom_data.atom_data.mass
             )
         )
 
         self.plasma_solver = LegacyPlasmaArray(
             elemental_number_density,
-            atom_data,
+            self.atom_data,
             self.configuration.supernova.time_explosion.to("s"),
             nlte_config=self.configuration.plasma.nlte,
             delta_treatment=None,
@@ -148,6 +155,14 @@ class TypeIIPWorkflow(WorkflowLogging):
             **{},
         )
 
+        self.base_continuum = BaseContinuum(
+            plasma_array=self.plasma_solver,
+            atom_data=self.atom_data,
+            ws=self.simulation_state.dilution_factor,
+            radiative_transition_probabilities=self.plasma_solver.transition_probabilities,
+            estimators=None,
+        )
+
         # After initializing NLTE
         line_interaction_type = configuration.plasma.line_interaction_type
         continuum_interactions = configuration.plasma.continuum_interaction
@@ -162,9 +177,9 @@ class TypeIIPWorkflow(WorkflowLogging):
         )
 
         self.macro_atom_solver = ContinuumMacroAtomSolver(
-            atom_data.levels,
-            atom_data.lines,
-            atom_data.photoionization_data,
+            self.atom_data.levels,
+            self.atom_data.lines,
+            self.atom_data.photoionization_data,
             line_interaction_type=line_interaction_type,
         )
 
@@ -246,7 +261,9 @@ class TypeIIPWorkflow(WorkflowLogging):
     ):
         r_inner = geometry_state.r_inner_active.value
         r_outer = geometry_state.r_outer_active.value
-        r_middle = (r_outer + r_inner) / 2.0
+        r_middle = (
+            geometry_state.r_middle_active.value
+        )  # (r_outer + r_inner) / 2.0
         delta_r = r_outer - r_inner
         t_inner = initial_t_inner
 
@@ -484,6 +501,22 @@ class TypeIIPWorkflow(WorkflowLogging):
             initialize_nlte=False,
             n_e_convergence_threshold=0.05,
             **continuum_estimators,
+        )
+
+        self.base_continuum = BaseContinuum(
+            plasma_array=self.plasma_solver,
+            atom_data=self.atom_data,
+            ws=self.simulation_state.dilution_factor,
+            radiative_transition_probabilities=self.plasma_solver.transition_probabilities,
+            estimators=continuum_estimators,
+        )
+
+        self.atom_data.continuum_data.set_level_number_density(
+            self.plasma_solver.level_number_density
+        )
+
+        self.atom_data.continuum_data.set_level_number_density_ratio(
+            self.plasma_solver
         )
 
     def thermal_balance_iteration(self, initial, n_e_max, nfev):
@@ -870,7 +903,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             # After first MC step
 
             print("Solving thermal balance")
-            self.solve_thermal_balance()
+            # self.solve_thermal_balance()
 
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
