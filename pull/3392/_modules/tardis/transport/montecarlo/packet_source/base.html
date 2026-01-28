@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -212,7 +212,9 @@ class BasePacketSource(abc.ABC):
     # One should either implement create_packet_velocities or create_packet_radii
 <div class="viewcode-block" id="BasePacketSource.create_packet_radii">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packet_source.base.html#tardis.transport.montecarlo.packet_source.BasePacketSource.create_packet_radii">[docs]</a>
-    def create_packet_radii(self, no_of_packets: int, *args: Any, **kwargs: Any):
+    def create_packet_radii(
+        self, no_of_packets: int, *args: Any, **kwargs: Any
+    ):
         &quot;&quot;&quot;
         Create packet radii.
 
@@ -246,7 +248,9 @@ class BasePacketSource(abc.ABC):
 
 <div class="viewcode-block" id="BasePacketSource.create_packet_velocities">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packet_source.base.html#tardis.transport.montecarlo.packet_source.BasePacketSource.create_packet_velocities">[docs]</a>
-    def create_packet_velocities(self, no_of_packets: int, *args: Any, **kwargs: Any):
+    def create_packet_velocities(
+        self, no_of_packets: int, *args: Any, **kwargs: Any
+    ):
         &quot;&quot;&quot;
         Create packet velocities.
 
@@ -327,7 +331,9 @@ class BasePacketSource(abc.ABC):
 <div class="viewcode-block" id="BasePacketSource.create_packet_energies">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packet_source.base.html#tardis.transport.montecarlo.packet_source.BasePacketSource.create_packet_energies">[docs]</a>
     @abc.abstractmethod
-    def create_packet_energies(self, no_of_packets: int, *args: Any, **kwargs: Any):
+    def create_packet_energies(
+        self, no_of_packets: int, *args: Any, **kwargs: Any
+    ):
         &quot;&quot;&quot;
         Create packet energies.
 
@@ -425,17 +431,9 @@ class BasePacketSource(abc.ABC):
             Inner luminosity in erg/s.
         &quot;&quot;&quot;
         return (
-            4
-            * np.pi
-            * const.sigma_sb
-            * self.radius**2
-            * self.temperature**4
+            4 * np.pi * const.sigma_sb * self.radius**2 * self.temperature**4
         ).to(&quot;erg/s&quot;)</div>
 </div>
-
-
-
-
 
 </pre></div>
 
@@ -447,7 +445,7 @@ class BasePacketSource(abc.ABC):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

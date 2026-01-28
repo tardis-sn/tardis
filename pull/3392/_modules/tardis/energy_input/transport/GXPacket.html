@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -142,14 +142,6 @@ import numpy as np
 from numba import float64, int64
 from numba.experimental import jitclass
 
-from tardis.energy_input.samplers import sample_decay_time, sample_energy
-from tardis.energy_input.util import (
-    H_CGS_KEV,
-    doppler_factor_3d,
-    get_index,
-    get_random_unit_vector,
-)
-
 
 <div class="viewcode-block" id="GXPacketStatus">
 <a class="viewcode-back" href="../../../../api/tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketStatus">[docs]</a>
@@ -221,7 +213,9 @@ class GXPacket:
             float: packet radius
         &quot;&quot;&quot;
         return np.sqrt(
-            self.location[0] ** 2.0 + self.location[1] ** 2.0 + self.location[2] ** 2.0
+            self.location[0] ** 2.0
+            + self.location[1] ** 2.0
+            + self.location[2] ** 2.0
         )</div>
 
 
@@ -270,7 +264,7 @@ class GXPacketCollection:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

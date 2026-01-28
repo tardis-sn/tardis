@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -145,8 +145,8 @@ import pandas as pd
 import yaml
 from astropy import units as u
 
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.configuration import config_validator
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.readers.csvy import load_yaml_from_csvy
 from tardis.io.util import YAMLLoader, yaml_load_file
 
@@ -264,8 +264,7 @@ class ConfigurationNameSpace(dict):
     def __getattr__(self, item):
         if item in self:
             return self[item]
-        else:
-            super().__getattribute__(item)
+        super().__getattribute__(item)
 
     __setattr__ = __setitem__
 
@@ -290,19 +289,17 @@ class ConfigurationNameSpace(dict):
 
             if config_item.startswith(&quot;item&quot;):
                 return self[config_item_path[0]]
-            else:
-                return self[config_item]
-        elif len(config_item_path) == 2 and config_item_path[1].startswith(
+            return self[config_item]
+        if len(config_item_path) == 2 and config_item_path[1].startswith(
             &quot;item&quot;
         ):
             return self[config_item_path[0]][
                 int(config_item_path[1].replace(&quot;item&quot;, &quot;&quot;))
             ]
 
-        else:
-            return self[config_item_path[0]].get_config_item(
-                &quot;.&quot;.join(config_item_path[1:])
-            )</div>
+        return self[config_item_path[0]].get_config_item(
+            &quot;.&quot;.join(config_item_path[1:])
+        )</div>
 
 
 <div class="viewcode-block" id="ConfigurationNameSpace.set_config_item">
@@ -588,10 +585,10 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         montecarlo_section : dict
         &quot;&quot;&quot;
         if montecarlo_section[&quot;convergence_strategy&quot;][&quot;type&quot;] == &quot;damped&quot;:
-            montecarlo_section[
-                &quot;convergence_strategy&quot;
-            ] = Configuration.parse_convergence_section(
-                montecarlo_section[&quot;convergence_strategy&quot;]
+            montecarlo_section[&quot;convergence_strategy&quot;] = (
+                Configuration.parse_convergence_section(
+                    montecarlo_section[&quot;convergence_strategy&quot;]
+                )
             )
         elif montecarlo_section[&quot;convergence_strategy&quot;][&quot;type&quot;] == &quot;custom&quot;:
             raise NotImplementedError(
@@ -616,7 +613,12 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         &quot;&quot;&quot;
         convergence_parameters = [&quot;damping_constant&quot;, &quot;threshold&quot;, &quot;type&quot;]
 
-        for convergence_variable in [&quot;t_inner&quot;, &quot;t_rad&quot;, &quot;w&quot;, &quot;v_inner_boundary&quot;]:
+        for convergence_variable in [
+            &quot;t_inner&quot;,
+            &quot;t_rad&quot;,
+            &quot;w&quot;,
+            &quot;v_inner_boundary&quot;,
+        ]:
             if convergence_variable not in convergence_section_dict:
                 convergence_section_dict[convergence_variable] = {}
             convergence_variable_section = convergence_section_dict[
@@ -692,7 +694,7 @@ yaml.add_representer(Configuration, cns_representer)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

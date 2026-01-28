@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -260,7 +260,7 @@ def read_density_file(filename, filetype):
     if invalid_volume_mask.sum() &gt; 0:
         message = &quot;\n&quot;.join(
             [
-                f&quot;cell {i:d}: v_inner {v_inner_i:s}, v_outer &quot; f&quot;{v_outer_i:s}&quot;
+                f&quot;cell {i:d}: v_inner {v_inner_i:s}, v_outer {v_outer_i:s}&quot;
                 for i, v_inner_i, v_outer_i in zip(
                     np.arange(len(v_outer))[invalid_volume_mask],
                     v_inner[invalid_volume_mask],
@@ -269,7 +269,7 @@ def read_density_file(filename, filetype):
             ]
         )
         raise ConfigurationError(
-            &quot;Invalid volume of following cell(s):\n&quot; f&quot;{message:s}&quot;
+            f&quot;Invalid volume of following cell(s):\n{message:s}&quot;
         )
 
     return (
@@ -290,7 +290,7 @@ def read_density_file(filename, filetype):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

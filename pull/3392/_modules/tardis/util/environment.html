@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,28 +136,31 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.util.environment</h1><div class="highlight"><pre>
-<span></span>import os
+<span></span>import logging
+import os
 import sys
 from enum import StrEnum
-import logging
+
 from IPython import get_ipython
+
 logger = logging.getLogger(__name__)
+
 
 <div class="viewcode-block" id="Environment">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment">[docs]</a>
-class Environment(StrEnum):    
-    VSCODE = &#39;vscode&#39;
-    JUPYTER = &#39;jupyter&#39;
-    TERMINAL = &#39;terminal&#39;
-    SSH_JH = &#39;ssh_jh&#39;
-    SPHINX = &#39;sphinx&#39;
-    
+class Environment(StrEnum):
+    VSCODE = &quot;vscode&quot;
+    JUPYTER = &quot;jupyter&quot;
+    TERMINAL = &quot;terminal&quot;
+    SSH_JH = &quot;ssh_jh&quot;
+    SPHINX = &quot;sphinx&quot;
+
 <div class="viewcode-block" id="Environment.get_current_environment">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.get_current_environment">[docs]</a>
     @classmethod
-    def get_current_environment(cls) -&gt; &#39;Environment&#39;:
+    def get_current_environment(cls) -&gt; &quot;Environment&quot;:
         &quot;&quot;&quot;Get the current execution environment.
-        
+
         Returns
         -------
         Environment
@@ -165,19 +168,18 @@ class Environment(StrEnum):
         &quot;&quot;&quot;
         if cls.is_vscode():
             return cls.VSCODE
-        elif cls.is_notebook():
+        if cls.is_notebook():
             return cls.JUPYTER
-        elif cls.is_sshjh():
+        if cls.is_sshjh():
             return cls.SSH_JH
-        elif cls.is_sphinx():
+        if cls.is_sphinx():
             return cls.SPHINX
-        elif cls.is_terminal():
+        if cls.is_terminal():
             return cls.TERMINAL
-        else:
-            logger.critical(&quot;Unknown environment detected&quot;)
-            return cls.TERMINAL</div>
+        logger.critical(&quot;Unknown environment detected&quot;)
+        return cls.TERMINAL</div>
 
-    
+
 <div class="viewcode-block" id="Environment.is_terminal">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_terminal">[docs]</a>
     @staticmethod
@@ -187,7 +189,7 @@ class Environment(StrEnum):
         &quot;&quot;&quot;
         return sys.stdout.isatty()</div>
 
-    
+
 <div class="viewcode-block" id="Environment.is_vscode">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.is_vscode">[docs]</a>
     @staticmethod
@@ -195,9 +197,11 @@ class Environment(StrEnum):
         &quot;&quot;&quot;
         Checking if the current environment is VSCode
         &quot;&quot;&quot;
-        return any(x for x in (&#39;VSCODE_PID&#39;, &#39;VSCODE&#39;, &#39;VSCODE_CWD&#39;) if x in os.environ)</div>
+        return any(
+            x for x in (&quot;VSCODE_PID&quot;, &quot;VSCODE&quot;, &quot;VSCODE_CWD&quot;) if x in os.environ
+        )</div>
 
-    
+
     @staticmethod
     def _detect_jupyter_shell() -&gt; bool:
         &quot;&quot;&quot;
@@ -208,9 +212,11 @@ class Environment(StrEnum):
             from ipykernel.zmqshell import ZMQInteractiveShell
             from IPython.core.interactiveshell import InteractiveShell
         except ImportError:
-            logger.debug(&quot;Cannot import IPython/Jupyter modules. Not in IPython environment&quot;)
+            logger.debug(
+                &quot;Cannot import IPython/Jupyter modules. Not in IPython environment&quot;
+            )
             return False
-        
+
         try:
             # Trying to get the value of the shell via the get_ipython() method
             shell = get_ipython()
@@ -223,7 +229,7 @@ class Environment(StrEnum):
         if isinstance(shell, ZMQInteractiveShell):
             return True
         # Checking if the shell instance is Terminal IPython based &amp; if True, returning False
-        elif isinstance(shell, InteractiveShell):
+        if isinstance(shell, InteractiveShell):
             return False
         # All other shell instances are returned False
         return False
@@ -234,13 +240,15 @@ class Environment(StrEnum):
     def is_sshjh() -&gt; bool:
         &quot;&quot;&quot;
         Checking if the current environment is JupyterHub
-        
+
         Returns
         -------
         True : if running in notebook with JupyterHub environment variables
         False : otherwise
         &quot;&quot;&quot;
-        return Environment._detect_jupyter_shell() and any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys())</div>
+        return Environment._detect_jupyter_shell() and any(
+            key.startswith(&quot;JUPYTERHUB&quot;) for key in os.environ.keys()
+        )</div>
 
 
 <div class="viewcode-block" id="Environment.is_notebook">
@@ -255,7 +263,13 @@ class Environment(StrEnum):
         True : if the shell environment is Jupyter Based
         False : if the shell environment is Terminal or anything else
         &quot;&quot;&quot;
-        return Environment._detect_jupyter_shell() and not any(key.startswith(&#39;JUPYTERHUB&#39;) for key in os.environ.keys()) and not Environment.is_sphinx()</div>
+        return (
+            Environment._detect_jupyter_shell()
+            and not any(
+                key.startswith(&quot;JUPYTERHUB&quot;) for key in os.environ.keys()
+            )
+            and not Environment.is_sphinx()
+        )</div>
 
 
 <div class="viewcode-block" id="Environment.is_sphinx">
@@ -264,34 +278,34 @@ class Environment(StrEnum):
     def is_sphinx() -&gt; bool:
         &quot;&quot;&quot;
         Checking if the current environment is Sphinx documentation build
-        
+
         Returns
         -------
         True : if running in Sphinx build environment
         False : otherwise
         &quot;&quot;&quot;
-        return os.environ.get(&#39;TARDIS_SPHINX_BUILD&#39;) == &#39;1&#39;</div>
+        return os.environ.get(&quot;TARDIS_SPHINX_BUILD&quot;) == &quot;1&quot;</div>
 
-    
+
 <div class="viewcode-block" id="Environment.allows_widget_display">
 <a class="viewcode-back" href="../../../api/tardis.util.environment.html#tardis.util.environment.Environment.allows_widget_display">[docs]</a>
     @staticmethod
     def allows_widget_display() -&gt; bool:
         &quot;&quot;&quot;
         Checking if the current environment allows widget display
-        
+
         Returns
         -------
         True : if the environment supports widget display (notebook, vscode, sshjh, or sphinx)
         False : otherwise
         &quot;&quot;&quot;
-        return (Environment.is_notebook() or 
-                Environment.is_vscode() or 
-                Environment.is_sshjh() or 
-                Environment.is_sphinx())</div>
+        return (
+            Environment.is_notebook()
+            or Environment.is_vscode()
+            or Environment.is_sshjh()
+            or Environment.is_sphinx()
+        )</div>
 </div>
-
-
 
 </pre></div>
 
@@ -303,7 +317,7 @@ class Environment(StrEnum):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

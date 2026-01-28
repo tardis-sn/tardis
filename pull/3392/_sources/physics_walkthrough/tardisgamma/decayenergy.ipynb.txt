@@ -56,19 +56,17 @@
    "source": [
     "import numpy as np\n",
     "import pandas as pd\n",
-    "from astropy import units as u\n",
     "from astropy import constants as const\n",
+    "from astropy import units as u\n",
     "\n",
     "from tardis.energy_input.gamma_ray_channel import (\n",
-    "    create_isotope_dicts,\n",
-    "    create_inventories_dict,\n",
     "    calculate_total_decays,\n",
-    "    create_isotope_decay_df\n",
+    "    create_inventories_dict,\n",
+    "    create_isotope_decay_df,\n",
+    "    create_isotope_dicts,\n",
     ")\n",
     "from tardis.energy_input.gamma_ray_transport import get_taus\n",
-    "from tardis.energy_input.energy_source import get_nuclear_lines_database\n",
-    "from tardis.io.atom_data import (download_atom_data, AtomData)\n",
-    "from tardis.energy_input.tests.test_gamma_ray_channel import test_total_energy_production"
+    "from tardis.io.atom_data import AtomData, download_atom_data"
    ]
   },
   {
@@ -94,7 +92,7 @@
     "# energies of each transition\n",
     "t_energies = np.array([0.270, 0.750, 0.480, 1.56, 0.812, 0.158]) * u.MeV\n",
     "# probabilities of each transition\n",
-    "t_prob = np.array([.365, .495, .366, .140, .860, 1.00])\n",
+    "t_prob = np.array([0.365, 0.495, 0.366, 0.140, 0.860, 1.00])\n",
     "\n",
     "energy_per_decay = sum(t_energies * t_prob)\n",
     "energy_per_decay"
@@ -149,14 +147,24 @@
     }
    ],
    "source": [
-    "#time in days\n",
+    "# time in days\n",
     "time = 10 * u.day\n",
-    "#mass of Ni56 in solar masses\n",
+    "# mass of Ni56 in solar masses\n",
     "m_Ni56 = 1 * const.M_sun\n",
     "\n",
-    "energy_production_rate = (6.45e43 * np.exp(-time/(8.8*u.day)) + 1.45e43 * np.exp(-time/(111.3*u.day))) * (m_Ni56/ const.M_sun) * u.erg /u.s\n",
+    "energy_production_rate = (\n",
+    "    (\n",
+    "        6.45e43 * np.exp(-time / (8.8 * u.day))\n",
+    "        + 1.45e43 * np.exp(-time / (111.3 * u.day))\n",
+    "    )\n",
+    "    * (m_Ni56 / const.M_sun)\n",
+    "    * u.erg\n",
+    "    / u.s\n",
+    ")\n",
     "\n",
-    "print(f\"The total energy production rate for 1 solar mass of 56Ni after 10 days is: {energy_production_rate:.2e}\")"
+    "print(\n",
+    "    f\"The total energy production rate for 1 solar mass of 56Ni after 10 days is: {energy_production_rate:.2e}\"\n",
+    ")"
    ]
   },
   {
@@ -190,8 +198,10 @@
     }
    ],
    "source": [
-    "total_energy_production = 1.885e50 * (m_Ni56/const.M_sun) * u.erg\n",
-    "print(f\"The total energy production for 1 solar mass of 56Ni is: {total_energy_production}\")"
+    "total_energy_production = 1.885e50 * (m_Ni56 / const.M_sun) * u.erg\n",
+    "print(\n",
+    "    f\"The total energy production for 1 solar mass of 56Ni is: {total_energy_production}\"\n",
+    ")"
    ]
   },
   {
@@ -272,13 +282,14 @@
     }
    ],
    "source": [
-    "mass_fractions = {0:1,\n",
-    "                  1:1,\n",
-    "                  2:1,\n",
-    "                  3:1,\n",
-    "                  4:1}\n",
+    "mass_fractions = {0: 1, 1: 1, 2: 1, 3: 1, 4: 1}\n",
     "\n",
-    "raw_isotope_abundance = pd.DataFrame(mass_fractions, index=pd.MultiIndex.from_tuples([(28, 56)], names=[\"atomic_number\", \"mass_number\"]))\n",
+    "raw_isotope_abundance = pd.DataFrame(\n",
+    "    mass_fractions,\n",
+    "    index=pd.MultiIndex.from_tuples(\n",
+    "        [(28, 56)], names=[\"atomic_number\", \"mass_number\"]\n",
+    "    ),\n",
+    ")\n",
     "raw_isotope_abundance"
    ]
   },
@@ -310,7 +321,7 @@
     }
    ],
    "source": [
-    "shell_masses = np.ones(5)*0.2*const.M_sun.to(u.g)\n",
+    "shell_masses = np.ones(5) * 0.2 * const.M_sun.to(u.g)\n",
     "shell_masses"
    ]
   },
@@ -410,7 +421,7 @@
     }
    ],
    "source": [
-    "cumulative_decay_df = calculate_total_decays(inventories, time_delta= np.inf)\n",
+    "cumulative_decay_df = calculate_total_decays(inventories, time_delta=np.inf)\n",
     "print(cumulative_decay_df)"
    ]
   },
@@ -842,8 +853,8 @@
     }
    ],
    "source": [
-    "download_atom_data('kurucz_cd23_chianti_H_He')\n",
-    "atom_data_file = 'kurucz_cd23_chianti_H_He.h5'\n",
+    "download_atom_data(\"kurucz_cd23_chianti_H_He\")\n",
+    "atom_data_file = \"kurucz_cd23_chianti_H_He.h5\"\n",
     "atom_data = AtomData.from_hdf(atom_data_file)\n",
     "gamma_ray_lines = atom_data.decay_radiation_data\n",
     "gamma_ray_lines"
@@ -1119,7 +1130,7 @@
    "outputs": [],
    "source": [
     "def percent_error(observed, expected):\n",
-    "    return np.abs(expected - observed)/expected * 100"
+    "    return np.abs(expected - observed) / expected * 100"
    ]
   },
   {
@@ -1148,14 +1159,18 @@
    "source": [
     "tau_dict = get_taus(raw_isotope_abundance)\n",
     "\n",
-    "tau_co56 = tau_dict[0]['Co-56'] * u.s\n",
-    "tau_ni56 = tau_dict[0]['Ni-56'] * u.s\n",
+    "tau_co56 = tau_dict[0][\"Co-56\"] * u.s\n",
+    "tau_ni56 = tau_dict[0][\"Ni-56\"] * u.s\n",
     "tau_ni56_days = tau_ni56.to(u.day)\n",
     "tau_co56_days = tau_co56.to(u.day)\n",
     "print(f\"The lifetime of 56Ni is: {tau_ni56_days}\")\n",
     "print(f\"The lifetime of 56Co is: {tau_co56_days}\")\n",
-    "print(f\"The percent error for 56Ni lifetime is: {percent_error(tau_ni56_days.value, 8.8)} %\")\n",
-    "print(f\"The percent error for 56Co lifetime is: {percent_error(tau_co56_days.value, 111.3)} %\")"
+    "print(\n",
+    "    f\"The percent error for 56Ni lifetime is: {percent_error(tau_ni56_days.value, 8.8)} %\"\n",
+    ")\n",
+    "print(\n",
+    "    f\"The percent error for 56Co lifetime is: {percent_error(tau_co56_days.value, 111.3)} %\"\n",
+    ")"
    ]
   },
   {
@@ -1183,17 +1198,37 @@
    ],
    "source": [
     "# For Ni56\n",
-    "ni56 = isotope_decay_df.xs('Ni56', level='isotope')\n",
-    "ni56_energy_per_decay_MeV = (ni56['radiation_intensity']/100 * (ni56['radiation_energy_keV']*u.keV.to(\"MeV\"))).sum()/5 * u.MeV\n",
+    "ni56 = isotope_decay_df.xs(\"Ni56\", level=\"isotope\")\n",
+    "ni56_energy_per_decay_MeV = (\n",
+    "    (\n",
+    "        ni56[\"radiation_intensity\"]\n",
+    "        / 100\n",
+    "        * (ni56[\"radiation_energy_keV\"] * u.keV.to(\"MeV\"))\n",
+    "    ).sum()\n",
+    "    / 5\n",
+    "    * u.MeV\n",
+    ")\n",
     "\n",
     "# For Co56\n",
-    "co56 = isotope_decay_df.xs('Co56', level='isotope')\n",
-    "co56_energy_per_decay_MeV = (co56['radiation_intensity']/100 * (co56['radiation_energy_keV']* u.keV.to(\"MeV\"))).sum()/5 * u.MeV\n",
+    "co56 = isotope_decay_df.xs(\"Co56\", level=\"isotope\")\n",
+    "co56_energy_per_decay_MeV = (\n",
+    "    (\n",
+    "        co56[\"radiation_intensity\"]\n",
+    "        / 100\n",
+    "        * (co56[\"radiation_energy_keV\"] * u.keV.to(\"MeV\"))\n",
+    "    ).sum()\n",
+    "    / 5\n",
+    "    * u.MeV\n",
+    ")\n",
     "\n",
     "print(f\"The energy per decay for Ni56 is: {ni56_energy_per_decay_MeV}\")\n",
     "print(f\"The energy per decay for Co56 is: {co56_energy_per_decay_MeV}\")\n",
-    "print(f\"The percent error for Ni56 energy per decay is: {percent_error(ni56_energy_per_decay_MeV.value, 1.75)} %\")\n",
-    "print(f\"The percent error for Co56 energy per decay is: {percent_error(co56_energy_per_decay_MeV.value, 3.73)} %\")"
+    "print(\n",
+    "    f\"The percent error for Ni56 energy per decay is: {percent_error(ni56_energy_per_decay_MeV.value, 1.75)} %\"\n",
+    ")\n",
+    "print(\n",
+    "    f\"The percent error for Co56 energy per decay is: {percent_error(co56_energy_per_decay_MeV.value, 3.73)} %\"\n",
+    ")"
    ]
   },
   {
@@ -1220,14 +1255,23 @@
     }
    ],
    "source": [
-    "outside_factor = (1/ (tau_co56 - tau_ni56)) * ((const.M_sun.to('g'))/(56 * 1.67e-24 * u.g))\n",
-    "ni56_coeff = outside_factor * (ni56_energy_per_decay_MeV.to(\"erg\") * ((tau_co56/tau_ni56) - 1) - co56_energy_per_decay_MeV.to(\"erg\"))\n",
+    "outside_factor = (1 / (tau_co56 - tau_ni56)) * (\n",
+    "    (const.M_sun.to(\"g\")) / (56 * 1.67e-24 * u.g)\n",
+    ")\n",
+    "ni56_coeff = outside_factor * (\n",
+    "    ni56_energy_per_decay_MeV.to(\"erg\") * ((tau_co56 / tau_ni56) - 1)\n",
+    "    - co56_energy_per_decay_MeV.to(\"erg\")\n",
+    ")\n",
     "co56_coeff = outside_factor * co56_energy_per_decay_MeV.to(\"erg\")\n",
     "\n",
     "print(f\"The coefficient for Ni56 is: {ni56_coeff}\")\n",
     "print(f\"The coefficient for Co56 is: {co56_coeff}\")\n",
-    "print(f\"The percent error for Ni56 coefficient is: {percent_error(ni56_coeff.value, 6.45e43)} %\")\n",
-    "print(f\"The percent error for Co56 coefficient is: {percent_error(co56_coeff.value, 1.45e43)} %\")"
+    "print(\n",
+    "    f\"The percent error for Ni56 coefficient is: {percent_error(ni56_coeff.value, 6.45e43)} %\"\n",
+    ")\n",
+    "print(\n",
+    "    f\"The percent error for Co56 coefficient is: {percent_error(co56_coeff.value, 1.45e43)} %\"\n",
+    ")"
    ]
   },
   {
@@ -1252,10 +1296,16 @@
     }
    ],
    "source": [
-    "energy_production_rate_from_HE = ni56_coeff * np.exp(-time/tau_ni56_days) + co56_coeff * np.exp(-time/tau_co56_days) *  (m_Ni56/ const.M_sun)\n",
+    "energy_production_rate_from_HE = ni56_coeff * np.exp(\n",
+    "    -time / tau_ni56_days\n",
+    ") + co56_coeff * np.exp(-time / tau_co56_days) * (m_Ni56 / const.M_sun)\n",
     "\n",
-    "print(f\"The energy production rate from TARDIS-HE is: {energy_production_rate_from_HE}\")\n",
-    "print(f\"The percent error for energy production rate from TARDIS-HE is: {percent_error(energy_production_rate_from_HE.value, energy_production_rate.value)} %\")"
+    "print(\n",
+    "    f\"The energy production rate from TARDIS-HE is: {energy_production_rate_from_HE}\"\n",
+    ")\n",
+    "print(\n",
+    "    f\"The percent error for energy production rate from TARDIS-HE is: {percent_error(energy_production_rate_from_HE.value, energy_production_rate.value)} %\"\n",
+    ")"
    ]
   },
   {
@@ -1282,8 +1332,12 @@
    "source": [
     "total_energy_production_HE = sum(isotope_decay_df[\"decay_energy_erg\"]) * u.erg\n",
     "\n",
-    "print(f\"The total energy production from TARDIS-HE is: {total_energy_production_HE}\")\n",
-    "print(f\"The percent error for total energy production from TARDIS-HE is: {percent_error(total_energy_production_HE.value, total_energy_production.value)} %\")"
+    "print(\n",
+    "    f\"The total energy production from TARDIS-HE is: {total_energy_production_HE}\"\n",
+    ")\n",
+    "print(\n",
+    "    f\"The percent error for total energy production from TARDIS-HE is: {percent_error(total_energy_production_HE.value, total_energy_production.value)} %\"\n",
+    ")"
    ]
   }
  ],

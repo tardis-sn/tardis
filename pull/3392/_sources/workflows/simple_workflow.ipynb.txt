@@ -28,6 +28,7 @@
    "outputs": [],
    "source": [
     "import matplotlib.pyplot as plt\n",
+    "\n",
     "from tardis.io.configuration.config_reader import Configuration\n",
     "from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow"
    ]
@@ -38,7 +39,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "config = Configuration.from_yaml('../tardis_example.yml')"
+    "config = Configuration.from_yaml(\"../tardis_example.yml\")"
    ]
   },
   {
@@ -81,7 +82,7 @@
     "\n",
     "spectrum.plot(label=\"Normal packets\")\n",
     "spectrum_virtual.plot(label=\"Virtual packets\")\n",
-    "spectrum_integrated.plot(label='Formal integral')\n",
+    "spectrum_integrated.plot(label=\"Formal integral\")\n",
     "\n",
     "plt.xlim(500, 9000)\n",
     "plt.title(\"TARDIS example model spectrum\")\n",

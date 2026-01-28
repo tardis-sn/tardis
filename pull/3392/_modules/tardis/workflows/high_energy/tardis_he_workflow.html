@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -163,9 +163,10 @@ logging.basicConfig(level=logging.INFO)
 <a class="viewcode-back" href="../../../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow">[docs]</a>
 class TARDISHEWorkflow:
     def __init__(self, atom_data, configuration, config_type=&quot;yaml&quot;):
-
         if config_type == &quot;csvy&quot;:
-            self.simulation_state = SimulationState.from_csvy(configuration, atom_data)
+            self.simulation_state = SimulationState.from_csvy(
+                configuration, atom_data
+            )
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration, atom_data
@@ -173,7 +174,9 @@ class TARDISHEWorkflow:
 
         self.gamma_ray_lines = atom_data.decay_radiation_data
 
-        self.shell_masses = self.simulation_state.volume * self.simulation_state.density
+        self.shell_masses = (
+            self.simulation_state.volume * self.simulation_state.density
+        )
 
         self.isotopic_mass_fraction = (
             self.simulation_state.composition.isotopic_mass_fraction
@@ -199,10 +202,14 @@ class TARDISHEWorkflow:
             A dataframe containing the total number of decays for each isotope
             in the simulation state between t_start and t_end for each shell.
         &quot;&quot;&quot;
-        isotopes = create_isotope_dicts(self.isotopic_mass_fraction, self.shell_masses)
+        isotopes = create_isotope_dicts(
+            self.isotopic_mass_fraction, self.shell_masses
+        )
         inventories = create_inventories_dict(isotopes)
 
-        total_decays = calculate_total_decays(inventories, time_end - time_start)
+        total_decays = calculate_total_decays(
+            inventories, time_end - time_start
+        )
 
         return total_decays</div>
 
@@ -249,7 +256,10 @@ class TARDISHEWorkflow:
             each shell for all time steps between t_start and t_end.
         &quot;&quot;&quot;
         return time_evolve_cumulative_decay(
-            self.isotopic_mass_fraction, self.shell_masses, self.gamma_ray_lines, times
+            self.isotopic_mass_fraction,
+            self.shell_masses,
+            self.gamma_ray_lines,
+            times,
         )</div>
 
 
@@ -275,7 +285,9 @@ class TARDISHEWorkflow:
         times : array
             An array of times in days.
         &quot;&quot;&quot;
-        return get_effective_time_array(time_start, time_end, time_space, time_steps)</div>
+        return get_effective_time_array(
+            time_start, time_end, time_space, time_steps
+        )</div>
 
 
 <div class="viewcode-block" id="TARDISHEWorkflow.run">
@@ -366,7 +378,6 @@ class TARDISHEWorkflow:
 <a class="viewcode-back" href="../../../../api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult">[docs]</a>
 @dataclass
 class TARDISHEWorkflowResult(HDFWriterMixin):
-
     hdf_properties = [
         &quot;decay_radiation&quot;,
         &quot;escape_energy&quot;,
@@ -395,7 +406,7 @@ class TARDISHEWorkflowResult(HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

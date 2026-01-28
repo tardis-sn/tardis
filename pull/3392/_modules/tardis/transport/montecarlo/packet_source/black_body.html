@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,9 +136,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.transport.montecarlo.packet_source.black_body</h1><div class="highlight"><pre>
-<span></span>
-
-from typing import Any
+<span></span>from typing import Any
 
 import numexpr as ne
 import numpy as np
@@ -237,7 +235,9 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
 <div class="viewcode-block" id="BlackBodySimpleSource.create_packets">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packet_source.black_body.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.create_packets">[docs]</a>
-    def create_packets(self, no_of_packets: int, *args: Any, **kwargs: Any) -&gt; PacketCollection:
+    def create_packets(
+        self, no_of_packets: int, *args: Any, **kwargs: Any
+    ) -&gt; PacketCollection:
         &quot;&quot;&quot;
         Create packet collection.
 
@@ -288,7 +288,9 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
 <div class="viewcode-block" id="BlackBodySimpleSource.create_packet_nus">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.packet_source.black_body.html#tardis.transport.montecarlo.packet_source.BlackBodySimpleSource.create_packet_nus">[docs]</a>
-    def create_packet_nus(self, no_of_packets: int, l_samples: int = 1000) -&gt; u.Quantity:
+    def create_packet_nus(
+        self, no_of_packets: int, l_samples: int = 1000
+    ) -&gt; u.Quantity:
         &quot;&quot;&quot;
         Create packet :math:`\\nu` distributed using the algorithm described in
         Bjorkman &amp; Wood 2001 (page 4) which references
@@ -394,8 +396,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
             Total luminosity to match.
         &quot;&quot;&quot;
         self.temperature = (
-            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
-            ** 0.25
+            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb)) ** 0.25
         ).to(&quot;K&quot;)</div>
 </div>
 
@@ -409,7 +410,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

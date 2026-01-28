@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -137,16 +137,12 @@
              
   <h1>Source code for tardis.energy_input.main_gamma_ray_loop</h1><div class="highlight"><pre>
 <span></span>import logging
-from typing import Optional
 
 import astropy.units as u
 import numpy as np
 import pandas as pd
 
-from tardis.transport.montecarlo.packet_source.high_energy import (
-    GammaRayPacketSource,
-    legacy_calculate_positron_fraction,
-)
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.energy_input.gamma_ray_transport import (
     calculate_ejecta_velocity_volume,
     iron_group_fraction_per_shell,
@@ -155,7 +151,10 @@ from tardis.energy_input.transport.gamma_packet_loop import gamma_packet_loop
 from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import get_index
 from tardis.model.base import SimulationState
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.transport.montecarlo.packet_source.high_energy import (
+    GammaRayPacketSource,
+    legacy_calculate_positron_fraction,
+)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -168,7 +167,7 @@ def calculate_electron_number_density(
     ejecta_volume: np.ndarray,
     effective_time_array: np.ndarray,
     legacy: bool = False,
-    legacy_atom_data: Optional[object] = None,
+    legacy_atom_data: object | None = None,
 ) -&gt; np.ndarray:
     &quot;&quot;&quot;
     Calculate electron number density and its time evolution.
@@ -601,7 +600,7 @@ def get_packet_properties(number_of_shells, times, time_steps, packets):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

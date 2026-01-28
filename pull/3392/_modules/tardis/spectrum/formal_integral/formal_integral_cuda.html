@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -137,13 +137,14 @@
              
   <h1>Source code for tardis.spectrum.formal_integral.formal_integral_cuda</h1><div class="highlight"><pre>
 <span></span>import math
+
 import numpy as np
 from numba import cuda
 
 from tardis.spectrum.formal_integral.base import (
     C_INV,
-    KB_CGS,
     H_CGS,
+    KB_CGS,
     calculate_impact_parameters,
 )
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
@@ -242,8 +243,7 @@ def calculate_intersection_point_cuda(
             * C_INV
             * inverse_time_explosion
         )
-    else:
-        return 0.0</div>
+    return 0.0</div>
 
 
 
@@ -289,27 +289,26 @@ def populate_intersection_points_cuda(
             )
             oshell_id[i] = i
         return N
-    else:
-        # no intersection with photosphere
-        # that means we intersect each shell twice
-        for i in range(N):
-            intersection_point = calculate_intersection_point_cuda(
-                radii_outer[i], impact_parameter, inverse_time_explosion
-            )
-            if intersection_point == 0:
-                continue
-            if offset == N:
-                offset = i
-            # calculate the index in the resulting array
-            i_low = N - i - 1  # the far intersection with the shell
-            i_up = N + i - 2 * offset  # the nearer intersection with the shell
+    # no intersection with photosphere
+    # that means we intersect each shell twice
+    for i in range(N):
+        intersection_point = calculate_intersection_point_cuda(
+            radii_outer[i], impact_parameter, inverse_time_explosion
+        )
+        if intersection_point == 0:
+            continue
+        if offset == N:
+            offset = i
+        # calculate the index in the resulting array
+        i_low = N - i - 1  # the far intersection with the shell
+        i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
-            # setting the arrays
-            oz[i_low] = 1 + intersection_point
-            oshell_id[i_low] = i
-            oz[i_up] = 1 - intersection_point
-            oshell_id[i_up] = i
-        return 2 * (N - offset)</div>
+        # setting the arrays
+        oz[i_low] = 1 + intersection_point
+        oshell_id[i_low] = i
+        oz[i_up] = 1 - intersection_point
+        oshell_id[i_up] = i
+    return 2 * (N - offset)</div>
 
 
 
@@ -803,7 +802,7 @@ class CudaFormalIntegrator:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,14 +136,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.spectrum.formal_integral.base</h1><div class="highlight"><pre>
-<span></span>import numpy as np
-from scipy.interpolate import interp1d
-import scipy.sparse as sp
-import scipy.sparse.linalg as linalg
+<span></span>import warnings
 
-import warnings
+import numpy as np
 
-from tardis import constants as const
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 C_INV = 3.33564e-11
@@ -168,7 +164,9 @@ class IntegrationError(Exception):
 
 <div class="viewcode-block" id="check_formal_integral_requirements">
 <a class="viewcode-back" href="../../../../api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.check_formal_integral_requirements">[docs]</a>
-def check_formal_integral_requirements(simulation_state, opacity_state, transport, raises=True):
+def check_formal_integral_requirements(
+    simulation_state, opacity_state, transport, raises=True
+):
     &quot;&quot;&quot;
     A method that determines if the formal integral can be performed with
     the current configuration settings
@@ -197,9 +195,8 @@ def check_formal_integral_requirements(simulation_state, opacity_state, transpor
     def raise_or_return(message):
         if raises:
             raise IntegrationError(message)
-        else:
-            warnings.warn(message)
-            return False
+        warnings.warn(message)
+        return False
 
     for obj in (simulation_state, opacity_state, transport):
         if obj is None:
@@ -246,7 +243,11 @@ def calculate_impact_parameters(radius_max, n_impact_parameters):
     -------
     float64
     &quot;&quot;&quot;
-    return np.arange(n_impact_parameters).astype(np.float64) * radius_max / (n_impact_parameters - 1)</div>
+    return (
+        np.arange(n_impact_parameters).astype(np.float64)
+        * radius_max
+        / (n_impact_parameters - 1)
+    )</div>
 
 
 
@@ -269,7 +270,13 @@ def intensity_black_body(frequency, temperature):
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * frequency * frequency * frequency / (np.exp(H_CGS * frequency * beta_rad) - 1)</div>
+    return (
+        coefficient
+        * frequency
+        * frequency
+        * frequency
+        / (np.exp(H_CGS * frequency * beta_rad) - 1)
+    )</div>
 
 </pre></div>
 
@@ -281,7 +288,7 @@ def intensity_black_body(frequency, temperature):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

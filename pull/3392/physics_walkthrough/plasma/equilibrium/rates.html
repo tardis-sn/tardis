@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -194,7 +194,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.radiation_field</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">PlanckianRadiationField</span><span class="p">,</span>
 <span class="p">)</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
@@ -222,8 +222,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#atom_data = AtomData.from_hdf(&#39;kurucz_cd23_chianti_H_He_latest.h5&#39;)</span>
-<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s1">&#39;TestNLTE_He_Ti.h5&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># atom_data = AtomData.from_hdf(&#39;kurucz_cd23_chianti_H_He_latest.h5&#39;)</span>
+<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s2">&quot;TestNLTE_He_Ti.h5&quot;</span><span class="p">)</span>
 <span class="n">lines_df</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">lines</span>
 </pre></div>
 </div>
@@ -267,7 +267,7 @@ array([   2000,    5000,   10000,   20000,   50000,  100000,  200000,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">radiative_transitions</span> <span class="o">=</span> <span class="n">lines_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">radiative_transitions</span> <span class="o">=</span> <span class="n">lines_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
 </pre></div>
 </div>
 </div>
@@ -490,7 +490,7 @@ array([   2000,    5000,   10000,   20000,   50000,  100000,  200000,
 <span class="n">rad_field</span> <span class="o">=</span> <span class="n">PlanckianRadiationField</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">)</span>
 
 <span class="n">rad_rate_solver</span> <span class="o">=</span> <span class="n">RadiativeRatesSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">)</span>
-<br/><br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -835,7 +835,7 @@ array([   2000,    5000,   10000,   20000,   50000,  100000,  200000,
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">col_strength_solver</span> <span class="o">=</span> <span class="n">UpsilonRegemorterSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">)</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -851,8 +851,10 @@ array([   2000,    5000,   10000,   20000,   50000,  100000,  200000,
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">col_strength_temperatures</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data_temperatures</span>
-<span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">yg_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
-<span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s1">&#39;cmfgen&#39;</span><span class="p">)</span>
+<span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">yg_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
+<span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span>
+    <span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s2">&quot;cmfgen&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1005,7 +1007,7 @@ Name: delta_e, Length: 358, dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">nu</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">nu</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Hz</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">J</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1080,7 +1082,9 @@ Name: delta_e, Length: 358, dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">collisional_transitions</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">collisional_transitions</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)),</span> <span class="p">:</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1126,7 +1130,7 @@ MultiIndex([(2, 0, 0,  1),
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">collisional_transitions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">collisional_transitions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1185,7 +1189,7 @@ Name: (2, 0, 0, 1), dtype: float64
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

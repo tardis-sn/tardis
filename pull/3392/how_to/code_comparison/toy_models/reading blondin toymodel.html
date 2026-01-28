@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -194,21 +194,18 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_tardis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTML</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_blondin_toymodel</span><span class="p">,</span> <span class="n">convert_blondin_toymodel</span>
-<br/></pre></div>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_tardis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_blondin_toymodel</span><span class="p">,</span> <span class="n">read_blondin_toymodel</span>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -224,30 +221,36 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_df_download_link</span><span class="p">(</span> <span class="n">df</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Download CSV file&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;data.csv&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">type</span> <span class="o">!=</span> <span class="s1">&#39;zip&#39;</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_df_download_link</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Download CSV file&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;data.csv&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">!=</span> <span class="s2">&quot;zip&quot;</span><span class="p">:</span>
         <span class="n">csv</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">()</span>
         <span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">b64</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
     <span class="n">html</span> <span class="o">=</span> <span class="s1">&#39;&lt;a download=&quot;</span><span class="si">{filename}</span><span class="s1">&quot; href=&quot;data:text/csv;base64,</span><span class="si">{payload}</span><span class="s1">&quot; target=&quot;_blank&quot;&gt;</span><span class="si">{title}</span><span class="s1">&lt;/a&gt;&#39;</span>
-    <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">create_download_link</span><span class="p">(</span><span class="n">download_data</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Download CSV file&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;data.csv&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;zip&#39;</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">type</span> <span class="o">!=</span> <span class="s1">&#39;zip&#39;</span><span class="p">:</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">create_download_link</span><span class="p">(</span>
+    <span class="n">download_data</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Download CSV file&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;data.csv&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">!=</span> <span class="s2">&quot;zip&quot;</span><span class="p">:</span>
         <span class="n">csv</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">()</span>
         <span class="n">b64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">csv</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">b64</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
     <span class="n">html</span> <span class="o">=</span> <span class="s1">&#39;&lt;a download=&quot;</span><span class="si">{filename}</span><span class="s1">&quot; href=&quot;data:text/csv;base64,</span><span class="si">{payload}</span><span class="s1">&quot; target=&quot;_blank&quot;&gt;</span><span class="si">{title}</span><span class="s1">&lt;/a&gt;&#39;</span>
-    <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">HTML</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
 
-<span class="n">pattern_remove_bracket</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;\[.+\]&#39;</span><span class="p">)</span>
-<span class="n">t0_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;tend = (.+)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">pattern_remove_bracket</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[.+\]&quot;</span><span class="p">)</span>
+<span class="n">t0_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;tend = (.+)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -257,7 +260,13 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">convert_blondin_toymodel</span><span class="p">(</span><span class="s1">&#39;snia_toy01.dat&#39;</span><span class="p">,</span> <span class="s1">&#39;snia_toy01.test.csvy&#39;</span><span class="p">,</span> <span class="mi">9000</span><span class="p">,</span> <span class="mi">30000</span><span class="p">,</span> <span class="n">conversion_t_electron_rad</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mf">0.9</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">convert_blondin_toymodel</span><span class="p">(</span>
+    <span class="s2">&quot;snia_toy01.dat&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;snia_toy01.test.csvy&quot;</span><span class="p">,</span>
+    <span class="mi">9000</span><span class="p">,</span>
+    <span class="mi">30000</span><span class="p">,</span>
+    <span class="n">conversion_t_electron_rad</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">0.9</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -273,8 +282,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blondin_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;9000 km/s&#39;</span>
-<span class="n">blondin_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;20000 km/s&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blondin_dict</span><span class="p">[</span><span class="s2">&quot;v_inner_boundary&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;9000 km/s&quot;</span>
+<span class="n">blondin_dict</span><span class="p">[</span><span class="s2">&quot;v_outer_boundary&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;20000 km/s&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -282,7 +291,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">csvy_file</span> <span class="o">=</span> <span class="s1">&#39;---</span><span class="se">\n</span><span class="si">{0}</span><span class="se">\n</span><span class="s1">---</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">blondin_dict</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">blondin_csv</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">csvy_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="si">{</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">blondin_dict</span><span class="p">,</span><span class="w"> </span><span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="si">{</span><span class="n">blondin_csv</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -290,7 +299,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;blondin_compare_01.csvy&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;blondin_compare_01.csvy&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
     <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">csvy_file</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -306,7 +315,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">run_tardis</span><span class="p">(</span><span class="s1">&#39;blondin_model_compare_01.yml&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">run_tardis</span><span class="p">(</span><span class="s2">&quot;blondin_model_compare_01.yml&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1880,10 +1889,17 @@ https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spectrum</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">frequency</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">])</span>
-<span class="n">spectrum</span><span class="p">[</span><span class="s1">&#39;luminosity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">luminosity_density_nu</span><span class="o">.</span><span class="n">value</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spectrum</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">frequency</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">spectrum</span><span class="p">[</span><span class="s2">&quot;luminosity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">luminosity_density_nu</span><span class="o">.</span><span class="n">value</span>
+<span class="p">)</span>
 
-<span class="n">create_df_download_link</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Download Spectrum&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;spectrum.csv&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span>
+<span class="n">create_df_download_link</span><span class="p">(</span>
+    <span class="n">spectrum</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Download Spectrum&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;spectrum.csv&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1898,7 +1914,7 @@ https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spec_artis_toy</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;spec_artis_toy.csv&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spec_artis_toy</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;spec_artis_toy.csv&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1908,12 +1924,20 @@ https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pylab</span> notebook
 
-<span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">luminosity_density_nu</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TARDIS&#39;</span><span class="p">)</span>
-<span class="c1">#plot(sim.transport.spectrum_integrated.wavelength, sim.transport.spectrum_integrated.luminosity_density_lambda)</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">spec_artis_toy</span><span class="p">[</span><span class="s1">&#39;nu&#39;</span><span class="p">],</span> <span class="n">spec_artis_toy</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">53</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mpc</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ARTIS&#39;</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">luminosity_density_nu</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># plot(sim.transport.spectrum_integrated.wavelength, sim.transport.spectrum_integrated.luminosity_density_lambda)</span>
+<span class="n">plot</span><span class="p">(</span>
+    <span class="n">spec_artis_toy</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">],</span>
+    <span class="n">spec_artis_toy</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">53</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mpc</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ARTIS&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">legend</span><span class="p">()</span>
 <span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1e15</span><span class="p">)</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
@@ -2729,7 +2753,7 @@ if (IPython.notebook.kernel != null) {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blondin_dict</span><span class="p">,</span> <span class="n">blondin_csv</span> <span class="o">=</span> <span class="n">read_blondin_toymodel</span><span class="p">(</span><span class="s1">&#39;snia_toy06.dat&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blondin_dict</span><span class="p">,</span> <span class="n">blondin_csv</span> <span class="o">=</span> <span class="n">read_blondin_toymodel</span><span class="p">(</span><span class="s2">&quot;snia_toy06.dat&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2737,8 +2761,8 @@ if (IPython.notebook.kernel != null) {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blondin_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;9000 km/s&#39;</span>
-<span class="n">blondin_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;20000 km/s&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blondin_dict</span><span class="p">[</span><span class="s2">&quot;v_inner_boundary&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;9000 km/s&quot;</span>
+<span class="n">blondin_dict</span><span class="p">[</span><span class="s2">&quot;v_outer_boundary&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;20000 km/s&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -2746,7 +2770,7 @@ if (IPython.notebook.kernel != null) {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">csvy_file</span> <span class="o">=</span> <span class="s1">&#39;---</span><span class="se">\n</span><span class="si">{0}</span><span class="se">\n</span><span class="s1">---</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">blondin_dict</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">blondin_csv</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">csvy_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="si">{</span><span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">blondin_dict</span><span class="p">,</span><span class="w"> </span><span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="si">{</span><span class="n">blondin_csv</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -2757,7 +2781,7 @@ if (IPython.notebook.kernel != null) {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;blondin_compare_06.csvy&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;blondin_compare_06.csvy&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
     <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">csvy_file</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -2766,7 +2790,7 @@ if (IPython.notebook.kernel != null) {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">run_tardis</span><span class="p">(</span><span class="s1">&#39;blondin_model_compare_06.yml&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">run_tardis</span><span class="p">(</span><span class="s2">&quot;blondin_model_compare_06.yml&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -4329,10 +4353,17 @@ https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spectrum</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">frequency</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">])</span>
-<span class="n">spectrum</span><span class="p">[</span><span class="s1">&#39;luminosity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">luminosity_density_nu</span><span class="o">.</span><span class="n">value</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spectrum</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">frequency</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;frequency&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">spectrum</span><span class="p">[</span><span class="s2">&quot;luminosity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">spectrum_integrated</span><span class="o">.</span><span class="n">luminosity_density_nu</span><span class="o">.</span><span class="n">value</span>
+<span class="p">)</span>
 
-<span class="n">create_df_download_link</span><span class="p">(</span><span class="n">spectrum</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Download Spectrum&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;spectrum.csv&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span>
+<span class="n">create_df_download_link</span><span class="p">(</span>
+    <span class="n">spectrum</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Download Spectrum&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;spectrum.csv&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -5921,7 +5952,7 @@ https://pandas.pydata.org/pandas-docs/stable/indexing.html#deprecate-loc-reindex
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

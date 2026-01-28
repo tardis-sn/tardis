@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -211,18 +211,18 @@
 <span class="n">abundance_filename</span> <span class="o">=</span> <span class="n">artis_data_dir</span> <span class="o">/</span> <span class="s2">&quot;artis_abundances.dat&quot;</span>
 
 <span class="c1"># Option 1: Read separately (use legacy_return=False to get isotope mass fractions as well)</span>
-<span class="n">time_of_model</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">mean_density</span><span class="p">,</span> <span class="n">isotope_mass_fractions</span> <span class="o">=</span> <span class="n">read_artis_density</span><span class="p">(</span>
-    <span class="n">density_filename</span><span class="p">,</span> <span class="n">legacy_return</span><span class="o">=</span><span class="kc">False</span>
+<span class="n">time_of_model</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">mean_density</span><span class="p">,</span> <span class="n">isotope_mass_fractions</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">read_artis_density</span><span class="p">(</span><span class="n">density_filename</span><span class="p">,</span> <span class="n">legacy_return</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="n">mass_fractions_df</span> <span class="o">=</span> <span class="n">read_artis_mass_fractions</span><span class="p">(</span><span class="n">abundance_filename</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time of model:&#39;</span><span class="p">,</span> <span class="n">time_of_model</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Velocity shape:&#39;</span><span class="p">,</span> <span class="n">velocity</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Mean density shape:&#39;</span><span class="p">,</span> <span class="n">mean_density</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Isotope mass fractions (from artis_model.dat):&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time of model:&quot;</span><span class="p">,</span> <span class="n">time_of_model</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Velocity shape:&quot;</span><span class="p">,</span> <span class="n">velocity</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mean density shape:&quot;</span><span class="p">,</span> <span class="n">mean_density</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Isotope mass fractions (from artis_model.dat):&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">isotope_mass_fractions</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Elemental mass fractions (from artis_abundances.dat):&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Elemental mass fractions (from artis_abundances.dat):&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">mass_fractions_df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -705,7 +705,7 @@ time_explosion = 99.067104 s
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

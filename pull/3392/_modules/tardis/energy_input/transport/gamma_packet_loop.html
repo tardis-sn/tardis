@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -275,7 +275,8 @@ def gamma_packet_loop(
                 # artis threshold for Thomson scattering
                 if kappa &lt; 1e-2:
                     compton_opacity = (
-                        SIGMA_T * electron_number_density_time[packet.shell, time_index]
+                        SIGMA_T
+                        * electron_number_density_time[packet.shell, time_index]
                     )
                 else:
                     compton_opacity = compton_opacity_calculation(
@@ -289,10 +290,12 @@ def gamma_packet_loop(
                     photoabsorption_opacity = 0
                     # photoabsorption_opacity_calculation_kasen()
                 elif photoabsorption_opacity_type == &quot;tardis&quot;:
-                    photoabsorption_opacity = photoabsorption_opacity_calculation(
-                        comoving_energy,
-                        mass_density_time[packet.shell, time_index],
-                        iron_group_fraction_per_shell[packet.shell],
+                    photoabsorption_opacity = (
+                        photoabsorption_opacity_calculation(
+                            comoving_energy,
+                            mass_density_time[packet.shell, time_index],
+                            iron_group_fraction_per_shell[packet.shell],
+                        )
                     )
                 else:
                     raise ValueError(&quot;Invalid photoabsorption opacity type!&quot;)
@@ -320,7 +323,9 @@ def gamma_packet_loop(
 
             # convert opacities to rest frame
             total_opacity = (
-                compton_opacity + photoabsorption_opacity + pair_creation_opacity
+                compton_opacity
+                + photoabsorption_opacity
+                + pair_creation_opacity
             ) * doppler_factor
 
             packet.tau = -np.log(np.random.random())
@@ -339,7 +344,9 @@ def gamma_packet_loop(
                 times[time_index + 1],
             )
 
-            distance = min(distance_interaction, distance_boundary, distance_time)
+            distance = min(
+                distance_interaction, distance_boundary, distance_time
+            )
 
             packet.time_start += distance / C_CGS
 
@@ -367,7 +374,9 @@ def gamma_packet_loop(
                 packet, ejecta_energy_gained = process_packet_path(packet)
 
                 # Ejecta gains energy from the packets (gamma-rays)
-                energy_deposited_gamma[packet.shell, time_index] += ejecta_energy_gained
+                energy_deposited_gamma[packet.shell, time_index] += (
+                    ejecta_energy_gained
+                )
                 # Ejecta gains energy from both gamma-rays and positrons
                 total_energy[packet.shell, time_index] += ejecta_energy_gained
 
@@ -383,7 +392,9 @@ def gamma_packet_loop(
                 if packet.shell &gt; len(mass_density_time[:, 0]) - 1:
                     rest_energy = packet.nu_rf * H_CGS_KEV
                     bin_index = get_index(rest_energy, energy_bins)
-                    bin_width = energy_bins[bin_index + 1] - energy_bins[bin_index]
+                    bin_width = (
+                        energy_bins[bin_index + 1] - energy_bins[bin_index]
+                    )
                     freq_bin_width = bin_width / H_CGS_KEV
 
                     # get energy out in ergs per second per keV
@@ -496,7 +507,7 @@ def process_packet_path(packet):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

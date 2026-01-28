@@ -13,8 +13,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "from tardis.visualization import plot_util as pu\n",
-    "from astropy import units as u"
+    "from astropy import units as u\n",
+    "\n",
+    "from tardis.visualization import plot_util as pu"
    ]
   },
   {
@@ -104,10 +105,7 @@
    "source": [
     "from tardis import run_tardis\n",
     "\n",
-    "sim = run_tardis(\n",
-    "    \"tardis_example.yml\",\n",
-    "    log_level=\"ERROR\"\n",
-    ")"
+    "sim = run_tardis(\"tardis_example.yml\", log_level=\"ERROR\")"
    ]
   },
   {
@@ -210,7 +208,9 @@
     "# Create a new figure with specified dimensions\n",
     "plt.figure(figsize=(10, 6.5))\n",
     "\n",
-    "spectrum_integrated.plot(label=\"Formal integral\")  # Plot spectrum from formal integral solution\n",
+    "spectrum_integrated.plot(\n",
+    "    label=\"Formal integral\"\n",
+    ")  # Plot spectrum from formal integral solution\n",
     "\n",
     "xlabel = pu.axis_label_in_latex(\"Wavelength\", u.AA)\n",
     "ylabel = pu.axis_label_in_latex(\n",
@@ -222,7 +222,7 @@
     "plt.xlabel(xlabel)\n",
     "plt.ylabel(ylabel)\n",
     "plt.legend()\n",
-    "plt.show()\n"
+    "plt.show()"
    ]
   },
   {
@@ -256,7 +256,7 @@
     "        x=sim.spectrum_solver.spectrum_virtual_packets.wavelength,\n",
     "        y=sim.spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda,\n",
     "        mode=\"lines\",\n",
-    "        name=\"Spectrum\"\n",
+    "        name=\"Spectrum\",\n",
     "    )\n",
     ")\n",
     "\n",
@@ -271,7 +271,7 @@
     "    yaxis_title=ylabel,\n",
     "    xaxis_range=[500, 9000],\n",
     "    showlegend=True,\n",
-    "    template=\"plotly_white\"\n",
+    "    template=\"plotly_white\",\n",
     ")\n",
     "\n",
     "# Display the plot\n",

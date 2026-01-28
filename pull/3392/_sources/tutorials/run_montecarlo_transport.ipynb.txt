@@ -19,7 +19,10 @@
    "source": [
     "from numba import config as nconfig\n",
     "\n",
-    "from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import generate_tracker_last_interaction_list, trackers_last_interaction_to_df\n",
+    "from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (\n",
+    "    generate_tracker_last_interaction_list,\n",
+    "    trackers_last_interaction_to_df,\n",
+    ")\n",
     "\n",
     "nconfig.DISABLE_JIT = False\n",
     "\n",
@@ -44,8 +47,11 @@
     "    tracker_full_df2tracker_last_interaction_df,\n",
     "    trackers_full_to_df,\n",
     ")\n",
+    "\n",
     "# Import TrackerFullSolver and TrackerFullState from tardis.transport.montecarlo.packets.trackers.tracker_full_solver\n",
-    "from tardis.transport.montecarlo.packets.trackers.tracker_full_solver import TrackerFullSolver, TrackerFullState"
+    "from tardis.transport.montecarlo.packets.trackers.tracker_full_solver import (\n",
+    "    TrackerFullSolver,\n",
+    ")"
    ]
   },
   {

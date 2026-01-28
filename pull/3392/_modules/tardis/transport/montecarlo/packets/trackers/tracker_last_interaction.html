@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -204,7 +204,9 @@ class TrackerLastInteraction:
         &quot;&quot;&quot;
         self.radius = float(&quot;nan&quot;)
         self.nu = float(&quot;nan&quot;)
-        self.mu = float(&quot;nan&quot;)  # MISSING INITIALIZATION - this was causing JIT vs non-JIT differences!
+        self.mu = float(
+            &quot;nan&quot;
+        )  # MISSING INITIALIZATION - this was causing JIT vs non-JIT differences!
         self.energy = float(&quot;nan&quot;)
         self.shell_id = -1
         self.interaction_type = -1
@@ -264,7 +266,9 @@ class TrackerLastInteraction:
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = InteractionType.LINE  # Set interaction type directly
+        self.interaction_type = (
+            InteractionType.LINE
+        )  # Set interaction type directly
 
     def track_escattering_interaction_before(self, r_packet) -&gt; None:
         &quot;&quot;&quot;
@@ -300,7 +304,9 @@ class TrackerLastInteraction:
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = InteractionType.ESCATTERING  # Set interaction type directly
+        self.interaction_type = (
+            InteractionType.ESCATTERING
+        )  # Set interaction type directly
 
     def track_continuum_interaction_before(self, r_packet) -&gt; None:
         &quot;&quot;&quot;
@@ -336,7 +342,9 @@ class TrackerLastInteraction:
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = InteractionType.CONTINUUM_PROCESS  # Set interaction type directly
+        self.interaction_type = (
+            InteractionType.CONTINUUM_PROCESS
+        )  # Set interaction type directly
 
     def track_boundary_event(
         self, r_packet, from_shell_id=-1, to_shell_id=-1
@@ -371,7 +379,6 @@ class TrackerLastInteraction:
         &quot;&quot;&quot;
         return self.interactions_count
 
-
     def finalize(self) -&gt; None:
         &quot;&quot;&quot;
         Finalize tracker to match the common tracker API.
@@ -380,7 +387,6 @@ class TrackerLastInteraction:
         to trim or consolidate. This method exists for interface compatibility
         with TrackerFull and is a no-op.
         &quot;&quot;&quot;
-        pass
 
     def _pop_boundary_interactions_buffer(self) -&gt; nb.int64:  # type: ignore[misc]
         &quot;&quot;&quot;
@@ -393,8 +399,6 @@ class TrackerLastInteraction:
         self._boundary_interactions_buffer = 0
         return current_buffer_value</div>
 
-
-
 </pre></div>
 
            </div>
@@ -405,7 +409,7 @@ class TrackerLastInteraction:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -141,6 +141,7 @@
 import asyncio
 import logging
 import re
+
 import panel as pn
 
 logger = logging.getLogger(__name__)
@@ -172,8 +173,10 @@ class PanelTableWidget:
     def _create_table(self):
         &quot;&quot;&quot;Create the Panel table widget.&quot;&quot;&quot;
         # Configure table parameters
-        pagination = &#39;remote&#39; if self.table_options.get(&#39;maxVisibleRows&#39;) else None
-        page_size = self.table_options.get(&#39;maxVisibleRows&#39;, len(self._df))
+        pagination = (
+            &quot;remote&quot; if self.table_options.get(&quot;maxVisibleRows&quot;) else None
+        )
+        page_size = self.table_options.get(&quot;maxVisibleRows&quot;, len(self._df))
 
         # Create the table
         self.table = pn.widgets.Tabulator(
@@ -182,17 +185,17 @@ class PanelTableWidget:
             page_size=page_size,
             selectable=True,  # Single row selection (radio button style)
             show_index=True,
-            sizing_mode=&#39;stretch_width&#39;,
+            sizing_mode=&quot;stretch_width&quot;,
             height=min(400, max(200, len(self._df) * 30 + 50)),
             disabled=True,  # Make cells non-editable
             configuration={
-                &#39;selectable&#39;: &#39;highlight&#39;,  # Make entire row selectable/highlightable
-                &#39;selectableRangeMode&#39;: &#39;click&#39;,  # Allow clicking anywhere on row to select
-            }
+                &quot;selectable&quot;: &quot;highlight&quot;,  # Make entire row selectable/highlightable
+                &quot;selectableRangeMode&quot;: &quot;click&quot;,  # Allow clicking anywhere on row to select
+            },
         )
 
         # Set up selection callback
-        self.table.param.watch(self._on_selection_change, &#39;selection&#39;)
+        self.table.param.watch(self._on_selection_change, &quot;selection&quot;)
 
     def _on_selection_change(self, event):
         &quot;&quot;&quot;Handle selection changes in the table.&quot;&quot;&quot;
@@ -211,9 +214,11 @@ class PanelTableWidget:
         for callback in self._selection_callbacks:
             # Create event dict similar to qgrid format
             event_dict = {
-                &#39;new&#39;: selected_indices,
-                &#39;old&#39;: [int(i) for i in getattr(event, &#39;old&#39;, [])] if hasattr(event, &#39;old&#39;) and event.old else [],
-                &#39;source&#39;: &#39;user&#39;
+                &quot;new&quot;: selected_indices,
+                &quot;old&quot;: [int(i) for i in getattr(event, &quot;old&quot;, [])]
+                if hasattr(event, &quot;old&quot;) and event.old
+                else [],
+                &quot;source&quot;: &quot;user&quot;,
             }
             callback(event_dict, self)
 
@@ -244,11 +249,17 @@ class PanelTableWidget:
             self._selected_rows = []
         else:
             # For single selection, only take the first index value
-            idx_val = index_values[0] if isinstance(index_values, list) else index_values
+            idx_val = (
+                index_values[0]
+                if isinstance(index_values, list)
+                else index_values
+            )
             try:
                 row_pos = self._df.index.get_loc(idx_val)
                 row_position = int(row_pos)  # Convert to Python int
-                self.table.selection = [row_position]  # Panel expects a list even for single selection
+                self.table.selection = [
+                    row_position
+                ]  # Panel expects a list even for single selection
                 self._selected_rows = [row_position]
             except (KeyError, TypeError) as e:
                 print(f&quot;Error selecting index {idx_val}: {e}&quot;)
@@ -260,7 +271,7 @@ class PanelTableWidget:
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.custom_abundance.PanelTableWidget.on">[docs]</a>
     def on(self, event_type, callback):
         &quot;&quot;&quot;Register an event callback.&quot;&quot;&quot;
-        if event_type == &#39;selection_changed&#39;:
+        if event_type == &quot;selection_changed&quot;:
             self._selection_callbacks.append(callback)</div>
 
 
@@ -364,7 +375,11 @@ class TableSummaryLabel:
             Value to be shown in label
         &quot;&quot;&quot;
         # Update the value component with new value
-        self.widget[1].object = f&quot;&lt;div style=&#39;padding:0px 2px; margin:0px;&#39;&gt;{str(value)}&lt;/div&gt;&quot;</div>
+        self.widget[
+            1
+        ].object = (
+            f&quot;&lt;div style=&#39;padding:0px 2px; margin:0px;&#39;&gt;{str(value)}&lt;/div&gt;&quot;
+        )</div>
 
 
         # For Panel components, sizing is handled automatically with sizing_mode=&#39;stretch_width&#39;
@@ -383,7 +398,7 @@ class TableSummaryLabel:
         &quot;&quot;&quot;
         # Extract value from HTML content
         html_content = self.widget[1].object
-        match = re.search(r&#39;&lt;div[^&gt;]*&gt;([^&lt;]*)&lt;/div&gt;&#39;, html_content)
+        match = re.search(r&quot;&lt;div[^&gt;]*&gt;([^&lt;]*)&lt;/div&gt;&quot;, html_content)
         if match:
             return match.group(1)
         return &quot;0&quot;</div>
@@ -408,18 +423,16 @@ class TableSummaryLabel:
         # Create Panel HTML components with styling
         key_component = pn.pane.HTML(
             f&quot;&lt;div style=&#39;text-align:right; padding:0px 2px; margin:0px;&#39;&gt; &lt;b&gt;{key}:&lt;/b&gt; &lt;/div&gt;&quot;,
-            sizing_mode=&#39;stretch_width&#39;
+            sizing_mode=&quot;stretch_width&quot;,
         )
 
         value_component = pn.pane.HTML(
             f&quot;&lt;div style=&#39;padding:0px 2px; margin:0px;&#39;&gt;{str(value)}&lt;/div&gt;&quot;,
-            sizing_mode=&#39;stretch_width&#39;
+            sizing_mode=&quot;stretch_width&quot;,
         )
 
         return pn.Row(
-            key_component,
-            value_component,
-            sizing_mode=&#39;stretch_width&#39;
+            key_component, value_component, sizing_mode=&quot;stretch_width&quot;
         )</div>
 
 
@@ -512,7 +525,7 @@ def debounce(wait):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

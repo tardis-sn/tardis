@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -139,15 +139,14 @@
 <span></span>import logging
 import os
 
-from astropy import units as units
 import numpy as np
 import pandas as pd
+from astropy import units as units
 
 from tardis.iip_plasma.continuum.exceptions import (
     IncompletePhotoionizationDataError,
 )
 from tardis.iip_plasma.continuum.util import *
-
 
 default_photoionization_h5_path = os.path.join(
     os.path.dirname(__file__), &quot;data&quot;, &quot;photoionization_data_H30_He.h5&quot;
@@ -158,7 +157,7 @@ logger = logging.getLogger(__name__)
 
 <div class="viewcode-block" id="BaseContinuumData">
 <a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.base_continuum_data.html#tardis.iip_plasma.continuum.base_continuum_data.BaseContinuumData">[docs]</a>
-class BaseContinuumData(object):
+class BaseContinuumData:
     def __init__(
         self,
         atom_data,
@@ -290,7 +289,7 @@ class BaseContinuumData(object):
 
 <div class="viewcode-block" id="MCDataMixin">
 <a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.base_continuum_data.html#tardis.iip_plasma.continuum.base_continuum_data.MCDataMixin">[docs]</a>
-class MCDataMixin(object):
+class MCDataMixin:
     def _set_montecarlo_data(self):
         nu_sorted_continuum_data = self.continuum_data.sort_values(
             &quot;nu&quot;, ascending=False
@@ -393,7 +392,7 @@ class ContinuumData(BaseContinuumData, MCDataMixin):
 
 <div class="viewcode-block" id="PhotoionizationData">
 <a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.base_continuum_data.html#tardis.iip_plasma.continuum.base_continuum_data.PhotoionizationData">[docs]</a>
-class PhotoionizationData(object):
+class PhotoionizationData:
 <div class="viewcode-block" id="PhotoionizationData.from_hdf5">
 <a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.base_continuum_data.html#tardis.iip_plasma.continuum.base_continuum_data.PhotoionizationData.from_hdf5">[docs]</a>
     @classmethod
@@ -428,10 +427,10 @@ class PhotoionizationData(object):
             with pd.HDFStore(fname, &quot;r&quot;) as phot_data:
                 photoionization_x_sections = phot_data[&quot;photoionization_data&quot;]
                 return photoionization_x_sections
-        except (IOError, err):
+        except (OSError, err):
             print(err.errno)
             print(err)
-            raise IOError(
+            raise OSError(
                 &quot;Cannot import. Error opening the file to read photoionization cross-sections&quot;
             )</div>
 
@@ -473,7 +472,7 @@ class PhotoionizationData(object):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -146,8 +146,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
-
 from tardis.util.base import (
     element_symbol2atomic_number,
     int_to_roman,
@@ -193,8 +191,7 @@ def axis_label_in_latex(label_text, unit, only_text=True):
 
     if only_text:
         return f&quot;$\\text{{{label_text}}}\\,[{unit_in_latex}]$&quot;
-    else:
-        return f&quot;${label_text}\\,[{unit_in_latex}]$&quot;</div>
+    return f&quot;${label_text}\\,[{unit_in_latex}]$&quot;</div>
 
 
 
@@ -267,7 +264,9 @@ def get_hex_color_strings(length, name=&quot;jet&quot;):
 
 <div class="viewcode-block" id="extract_and_process_packet_data">
 <a class="viewcode-back" href="../../../api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.extract_and_process_packet_data">[docs]</a>
-def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=False):
+def extract_and_process_packet_data(
+    simulation, packets_mode, include_shell_id=False
+):
     &quot;&quot;&quot;
     Extract and process packet data from the simulation object.
 
@@ -294,7 +293,7 @@ def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=F
         Dictionary containing raw packet data, the full DataFrame `packets_df`,
         and a filtered `packets_df_line_interaction` with line interaction info.
     &quot;&quot;&quot;
-    if hasattr(simulation, &quot;transport_state&quot;): # for workflows
+    if hasattr(simulation, &quot;transport_state&quot;):  # for workflows
         transport_state = simulation.transport_state
         lines = simulation.plasma_solver.atomic_data.lines
     else:
@@ -329,18 +328,28 @@ def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=F
         )
 
         packet_data = {
-            &quot;last_interaction_type&quot;: df_last_emitted[&quot;last_interaction_type&quot;].values,
-            &quot;last_line_interaction_in_id&quot;: df_last_emitted[&quot;line_absorb_id&quot;].values,
-            &quot;last_line_interaction_out_id&quot;: df_last_emitted[&quot;line_emit_id&quot;].values,
+            &quot;last_interaction_type&quot;: df_last_emitted[
+                &quot;last_interaction_type&quot;
+            ].values,
+            &quot;last_line_interaction_in_id&quot;: df_last_emitted[
+                &quot;line_absorb_id&quot;
+            ].values,
+            &quot;last_line_interaction_out_id&quot;: df_last_emitted[
+                &quot;line_emit_id&quot;
+            ].values,
             &quot;last_line_interaction_in_nu&quot;: df_last_emitted[&quot;before_nu&quot;].values,
             &quot;last_interaction_in_r&quot;: df_last_emitted[&quot;radius&quot;].values,
             &quot;nus&quot;: packet_nus,
-            &quot;energies&quot;: transport_state.packet_collection.output_energies[packet_indices],
+            &quot;energies&quot;: transport_state.packet_collection.output_energies[
+                packet_indices
+            ],
             &quot;lambdas&quot;: packet_nus.to(&quot;angstrom&quot;, u.spectral()),
         }
 
         if include_shell_id:
-            packet_data[&quot;last_line_interaction_shell_id&quot;] = df_last_emitted[&quot;shell_id&quot;].values
+            packet_data[&quot;last_line_interaction_shell_id&quot;] = df_last_emitted[
+                &quot;shell_id&quot;
+            ].values
 
     packet_data[&quot;packets_df&quot;] = pd.DataFrame(packet_data)
     process_line_interactions(packet_data, lines_df)
@@ -370,9 +379,9 @@ def process_line_interactions(packet_data, lines_df):
 
     if packets_df is not None:
         # Create dataframe of packets that experience line interaction
-        line_mask = (packets_df[&quot;last_interaction_type&quot;] != &quot;NO_INTERACTION&quot;) &amp; (
-            packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1
-        )
+        line_mask = (
+            packets_df[&quot;last_interaction_type&quot;] != &quot;NO_INTERACTION&quot;
+        ) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
         packet_data[&quot;packets_df_line_interaction&quot;] = packets_df.loc[
             line_mask
         ].copy()
@@ -396,22 +405,24 @@ def process_line_interactions(packet_data, lines_df):
         # Add columns for the species ID of last interaction
         packet_data[&quot;packets_df_line_interaction&quot;][
             &quot;last_line_interaction_species&quot;
-        ] = list(zip(
-            lines_df[&quot;atomic_number&quot;]
-            .iloc[
-                packet_data[&quot;packets_df_line_interaction&quot;][
-                    &quot;last_line_interaction_out_id&quot;
+        ] = list(
+            zip(
+                lines_df[&quot;atomic_number&quot;]
+                .iloc[
+                    packet_data[&quot;packets_df_line_interaction&quot;][
+                        &quot;last_line_interaction_out_id&quot;
+                    ]
                 ]
-            ]
-            .to_numpy(),
-            lines_df[&quot;ion_number&quot;]
-            .iloc[
-                packet_data[&quot;packets_df_line_interaction&quot;][
-                    &quot;last_line_interaction_out_id&quot;
+                .to_numpy(),
+                lines_df[&quot;ion_number&quot;]
+                .iloc[
+                    packet_data[&quot;packets_df_line_interaction&quot;][
+                        &quot;last_line_interaction_out_id&quot;
+                    ]
                 ]
-            ]
-            .to_numpy()
-        ))</div>
+                .to_numpy(),
+            )
+        )</div>
 
 
 
@@ -793,7 +804,7 @@ def create_wavelength_mask(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

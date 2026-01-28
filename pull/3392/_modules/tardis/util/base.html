@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -154,7 +154,6 @@ from radioactivedecay.utils import Z_DICT, parse_nuclide
 import tardis
 from tardis import constants
 from tardis.io.util import get_internal_data_path
-from tardis.util.environment import Environment
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -176,7 +175,9 @@ ATOMIC_SYMBOLS_DATA = (
 )
 
 ATOMIC_NUMBER2SYMBOL = OrderedDict(ATOMIC_SYMBOLS_DATA.to_dict())
-SYMBOL2ATOMIC_NUMBER = OrderedDict((y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items())
+SYMBOL2ATOMIC_NUMBER = OrderedDict(
+    (y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items()
+)
 
 synpp_default_yaml_fname = get_internal_data_path(&quot;synpp_default.yaml&quot;)
 
@@ -373,8 +374,10 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     radial1d_mdl.atom_data.synpp_refs[&quot;ref_log_tau&quot;] = -99.0
     for key, value in radial1d_mdl.atom_data.synpp_refs.iterrows():
         try:
-            radial1d_mdl.atom_data.synpp_refs[&quot;ref_log_tau&quot;].loc[key] = np.log10(
-                radial1d_mdl.plasma.tau_sobolevs[0].loc[value[&quot;line_id&quot;]]
+            radial1d_mdl.atom_data.synpp_refs[&quot;ref_log_tau&quot;].loc[key] = (
+                np.log10(
+                    radial1d_mdl.plasma.tau_sobolevs[0].loc[value[&quot;line_id&quot;]]
+                )
             )
         except KeyError:
             logger.debug(
@@ -462,7 +465,9 @@ def intensity_black_body(nu, temperature):
     &quot;&quot;&quot;
     beta_rad = 1 / (k_B_cgs * temperature)
     coefficient = 2 * h_cgs / c_cgs**2
-    intensity = ne.evaluate(&quot;coefficient * nu**3 / &quot; &quot;(exp(h_cgs * nu * beta_rad) -1 )&quot;)
+    intensity = ne.evaluate(
+        &quot;coefficient * nu**3 / (exp(h_cgs * nu * beta_rad) -1 )&quot;
+    )
     return intensity</div>
 
 
@@ -545,7 +550,9 @@ def species_string_to_tuple(species_string):
             )
 
     if ion_number - 1 &gt; atomic_number:
-        raise ValueError(&quot;Species given does not exist: ion number &gt; atomic number&quot;)
+        raise ValueError(
+            &quot;Species given does not exist: ion number &gt; atomic number&quot;
+        )
 
     return atomic_number, ion_number - 1</div>
 
@@ -715,11 +722,12 @@ def quantity_linspace(start, stop, num, **kwargs):
     &quot;&quot;&quot;
     if not (hasattr(start, &quot;unit&quot;) and hasattr(stop, &quot;unit&quot;)):
         raise ValueError(
-            &quot;Both start and stop need to be quantities with a &quot; &quot;unit attribute&quot;
+            &quot;Both start and stop need to be quantities with a unit attribute&quot;
         )
 
     return (
-        np.linspace(start.value, stop.to(start.unit).value, num, **kwargs) * start.unit
+        np.linspace(start.value, stop.to(start.unit).value, num, **kwargs)
+        * start.unit
     )</div>
 
 
@@ -779,7 +787,7 @@ def deprecated(func):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

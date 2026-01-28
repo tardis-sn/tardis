@@ -51,7 +51,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "cmfgen_model = read_cmfgen_model('cmfgen_model.csv')"
+    "cmfgen_model = read_cmfgen_model(\"cmfgen_model.csv\")"
    ]
   },
   {

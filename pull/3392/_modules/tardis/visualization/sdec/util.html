@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -173,41 +173,71 @@ def calculate_absorption_luminosities(
     # Set up appropriate data sources based on packet mode
     if packets_mode == &quot;virtual&quot;:
         # Virtual packets data
-        packets_df = pd.DataFrame({
-            &quot;nus&quot;: transport_state.vpacket_tracker.nus,
-            &quot;energies&quot;: transport_state.vpacket_tracker.energies,
-            &quot;last_interaction_type&quot;: transport_state.vpacket_tracker.last_interaction_type,
-            &quot;last_line_interaction_in_id&quot;: transport_state.vpacket_tracker.last_interaction_in_id,
-            &quot;last_line_interaction_in_nu&quot;: transport_state.vpacket_tracker.last_interaction_in_nu,
-            &quot;last_line_interaction_out_id&quot;: transport_state.vpacket_tracker.last_interaction_out_id
-        })
-        spectrum_delta_frequency = sim.spectrum_solver.spectrum_virtual_packets.delta_frequency
-        plot_wavelength = sim.spectrum_solver.spectrum_virtual_packets.wavelength
-        plot_frequency = sim.spectrum_solver.spectrum_virtual_packets._frequency[:-1]
-        plot_frequency_bins = sim.spectrum_solver.spectrum_virtual_packets._frequency
+        packets_df = pd.DataFrame(
+            {
+                &quot;nus&quot;: transport_state.vpacket_tracker.nus,
+                &quot;energies&quot;: transport_state.vpacket_tracker.energies,
+                &quot;last_interaction_type&quot;: transport_state.vpacket_tracker.last_interaction_type,
+                &quot;last_line_interaction_in_id&quot;: transport_state.vpacket_tracker.last_interaction_in_id,
+                &quot;last_line_interaction_in_nu&quot;: transport_state.vpacket_tracker.last_interaction_in_nu,
+                &quot;last_line_interaction_out_id&quot;: transport_state.vpacket_tracker.last_interaction_out_id,
+            }
+        )
+        spectrum_delta_frequency = (
+            sim.spectrum_solver.spectrum_virtual_packets.delta_frequency
+        )
+        plot_wavelength = (
+            sim.spectrum_solver.spectrum_virtual_packets.wavelength
+        )
+        plot_frequency = (
+            sim.spectrum_solver.spectrum_virtual_packets._frequency[:-1]
+        )
+        plot_frequency_bins = (
+            sim.spectrum_solver.spectrum_virtual_packets._frequency
+        )
 
     else:  # real packets
         emitted_mask = transport_state.emitted_packet_mask
-        packets_df = pd.DataFrame({
-            &quot;nus&quot;: transport_state.packet_collection.output_nus[emitted_mask],
-            &quot;energies&quot;: transport_state.packet_collection.output_energies[emitted_mask],
-            &quot;last_interaction_type&quot;: transport_state.last_interaction_type[emitted_mask],
-            &quot;last_line_interaction_in_id&quot;: transport_state.last_line_interaction_in_id[emitted_mask],
-            &quot;last_line_interaction_in_nu&quot;: transport_state.last_interaction_in_nu[
+        packets_df = pd.DataFrame(
+            {
+                &quot;nus&quot;: transport_state.packet_collection.output_nus[
+                    emitted_mask
+                ],
+                &quot;energies&quot;: transport_state.packet_collection.output_energies[
+                    emitted_mask
+                ],
+                &quot;last_interaction_type&quot;: transport_state.last_interaction_type[
+                    emitted_mask
+                ],
+                &quot;last_line_interaction_in_id&quot;: transport_state.last_line_interaction_in_id[
+                    emitted_mask
+                ],
+                &quot;last_line_interaction_in_nu&quot;: transport_state.last_interaction_in_nu[
                     transport_state.emitted_packet_mask
                 ],
-            &quot;last_line_interaction_out_id&quot;: transport_state.last_line_interaction_out_id[emitted_mask]
-        })
-        spectrum_delta_frequency = sim.spectrum_solver.spectrum_real_packets.delta_frequency
+                &quot;last_line_interaction_out_id&quot;: transport_state.last_line_interaction_out_id[
+                    emitted_mask
+                ],
+            }
+        )
+        spectrum_delta_frequency = (
+            sim.spectrum_solver.spectrum_real_packets.delta_frequency
+        )
         plot_wavelength = sim.spectrum_solver.spectrum_real_packets.wavelength
-        plot_frequency = sim.spectrum_solver.spectrum_real_packets._frequency[:-1]
-        plot_frequency_bins = sim.spectrum_solver.spectrum_real_packets._frequency
+        plot_frequency = sim.spectrum_solver.spectrum_real_packets._frequency[
+            :-1
+        ]
+        plot_frequency_bins = (
+            sim.spectrum_solver.spectrum_real_packets._frequency
+        )
 
     time_of_simulation = transport_state.packet_collection.time_of_simulation
     lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(&quot;line_id&quot;)
 
     # Create packets_df_line_interaction
-    line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; InteractionType.NO_INTERACTION) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
+    line_mask = (
+        packets_df[&quot;last_interaction_type&quot;] &gt; InteractionType.NO_INTERACTION
+    ) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
     packets_df_line_interaction = packets_df.loc[line_mask].copy()
 
     # Add atomic number and species columns
@@ -219,7 +249,8 @@ def calculate_absorption_luminosities(
     packets_df_line_interaction[&quot;last_line_interaction_species&quot;] = (
         lines_df[&quot;atomic_number&quot;]
         .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
-        .to_numpy() * 100
+        .to_numpy()
+        * 100
         + lines_df[&quot;ion_number&quot;]
         .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
         .to_numpy()
@@ -232,19 +263,15 @@ def calculate_absorption_luminosities(
     else:
         packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
         packet_nu_line_range_mask = (
-            packets_df_line_interaction[
-                &quot;last_line_interaction_in_nu&quot;
-            ]
+            packets_df_line_interaction[&quot;last_line_interaction_in_nu&quot;]
             &lt; packet_nu_range[0]
         ) &amp; (
-            packets_df_line_interaction[
-                &quot;last_line_interaction_in_nu&quot;
-            ]
+            packets_df_line_interaction[&quot;last_line_interaction_in_nu&quot;]
             &gt; packet_nu_range[1]
         )
 
     luminosities_df = pd.DataFrame(index=plot_wavelength)
-         # Calculate the area term to convert luminosity to flux
+    # Calculate the area term to convert luminosity to flux
     if distance is None:
         lum_to_flux = 1  # so that this term will have no effect
     else:
@@ -254,39 +281,29 @@ def calculate_absorption_luminosities(
                 &quot;to plot luminosities instead of flux, set distance=None &quot;
                 &quot;or don&#39;t specify distance parameter in the function call.&quot;
             )
-        else:
-            lum_to_flux = 4.0 * np.pi * (distance.to(&quot;cm&quot;)) ** 2
+        lum_to_flux = 4.0 * np.pi * (distance.to(&quot;cm&quot;)) ** 2
     # Group packets_df by atomic number of elements with which packets
     # had their last absorption (interaction in)
     # or if species_list is requested then group by species id
     if species_list is None:
-        packets_df_grouped = (
-            packets_df_line_interaction.loc[packet_nu_line_range_mask]
-            .groupby(by=&quot;last_line_interaction_atom&quot;)
-        )
+        packets_df_grouped = packets_df_line_interaction.loc[
+            packet_nu_line_range_mask
+        ].groupby(by=&quot;last_line_interaction_atom&quot;)
     else:
-        packets_df_grouped = (
-            packets_df_line_interaction.loc[packet_nu_line_range_mask]
-            .groupby(by=&quot;last_line_interaction_species&quot;)
-        )
+        packets_df_grouped = packets_df_line_interaction.loc[
+            packet_nu_line_range_mask
+        ].groupby(by=&quot;last_line_interaction_species&quot;)
 
     for identifier, group in packets_df_grouped:
         # Histogram of specific species
         hist_el = np.histogram(
             group[&quot;last_line_interaction_in_nu&quot;],
             bins=plot_frequency_bins.value,
-            weights=group[&quot;energies&quot;]
-            / lum_to_flux
-            / time_of_simulation,
+            weights=group[&quot;energies&quot;] / lum_to_flux / time_of_simulation,
         )
 
         # Convert to luminosity density lambda
-        L_nu_el = (
-            hist_el[0]
-            * u.erg
-            / u.s
-            / spectrum_delta_frequency
-        )
+        L_nu_el = hist_el[0] * u.erg / u.s / spectrum_delta_frequency
         L_lambda_el = L_nu_el * plot_frequency / plot_wavelength
 
         luminosities_df[identifier] = L_lambda_el.value
@@ -301,7 +318,9 @@ def calculate_absorption_luminosities(
 
 <div class="viewcode-block" id="calculate_emission_luminosities">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.sdec.util.html#tardis.visualization.sdec.util.calculate_emission_luminosities">[docs]</a>
-def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species_list=None, distance=None):
+def calculate_emission_luminosities(
+    sim, packets_mode, packet_wvl_range, species_list=None, distance=None
+):
     &quot;&quot;&quot;
     Calculate luminosities for the emission part of SDEC plot.
 
@@ -331,41 +350,71 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
     # Set up appropriate data sources based on packet mode
     if packets_mode == &quot;virtual&quot;:
         # Virtual packets data
-        packets_df = pd.DataFrame({
-            &quot;nus&quot;: transport_state.vpacket_tracker.nus,
-            &quot;energies&quot;: transport_state.vpacket_tracker.energies,
-            &quot;last_interaction_type&quot;: transport_state.vpacket_tracker.last_interaction_type,
-            &quot;last_line_interaction_in_id&quot;: transport_state.vpacket_tracker.last_interaction_in_id,
-            &quot;last_line_interaction_in_nu&quot;: transport_state.vpacket_tracker.last_interaction_in_nu,
-            &quot;last_line_interaction_out_id&quot;: transport_state.vpacket_tracker.last_interaction_out_id
-        })
-        spectrum_delta_frequency = sim.spectrum_solver.spectrum_virtual_packets.delta_frequency
-        plot_wavelength = sim.spectrum_solver.spectrum_virtual_packets.wavelength
-        plot_frequency = sim.spectrum_solver.spectrum_virtual_packets._frequency[:-1]
-        plot_frequency_bins = sim.spectrum_solver.spectrum_virtual_packets._frequency
+        packets_df = pd.DataFrame(
+            {
+                &quot;nus&quot;: transport_state.vpacket_tracker.nus,
+                &quot;energies&quot;: transport_state.vpacket_tracker.energies,
+                &quot;last_interaction_type&quot;: transport_state.vpacket_tracker.last_interaction_type,
+                &quot;last_line_interaction_in_id&quot;: transport_state.vpacket_tracker.last_interaction_in_id,
+                &quot;last_line_interaction_in_nu&quot;: transport_state.vpacket_tracker.last_interaction_in_nu,
+                &quot;last_line_interaction_out_id&quot;: transport_state.vpacket_tracker.last_interaction_out_id,
+            }
+        )
+        spectrum_delta_frequency = (
+            sim.spectrum_solver.spectrum_virtual_packets.delta_frequency
+        )
+        plot_wavelength = (
+            sim.spectrum_solver.spectrum_virtual_packets.wavelength
+        )
+        plot_frequency = (
+            sim.spectrum_solver.spectrum_virtual_packets._frequency[:-1]
+        )
+        plot_frequency_bins = (
+            sim.spectrum_solver.spectrum_virtual_packets._frequency
+        )
 
     else:  # real packets
         emitted_mask = transport_state.emitted_packet_mask
-        packets_df = pd.DataFrame({
-            &quot;nus&quot;: transport_state.packet_collection.output_nus[emitted_mask],
-            &quot;energies&quot;: transport_state.packet_collection.output_energies[emitted_mask],
-            &quot;last_interaction_type&quot;: transport_state.last_interaction_type[emitted_mask],
-            &quot;last_line_interaction_in_id&quot;: transport_state.last_line_interaction_in_id[emitted_mask],
-            &quot;last_line_interaction_in_nu&quot;: transport_state.last_interaction_in_nu[
+        packets_df = pd.DataFrame(
+            {
+                &quot;nus&quot;: transport_state.packet_collection.output_nus[
+                    emitted_mask
+                ],
+                &quot;energies&quot;: transport_state.packet_collection.output_energies[
+                    emitted_mask
+                ],
+                &quot;last_interaction_type&quot;: transport_state.last_interaction_type[
+                    emitted_mask
+                ],
+                &quot;last_line_interaction_in_id&quot;: transport_state.last_line_interaction_in_id[
+                    emitted_mask
+                ],
+                &quot;last_line_interaction_in_nu&quot;: transport_state.last_interaction_in_nu[
                     transport_state.emitted_packet_mask
                 ],
-            &quot;last_line_interaction_out_id&quot;: transport_state.last_line_interaction_out_id[emitted_mask]
-        })
-        spectrum_delta_frequency = sim.spectrum_solver.spectrum_real_packets.delta_frequency
+                &quot;last_line_interaction_out_id&quot;: transport_state.last_line_interaction_out_id[
+                    emitted_mask
+                ],
+            }
+        )
+        spectrum_delta_frequency = (
+            sim.spectrum_solver.spectrum_real_packets.delta_frequency
+        )
         plot_wavelength = sim.spectrum_solver.spectrum_real_packets.wavelength
-        plot_frequency = sim.spectrum_solver.spectrum_real_packets._frequency[:-1]
-        plot_frequency_bins = sim.spectrum_solver.spectrum_real_packets._frequency
+        plot_frequency = sim.spectrum_solver.spectrum_real_packets._frequency[
+            :-1
+        ]
+        plot_frequency_bins = (
+            sim.spectrum_solver.spectrum_real_packets._frequency
+        )
 
     time_of_simulation = transport_state.packet_collection.time_of_simulation
     lines_df = sim.plasma.atomic_data.lines.reset_index().set_index(&quot;line_id&quot;)
 
     # Create packets_df_line_interaction
-    line_mask = (packets_df[&quot;last_interaction_type&quot;] &gt; InteractionType.NO_INTERACTION) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
+    line_mask = (
+        packets_df[&quot;last_interaction_type&quot;] &gt; InteractionType.NO_INTERACTION
+    ) &amp; (packets_df[&quot;last_line_interaction_in_id&quot;] &gt; -1)
     packets_df_line_interaction = packets_df.loc[line_mask].copy()
 
     # Add atomic number and species columns
@@ -377,7 +426,8 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
     packets_df_line_interaction[&quot;last_line_interaction_species&quot;] = (
         lines_df[&quot;atomic_number&quot;]
         .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
-        .to_numpy() * 100
+        .to_numpy()
+        * 100
         + lines_df[&quot;ion_number&quot;]
         .iloc[packets_df_line_interaction[&quot;last_line_interaction_out_id&quot;]]
         .to_numpy()
@@ -385,27 +435,21 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
 
     # Calculate masks to be applied on packets data based on packet_wvl_range
     if packet_wvl_range is None:
-        packet_nu_range_mask = np.ones(
-            packets_df.shape[0], dtype=bool
-        )
+        packet_nu_range_mask = np.ones(packets_df.shape[0], dtype=bool)
         packet_nu_line_range_mask = np.ones(
             packets_df_line_interaction.shape[0],
             dtype=bool,
         )
     else:
         packet_nu_range = packet_wvl_range.to(&quot;Hz&quot;, u.spectral())
-        packet_nu_range_mask = (
-            packets_df[&quot;nus&quot;] &lt; packet_nu_range[0]
-        ) &amp; (packets_df[&quot;nus&quot;] &gt; packet_nu_range[1])
-        packet_nu_line_range_mask = (
-            packets_df_line_interaction[&quot;nus&quot;]
-            &lt; packet_nu_range[0]
-        ) &amp; (
-            packets_df_line_interaction[&quot;nus&quot;]
-            &gt; packet_nu_range[1]
+        packet_nu_range_mask = (packets_df[&quot;nus&quot;] &lt; packet_nu_range[0]) &amp; (
+            packets_df[&quot;nus&quot;] &gt; packet_nu_range[1]
         )
+        packet_nu_line_range_mask = (
+            packets_df_line_interaction[&quot;nus&quot;] &lt; packet_nu_range[0]
+        ) &amp; (packets_df_line_interaction[&quot;nus&quot;] &gt; packet_nu_range[1])
 
-     # Calculate the area term to convert luminosity to flux
+    # Calculate the area term to convert luminosity to flux
     if distance is None:
         lum_to_flux = 1  # so that this term will have no effect
     else:
@@ -415,14 +459,11 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
                 &quot;to plot luminosities instead of flux, set distance=None &quot;
                 &quot;or don&#39;t specify distance parameter in the function call.&quot;
             )
-        else:
-            lum_to_flux = 4.0 * np.pi * (distance.to(&quot;cm&quot;)) ** 2
-
+        lum_to_flux = 4.0 * np.pi * (distance.to(&quot;cm&quot;)) ** 2
 
     # Histogram weights are packet luminosities or flux
     weights = (
-        packets_df[&quot;energies&quot;][packet_nu_range_mask]
-        / lum_to_flux
+        packets_df[&quot;energies&quot;][packet_nu_range_mask] / lum_to_flux
     ) / time_of_simulation
 
     luminosities_df = pd.DataFrame(index=plot_wavelength)
@@ -440,19 +481,15 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
         density=False,
     )
 
-    L_nu_noint = (
-        hist_noint[0]
-        * u.erg
-        / u.s
-        / spectrum_delta_frequency
-    )
+    L_nu_noint = hist_noint[0] * u.erg / u.s / spectrum_delta_frequency
     L_lambda_noint = L_nu_noint * plot_frequency / plot_wavelength
 
     luminosities_df[&quot;noint&quot;] = L_lambda_noint.value
 
     # Contribution of packets which only experienced electron scattering
     mask_escatter = (
-        (packets_df[&quot;last_interaction_type&quot;][packet_nu_range_mask] == InteractionType.ESCATTERING)
+        packets_df[&quot;last_interaction_type&quot;][packet_nu_range_mask]
+        == InteractionType.ESCATTERING
     ) &amp; (
         packets_df[&quot;last_line_interaction_in_id&quot;][packet_nu_range_mask]
         == InteractionType.NO_INTERACTION
@@ -464,44 +501,30 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
         density=False,
     )
 
-    L_nu_escatter = (
-        hist_escatter[0]
-        * u.erg
-        / u.s
-        / spectrum_delta_frequency
-    )
+    L_nu_escatter = hist_escatter[0] * u.erg / u.s / spectrum_delta_frequency
     L_lambda_escatter = L_nu_escatter * plot_frequency / plot_wavelength
     luminosities_df[&quot;escatter&quot;] = L_lambda_escatter.value
 
     # Group packets_df by atomic number of elements with which packets
     # had their last emission (interaction out)
     if species_list is None:
-        packets_df_grouped = (
-            packets_df_line_interaction.loc[packet_nu_line_range_mask]
-            .groupby(by=&quot;last_line_interaction_atom&quot;)
-        )
+        packets_df_grouped = packets_df_line_interaction.loc[
+            packet_nu_line_range_mask
+        ].groupby(by=&quot;last_line_interaction_atom&quot;)
     else:
-        packets_df_grouped = (
-            packets_df_line_interaction.loc[packet_nu_line_range_mask]
-            .groupby(by=&quot;last_line_interaction_species&quot;)
-        )
+        packets_df_grouped = packets_df_line_interaction.loc[
+            packet_nu_line_range_mask
+        ].groupby(by=&quot;last_line_interaction_species&quot;)
 
     # Contribution of each species with which packets interacted
     for identifier, group in packets_df_grouped:
         hist_el = np.histogram(
             group[&quot;nus&quot;],
             bins=plot_frequency_bins.value,
-            weights=group[&quot;energies&quot;]
-            / lum_to_flux
-            / time_of_simulation,
+            weights=group[&quot;energies&quot;] / lum_to_flux / time_of_simulation,
         )
 
-        L_nu_el = (
-            hist_el[0]
-            * u.erg
-            / u.s
-            / spectrum_delta_frequency
-        )
+        L_nu_el = hist_el[0] * u.erg / u.s / spectrum_delta_frequency
         L_lambda_el = L_nu_el * plot_frequency / plot_wavelength
 
         luminosities_df[identifier] = L_lambda_el.value
@@ -521,7 +544,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

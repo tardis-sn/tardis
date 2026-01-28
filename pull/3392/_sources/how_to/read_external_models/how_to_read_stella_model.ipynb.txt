@@ -52,7 +52,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "stella_model = read_stella_model('mesa.stella.dat')"
+    "stella_model = read_stella_model(\"mesa.stella.dat\")"
    ]
   },
   {

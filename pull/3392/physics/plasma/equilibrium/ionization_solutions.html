@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -188,7 +188,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">tardis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">((</span><span class="n">Path</span><span class="p">(</span><span class="n">tardis</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;plasma/tests/data/plasma_base_test_config.yml&quot;</span><span class="p">))</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">tardis</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+    <span class="o">/</span> <span class="s2">&quot;plasma/tests/data/plasma_base_test_config.yml&quot;</span>
+<span class="p">)</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">abundances</span><span class="o">.</span><span class="n">He</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">abundances</span><span class="o">.</span><span class="n">H</span> <span class="o">=</span> <span class="mi">1</span>
@@ -223,7 +226,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationState</span>
 
-<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="s1">&#39;/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5&#39;</span><span class="p">)</span>
+<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span>
+    <span class="s2">&quot;/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5&quot;</span>
+<span class="p">)</span>
 
 <span class="n">atom_data2</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">atom_data</span><span class="p">)</span>
 
@@ -258,9 +263,13 @@ model_isotope_time_0 is not set in the configuration. Isotopic mass fractions wi
 <span class="p">)</span>
 
 <span class="c1"># Test that the ionization calculations work for multiple cells and match the density config</span>
-<span class="n">rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">dilution_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">dilution_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span>
+<span class="p">)</span>
 
-<span class="n">electron_dist</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2e9</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">electron_dist</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2e9</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -275,8 +284,16 @@ model_isotope_time_0 is not set in the configuration. Isotopic mass fractions wi
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.assembly.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlasmaSolverFactory</span>
 
 <span class="n">plasma_solver_factory</span> <span class="o">=</span> <span class="n">PlasmaSolverFactory</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-<span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">prepare_factory</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span><span class="s2">&quot;tardis.plasma.properties.property_collections&quot;</span> <span class="p">)</span>
-<span class="n">plasma</span> <span class="o">=</span> <span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">sim_state</span><span class="o">.</span><span class="n">calculate_elemental_number_density</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">atom_data</span><span class="o">.</span><span class="n">mass</span><span class="p">),</span> <span class="n">rad_field</span><span class="p">,</span> <span class="n">sim_state</span><span class="o">.</span><span class="n">time_explosion</span><span class="p">,</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span> <span class="n">link_t_rad_t_electron</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">prepare_factory</span><span class="p">(</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;tardis.plasma.properties.property_collections&quot;</span>
+<span class="p">)</span>
+<span class="n">plasma</span> <span class="o">=</span> <span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
+    <span class="n">sim_state</span><span class="o">.</span><span class="n">calculate_elemental_number_density</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">atom_data</span><span class="o">.</span><span class="n">mass</span><span class="p">),</span>
+    <span class="n">rad_field</span><span class="p">,</span>
+    <span class="n">sim_state</span><span class="o">.</span><span class="n">time_explosion</span><span class="p">,</span>
+    <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span>
+    <span class="n">link_t_rad_t_electron</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -300,12 +317,25 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">LTEIonNumberDensity</span><span class="p">(</span><span class="n">IonNumberDensity</span><span class="p">):</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lte_ion_number_density&#39;</span><span class="p">,</span> <span class="p">)</span>
-    <span class="n">latex_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;N_{i,j}^*&#39;</span><span class="p">,)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;lte_ion_number_density&quot;</span><span class="p">,)</span>
+    <span class="n">latex_name</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;N_{i,j}^*&quot;</span><span class="p">,)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi_Te</span><span class="p">,</span> <span class="n">lte_partition_function_Te</span><span class="p">,</span> <span class="n">number_density</span><span class="p">,</span> <span class="n">block_ids</span><span class="p">,</span> <span class="n">ion_threshold</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">phi_Te</span><span class="p">,</span>
+        <span class="n">lte_partition_function_Te</span><span class="p">,</span>
+        <span class="n">number_density</span><span class="p">,</span>
+        <span class="n">block_ids</span><span class="p">,</span>
+        <span class="n">ion_threshold</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_with_n_electron</span><span class="p">(</span>
-            <span class="n">phi_Te</span><span class="p">,</span> <span class="n">lte_partition_function_Te</span><span class="p">,</span> <span class="n">number_density</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_electron_densities</span><span class="p">,</span> <span class="n">block_ids</span><span class="p">,</span> <span class="n">ion_threshold</span><span class="p">)</span>
+            <span class="n">phi_Te</span><span class="p">,</span>
+            <span class="n">lte_partition_function_Te</span><span class="p">,</span>
+            <span class="n">number_density</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_electron_densities</span><span class="p">,</span>
+            <span class="n">block_ids</span><span class="p">,</span>
+            <span class="n">ion_threshold</span><span class="p">,</span>
+        <span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -319,13 +349,22 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">LTELevelNumberDensity</span><span class="p">(</span><span class="n">LevelNumberDensity</span><span class="p">):</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lte_level_number_density&#39;</span><span class="p">,)</span>
-    <span class="n">latex_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;N_{i,j,k}^*&#39;</span><span class="p">,)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;lte_level_number_density&quot;</span><span class="p">,)</span>
+    <span class="n">latex_name</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;N_{i,j,k}^*&quot;</span><span class="p">,)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_dilute_lte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lte_level_boltzmann_factor_Te</span><span class="p">,</span> <span class="n">lte_ion_number_density</span><span class="p">,</span>
-                              <span class="n">levels</span><span class="p">,</span> <span class="n">lte_partition_function_Te</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_dilute_lte</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lte_level_boltzmann_factor_Te</span><span class="p">,</span>
+        <span class="n">lte_ion_number_density</span><span class="p">,</span>
+        <span class="n">levels</span><span class="p">,</span>
+        <span class="n">lte_partition_function_Te</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_calculate_dilute_lte</span><span class="p">(</span>
-            <span class="n">lte_level_boltzmann_factor_Te</span><span class="p">,</span> <span class="n">lte_ion_number_density</span><span class="p">,</span> <span class="n">levels</span><span class="p">,</span> <span class="n">lte_partition_function_Te</span><span class="p">)</span>
+            <span class="n">lte_level_boltzmann_factor_Te</span><span class="p">,</span>
+            <span class="n">lte_ion_number_density</span><span class="p">,</span>
+            <span class="n">levels</span><span class="p">,</span>
+            <span class="n">lte_partition_function_Te</span><span class="p">,</span>
+        <span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -333,13 +372,15 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lte_ion_number_density</span> <span class="o">=</span> <span class="n">LTEIonNumberDensity</span><span class="p">(</span><span class="n">plasma</span><span class="p">,</span>
-                                             <span class="n">electron_densities</span><span class="o">=</span><span class="n">plasma</span><span class="o">.</span><span class="n">electron_densities</span>
-                                             <span class="p">)</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
-                                                 <span class="n">plasma</span><span class="o">.</span><span class="n">thermal_phi_lte</span><span class="p">,</span>
-                                                 <span class="n">plasma</span><span class="o">.</span><span class="n">thermal_lte_partition_function</span><span class="p">,</span>
-                                                 <span class="n">plasma</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span>
-                                                 <span class="kc">None</span><span class="p">,</span> <span class="mf">1e-20</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lte_ion_number_density</span> <span class="o">=</span> <span class="n">LTEIonNumberDensity</span><span class="p">(</span>
+    <span class="n">plasma</span><span class="p">,</span> <span class="n">electron_densities</span><span class="o">=</span><span class="n">plasma</span><span class="o">.</span><span class="n">electron_densities</span>
+<span class="p">)</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">thermal_phi_lte</span><span class="p">,</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">thermal_lte_partition_function</span><span class="p">,</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+    <span class="mf">1e-20</span><span class="p">,</span>
+<span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -348,10 +389,11 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lte_level_number_density</span> <span class="o">=</span> <span class="n">LTELevelNumberDensity</span><span class="p">(</span><span class="n">plasma</span><span class="p">)</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
-                                                     <span class="n">plasma</span><span class="o">.</span><span class="n">thermal_lte_level_boltzmann_factor</span><span class="p">,</span>
-                                                     <span class="n">lte_ion_number_density</span><span class="p">,</span>
-                                                     <span class="n">plasma</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span>
-                                                     <span class="n">plasma</span><span class="o">.</span><span class="n">thermal_lte_partition_function</span><span class="p">)</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">thermal_lte_level_boltzmann_factor</span><span class="p">,</span>
+    <span class="n">lte_ion_number_density</span><span class="p">,</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">thermal_lte_partition_function</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -368,11 +410,17 @@ Zeta_data missing - replaced with 1s. Missing ions: []
     <span class="n">CollisionalIonizationRateSolver</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">photoionization_rate_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationRateSolver</span><span class="p">(</span><span class="n">atom_data2</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">)</span>
+<span class="n">photoionization_rate_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationRateSolver</span><span class="p">(</span>
+    <span class="n">atom_data2</span><span class="o">.</span><span class="n">photoionization_data</span>
+<span class="p">)</span>
 
-<span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">CollisionalIonizationRateSolver</span><span class="p">(</span><span class="n">atom_data2</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">)</span>
+<span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">CollisionalIonizationRateSolver</span><span class="p">(</span>
+    <span class="n">atom_data2</span><span class="o">.</span><span class="n">photoionization_data</span>
+<span class="p">)</span>
 
-<span class="n">ion_rate_matrix_solver</span> <span class="o">=</span> <span class="n">IonRateMatrix</span><span class="p">(</span><span class="n">photoionization_rate_solver</span><span class="p">,</span> <span class="n">collisional_rate_solver</span><span class="p">)</span>
+<span class="n">ion_rate_matrix_solver</span> <span class="o">=</span> <span class="n">IonRateMatrix</span><span class="p">(</span>
+    <span class="n">photoionization_rate_solver</span><span class="p">,</span> <span class="n">collisional_rate_solver</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -385,13 +433,21 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">photoion_rates</span><span class="p">,</span> <span class="n">recomb_rates</span> <span class="o">=</span> <span class="n">photoionization_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
     <span class="n">rad_field</span><span class="p">,</span>
     <span class="n">electron_dist</span><span class="p">,</span>
-    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
     <span class="n">plasma</span><span class="o">.</span><span class="n">partition_function</span><span class="p">,</span>
     <span class="n">plasma</span><span class="o">.</span><span class="n">general_level_boltzmann_factor</span><span class="p">,</span>
-    <span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -402,10 +458,14 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_to_ion_population_factor</span> <span class="o">=</span> <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-            <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="o">.</span><span class="n">value</span>
-        <span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_to_ion_population_factor</span> <span class="o">=</span> <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+<span class="p">]</span> <span class="o">/</span> <span class="p">(</span>
+    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="o">.</span><span class="n">value</span>
+<span class="p">)</span>
 
 <span class="n">coll_ionization_rate</span><span class="p">,</span> <span class="n">coll_recomb_rate</span> <span class="o">=</span> <span class="n">collisional_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
     <span class="n">electron_dist</span><span class="p">,</span>
@@ -426,13 +486,22 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ion_rate_matrix</span> <span class="o">=</span> <span class="n">ion_rate_matrix_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
     <span class="n">rad_field</span><span class="p">,</span>
     <span class="n">electron_dist</span><span class="p">,</span>
-    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
     <span class="n">plasma</span><span class="o">.</span><span class="n">partition_function</span><span class="p">,</span>
     <span class="n">plasma</span><span class="o">.</span><span class="n">general_level_boltzmann_factor</span><span class="p">,</span>
-    <span class="n">charge_conservation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">charge_conservation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -481,7 +550,8 @@ array([array([[ 0.00000000e+00,  1.00000000e+00, -1.00000000e+00],
     <span class="n">plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="p">,</span>
     <span class="n">plasma</span><span class="o">.</span><span class="n">partition_function</span><span class="p">,</span>
     <span class="n">plasma</span><span class="o">.</span><span class="n">general_level_boltzmann_factor</span><span class="p">,</span>
-    <span class="n">charge_conservation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">charge_conservation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -801,7 +871,7 @@ dtype: float64
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

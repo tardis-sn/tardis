@@ -168,16 +168,17 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "from tardis.io.configuration.config_reader import Configuration\n",
-    "from tardis.simulation import Simulation\n",
-    "from tardis.io.atom_data import download_atom_data\n",
     "import numpy as np\n",
+    "from astropy import constants as const\n",
+    "from astropy import units as u\n",
     "from scipy.special import zeta\n",
     "\n",
-    "from astropy import units as u, constants as const\n",
+    "from tardis.io.atom_data import download_atom_data\n",
+    "from tardis.io.configuration.config_reader import Configuration\n",
+    "from tardis.simulation import Simulation\n",
     "\n",
     "# We download the atomic data needed to run this notebook\n",
-    "download_atom_data('kurucz_cd23_chianti_H_He_latest')"
+    "download_atom_data(\"kurucz_cd23_chianti_H_He_latest\")"
    ]
   },
   {
@@ -187,7 +188,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "tardis_config = Configuration.from_yaml('tardis_example.yml')\n",
+    "tardis_config = Configuration.from_yaml(\"tardis_example.yml\")\n",
     "\n",
     "# We manually put in the damping constants and t_inner_update_exponent for\n",
     "# illustrative purposes:\n",
@@ -197,10 +198,18 @@
     "t_inner_update_exponent = -0.5\n",
     "\n",
     "# We set the above values into the configuration:\n",
-    "tardis_config.montecarlo.convergence_strategy.t_rad.damping_constant = damping_t_radiative\n",
-    "tardis_config.montecarlo.convergence_strategy.w.damping_constant = damping_dilution_factor\n",
-    "tardis_config.montecarlo.convergence_strategy.t_inner.damping_constant = damping_t_inner\n",
-    "tardis_config.montecarlo.convergence_strategy.t_inner_update_exponent = t_inner_update_exponent"
+    "tardis_config.montecarlo.convergence_strategy.t_rad.damping_constant = (\n",
+    "    damping_t_radiative\n",
+    ")\n",
+    "tardis_config.montecarlo.convergence_strategy.w.damping_constant = (\n",
+    "    damping_dilution_factor\n",
+    ")\n",
+    "tardis_config.montecarlo.convergence_strategy.t_inner.damping_constant = (\n",
+    "    damping_t_inner\n",
+    ")\n",
+    "tardis_config.montecarlo.convergence_strategy.t_inner_update_exponent = (\n",
+    "    t_inner_update_exponent\n",
+    ")"
    ]
   },
   {
@@ -288,7 +297,7 @@
     "\n",
     "# Using the commented out code below, we can also get the number of packets\n",
     "# from the configuration -- try it out:\n",
-    "#N_packets = tardis_config.montecarlo.no_of_packets\n",
+    "# N_packets = tardis_config.montecarlo.no_of_packets\n",
     "\n",
     "sim.iterate(N_packets)"
    ]
@@ -311,7 +320,7 @@
    },
    "outputs": [],
    "source": [
-    "j_estimator = transport.transport_state.j_estimator * (u.erg * u.cm) \n",
+    "j_estimator = transport.transport_state.j_estimator * (u.erg * u.cm)\n",
     "j_estimator"
    ]
   },
@@ -324,7 +333,9 @@
    },
    "outputs": [],
    "source": [
-    "nu_bar_estimator = transport.transport_state.nu_bar_estimator * (u.erg * u.cm * u.Hz)\n",
+    "nu_bar_estimator = transport.transport_state.nu_bar_estimator * (\n",
+    "    u.erg * u.cm * u.Hz\n",
+    ")\n",
     "nu_bar_estimator"
    ]
   },
@@ -378,7 +389,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "nu_bar/J"
+    "nu_bar / J"
    ]
   },
   {
@@ -397,9 +408,11 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "t_rad_estimated = ( (const.h.cgs / const.k_B.cgs) \n",
-    "                   * (np.pi**4 / (360 * zeta(5, 1)))\n",
-    "                   * (nu_bar_estimator / j_estimator) ).decompose()\n",
+    "t_rad_estimated = (\n",
+    "    (const.h.cgs / const.k_B.cgs)\n",
+    "    * (np.pi**4 / (360 * zeta(5, 1)))\n",
+    "    * (nu_bar_estimator / j_estimator)\n",
+    ").decompose()\n",
     "t_rad_estimated"
    ]
   },
@@ -410,7 +423,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "t_rad_updated = simulation_state.t_radiative + damping_t_radiative * (t_rad_estimated - simulation_state.t_radiative)\n",
+    "t_rad_updated = simulation_state.t_radiative + damping_t_radiative * (\n",
+    "    t_rad_estimated - simulation_state.t_radiative\n",
+    ")\n",
     "t_rad_updated"
    ]
   },
@@ -421,7 +436,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "dilution_factor_estimated = ( j_estimator / (4 * const.sigma_sb.cgs * t_rad_estimated**4 * V * Delta_t) ).decompose()\n",
+    "dilution_factor_estimated = (\n",
+    "    j_estimator / (4 * const.sigma_sb.cgs * t_rad_estimated**4 * V * Delta_t)\n",
+    ").decompose()\n",
     "dilution_factor_estimated"
    ]
   },
@@ -432,7 +449,11 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "dilution_factor_updated = simulation_state.dilution_factor + damping_dilution_factor * (dilution_factor_estimated - simulation_state.dilution_factor)\n",
+    "dilution_factor_updated = (\n",
+    "    simulation_state.dilution_factor\n",
+    "    + damping_dilution_factor\n",
+    "    * (dilution_factor_estimated - simulation_state.dilution_factor)\n",
+    ")\n",
     "dilution_factor_updated"
    ]
   },
@@ -459,11 +480,17 @@
     "# Using the commented out code below, we can also get the frequency bounds\n",
     "# from the configuration -- try it out (note we convert between wavelength\n",
     "# and frequency, and thus the order switches):\n",
-    "#nu_lower = tardis_config.supernova.luminosity_wavelength_end.to(u.Hz, u.spectral)\n",
-    "#nu_upper = tardis_config.supernova.luminosity_wavelength_start.to(u.Hz, u.spectral)\n",
+    "# nu_lower = tardis_config.supernova.luminosity_wavelength_end.to(u.Hz, u.spectral)\n",
+    "# nu_upper = tardis_config.supernova.luminosity_wavelength_start.to(u.Hz, u.spectral)\n",
     "\n",
     "from tardis.spectrum.luminosity import calculate_filtered_luminosity\n",
-    "L_output = calculate_filtered_luminosity(transport.transport_state.emitted_packet_nu, transport.transport_state.emitted_packet_luminosity, nu_lower, nu_upper)\n",
+    "\n",
+    "L_output = calculate_filtered_luminosity(\n",
+    "    transport.transport_state.emitted_packet_nu,\n",
+    "    transport.transport_state.emitted_packet_luminosity,\n",
+    "    nu_lower,\n",
+    "    nu_upper,\n",
+    ")\n",
     "L_output"
    ]
   },
@@ -485,7 +512,10 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "t_inner_estimated = simulation_state.t_inner * (L_output / L_requested)**t_inner_update_exponent\n",
+    "t_inner_estimated = (\n",
+    "    simulation_state.t_inner\n",
+    "    * (L_output / L_requested) ** t_inner_update_exponent\n",
+    ")\n",
     "t_inner_estimated"
    ]
   },
@@ -496,7 +526,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "t_inner_updated = simulation_state.t_inner + damping_t_inner * (t_inner_estimated - simulation_state.t_inner)\n",
+    "t_inner_updated = simulation_state.t_inner + damping_t_inner * (\n",
+    "    t_inner_estimated - simulation_state.t_inner\n",
+    ")\n",
     "t_inner_updated"
    ]
   },

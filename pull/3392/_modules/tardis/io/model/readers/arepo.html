@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -142,6 +142,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
+
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
@@ -592,15 +593,15 @@ class Profile:
                 )
             )
 
-            for spec in self.species:
-                f.write(
-                    &quot;&quot;.join(
-                        [
-                            f&quot;    -  name: {spec.capitalize()}\n&quot;,
-                            f&quot;       desc: fractional {spec.capitalize()} abundance.\n&quot;,
-                        ]
-                    )
+            f.writelines(
+                &quot;&quot;.join(
+                    [
+                        f&quot;    -  name: {spec.capitalize()}\n&quot;,
+                        f&quot;       desc: fractional {spec.capitalize()} abundance.\n&quot;,
+                    ]
                 )
+                for spec in self.species
+            )
 
             f.write(&quot;\n---\n&quot;)
 
@@ -635,8 +636,7 @@ class Profile:
 
             for i in inds:
                 f.write(&quot;\n&quot;)
-                for ii in range(len(exp) - 1):
-                    f.write(f&quot;{exp[ii][i]:g},&quot;)
+                f.writelines(f&quot;{exp[ii][i]:g},&quot; for ii in range(len(exp) - 1))
                 f.write(f&quot;{exp[-1][i]:g}&quot;)
 
         return filename</div>
@@ -1116,7 +1116,7 @@ if __name__ == &quot;__main__&quot;:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

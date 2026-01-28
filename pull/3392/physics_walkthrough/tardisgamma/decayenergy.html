@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -194,19 +194,17 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.gamma_ray_channel</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">create_isotope_dicts</span><span class="p">,</span>
-    <span class="n">create_inventories_dict</span><span class="p">,</span>
     <span class="n">calculate_total_decays</span><span class="p">,</span>
-    <span class="n">create_isotope_decay_df</span>
+    <span class="n">create_inventories_dict</span><span class="p">,</span>
+    <span class="n">create_isotope_decay_df</span><span class="p">,</span>
+    <span class="n">create_isotope_dicts</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.gamma_ray_transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_taus</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.energy_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_nuclear_lines_database</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">download_atom_data</span><span class="p">,</span> <span class="n">AtomData</span><span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.tests.test_gamma_ray_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">test_total_energy_production</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span><span class="p">,</span> <span class="n">download_atom_data</span>
 </pre></div>
 </div>
 </div>
@@ -238,7 +236,7 @@
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># energies of each transition</span>
 <span class="n">t_energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.270</span><span class="p">,</span> <span class="mf">0.750</span><span class="p">,</span> <span class="mf">0.480</span><span class="p">,</span> <span class="mf">1.56</span><span class="p">,</span> <span class="mf">0.812</span><span class="p">,</span> <span class="mf">0.158</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">MeV</span>
 <span class="c1"># probabilities of each transition</span>
-<span class="n">t_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">.365</span><span class="p">,</span> <span class="mf">.495</span><span class="p">,</span> <span class="mf">.366</span><span class="p">,</span> <span class="mf">.140</span><span class="p">,</span> <span class="mf">.860</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">])</span>
+<span class="n">t_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.365</span><span class="p">,</span> <span class="mf">0.495</span><span class="p">,</span> <span class="mf">0.366</span><span class="p">,</span> <span class="mf">0.140</span><span class="p">,</span> <span class="mf">0.860</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">])</span>
 
 <span class="n">energy_per_decay</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">t_energies</span> <span class="o">*</span> <span class="n">t_prob</span><span class="p">)</span>
 <span class="n">energy_per_decay</span>
@@ -269,14 +267,24 @@ $1.7202 \; \mathrm{MeV}$</div></div>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#time in days</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># time in days</span>
 <span class="n">time</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
-<span class="c1">#mass of Ni56 in solar masses</span>
+<span class="c1"># mass of Ni56 in solar masses</span>
 <span class="n">m_Ni56</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">M_sun</span>
 
-<span class="n">energy_production_rate</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.45e43</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">time</span><span class="o">/</span><span class="p">(</span><span class="mf">8.8</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">))</span> <span class="o">+</span> <span class="mf">1.45e43</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">time</span><span class="o">/</span><span class="p">(</span><span class="mf">111.3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">)))</span> <span class="o">*</span> <span class="p">(</span><span class="n">m_Ni56</span><span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span> <span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="n">energy_production_rate</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span>
+        <span class="mf">6.45e43</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">time</span> <span class="o">/</span> <span class="p">(</span><span class="mf">8.8</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">))</span>
+        <span class="o">+</span> <span class="mf">1.45e43</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">time</span> <span class="o">/</span> <span class="p">(</span><span class="mf">111.3</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">))</span>
+    <span class="p">)</span>
+    <span class="o">*</span> <span class="p">(</span><span class="n">m_Ni56</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="p">)</span>
+    <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span>
+    <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The total energy production rate for 1 solar mass of 56Ni after 10 days is: </span><span class="si">{</span><span class="n">energy_production_rate</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The total energy production rate for 1 solar mass of 56Ni after 10 days is: </span><span class="si">{</span><span class="n">energy_production_rate</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -300,8 +308,10 @@ The total energy production rate for 1 solar mass of 56Ni after 10 days is: 3.40
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_energy_production</span> <span class="o">=</span> <span class="mf">1.885e50</span> <span class="o">*</span> <span class="p">(</span><span class="n">m_Ni56</span><span class="o">/</span><span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The total energy production for 1 solar mass of 56Ni is: </span><span class="si">{</span><span class="n">total_energy_production</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_energy_production</span> <span class="o">=</span> <span class="mf">1.885e50</span> <span class="o">*</span> <span class="p">(</span><span class="n">m_Ni56</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The total energy production for 1 solar mass of 56Ni is: </span><span class="si">{</span><span class="n">total_energy_production</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -319,13 +329,14 @@ The total energy production for 1 solar mass of 56Ni is: 1.885e+50 erg
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mass_fractions</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
-                  <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
-                  <span class="mi">2</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
-                  <span class="mi">3</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
-                  <span class="mi">4</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mass_fractions</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
 
-<span class="n">raw_isotope_abundance</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">mass_fractions</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">([(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">56</span><span class="p">)],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;mass_number&quot;</span><span class="p">]))</span>
+<span class="n">raw_isotope_abundance</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">mass_fractions</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span>
+        <span class="p">[(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">56</span><span class="p">)],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;mass_number&quot;</span><span class="p">]</span>
+    <span class="p">),</span>
+<span class="p">)</span>
 <span class="n">raw_isotope_abundance</span>
 </pre></div>
 </div>
@@ -389,7 +400,7 @@ The total energy production for 1 solar mass of 56Ni is: 1.885e+50 erg
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shell_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">*</span><span class="mf">0.2</span><span class="o">*</span><span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shell_masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="p">)</span>
 <span class="n">shell_masses</span>
 </pre></div>
 </div>
@@ -453,7 +464,7 @@ $[3.9768197 \times 10^{32},~3.9768197 \times 10^{32},~3.9768197 \times 10^{32},~
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cumulative_decay_df</span> <span class="o">=</span> <span class="n">calculate_total_decays</span><span class="p">(</span><span class="n">inventories</span><span class="p">,</span> <span class="n">time_delta</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cumulative_decay_df</span> <span class="o">=</span> <span class="n">calculate_total_decays</span><span class="p">(</span><span class="n">inventories</span><span class="p">,</span> <span class="n">time_delta</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">cumulative_decay_df</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -482,8 +493,8 @@ shell_number isotope
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He&#39;</span><span class="p">)</span>
-<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s1">&#39;kurucz_cd23_chianti_H_He.h5&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download_atom_data</span><span class="p">(</span><span class="s2">&quot;kurucz_cd23_chianti_H_He&quot;</span><span class="p">)</span>
+<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s2">&quot;kurucz_cd23_chianti_H_He.h5&quot;</span>
 <span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">atom_data_file</span><span class="p">)</span>
 <span class="n">gamma_ray_lines</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">decay_radiation_data</span>
 <span class="n">gamma_ray_lines</span>
@@ -1035,7 +1046,7 @@ INFO:tardis.io.atom_data.base:Non provided Atomic Data: synpp_refs, photoionizat
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">percent_error</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">expected</span> <span class="o">-</span> <span class="n">observed</span><span class="p">)</span><span class="o">/</span><span class="n">expected</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">expected</span> <span class="o">-</span> <span class="n">observed</span><span class="p">)</span> <span class="o">/</span> <span class="n">expected</span> <span class="o">*</span> <span class="mi">100</span>
 </pre></div>
 </div>
 </div>
@@ -1046,14 +1057,18 @@ INFO:tardis.io.atom_data.base:Non provided Atomic Data: synpp_refs, photoionizat
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tau_dict</span> <span class="o">=</span> <span class="n">get_taus</span><span class="p">(</span><span class="n">raw_isotope_abundance</span><span class="p">)</span>
 
-<span class="n">tau_co56</span> <span class="o">=</span> <span class="n">tau_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Co-56&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
-<span class="n">tau_ni56</span> <span class="o">=</span> <span class="n">tau_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Ni-56&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="n">tau_co56</span> <span class="o">=</span> <span class="n">tau_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Co-56&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+<span class="n">tau_ni56</span> <span class="o">=</span> <span class="n">tau_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;Ni-56&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
 <span class="n">tau_ni56_days</span> <span class="o">=</span> <span class="n">tau_ni56</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
 <span class="n">tau_co56_days</span> <span class="o">=</span> <span class="n">tau_co56</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The lifetime of 56Ni is: </span><span class="si">{</span><span class="n">tau_ni56_days</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The lifetime of 56Co is: </span><span class="si">{</span><span class="n">tau_co56_days</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percent error for 56Ni lifetime is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">tau_ni56_days</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">8.8</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percent error for 56Co lifetime is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">tau_co56_days</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">111.3</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The percent error for 56Ni lifetime is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">tau_ni56_days</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">8.8</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The percent error for 56Co lifetime is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">tau_co56_days</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">111.3</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1074,17 +1089,37 @@ The percent error for 56Co lifetime is: 0.1072219297885327 %
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># For Ni56</span>
-<span class="n">ni56</span> <span class="o">=</span> <span class="n">isotope_decay_df</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="s1">&#39;Ni56&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s1">&#39;isotope&#39;</span><span class="p">)</span>
-<span class="n">ni56_energy_per_decay_MeV</span> <span class="o">=</span> <span class="p">(</span><span class="n">ni56</span><span class="p">[</span><span class="s1">&#39;radiation_intensity&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">ni56</span><span class="p">[</span><span class="s1">&#39;radiation_energy_keV&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">keV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;MeV&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="mi">5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">MeV</span>
+<span class="n">ni56</span> <span class="o">=</span> <span class="n">isotope_decay_df</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="s2">&quot;Ni56&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;isotope&quot;</span><span class="p">)</span>
+<span class="n">ni56_energy_per_decay_MeV</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span>
+        <span class="n">ni56</span><span class="p">[</span><span class="s2">&quot;radiation_intensity&quot;</span><span class="p">]</span>
+        <span class="o">/</span> <span class="mi">100</span>
+        <span class="o">*</span> <span class="p">(</span><span class="n">ni56</span><span class="p">[</span><span class="s2">&quot;radiation_energy_keV&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">keV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;MeV&quot;</span><span class="p">))</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="o">/</span> <span class="mi">5</span>
+    <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">MeV</span>
+<span class="p">)</span>
 
 <span class="c1"># For Co56</span>
-<span class="n">co56</span> <span class="o">=</span> <span class="n">isotope_decay_df</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="s1">&#39;Co56&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s1">&#39;isotope&#39;</span><span class="p">)</span>
-<span class="n">co56_energy_per_decay_MeV</span> <span class="o">=</span> <span class="p">(</span><span class="n">co56</span><span class="p">[</span><span class="s1">&#39;radiation_intensity&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">co56</span><span class="p">[</span><span class="s1">&#39;radiation_energy_keV&#39;</span><span class="p">]</span><span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">keV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;MeV&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="mi">5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">MeV</span>
+<span class="n">co56</span> <span class="o">=</span> <span class="n">isotope_decay_df</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="s2">&quot;Co56&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;isotope&quot;</span><span class="p">)</span>
+<span class="n">co56_energy_per_decay_MeV</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span>
+        <span class="n">co56</span><span class="p">[</span><span class="s2">&quot;radiation_intensity&quot;</span><span class="p">]</span>
+        <span class="o">/</span> <span class="mi">100</span>
+        <span class="o">*</span> <span class="p">(</span><span class="n">co56</span><span class="p">[</span><span class="s2">&quot;radiation_energy_keV&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">keV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;MeV&quot;</span><span class="p">))</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="o">/</span> <span class="mi">5</span>
+    <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">MeV</span>
+<span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The energy per decay for Ni56 is: </span><span class="si">{</span><span class="n">ni56_energy_per_decay_MeV</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The energy per decay for Co56 is: </span><span class="si">{</span><span class="n">co56_energy_per_decay_MeV</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percent error for Ni56 energy per decay is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">ni56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">1.75</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percent error for Co56 energy per decay is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">co56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">3.73</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The percent error for Ni56 energy per decay is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">ni56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">1.75</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The percent error for Co56 energy per decay is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">co56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">3.73</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1104,14 +1139,23 @@ The percent error for Co56 energy per decay is: 3.2753405028778486 %
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">outside_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span> <span class="p">(</span><span class="n">tau_co56</span> <span class="o">-</span> <span class="n">tau_ni56</span><span class="p">))</span> <span class="o">*</span> <span class="p">((</span><span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mi">56</span> <span class="o">*</span> <span class="mf">1.67e-24</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="p">))</span>
-<span class="n">ni56_coeff</span> <span class="o">=</span> <span class="n">outside_factor</span> <span class="o">*</span> <span class="p">(</span><span class="n">ni56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;erg&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">tau_co56</span><span class="o">/</span><span class="n">tau_ni56</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">co56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;erg&quot;</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">outside_factor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">tau_co56</span> <span class="o">-</span> <span class="n">tau_ni56</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;g&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">56</span> <span class="o">*</span> <span class="mf">1.67e-24</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">ni56_coeff</span> <span class="o">=</span> <span class="n">outside_factor</span> <span class="o">*</span> <span class="p">(</span>
+    <span class="n">ni56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;erg&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">tau_co56</span> <span class="o">/</span> <span class="n">tau_ni56</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="o">-</span> <span class="n">co56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;erg&quot;</span><span class="p">)</span>
+<span class="p">)</span>
 <span class="n">co56_coeff</span> <span class="o">=</span> <span class="n">outside_factor</span> <span class="o">*</span> <span class="n">co56_energy_per_decay_MeV</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;erg&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The coefficient for Ni56 is: </span><span class="si">{</span><span class="n">ni56_coeff</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The coefficient for Co56 is: </span><span class="si">{</span><span class="n">co56_coeff</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percent error for Ni56 coefficient is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">ni56_coeff</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">6.45e43</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percent error for Co56 coefficient is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">co56_coeff</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">1.45e43</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The percent error for Ni56 coefficient is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">ni56_coeff</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">6.45e43</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The percent error for Co56 coefficient is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">co56_coeff</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="mf">1.45e43</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1131,10 +1175,16 @@ The percent error for Co56 coefficient is: 2.0365031408276604 %
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energy_production_rate_from_HE</span> <span class="o">=</span> <span class="n">ni56_coeff</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">time</span><span class="o">/</span><span class="n">tau_ni56_days</span><span class="p">)</span> <span class="o">+</span> <span class="n">co56_coeff</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">time</span><span class="o">/</span><span class="n">tau_co56_days</span><span class="p">)</span> <span class="o">*</span>  <span class="p">(</span><span class="n">m_Ni56</span><span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energy_production_rate_from_HE</span> <span class="o">=</span> <span class="n">ni56_coeff</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+    <span class="o">-</span><span class="n">time</span> <span class="o">/</span> <span class="n">tau_ni56_days</span>
+<span class="p">)</span> <span class="o">+</span> <span class="n">co56_coeff</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">time</span> <span class="o">/</span> <span class="n">tau_co56_days</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">m_Ni56</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">M_sun</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The energy production rate from TARDIS-HE is: </span><span class="si">{</span><span class="n">energy_production_rate_from_HE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percent error for energy production rate from TARDIS-HE is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">energy_production_rate_from_HE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">energy_production_rate</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The energy production rate from TARDIS-HE is: </span><span class="si">{</span><span class="n">energy_production_rate_from_HE</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The percent error for energy production rate from TARDIS-HE is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">energy_production_rate_from_HE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">energy_production_rate</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1154,8 +1204,12 @@ The percent error for energy production rate from TARDIS-HE is: 1.07899851770988
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_energy_production_HE</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">isotope_decay_df</span><span class="p">[</span><span class="s2">&quot;decay_energy_erg&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The total energy production from TARDIS-HE is: </span><span class="si">{</span><span class="n">total_energy_production_HE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The percent error for total energy production from TARDIS-HE is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">total_energy_production_HE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">total_energy_production</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The total energy production from TARDIS-HE is: </span><span class="si">{</span><span class="n">total_energy_production_HE</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The percent error for total energy production from TARDIS-HE is: </span><span class="si">{</span><span class="n">percent_error</span><span class="p">(</span><span class="n">total_energy_production_HE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">total_energy_production</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> %&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1182,7 +1236,7 @@ The percent error for total energy production from TARDIS-HE is: 1.4673595432896
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

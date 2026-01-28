@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -188,31 +188,73 @@
 <span class="n">home</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
 
 <span class="c1"># input data from C Vogl&#39;s version of TARDIS</span>
-<span class="n">electron_temp</span> <span class="o">=</span> <span class="p">[</span><span class="mf">9992.2722969523056</span><span class="p">,</span> <span class="mf">9992.592241054022</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">electron_density</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.20676447e09</span><span class="p">,</span> <span class="mf">1624998247.515976</span><span class="p">,</span> <span class="p">]</span>
+<span class="n">electron_temp</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">9992.2722969523056</span><span class="p">,</span>
+    <span class="mf">9992.592241054022</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">electron_density</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">2.20676447e09</span><span class="p">,</span>
+    <span class="mf">1624998247.515976</span><span class="p">,</span>
+<span class="p">]</span>
 
-<span class="n">ff_heating_estimator</span> <span class="o">=</span> <span class="p">[</span>  <span class="mf">4.89135279e-24</span><span class="p">,</span>   <span class="mf">4.37696370e-24</span><span class="p">,</span>   <span class="mf">3.75869301e-24</span><span class="p">,</span>
-         <span class="mf">4.97847160e-24</span><span class="p">,</span>   <span class="mf">4.52158002e-24</span><span class="p">,</span>   <span class="mf">4.21024499e-24</span><span class="p">,</span>
-         <span class="mf">3.94991540e-24</span><span class="p">,</span>   <span class="mf">3.72915649e-24</span><span class="p">,</span>   <span class="mf">3.58902110e-24</span><span class="p">,</span>
-         <span class="mf">3.40170224e-24</span><span class="p">,</span>   <span class="mf">3.20848519e-24</span><span class="p">,</span>   <span class="mf">3.03540032e-24</span><span class="p">,</span>
-         <span class="mf">2.87314722e-24</span><span class="p">,</span>   <span class="mf">2.74328938e-24</span><span class="p">,</span>   <span class="mf">2.61063140e-24</span><span class="p">,</span>
-         <span class="mf">2.50640248e-24</span><span class="p">,</span>   <span class="mf">2.38164559e-24</span><span class="p">,</span>   <span class="mf">2.26967531e-24</span><span class="p">,</span>
-         <span class="mf">2.24509826e-24</span><span class="p">,</span>   <span class="mf">2.12378192e-24</span><span class="p">,</span>   <span class="mf">2.02063266e-24</span><span class="p">,</span>
-         <span class="mf">1.92509873e-24</span><span class="p">,</span>   <span class="mf">1.83070678e-24</span><span class="p">,</span>   <span class="mf">1.77346374e-24</span><span class="p">]</span>
+<span class="n">ff_heating_estimator</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">4.89135279e-24</span><span class="p">,</span>
+    <span class="mf">4.37696370e-24</span><span class="p">,</span>
+    <span class="mf">3.75869301e-24</span><span class="p">,</span>
+    <span class="mf">4.97847160e-24</span><span class="p">,</span>
+    <span class="mf">4.52158002e-24</span><span class="p">,</span>
+    <span class="mf">4.21024499e-24</span><span class="p">,</span>
+    <span class="mf">3.94991540e-24</span><span class="p">,</span>
+    <span class="mf">3.72915649e-24</span><span class="p">,</span>
+    <span class="mf">3.58902110e-24</span><span class="p">,</span>
+    <span class="mf">3.40170224e-24</span><span class="p">,</span>
+    <span class="mf">3.20848519e-24</span><span class="p">,</span>
+    <span class="mf">3.03540032e-24</span><span class="p">,</span>
+    <span class="mf">2.87314722e-24</span><span class="p">,</span>
+    <span class="mf">2.74328938e-24</span><span class="p">,</span>
+    <span class="mf">2.61063140e-24</span><span class="p">,</span>
+    <span class="mf">2.50640248e-24</span><span class="p">,</span>
+    <span class="mf">2.38164559e-24</span><span class="p">,</span>
+    <span class="mf">2.26967531e-24</span><span class="p">,</span>
+    <span class="mf">2.24509826e-24</span><span class="p">,</span>
+    <span class="mf">2.12378192e-24</span><span class="p">,</span>
+    <span class="mf">2.02063266e-24</span><span class="p">,</span>
+    <span class="mf">1.92509873e-24</span><span class="p">,</span>
+    <span class="mf">1.83070678e-24</span><span class="p">,</span>
+    <span class="mf">1.77346374e-24</span><span class="p">,</span>
+<span class="p">]</span>
 <span class="n">data_path</span> <span class="o">=</span> <span class="n">home</span> <span class="o">/</span> <span class="s2">&quot;tardis-regression-data/testdata/thermal_data&quot;</span>
-<span class="n">bf_heating_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_bf_heating_est.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">stim_recomb_cooling_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_stim_cooling_est.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">ion_number_density</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_ion_number_density.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<span class="n">level_number_density</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_level_number_density.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">level_population_ratio</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_level_pop_ratio.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">coll_exc_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_coll_exc_coeff.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-<span class="n">coll_deexc_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_coll_deexc_coeff.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">bf_heating_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_bf_heating_est.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">stim_recomb_cooling_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_stim_cooling_est.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">ion_number_density</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_ion_number_density.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">level_number_density</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_level_number_density.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">level_population_ratio</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_level_pop_ratio.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">coll_exc_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_coll_exc_coeff.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">coll_deexc_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_coll_deexc_coeff.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">)</span>
 <span class="n">lines</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_lines.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-<span class="n">coll_ion_rate_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_coll_ion_rate_coeff.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">coll_ion_rate_coeff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">data_path</span> <span class="o">/</span> <span class="s2">&quot;thermal_coll_ion_rate_coeff.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
 
 <span class="c1"># because pandas reads in the columns as strings, we need to convert them back to integers</span>
 <span class="n">bf_heating_estimator</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">bf_heating_estimator</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-<span class="n">stim_recomb_cooling_estimator</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">stim_recomb_cooling_estimator</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">stim_recomb_cooling_estimator</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">stim_recomb_cooling_estimator</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="p">)</span>
 <span class="n">ion_number_density</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">ion_number_density</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 <span class="n">level_number_density</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">level_number_density</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 <span class="n">level_population_ratio</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">level_population_ratio</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -228,17 +270,47 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fb_cooling_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2018593543520837e-06</span><span class="p">,</span> <span class="mf">6.467703748685086e-07</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">ff_cooling_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">6.941664530316456e-07</span><span class="p">,</span> <span class="mf">3.7641281653486813e-07</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">coll_ion_cooling_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.6125333965984259e-07</span><span class="p">,</span> <span class="mf">6.45338605094838e-08</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">bf_heating_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.2809489753862688e-06</span><span class="p">,</span> <span class="mf">7.017461756945128e-07</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">ff_heating_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.3829164962085199e-07</span><span class="p">,</span> <span class="mf">1.1562178134581216e-07</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">coll_ion_heating_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.5946196993219911e-07</span><span class="p">,</span> <span class="mf">6.366986972173936e-08</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">total_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">3.8611749800759465e-07</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.100641079650486e-07</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">fractional_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.036553097452112299</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.04676864172507447</span><span class="p">,</span> <span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fb_cooling_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">1.2018593543520837e-06</span><span class="p">,</span>
+    <span class="mf">6.467703748685086e-07</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">ff_cooling_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">6.941664530316456e-07</span><span class="p">,</span>
+    <span class="mf">3.7641281653486813e-07</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">coll_ion_cooling_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">1.6125333965984259e-07</span><span class="p">,</span>
+    <span class="mf">6.45338605094838e-08</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">bf_heating_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">1.2809489753862688e-06</span><span class="p">,</span>
+    <span class="mf">7.017461756945128e-07</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">ff_heating_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">2.3829164962085199e-07</span><span class="p">,</span>
+    <span class="mf">1.1562178134581216e-07</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">coll_ion_heating_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">1.5946196993219911e-07</span><span class="p">,</span>
+    <span class="mf">6.366986972173936e-08</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">total_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">-</span><span class="mf">3.8611749800759465e-07</span><span class="p">,</span>
+    <span class="o">-</span><span class="mf">2.100641079650486e-07</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">fractional_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">-</span><span class="mf">0.036553097452112299</span><span class="p">,</span>
+    <span class="o">-</span><span class="mf">0.04676864172507447</span><span class="p">,</span>
+<span class="p">]</span>
 
-<span class="n">coll_exc_cooling_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.5059159013e-06</span><span class="p">,</span> <span class="mf">3.403841826360594e-06</span><span class="p">,</span> <span class="p">]</span>
-<span class="n">coll_deexc_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.49837495539e-06</span><span class="p">,</span> <span class="mf">3.400456943546342e-06</span><span class="p">,</span> <span class="p">]</span>
+<span class="n">coll_exc_cooling_rate_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">8.5059159013e-06</span><span class="p">,</span>
+    <span class="mf">3.403841826360594e-06</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">coll_deexc_heating_rate_ct</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">8.49837495539e-06</span><span class="p">,</span>
+    <span class="mf">3.400456943546342e-06</span><span class="p">,</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -250,21 +322,26 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.electron_energy_distribution</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-         <span class="n">ThermalElectronEnergyDistribution</span><span class="p">,</span>
+    <span class="n">ThermalElectronEnergyDistribution</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.equilibrium.rates.heating_cooling_rates</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-         <span class="n">BoundFreeThermalRates</span><span class="p">,</span>
-         <span class="n">CollisionalBoundThermalRates</span><span class="p">,</span>
-         <span class="n">CollisionalIonizationThermalRates</span><span class="p">,</span>
-         <span class="n">FreeFreeThermalRates</span><span class="p">,</span>
+    <span class="n">BoundFreeThermalRates</span><span class="p">,</span>
+    <span class="n">CollisionalBoundThermalRates</span><span class="p">,</span>
+    <span class="n">CollisionalIonizationThermalRates</span><span class="p">,</span>
+    <span class="n">FreeFreeThermalRates</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># identical atomic data to that used by C Vogl</span>
-<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">home</span> <span class="o">/</span> <span class="s2">&quot;tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti_ctardis.h5&quot;</span><span class="p">)</span> <span class="c1"># currently not available for public use</span>
+<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span>
+    <span class="n">home</span>
+    <span class="o">/</span> <span class="s2">&quot;tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti_ctardis.h5&quot;</span>
+<span class="p">)</span>  <span class="c1"># currently not available for public use</span>
 <span class="n">atom_data</span><span class="o">.</span><span class="n">prepare_atom_data</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;macroatom&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
 
 <span class="c1"># matching electron distribution to that used by C Vogl</span>
-<span class="n">thermal_electron_distribution</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span><span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="p">,</span> <span class="n">electron_temp</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">electron_density</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">thermal_electron_distribution</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span>
+    <span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="p">,</span> <span class="n">electron_temp</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">electron_density</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -401,14 +478,16 @@ dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coll_ion_rates</span> <span class="o">=</span> <span class="n">CollisionalIonizationThermalRates</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coll_ion_rates</span> <span class="o">=</span> <span class="n">CollisionalIonizationThermalRates</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span>
+<span class="p">)</span>
 <span class="n">coll_ion_heating</span><span class="p">,</span> <span class="n">coll_ion_cooling</span> <span class="o">=</span> <span class="n">coll_ion_rates</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
     <span class="n">thermal_electron_distribution</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span>
     <span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span>
     <span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span>
     <span class="n">coll_ion_rate_coeff</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span>
     <span class="n">level_population_ratio</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span>
-    <span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -509,7 +588,9 @@ dtype: float64
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.equilibrium.thermal_balance</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThermalBalanceSolver</span>
 
-<span class="n">thermal_solver</span> <span class="o">=</span> <span class="n">ThermalBalanceSolver</span><span class="p">(</span><span class="n">bf_rates</span><span class="p">,</span> <span class="n">ff_rates</span><span class="p">,</span> <span class="n">coll_ion_rates</span><span class="p">,</span> <span class="n">coll_bound_rates</span><span class="p">)</span>
+<span class="n">thermal_solver</span> <span class="o">=</span> <span class="n">ThermalBalanceSolver</span><span class="p">(</span>
+    <span class="n">bf_rates</span><span class="p">,</span> <span class="n">ff_rates</span><span class="p">,</span> <span class="n">coll_ion_rates</span><span class="p">,</span> <span class="n">coll_bound_rates</span>
+<span class="p">)</span>
 
 <span class="n">heating_rate</span><span class="p">,</span> <span class="n">fractional_heating_rate</span> <span class="o">=</span> <span class="n">thermal_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
     <span class="n">thermal_electron_distribution</span><span class="p">,</span>
@@ -549,7 +630,9 @@ dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">fractional_heating_rate</span> <span class="o">-</span> <span class="n">fractional_heating_rate_ct</span><span class="p">)</span> <span class="o">/</span> <span class="n">fractional_heating_rate_ct</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span>
+    <span class="n">fractional_heating_rate</span> <span class="o">-</span> <span class="n">fractional_heating_rate_ct</span>
+<span class="p">)</span> <span class="o">/</span> <span class="n">fractional_heating_rate_ct</span>
 </pre></div>
 </div>
 </div>
@@ -584,7 +667,7 @@ dtype: float64
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

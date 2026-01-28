@@ -45,13 +45,14 @@
    "metadata": {},
    "outputs": [],
    "source": [
+    "import matplotlib.pyplot as plt\n",
+    "import numpy as np\n",
+    "from astropy import units as u\n",
+    "\n",
+    "from tardis.io.atom_data import download_atom_data\n",
     "from tardis.io.configuration.config_reader import Configuration\n",
     "from tardis.simulation import Simulation\n",
-    "from tardis.spectrum.spectrum import TARDISSpectrum\n",
-    "from tardis.io.atom_data import download_atom_data\n",
-    "from astropy import units as u\n",
-    "import numpy as np\n",
-    "import matplotlib.pyplot as plt"
+    "from tardis.spectrum.spectrum import TARDISSpectrum"
    ]
   },
   {
@@ -62,7 +63,7 @@
    "outputs": [],
    "source": [
     "# We download the atomic data needed to run the simulation\n",
-    "download_atom_data('kurucz_cd23_chianti_H_He_latest')"
+    "download_atom_data(\"kurucz_cd23_chianti_H_He_latest\")"
    ]
   },
   {
@@ -72,7 +73,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "tardis_config = Configuration.from_yaml('tardis_example.yml')\n",
+    "tardis_config = Configuration.from_yaml(\"tardis_example.yml\")\n",
     "\n",
     "sim = Simulation.from_config(tardis_config)"
    ]
@@ -97,7 +98,7 @@
     "\n",
     "# Using the commented out code below, we can also get the number of packets\n",
     "# from the configuration -- try it out:\n",
-    "#N_packets = tardis_config.no_of_packets\n",
+    "# N_packets = tardis_config.no_of_packets\n",
     "\n",
     "sim.iterate(N_packets)"
    ]
@@ -265,8 +266,8 @@
    "outputs": [],
    "source": [
     "plt.scatter(emitted_nus, emitted_luminosities)\n",
-    "plt.xlabel('Frequency (Hz)')\n",
-    "plt.ylabel('Luminosity (erg/s)');"
+    "plt.xlabel(\"Frequency (Hz)\")\n",
+    "plt.ylabel(\"Luminosity (erg/s)\");"
    ]
   },
   {
@@ -328,11 +329,11 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "#freq_start = tardis_config.spectrum.stop.to('Hz', u.spectral())\n",
+    "# freq_start = tardis_config.spectrum.stop.to('Hz', u.spectral())\n",
     "\n",
-    "#freq_stop = tardis_config.spectrum.start.to('Hz', u.spectral())\n",
+    "# freq_stop = tardis_config.spectrum.start.to('Hz', u.spectral())\n",
     "\n",
-    "#N = tardis_config.spectrum.num"
+    "# N = tardis_config.spectrum.num"
    ]
   },
   {
@@ -351,7 +352,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "spectrum_frequency = np.linspace(freq_start, freq_stop, N+1)\n",
+    "spectrum_frequency = np.linspace(freq_start, freq_stop, N + 1)\n",
     "spectrum_frequency"
    ]
   },
@@ -371,10 +372,14 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "emitted_luminosity_hist = u.Quantity(np.histogram(emitted_nus,\n",
-    "                                                  weights=emitted_luminosities,\n",
-    "                                                  bins=spectrum_frequency,\n",
-    "                                                 )[0], \"erg / s\",)\n",
+    "emitted_luminosity_hist = u.Quantity(\n",
+    "    np.histogram(\n",
+    "        emitted_nus,\n",
+    "        weights=emitted_luminosities,\n",
+    "        bins=spectrum_frequency,\n",
+    "    )[0],\n",
+    "    \"erg / s\",\n",
+    ")\n",
     "emitted_luminosity_hist"
    ]
   },
@@ -404,7 +409,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "spectrum.plot(mode='frequency')"
+    "spectrum.plot(mode=\"frequency\")"
    ]
   },
   {
@@ -414,7 +419,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "spectrum.plot(mode='wavelength')"
+    "spectrum.plot(mode=\"wavelength\")"
    ]
   },
   {

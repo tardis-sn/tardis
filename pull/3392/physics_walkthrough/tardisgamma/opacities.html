@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -196,12 +196,16 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">const</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.opacities.opacities</span><span class="w"> </span><span class="kn">import</span> <span class="n">compton_opacity_calculation</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.opacities.opacities</span><span class="w"> </span><span class="kn">import</span> <span class="n">photoabsorption_opacity_calculation</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.opacities.opacities</span><span class="w"> </span><span class="kn">import</span> <span class="n">pair_creation_opacity_calculation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.opacities.opacities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compton_opacity_calculation</span><span class="p">,</span>
+    <span class="n">pair_creation_opacity_calculation</span><span class="p">,</span>
+    <span class="n">photoabsorption_opacity_calculation</span><span class="p">,</span>
+<span class="p">)</span>
+
 <span class="o">%</span><span class="k">config</span> InlineBackend.figure_format = &#39;retina&#39;
 </pre></div>
 </div>
@@ -210,7 +214,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span> <span class="c1"># in KeV</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>  <span class="c1"># in KeV</span>
 </pre></div>
 </div>
 </div>
@@ -242,13 +246,17 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pair_creation_opacities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energies</span><span class="p">)):</span>
-    <span class="n">pair_creation_opacities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pair_creation_opacity_calculation</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">ejecta_density</span><span class="o">=</span><span class="n">ejecta_density</span><span class="p">,</span> <span class="n">iron_group_fraction</span><span class="o">=</span><span class="n">x_ige</span><span class="p">)</span>
+    <span class="n">pair_creation_opacities</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pair_creation_opacity_calculation</span><span class="p">(</span>
+        <span class="n">energy</span><span class="o">=</span><span class="n">energies</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="n">ejecta_density</span><span class="o">=</span><span class="n">ejecta_density</span><span class="p">,</span>
+        <span class="n">iron_group_fraction</span><span class="o">=</span><span class="n">x_ige</span><span class="p">,</span>
+    <span class="p">)</span>
 
 <span class="c1"># We can then plot the opacity</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">pair_creation_opacities</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet Energy (KeV)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\alpha_</span><span class="si">{pp}</span><span class="s2">$ (cm$^{-1}$)&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">right</span><span class="o">=</span> <span class="mi">5000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Pair Creation Attenuation Coefficient&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -295,7 +303,11 @@ Text(0.5, 1.0, &#39;Pair Creation Attenuation Coefficient&#39;)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compton_opacities</span> <span class="o">=</span> <span class="n">compton_opacity_calculation</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">electron_density</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">sigma_T</span><span class="o">.</span><span class="n">cgs</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">electron_density</span><span class="o">*</span><span class="mf">.75</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Thomson Scattering Cross Section&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
+    <span class="n">const</span><span class="o">.</span><span class="n">sigma_T</span><span class="o">.</span><span class="n">cgs</span><span class="o">.</span><span class="n">value</span> <span class="o">*</span> <span class="n">electron_density</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Thomson Scattering Cross Section&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">compton_opacities</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet energies (KeV)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\alpha_</span><span class="si">{C}</span><span class="s2">$ (cm$^{-1}$)&quot;</span><span class="p">)</span>
@@ -331,13 +343,15 @@ Text(0.5, 1.0, &#39;Pair Creation Attenuation Coefficient&#39;)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The photoabsorption opacity function takes in the packet energy, ejecta density and the fraction of iron group elements</span>
-<span class="n">photoabsorption_opacities</span> <span class="o">=</span> <span class="n">photoabsorption_opacity_calculation</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span> <span class="n">energies</span><span class="p">,</span> <span class="n">ejecta_density</span><span class="o">=</span><span class="n">ejecta_density</span><span class="p">,</span> <span class="n">iron_group_fraction</span><span class="o">=</span><span class="n">x_ige</span><span class="p">)</span>
+<span class="n">photoabsorption_opacities</span> <span class="o">=</span> <span class="n">photoabsorption_opacity_calculation</span><span class="p">(</span>
+    <span class="n">energy</span><span class="o">=</span><span class="n">energies</span><span class="p">,</span> <span class="n">ejecta_density</span><span class="o">=</span><span class="n">ejecta_density</span><span class="p">,</span> <span class="n">iron_group_fraction</span><span class="o">=</span><span class="n">x_ige</span>
+<span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">photoabsorption_opacities</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet energies (KeV)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\alpha_</span><span class="si">{pa}</span><span class="s2">$ (cm$^{-1}$)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Photoabsorption Attenuation Coefficient&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -362,15 +376,15 @@ Text(0.5, 1.0, &#39;Pair Creation Attenuation Coefficient&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">pair_creation_opacities</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Pair Creation&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">compton_opacities</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span> <span class="s2">&quot;Compton Scattering&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">photoabsorption_opacities</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span> <span class="s2">&quot;Photoabsorption&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">pair_creation_opacities</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Pair Creation&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">compton_opacities</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Compton Scattering&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">photoabsorption_opacities</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Photoabsorption&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet energies (KeV)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\alpha$ (cm$^{-1}$)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Attenuation Coefficients at Different Energies&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">left</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -395,16 +409,18 @@ Text(0.5, 1.0, &#39;Pair Creation Attenuation Coefficient&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_opacity</span> <span class="o">=</span> <span class="n">pair_creation_opacities</span> <span class="o">+</span> <span class="n">compton_opacities</span> <span class="o">+</span> <span class="n">photoabsorption_opacities</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_opacity</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">pair_creation_opacities</span> <span class="o">+</span> <span class="n">compton_opacities</span> <span class="o">+</span> <span class="n">photoabsorption_opacities</span>
+<span class="p">)</span>
 <span class="n">frac_pair_creation</span> <span class="o">=</span> <span class="n">pair_creation_opacities</span> <span class="o">/</span> <span class="n">total_opacity</span>
 <span class="n">frac_compton_scattering</span> <span class="o">=</span> <span class="n">compton_opacities</span> <span class="o">/</span> <span class="n">total_opacity</span>
 <span class="n">frac_photoabsorption</span> <span class="o">=</span> <span class="n">photoabsorption_opacities</span> <span class="o">/</span> <span class="n">total_opacity</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_pair_creation</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Pair Creation&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_compton_scattering</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Compton Scattering&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_photoabsorption</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Photoabsorption&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_pair_creation</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Pair Creation&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_compton_scattering</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Compton Scattering&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">frac_photoabsorption</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Photoabsorption&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">left</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Packet energies (KeV)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Fraction of Total Attenuation Coefficient&quot;</span><span class="p">)</span>
@@ -443,7 +459,7 @@ Text(0, 0.5, &#39;Fraction of Total Attenuation Coefficient&#39;)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

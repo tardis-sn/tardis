@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -206,7 +206,7 @@ def hash_pandas_object(pd_object, algorithm=&quot;md5&quot;):
         hash_func = getattr(hashlib, algorithm)
 
     else:
-        raise ValueError(&#39;algorithm not supported&#39;)
+        raise ValueError(&quot;algorithm not supported&quot;)
 
     return hash_func(serialize_pandas_object(pd_object)).hexdigest()</div>
 
@@ -265,18 +265,19 @@ def simple_port(olddata, templatedata, templatekey, oldkey=None):
 
 
 ## Files used to convert Christian&#39;s atomic data:
-#default_oldatomdata = &quot;merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg.h5&quot;
-#default_pi_filename = &quot;photoionization_data_H30_He.h5&quot;
-#default_template = &quot;/home/connor/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5&quot;
-#default_new = &quot;test.h5&quot;
+# default_oldatomdata = &quot;merged_mod_20SNG_forbidden_yg_fix_H30_cmfgen_yg.h5&quot;
+# default_pi_filename = &quot;photoionization_data_H30_He.h5&quot;
+# default_template = &quot;/home/connor/tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti.h5&quot;
+# default_new = &quot;test.h5&quot;
 
 if __name__ == &quot;__main__&quot;:
-
     parser = argparse.ArgumentParser()
-    parser.add_argument(&quot;oldatomdata&quot;, type=str)#, default=default_oldatomdata)
-    parser.add_argument(&quot;oldPIdata&quot;, type=str)#, default=default_pi_filename)
-    parser.add_argument(&quot;template&quot;, type=str)#, default=default_template)
-    parser.add_argument(&quot;newatomdata&quot;, type=str)#, default=default_new)
+    parser.add_argument(
+        &quot;oldatomdata&quot;, type=str
+    )  # , default=default_oldatomdata)
+    parser.add_argument(&quot;oldPIdata&quot;, type=str)  # , default=default_pi_filename)
+    parser.add_argument(&quot;template&quot;, type=str)  # , default=default_template)
+    parser.add_argument(&quot;newatomdata&quot;, type=str)  # , default=default_new)
     args = parser.parse_args()
 
     # Atomic data in old format - &quot;/Y/g&quot; seems to be the only accessible dataset when
@@ -300,15 +301,19 @@ if __name__ == &quot;__main__&quot;:
 
     # Open up a new pandas HDFStore to port the old data into
     if Path(args.newatomdata).is_file():
-        raise FileExistsError(f&quot;Destination file {args.newatomdata} already exists. Delete it or specify a different destination.&quot;)
+        raise FileExistsError(
+            f&quot;Destination file {args.newatomdata} already exists. Delete it or specify a different destination.&quot;
+        )
     else:
         new = pd.HDFStore(args.newatomdata)
 
     ### COLLISIONS DATA
     multiindex_cols = list(old_df[&quot;/Y/g&quot;].columns[:4])
     new[&quot;collisions_data&quot;] = old_df[&quot;/Y/g&quot;].set_index(multiindex_cols)
-    tempcols = list(new[&#39;collisions_data&#39;].columns)
-    new[&#39;collisions_data&#39;] = new[&#39;collisions_data&#39;].rename(lambda f: tempcols.index(f), axis=1)
+    tempcols = list(new[&quot;collisions_data&quot;].columns)
+    new[&quot;collisions_data&quot;] = new[&quot;collisions_data&quot;].rename(
+        lambda f: tempcols.index(f), axis=1
+    )
 
     # We&#39;ve gotten all useful info out of the old dataframe using pandas
     # so now load the same file with h5py directly to get the rest
@@ -416,7 +421,7 @@ if __name__ == &quot;__main__&quot;:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

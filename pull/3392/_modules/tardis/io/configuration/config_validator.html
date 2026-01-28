@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -204,7 +204,9 @@ def extend_with_default(
         &quot;&quot;&quot;Set default values for properties that don&#39;t exist in the instance.&quot;&quot;&quot;
         # This validator also checks if default values are of the correct type
         # and properly sets default values on schemas that use the oneOf keyword
-        if not list(validate_properties(validator, properties, instance, schema)):
+        if not list(
+            validate_properties(validator, properties, instance, schema)
+        ):
             for property_name, subschema in properties.items():
                 if &quot;default&quot; in subschema:
                     instance.setdefault(property_name, subschema[&quot;default&quot;])
@@ -248,8 +250,12 @@ def _create_schema_registry() -&gt; Registry:
             schema_content = yaml.load(f, Loader=YAMLLoader)
 
         # Create a resource with the filename as the URI, explicitly specifying Draft 7
-        resource = Resource.from_contents(schema_content, default_specification=DRAFT7)
-        registry = registry.with_resource(uri=schema_file.name, resource=resource)
+        resource = Resource.from_contents(
+            schema_content, default_specification=DRAFT7
+        )
+        registry = registry.with_resource(
+            uri=schema_file.name, resource=resource
+        )
 
     return registry
 
@@ -329,8 +335,12 @@ def validate_dict(
     registry = _create_schema_registry()
 
     validated_dict = deepcopy(config_dict)
-    custom_type_checker = validator.TYPE_CHECKER.redefine(&quot;quantity&quot;, is_quantity)
-    custom_validator = validators.extend(validator, type_checker=custom_type_checker)
+    custom_type_checker = validator.TYPE_CHECKER.redefine(
+        &quot;quantity&quot;, is_quantity
+    )
+    custom_validator = validators.extend(
+        validator, type_checker=custom_type_checker
+    )
 
     # Create validator with registry for reference resolution
     validator_instance = custom_validator(schema=schema, registry=registry)
@@ -398,7 +408,7 @@ def validate_yaml(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

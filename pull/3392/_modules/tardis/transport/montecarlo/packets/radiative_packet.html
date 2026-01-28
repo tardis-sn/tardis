@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,9 +136,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.transport.montecarlo.packets.radiative_packet</h1><div class="highlight"><pre>
-<span></span>import numba as nb
+<span></span>from enum import IntEnum
+
+import numba as nb
 import numpy as np
-from enum import IntEnum
 from numba import njit, objmode
 from numba.experimental import jitclass
 
@@ -168,6 +169,7 @@ class InteractionType(IntEnum):
     CONTINUUM_PROCESS : int
         Packet underwent continuum process interaction (value = 8)
     &quot;&quot;&quot;
+
     NO_INTERACTION = -1
     BOUNDARY = 1
     LINE = 2
@@ -281,9 +283,18 @@ def print_r_packet_properties(r_packet):
         print(&quot;last_interaction_type =&quot;, str(r_packet.last_interaction_type))
         print(&quot;last_interaction_in_nu =&quot;, str(r_packet.last_interaction_in_nu))
         print(&quot;last_interaction_in_r =&quot;, str(r_packet.last_interaction_in_r))
-        print(&quot;last_line_interaction_in_id =&quot;, str(r_packet.last_line_interaction_in_id))
-        print(&quot;last_line_interaction_out_id =&quot;, str(r_packet.last_line_interaction_out_id))
-        print(&quot;last_line_interaction_shell_id =&quot;, str(r_packet.last_line_interaction_shell_id))
+        print(
+            &quot;last_line_interaction_in_id =&quot;,
+            str(r_packet.last_line_interaction_in_id),
+        )
+        print(
+            &quot;last_line_interaction_out_id =&quot;,
+            str(r_packet.last_line_interaction_out_id),
+        )
+        print(
+            &quot;last_line_interaction_shell_id =&quot;,
+            str(r_packet.last_line_interaction_shell_id),
+        )
     print(&quot;-&quot; * 80)</div>
 
 </pre></div>
@@ -296,7 +307,7 @@ def print_r_packet_properties(r_packet):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

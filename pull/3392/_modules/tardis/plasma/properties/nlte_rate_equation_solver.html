@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -145,8 +145,8 @@ from scipy.optimize import root
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 __all__ = [
-    &quot;NLTEPopulationSolverRoot&quot;,
     &quot;NLTEPopulationSolverLU&quot;,
+    &quot;NLTEPopulationSolverRoot&quot;,
 ]
 
 logger = logging.getLogger(__name__)
@@ -270,9 +270,9 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 initial_electron_densities[shell],
             )
             # All first guess values have to be positive
-            assert (
-                np.greater_equal(first_guess, 0.0).all()
-            ).all(), &quot;First guess for NLTE solver has negative values, something went wrong.&quot;
+            assert (np.greater_equal(first_guess, 0.0).all()).all(), (
+                &quot;First guess for NLTE solver has negative values, something went wrong.&quot;
+            )
             solution = root(
                 population_objective_function,
                 first_guess,
@@ -288,7 +288,9 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 ),
                 jac=True,
             )
-            assert solution.success, &quot;No solution for NLTE population equation found or solver takes too long to converge&quot;
+            assert solution.success, (
+                &quot;No solution for NLTE population equation found or solver takes too long to converge&quot;
+            )
             (
                 ion_number_density[shell],
                 electron_densities[shell],
@@ -307,7 +309,9 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 )
                 / electron_densities[shell]
                 &lt; NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE
-            ), &quot;Charge conservation not fulfilled after correcting for negative populations, solver failed.&quot;
+            ), (
+                &quot;Charge conservation not fulfilled after correcting for negative populations, solver failed.&quot;
+            )
 
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
 
@@ -499,12 +503,12 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         float
             Change in electron density.
         &quot;&quot;&quot;
-        assert np.all(
-            ion_solution &gt;= 0.0
-        ), &quot;Negative ion number density found, this should not happen.&quot;
-        assert (
-            electron_solution &gt;= 0.0
-        ), &quot;Negative electron density found, this should not happen.&quot;
+        assert np.all(ion_solution &gt;= 0.0), (
+            &quot;Negative ion number density found, this should not happen.&quot;
+        )
+        assert electron_solution &gt;= 0.0, (
+            &quot;Negative electron density found, this should not happen.&quot;
+        )
         delta_ion = (ion_number_density - ion_solution) / ion_solution
         delta_electron = (
             electron_densities - electron_solution
@@ -563,16 +567,16 @@ def check_negative_population(
                 ):
                     ion_number_density.loc[atom_number, ion_number] = 0.0
 
-    assert np.greater_equal(
-        ion_number_density, 0.0
-    ).all(), &quot;Negative ion number density found, solver failed.&quot;
+    assert np.greater_equal(ion_number_density, 0.0).all(), (
+        &quot;Negative ion number density found, solver failed.&quot;
+    )
 
     if electron_densities is None:
         # For the root solver, we don&#39;t want to recalculate the electron density
         electron_densities = np.sum(ion_numbers * ion_number_density)
-    assert (
-        electron_densities &gt;= 0.0
-    ), &quot;Negative electron density found, solver failed.&quot;
+    assert electron_densities &gt;= 0.0, (
+        &quot;Negative electron density found, solver failed.&quot;
+    )
     return ion_number_density, electron_densities
 
 
@@ -1344,7 +1348,7 @@ def create_coll_exc_deexc_matrix(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

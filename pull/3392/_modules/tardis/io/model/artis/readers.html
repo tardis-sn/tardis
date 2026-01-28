@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,8 +136,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.io.model.artis.readers</h1><div class="highlight"><pre>
-<span></span>
-from pathlib import Path
+<span></span>from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -150,7 +149,10 @@ from tardis.io.model.artis.data import ArtisData
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density">[docs]</a>
 def read_artis_density(
     fname: str | Path, legacy_return: bool = True
-) -&gt; tuple[u.Quantity, u.Quantity, u.Quantity] | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]:
+) -&gt; (
+    tuple[u.Quantity, u.Quantity, u.Quantity]
+    | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]
+):
     &quot;&quot;&quot;
     Read an ARTIS density file.
 
@@ -213,9 +215,9 @@ def read_artis_density(
         names=artis_model_columns,
         sep=r&quot;\s+&quot;,
     )
-    assert (
-        len(artis_model) == no_of_shells
-    ), &quot;Number of shells {len(artis_model)} does not match metadate {no_of_shells}&quot;
+    assert len(artis_model) == no_of_shells, (
+        &quot;Number of shells {len(artis_model)} does not match metadate {no_of_shells}&quot;
+    )
     velocity = u.Quantity(artis_model[&quot;velocities&quot;], &quot;km/s&quot;).to(&quot;cm/s&quot;)
     mean_density = u.Quantity(10 ** artis_model[&quot;mean_densities_0&quot;], &quot;g/cm^3&quot;)
 
@@ -276,7 +278,9 @@ def read_artis_mass_fractions(
     mass_fractions_df.index.name = &quot;cell_index&quot;
 
     if normalize:
-        mass_fractions_df = mass_fractions_df.div(mass_fractions_df.sum(axis=1), axis=0)
+        mass_fractions_df = mass_fractions_df.div(
+            mass_fractions_df.sum(axis=1), axis=0
+        )
     mass_fractions_df = mass_fractions_df.T
     mass_fractions_df.index.name = &quot;atomic_number&quot;
     mass_fractions_df.columns.name = &quot;cell_index&quot;
@@ -305,8 +309,10 @@ def read_artis_model(
     ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     &quot;&quot;&quot;
-    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density( # type: ignore
-        density_fname, legacy_return=False
+    time_of_model, velocity, mean_density, isotope_mass_fractions = (
+        read_artis_density(  # type: ignore
+            density_fname, legacy_return=False
+        )
     )
     mass_fractions = read_artis_mass_fractions(abundance_fname)
     mass_fractions.index = pd.MultiIndex.from_arrays(
@@ -337,7 +343,7 @@ def read_artis_model(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

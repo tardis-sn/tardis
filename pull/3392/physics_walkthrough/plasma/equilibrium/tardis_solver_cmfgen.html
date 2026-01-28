@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -200,9 +200,11 @@
     <span class="n">DilutePlanckianRadiationField</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">home</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">())</span>
+<span class="n">home</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">())</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">home</span><span class="o">+</span><span class="s2">&quot;/tardis/tardis/plasma/tests/data/plasma_base_test_config.yml&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+    <span class="n">home</span> <span class="o">+</span> <span class="s2">&quot;/tardis/tardis/plasma/tests/data/plasma_base_test_config.yml&quot;</span>
+<span class="p">)</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">velocity</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="mi">5</span>
 
@@ -213,24 +215,51 @@
     <span class="n">rad_rate_solver</span> <span class="o">=</span> <span class="n">RadiativeRatesSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rad_rate_solver</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">get_chianti_collisional_rate_solver</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chianti_collisional_rate_solver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="p">,</span>
+    <span class="n">radiative_transitions</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="n">col_strength_temperatures</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data_temperatures</span>
     <span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ion_slice</span><span class="p">,</span> <span class="p">:]</span>
-    <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s1">&#39;chianti&#39;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span>
+        <span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span>
+        <span class="n">radiative_transitions</span><span class="p">,</span>
+        <span class="n">col_strength_temperatures</span><span class="p">,</span>
+        <span class="n">col_strengths</span><span class="p">,</span>
+        <span class="s2">&quot;chianti&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">collisional_rate_solver</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">get_cmfgen_collisional_rate_solver</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cmfgen_collisional_rate_solver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="p">,</span>
+    <span class="n">radiative_transitions</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="n">col_strength_temperatures</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">yg_data</span><span class="o">.</span><span class="n">columns</span>
     <span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">yg_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ion_slice</span><span class="p">,</span> <span class="p">:]</span>
-    <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s1">&#39;cmfgen&#39;</span><span class="p">,</span> <span class="s2">&quot;regemorter&quot;</span><span class="p">)</span>
+    <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span>
+        <span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span>
+        <span class="n">radiative_transitions</span><span class="p">,</span>
+        <span class="n">col_strength_temperatures</span><span class="p">,</span>
+        <span class="n">col_strengths</span><span class="p">,</span>
+        <span class="s2">&quot;cmfgen&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;regemorter&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">collisional_rate_solver</span>
 
-<span class="c1">#cmfgen_atom_data = AtomData.from_hdf(home+&#39;/carsus/docs/kurucz_cd23_cmfgen_H_Ti.h5&#39;)</span>
-<span class="n">cmfgen_atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">home</span><span class="o">+</span><span class="s1">&#39;/tardis-regression-data/atom-data/nlte_atom_data/TestNLTE_He_Ti.h5&#39;</span><span class="p">)</span>
+
+<span class="c1"># cmfgen_atom_data = AtomData.from_hdf(home+&#39;/carsus/docs/kurucz_cd23_cmfgen_H_Ti.h5&#39;)</span>
+<span class="n">cmfgen_atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span>
+    <span class="n">home</span> <span class="o">+</span> <span class="s2">&quot;/tardis-regression-data/atom-data/nlte_atom_data/TestNLTE_He_Ti.h5&quot;</span>
+<span class="p">)</span>
 
 <span class="n">cmfgen_radiative_transitions</span> <span class="o">=</span> <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ion_slice</span><span class="p">,</span> <span class="p">:]</span>
 
-<span class="n">cmfgen_sim_state</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="o">=</span><span class="n">cmfgen_atom_data</span><span class="p">)</span>
+<span class="n">cmfgen_sim_state</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="o">=</span><span class="n">cmfgen_atom_data</span>
+<span class="p">)</span>
 
 <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">prepare_atom_data</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;macroatom&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
 </pre></div>
@@ -273,15 +302,33 @@ Number of density points larger than number of shells. Assuming inner point irre
     <span class="n">ThermalElectronEnergyDistribution</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">cmfgen_radiative_rate_solver</span> <span class="o">=</span> <span class="n">get_radiative_rate_solver</span><span class="p">(</span><span class="n">cmfgen_radiative_transitions</span><span class="p">)</span>
+<span class="n">cmfgen_radiative_rate_solver</span> <span class="o">=</span> <span class="n">get_radiative_rate_solver</span><span class="p">(</span>
+    <span class="n">cmfgen_radiative_transitions</span>
+<span class="p">)</span>
 
-<span class="n">cmfgen_collisional_rate_solver</span> <span class="o">=</span> <span class="n">get_cmfgen_collisional_rate_solver</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="p">,</span> <span class="n">cmfgen_radiative_transitions</span><span class="p">)</span>
+<span class="n">cmfgen_collisional_rate_solver</span> <span class="o">=</span> <span class="n">get_cmfgen_collisional_rate_solver</span><span class="p">(</span>
+    <span class="n">cmfgen_atom_data</span><span class="p">,</span> <span class="n">cmfgen_radiative_transitions</span>
+<span class="p">)</span>
 
 <span class="c1"># need a better way to make a custom radiation field where the intensity is zero</span>
 <span class="c1"># in specific locations as desired</span>
-<span class="n">rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span><span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">,</span> <span class="n">dilution_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
-<span class="n">electron_dist</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">11975.61275678</span><span class="p">,</span> <span class="mf">11927.13443539</span><span class="p">,</span> <span class="mf">11879.04702049</span><span class="p">,</span> <span class="mf">11831.34580294</span><span class="p">,</span>
-       <span class="mf">11784.02614893</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="p">[</span><span class="mf">4.059924e+10</span><span class="p">,</span> <span class="mf">8.142510e+09</span><span class="p">,</span> <span class="mf">2.040517e+09</span><span class="p">,</span> <span class="mf">6.051676e+08</span><span class="p">,</span> <span class="mf">2.047733e+08</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span>
+    <span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">,</span>
+    <span class="n">dilution_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">electron_dist</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="mf">11975.61275678</span><span class="p">,</span>
+        <span class="mf">11927.13443539</span><span class="p">,</span>
+        <span class="mf">11879.04702049</span><span class="p">,</span>
+        <span class="mf">11831.34580294</span><span class="p">,</span>
+        <span class="mf">11784.02614893</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span>
+    <span class="p">[</span><span class="mf">4.059924e10</span><span class="p">,</span> <span class="mf">8.142510e09</span><span class="p">,</span> <span class="mf">2.040517e09</span><span class="p">,</span> <span class="mf">6.051676e08</span><span class="p">,</span> <span class="mf">2.047733e08</span><span class="p">]</span>
+    <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">temperature</span> <span class="o">=</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">temperature</span>
 </pre></div>
@@ -291,7 +338,10 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rate_solvers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">cmfgen_radiative_rate_solver</span><span class="p">,</span> <span class="s2">&quot;radiative&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">cmfgen_collisional_rate_solver</span><span class="p">,</span> <span class="s2">&quot;electron&quot;</span><span class="p">)]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rate_solvers</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">cmfgen_radiative_rate_solver</span><span class="p">,</span> <span class="s2">&quot;radiative&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">cmfgen_collisional_rate_solver</span><span class="p">,</span> <span class="s2">&quot;electron&quot;</span><span class="p">),</span>
+<span class="p">]</span>
 
 <span class="n">lte_rate_solvers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">cmfgen_collisional_rate_solver</span><span class="p">,</span> <span class="s2">&quot;electron&quot;</span><span class="p">)]</span>
 </pre></div>
@@ -325,16 +375,26 @@ Number of density points larger than number of shells. Assuming inner point irre
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">photoionization_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;photoionization_rate.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">photoionization_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;photoionization_rate.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
 
-<span class="n">stimulated_recombination_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;stimulated_recombination_rate.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">stimulated_recombination_estimator</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;stimulated_recombination_rate.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
+
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Estimators</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">photoionization_estimator</span><span class="p">,</span> <span class="n">stimulated_recombination_estimator</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">photoionization_estimator</span><span class="p">,</span> <span class="n">stimulated_recombination_estimator</span>
+    <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">photo_ion_estimator</span> <span class="o">=</span> <span class="n">photoionization_estimator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stim_recomb_estimator</span> <span class="o">=</span> <span class="n">stimulated_recombination_estimator</span>
 
-<span class="n">estimators</span> <span class="o">=</span> <span class="n">Estimators</span><span class="p">(</span><span class="n">photoionization_estimator</span><span class="p">,</span> <span class="n">stimulated_recombination_estimator</span><span class="p">)</span>
+
+<span class="n">estimators</span> <span class="o">=</span> <span class="n">Estimators</span><span class="p">(</span>
+    <span class="n">photoionization_estimator</span><span class="p">,</span> <span class="n">stimulated_recombination_estimator</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -342,11 +402,19 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_rate_solver</span> <span class="o">=</span> <span class="n">SpontaneousRecombinationCoeffSolver</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">,)</span>
-<span class="n">photoionization_rate_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationCoeffSolver</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">,)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_rate_solver</span> <span class="o">=</span> <span class="n">SpontaneousRecombinationCoeffSolver</span><span class="p">(</span>
+    <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">photoionization_rate_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationCoeffSolver</span><span class="p">(</span>
+    <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="n">spontaneous_recombination_rate</span> <span class="o">=</span> <span class="n">spontaneous_recombination_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">temperature</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-<span class="n">photoionization_rate</span><span class="p">,</span> <span class="n">stimulated_recombination_rate</span> <span class="o">=</span> <span class="n">photoionization_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">temperature</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="n">spontaneous_recombination_rate</span> <span class="o">=</span> <span class="n">spontaneous_recombination_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">temperature</span><span class="o">.</span><span class="n">value</span>
+<span class="p">)</span>
+<span class="n">photoionization_rate</span><span class="p">,</span> <span class="n">stimulated_recombination_rate</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">photoionization_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">temperature</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -354,7 +422,9 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analytic_photoion_rate_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationCoeffSolver</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">analytic_photoion_rate_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationCoeffSolver</span><span class="p">(</span>
+    <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">photoionization_data</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -362,7 +432,9 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">estimated_photoion_rate_solver</span> <span class="o">=</span> <span class="n">EstimatedPhotoionizationCoeffSolver</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">level2continuum_edge_idx</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">estimated_photoion_rate_solver</span> <span class="o">=</span> <span class="n">EstimatedPhotoionizationCoeffSolver</span><span class="p">(</span>
+    <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">level2continuum_edge_idx</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -370,7 +442,13 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">est_photoionization_rate</span><span class="p">,</span> <span class="n">est_stimulated_recombination_rate</span> <span class="o">=</span> <span class="n">estimated_photoion_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">estimators</span><span class="p">,</span> <span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">time_explosion</span><span class="p">,</span> <span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">est_photoionization_rate</span><span class="p">,</span> <span class="n">est_stimulated_recombination_rate</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">estimated_photoion_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+        <span class="n">estimators</span><span class="p">,</span>
+        <span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">time_explosion</span><span class="p">,</span>
+        <span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">volume</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -378,7 +456,9 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_rate_old</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;spontaneous_recomb.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_rate_old</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;spontaneous_recomb.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -386,7 +466,7 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_rate_old</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,:]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_rate_old</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -410,7 +490,7 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_rate</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,:]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_rate</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -441,7 +521,9 @@ Number of density points larger than number of shells. Assuming inner point irre
 
 <span class="n">rate_matrix</span> <span class="o">=</span> <span class="n">rate_matrix_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span><span class="p">)</span>
 
-<span class="n">lte_rate_matrix</span> <span class="o">=</span> <span class="n">RateMatrix</span><span class="p">(</span><span class="n">lte_rate_solvers</span><span class="p">,</span> <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span><span class="p">)</span>
+<span class="n">lte_rate_matrix</span> <span class="o">=</span> <span class="n">RateMatrix</span><span class="p">(</span><span class="n">lte_rate_solvers</span><span class="p">,</span> <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -453,7 +535,9 @@ Number of density points larger than number of shells. Assuming inner point irre
 
 <span class="n">level_pops</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 
-<span class="n">lte_level_pops</span> <span class="o">=</span> <span class="n">LevelPopulationSolver</span><span class="p">(</span><span class="n">lte_rate_matrix</span><span class="p">,</span> <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">lte_level_pops</span> <span class="o">=</span> <span class="n">LevelPopulationSolver</span><span class="p">(</span>
+    <span class="n">lte_rate_matrix</span><span class="p">,</span> <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span>
+<span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -461,8 +545,18 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;eV&#39;</span><span class="p">),</span> <span class="n">level_pops</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,:][</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TARDIS&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;eV&#39;</span><span class="p">),</span> <span class="n">lte_level_pops</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,:][</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TARDIS col only&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;eV&quot;</span><span class="p">),</span>
+    <span class="n">level_pops</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:][</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">cmfgen_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;eV&quot;</span><span class="p">),</span>
+    <span class="n">lte_level_pops</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:][</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS col only&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Energy (eV)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Population&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">()</span>
@@ -489,7 +583,7 @@ Number of density points larger than number of shells. Assuming inner point irre
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

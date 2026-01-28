@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,9 +136,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.plasma.radiation_field.planck_rad_field</h1><div class="highlight"><pre>
-<span></span>from typing import Union
-
-import numpy as np
+<span></span>import numpy as np
 from astropy import units as u
 
 from tardis.util.base import intensity_black_body
@@ -197,7 +195,7 @@ class DilutePlanckianRadiationField:
 
 <div class="viewcode-block" id="DilutePlanckianRadiationField.calculate_mean_intensity">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.radiation_field.planck_rad_field.html#tardis.plasma.radiation_field.planck_rad_field.DilutePlanckianRadiationField.calculate_mean_intensity">[docs]</a>
-    def calculate_mean_intensity(self, nu: Union[u.Quantity, np.ndarray]):
+    def calculate_mean_intensity(self, nu: u.Quantity | np.ndarray):
         &quot;&quot;&quot;
         Calculate the intensity of the radiation field at a given frequency.
 
@@ -265,7 +263,7 @@ class PlanckianRadiationField:
 
 <div class="viewcode-block" id="PlanckianRadiationField.calculate_mean_intensity">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.radiation_field.planck_rad_field.html#tardis.plasma.radiation_field.planck_rad_field.PlanckianRadiationField.calculate_mean_intensity">[docs]</a>
-    def calculate_mean_intensity(self, nu: Union[u.Quantity, np.ndarray]):
+    def calculate_mean_intensity(self, nu: u.Quantity | np.ndarray):
         &quot;&quot;&quot;
         Calculate the intensity of the radiation field at a given frequency.
 
@@ -292,7 +290,7 @@ class PlanckianRadiationField:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

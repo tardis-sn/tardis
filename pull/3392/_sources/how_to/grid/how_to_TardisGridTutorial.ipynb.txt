@@ -15,12 +15,11 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "import pandas as pd\n",
     "import numpy as np\n",
-    "from tardis.io.atom_data import download_atom_data\n",
-    "from tardis.io.atom_data import AtomData\n",
+    "import pandas as pd\n",
     "\n",
-    "import tardis.grid as grid"
+    "import tardis.grid as grid\n",
+    "from tardis.io.atom_data import AtomData, download_atom_data"
    ]
   },
   {
@@ -30,7 +29,7 @@
    "outputs": [],
    "source": [
     "# We download the atomic data needed to run a TARDIS simulation\n",
-    "download_atom_data('kurucz_cd23_chianti_H_He_latest')\n"
+    "download_atom_data(\"kurucz_cd23_chianti_H_He_latest\")"
    ]
   },
   {
@@ -49,7 +48,7 @@
    "outputs": [],
    "source": [
     "# Load a DataFrame\n",
-    "df = pd.read_csv('example_grid.txt')\n",
+    "df = pd.read_csv(\"example_grid.txt\")\n",
     "df"
    ]
   },
@@ -60,7 +59,7 @@
    "outputs": [],
    "source": [
     "# Create a tardis grid directly from a dataframe.\n",
-    "grid.TardisGrid(configFile='example.yml', gridFrame=df)"
+    "grid.TardisGrid(configFile=\"example.yml\", gridFrame=df)"
    ]
   },
   {
@@ -70,9 +69,11 @@
    "outputs": [],
    "source": [
     "# Create an axes dictionary\n",
-    "axesdict = {'model.structure.velocity.start':np.arange(10000,15000,1000), \n",
-    "            'model.abundances.He':np.arange(0,1,0.1),\n",
-    "            'model.abundances.H':np.arange(0,1,0.25)}"
+    "axesdict = {\n",
+    "    \"model.structure.velocity.start\": np.arange(10000, 15000, 1000),\n",
+    "    \"model.abundances.He\": np.arange(0, 1, 0.1),\n",
+    "    \"model.abundances.H\": np.arange(0, 1, 0.25),\n",
+    "}"
    ]
   },
   {
@@ -81,8 +82,8 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "#Create a tardis grid from an axes dict using the classmethod.\n",
-    "grid.TardisGrid.from_axes(configFile='example.yml', axesdict=axesdict)"
+    "# Create a tardis grid from an axes dict using the classmethod.\n",
+    "grid.TardisGrid.from_axes(configFile=\"example.yml\", axesdict=axesdict)"
    ]
   },
   {
@@ -100,7 +101,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "tg = grid.TardisGrid(configFile='example.yml', gridFrame=df)"
+    "tg = grid.TardisGrid(configFile=\"example.yml\", gridFrame=df)"
    ]
   },
   {
@@ -138,12 +139,12 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "# Easily get a new TARDIS Configuration object \n",
+    "# Easily get a new TARDIS Configuration object\n",
     "# which has the properties of the base self.config\n",
     "# but with properties modified by a row of the grid.\n",
-    "new_grid = tg.grid_row_to_config(row_index=0);\n",
-    "print(\"tg.config is the original config:\",tg.config.model.abundances)\n",
-    "print(\"The new config is modified: \",new_grid.model.abundances)"
+    "new_grid = tg.grid_row_to_config(row_index=0)\n",
+    "print(\"tg.config is the original config:\", tg.config.model.abundances)\n",
+    "print(\"The new config is modified: \", new_grid.model.abundances)"
    ]
   },
   {
@@ -153,11 +154,13 @@
    "outputs": [],
    "source": [
     "# In case a user needs to make more complicated changes\n",
-    "# to the base TARDIS model (i.e. using parameters that \n",
+    "# to the base TARDIS model (i.e. using parameters that\n",
     "# are not valid TARDIS Configuration keys), the grid\n",
     "# can return a SimulationState object for a given row.\n",
     "atom_data = AtomData.from_hdf(tg.config.atom_data)\n",
-    "simulation_state = tg.grid_row_to_simulation_state(row_index=0, atomic_data=atom_data)\n",
+    "simulation_state = tg.grid_row_to_simulation_state(\n",
+    "    row_index=0, atomic_data=atom_data\n",
+    ")\n",
     "simulation_state"
    ]
   },

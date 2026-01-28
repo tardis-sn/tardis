@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -197,9 +197,11 @@
     <span class="n">DilutePlanckianRadiationField</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">home</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">())</span>
+<span class="n">home</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">())</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">home</span><span class="o">+</span><span class="s2">&quot;/tardis/tardis/plasma/tests/data/plasma_base_test_config.yml&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+    <span class="n">home</span> <span class="o">+</span> <span class="s2">&quot;/tardis/tardis/plasma/tests/data/plasma_base_test_config.yml&quot;</span>
+<span class="p">)</span>
 
 <span class="n">ion_slice</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
 
@@ -208,17 +210,33 @@
     <span class="n">rad_rate_solver</span> <span class="o">=</span> <span class="n">RadiativeRatesSolver</span><span class="p">(</span><span class="n">radiative_transitions</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rad_rate_solver</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">get_chianti_collisional_rate_solver</span><span class="p">(</span><span class="n">atom_data</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_chianti_collisional_rate_solver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="p">,</span>
+    <span class="n">radiative_transitions</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="n">col_strength_temperatures</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data_temperatures</span>
     <span class="n">col_strengths</span> <span class="o">=</span> <span class="n">atom_data</span><span class="o">.</span><span class="n">collision_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ion_slice</span><span class="p">,</span> <span class="p">:]</span>
-    <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span> <span class="n">radiative_transitions</span><span class="p">,</span> <span class="n">col_strength_temperatures</span><span class="p">,</span> <span class="n">col_strengths</span><span class="p">,</span> <span class="s1">&#39;chianti&#39;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">ThermalCollisionalRateSolver</span><span class="p">(</span>
+        <span class="n">atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span>
+        <span class="n">radiative_transitions</span><span class="p">,</span>
+        <span class="n">col_strength_temperatures</span><span class="p">,</span>
+        <span class="n">col_strengths</span><span class="p">,</span>
+        <span class="s2">&quot;chianti&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">collisional_rate_solver</span>
 
-<span class="n">chianti_atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">home</span><span class="o">+</span><span class="s1">&#39;/carsus/docs/kurucz_cd23_chianti_H_Si.h5&#39;</span><span class="p">)</span>
+
+<span class="n">chianti_atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span>
+    <span class="n">home</span> <span class="o">+</span> <span class="s2">&quot;/carsus/docs/kurucz_cd23_chianti_H_Si.h5&quot;</span>
+<span class="p">)</span>
 
 <span class="n">chianti_radiative_transitions</span> <span class="o">=</span> <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ion_slice</span><span class="p">,</span> <span class="p">:]</span>
 
-<span class="n">chianti_sim_state</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="o">=</span><span class="n">chianti_atom_data</span><span class="p">)</span>
+<span class="n">chianti_sim_state</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="o">=</span><span class="n">chianti_atom_data</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -259,16 +277,25 @@ Number of density points larger than number of shells. Assuming inner point irre
     <span class="n">ThermalElectronEnergyDistribution</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">chianti_radiative_rate_solver</span> <span class="o">=</span> <span class="n">get_radiative_rate_solver</span><span class="p">(</span><span class="n">chianti_radiative_transitions</span><span class="p">)</span>
+<span class="n">chianti_radiative_rate_solver</span> <span class="o">=</span> <span class="n">get_radiative_rate_solver</span><span class="p">(</span>
+    <span class="n">chianti_radiative_transitions</span>
+<span class="p">)</span>
 
-<span class="n">chianti_collisional_rate_solver</span> <span class="o">=</span> <span class="n">get_chianti_collisional_rate_solver</span><span class="p">(</span><span class="n">chianti_atom_data</span><span class="p">,</span> <span class="n">chianti_radiative_transitions</span><span class="p">)</span>
+<span class="n">chianti_collisional_rate_solver</span> <span class="o">=</span> <span class="n">get_chianti_collisional_rate_solver</span><span class="p">(</span>
+    <span class="n">chianti_atom_data</span><span class="p">,</span> <span class="n">chianti_radiative_transitions</span>
+<span class="p">)</span>
 
 <span class="n">temperature</span> <span class="o">=</span> <span class="n">chianti_sim_state</span><span class="o">.</span><span class="n">t_radiative</span>
 
 <span class="c1"># need a better way to make a custom radiation field where the intensity is zero</span>
 <span class="c1"># in specific locations as desired</span>
-<span class="n">rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span><span class="n">chianti_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">,</span> <span class="n">dilution_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">chianti_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">))</span>
-<span class="n">electron_dist</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">chianti_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">,</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span><span class="o">/</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span>
+    <span class="n">chianti_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">,</span>
+    <span class="n">dilution_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">chianti_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">electron_dist</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">chianti_sim_state</span><span class="o">.</span><span class="n">t_radiative</span><span class="p">,</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">g</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">3</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -276,7 +303,10 @@ Number of density points larger than number of shells. Assuming inner point irre
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rate_solvers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">chianti_radiative_rate_solver</span><span class="p">,</span> <span class="s2">&quot;radiative&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">chianti_collisional_rate_solver</span><span class="p">,</span> <span class="s2">&quot;electron&quot;</span><span class="p">)]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rate_solvers</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">chianti_radiative_rate_solver</span><span class="p">,</span> <span class="s2">&quot;radiative&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">chianti_collisional_rate_solver</span><span class="p">,</span> <span class="s2">&quot;electron&quot;</span><span class="p">),</span>
+<span class="p">]</span>
 
 <span class="n">lte_rate_solvers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">chianti_collisional_rate_solver</span><span class="p">,</span> <span class="s2">&quot;electron&quot;</span><span class="p">)]</span>
 </pre></div>
@@ -309,7 +339,9 @@ Number of density points larger than number of shells. Assuming inner point irre
 
 <span class="n">rate_matrix</span> <span class="o">=</span> <span class="n">rate_matrix_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span><span class="p">)</span>
 
-<span class="n">lte_rate_matrix</span> <span class="o">=</span> <span class="n">RateMatrix</span><span class="p">(</span><span class="n">lte_rate_solvers</span><span class="p">,</span> <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span><span class="p">)</span>
+<span class="n">lte_rate_matrix</span> <span class="o">=</span> <span class="n">RateMatrix</span><span class="p">(</span><span class="n">lte_rate_solvers</span><span class="p">,</span> <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -321,7 +353,9 @@ Number of density points larger than number of shells. Assuming inner point irre
 
 <span class="n">level_pops</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 
-<span class="n">lte_level_pops</span> <span class="o">=</span> <span class="n">LevelPopulationSolver</span><span class="p">(</span><span class="n">lte_rate_matrix</span><span class="p">,</span> <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">lte_level_pops</span> <span class="o">=</span> <span class="n">LevelPopulationSolver</span><span class="p">(</span>
+    <span class="n">lte_rate_matrix</span><span class="p">,</span> <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span>
+<span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -350,38 +384,127 @@ For example, when doing &#39;df[col].method(value, inplace=True)&#39;, try using
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_levels</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.42881304e-01</span><span class="p">,</span> <span class="mf">6.57118589e-01</span><span class="p">,</span> <span class="mf">4.18696636e-09</span><span class="p">,</span> <span class="mf">5.67602616e-08</span><span class="p">,</span>
-        <span class="mf">4.63312038e-08</span><span class="p">,</span> <span class="mf">1.20482595e-11</span><span class="p">,</span> <span class="mf">1.97010580e-11</span><span class="p">,</span> <span class="mf">3.48183541e-15</span><span class="p">,</span>
-        <span class="mf">6.88699562e-16</span><span class="p">,</span> <span class="mf">2.78695447e-16</span><span class="p">,</span> <span class="mf">4.20834423e-16</span><span class="p">,</span> <span class="mf">1.25473722e-15</span><span class="p">,</span>
-        <span class="mf">2.49671361e-15</span><span class="p">,</span> <span class="mf">8.92884539e-17</span><span class="p">,</span> <span class="mf">1.65423100e-16</span><span class="p">,</span> <span class="mf">2.11333508e-17</span><span class="p">,</span>
-        <span class="mf">1.11695201e-17</span><span class="p">,</span> <span class="mf">1.69708563e-17</span><span class="p">,</span> <span class="mf">2.70670610e-17</span><span class="p">,</span> <span class="mf">5.36487601e-17</span><span class="p">,</span>
-        <span class="mf">8.72033865e-18</span><span class="p">,</span> <span class="mf">1.17118808e-17</span><span class="p">,</span> <span class="mf">3.44693669e-16</span><span class="p">,</span> <span class="mf">5.11955673e-16</span><span class="p">,</span>
-        <span class="mf">2.81010802e-18</span><span class="p">,</span> <span class="mf">3.50318771e-18</span><span class="p">,</span> <span class="mf">5.25951995e-18</span><span class="p">,</span> <span class="mf">3.28532989e-18</span><span class="p">,</span>
-        <span class="mf">6.57049588e-18</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_levels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">3.42881304e-01</span><span class="p">,</span>
+    <span class="mf">6.57118589e-01</span><span class="p">,</span>
+    <span class="mf">4.18696636e-09</span><span class="p">,</span>
+    <span class="mf">5.67602616e-08</span><span class="p">,</span>
+    <span class="mf">4.63312038e-08</span><span class="p">,</span>
+    <span class="mf">1.20482595e-11</span><span class="p">,</span>
+    <span class="mf">1.97010580e-11</span><span class="p">,</span>
+    <span class="mf">3.48183541e-15</span><span class="p">,</span>
+    <span class="mf">6.88699562e-16</span><span class="p">,</span>
+    <span class="mf">2.78695447e-16</span><span class="p">,</span>
+    <span class="mf">4.20834423e-16</span><span class="p">,</span>
+    <span class="mf">1.25473722e-15</span><span class="p">,</span>
+    <span class="mf">2.49671361e-15</span><span class="p">,</span>
+    <span class="mf">8.92884539e-17</span><span class="p">,</span>
+    <span class="mf">1.65423100e-16</span><span class="p">,</span>
+    <span class="mf">2.11333508e-17</span><span class="p">,</span>
+    <span class="mf">1.11695201e-17</span><span class="p">,</span>
+    <span class="mf">1.69708563e-17</span><span class="p">,</span>
+    <span class="mf">2.70670610e-17</span><span class="p">,</span>
+    <span class="mf">5.36487601e-17</span><span class="p">,</span>
+    <span class="mf">8.72033865e-18</span><span class="p">,</span>
+    <span class="mf">1.17118808e-17</span><span class="p">,</span>
+    <span class="mf">3.44693669e-16</span><span class="p">,</span>
+    <span class="mf">5.11955673e-16</span><span class="p">,</span>
+    <span class="mf">2.81010802e-18</span><span class="p">,</span>
+    <span class="mf">3.50318771e-18</span><span class="p">,</span>
+    <span class="mf">5.25951995e-18</span><span class="p">,</span>
+    <span class="mf">3.28532989e-18</span><span class="p">,</span>
+    <span class="mf">6.57049588e-18</span><span class="p">,</span>
+<span class="p">]</span>
 
-<span class="n">chianti_levels_he_1</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.00000000e+00</span><span class="p">,</span> <span class="mf">1.75073626e-11</span><span class="p">,</span> <span class="mf">1.8167685e-8</span><span class="p">,</span> <span class="mf">1.79805022e-19</span><span class="p">,</span>
-        <span class="mf">1.07614011e-19</span><span class="p">,</span> <span class="mf">3.58865323e-20</span><span class="p">,</span> <span class="mf">8.18076407e-23</span><span class="p">,</span> <span class="mf">1.76624918e-21</span><span class="p">,</span>
-        <span class="mf">3.95823826e-22</span><span class="p">,</span> <span class="mf">1.30154195e-21</span><span class="p">,</span> <span class="mf">7.81338357e-22</span><span class="p">,</span> <span class="mf">2.60269199e-22</span><span class="p">,</span>
-        <span class="mf">1.83743361e-22</span><span class="p">,</span> <span class="mf">1.21199070e-22</span><span class="p">,</span> <span class="mf">7.93684710e-23</span><span class="p">,</span> <span class="mf">7.69690651e-23</span><span class="p">,</span>
-        <span class="mf">5.55204217e-24</span><span class="p">,</span> <span class="mf">4.28655703e-23</span><span class="p">,</span> <span class="mf">8.91723472e-23</span><span class="p">,</span> <span class="mf">3.08213125e-22</span><span class="p">,</span>
-        <span class="mf">1.84912140e-22</span><span class="p">,</span> <span class="mf">6.16147989e-23</span><span class="p">,</span> <span class="mf">5.28143670e-23</span><span class="p">,</span> <span class="mf">3.77505779e-23</span><span class="p">,</span>
-        <span class="mf">2.26343284e-23</span><span class="p">,</span> <span class="mf">3.19064683e-23</span><span class="p">,</span> <span class="mf">8.89209221e-24</span><span class="p">,</span> <span class="mf">9.39180485e-23</span><span class="p">,</span>
-        <span class="mf">5.19053997e-23</span><span class="p">,</span> <span class="mf">2.53784273e-23</span><span class="p">,</span> <span class="mf">2.27283788e-24</span><span class="p">,</span> <span class="mf">1.11837286e-22</span><span class="p">,</span>
-        <span class="mf">3.85509048e-23</span><span class="p">,</span> <span class="mf">1.07725425e-22</span><span class="p">,</span> <span class="mf">6.46134793e-23</span><span class="p">,</span> <span class="mf">2.15124099e-23</span><span class="p">,</span>
-        <span class="mf">2.22314242e-23</span><span class="p">,</span> <span class="mf">1.59215321e-23</span><span class="p">,</span> <span class="mf">9.54500244e-24</span><span class="p">,</span> <span class="mf">1.48014892e-23</span><span class="p">,</span>
-        <span class="mf">3.80078829e-23</span><span class="p">,</span> <span class="mf">4.89438878e-23</span><span class="p">,</span> <span class="mf">2.71814793e-23</span><span class="p">,</span> <span class="mf">1.79147356e-23</span><span class="p">,</span>
-        <span class="mf">9.80689599e-23</span><span class="p">,</span> <span class="mf">7.25122090e-23</span><span class="p">,</span> <span class="mf">8.04471105e-23</span><span class="p">,</span> <span class="mf">1.27910690e-23</span><span class="p">,</span>
-        <span class="mf">1.51551660e-24</span><span class="p">]</span>
+<span class="n">chianti_levels_he_1</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">1.00000000e00</span><span class="p">,</span>
+    <span class="mf">1.75073626e-11</span><span class="p">,</span>
+    <span class="mf">1.8167685e-8</span><span class="p">,</span>
+    <span class="mf">1.79805022e-19</span><span class="p">,</span>
+    <span class="mf">1.07614011e-19</span><span class="p">,</span>
+    <span class="mf">3.58865323e-20</span><span class="p">,</span>
+    <span class="mf">8.18076407e-23</span><span class="p">,</span>
+    <span class="mf">1.76624918e-21</span><span class="p">,</span>
+    <span class="mf">3.95823826e-22</span><span class="p">,</span>
+    <span class="mf">1.30154195e-21</span><span class="p">,</span>
+    <span class="mf">7.81338357e-22</span><span class="p">,</span>
+    <span class="mf">2.60269199e-22</span><span class="p">,</span>
+    <span class="mf">1.83743361e-22</span><span class="p">,</span>
+    <span class="mf">1.21199070e-22</span><span class="p">,</span>
+    <span class="mf">7.93684710e-23</span><span class="p">,</span>
+    <span class="mf">7.69690651e-23</span><span class="p">,</span>
+    <span class="mf">5.55204217e-24</span><span class="p">,</span>
+    <span class="mf">4.28655703e-23</span><span class="p">,</span>
+    <span class="mf">8.91723472e-23</span><span class="p">,</span>
+    <span class="mf">3.08213125e-22</span><span class="p">,</span>
+    <span class="mf">1.84912140e-22</span><span class="p">,</span>
+    <span class="mf">6.16147989e-23</span><span class="p">,</span>
+    <span class="mf">5.28143670e-23</span><span class="p">,</span>
+    <span class="mf">3.77505779e-23</span><span class="p">,</span>
+    <span class="mf">2.26343284e-23</span><span class="p">,</span>
+    <span class="mf">3.19064683e-23</span><span class="p">,</span>
+    <span class="mf">8.89209221e-24</span><span class="p">,</span>
+    <span class="mf">9.39180485e-23</span><span class="p">,</span>
+    <span class="mf">5.19053997e-23</span><span class="p">,</span>
+    <span class="mf">2.53784273e-23</span><span class="p">,</span>
+    <span class="mf">2.27283788e-24</span><span class="p">,</span>
+    <span class="mf">1.11837286e-22</span><span class="p">,</span>
+    <span class="mf">3.85509048e-23</span><span class="p">,</span>
+    <span class="mf">1.07725425e-22</span><span class="p">,</span>
+    <span class="mf">6.46134793e-23</span><span class="p">,</span>
+    <span class="mf">2.15124099e-23</span><span class="p">,</span>
+    <span class="mf">2.22314242e-23</span><span class="p">,</span>
+    <span class="mf">1.59215321e-23</span><span class="p">,</span>
+    <span class="mf">9.54500244e-24</span><span class="p">,</span>
+    <span class="mf">1.48014892e-23</span><span class="p">,</span>
+    <span class="mf">3.80078829e-23</span><span class="p">,</span>
+    <span class="mf">4.89438878e-23</span><span class="p">,</span>
+    <span class="mf">2.71814793e-23</span><span class="p">,</span>
+    <span class="mf">1.79147356e-23</span><span class="p">,</span>
+    <span class="mf">9.80689599e-23</span><span class="p">,</span>
+    <span class="mf">7.25122090e-23</span><span class="p">,</span>
+    <span class="mf">8.04471105e-23</span><span class="p">,</span>
+    <span class="mf">1.27910690e-23</span><span class="p">,</span>
+    <span class="mf">1.51551660e-24</span><span class="p">,</span>
+<span class="p">]</span>
 
-<span class="n">chianti_levels_o_2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">9.50427666e-01</span><span class="p">,</span> <span class="mf">2.93020096e-02</span><span class="p">,</span> <span class="mf">1.96811489e-02</span><span class="p">,</span> <span class="mf">3.73612176e-04</span><span class="p">,</span>
-        <span class="mf">2.15563005e-04</span><span class="p">,</span> <span class="mf">1.19850233e-18</span><span class="p">,</span> <span class="mf">7.62882704e-19</span><span class="p">,</span> <span class="mf">3.73304507e-19</span><span class="p">,</span>
-        <span class="mf">6.86402347e-22</span><span class="p">,</span> <span class="mf">4.51096625e-22</span><span class="p">,</span> <span class="mf">1.86694313e-23</span><span class="p">,</span> <span class="mf">3.93108508e-23</span><span class="p">,</span>
-        <span class="mf">5.19716753e-23</span><span class="p">,</span> <span class="mf">5.48509200e-24</span><span class="p">,</span> <span class="mf">1.05025627e-23</span><span class="p">,</span> <span class="mf">4.23498947e-25</span><span class="p">,</span>
-        <span class="mf">5.73694095e-23</span><span class="p">,</span> <span class="mf">2.27177963e-24</span><span class="p">,</span> <span class="mf">4.53847634e-24</span><span class="p">,</span> <span class="mf">6.68361893e-24</span><span class="p">,</span>
-        <span class="mf">8.38430369e-24</span><span class="p">,</span> <span class="mf">9.60077484e-25</span><span class="p">,</span> <span class="mf">6.19972361e-25</span><span class="p">,</span> <span class="mf">1.04127656e-24</span><span class="p">,</span>
-        <span class="mf">1.66000813e-24</span><span class="p">,</span> <span class="mf">2.48443321e-24</span><span class="p">,</span> <span class="mf">6.16103282e-24</span><span class="p">,</span> <span class="mf">9.08726063e-24</span><span class="p">,</span>
-        <span class="mf">3.02895913e-24</span><span class="p">,</span> <span class="mf">1.64793516e-25</span><span class="p">,</span> <span class="mf">7.92929866e-26</span><span class="p">,</span> <span class="mf">2.66317598e-23</span><span class="p">,</span>
-        <span class="mf">6.44175783e-23</span><span class="p">,</span> <span class="mf">5.28146898e-25</span><span class="p">,</span> <span class="mf">7.36488325e-25</span><span class="p">]</span>
+<span class="n">chianti_levels_o_2</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">9.50427666e-01</span><span class="p">,</span>
+    <span class="mf">2.93020096e-02</span><span class="p">,</span>
+    <span class="mf">1.96811489e-02</span><span class="p">,</span>
+    <span class="mf">3.73612176e-04</span><span class="p">,</span>
+    <span class="mf">2.15563005e-04</span><span class="p">,</span>
+    <span class="mf">1.19850233e-18</span><span class="p">,</span>
+    <span class="mf">7.62882704e-19</span><span class="p">,</span>
+    <span class="mf">3.73304507e-19</span><span class="p">,</span>
+    <span class="mf">6.86402347e-22</span><span class="p">,</span>
+    <span class="mf">4.51096625e-22</span><span class="p">,</span>
+    <span class="mf">1.86694313e-23</span><span class="p">,</span>
+    <span class="mf">3.93108508e-23</span><span class="p">,</span>
+    <span class="mf">5.19716753e-23</span><span class="p">,</span>
+    <span class="mf">5.48509200e-24</span><span class="p">,</span>
+    <span class="mf">1.05025627e-23</span><span class="p">,</span>
+    <span class="mf">4.23498947e-25</span><span class="p">,</span>
+    <span class="mf">5.73694095e-23</span><span class="p">,</span>
+    <span class="mf">2.27177963e-24</span><span class="p">,</span>
+    <span class="mf">4.53847634e-24</span><span class="p">,</span>
+    <span class="mf">6.68361893e-24</span><span class="p">,</span>
+    <span class="mf">8.38430369e-24</span><span class="p">,</span>
+    <span class="mf">9.60077484e-25</span><span class="p">,</span>
+    <span class="mf">6.19972361e-25</span><span class="p">,</span>
+    <span class="mf">1.04127656e-24</span><span class="p">,</span>
+    <span class="mf">1.66000813e-24</span><span class="p">,</span>
+    <span class="mf">2.48443321e-24</span><span class="p">,</span>
+    <span class="mf">6.16103282e-24</span><span class="p">,</span>
+    <span class="mf">9.08726063e-24</span><span class="p">,</span>
+    <span class="mf">3.02895913e-24</span><span class="p">,</span>
+    <span class="mf">1.64793516e-25</span><span class="p">,</span>
+    <span class="mf">7.92929866e-26</span><span class="p">,</span>
+    <span class="mf">2.66317598e-23</span><span class="p">,</span>
+    <span class="mf">6.44175783e-23</span><span class="p">,</span>
+    <span class="mf">5.28146898e-25</span><span class="p">,</span>
+    <span class="mf">7.36488325e-25</span><span class="p">,</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -396,9 +519,24 @@ For example, when doing &#39;df[col].method(value, inplace=True)&#39;, try using
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;eV&#39;</span><span class="p">),</span> <span class="n">chianti_levels_he_1</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CHIANTI&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;eV&#39;</span><span class="p">),</span> <span class="n">level_pops</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,:][</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TARDIS&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;eV&#39;</span><span class="p">),</span> <span class="n">lte_level_pops</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,:][</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;TARDIS col only&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;eV&quot;</span><span class="p">),</span>
+    <span class="n">chianti_levels_he_1</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CHIANTI&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;eV&quot;</span><span class="p">),</span>
+    <span class="n">level_pops</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:][</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">chianti_atom_data</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">erg</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;eV&quot;</span><span class="p">),</span>
+    <span class="n">lte_level_pops</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:][</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS col only&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Energy (eV)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Population&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">()</span>
@@ -434,7 +572,7 @@ For example, when doing &#39;df[col].method(value, inplace=True)&#39;, try using
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

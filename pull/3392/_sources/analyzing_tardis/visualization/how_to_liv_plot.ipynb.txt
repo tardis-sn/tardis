@@ -26,8 +26,8 @@
     "from tardis.io.configuration.config_reader import Configuration\n",
     "\n",
     "# We download the atomic data needed to run the simulation\n",
-    "download_atom_data('kurucz_cd23_chianti_H_He_latest')\n",
-    "config = Configuration.from_yaml(str(\"tardis_example.yml\"))\n",
+    "download_atom_data(\"kurucz_cd23_chianti_H_He_latest\")\n",
+    "config = Configuration.from_yaml(\"tardis_example.yml\")\n",
     "\n",
     "config.montecarlo.tracking.track_rpacket = True\n",
     "\n",
@@ -103,7 +103,6 @@
    },
    "outputs": [],
    "source": [
-    "\n",
     "plotter.generate_plot_mpl()"
    ]
   },
@@ -187,7 +186,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_mpl(species_list = [\"Si I-III\", \"O\", \"Ca\", \"S\"])"
+    "plotter.generate_plot_mpl(species_list=[\"Si I-III\", \"O\", \"Ca\", \"S\"])"
    ]
   },
   {
@@ -203,7 +202,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_mpl(species_list = [\"Si I-III\", \"Ca\", \"S\"], nelements=3)"
+    "plotter.generate_plot_mpl(species_list=[\"Si I-III\", \"Ca\", \"S\"], nelements=3)"
    ]
   },
   {
@@ -220,7 +219,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_mpl(species_list = [\"Si I-III\", \"O\", \"Ca\", \"S\"], num_bins=10)"
+    "plotter.generate_plot_mpl(\n",
+    "    species_list=[\"Si I-III\", \"O\", \"Ca\", \"S\"], num_bins=10\n",
+    ")"
    ]
   },
   {
@@ -237,7 +238,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_mpl(species_list = [\"Si I-III\", \"O\", \"Ca\", \"S\"], xlog_scale=True, ylog_scale=True)"
+    "plotter.generate_plot_mpl(\n",
+    "    species_list=[\"Si I-III\", \"O\", \"Ca\", \"S\"], xlog_scale=True, ylog_scale=True\n",
+    ")"
    ]
   },
   {
@@ -254,7 +257,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_mpl(species_list = [\"Si I-III\", \"O\", \"Ca\", \"S\"], velocity_range=(12500, 15050))"
+    "plotter.generate_plot_mpl(\n",
+    "    species_list=[\"Si I-III\", \"O\", \"Ca\", \"S\"], velocity_range=(12500, 15050)\n",
+    ")"
    ]
   },
   {
@@ -396,7 +401,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_ply(species_list = [\"Si I-III\", \"Ca\", \"S\"])"
+    "plotter.generate_plot_ply(species_list=[\"Si I-III\", \"Ca\", \"S\"])"
    ]
   },
   {
@@ -412,7 +417,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_ply(species_list = [\"Si I-III\", \"Ca\", \"S\"], nelements=3)"
+    "plotter.generate_plot_ply(species_list=[\"Si I-III\", \"Ca\", \"S\"], nelements=3)"
    ]
   },
   {
@@ -429,7 +434,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_ply(species_list = [\"Si I-III\", \"Ca\", \"S\"], num_bins=10)"
+    "plotter.generate_plot_ply(species_list=[\"Si I-III\", \"Ca\", \"S\"], num_bins=10)"
    ]
   },
   {
@@ -446,7 +451,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_ply(species_list = [\"Si I-III\", \"Ca\", \"S\"], xlog_scale=True, ylog_scale=True)"
+    "plotter.generate_plot_ply(\n",
+    "    species_list=[\"Si I-III\", \"Ca\", \"S\"], xlog_scale=True, ylog_scale=True\n",
+    ")"
    ]
   },
   {
@@ -463,7 +470,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "plotter.generate_plot_ply(species_list = [\"Si I-III\", \"Ca\", \"S\"], velocity_range=(12500, 15050))"
+    "plotter.generate_plot_ply(\n",
+    "    species_list=[\"Si I-III\", \"Ca\", \"S\"], velocity_range=(12500, 15050)\n",
+    ")"
    ]
   },
   {
@@ -538,7 +547,7 @@
    "outputs": [],
    "source": [
     "# Static plot\n",
-    "#hdf_plotter.generate_plot_mpl()"
+    "# hdf_plotter.generate_plot_mpl()"
    ]
   },
   {

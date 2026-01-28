@@ -9,7 +9,7 @@
     "import os\n",
     "from pathlib import Path\n",
     "\n",
-    "os.environ['XUVTOP'] = \"~/chianti\"\n",
+    "os.environ[\"XUVTOP\"] = \"~/chianti\"\n",
     "\n",
     "try:\n",
     "    import ChiantiPy.core as ch\n",
@@ -18,12 +18,13 @@
     "except ImportError:\n",
     "    # Shamefully copied from their GitHub source:\n",
     "    import chianti.core as ch\n",
+    "\n",
     "    def versionRead():\n",
     "        \"\"\"\n",
     "        Read the version number of the CHIANTI database\n",
     "        \"\"\"\n",
-    "        xuvtop = os.environ['XUVTOP']\n",
-    "        vFileName = Path(xuvtop) / 'VERSION'\n",
+    "        xuvtop = os.environ[\"XUVTOP\"]\n",
+    "        vFileName = Path(xuvtop) / \"VERSION\"\n",
     "        vFile = open(vFileName)\n",
     "        versionStr = vFile.readline()\n",
     "        vFile.close()\n",
@@ -38,7 +39,7 @@
    "source": [
     "compare_shell = 0\n",
     "species = (14, 1)\n",
-    "species_string = 'si_2'"
+    "species_string = \"si_2\""
    ]
   },
   {
@@ -65,9 +66,11 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "chianti_species = ch.ion(species_string, temperature=t_electron, eDensity=electron_density)\n",
+    "chianti_species = ch.ion(\n",
+    "    species_string, temperature=t_electron, eDensity=electron_density\n",
+    ")\n",
     "chianti_species.populate()\n",
-    "chianti_population = chianti_species.Population['population']"
+    "chianti_population = chianti_species.Population[\"population\"]"
    ]
   },
   {

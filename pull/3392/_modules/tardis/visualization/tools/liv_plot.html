@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -192,7 +192,9 @@ class LIVPlotter:
         # the Liv plotter only supports real packets at the moment
         packet_data = pu.extract_and_process_packet_data(sim, &quot;real&quot;)
         plotter.packets_df = packet_data[&quot;packets_df&quot;]
-        plotter.packets_df_line_interaction = packet_data[&quot;packets_df_line_interaction&quot;]
+        plotter.packets_df_line_interaction = packet_data[
+            &quot;packets_df_line_interaction&quot;
+        ]
 
         return plotter</div>
 
@@ -226,7 +228,9 @@ class LIVPlotter:
             ]
             packet_data = pu.extract_and_process_packet_data_hdf(hdf, &quot;real&quot;)
             plotter.packets_df = packet_data[&quot;packets_df&quot;]
-            plotter.packets_df_line_interaction = packet_data[&quot;packets_df_line_interaction&quot;]
+            plotter.packets_df_line_interaction = packet_data[
+                &quot;packets_df_line_interaction&quot;
+            ]
 
         return plotter</div>
 
@@ -250,13 +254,15 @@ class LIVPlotter:
         plotter.velocity = workflow.simulation_state.velocity
         # Handle time_explosion from workflow properly - it may be a Quantity already
         time_explosion = workflow.transport_state.time_explosion
-        if hasattr(time_explosion, &#39;unit&#39;):
+        if hasattr(time_explosion, &quot;unit&quot;):
             plotter.time_explosion = time_explosion
         else:
             plotter.time_explosion = time_explosion * u.s
         packet_data = pu.extract_and_process_packet_data(workflow, &quot;real&quot;)
         plotter.packets_df = packet_data[&quot;packets_df&quot;]
-        plotter.packets_df_line_interaction = packet_data[&quot;packets_df_line_interaction&quot;]
+        plotter.packets_df_line_interaction = packet_data[
+            &quot;packets_df_line_interaction&quot;
+        ]
 
         return plotter</div>
 
@@ -363,11 +369,9 @@ class LIVPlotter:
         &quot;&quot;&quot;
         Generate plot data and colors for species in the model.
         &quot;&quot;&quot;
-        groups = (
-            self.packets_df_line_interaction
-            .loc[self.packet_nu_line_range_mask]
-            .groupby(by=&quot;last_line_interaction_species&quot;)
-        )
+        groups = self.packets_df_line_interaction.loc[
+            self.packet_nu_line_range_mask
+        ].groupby(by=&quot;last_line_interaction_species&quot;)
 
         self.plot_colors = []
         self.plot_data = []
@@ -448,9 +452,14 @@ class LIVPlotter:
             found in the model.
         &quot;&quot;&quot;
         # Extract all unique elements from the packets data
-        if self.packets_df_line_interaction is not None and not self.packets_df_line_interaction.empty:
+        if (
+            self.packets_df_line_interaction is not None
+            and not self.packets_df_line_interaction.empty
+        ):
             species_in_model = np.unique(
-                self.packets_df_line_interaction[&quot;last_line_interaction_species&quot;].to_numpy()
+                self.packets_df_line_interaction[
+                    &quot;last_line_interaction_species&quot;
+                ].to_numpy()
             )
         else:
             species_in_model = []
@@ -469,15 +478,14 @@ class LIVPlotter:
                     &quot;No line interactions found in the packet data. &quot;
                     &quot;The LIV plot requires packets that underwent line interactions.&quot;
                 )
-            else:
-                raise ValueError(&quot;No species provided for plotting.&quot;)
+            raise ValueError(&quot;No species provided for plotting.&quot;)
         self.species = list(set(self._species_list) &amp; set(species_in_model))
 
         if len(self.species) == 0:
             raise ValueError(
                 f&quot;No valid species found for plotting. &quot;
                 f&quot;Requested species: {species_list}, &quot;
-                f&quot;Available species in model: {[f&#39;{atomic_number2element_symbol(s[0])} {int_to_roman(s[1]+1)}&#39; for s in species_in_model]}&quot;
+                f&quot;Available species in model: {[f&#39;{atomic_number2element_symbol(s[0])} {int_to_roman(s[1] + 1)}&#39; for s in species_in_model]}&quot;
             )
 
         self._make_colorbar_labels()
@@ -748,7 +756,7 @@ class LIVPlotter:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

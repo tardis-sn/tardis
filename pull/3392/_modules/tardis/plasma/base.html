@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -162,7 +162,6 @@ class PlasmaSolverSettings:
 <div class="viewcode-block" id="BasePlasma">
 <a class="viewcode-back" href="../../../api/tardis.plasma.base.html#tardis.plasma.base.BasePlasma">[docs]</a>
 class BasePlasma(PlasmaWriterMixin):
-
     outputs_dict = {}
     hdf_name = &quot;plasma&quot;
 
@@ -185,16 +184,14 @@ class BasePlasma(PlasmaWriterMixin):
     def __getattr__(self, item):
         if item in self.outputs_dict:
             return self.get_value(item)
-        else:
-            super().__getattribute__(item)
+        super().__getattribute__(item)
 
     def __setattr__(self, key, value):
         if key != &quot;module_dict&quot; and key in self.outputs_dict:
             raise AttributeError(
-                &quot;Plasma inputs can only be updated using &quot; &quot;the &#39;update&#39; method&quot;
+                &quot;Plasma inputs can only be updated using the &#39;update&#39; method&quot;
             )
-        else:
-            super().__setattr__(key, value)
+        super().__setattr__(key, value)
 
     def __dir__(self):
         attrs = [item for item in self.__dict__ if not item.startswith(&quot;_&quot;)]
@@ -286,7 +283,6 @@ class BasePlasma(PlasmaWriterMixin):
         self.previous_iteration_properties = []
         self.outputs_dict = {}
         for plasma_property in plasma_properties:
-
             if issubclass(plasma_property, PreviousIterationProperty):
                 current_property_object = plasma_property(
                     **property_kwargs.get(plasma_property, {})
@@ -335,7 +331,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in kwargs:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    f&quot;Trying to update property {key}&quot; f&quot; that is unavailable&quot;
+                    f&quot;Trying to update property {key} that is unavailable&quot;
                 )
             self.outputs_dict[key].set_value(kwargs[key])
 
@@ -365,7 +361,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    f&quot;Trying to freeze property {key}&quot; &quot; that is unavailable&quot;
+                    f&quot;Trying to freeze property {key} that is unavailable&quot;
                 )
             self.outputs_dict[key].frozen = True</div>
 
@@ -391,7 +387,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    f&quot;Trying to thaw property {key}&quot; &quot; that is unavailable&quot;
+                    f&quot;Trying to thaw property {key} that is unavailable&quot;
                 )
             self.outputs_dict[key].frozen = False</div>
 
@@ -429,7 +425,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         logger.debug(
             f&quot;Updating modules in the following order:&quot;
-            f&#39;{&quot;-&gt;&quot;.join(descendants_ob)}&#39;
+            f&quot;{&#39;-&gt;&#39;.join(descendants_ob)}&quot;
         )
 
         return descendants_ob
@@ -453,10 +449,10 @@ class BasePlasma(PlasmaWriterMixin):
             edge labels into the file.
         &quot;&quot;&quot;
         try:
-            import pygraphviz
+            pass
         except:
             logger.warning(
-                &quot;pygraphviz missing. Plasma graph will not be &quot; &quot;generated.&quot;
+                &quot;pygraphviz missing. Plasma graph will not be generated.&quot;
             )
             return
         print_graph = self.graph.copy()
@@ -465,9 +461,9 @@ class BasePlasma(PlasmaWriterMixin):
         for node in print_graph:
             if latex_label is True:
                 if hasattr(self.plasma_properties_dict[node], &quot;latex_formula&quot;):
-                    print_graph.nodes[str(node)][
-                        &quot;label&quot;
-                    ] = f&quot;\\\\textrm{{{node}: }}&quot;
+                    print_graph.nodes[str(node)][&quot;label&quot;] = (
+                        f&quot;\\\\textrm{{{node}: }}&quot;
+                    )
                     node_list = self.plasma_properties_dict[node]
                     formulae = node_list.latex_formula
                     for output in range(len(formulae)):
@@ -475,9 +471,9 @@ class BasePlasma(PlasmaWriterMixin):
                         label = formula.replace(&quot;\\&quot;, &quot;\\\\&quot;)
                         print_graph.nodes[str(node)][&quot;label&quot;] += label
                 else:
-                    print_graph.nodes[str(node)][
-                        &quot;label&quot;
-                    ] = f&quot;\\\\textrm{{{node}}}&quot;
+                    print_graph.nodes[str(node)][&quot;label&quot;] = (
+                        f&quot;\\\\textrm{{{node}}}&quot;
+                    )
             else:
                 print_graph.nodes[str(node)][&quot;label&quot;] = node
 
@@ -545,7 +541,7 @@ class BasePlasma(PlasmaWriterMixin):
             import dot2tex
         except:
             logger.warning(
-                &quot;dot2tex missing. Plasma graph will not be &quot; &quot;generated.&quot;
+                &quot;dot2tex missing. Plasma graph will not be generated.&quot;
             )
             return
 
@@ -631,7 +627,7 @@ class BasePlasma(PlasmaWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -198,22 +198,19 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tardis</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_tardis</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_tardis</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_tardis</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_atom_data</span>
-<span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He_latest&#39;</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.config_reader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="n">download_atom_data</span><span class="p">(</span><span class="s2">&quot;kurucz_cd23_chianti_H_He_latest&quot;</span><span class="p">)</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">statistics</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 </pre></div>
 </div>
 </div>
@@ -251,7 +248,6 @@
 <span class="sd">    -------</span>
 <span class="sd">    data_dict : dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
@@ -268,6 +264,7 @@
     <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">data_dict</span>
 
+
 <span class="k">def</span><span class="w"> </span><span class="nf">add_to_dictionary</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds the data to the dictionary</span>
@@ -278,7 +275,6 @@
 <span class="sd">    info : list</span>
 <span class="sd">        It is set up as [testing_param, iteration, run_time]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">testing_param</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">iteration</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">time_of_run</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -302,15 +298,14 @@
 <span class="sd">    -------</span>
 <span class="sd">    Boolean</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">testing_param</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">iteration</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="c1">#Checks if it thread already exists</span>
+    <span class="c1"># Checks if it thread already exists</span>
     <span class="k">if</span> <span class="n">testing_param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
-    <span class="c1">#If it does</span>
-    <span class="k">elif</span> <span class="p">(</span><span class="n">testing_param</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">):</span>
-        <span class="c1">#Does the iteration exist yet</span>
+    <span class="c1"># If it does</span>
+    <span class="k">if</span> <span class="n">testing_param</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
+        <span class="c1"># Does the iteration exist yet</span>
         <span class="k">if</span> <span class="n">iteration</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">[</span><span class="n">testing_param</span><span class="p">]:</span>
             <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span>
@@ -327,13 +322,15 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_data</span><span class="p">(</span><span class="n">thread_count</span><span class="p">,</span>
-                  <span class="n">iteration_count</span><span class="p">,</span>
-                  <span class="n">thread_dictionary</span><span class="p">,</span>
-                  <span class="n">cpu_timing_dictionary</span><span class="p">,</span>
-                  <span class="n">tardis_file</span><span class="p">,</span>
-                  <span class="n">thread_file</span><span class="p">,</span>
-                  <span class="n">cpu_file</span><span class="p">,):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_data</span><span class="p">(</span>
+    <span class="n">thread_count</span><span class="p">,</span>
+    <span class="n">iteration_count</span><span class="p">,</span>
+    <span class="n">thread_dictionary</span><span class="p">,</span>
+    <span class="n">cpu_timing_dictionary</span><span class="p">,</span>
+    <span class="n">tardis_file</span><span class="p">,</span>
+    <span class="n">thread_file</span><span class="p">,</span>
+    <span class="n">cpu_file</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function generates data for running a tardis file on different numbers of threads different times.</span>
 <span class="sd">    It writes the data to two dictionaries and their respective files.</span>
@@ -357,12 +354,11 @@
 <span class="sd">    cpu_file : str</span>
 <span class="sd">        .csv file name</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">tardis_config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">tardis_file</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">threads</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">thread_count</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">iteration_count</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
-            <span class="c1">#Continue if this data point already exists. If it exists in one it exists in both</span>
+    <span class="k">for</span> <span class="n">threads</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">thread_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">iteration_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># Continue if this data point already exists. If it exists in one it exists in both</span>
             <span class="k">if</span> <span class="n">check_existance</span><span class="p">(</span><span class="n">thread_dictionary</span><span class="p">,</span> <span class="p">[</span><span class="n">threads</span><span class="p">,</span> <span class="n">i</span><span class="p">]):</span>
                 <span class="k">continue</span>
 
@@ -374,15 +370,17 @@
             <span class="n">sim</span><span class="o">.</span><span class="n">run_convergence</span><span class="p">()</span>
             <span class="n">sim</span><span class="o">.</span><span class="n">run_final</span><span class="p">()</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
-            <span class="n">run_time</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="n">start</span>
+            <span class="n">run_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
 
             <span class="n">add_to_dictionary</span><span class="p">(</span><span class="n">thread_dictionary</span><span class="p">,</span> <span class="p">[</span><span class="n">threads</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">run_time</span><span class="p">])</span>
-            <span class="n">add_to_dictionary</span><span class="p">(</span><span class="n">cpu_timing_dictionary</span><span class="p">,</span> <span class="p">[</span><span class="n">threads</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">run_time</span> <span class="o">*</span> <span class="n">threads</span><span class="p">)])</span>
+            <span class="n">add_to_dictionary</span><span class="p">(</span>
+                <span class="n">cpu_timing_dictionary</span><span class="p">,</span> <span class="p">[</span><span class="n">threads</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">run_time</span> <span class="o">*</span> <span class="n">threads</span><span class="p">)]</span>
+            <span class="p">)</span>
 
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">thread_file</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
-                <span class="n">data_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">threads</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">run_time</span><span class="p">))</span>
+                <span class="n">data_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">threads</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">run_time</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cpu_file</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
-                <span class="n">data_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">threads</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">run_time</span> <span class="o">*</span> <span class="n">threads</span><span class="p">))</span>
+                <span class="n">data_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">threads</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">run_time</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">threads</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Completed&quot;</span><span class="p">)</span>
 </pre></div>
@@ -392,25 +390,33 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">TARDIS_FILE</span> <span class="o">=</span> <span class="s1">&#39;tardis_example.yml&#39;</span>
-<span class="n">STORAGE_FILE</span> <span class="o">=</span> <span class="s1">&#39;threads_dict_128_threads_1_node.csv&#39;</span>
-<span class="n">CPU_STORAGE_FILE</span> <span class="o">=</span> <span class="s1">&#39;cpu_threads_dict_128_threads_1_node.csv&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">TARDIS_FILE</span> <span class="o">=</span> <span class="s2">&quot;tardis_example.yml&quot;</span>
+<span class="n">STORAGE_FILE</span> <span class="o">=</span> <span class="s2">&quot;threads_dict_128_threads_1_node.csv&quot;</span>
+<span class="n">CPU_STORAGE_FILE</span> <span class="o">=</span> <span class="s2">&quot;cpu_threads_dict_128_threads_1_node.csv&quot;</span>
 
-<span class="c1">#Compile the numba functions</span>
+<span class="c1"># Compile the numba functions</span>
 <span class="n">run_tardis</span><span class="p">(</span><span class="n">TARDIS_FILE</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">)</span>
 
-<span class="c1">#Opens file and builds the dictionary</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">STORAGE_FILE</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">threads_fp</span><span class="p">:</span>
+<span class="c1"># Opens file and builds the dictionary</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">STORAGE_FILE</span><span class="p">)</span> <span class="k">as</span> <span class="n">threads_fp</span><span class="p">:</span>
     <span class="n">threads_dict</span> <span class="o">=</span> <span class="n">build_dictionary</span><span class="p">(</span><span class="n">threads_fp</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">CPU_STORAGE_FILE</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cpu_fp</span><span class="p">:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">CPU_STORAGE_FILE</span><span class="p">)</span> <span class="k">as</span> <span class="n">cpu_fp</span><span class="p">:</span>
     <span class="n">cpu_threads_dict</span> <span class="o">=</span> <span class="n">build_dictionary</span><span class="p">(</span><span class="n">cpu_fp</span><span class="p">)</span>
 
-<span class="c1">#Creates list of main data</span>
+<span class="c1"># Creates list of main data</span>
 <span class="n">threads_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">129</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
 <span class="n">cpu_threads_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">129</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
 
-<span class="n">generate_data</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">threads_dict</span><span class="p">,</span> <span class="n">cpu_threads_dict</span><span class="p">,</span> <span class="n">TARDIS_FILE</span><span class="p">,</span> <span class="n">STORAGE_FILE</span><span class="p">,</span> <span class="n">CPU_STORAGE_FILE</span><span class="p">)</span>
+<span class="n">generate_data</span><span class="p">(</span>
+    <span class="mi">128</span><span class="p">,</span>
+    <span class="mi">30</span><span class="p">,</span>
+    <span class="n">threads_dict</span><span class="p">,</span>
+    <span class="n">cpu_threads_dict</span><span class="p">,</span>
+    <span class="n">TARDIS_FILE</span><span class="p">,</span>
+    <span class="n">STORAGE_FILE</span><span class="p">,</span>
+    <span class="n">CPU_STORAGE_FILE</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -454,7 +460,6 @@ Completed
 <span class="sd">    main_dict_mean : dict</span>
 <span class="sd">    main_dict_stdev : dict</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">main_dict_list</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">thread</span><span class="p">,</span> <span class="n">iteration_dict</span> <span class="ow">in</span> <span class="n">main_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">main_dict_list</span><span class="p">[</span><span class="n">thread</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">iteration_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
@@ -467,8 +472,11 @@ Completed
 
     <span class="k">return</span> <span class="n">main_dict_mean</span><span class="p">,</span> <span class="n">main_dict_stdev</span>
 
+
 <span class="n">threads_dict_mean</span><span class="p">,</span> <span class="n">threads_dict_stdev</span> <span class="o">=</span> <span class="n">create_stat_dictionaries</span><span class="p">(</span><span class="n">threads_dict</span><span class="p">)</span>
-<span class="n">cpu_threads_dict_mean</span><span class="p">,</span> <span class="n">cpu_threads_dict_stdev</span> <span class="o">=</span> <span class="n">create_stat_dictionaries</span><span class="p">(</span><span class="n">cpu_threads_dict</span><span class="p">)</span>
+<span class="n">cpu_threads_dict_mean</span><span class="p">,</span> <span class="n">cpu_threads_dict_stdev</span> <span class="o">=</span> <span class="n">create_stat_dictionaries</span><span class="p">(</span>
+    <span class="n">cpu_threads_dict</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -476,7 +484,15 @@ Completed
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">graph_data</span><span class="p">(</span><span class="n">testing_params</span><span class="p">,</span> <span class="n">mean_dict</span><span class="p">,</span> <span class="n">stdev_dict</span><span class="p">,</span> <span class="n">x_axis_title</span><span class="p">,</span> <span class="n">y_axis_title</span><span class="p">,</span> <span class="n">graph_title</span><span class="p">,</span> <span class="n">text_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">graph_data</span><span class="p">(</span>
+    <span class="n">testing_params</span><span class="p">,</span>
+    <span class="n">mean_dict</span><span class="p">,</span>
+    <span class="n">stdev_dict</span><span class="p">,</span>
+    <span class="n">x_axis_title</span><span class="p">,</span>
+    <span class="n">y_axis_title</span><span class="p">,</span>
+    <span class="n">graph_title</span><span class="p">,</span>
+    <span class="n">text_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Uses pyplot to graph the data given the mean and standard deviation of data.</span>
 
@@ -493,14 +509,13 @@ Completed
 <span class="sd">        This is a boolean parameter for if the testing parameters are text. If they are text, then</span>
 <span class="sd">        it will set each tick mark on the x-axis to be a label in testing_params.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">lists</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mean_dict</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
     <span class="n">lists_stdev</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">stdev_dict</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">lists</span><span class="p">)</span>
     <span class="n">x_stdev</span><span class="p">,</span> <span class="n">y_stdev</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">lists_stdev</span><span class="p">)</span>
 
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_axis_title</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_axis_title</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">graph_title</span><span class="p">)</span>
@@ -510,23 +525,42 @@ Completed
         <span class="n">xtick_spacer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">testing_params</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">xticks</span> <span class="o">=</span> <span class="n">testing_params</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">xtick_spacer</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">xticks</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">xticks</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="n">text_labels</span><span class="p">:</span>
-        <span class="c1">#If there are a lot of ticks, it will reduce for visibility.</span>
+        <span class="c1"># If there are a lot of ticks, it will reduce for visibility.</span>
         <span class="n">interval</span> <span class="o">=</span> <span class="n">testing_params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">testing_params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">testing_params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">80</span><span class="p">:</span>
-            <span class="n">xticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">testing_params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">testing_params</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">interval</span><span class="p">,</span> <span class="n">interval</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">xticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+                <span class="n">testing_params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">testing_params</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">interval</span><span class="p">,</span> <span class="n">interval</span> <span class="o">*</span> <span class="mi">2</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">xticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">testing_params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">testing_params</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">interval</span><span class="p">,</span> <span class="n">interval</span><span class="p">)</span>
+            <span class="n">xticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+                <span class="n">testing_params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">testing_params</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">interval</span><span class="p">,</span> <span class="n">interval</span>
+            <span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">xticks</span><span class="p">)</span>
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> vs </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_axis_title</span><span class="p">,</span> <span class="n">y_axis_title</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">y_stdev</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;stdev&#39;</span><span class="p">)</span>
-    <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;expanded&#39;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x_axis_title</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">y_axis_title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">y_stdev</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;stdev&quot;</span><span class="p">)</span>
+    <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;expanded&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">leg</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
-<span class="n">graph_data</span><span class="p">(</span><span class="n">threads_numbers</span><span class="p">,</span> <span class="n">threads_dict_mean</span><span class="p">,</span> <span class="n">threads_dict_stdev</span><span class="p">,</span> <span class="s2">&quot;threads&quot;</span><span class="p">,</span> <span class="s2">&quot;time (sec)&quot;</span><span class="p">,</span> <span class="s2">&quot;threads vs time&quot;</span><span class="p">)</span>
-<span class="n">graph_data</span><span class="p">(</span><span class="n">cpu_threads_numbers</span><span class="p">,</span> <span class="n">cpu_threads_dict_mean</span><span class="p">,</span> <span class="n">cpu_threads_dict_stdev</span><span class="p">,</span> <span class="s2">&quot;threads&quot;</span><span class="p">,</span> <span class="s2">&quot;time (sec)&quot;</span><span class="p">,</span> <span class="s2">&quot;threads vs cpu time&quot;</span><span class="p">)</span>
+
+<span class="n">graph_data</span><span class="p">(</span>
+    <span class="n">threads_numbers</span><span class="p">,</span>
+    <span class="n">threads_dict_mean</span><span class="p">,</span>
+    <span class="n">threads_dict_stdev</span><span class="p">,</span>
+    <span class="s2">&quot;threads&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;time (sec)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;threads vs time&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">graph_data</span><span class="p">(</span>
+    <span class="n">cpu_threads_numbers</span><span class="p">,</span>
+    <span class="n">cpu_threads_dict_mean</span><span class="p">,</span>
+    <span class="n">cpu_threads_dict_stdev</span><span class="p">,</span>
+    <span class="s2">&quot;threads&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;time (sec)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;threads vs cpu time&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -559,7 +593,7 @@ Completed
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

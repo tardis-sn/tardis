@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -181,7 +181,7 @@
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;XUVTOP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;~/chianti&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;XUVTOP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;~/chianti&quot;</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">ChiantiPy.core</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ch</span>
@@ -190,12 +190,13 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="c1"># Shamefully copied from their GitHub source:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">chianti.core</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ch</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">versionRead</span><span class="p">():</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the version number of the CHIANTI database</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">xuvtop</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;XUVTOP&#39;</span><span class="p">]</span>
-        <span class="n">vFileName</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">xuvtop</span><span class="p">)</span> <span class="o">/</span> <span class="s1">&#39;VERSION&#39;</span>
+        <span class="n">xuvtop</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;XUVTOP&quot;</span><span class="p">]</span>
+        <span class="n">vFileName</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">xuvtop</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;VERSION&quot;</span>
         <span class="n">vFile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">vFileName</span><span class="p">)</span>
         <span class="n">versionStr</span> <span class="o">=</span> <span class="n">vFile</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
         <span class="n">vFile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -209,7 +210,7 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compare_shell</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">species</span> <span class="o">=</span> <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">species_string</span> <span class="o">=</span> <span class="s1">&#39;si_2&#39;</span>
+<span class="n">species_string</span> <span class="o">=</span> <span class="s2">&quot;si_2&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -233,9 +234,11 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_species</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">ion</span><span class="p">(</span><span class="n">species_string</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">t_electron</span><span class="p">,</span> <span class="n">eDensity</span><span class="o">=</span><span class="n">electron_density</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chianti_species</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">ion</span><span class="p">(</span>
+    <span class="n">species_string</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">t_electron</span><span class="p">,</span> <span class="n">eDensity</span><span class="o">=</span><span class="n">electron_density</span>
+<span class="p">)</span>
 <span class="n">chianti_species</span><span class="o">.</span><span class="n">populate</span><span class="p">()</span>
-<span class="n">chianti_population</span> <span class="o">=</span> <span class="n">chianti_species</span><span class="o">.</span><span class="n">Population</span><span class="p">[</span><span class="s1">&#39;population&#39;</span><span class="p">]</span>
+<span class="n">chianti_population</span> <span class="o">=</span> <span class="n">chianti_species</span><span class="o">.</span><span class="n">Population</span><span class="p">[</span><span class="s2">&quot;population&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -280,7 +283,7 @@ array([[9.99999989e-01, 1.06967533e-08, 8.19021735e-17, 1.63935872e-16,
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

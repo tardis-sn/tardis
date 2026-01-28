@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -205,11 +205,16 @@
 
 <span class="n">home</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">home</span> <span class="o">/</span> <span class="s2">&quot;tardis/tardis/plasma/tests/data/plasma_base_test_config.yml&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+    <span class="n">home</span> <span class="o">/</span> <span class="s2">&quot;tardis/tardis/plasma/tests/data/plasma_base_test_config.yml&quot;</span>
+<span class="p">)</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">supernova</span><span class="o">.</span><span class="n">time_explosion</span> <span class="o">=</span> <span class="mf">16.084</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
 <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span>
-<span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">home</span> <span class="o">/</span> <span class="s2">&quot;tardis/docs/physics/plasma/equilibrium/cmfgen_stephane_density_rebin.dat&quot;</span>
+<span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">home</span>
+    <span class="o">/</span> <span class="s2">&quot;tardis/docs/physics/plasma/equilibrium/cmfgen_stephane_density_rebin.dat&quot;</span>
+<span class="p">)</span>
 <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">filetype</span> <span class="o">=</span> <span class="s2">&quot;simple_ascii&quot;</span>
 <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">v_inner_boundary</span> <span class="o">=</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
 <span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">v_outer_boundary</span> <span class="o">=</span> <span class="mi">15000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
@@ -222,7 +227,10 @@
 
 <span class="n">ion_slice</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
 
-<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">home</span> <span class="o">/</span> <span class="s2">&quot;tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti_ctardis.h5&quot;</span><span class="p">)</span>
+<span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span>
+    <span class="n">home</span>
+    <span class="o">/</span> <span class="s2">&quot;tardis-regression-data/atom_data/nlte_atom_data/TestNLTE_He_Ti_ctardis.h5&quot;</span>
+<span class="p">)</span>
 
 <span class="n">cmfgen_atom_data2</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">atom_data</span><span class="p">)</span>
 
@@ -275,24 +283,71 @@ model_isotope_time_0 is not set in the configuration. Isotopic mass fractions wi
     <span class="n">ThermalElectronEnergyDistribution</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="c1">#9984.96131287 * u.K,</span>
-                                          <span class="n">dilution_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-    <span class="p">[</span> <span class="mf">0.18635244</span><span class="p">,</span>  <span class="mf">0.15938095</span><span class="p">,</span>  <span class="mf">0.11736085</span><span class="p">,</span>  <span class="mf">0.34665656</span><span class="p">,</span>  <span class="mf">0.32265696</span><span class="p">,</span>
-       <span class="mf">0.30224056</span><span class="p">,</span>  <span class="mf">0.28436446</span><span class="p">,</span>  <span class="mf">0.26841929</span><span class="p">,</span>  <span class="mf">0.2540108</span> <span class="p">,</span>  <span class="mf">0.24086562</span><span class="p">,</span>
-        <span class="mf">0.22878441</span><span class="p">,</span>  <span class="mf">0.21761613</span><span class="p">,</span>  <span class="mf">0.20724285</span><span class="p">,</span>  <span class="mf">0.1975702</span> <span class="p">,</span>  <span class="mf">0.18852112</span><span class="p">,</span>
-        <span class="mf">0.18003167</span><span class="p">,</span>  <span class="mf">0.17204798</span><span class="p">,</span>  <span class="mf">0.16452412</span><span class="p">,</span>  <span class="mf">0.15742053</span><span class="p">,</span>  <span class="mf">0.15070279</span><span class="p">,</span>
-        <span class="mf">0.14434073</span><span class="p">,</span>  <span class="mf">0.13830767</span><span class="p">,</span>  <span class="mf">0.13257993</span><span class="p">,</span>  <span class="mf">0.12856901</span><span class="p">]))</span>
+<span class="n">rad_field</span> <span class="o">=</span> <span class="n">DilutePlanckianRadiationField</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span>  <span class="c1"># 9984.96131287 * u.K,</span>
+    <span class="n">dilution_factor</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="mf">0.18635244</span><span class="p">,</span>
+            <span class="mf">0.15938095</span><span class="p">,</span>
+            <span class="mf">0.11736085</span><span class="p">,</span>
+            <span class="mf">0.34665656</span><span class="p">,</span>
+            <span class="mf">0.32265696</span><span class="p">,</span>
+            <span class="mf">0.30224056</span><span class="p">,</span>
+            <span class="mf">0.28436446</span><span class="p">,</span>
+            <span class="mf">0.26841929</span><span class="p">,</span>
+            <span class="mf">0.2540108</span><span class="p">,</span>
+            <span class="mf">0.24086562</span><span class="p">,</span>
+            <span class="mf">0.22878441</span><span class="p">,</span>
+            <span class="mf">0.21761613</span><span class="p">,</span>
+            <span class="mf">0.20724285</span><span class="p">,</span>
+            <span class="mf">0.1975702</span><span class="p">,</span>
+            <span class="mf">0.18852112</span><span class="p">,</span>
+            <span class="mf">0.18003167</span><span class="p">,</span>
+            <span class="mf">0.17204798</span><span class="p">,</span>
+            <span class="mf">0.16452412</span><span class="p">,</span>
+            <span class="mf">0.15742053</span><span class="p">,</span>
+            <span class="mf">0.15070279</span><span class="p">,</span>
+            <span class="mf">0.14434073</span><span class="p">,</span>
+            <span class="mf">0.13830767</span><span class="p">,</span>
+            <span class="mf">0.13257993</span><span class="p">,</span>
+            <span class="mf">0.12856901</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+<span class="p">)</span>
 
-<span class="n">electron_dist</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="c1">#9984.96131287 * u.K,</span>
-                                                  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-    <span class="p">[</span>  <span class="mf">2.20677509e+09</span><span class="p">,</span>   <span class="mf">1.62501734e+09</span><span class="p">,</span>   <span class="mf">1.22615668e+09</span><span class="p">,</span>
-         <span class="mf">9.43891936e+08</span><span class="p">,</span>   <span class="mf">7.38550008e+08</span><span class="p">,</span>   <span class="mf">5.87500741e+08</span><span class="p">,</span>
-         <span class="mf">4.72954413e+08</span><span class="p">,</span>   <span class="mf">3.82162389e+08</span><span class="p">,</span>   <span class="mf">3.08702916e+08</span><span class="p">,</span>
-         <span class="mf">2.49243299e+08</span><span class="p">,</span>   <span class="mf">2.01203976e+08</span><span class="p">,</span>   <span class="mf">1.62424770e+08</span><span class="p">,</span>
-         <span class="mf">1.31111090e+08</span><span class="p">,</span>   <span class="mf">1.05846840e+08</span><span class="p">,</span>   <span class="mf">8.54394007e+07</span><span class="p">,</span>
-         <span class="mf">6.89750790e+07</span><span class="p">,</span>   <span class="mf">5.56796014e+07</span><span class="p">,</span>   <span class="mf">4.49524605e+07</span><span class="p">,</span>
-         <span class="mf">3.62858202e+07</span><span class="p">,</span>   <span class="mf">2.92940480e+07</span><span class="p">,</span>   <span class="mf">2.36477502e+07</span><span class="p">,</span>
-         <span class="mf">1.90900977e+07</span><span class="p">,</span>   <span class="mf">1.54111736e+07</span><span class="p">,</span>   <span class="mf">1.24410890e+07</span><span class="p">]</span> <span class="p">)</span><span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">electron_dist</span> <span class="o">=</span> <span class="n">ThermalElectronEnergyDistribution</span><span class="p">(</span>
+    <span class="mi">0</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">,</span>  <span class="c1"># 9984.96131287 * u.K,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="mf">2.20677509e09</span><span class="p">,</span>
+            <span class="mf">1.62501734e09</span><span class="p">,</span>
+            <span class="mf">1.22615668e09</span><span class="p">,</span>
+            <span class="mf">9.43891936e08</span><span class="p">,</span>
+            <span class="mf">7.38550008e08</span><span class="p">,</span>
+            <span class="mf">5.87500741e08</span><span class="p">,</span>
+            <span class="mf">4.72954413e08</span><span class="p">,</span>
+            <span class="mf">3.82162389e08</span><span class="p">,</span>
+            <span class="mf">3.08702916e08</span><span class="p">,</span>
+            <span class="mf">2.49243299e08</span><span class="p">,</span>
+            <span class="mf">2.01203976e08</span><span class="p">,</span>
+            <span class="mf">1.62424770e08</span><span class="p">,</span>
+            <span class="mf">1.31111090e08</span><span class="p">,</span>
+            <span class="mf">1.05846840e08</span><span class="p">,</span>
+            <span class="mf">8.54394007e07</span><span class="p">,</span>
+            <span class="mf">6.89750790e07</span><span class="p">,</span>
+            <span class="mf">5.56796014e07</span><span class="p">,</span>
+            <span class="mf">4.49524605e07</span><span class="p">,</span>
+            <span class="mf">3.62858202e07</span><span class="p">,</span>
+            <span class="mf">2.92940480e07</span><span class="p">,</span>
+            <span class="mf">2.36477502e07</span><span class="p">,</span>
+            <span class="mf">1.90900977e07</span><span class="p">,</span>
+            <span class="mf">1.54111736e07</span><span class="p">,</span>
+            <span class="mf">1.24410890e07</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**-</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">temperature</span> <span class="o">=</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">temperature</span>
 </pre></div>
@@ -307,11 +362,19 @@ model_isotope_time_0 is not set in the configuration. Isotopic mass fractions wi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_coeff_solver</span> <span class="o">=</span> <span class="n">SpontaneousRecombinationCoeffSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">,)</span>
-<span class="n">photoionization_coeff_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationCoeffSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">,)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spontaneous_recombination_coeff_solver</span> <span class="o">=</span> <span class="n">SpontaneousRecombinationCoeffSolver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">photoionization_coeff_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationCoeffSolver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="n">spontaneous_recombination_rate</span> <span class="o">=</span> <span class="n">spontaneous_recombination_coeff_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
-<span class="n">photoionization_rate_coeff</span><span class="p">,</span> <span class="n">stimulated_recombination_rate_coeff</span> <span class="o">=</span> <span class="n">photoionization_coeff_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+<span class="n">spontaneous_recombination_rate</span> <span class="o">=</span> <span class="n">spontaneous_recombination_coeff_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">temperature</span>
+<span class="p">)</span>
+<span class="n">photoionization_rate_coeff</span><span class="p">,</span> <span class="n">stimulated_recombination_rate_coeff</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">photoionization_coeff_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -321,13 +384,23 @@ model_isotope_time_0 is not set in the configuration. Isotopic mass fractions wi
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ctardis_path</span> <span class="o">=</span> <span class="s2">&quot;/home/afullard/tardis-chvogl-configs/&quot;</span>
 
-<span class="n">ion_number_density_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;ion_density.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="n">lte_ion_number_density_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;lte_ion_number_density.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">ion_number_density_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;ion_density.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">lte_ion_number_density_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;lte_ion_number_density.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">)</span>
 
-<span class="n">level_number_density_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;level_pop.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">lte_level_number_density_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;lte_level_pop.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">level_number_density_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;level_pop.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">lte_level_number_density_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;lte_level_pop.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">)</span>
 
-<span class="n">correction_factor_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;correction_factor_ctardis.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">correction_factor_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;correction_factor_ctardis.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -339,8 +412,18 @@ model_isotope_time_0 is not set in the configuration. Isotopic mass fractions wi
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plasma_solver_factory</span> <span class="o">=</span> <span class="n">PlasmaSolverFactory</span><span class="p">(</span><span class="n">cmfgen_atom_data2</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-<span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">prepare_factory</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span><span class="s2">&quot;tardis.plasma.properties.property_collections&quot;</span> <span class="p">)</span>
-<span class="n">cmfgen_plasma</span> <span class="o">=</span> <span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span><span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">calculate_elemental_number_density</span><span class="p">(</span><span class="n">cmfgen_atom_data2</span><span class="o">.</span><span class="n">atom_data</span><span class="o">.</span><span class="n">mass</span><span class="p">),</span> <span class="n">rad_field</span><span class="p">,</span> <span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">time_explosion</span><span class="p">,</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span> <span class="n">link_t_rad_t_electron</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">prepare_factory</span><span class="p">(</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;tardis.plasma.properties.property_collections&quot;</span>
+<span class="p">)</span>
+<span class="n">cmfgen_plasma</span> <span class="o">=</span> <span class="n">plasma_solver_factory</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
+    <span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">calculate_elemental_number_density</span><span class="p">(</span>
+        <span class="n">cmfgen_atom_data2</span><span class="o">.</span><span class="n">atom_data</span><span class="o">.</span><span class="n">mass</span>
+    <span class="p">),</span>
+    <span class="n">rad_field</span><span class="p">,</span>
+    <span class="n">cmfgen_sim_state</span><span class="o">.</span><span class="n">time_explosion</span><span class="p">,</span>
+    <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span>
+    <span class="n">link_t_rad_t_electron</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -364,13 +447,28 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties.ion_population</span><span class="w"> </span><span class="kn">import</span> <span class="n">IonNumberDensity</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">LTEIonNumberDensity</span><span class="p">(</span><span class="n">IonNumberDensity</span><span class="p">):</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lte_ion_number_density&#39;</span><span class="p">,</span> <span class="p">)</span>
-    <span class="n">latex_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;N_{i,j}^*&#39;</span><span class="p">,)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phi_Te</span><span class="p">,</span> <span class="n">lte_partition_function_Te</span><span class="p">,</span> <span class="n">number_density</span><span class="p">,</span> <span class="n">electron_densities</span><span class="p">,</span> <span class="n">block_ids</span><span class="p">,</span> <span class="n">ion_threshold</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LTEIonNumberDensity</span><span class="p">(</span><span class="n">IonNumberDensity</span><span class="p">):</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;lte_ion_number_density&quot;</span><span class="p">,)</span>
+    <span class="n">latex_name</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;N_{i,j}^*&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">phi_Te</span><span class="p">,</span>
+        <span class="n">lte_partition_function_Te</span><span class="p">,</span>
+        <span class="n">number_density</span><span class="p">,</span>
+        <span class="n">electron_densities</span><span class="p">,</span>
+        <span class="n">block_ids</span><span class="p">,</span>
+        <span class="n">ion_threshold</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_with_n_electron</span><span class="p">(</span>
-            <span class="n">phi_Te</span><span class="p">,</span> <span class="n">lte_partition_function_Te</span><span class="p">,</span> <span class="n">number_density</span><span class="p">,</span> <span class="n">electron_densities</span><span class="p">,</span> <span class="n">block_ids</span><span class="p">,</span> <span class="n">ion_threshold</span><span class="p">)</span>
+            <span class="n">phi_Te</span><span class="p">,</span>
+            <span class="n">lte_partition_function_Te</span><span class="p">,</span>
+            <span class="n">number_density</span><span class="p">,</span>
+            <span class="n">electron_densities</span><span class="p">,</span>
+            <span class="n">block_ids</span><span class="p">,</span>
+            <span class="n">ion_threshold</span><span class="p">,</span>
+        <span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -387,14 +485,24 @@ Zeta_data missing - replaced with 1s. Missing ions: []
     <span class="n">LevelNumberDensity</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">LTELevelNumberDensity</span><span class="p">(</span><span class="n">LevelNumberDensity</span><span class="p">):</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;lte_level_number_density&#39;</span><span class="p">,)</span>
-    <span class="n">latex_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;N_{i,j,k}^*&#39;</span><span class="p">,)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_dilute_lte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lte_level_boltzmann_factor_Te</span><span class="p">,</span> <span class="n">lte_ion_number_density</span><span class="p">,</span>
-                              <span class="n">levels</span><span class="p">,</span> <span class="n">lte_partition_function_Te</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LTELevelNumberDensity</span><span class="p">(</span><span class="n">LevelNumberDensity</span><span class="p">):</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;lte_level_number_density&quot;</span><span class="p">,)</span>
+    <span class="n">latex_name</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;N_{i,j,k}^*&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_dilute_lte</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lte_level_boltzmann_factor_Te</span><span class="p">,</span>
+        <span class="n">lte_ion_number_density</span><span class="p">,</span>
+        <span class="n">levels</span><span class="p">,</span>
+        <span class="n">lte_partition_function_Te</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">LTELevelNumberDensity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_calculate_dilute_lte</span><span class="p">(</span>
-            <span class="n">lte_level_boltzmann_factor_Te</span><span class="p">,</span> <span class="n">lte_ion_number_density</span><span class="p">,</span> <span class="n">levels</span><span class="p">,</span> <span class="n">lte_partition_function_Te</span><span class="p">)</span>
+            <span class="n">lte_level_boltzmann_factor_Te</span><span class="p">,</span>
+            <span class="n">lte_ion_number_density</span><span class="p">,</span>
+            <span class="n">levels</span><span class="p">,</span>
+            <span class="n">lte_partition_function_Te</span><span class="p">,</span>
+        <span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -402,14 +510,16 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lte_ion_number_density</span> <span class="o">=</span> <span class="n">LTEIonNumberDensity</span><span class="p">(</span><span class="n">cmfgen_plasma</span><span class="p">,</span>
-                                             <span class="n">electron_densities</span><span class="o">=</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">electron_densities</span>
-                                             <span class="p">)</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
-                                                 <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">thermal_phi_lte</span><span class="p">,</span>
-                                                 <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">thermal_lte_partition_function</span><span class="p">,</span>
-                                                 <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span>
-                                                 <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">electron_densities</span><span class="p">,</span>
-                                                 <span class="kc">None</span><span class="p">,</span> <span class="mf">1e-20</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lte_ion_number_density</span> <span class="o">=</span> <span class="n">LTEIonNumberDensity</span><span class="p">(</span>
+    <span class="n">cmfgen_plasma</span><span class="p">,</span> <span class="n">electron_densities</span><span class="o">=</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">electron_densities</span>
+<span class="p">)</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">thermal_phi_lte</span><span class="p">,</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">thermal_lte_partition_function</span><span class="p">,</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">number_density</span><span class="p">,</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">electron_densities</span><span class="p">,</span>
+    <span class="kc">None</span><span class="p">,</span>
+    <span class="mf">1e-20</span><span class="p">,</span>
+<span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -417,12 +527,12 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lte_level_number_density</span> <span class="o">=</span> <span class="n">LTELevelNumberDensity</span><span class="p">(</span><span class="n">cmfgen_plasma</span>
-                                                 <span class="p">)</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
-                                                     <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">thermal_lte_level_boltzmann_factor</span><span class="p">,</span>
-                                                     <span class="n">lte_ion_number_density</span><span class="p">,</span>
-                                                     <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span>
-                                                     <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">thermal_lte_partition_function</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lte_level_number_density</span> <span class="o">=</span> <span class="n">LTELevelNumberDensity</span><span class="p">(</span><span class="n">cmfgen_plasma</span><span class="p">)</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">thermal_lte_level_boltzmann_factor</span><span class="p">,</span>
+    <span class="n">lte_ion_number_density</span><span class="p">,</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">thermal_lte_partition_function</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -432,10 +542,14 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_to_ion_population_factor</span> <span class="o">=</span> <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-            <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="o">.</span><span class="n">value</span>
-        <span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_to_ion_population_factor</span> <span class="o">=</span> <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+<span class="p">]</span> <span class="o">/</span> <span class="p">(</span>
+    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="o">.</span><span class="n">value</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -443,7 +557,9 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_to_ion_population_factor_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;phi_lucy.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_to_ion_population_factor_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;phi_lucy.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -476,7 +592,7 @@ Zeta_data missing - replaced with 1s. Missing ions: []
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_to_ion_population_factor</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_to_ion_population_factor</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
 </pre></div>
 </div>
 </div>
@@ -517,7 +633,9 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">lte_level_number_density_ctardis</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">level_number_density_ctardis</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span>
+    <span class="n">lte_level_number_density_ctardis</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">level_number_density_ctardis</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span>
+<span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 <span class="p">(</span><span class="n">lte_level_number_density</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -646,8 +764,12 @@ Name: (1, 0, 0), dtype: float64
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.equilibrium.rates</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalyticPhotoionizationRateSolver</span>
 
-<span class="n">photoionization_rate_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">)</span>
-<span class="n">corr_photoion_coeff_solver</span> <span class="o">=</span> <span class="n">AnalyticCorrectedPhotoionizationCoeffSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">)</span>
+<span class="n">photoionization_rate_solver</span> <span class="o">=</span> <span class="n">AnalyticPhotoionizationRateSolver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span>
+<span class="p">)</span>
+<span class="n">corr_photoion_coeff_solver</span> <span class="o">=</span> <span class="n">AnalyticCorrectedPhotoionizationCoeffSolver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -658,11 +780,21 @@ Name: (1, 0, 0), dtype: float64
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corr_photoion_coeff</span> <span class="o">=</span> <span class="n">corr_photoion_coeff_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
     <span class="n">rad_field</span><span class="p">,</span>
     <span class="n">electron_dist</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
-    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="p">)</span>
+    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+        <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+        <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -670,8 +802,14 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">photoionization_coeff_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;/home/afullard/tardis-chvogl-configs/rate_coefficients.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
-<span class="n">estimated_photoion_coeff_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;estimated_photoion_coeff.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">photoionization_coeff_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;/home/afullard/tardis-chvogl-configs/rate_coefficients.csv&quot;</span><span class="p">,</span>
+    <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="n">skiprows</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">estimated_photoion_coeff_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;estimated_photoion_coeff.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -680,14 +818,12 @@ Name: (1, 0, 0), dtype: float64
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df1</span> <span class="o">=</span> <span class="n">photoionization_coeff_ctardis</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-            <span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">df2</span> <span class="o">=</span> <span class="n">corr_photoion_coeff</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-            <span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+<span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">corr_photoion_coeff</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 <span class="n">df3</span> <span class="o">=</span> <span class="n">estimated_photoion_coeff_ctardis</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-            <span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+<span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
 
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df1</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis analytic&quot;</span><span class="p">)</span>
@@ -719,8 +855,8 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">df1</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">df2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">/</span><span class="n">df2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
-<span class="c1">#plt.plot(df3.T, label=&quot;TARDIS&quot;)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">df1</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">df2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">/</span> <span class="n">df2</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+<span class="c1"># plt.plot(df3.T, label=&quot;TARDIS&quot;)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cell&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Photoionization coefficient percent difference&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
@@ -761,7 +897,9 @@ Name: (1, 0, 0), dtype: float64
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.equilibrium.rates</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpontaneousRecombinationCoeffSolver</span>
 
-<span class="n">recomb_rate_solver</span> <span class="o">=</span> <span class="n">SpontaneousRecombinationCoeffSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">)</span>
+<span class="n">recomb_rate_solver</span> <span class="o">=</span> <span class="n">SpontaneousRecombinationCoeffSolver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span>
+<span class="p">)</span>
 
 <span class="n">recomb_coeff</span> <span class="o">=</span> <span class="n">recomb_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">electron_dist</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
 </pre></div>
@@ -771,11 +909,17 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">recomb_coeff_ctardis_iter1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;sp_recomb_coeff_iter1.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="n">recomb_coeff_ctardis_iter2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;sp_recomb_coeff_iter2.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="n">recomb_coeff_ctardis_iter3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;sp_recomb_coeff_iter3.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">recomb_coeff_ctardis_iter1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;sp_recomb_coeff_iter1.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">recomb_coeff_ctardis_iter2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;sp_recomb_coeff_iter2.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">recomb_coeff_ctardis_iter3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;sp_recomb_coeff_iter3.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
 
-<span class="n">recomb_coeff_comparison</span> <span class="o">=</span> <span class="p">(</span><span class="n">recomb_coeff</span> <span class="o">*</span> <span class="n">level_to_ion_population_factor</span><span class="p">)</span>
+<span class="n">recomb_coeff_comparison</span> <span class="o">=</span> <span class="n">recomb_coeff</span> <span class="o">*</span> <span class="n">level_to_ion_population_factor</span>
 </pre></div>
 </div>
 </div>
@@ -858,9 +1002,24 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">recomb_coeff_ctardis_iter1</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">/</span><span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis iter1&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">recomb_coeff_ctardis_iter2</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">/</span><span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis iter2&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">recomb_coeff_ctardis_iter3</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">/</span><span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis iter3&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">recomb_coeff_ctardis_iter1</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="o">/</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis iter1&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">recomb_coeff_ctardis_iter2</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="o">/</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis iter2&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">recomb_coeff_ctardis_iter3</span><span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="o">/</span> <span class="n">recomb_coeff_comparison</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis iter3&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cell&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Recombination coefficient percent difference&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
@@ -904,11 +1063,18 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_pop_fraction_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;level_pop_fractions.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="n">level_pop_fraction_ctardis</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">level_pop_fraction_ctardis</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">level_pop_fraction_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;level_pop_fractions.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">level_pop_fraction_ctardis</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">level_pop_fraction_ctardis</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+    <span class="nb">int</span>
+<span class="p">)</span>
 
 <span class="n">level_pop_fraction_ctardis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="p">(</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_boltzmann_factor</span> <span class="o">/</span> <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">partition_function</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)])[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">(</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_boltzmann_factor</span>
+    <span class="o">/</span> <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">partition_function</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1044,8 +1210,24 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">estimated_photoion_coeff_ctardis</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">level_pop_fraction_ctardis</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;cTARDIS Level Population Fraction&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="n">estimated_photoion_coeff_ctardis</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_boltzmann_factor</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS Level Boltzmann Factor&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="p">(</span>
+        <span class="n">estimated_photoion_coeff_ctardis</span><span class="o">.</span><span class="n">values</span>
+        <span class="o">*</span> <span class="n">level_pop_fraction_ctardis</span><span class="o">.</span><span class="n">values</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">T</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;cTARDIS Level Population Fraction&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="p">(</span>
+        <span class="n">estimated_photoion_coeff_ctardis</span><span class="o">.</span><span class="n">values</span>
+        <span class="o">*</span> <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_boltzmann_factor</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">T</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS Level Boltzmann Factor&quot;</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cell&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Photoionization Coefficient&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
@@ -1074,16 +1256,31 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">boltzmann_factor_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;level_boltzmann_factor_ctardis.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">boltzmann_factor_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;level_boltzmann_factor_ctardis.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
 <span class="n">boltzmann_factor_ctardis</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">boltzmann_factor_ctardis</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
-<span class="n">photoion_rates</span><span class="p">,</span> <span class="n">recomb_rates</span> <span class="o">=</span> <span class="n">photoionization_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span><span class="p">,</span> <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="mf">1.0</span><span class="p">,</span> <span class="c1"># Partition function to match ctardis</span>
+<span class="n">photoion_rates</span><span class="p">,</span> <span class="n">recomb_rates</span> <span class="o">=</span> <span class="n">photoionization_rate_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">rad_field</span><span class="p">,</span>
+    <span class="n">electron_dist</span><span class="p">,</span>
+    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+        <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+        <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># Partition function to match ctardis</span>
     <span class="n">boltzmann_factor_ctardis</span><span class="p">,</span>
-   <span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1091,19 +1288,33 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">photoion_rates_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;photoion_tot.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">photoion_rates_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;photoion_tot.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">)</span>
 <span class="n">photoion_rates_ctardis</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">photoion_rates_ctardis</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
 <span class="n">photoion_rates_ctardis</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">photoion_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">photoion_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
-<span class="n">photoion_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">photoion_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span>
-<span class="n">photoion_rates_ctardis</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;atomic_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number_source&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number_destination&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">photoion_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">photoion_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">photoion_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">photoion_rates_ctardis</span><span class="p">[</span>
+    <span class="s2">&quot;ion_number&quot;</span>
+<span class="p">]</span>
+<span class="n">photoion_rates_ctardis</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number_source&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number_destination&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">photoion_rates_ctardis</span> <span class="o">=</span> <span class="n">photoion_rates_ctardis</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-<span class="n">photoion_rates_ctardis</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis&quot;</span><span class="p">,</span> <span class="n">ls</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span><span class="p">)</span>
-<span class="n">photoion_rates</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS&quot;</span><span class="p">,</span><span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">photoion_rates_ctardis</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+<span class="n">photoion_rates</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1127,15 +1338,29 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">recomb_rates_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;recomb_tot.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">recomb_rates_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;recomb_tot.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">)</span>
 <span class="n">recomb_rates_ctardis</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">recomb_rates_ctardis</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
 <span class="n">recomb_rates_ctardis</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">recomb_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">recomb_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span>
-<span class="n">recomb_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">recomb_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">recomb_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">recomb_rates_ctardis</span><span class="p">[</span>
+    <span class="s2">&quot;ion_number&quot;</span>
+<span class="p">]</span>
+<span class="n">recomb_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">recomb_rates_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">)</span>
 
-<span class="n">recomb_rates_ctardis</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;atomic_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number_source&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number_destination&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">recomb_rates_ctardis</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number_source&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number_destination&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">recomb_rates_ctardis</span> <span class="o">=</span> <span class="n">recomb_rates_ctardis</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
@@ -1173,7 +1398,9 @@ Name: (1, 0, 0), dtype: float64
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.equilibrium.rate_matrix</span><span class="w"> </span><span class="kn">import</span> <span class="n">IonRateMatrix</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.equilibrium.rates</span><span class="w"> </span><span class="kn">import</span> <span class="n">CollisionalIonizationRateSolver</span>
 
-<span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">CollisionalIonizationRateSolver</span><span class="p">(</span><span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span><span class="p">)</span>
+<span class="n">collisional_rate_solver</span> <span class="o">=</span> <span class="n">CollisionalIonizationRateSolver</span><span class="p">(</span>
+    <span class="n">atom_data</span><span class="o">.</span><span class="n">photoionization_data</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1185,7 +1412,8 @@ Name: (1, 0, 0), dtype: float64
     <span class="n">electron_dist</span><span class="p">,</span>
     <span class="n">level_to_ion_population_factor</span><span class="p">,</span>
     <span class="mf">1.0</span><span class="p">,</span>
-    <span class="n">boltzmann_factor_ctardis</span><span class="p">,)</span>
+    <span class="n">boltzmann_factor_ctardis</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1193,22 +1421,41 @@ Name: (1, 0, 0), dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tardis_coll_ion</span> <span class="o">=</span> <span class="n">coll_ion_rates</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
-<span class="n">coll_ion_coeff_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;coll_ion_total.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tardis_coll_ion</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">coll_ion_rates</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+<span class="p">)</span>
+<span class="n">coll_ion_coeff_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;coll_ion_total.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">)</span>
 <span class="n">coll_ion_coeff_ctardis</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">coll_ion_coeff_ctardis</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
 <span class="n">coll_ion_coeff_ctardis</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">coll_ion_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coll_ion_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span>
-<span class="n">coll_ion_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coll_ion_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">coll_ion_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coll_ion_coeff_ctardis</span><span class="p">[</span>
+    <span class="s2">&quot;ion_number&quot;</span>
+<span class="p">]</span>
+<span class="n">coll_ion_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">coll_ion_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">)</span>
 
-<span class="n">coll_ion_coeff_ctardis</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;atomic_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number_source&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number_destination&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">coll_ion_coeff_ctardis</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number_source&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number_destination&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 
 
-<span class="n">ctardis_coll_ion</span> <span class="o">=</span> <span class="p">(</span><span class="n">coll_ion_coeff_ctardis</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">ctardis_coll_ion</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">coll_ion_coeff_ctardis</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span>
+<span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tardis_coll_ion</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ctardis_coll_ion</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ctardis_coll_ion</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cell&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Collisional Ionization Coefficient&quot;</span><span class="p">)</span>
@@ -1235,23 +1482,46 @@ Text(0, 0.5, &#39;Collisional Ionization Coefficient&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tardis_coll_recomb</span> <span class="o">=</span> <span class="n">coll_recomb_rates</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
-<span class="n">coll_recomb_coeff_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;coll_recomb_coeff_ctardis.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="n">coll_recomb_coeff_ctardis</span> <span class="o">=</span> <span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span> <span class="o">**</span><span class="mi">2</span>
-<span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tardis_coll_recomb</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">coll_recomb_rates</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+<span class="p">)</span>
+<span class="n">coll_recomb_coeff_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;coll_recomb_coeff_ctardis.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">coll_recomb_coeff_ctardis</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span> <span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="o">**</span><span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+    <span class="nb">int</span>
+<span class="p">)</span>
 
 <span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">coll_recomb_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coll_recomb_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
-<span class="n">coll_recomb_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coll_recomb_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span>
+<span class="n">coll_recomb_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">coll_recomb_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">coll_recomb_coeff_ctardis</span><span class="p">[</span><span class="s2">&quot;ion_number_destination&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coll_recomb_coeff_ctardis</span><span class="p">[</span>
+    <span class="s2">&quot;ion_number&quot;</span>
+<span class="p">]</span>
 
-<span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;atomic_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number_source&#39;</span><span class="p">,</span> <span class="s1">&#39;ion_number_destination&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;atomic_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number_source&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ion_number_destination&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <span class="n">ctardis_coll_recomb</span> <span class="o">=</span> <span class="n">coll_recomb_coeff_ctardis</span><span class="o">.</span><span class="n">T</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tardis_coll_recomb</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TARDIS&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ctardis_coll_recomb</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis&quot;</span><span class="p">,</span>  <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ctardis_coll_recomb</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ctardis&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cell&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Collisional Recombination Coefficient&quot;</span><span class="p">)</span>
@@ -1280,16 +1550,35 @@ Text(0, 0.5, &#39;Collisional Recombination Coefficient&#39;)
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">dummyphotoionratesolver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dummy solver to hold ctardis data&quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctardis_photoion_rates</span><span class="p">,</span> <span class="n">ctardis_recomb_rates</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">photoion_rates</span> <span class="o">=</span> <span class="n">ctardis_photoion_rates</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">recomb_rates</span> <span class="o">=</span> <span class="n">ctardis_recomb_rates</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span><span class="p">,</span> <span class="n">level_population</span><span class="p">,</span> <span class="n">lte_level_population</span><span class="p">,</span> <span class="n">lte_ion_number_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ion_number_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">rad_field</span><span class="p">,</span>
+        <span class="n">electron_dist</span><span class="p">,</span>
+        <span class="n">level_population</span><span class="p">,</span>
+        <span class="n">lte_level_population</span><span class="p">,</span>
+        <span class="n">lte_ion_number_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ion_number_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">photoion_rates</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">recomb_rates</span>
 
-<span class="n">dummy_rate_solver</span> <span class="o">=</span> <span class="n">dummyphotoionratesolver</span><span class="p">(</span><span class="n">photoion_rates_ctardis</span><span class="p">,</span> <span class="n">recomb_rates_ctardis</span> <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span><span class="p">)</span>
-<span class="n">dummy_col_rate_solver</span> <span class="o">=</span> <span class="n">dummyphotoionratesolver</span><span class="p">(</span><span class="n">coll_ion_rates</span><span class="p">,</span> <span class="n">coll_recomb_coeff_ctardis</span><span class="p">)</span>
 
-<span class="n">ion_rate_matrix_solver</span> <span class="o">=</span> <span class="n">IonRateMatrix</span><span class="p">(</span><span class="n">dummy_rate_solver</span><span class="p">,</span> <span class="n">collisional_rate_solver</span><span class="p">)</span>
+<span class="n">dummy_rate_solver</span> <span class="o">=</span> <span class="n">dummyphotoionratesolver</span><span class="p">(</span>
+    <span class="n">photoion_rates_ctardis</span><span class="p">,</span> <span class="n">recomb_rates_ctardis</span> <span class="o">*</span> <span class="n">electron_dist</span><span class="o">.</span><span class="n">number_density</span>
+<span class="p">)</span>
+<span class="n">dummy_col_rate_solver</span> <span class="o">=</span> <span class="n">dummyphotoionratesolver</span><span class="p">(</span>
+    <span class="n">coll_ion_rates</span><span class="p">,</span> <span class="n">coll_recomb_coeff_ctardis</span>
+<span class="p">)</span>
+
+<span class="n">ion_rate_matrix_solver</span> <span class="o">=</span> <span class="n">IonRateMatrix</span><span class="p">(</span>
+    <span class="n">dummy_rate_solver</span><span class="p">,</span> <span class="n">collisional_rate_solver</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1300,13 +1589,27 @@ Text(0, 0.5, &#39;Collisional Recombination Coefficient&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ion_rate_matrix</span> <span class="o">=</span> <span class="n">ion_rate_matrix_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">rad_field</span><span class="p">,</span> <span class="n">electron_dist</span><span class="p">,</span> <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;ion_number&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">],</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ion_rate_matrix</span> <span class="o">=</span> <span class="n">ion_rate_matrix_solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">rad_field</span><span class="p">,</span>
+    <span class="n">electron_dist</span><span class="p">,</span>
+    <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">level_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+        <span class="o">&lt;</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
+    <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;ion_number&quot;</span><span class="p">)</span>
+        <span class="o">&gt;=</span> <span class="mi">1</span>
+    <span class="p">],</span>
     <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">boltzmann_factor_ctardis</span><span class="p">,</span>
-    <span class="n">charge_conservation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">charge_conservation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1328,7 +1631,8 @@ Text(0, 0.5, &#39;Collisional Recombination Coefficient&#39;)
     <span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="p">,</span>
     <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">boltzmann_factor_ctardis</span><span class="p">,</span>
-    <span class="n">charge_conservation</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">charge_conservation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1336,11 +1640,15 @@ Text(0, 0.5, &#39;Collisional Recombination Coefficient&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H I (LTE)&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lte_ion_number_density_ctardis</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H I (LTE ctardis)&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H I (Nebular)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_number_density_ctardis</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H I (Nebular ctardis)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H I (NLTE)&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lte_ion_number_density</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H I (LTE)&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">lte_ion_number_density_ctardis</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H I (LTE ctardis)&quot;</span><span class="p">,</span>
+    <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">cmfgen_plasma</span><span class="o">.</span><span class="n">ion_number_density</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H I (Nebular)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_number_density_ctardis</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H I (Nebular ctardis)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H I (NLTE)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cell&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;H I Ion Number Density&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">()</span>
@@ -1368,10 +1676,12 @@ Text(0, 0.5, &#39;Collisional Recombination Coefficient&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ion_number_density_ctardis_final</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;ion_number_densities_ctardis_result.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ion_number_density_ctardis_final</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;ion_number_densities_ctardis_result.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H I (ctardis)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H I (NLTE)&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H I (ctardis)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H I (NLTE)&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cell&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;H I Ion Number Density&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">()</span>
@@ -1399,8 +1709,11 @@ Text(0, 0.5, &#39;Collisional Recombination Coefficient&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H II (ctardis third iter)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;H II (NLTE)&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H II (ctardis third iter)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;H II (NLTE)&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Cell&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;H II Ion Number Density&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">()</span>
@@ -1428,11 +1741,17 @@ Text(0, 0.5, &#39;Collisional Recombination Coefficient&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">residuals</span> <span class="o">=</span> <span class="p">((</span><span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">/</span> <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">residuals</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Percentage Residuals (H I NLTE - H I CTARDIS)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Index&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Percentage Residuals (%)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Percentage Residuals of H I NLTE vs H I CTARDIS&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">residuals</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span>
+        <span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="o">-</span> <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="p">)</span>
+    <span class="o">/</span> <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">residuals</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Percentage Residuals (H I NLTE - H I CTARDIS)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Index&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Percentage Residuals (%)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Percentage Residuals of H I NLTE vs H I CTARDIS&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1456,12 +1775,18 @@ Text(0.5, 1.0, &#39;Percentage Residuals of H I NLTE vs H I CTARDIS&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">residuals_hii</span> <span class="o">=</span> <span class="p">((</span><span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">/</span> <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">residuals_hii</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Percentage Residuals (H II NLTE - H II CTARDIS)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Index&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Percentage Residuals (%)&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">residuals_hii</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span>
+        <span class="n">ion_pops</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="o">-</span> <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="p">)</span>
+    <span class="o">/</span> <span class="n">ion_number_density_ctardis_final</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">residuals_hii</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Percentage Residuals (H II NLTE - H II CTARDIS)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Index&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Percentage Residuals (%)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Percentage Residuals of H II NLTE vs H II CTARDIS&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Percentage Residuals of H II NLTE vs H II CTARDIS&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1485,14 +1810,21 @@ Text(0.5, 1.0, &#39;Percentage Residuals of H II NLTE vs H II CTARDIS&#39;)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">electron_densities_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ctardis_path</span><span class="o">+</span><span class="s2">&quot;electron_densities_ctardis_result.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">electron_densities_ctardis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">ctardis_path</span> <span class="o">+</span> <span class="s2">&quot;electron_densities_ctardis_result.csv&quot;</span><span class="p">,</span>
+    <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="n">residuals_electron</span><span class="o">=</span> <span class="p">((</span><span class="n">electron_densities</span> <span class="o">-</span> <span class="n">electron_densities_ctardis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">electron_densities_ctardis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">residuals_electron</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Percentage Residuals (e NLTE - e ctardis)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Index&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Percentage Residuals (%)&#39;</span><span class="p">)</span>
+<span class="n">residuals_electron</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="n">electron_densities</span> <span class="o">-</span> <span class="n">electron_densities_ctardis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="o">/</span> <span class="n">electron_densities_ctardis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">residuals_electron</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Percentage Residuals (e NLTE - e ctardis)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Index&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Percentage Residuals (%)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Percentage Residuals of e NLTE vs e ctardis&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Percentage Residuals of e NLTE vs e ctardis&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1539,7 +1871,7 @@ Text(0.5, 1.0, &#39;Percentage Residuals of e NLTE vs e ctardis&#39;)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

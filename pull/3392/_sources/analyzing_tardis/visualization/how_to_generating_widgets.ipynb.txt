@@ -34,7 +34,7 @@
     "from tardis.io.configuration.config_reader import Configuration\n",
     "\n",
     "# We download the atomic data needed to run the simulation\n",
-    "download_atom_data('kurucz_cd23_chianti_H_He_latest')\n",
+    "download_atom_data(\"kurucz_cd23_chianti_H_He_latest\")\n",
     "\n",
     "config = Configuration.from_yaml(\"tardis_example.yml\")\n",
     "config.montecarlo.tracking.track_rpacket = True\n",
@@ -61,10 +61,9 @@
    "outputs": [],
    "source": [
     "from tardis.visualization import (\n",
-    "    shell_info_from_simulation,\n",
-    "    shell_info_from_hdf,\n",
-    "    LineInfoWidget,\n",
     "    GrotrianWidget,\n",
+    "    LineInfoWidget,\n",
+    "    shell_info_from_simulation,\n",
     ")"
    ]
   },

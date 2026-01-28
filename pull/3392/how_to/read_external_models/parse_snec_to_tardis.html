@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -209,9 +209,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SNEC_FOLDER_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
-    <span class="s2">&quot;~/Downloads/tardis-data/MESA_STIR_MESA_SNEC&quot;</span>
-<span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SNEC_FOLDER_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~/Downloads/tardis-data/MESA_STIR_MESA_SNEC&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -282,7 +280,8 @@
 
 <span class="c1"># Normalizing the isotope fractions</span>
 <span class="n">interpolated_isotope_fraction_df</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">interpolated_isotope_fraction_df</span> <span class="o">/</span> <span class="n">interpolated_isotope_fraction_df</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">interpolated_isotope_fraction_df</span>
+    <span class="o">/</span> <span class="n">interpolated_isotope_fraction_df</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -300,7 +299,9 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Drop the first time step and the innermost cell</span>
-<span class="n">snec_output_ds</span> <span class="o">=</span> <span class="n">snec_output_ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">cell_id</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+<span class="n">snec_output_ds</span> <span class="o">=</span> <span class="n">snec_output_ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+    <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">cell_id</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -318,7 +319,9 @@
 <span class="n">radius</span> <span class="o">=</span> <span class="n">snec_output_ds</span><span class="o">.</span><span class="n">radius</span>
 <span class="k">for</span> <span class="n">requested_t_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
     <span class="n">radius_au</span> <span class="o">=</span> <span class="p">(</span><span class="n">radius</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">requested_t_idx</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">AU</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="n">vel_kms</span> <span class="o">=</span> <span class="p">(</span><span class="n">vel</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">requested_t_idx</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">vel_kms</span> <span class="o">=</span> <span class="p">(</span><span class="n">vel</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">requested_t_idx</span><span class="p">)</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+    <span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
     <span class="n">current_time</span> <span class="o">=</span> <span class="n">snec_output_ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">requested_t_idx</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
     <span class="n">homology_kms</span> <span class="o">=</span> <span class="p">(</span><span class="n">radius_au</span> <span class="o">/</span> <span class="n">current_time</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
 
@@ -336,7 +339,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;homology_reached.pdf&quot;</span><span class="p">)</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -386,7 +389,9 @@
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Fraction of Escaping Gamma-ray Luminosity vs Time&quot;</span><span class="p">)</span>
 
 <span class="n">PHOTOSPHERE_START_INDEX</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">PHOTOSPHERE_END_INDEX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fraction_gamma_ray</span> <span class="o">-</span> <span class="n">GAMMA_RAY_ESCAPE_THRESHOLD</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+<span class="n">PHOTOSPHERE_END_INDEX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+    <span class="n">fraction_gamma_ray</span> <span class="o">-</span> <span class="n">GAMMA_RAY_ESCAPE_THRESHOLD</span>
+<span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
 
 <span class="c1"># Calculate photosphere times in days</span>
 <span class="n">photosphere_start_day</span> <span class="o">=</span> <span class="p">(</span>
@@ -421,7 +426,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;plots/gamma_ray_escape_photosphere.pdf&quot;</span><span class="p">)</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -517,7 +522,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="c1"># plt.semilogy()</span>
 <span class="c1"># plt.savefig(&quot;plots/isotope_fraction_photosphere_enclosed_mass.pdf&quot;)</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 </section>
@@ -534,7 +539,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

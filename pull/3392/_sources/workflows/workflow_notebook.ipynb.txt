@@ -42,11 +42,11 @@
     }
    ],
    "source": [
-    "from tardis.workflows import tardis_he_workflow\n",
-    "from tardis.io.configuration import config_reader\n",
     "import astropy.units as u\n",
-    "from tardis.io.atom_data import AtomData\n",
-    "from tardis.io.atom_data import download_atom_data"
+    "\n",
+    "from tardis.io.atom_data import AtomData, download_atom_data\n",
+    "from tardis.io.configuration import config_reader\n",
+    "from tardis.workflows import tardis_he_workflow"
    ]
   },
   {
@@ -71,8 +71,8 @@
     }
    ],
    "source": [
-    "download_atom_data('kurucz_cd23_chianti_H_He_latest')\n",
-    "atom_data_file = 'kurucz_cd23_chianti_H_He_latest.h5'\n",
+    "download_atom_data(\"kurucz_cd23_chianti_H_He_latest\")\n",
+    "atom_data_file = \"kurucz_cd23_chianti_H_He_latest.h5\"\n",
     "atom_data = AtomData.from_hdf(atom_data_file)"
    ]
   },
@@ -82,7 +82,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "config = config_reader.Configuration.from_yaml(\"../../tardis/io/configuration/tests/data/tardis_configv1_density_exponential_nebular.yml\")\n",
+    "config = config_reader.Configuration.from_yaml(\n",
+    "    \"../../tardis/io/configuration/tests/data/tardis_configv1_density_exponential_nebular.yml\"\n",
+    ")\n",
     "config.supernova.time_explosion = 2.0 * u.day"
    ]
   },
@@ -114,11 +116,11 @@
     "time_end = 5.0\n",
     "number_of_packets = 100000\n",
     "time_steps = 10\n",
-    "time_space = 'log'\n",
+    "time_space = \"log\"\n",
     "seed = 1\n",
     "fp = 0\n",
     "spectrum_bins = 500\n",
-    "grey_opacity=-1"
+    "grey_opacity = -1"
    ]
   },
   {
@@ -178,8 +180,16 @@
     }
    ],
    "source": [
-    "tardis_high_energy = workflow.run(time_start, time_end, number_of_packets,\n",
-    "            time_steps, time_space, seed, fp, spectrum_bins)"
+    "tardis_high_energy = workflow.run(\n",
+    "    time_start,\n",
+    "    time_end,\n",
+    "    number_of_packets,\n",
+    "    time_steps,\n",
+    "    time_space,\n",
+    "    seed,\n",
+    "    fp,\n",
+    "    spectrum_bins,\n",
+    ")"
    ]
   },
   {

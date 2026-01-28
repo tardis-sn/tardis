@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -151,6 +151,7 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 import tardis
 import tardis.visualization.plot_util as pu
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
@@ -171,7 +172,6 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = &quot;---&quot;
@@ -928,8 +928,7 @@ class CustomAbundanceWidget:
 
         return bool(
             index_1 - index_0 &gt; 1
-            or index_1 - index_0 == 1
-            and not np.isclose(v_vals[index_0], v_0)
+            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
         )</div>
 
 
@@ -1265,7 +1264,9 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
+        self.data.abundance = self.data.abundance.sort_index(
+            kind=SORTING_ALGORITHM
+        )
 
         # Add new BoundedFloatText control and Checkbox control.
         item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
@@ -1351,8 +1352,7 @@ class CustomAbundanceWidget:
         if v_start &gt;= v_end or v_start &lt; 0 or v_end &lt; 0:
             self.btn_add_shell.disabled = True
             return
-        else:
-            self.btn_add_shell.disabled = False
+        self.btn_add_shell.disabled = False
 
         # Whether overwrite existing shells
         if self.overwrite_existing_shells(v_start, v_end):
@@ -1663,9 +1663,8 @@ class CustomAbundanceWidget:
             raise FileExistsError(
                 &quot;The file already exists. Click the &#39;overwrite&#39; checkbox to overwrite it.&quot;
             )
-        else:
-            self.write_yaml_portion(posix_path)
-            self.write_csv_portion(posix_path)</div>
+        self.write_yaml_portion(posix_path)
+        self.write_csv_portion(posix_path)</div>
 
 
 <div class="viewcode-block" id="CustomAbundanceWidget.write_yaml_portion">
@@ -2136,7 +2135,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

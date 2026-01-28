@@ -34,9 +34,8 @@
     }
    ],
    "source": [
-    "from tardis.simulation import Simulation\n",
     "from tardis.io.configuration.config_reader import Configuration\n",
-    "from IPython.display import FileLinks"
+    "from tardis.simulation import Simulation"
    ]
   },
   {
@@ -88,7 +87,7 @@
     }
    ],
    "source": [
-    "config = Configuration.from_yaml('tardis_example.yml')\n",
+    "config = Configuration.from_yaml(\"tardis_example.yml\")\n",
     "sim = Simulation.from_config(config)"
    ]
   },
@@ -793,7 +792,9 @@
     "        si_ionization_state = sim.plasma.ion_number_density.loc[14].copy()\n",
     "        si_ionization_state.columns = [cur_t_rad]\n",
     "    else:\n",
-    "        si_ionization_state[cur_t_rad] = sim.plasma.ion_number_density.loc[14].copy()"
+    "        si_ionization_state[cur_t_rad] = sim.plasma.ion_number_density.loc[\n",
+    "            14\n",
+    "        ].copy()"
    ]
   },
   {
@@ -837,8 +838,8 @@
     "fig = figure(0, figsize=(10, 10))\n",
     "ax = fig.add_subplot(111)\n",
     "si_ionization_state.T.iloc[:, :3].plot(ax=ax)\n",
-    "xlabel('radiative Temperature [K]')\n",
-    "ylabel('Number density [1/cm$^3$]')"
+    "xlabel(\"radiative Temperature [K]\")\n",
+    "ylabel(\"Number density [1/cm$^3$]\")"
    ]
   },
   {

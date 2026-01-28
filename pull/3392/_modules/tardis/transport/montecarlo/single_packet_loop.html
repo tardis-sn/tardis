@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -256,7 +256,9 @@ def single_packet_loop(
         montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
 
-    rpacket_tracker.track_boundary_event(r_packet, from_shell_id=-1, to_shell_id=0)
+    rpacket_tracker.track_boundary_event(
+        r_packet, from_shell_id=-1, to_shell_id=0
+    )
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -359,7 +361,7 @@ def single_packet_loop(
             )
 
             rpacket_tracker.track_line_interaction_before(r_packet)
-            
+
             line_scatter_event(
                 r_packet,
                 time_explosion,
@@ -441,7 +443,9 @@ def single_packet_loop(
             )
         else:
             # Handle any unrecognized interaction types
-            rpacket_tracker.track_boundary_event(r_packet, from_shell_id=-1, to_shell_id=0)
+            rpacket_tracker.track_boundary_event(
+                r_packet, from_shell_id=-1, to_shell_id=0
+            )
 
     # Registering the final boundary interaction.
     # Only for RPacketTracker
@@ -451,12 +455,12 @@ def single_packet_loop(
     # their final state immediately. In a future time-dependent implementation,
     # this may need to be modified to account for packet propagation time
     # and potentially delayed final state recording.
-            # Track final packet state as simple boundary event (current shell -&gt; current shell + 1)
-        # This explicitly records the packet&#39;s exit from the simulation domain
+    # Track final packet state as simple boundary event (current shell -&gt; current shell + 1)
+    # This explicitly records the packet&#39;s exit from the simulation domain
     rpacket_tracker.track_boundary_event(
         r_packet,
         from_shell_id=r_packet.current_shell_id,
-        to_shell_id=r_packet.current_shell_id + 1
+        to_shell_id=r_packet.current_shell_id + 1,
     )</div>
 
 
@@ -544,7 +548,7 @@ def set_packet_props_full_relativity(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

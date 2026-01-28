@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -143,14 +143,14 @@ import numpy as np
 import pandas as pd
 
 __all__ = [
-    &quot;BasePlasmaProperty&quot;,
+    &quot;ArrayInput&quot;,
     &quot;BaseAtomicDataProperty&quot;,
+    &quot;BasePlasmaProperty&quot;,
+    &quot;DataFrameInput&quot;,
     &quot;HiddenPlasmaProperty&quot;,
     &quot;Input&quot;,
-    &quot;ArrayInput&quot;,
-    &quot;DataFrameInput&quot;,
-    &quot;ProcessingPlasmaProperty&quot;,
     &quot;PreviousIterationProperty&quot;,
+    &quot;ProcessingPlasmaProperty&quot;,
 ]
 
 logger = logging.getLogger(__name__)
@@ -270,8 +270,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
     @abstractmethod
     def calculate(self, *args, **kwargs):
         raise NotImplementedError(
-            &quot;This method needs to be implemented by &quot;
-            &quot;processing plasma modules&quot;
+            &quot;This method needs to be implemented by processing plasma modules&quot;
         )</div>
 </div>
 
@@ -317,7 +316,6 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
     inputs = [&quot;atomic_data&quot;, &quot;selected_atoms&quot;]
 
     def __init__(self, plasma_parent):
-
         super().__init__(plasma_parent)
         self.value = None
 
@@ -332,16 +330,12 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
 <div class="viewcode-block" id="BaseAtomicDataProperty.calculate">
 <a class="viewcode-back" href="../../../../api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.BaseAtomicDataProperty.calculate">[docs]</a>
     def calculate(self, atomic_data, selected_atoms):
-
         if getattr(self, self.outputs[0]) is not None:
             return getattr(self, self.outputs[0])
-        else:
-            raw_atomic_property = getattr(atomic_data, self.outputs[0])
-            return self._set_index(
-                self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms
-                )
-            )</div>
+        raw_atomic_property = getattr(atomic_data, self.outputs[0])
+        return self._set_index(
+            self._filter_atomic_property(raw_atomic_property, selected_atoms)
+        )</div>
 </div>
 
 
@@ -415,7 +409,7 @@ class PreviousIterationProperty(BasePlasmaProperty):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

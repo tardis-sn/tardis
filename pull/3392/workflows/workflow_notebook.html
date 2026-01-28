@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -180,11 +180,11 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tardis.workflows</span><span class="w"> </span><span class="kn">import</span> <span class="n">tardis_he_workflow</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span><span class="p">,</span> <span class="n">download_atom_data</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration</span><span class="w"> </span><span class="kn">import</span> <span class="n">config_reader</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_atom_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.workflows</span><span class="w"> </span><span class="kn">import</span> <span class="n">tardis_he_workflow</span>
 </pre></div>
 </div>
 </div>
@@ -204,8 +204,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He_latest&#39;</span><span class="p">)</span>
-<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s1">&#39;kurucz_cd23_chianti_H_He_latest.h5&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">download_atom_data</span><span class="p">(</span><span class="s2">&quot;kurucz_cd23_chianti_H_He_latest&quot;</span><span class="p">)</span>
+<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s2">&quot;kurucz_cd23_chianti_H_He_latest.h5&quot;</span>
 <span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">atom_data_file</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -230,7 +230,9 @@ INFO:tardis.io.atom_data.base:Non provided Atomic Data: synpp_refs, photoionizat
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">config_reader</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;../../tardis/io/configuration/tests/data/tardis_configv1_density_exponential_nebular.yml&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">config_reader</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+    <span class="s2">&quot;../../tardis/io/configuration/tests/data/tardis_configv1_density_exponential_nebular.yml&quot;</span>
+<span class="p">)</span>
 <span class="n">config</span><span class="o">.</span><span class="n">supernova</span><span class="o">.</span><span class="n">time_explosion</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
 </pre></div>
 </div>
@@ -260,11 +262,11 @@ INFO:tardis.model.matter.decay:Decaying abundances for 172800.0 seconds
 <span class="n">time_end</span> <span class="o">=</span> <span class="mf">5.0</span>
 <span class="n">number_of_packets</span> <span class="o">=</span> <span class="mi">100000</span>
 <span class="n">time_steps</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">time_space</span> <span class="o">=</span> <span class="s1">&#39;log&#39;</span>
+<span class="n">time_space</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">fp</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">spectrum_bins</span> <span class="o">=</span> <span class="mi">500</span>
-<span class="n">grey_opacity</span><span class="o">=-</span><span class="mi">1</span>
+<span class="n">grey_opacity</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 </pre></div>
 </div>
 </div>
@@ -272,8 +274,16 @@ INFO:tardis.model.matter.decay:Decaying abundances for 172800.0 seconds
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tardis_high_energy</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">time_start</span><span class="p">,</span> <span class="n">time_end</span><span class="p">,</span> <span class="n">number_of_packets</span><span class="p">,</span>
-            <span class="n">time_steps</span><span class="p">,</span> <span class="n">time_space</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">spectrum_bins</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tardis_high_energy</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">time_start</span><span class="p">,</span>
+    <span class="n">time_end</span><span class="p">,</span>
+    <span class="n">number_of_packets</span><span class="p">,</span>
+    <span class="n">time_steps</span><span class="p">,</span>
+    <span class="n">time_space</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">,</span>
+    <span class="n">fp</span><span class="p">,</span>
+    <span class="n">spectrum_bins</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -699,7 +709,7 @@ Number of scattered packets: 2242
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

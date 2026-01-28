@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -356,10 +356,9 @@ class IonizationData(BaseAtomicDataProperty):
 
         if np.all(counts.index == counts):
             return ionization_data
-        else:
-            raise IncompleteAtomicData(
-                f&quot;ionization data for the ion ({str(counts.index[counts.index != counts])}, {str(counts[counts.index != counts])})&quot;
-            )
+        raise IncompleteAtomicData(
+            f&quot;ionization data for the ion ({str(counts.index[counts.index != counts])}, {str(counts[counts.index != counts])})&quot;
+        )
 
     def _set_index(self, ionization_data):
         return ionization_data</div>
@@ -390,42 +389,41 @@ class ZetaData(BaseAtomicDataProperty):
         values = np.array(zeta_data_check.values())
         if np.all(keys + 1 == values) and keys:
             return zeta_data
-        else:
-            #            raise IncompleteAtomicData(&#39;zeta data&#39;)
-            # This currently replaces missing zeta data with 1, which is necessary with
-            # the present atomic data. Will replace with the error above when I have
-            # complete atomic data.
-            missing_ions = []
-            updated_index = []
-            for atom in selected_atoms:
-                for ion in range(1, atom + 2):
-                    if (atom, ion) not in zeta_data.index:
-                        missing_ions.append((atom, ion))
-                    updated_index.append([atom, ion])
-            logger.warning(
-                f&quot;Zeta_data missing - replaced with 1s. Missing ions: {missing_ions}&quot;
-            )
-            updated_index = np.array(updated_index)
-            updated_dataframe = pd.DataFrame(
-                index=pd.MultiIndex.from_arrays(
-                    updated_index.transpose().astype(int)
-                ),
-                columns=zeta_data.columns,
-            )
-            for value in range(len(zeta_data)):
-                updated_dataframe.loc[
-                    zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
-                ] = zeta_data.loc[
-                    zeta_data.atomic_number.values[value],
-                    zeta_data.ion_number.values[value],
-                ]
-            updated_dataframe = updated_dataframe.astype(float)
-            updated_index = pd.DataFrame(updated_index)
-            updated_dataframe[&quot;atomic_number&quot;] = np.array(updated_index[0])
-            updated_dataframe[&quot;ion_number&quot;] = np.array(updated_index[1])
-            updated_dataframe = updated_dataframe.fillna(1.0)
-            return updated_dataframe
+        #            raise IncompleteAtomicData(&#39;zeta data&#39;)
+        # This currently replaces missing zeta data with 1, which is necessary with
+        # the present atomic data. Will replace with the error above when I have
+        # complete atomic data.
+        missing_ions = []
+        updated_index = []
+        for atom in selected_atoms:
+            for ion in range(1, atom + 2):
+                if (atom, ion) not in zeta_data.index:
+                    missing_ions.append((atom, ion))
+                updated_index.append([atom, ion])
+        logger.warning(
+            f&quot;Zeta_data missing - replaced with 1s. Missing ions: {missing_ions}&quot;
+        )
+        updated_index = np.array(updated_index)
+        updated_dataframe = pd.DataFrame(
+            index=pd.MultiIndex.from_arrays(
+                updated_index.transpose().astype(int)
+            ),
+            columns=zeta_data.columns,
+        )
+        for value in range(len(zeta_data)):
+            updated_dataframe.loc[
+                zeta_data.atomic_number.values[value],
+                zeta_data.ion_number.values[value],
+            ] = zeta_data.loc[
+                zeta_data.atomic_number.values[value],
+                zeta_data.ion_number.values[value],
+            ]
+        updated_dataframe = updated_dataframe.astype(float)
+        updated_index = pd.DataFrame(updated_index)
+        updated_dataframe[&quot;atomic_number&quot;] = np.array(updated_index[0])
+        updated_dataframe[&quot;ion_number&quot;] = np.array(updated_index[1])
+        updated_dataframe = updated_dataframe.fillna(1.0)
+        return updated_dataframe
 
     def _set_index(self, zeta_data):
         return zeta_data.set_index([&quot;atomic_number&quot;, &quot;ion_number&quot;])</div>
@@ -520,7 +518,7 @@ class YgData(BaseAtomicDataProperty):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

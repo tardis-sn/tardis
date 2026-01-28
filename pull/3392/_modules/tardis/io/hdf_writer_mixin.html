@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -140,7 +140,7 @@
 
 import re
 from pathlib import Path
-from typing import Any, Union, Optional, Dict, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -181,9 +181,9 @@ class HDFWriterMixin:
 <a class="viewcode-back" href="../../../api/tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin.to_hdf_util">[docs]</a>
     @staticmethod
     def to_hdf_util(
-        path_or_buf: Union[str, pd.HDFStore],
+        path_or_buf: str | pd.HDFStore,
         path: str,
-        elements: Dict[str, Any],
+        elements: dict[str, Any],
         overwrite: bool,
         complevel: int = 9,
         complib: str = &quot;blosc&quot;,
@@ -236,7 +236,9 @@ class HDFWriterMixin:
 
         try:  # when path_or_buf is a str, the HDFStore should get created
             buf = pd.HDFStore(
-                path_or_buf, complevel=complevel, complib=complib  # type: ignore[arg-type]
+                path_or_buf,
+                complevel=complevel,
+                complib=complib,  # type: ignore[arg-type]
             )
         except TypeError as e:
             if str(e) == &quot;Expected bytes, got HDFStore&quot;:
@@ -304,7 +306,7 @@ class HDFWriterMixin:
 
 <div class="viewcode-block" id="HDFWriterMixin.get_properties">
 <a class="viewcode-back" href="../../../api/tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin.get_properties">[docs]</a>
-    def get_properties(self) -&gt; Dict[str, Any]:
+    def get_properties(self) -&gt; dict[str, Any]:
         &quot;&quot;&quot;
         Get properties for HDF storage.
 
@@ -318,7 +320,7 @@ class HDFWriterMixin:
 
 
     @property
-    def full_hdf_properties(self) -&gt; List[str]:
+    def full_hdf_properties(self) -&gt; list[str]:
         &quot;&quot;&quot;
         Get the full list of HDF properties.
 
@@ -357,11 +359,11 @@ class HDFWriterMixin:
 <a class="viewcode-back" href="../../../api/tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin.to_hdf">[docs]</a>
     def to_hdf(
         self,
-        file_path_or_buf: Union[str, pd.HDFStore],
+        file_path_or_buf: str | pd.HDFStore,
         path: str = &quot;&quot;,
-        name: Optional[str] = None,
+        name: str | None = None,
         overwrite: bool = False,
-        format: Optional[str] = None,
+        format: str | None = None,
     ) -&gt; None:
         &quot;&quot;&quot;
         Save the object to an HDF file.
@@ -385,13 +387,18 @@ class HDFWriterMixin:
             except AttributeError:
                 name = self.convert_to_snake_case(self.__class__.__name__)
                 logger.debug(
-                    &quot;self.hdf_name not present, setting name to %s for HDF&quot;, name
+                    &quot;self.hdf_name not present, setting name to %s for HDF&quot;,
+                    name,
                 )
 
         data = self.get_properties()
         buff_path = str(Path(path) / (name or &quot;&quot;))
         self.to_hdf_util(
-            file_path_or_buf, buff_path, data, overwrite=overwrite, format=format
+            file_path_or_buf,
+            buff_path,
+            data,
+            overwrite=overwrite,
+            format=format,
         )</div>
 </div>
 
@@ -406,7 +413,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
 
 <div class="viewcode-block" id="PlasmaWriterMixin.get_properties">
 <a class="viewcode-back" href="../../../api/tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.PlasmaWriterMixin.get_properties">[docs]</a>
-    def get_properties(self) -&gt; Dict[str, Any]:
+    def get_properties(self) -&gt; dict[str, Any]:
         &quot;&quot;&quot;
         Get plasma properties for HDF storage.
 
@@ -440,12 +447,12 @@ class PlasmaWriterMixin(HDFWriterMixin):
 <a class="viewcode-back" href="../../../api/tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.PlasmaWriterMixin.to_hdf">[docs]</a>
     def to_hdf(
         self,
-        file_path_or_buf: Union[str, pd.HDFStore],
+        file_path_or_buf: str | pd.HDFStore,
         path: str = &quot;&quot;,
-        name: Optional[str] = None,
+        name: str | None = None,
         collection: Any = None,
         overwrite: bool = False,
-        format: Optional[str] = None,
+        format: str | None = None,
     ) -&gt; None:
         &quot;&quot;&quot;
         Save the plasma object to an HDF file.
@@ -482,7 +489,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

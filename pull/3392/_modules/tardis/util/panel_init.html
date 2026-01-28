@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,23 +136,26 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.util.panel_init</h1><div class="highlight"><pre>
-<span></span>import panel as pn
+<span></span>import logging
+
+import panel as pn
+
 from tardis.util.environment import Environment
-import logging
-import os
 
 logger = logging.getLogger(__name__)
 
 VALID_MODES = [&quot;ssh_jh&quot;, &quot;notebook&quot;, &quot;vscode&quot;, &quot;vscode_noipy&quot;]
 preferred_mode = None
 
-# note: pn.extension(comms=&quot;ipywidgets&quot;) and pn.extension(&quot;ipywidgets&quot;) behave differently! 
+# note: pn.extension(comms=&quot;ipywidgets&quot;) and pn.extension(&quot;ipywidgets&quot;) behave differently!
+
 
 <div class="viewcode-block" id="ssh_jh">
 <a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.ssh_jh">[docs]</a>
 def ssh_jh():
     &quot;&quot;&quot;Initialize panel for JupyterHub (colab comms)&quot;&quot;&quot;
     pn.extension(comms=&quot;ipywidgets&quot;)</div>
+
 
 
 <div class="viewcode-block" id="notebook">
@@ -162,11 +165,13 @@ def notebook():
     pn.extension(comms=&quot;ipywidgets&quot;)</div>
 
 
+
 <div class="viewcode-block" id="vscode">
 <a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.vscode">[docs]</a>
 def vscode():
     &quot;&quot;&quot;Initialize panel for VSCode (ipywidgets comms)&quot;&quot;&quot;
     pn.extension(comms=&quot;ipywidgets&quot;)</div>
+
 
 
 <div class="viewcode-block" id="vscode_noipy">
@@ -176,11 +181,13 @@ def vscode_noipy():
     pn.extension(comms=&quot;vscode&quot;)</div>
 
 
+
 <div class="viewcode-block" id="sphinx">
 <a class="viewcode-back" href="../../../api/tardis.util.panel_init.html#tardis.util.panel_init.sphinx">[docs]</a>
 def sphinx():
     &quot;&quot;&quot;Initialize panel for Sphinx documentation builds&quot;&quot;&quot;
     pn.extension(&quot;ipywidgets&quot;)</div>
+
 
 
 <div class="viewcode-block" id="auto">
@@ -190,12 +197,19 @@ def auto():
     # Use preferred mode if set
     if preferred_mode:
         if preferred_mode not in VALID_MODES:
-            raise ValueError(f&quot;Invalid mode: {preferred_mode}. Valid modes are: {VALID_MODES}&quot;)
+            raise ValueError(
+                f&quot;Invalid mode: {preferred_mode}. Valid modes are: {VALID_MODES}&quot;
+            )
         print(f&quot;Using preferred mode: {preferred_mode}&quot;)
-        modes = {&quot;ssh_jh&quot;: ssh_jh, &quot;notebook&quot;: notebook, &quot;vscode&quot;: vscode, &quot;vscode_noipy&quot;: vscode_noipy}
+        modes = {
+            &quot;ssh_jh&quot;: ssh_jh,
+            &quot;notebook&quot;: notebook,
+            &quot;vscode&quot;: vscode,
+            &quot;vscode_noipy&quot;: vscode_noipy,
+        }
         modes[preferred_mode]()
         return
-    
+
     # Otherwise auto-detect
     if Environment.is_sshjh():
         print(&quot;Auto-detected JupyterHub environment&quot;)
@@ -213,7 +227,6 @@ def auto():
         print(&quot;Defaulting to default panel comms.&quot;)
         pn.extension()</div>
 
-
 </pre></div>
 
            </div>
@@ -224,7 +237,7 @@ def auto():
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 

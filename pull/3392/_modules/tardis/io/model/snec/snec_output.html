@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=80b4e09d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=e0232b88"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -320,7 +320,9 @@ def read_snec_output_xg(
     merged_data_blocks: list[pd.DataFrame] = []
     for i, time_stamp in enumerate(mass_xg_data.timestamps):
         merged_df = mass_xg_data.data_blocks[i][[&quot;radius&quot;]].copy()
-        merged_df[&quot;enclosed_mass&quot;] = mass_xg_data.data_blocks[i][&quot;enclosed_mass&quot;]
+        merged_df[&quot;enclosed_mass&quot;] = mass_xg_data.data_blocks[i][
+            &quot;enclosed_mass&quot;
+        ]
 
         for quantity_name, xg_data in all_xg_data.items():
             merged_df[quantity_name] = xg_data.data_blocks[i][quantity_name]
@@ -446,10 +448,14 @@ def read_snec_em_output(snec_output_dir: Path) -&gt; pd.DataFrame:
         DataFrame containing the output quantities for each cell, indexed by cell ID.
     &quot;&quot;&quot;
     em_output_metadata = [
-        item for item in SNEC_EM_OUTPUT_METADATA.keys() if not item.startswith(&quot;index_&quot;)
+        item
+        for item in SNEC_EM_OUTPUT_METADATA.keys()
+        if not item.startswith(&quot;index_&quot;)
     ]
     em_index_output_metadata = [
-        item for item in SNEC_EM_OUTPUT_METADATA.keys() if item.startswith(&quot;index_&quot;)
+        item
+        for item in SNEC_EM_OUTPUT_METADATA.keys()
+        if item.startswith(&quot;index_&quot;)
     ]
 
     em_output_df = read_snec_dat_output(
@@ -464,7 +470,9 @@ def read_snec_em_output(snec_output_dir: Path) -&gt; pd.DataFrame:
         first_column_name=&quot;time&quot;,
     )
 
-    npt.assert_allclose(em_output_df[&quot;time&quot;], em_index_output_df[&quot;time&quot;], rtol=1e-9)
+    npt.assert_allclose(
+        em_output_df[&quot;time&quot;], em_index_output_df[&quot;time&quot;], rtol=1e-9
+    )
 
     return em_output_df.join(em_index_output_df.iloc[:, 1:])</div>
 
@@ -505,7 +513,7 @@ def read_snec_output(snec_output_dir: Path) -&gt; SNECOutput:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 27 Jan 2026.
+      <span class="lastupdated">Last updated on 28 Jan 2026.
       </span></p>
   </div>
 
