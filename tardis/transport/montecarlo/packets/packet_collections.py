@@ -99,7 +99,6 @@ def initialize_last_interaction_tracker(no_of_packets):
     )
 
 
-
 @jitclass
 class VPacketCollection:
     source_rpacket_index: nb.int64  # type: ignore[misc]

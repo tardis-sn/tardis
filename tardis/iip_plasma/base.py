@@ -210,7 +210,7 @@ class BasePlasma:
         #        self._update_module_type_str()
 
         try:
-            import pygraphviz
+            pass
         except:
             logger.warning(
                 "pygraphviz missing. Plasma graph will not be generated."

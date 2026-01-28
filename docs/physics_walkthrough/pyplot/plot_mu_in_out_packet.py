@@ -1,5 +1,6 @@
-from pylab import *
 from astropy import units as u
+from pylab import *
+
 from tardis import constants as const
 
 x, y = x, y = mgrid[1:1000, 1:1000]

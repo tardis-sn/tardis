@@ -221,7 +221,9 @@ def time_evolve_cumulative_decay(
     time_keys = list(zip(t_start, t_end, t_start_index))
 
     time_evolved_decay_df = pd.concat(
-        isotope_decay_df_list, keys=time_keys, names=["time_start", "time_end", "time_index"],
+        isotope_decay_df_list,
+        keys=time_keys,
+        names=["time_start", "time_end", "time_index"],
     )
 
     return time_evolved_decay_df

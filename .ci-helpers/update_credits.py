@@ -1,5 +1,6 @@
 """Script for updating `credits.rst` and `README.rst` between releases,
-requires the `rst-include` package"""
+requires the `rst-include` package
+"""
 
 import pathlib
 import re
@@ -13,8 +14,8 @@ from rst_include import rst_include
 
 def generate_zenodo():
     """Generates `zenodo.rst` file with BibTeX citation
-    Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/"""
-
+    Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/
+    """
     CONCEPT_DOI = "592480"  # See: https://help.zenodo.org/#versioning
     zenodo_path = pathlib.Path("docs/resources/zenodo.rst")
     year = date.today().year
@@ -38,9 +39,7 @@ def generate_zenodo():
         )
 
     except Exception as e:
-        warnings.warn(
-            "Failed to retrieve Zenodo record for TARDIS: " f"{str(e)}"
-        )
+        warnings.warn(f"Failed to retrieve Zenodo record for TARDIS: {str(e)}")
 
         not_found_msg = """
                         Couldn"t retrieve the TARDIS software citation from Zenodo. Get it 

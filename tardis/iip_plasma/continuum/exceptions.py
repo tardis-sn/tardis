@@ -1,7 +1,7 @@
 import pprint
+import sys
 
 import numpy as np
-import sys
 
 
 class ContinuumException(Exception):
@@ -36,9 +36,7 @@ class IncompletePhotoionizationDataError(ContinuumException):
 
 class InvalidContinuumProcessError(ValueError):
     def __init__(self, process_name):
-        message = 'The requested process "{}" is not a valid continuum process.'.format(
-            process_name
-        )
+        message = f'The requested process "{process_name}" is not a valid continuum process.'
         super(InvalidContinuumProcessError, self).__init__(message)
 
 

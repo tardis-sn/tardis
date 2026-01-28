@@ -2,7 +2,6 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
-from copy import deepcopy
 
 import tardis
 from tardis.io.configuration.config_reader import Configuration

@@ -2,19 +2,15 @@ import numpy as np
 import numpy.testing as ntest
 import pytest
 
-
 from tardis.spectrum.formal_integral.base import (
     check_formal_integral_requirements,
     intensity_black_body,
 )
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.spectrum.formal_integral.formal_integral_numba import (
     calculate_impact_parameters as calculate_impact_parameters_numba,
-    intensity_black_body as intensity_black_body_numba,
 )
-from tardis.spectrum.formal_integral.formal_integral_cuda import (
-    calculate_impact_parameters as calculate_impact_parameters_cuda,
-    intensity_black_body_cuda,
+from tardis.spectrum.formal_integral.formal_integral_numba import (
+    intensity_black_body as intensity_black_body_numba,
 )
 
 

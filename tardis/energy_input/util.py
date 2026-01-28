@@ -257,7 +257,8 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
         - (radius / light_distance) ** 2.0
     )
     b = 2.0 * (
-        np.dot(position_contiguous, direction_contiguous) - radius**2.0 / light_distance
+        np.dot(position_contiguous, direction_contiguous)
+        - radius**2.0 / light_distance
     )
     c = np.dot(position_contiguous, position_contiguous) - radius**2.0
     discriminant = b**2.0 - 4.0 * a * c
@@ -441,7 +442,7 @@ def get_index(value, array):
     """
     if value <= array[0]:
         return 0
-    elif value > array[-1]:
+    if value > array[-1]:
         return len(array) - 1
 
     i = 0
@@ -454,6 +455,7 @@ def get_index(value, array):
 def make_isotope_string_tardis_like(isotope_dict):
     """Converts isotope string to TARDIS format
         Ni-56 -> Ni56, Co-56 -> Co56
+
     Parameters
     ----------
     isotope : str
@@ -464,7 +466,6 @@ def make_isotope_string_tardis_like(isotope_dict):
     str
         TARDIS-like isotope string
     """
-
     new_isotope_dict = {}
 
     for key in isotope_dict.keys():

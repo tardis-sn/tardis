@@ -41,12 +41,12 @@ class NLTEExcitationData:
                 & (self.lines.ion_number == species[1])
             )
             self.lines_idx[species] = lines_idx
-            self.lines_level_number_lower[
-                species
-            ] = self.lines.level_number_lower.values[lines_idx].astype(int)
-            self.lines_level_number_upper[
-                species
-            ] = self.lines.level_number_upper.values[lines_idx].astype(int)
+            self.lines_level_number_lower[species] = (
+                self.lines.level_number_lower.values[lines_idx].astype(int)
+            )
+            self.lines_level_number_upper[species] = (
+                self.lines.level_number_upper.values[lines_idx].astype(int)
+            )
 
             self.A_uls[species] = self.atom_data_lines.A_ul.values[lines_idx]
             self.B_uls[species] = self.atom_data_lines.B_ul.values[lines_idx]

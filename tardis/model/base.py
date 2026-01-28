@@ -6,6 +6,7 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.parse_composition_configuration import (
     parse_composition_from_config,
     parse_composition_from_csvy,
@@ -24,7 +25,6 @@ from tardis.io.model.parse_radiation_field_configuration import (
 from tardis.io.model.readers.csvy import (
     load_csvy,
 )
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
@@ -140,8 +140,7 @@ class SimulationState(HDFWriterMixin):
             ] = new_dilution_factor
         else:
             raise ValueError(
-                "Trying to set dilution_factor for unmatching number"
-                "of shells."
+                "Trying to set dilution_factor for unmatching numberof shells."
             )
 
     @property
@@ -163,7 +162,10 @@ class SimulationState(HDFWriterMixin):
 
     def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (self.composition.elemental_mass_fraction * self.composition.density)
+            (
+                self.composition.elemental_mass_fraction
+                * self.composition.density
+            )
             .divide(element_masses, axis=0)
             .dropna()
         )
@@ -357,12 +359,12 @@ class SimulationState(HDFWriterMixin):
             field_names = {
                 field["name"] for field in csvy_model_config.datatype.fields
             }
-            assert (
-                set(csvy_model_data.columns) - field_names == set()
-            ), "CSVY columns exist without field descriptions"
-            assert (
-                field_names - set(csvy_model_data.columns) == set()
-            ), "CSVY field descriptions exist without corresponding csv data"
+            assert set(csvy_model_data.columns) - field_names == set(), (
+                "CSVY columns exist without field descriptions"
+            )
+            assert field_names - set(csvy_model_data.columns) == set(), (
+                "CSVY field descriptions exist without corresponding csv data"
+            )
             if unsupported_columns != set():
                 logger.warning(
                     "The following columns are "

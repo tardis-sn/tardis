@@ -7,8 +7,8 @@ import pandas as pd
 import yaml
 from astropy import units as u
 
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.configuration import config_validator
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.readers.csvy import load_yaml_from_csvy
 from tardis.io.util import YAMLLoader, yaml_load_file
 
@@ -115,8 +115,7 @@ class ConfigurationNameSpace(dict):
     def __getattr__(self, item):
         if item in self:
             return self[item]
-        else:
-            super().__getattribute__(item)
+        super().__getattribute__(item)
 
     __setattr__ = __setitem__
 
@@ -139,19 +138,17 @@ class ConfigurationNameSpace(dict):
 
             if config_item.startswith("item"):
                 return self[config_item_path[0]]
-            else:
-                return self[config_item]
-        elif len(config_item_path) == 2 and config_item_path[1].startswith(
+            return self[config_item]
+        if len(config_item_path) == 2 and config_item_path[1].startswith(
             "item"
         ):
             return self[config_item_path[0]][
                 int(config_item_path[1].replace("item", ""))
             ]
 
-        else:
-            return self[config_item_path[0]].get_config_item(
-                ".".join(config_item_path[1:])
-            )
+        return self[config_item_path[0]].get_config_item(
+            ".".join(config_item_path[1:])
+        )
 
     def set_config_item(self, config_item_string, value):
         """
@@ -407,10 +404,10 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         montecarlo_section : dict
         """
         if montecarlo_section["convergence_strategy"]["type"] == "damped":
-            montecarlo_section[
-                "convergence_strategy"
-            ] = Configuration.parse_convergence_section(
-                montecarlo_section["convergence_strategy"]
+            montecarlo_section["convergence_strategy"] = (
+                Configuration.parse_convergence_section(
+                    montecarlo_section["convergence_strategy"]
+                )
             )
         elif montecarlo_section["convergence_strategy"]["type"] == "custom":
             raise NotImplementedError(
@@ -432,7 +429,12 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         """
         convergence_parameters = ["damping_constant", "threshold", "type"]
 
-        for convergence_variable in ["t_inner", "t_rad", "w", "v_inner_boundary"]:
+        for convergence_variable in [
+            "t_inner",
+            "t_rad",
+            "w",
+            "v_inner_boundary",
+        ]:
             if convergence_variable not in convergence_section_dict:
                 convergence_section_dict[convergence_variable] = {}
             convergence_variable_section = convergence_section_dict[

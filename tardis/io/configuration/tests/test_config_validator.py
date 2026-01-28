@@ -14,7 +14,9 @@ from tardis.io.configuration.config_validator import (
 from tardis.io.util import YAMLLoader
 
 CONFIGURATION_TESTS_DIR = Path(__file__).resolve().parent
-CONFIG_DATA_VERYSIMPLE = CONFIGURATION_TESTS_DIR / "data/tardis_configv1_verysimple.yml"
+CONFIG_DATA_VERYSIMPLE = (
+    CONFIGURATION_TESTS_DIR / "data/tardis_configv1_verysimple.yml"
+)
 
 
 def test_yaml_loading(tardis_config_verysimple):
@@ -46,7 +48,9 @@ def test_extend_with_default(tardis_config_verysimple):
     Default_Validator = extend_with_default(Draft7Validator)
 
     # Using the validator that extends Draft7Validator with default handling
-    dict_with_Default = validate_dict(tardis_config_verysimple, validator=Default_Validator)
+    dict_with_Default = validate_dict(
+        tardis_config_verysimple, validator=Default_Validator
+    )
     assert dict_with_Default["plasma"]["initial_t_inner"] == "-1 K"
 
     # The main test is that the extended validator sets defaults properly
@@ -60,11 +64,17 @@ def test_validate_dict(tardis_config_verysimple):
     """Test the validate_dict function."""
     config_dict_verysimple = validate_dict(tardis_config_verysimple)
 
-    assert config_dict_verysimple["montecarlo"]["seed"] == tardis_config_verysimple["montecarlo"]["seed"]
+    assert (
+        config_dict_verysimple["montecarlo"]["seed"]
+        == tardis_config_verysimple["montecarlo"]["seed"]
+    )
 
     # Checks for default value when not provided
     assert config_dict_verysimple["plasma"]["initial_t_inner"] == "-1 K"
-    assert config_dict_verysimple["supernova"]["luminosity_wavelength_start"] == "0 angstrom"
+    assert (
+        config_dict_verysimple["supernova"]["luminosity_wavelength_start"]
+        == "0 angstrom"
+    )
 
 
 def test_validate_yaml():

@@ -4,6 +4,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
+
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
@@ -438,15 +439,15 @@ class Profile:
                 )
             )
 
-            for spec in self.species:
-                f.write(
-                    "".join(
-                        [
-                            f"    -  name: {spec.capitalize()}\n",
-                            f"       desc: fractional {spec.capitalize()} abundance.\n",
-                        ]
-                    )
+            f.writelines(
+                "".join(
+                    [
+                        f"    -  name: {spec.capitalize()}\n",
+                        f"       desc: fractional {spec.capitalize()} abundance.\n",
+                    ]
                 )
+                for spec in self.species
+            )
 
             f.write("\n---\n")
 
@@ -481,8 +482,7 @@ class Profile:
 
             for i in inds:
                 f.write("\n")
-                for ii in range(len(exp) - 1):
-                    f.write(f"{exp[ii][i]:g},")
+                f.writelines(f"{exp[ii][i]:g}," for ii in range(len(exp) - 1))
                 f.write(f"{exp[-1][i]:g}")
 
         return filename

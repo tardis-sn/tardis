@@ -29,7 +29,6 @@ class TARDISSpectrum(HDFWriterMixin):
     ]
 
     def __init__(self, _frequency, luminosity):
-
         # Check for correct inputs
         if not _frequency.shape[0] == luminosity.shape[0] + 1:
             raise ValueError(
@@ -168,5 +167,5 @@ class TARDISSpectrum(HDFWriterMixin):
             )
         else:
             raise NotImplementedError(
-                'only mode "luminosity_density"' 'and "flux" are implemented'
+                'only mode "luminosity_density"and "flux" are implemented'
             )

@@ -32,6 +32,7 @@ opacity_state_spec = [
     ("k_packet_idx", int64),
 ]
 
+
 class OpacityState:
     def __init__(
         self,

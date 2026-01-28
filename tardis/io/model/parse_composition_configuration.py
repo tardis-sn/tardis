@@ -51,7 +51,9 @@ def parse_density_from_config(config: Configuration) -> u.Quantity:
             d_conf, v_middle, time_explosion
         )
 
-    density = calculate_density_after_time(density, density_time, time_explosion)
+    density = calculate_density_after_time(
+        density, density_time, time_explosion
+    )
     # Note: This is the number of shells *without* taking in mind the
     #       v boundaries.
     if len(density) == len(velocity):

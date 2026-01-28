@@ -1,8 +1,10 @@
 import logging
+
 import numpy as np
 from astropy import units as u
 
 logger = logging.getLogger(__name__)
+
 
 def validate_radiative_temperature(t_radiative):
     """

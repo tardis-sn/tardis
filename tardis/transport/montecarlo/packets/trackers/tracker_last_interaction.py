@@ -64,7 +64,9 @@ class TrackerLastInteraction:
         """
         self.radius = float("nan")
         self.nu = float("nan")
-        self.mu = float("nan")  # MISSING INITIALIZATION - this was causing JIT vs non-JIT differences!
+        self.mu = float(
+            "nan"
+        )  # MISSING INITIALIZATION - this was causing JIT vs non-JIT differences!
         self.energy = float("nan")
         self.shell_id = -1
         self.interaction_type = -1
@@ -124,7 +126,9 @@ class TrackerLastInteraction:
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = InteractionType.LINE  # Set interaction type directly
+        self.interaction_type = (
+            InteractionType.LINE
+        )  # Set interaction type directly
 
     def track_escattering_interaction_before(self, r_packet) -> None:
         """
@@ -160,7 +164,9 @@ class TrackerLastInteraction:
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = InteractionType.ESCATTERING  # Set interaction type directly
+        self.interaction_type = (
+            InteractionType.ESCATTERING
+        )  # Set interaction type directly
 
     def track_continuum_interaction_before(self, r_packet) -> None:
         """
@@ -196,7 +202,9 @@ class TrackerLastInteraction:
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
-        self.interaction_type = InteractionType.CONTINUUM_PROCESS  # Set interaction type directly
+        self.interaction_type = (
+            InteractionType.CONTINUUM_PROCESS
+        )  # Set interaction type directly
 
     def track_boundary_event(
         self, r_packet, from_shell_id=-1, to_shell_id=-1
@@ -231,7 +239,6 @@ class TrackerLastInteraction:
         """
         return self.interactions_count
 
-
     def finalize(self) -> None:
         """
         Finalize tracker to match the common tracker API.
@@ -240,7 +247,6 @@ class TrackerLastInteraction:
         to trim or consolidate. This method exists for interface compatibility
         with TrackerFull and is a no-op.
         """
-        pass
 
     def _pop_boundary_interactions_buffer(self) -> nb.int64:  # type: ignore[misc]
         """
@@ -252,5 +258,3 @@ class TrackerLastInteraction:
         current_buffer_value = self._boundary_interactions_buffer
         self._boundary_interactions_buffer = 0
         return current_buffer_value
-
-

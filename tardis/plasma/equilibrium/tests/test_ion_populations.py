@@ -2,7 +2,6 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pandas.testing as pdt
-import pytest
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,

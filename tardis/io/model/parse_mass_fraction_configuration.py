@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 
-import astropy.units as u
 import numpy as np
 import pandas as pd
 
@@ -62,7 +61,9 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
         if Path(mass_fractions_section.filename).is_absolute():
             mass_fractions_fname = mass_fractions_section.filename
         else:
-            mass_fractions_fname = Path(config.config_dirname) / mass_fractions_section.filename
+            mass_fractions_fname = (
+                Path(config.config_dirname) / mass_fractions_section.filename
+            )
 
         (
             index,
@@ -75,10 +76,14 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
     mass_fractions = mass_fractions.replace(np.nan, 0.0)
     mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
 
-    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(
+        axis=0
+    )
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
-        logger.warning("Mass fractions have not been normalized to 1. - normalizing")
+        logger.warning(
+            "Mass fractions have not been normalized to 1. - normalizing"
+        )
         mass_fractions /= norm_factor
         isotope_mass_fractions /= norm_factor
     # The next line is if the mass_fractions are given via dict
@@ -150,7 +155,9 @@ def parse_mass_fractions_from_csvy(
         mass_fractions = mass_fractions.loc[:, 1:]
         mass_fractions.columns = np.arange(mass_fractions.shape[1])
         isotope_mass_fractions = isotope_mass_fractions.loc[:, 1:]
-        isotope_mass_fractions.columns = np.arange(isotope_mass_fractions.shape[1])
+        isotope_mass_fractions.columns = np.arange(
+            isotope_mass_fractions.shape[1]
+        )
 
     mass_fractions = mass_fractions.replace(np.nan, 0.0)
     mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
@@ -158,17 +165,23 @@ def parse_mass_fractions_from_csvy(
     isotope_mass_fractions = isotope_mass_fractions[
         isotope_mass_fractions.sum(axis=1) > 0
     ]
-    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(
+        axis=0
+    )
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
-        logger.warning("Mass fractions have not been normalized to 1. - normalizing")
+        logger.warning(
+            "Mass fractions have not been normalized to 1. - normalizing"
+        )
         mass_fractions /= norm_factor
         isotope_mass_fractions /= norm_factor
 
     isotope_mass_fractions = IsotopicMassFraction(
         isotope_mass_fractions, time_0=csvy_model_config.model_isotope_time_0
     ).calculate_decayed_mass_fractions(time_explosion)
-    return convert_to_nuclide_mass_fractions(isotope_mass_fractions, mass_fractions)
+    return convert_to_nuclide_mass_fractions(
+        isotope_mass_fractions, mass_fractions
+    )
 
 
 def convert_to_nuclide_mass_fractions(isotopic_mass_fractions, mass_fractions):

@@ -16,7 +16,9 @@ from tardis.transport.frame_transformations import (
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
     RadiationFieldMCEstimators,
 )
-from tardis.transport.montecarlo.packets.trackers.tracker_full import TrackerFull
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
+)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -91,6 +93,7 @@ The tests written further (till next block comment is encountered) have been
 categorized as important tests, these tests correspond to methods which are
 relatively old and stable code.
 """
+
 
 def test_get_random_mu_different_output():
     """
@@ -473,7 +476,9 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     inverse_doppler_factor = radiative_packet.get_inverse_doppler_factor(
         r, mu, 1 / inv_t_exp
     )
-    radiative_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
+    radiative_packet.angle_aberration_CMF_to_LF(
+        packet, 1 / inv_t_exp, packet.mu
+    )
 
     doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
     mc.ENABLE_FULL_RELATIVITY = False

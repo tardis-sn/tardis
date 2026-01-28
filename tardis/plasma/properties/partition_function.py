@@ -19,13 +19,13 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "LevelBoltzmannFactorLTE",
     "LevelBoltzmannFactorDiluteLTE",
-    "LevelBoltzmannFactorNoNLTE",
+    "LevelBoltzmannFactorLTE",
     "LevelBoltzmannFactorNLTE",
+    "LevelBoltzmannFactorNoNLTE",
     "PartitionFunction",
-    "ThermalLevelBoltzmannFactorLTE",
     "ThermalLTEPartitionFunction",
+    "ThermalLevelBoltzmannFactorLTE",
 ]
 
 
@@ -151,16 +151,13 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def from_config(nlte_conf):
         if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
             return LevelBoltzmannFactorNLTEClassic
-        elif (
-            nlte_conf.coronal_approximation and not nlte_conf.classical_nebular
-        ):
+        if nlte_conf.coronal_approximation and not nlte_conf.classical_nebular:
             return LevelBoltzmannFactorNLTECoronal
-        elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
+        if nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
             raise PlasmaConfigError(
                 "Both coronal approximation and classical nebular specified in the config."
             )
-        else:
-            return LevelBoltzmannFactorNLTEGeneral
+        return LevelBoltzmannFactorNLTEGeneral
 
     def __init__(self, plasma_parent):
         """

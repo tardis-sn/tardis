@@ -4,20 +4,20 @@ from tardis.plasma.properties.base import (
 )
 
 __all__ = [
-    "TRadiative",
-    "DilutionFactor",
-    "AtomicData",
     "Abundance",
-    "NumberDensity",
+    "AtomicData",
+    "ContinuumInteractionSpecies",
+    "DilutePlanckianRadField",
+    "DilutionFactor",
+    "HeliumTreatment",
     "IsotopeAbundance",
-    "TimeExplosion",
     "JBlues",
     "LinkTRadTElectron",
-    "HeliumTreatment",
-    "ContinuumInteractionSpecies",
-    "NLTEIonizationSpecies",
     "NLTEExcitationSpecies",
-    "DilutePlanckianRadField",
+    "NLTEIonizationSpecies",
+    "NumberDensity",
+    "TRadiative",
+    "TimeExplosion",
 ]
 
 
@@ -140,12 +140,10 @@ class ContinuumInteractionSpecies(Input):
 
 
 class NLTEIonizationSpecies(Input):
-
     outputs = ("nlte_ionization_species",)
 
 
 class NLTEExcitationSpecies(Input):
-
     outputs = ("nlte_excitation_species",)
 
 

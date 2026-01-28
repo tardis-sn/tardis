@@ -1,6 +1,7 @@
+from enum import IntEnum
+
 import numba as nb
 import numpy as np
-from enum import IntEnum
 from numba import njit, objmode
 from numba.experimental import jitclass
 
@@ -28,6 +29,7 @@ class InteractionType(IntEnum):
     CONTINUUM_PROCESS : int
         Packet underwent continuum process interaction (value = 8)
     """
+
     NO_INTERACTION = -1
     BOUNDARY = 1
     LINE = 2
@@ -132,7 +134,16 @@ def print_r_packet_properties(r_packet):
         print("last_interaction_type =", str(r_packet.last_interaction_type))
         print("last_interaction_in_nu =", str(r_packet.last_interaction_in_nu))
         print("last_interaction_in_r =", str(r_packet.last_interaction_in_r))
-        print("last_line_interaction_in_id =", str(r_packet.last_line_interaction_in_id))
-        print("last_line_interaction_out_id =", str(r_packet.last_line_interaction_out_id))
-        print("last_line_interaction_shell_id =", str(r_packet.last_line_interaction_shell_id))
+        print(
+            "last_line_interaction_in_id =",
+            str(r_packet.last_line_interaction_in_id),
+        )
+        print(
+            "last_line_interaction_out_id =",
+            str(r_packet.last_line_interaction_out_id),
+        )
+        print(
+            "last_line_interaction_shell_id =",
+            str(r_packet.last_line_interaction_shell_id),
+        )
     print("-" * 80)

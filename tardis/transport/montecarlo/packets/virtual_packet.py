@@ -26,6 +26,7 @@ from tardis.transport.montecarlo.r_packet_transport import (
     move_packet_across_shell_boundary,
 )
 
+
 @jitclass
 class VPacket:
     r: nb.float64  # type: ignore[misc]

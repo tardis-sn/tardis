@@ -112,7 +112,7 @@ def trace_packet(
                 interaction_type = InteractionType.BOUNDARY  # BOUNDARY
                 r_packet.next_line_id = cur_line_id
                 break
-            elif distance == distance_continuum:
+            if distance == distance_continuum:
                 if not montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                     interaction_type = InteractionType.ESCATTERING
                 else:

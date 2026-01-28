@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 from numba import njit
 
-from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.opacities.opacity_state_numba import (
     opacity_state_numba_initialize,
 )

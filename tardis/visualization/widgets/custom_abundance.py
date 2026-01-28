@@ -13,6 +13,7 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 import tardis
 import tardis.visualization.plot_util as pu
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
@@ -33,7 +34,6 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
@@ -738,8 +738,7 @@ class CustomAbundanceWidget:
 
         return bool(
             index_1 - index_0 > 1
-            or index_1 - index_0 == 1
-            and not np.isclose(v_vals[index_0], v_0)
+            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
         )
 
     def on_btn_add_shell(self, obj):
@@ -1048,7 +1047,9 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
+        self.data.abundance = self.data.abundance.sort_index(
+            kind=SORTING_ALGORITHM
+        )
 
         # Add new BoundedFloatText control and Checkbox control.
         item = ipw.BoundedFloatText(min=0, max=1, step=0.01)
@@ -1128,8 +1129,7 @@ class CustomAbundanceWidget:
         if v_start >= v_end or v_start < 0 or v_end < 0:
             self.btn_add_shell.disabled = True
             return
-        else:
-            self.btn_add_shell.disabled = False
+        self.btn_add_shell.disabled = False
 
         # Whether overwrite existing shells
         if self.overwrite_existing_shells(v_start, v_end):
@@ -1419,9 +1419,8 @@ class CustomAbundanceWidget:
             raise FileExistsError(
                 "The file already exists. Click the 'overwrite' checkbox to overwrite it."
             )
-        else:
-            self.write_yaml_portion(posix_path)
-            self.write_csv_portion(posix_path)
+        self.write_yaml_portion(posix_path)
+        self.write_csv_portion(posix_path)
 
     @error_view.capture(clear_output=True)
     def write_yaml_portion(self, path):

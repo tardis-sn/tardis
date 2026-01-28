@@ -25,8 +25,8 @@ def artis_density_fname(artis_data_dir):
 def test_artis_density_reader(artis_density_fname: str):
     # Using a test ARTIS density file.
     # File: tardis_artis_density_test.dat
-    time_model, velocity, mean_density, isotopic_mass_fractions = read_artis_density(
-        artis_density_fname, legacy_return=False
+    time_model, velocity, mean_density, isotopic_mass_fractions = (
+        read_artis_density(artis_density_fname, legacy_return=False)
     )
     # Check that time is recognized as time
     assert time_model.unit.physical_type == "time"
@@ -35,7 +35,9 @@ def test_artis_density_reader(artis_density_fname: str):
     # Dummy check for mean_density value
     npt.assert_allclose(mean_density.value[0], 10**-5.449497e-05)
     # Additional check that all density values are positive
-    assert (mean_density.value > 0).all(), "All mean_density values should be positive"
+    assert (mean_density.value > 0).all(), (
+        "All mean_density values should be positive"
+    )
 
 
 def test_artis_mass_fractions_reader(artis_data_dir):

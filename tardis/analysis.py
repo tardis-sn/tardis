@@ -21,10 +21,13 @@ class LastLineInteraction:
         transport_state = simulation.transport.transport_state
 
         if transport_state.tracker_full_df is None:
-            raise ValueError("No tracking data available. Enable tracking by setting config.montecarlo.tracking.track_rpacket = True")
+            raise ValueError(
+                "No tracking data available. Enable tracking by setting config.montecarlo.tracking.track_rpacket = True"
+            )
 
-
-        packet_data = extract_and_process_packet_data(simulation, "real", include_shell_id=True)
+        packet_data = extract_and_process_packet_data(
+            simulation, "real", include_shell_id=True
+        )
         packets_df = packet_data["packets_df"]
 
         return cls(
@@ -36,7 +39,6 @@ class LastLineInteraction:
             simulation.plasma.atomic_data.lines,
             packet_filter_mode,
         )
-
 
     def __init__(
         self,
@@ -289,7 +291,9 @@ class TARDISHistory:
                     int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
                 )
 
-            self.iterations = np.sort(np.unique(iterations), kind=SORTING_ALGORITHM)
+            self.iterations = np.sort(
+                np.unique(iterations), kind=SORTING_ALGORITHM
+            )
             hdf_store.close()
         else:
             self.iterations = iterations
@@ -382,8 +386,7 @@ class TARDISHistory:
         hdf_store.close()
         if is_scalar:
             return pd.DataFrame(level_populations_dict.values()[0])
-        else:
-            return pd.Panel(level_populations_dict)
+        return pd.Panel(level_populations_dict)
 
     def load_jblues(self, iterations=None):
         jblues_dict = {}
@@ -404,8 +407,7 @@ class TARDISHistory:
         hdf_store.close()
         if is_scalar:
             return pd.DataFrame(jblues_dict.values()[0])
-        else:
-            return pd.Panel(jblues_dict)
+        return pd.Panel(jblues_dict)
 
     def load_ion_populations(self, iterations=None):
         ion_populations_dict = {}
@@ -429,8 +431,7 @@ class TARDISHistory:
         hdf_store.close()
         if is_scalar:
             return pd.DataFrame(ion_populations_dict.values()[0])
-        else:
-            return pd.Panel(ion_populations_dict)
+        return pd.Panel(ion_populations_dict)
 
     def load_spectrum(self, iteration, spectrum_keyword="luminosity_density"):
         hdf_store = pd.HDFStore(self.hdf5_fname, "r")

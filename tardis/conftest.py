@@ -3,20 +3,19 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from astropy.version import version as astropy_version
 from astropy import units as u
+from astropy.version import version as astropy_version
 
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
-from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.tests.fixtures.atom_data import *
 from tardis.transport.montecarlo.progress_bars import (
     iterations_pbar,
     packet_pbar,
 )
-from tardis.tests.test_util import monkeysession
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 try:
     import tardisbase
@@ -320,6 +319,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
     )
     return sim
 
+
 @pytest.fixture(scope="class")
 def workflow_simple(config_verysimple, atomic_data_fname):
     config = deepcopy(config_verysimple)
@@ -330,8 +330,10 @@ def workflow_simple(config_verysimple, atomic_data_fname):
     config.spectrum.virtual.virtual_packet_logging = True
     config.montecarlo.no_of_virtual_packets = 1
     config.spectrum.num = 2000
-    
-    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
+
+    workflow = StandardTARDISWorkflow(
+        config, enable_virtual_packet_logging=True
+    )
     workflow.run()
     return workflow
 

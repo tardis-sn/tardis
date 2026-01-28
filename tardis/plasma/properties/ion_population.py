@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 ION_ZERO_THRESHOLD = 1e-20
 
 __all__ = [
-    "PhiSahaNebular",
-    "PhiSahaLTE",
-    "RadiationFieldCorrection",
     "IonNumberDensity",
     "IonNumberDensityHeNLTE",
+    "PhiSahaLTE",
+    "PhiSahaNebular",
+    "RadiationFieldCorrection",
     "SahaFactor",
     "ThermalPhiSahaLTE",
 ]
@@ -362,7 +362,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                 )
                 if np.any(np.isnan(new_n_electron)):
                     raise PlasmaIonizationError(
-                        'n_electron just turned "nan" -' " aborting"
+                        'n_electron just turned "nan" - aborting'
                     )
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:
@@ -487,7 +487,7 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                 )
                 if np.any(np.isnan(new_n_electron)):
                     raise PlasmaIonizationError(
-                        'n_electron just turned "nan" -' " aborting"
+                        'n_electron just turned "nan" - aborting'
                     )
                 n_electron_iterations += 1
                 if n_electron_iterations > 100:

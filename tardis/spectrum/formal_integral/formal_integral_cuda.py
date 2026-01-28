@@ -1,11 +1,12 @@
 import math
+
 import numpy as np
 from numba import cuda
 
 from tardis.spectrum.formal_integral.base import (
     C_INV,
-    KB_CGS,
     H_CGS,
+    KB_CGS,
     calculate_impact_parameters,
 )
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
@@ -93,8 +94,7 @@ def calculate_intersection_point_cuda(
             * C_INV
             * inverse_time_explosion
         )
-    else:
-        return 0.0
+    return 0.0
 
 
 @cuda.jit(device=True)
@@ -137,27 +137,26 @@ def populate_intersection_points_cuda(
             )
             oshell_id[i] = i
         return N
-    else:
-        # no intersection with photosphere
-        # that means we intersect each shell twice
-        for i in range(N):
-            intersection_point = calculate_intersection_point_cuda(
-                radii_outer[i], impact_parameter, inverse_time_explosion
-            )
-            if intersection_point == 0:
-                continue
-            if offset == N:
-                offset = i
-            # calculate the index in the resulting array
-            i_low = N - i - 1  # the far intersection with the shell
-            i_up = N + i - 2 * offset  # the nearer intersection with the shell
+    # no intersection with photosphere
+    # that means we intersect each shell twice
+    for i in range(N):
+        intersection_point = calculate_intersection_point_cuda(
+            radii_outer[i], impact_parameter, inverse_time_explosion
+        )
+        if intersection_point == 0:
+            continue
+        if offset == N:
+            offset = i
+        # calculate the index in the resulting array
+        i_low = N - i - 1  # the far intersection with the shell
+        i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
-            # setting the arrays
-            oz[i_low] = 1 + intersection_point
-            oshell_id[i_low] = i
-            oz[i_up] = 1 - intersection_point
-            oshell_id[i_up] = i
-        return 2 * (N - offset)
+        # setting the arrays
+        oz[i_low] = 1 + intersection_point
+        oshell_id[i_low] = i
+        oz[i_up] = 1 - intersection_point
+        oshell_id[i_up] = i
+    return 2 * (N - offset)
 
 
 # Credit for this computation is https://github.com/numba/numba/blob/3fd158f79a12ac5276bc5a72c2404464487c91f0/numba/np/arraymath.py#L3542

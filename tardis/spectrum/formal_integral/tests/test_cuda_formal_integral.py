@@ -1,17 +1,18 @@
 import numpy as np
 import numpy.testing as ntest
-from numba import cuda
 import pytest
+from numba import cuda
 
+import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
+import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.base import (
     intensity_black_body,
 )
-from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
-import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
-import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
-from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
+from tardis.spectrum.formal_integral.formal_integral_solver import (
+    FormalIntegralSolver,
+)
 
 
 @cuda.jit
@@ -97,7 +98,9 @@ def calculate_intersection_point_caller(r, p, inv_t, actual):
     the array
     """
     x = cuda.grid(1)
-    actual[x] = formal_integral_cuda.calculate_intersection_point_cuda(r, p, inv_t)
+    actual[x] = formal_integral_cuda.calculate_intersection_point_cuda(
+        r, p, inv_t
+    )
 
 
 @pytest.mark.skipif(
@@ -119,7 +122,9 @@ def test_calculate_intersection_point_cuda(
     r_outer = formal_integral_geometry.r_outer
     for r in r_outer:
         calculate_intersection_point_caller[1, 3](r, p, inv_t, actual)
-        expected = formal_integral_numba.calculate_intersection_point(r, p, inv_t)
+        expected = formal_integral_numba.calculate_intersection_point(
+            r, p, inv_t
+        )
 
         ntest.assert_allclose(actual[p_loc], expected, rtol=1e-14)
 
@@ -219,7 +224,9 @@ def test_line_search_cuda(nu_insert, simulation_verysimple_opacity_state):
 
 
 @cuda.jit
-def reverse_binary_search_cuda_caller(line_list_nu, nu_insert, imin, imax, actual):
+def reverse_binary_search_cuda_caller(
+    line_list_nu, nu_insert, imin, imax, actual
+):
     """
     This calls the CUDA function and fills out
     the array
@@ -233,7 +240,9 @@ def reverse_binary_search_cuda_caller(line_list_nu, nu_insert, imin, imax, actua
 @pytest.mark.skipif(
     not GPUs_available, reason="No GPU is available to test CUDA function"
 )
-@pytest.mark.parametrize("nu_insert", [*np.linspace(3e12, 3e16, 10), 288786721666522.1])
+@pytest.mark.parametrize(
+    "nu_insert", [*np.linspace(3e12, 3e16, 10), 288786721666522.1]
+)
 def test_reverse_binary_search(nu_insert, simulation_verysimple_opacity_state):
     """
     Initializes the test of the cuda version
@@ -251,7 +260,9 @@ def test_reverse_binary_search(nu_insert, simulation_verysimple_opacity_state):
     expected[0] = formal_integral_numba.reverse_binary_search(
         line_list_nu, nu_insert, imin, imax
     )
-    reverse_binary_search_cuda_caller[1, 1](line_list_nu, nu_insert, imin, imax, actual)
+    reverse_binary_search_cuda_caller[1, 1](
+        line_list_nu, nu_insert, imin, imax, actual
+    )
 
     ntest.assert_equal(actual, expected)
 
@@ -270,11 +281,15 @@ def test_full_formal_integral(simulation_verysimple):
 
     integrator_settings = sim.spectrum_solver.integrator_settings
     formal_integrator_numba = FormalIntegralSolver(
-        integrator_settings.points, integrator_settings.interpolate_shells, "numba"
+        integrator_settings.points,
+        integrator_settings.interpolate_shells,
+        "numba",
     )
 
     formal_integrator_cuda = FormalIntegralSolver(
-        integrator_settings.points, integrator_settings.interpolate_shells, "cuda"
+        integrator_settings.points,
+        integrator_settings.interpolate_shells,
+        "cuda",
     )
 
     L_numba = formal_integrator_numba.solve(
@@ -298,9 +313,11 @@ def test_full_formal_integral(simulation_verysimple):
     ).luminosity
 
     assert isinstance(
-        formal_integrator_cuda.integrator, formal_integral_cuda.CudaFormalIntegrator
+        formal_integrator_cuda.integrator,
+        formal_integral_cuda.CudaFormalIntegrator,
     )
     assert isinstance(
-        formal_integrator_numba.integrator, formal_integral_numba.NumbaFormalIntegrator
+        formal_integrator_numba.integrator,
+        formal_integral_numba.NumbaFormalIntegrator,
     )
     ntest.assert_allclose(L_cuda, L_numba, rtol=1e-14)

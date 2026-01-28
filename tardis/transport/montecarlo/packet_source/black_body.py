@@ -1,5 +1,3 @@
-
-
 from typing import Any
 
 import numexpr as ne
@@ -92,7 +90,9 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         self.temperature = temperature
         super().__init__(**kwargs)
 
-    def create_packets(self, no_of_packets: int, *args: Any, **kwargs: Any) -> PacketCollection:
+    def create_packets(
+        self, no_of_packets: int, *args: Any, **kwargs: Any
+    ) -> PacketCollection:
         """
         Create packet collection.
 
@@ -137,7 +137,9 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         """
         return np.ones(no_of_packets) * self.radius.cgs
 
-    def create_packet_nus(self, no_of_packets: int, l_samples: int = 1000) -> u.Quantity:
+    def create_packet_nus(
+        self, no_of_packets: int, l_samples: int = 1000
+    ) -> u.Quantity:
         """
         Create packet :math:`\\nu` distributed using the algorithm described in
         Bjorkman & Wood 2001 (page 4) which references
@@ -234,6 +236,5 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
             Total luminosity to match.
         """
         self.temperature = (
-            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb))
-            ** 0.25
+            (luminosity / (4 * np.pi * self.radius**2 * const.sigma_sb)) ** 0.25
         ).to("K")

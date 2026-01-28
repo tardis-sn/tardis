@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 
 __all__ = [
-    "BasePlasmaProperty",
+    "ArrayInput",
     "BaseAtomicDataProperty",
+    "BasePlasmaProperty",
+    "DataFrameInput",
     "HiddenPlasmaProperty",
     "Input",
-    "ArrayInput",
-    "DataFrameInput",
-    "ProcessingPlasmaProperty",
     "PreviousIterationProperty",
+    "ProcessingPlasmaProperty",
 ]
 
 logger = logging.getLogger(__name__)
@@ -119,8 +119,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
     @abstractmethod
     def calculate(self, *args, **kwargs):
         raise NotImplementedError(
-            "This method needs to be implemented by "
-            "processing plasma modules"
+            "This method needs to be implemented by processing plasma modules"
         )
 
 
@@ -159,7 +158,6 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
     inputs = ["atomic_data", "selected_atoms"]
 
     def __init__(self, plasma_parent):
-
         super().__init__(plasma_parent)
         self.value = None
 
@@ -172,16 +170,12 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
         raise NotImplementedError("Needs to be implemented in subclasses")
 
     def calculate(self, atomic_data, selected_atoms):
-
         if getattr(self, self.outputs[0]) is not None:
             return getattr(self, self.outputs[0])
-        else:
-            raw_atomic_property = getattr(atomic_data, self.outputs[0])
-            return self._set_index(
-                self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms
-                )
-            )
+        raw_atomic_property = getattr(atomic_data, self.outputs[0])
+        return self._set_index(
+            self._filter_atomic_property(raw_atomic_property, selected_atoms)
+        )
 
 
 class Input(BasePlasmaProperty):

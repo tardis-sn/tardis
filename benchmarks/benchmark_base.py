@@ -1,15 +1,18 @@
 import functools
-from os import environ as env
 from copy import deepcopy
+from os import environ as env
 from pathlib import Path
 
 import numpy as np
 
+import tardis.transport.montecarlo.packets.trackers.tracker_last_interaction
+import tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util
 from tardis import run_tardis
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.opacities.opacity_state_numba import opacity_state_numba_initialize
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_MD5
 from tardis.transport.montecarlo import RPacket
@@ -17,10 +20,9 @@ from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
 from tardis.transport.montecarlo.estimators import radfield_mc_estimators
-from tardis.opacities.opacity_state_numba import opacity_state_numba_initialize
-from tardis.transport.montecarlo.packets.packet_collections import VPacketCollection
-import tardis.transport.montecarlo.packets.trackers.tracker_last_interaction
-import tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util
+from tardis.transport.montecarlo.packets.packet_collections import (
+    VPacketCollection,
+)
 
 
 class BenchmarkBase:
@@ -73,8 +75,7 @@ class BenchmarkBase:
         if atomic_data.md5 != DEFAULT_ATOM_DATA_MD5:
             message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_MD5}")'
             raise Exception(message)
-        else:
-            return atomic_data
+        return atomic_data
 
     @functools.cached_property
     def atomic_data_fname(self):

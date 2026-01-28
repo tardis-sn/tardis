@@ -48,17 +48,18 @@ def process_decay_radiation_data(
             "Rad subtype": "radiation_sub_type",
         }
     )
-    relevant_decay_radiation_data[
-        "energy_per_decay_kev"
-    ] = relevant_decay_radiation_data["radiation_energy_kev"] * (
-        relevant_decay_radiation_data["Rad Intensity"] / 100
+    relevant_decay_radiation_data["energy_per_decay_kev"] = (
+        relevant_decay_radiation_data["radiation_energy_kev"]
+        * (relevant_decay_radiation_data["Rad Intensity"] / 100)
     )  # given per 100 decays
 
     # Add channel_id as an additional multi_index
     relevant_decay_radiation_data = relevant_decay_radiation_data.reset_index()
-    relevant_decay_radiation_data["channel_id"] = relevant_decay_radiation_data.groupby(
-        ["atomic_number", "mass_number"]
-    ).cumcount()
+    relevant_decay_radiation_data["channel_id"] = (
+        relevant_decay_radiation_data.groupby(
+            ["atomic_number", "mass_number"]
+        ).cumcount()
+    )
     relevant_decay_radiation_data = relevant_decay_radiation_data.set_index(
         ["atomic_number", "mass_number", "channel_id"]
     )

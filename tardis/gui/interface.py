@@ -1,9 +1,9 @@
 import os
 
 if os.environ.get("QT_API", None) == "pyqt":
-    from PyQt5 import QtCore, QtWidgets
+    from PyQt5 import QtWidgets
 elif os.environ.get("QT_API", None) == "pyside":
-    from PySide2 import QtCore, QtWidgets
+    from PySide2 import QtWidgets
 else:
     raise ImportError(
         """QT_API was not set! Please exit the IPython console\n
@@ -13,16 +13,19 @@ else:
 import sys
 
 try:
-    from IPython.lib.guisupport import get_app_qt5, start_event_loop_qt5
-    from IPython.lib.guisupport import is_event_loop_running_qt5
+    from IPython.lib.guisupport import (
+        get_app_qt5,
+        is_event_loop_running_qt5,
+        start_event_loop_qt5,
+    )
 
     importFailed = False
 except ImportError:
     importFailed = True
 
-from tardis.gui.widgets import Tardis
-from tardis.gui.datahandler import SimpleTableModel
 from tardis import run_tardis
+from tardis.gui.datahandler import SimpleTableModel
+from tardis.gui.widgets import Tardis
 
 
 def show(model):

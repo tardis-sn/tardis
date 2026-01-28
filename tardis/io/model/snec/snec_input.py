@@ -39,24 +39,24 @@ class SNECIsotopeProfile:
         """
         # Ensure DataFrame index and columns are named
         df = self.isotope_mass_fraction.copy()
-        df.index.name = 'cell_id'
-        df.columns.name = 'isotope'
+        df.index.name = "cell_id"
+        df.columns.name = "isotope"
 
         # Build the DataArray for isotope mass fractions
         da = xr.DataArray(
             data=df.values,
-            dims=('cell_id', 'isotope'),
+            dims=("cell_id", "isotope"),
             coords={
-                'cell_id': df.index,
-                'isotope': df.columns,
+                "cell_id": df.index,
+                "isotope": df.columns,
             },
-            name='isotope_mass_fraction'
+            name="isotope_mass_fraction",
         )
 
         # Attach radius and enclosed_mass as coordinates on cell_id
         da = da.assign_coords(
-            radius=('cell_id', self.radius.value),
-            enclosed_mass=('cell_id', self.enclosed_mass.value)
+            radius=("cell_id", self.radius.value),
+            enclosed_mass=("cell_id", self.enclosed_mass.value),
         )
 
         return da
@@ -83,9 +83,13 @@ def read_snec_isotope_profile(file_path: str) -> SNECIsotopeProfile:
 
         # Read the second and third lines as integer arrays
         second_line = file_handle.readline().strip().replace("d", "e")
-        mass_number = np.array(list(map(float, second_line.split()))).astype(int)
+        mass_number = np.array(list(map(float, second_line.split()))).astype(
+            int
+        )
         third_line = file_handle.readline().strip().replace("d", "e")
-        neutron_number = np.array(list(map(float, third_line.split()))).astype(int)
+        neutron_number = np.array(list(map(float, third_line.split()))).astype(
+            int
+        )
         element_number = mass_number - neutron_number
 
         # Read the remaining lines into a DataFrame
@@ -96,14 +100,17 @@ def read_snec_isotope_profile(file_path: str) -> SNECIsotopeProfile:
 
         isotope_mass_fraction = data.iloc[:, 2:]
         isotope_mass_fraction.columns = pd.MultiIndex.from_arrays(
-            [element_number, mass_number], names=["element_number", "mass_number"]
+            [element_number, mass_number],
+            names=["element_number", "mass_number"],
         )
 
         # Assert the dimensions match the provided row and column counts
         assert isotope_mass_fraction.shape == (
             row_count,
             column_count,
-        ), f"Data dimensions {isotope_mass_fraction.shape} do not match expected ({row_count}, {column_count - 2})"
+        ), (
+            f"Data dimensions {isotope_mass_fraction.shape} do not match expected ({row_count}, {column_count - 2})"
+        )
 
     return SNECIsotopeProfile(
         enclosed_mass=enclosed_mass,

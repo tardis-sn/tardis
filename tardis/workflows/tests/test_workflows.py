@@ -1,13 +1,11 @@
-import pytest
-from pathlib import Path
 import numpy as np
 import pandas as pd
+import pytest
 from astropy import units as u
 
-from tardis.io.configuration.config_reader import Configuration
-from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
+from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
 
 
 @pytest.fixture(scope="module")

@@ -6,7 +6,6 @@ from numba.typed import List
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
@@ -17,7 +16,6 @@ from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
     VPacketCollection,
     consolidate_vpacket_tracker,
-    initialize_last_interaction_tracker,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
@@ -167,7 +165,7 @@ def montecarlo_main_loop(
 
         # Finalize the tracker (e.g. trim arrays to actual size)
         tracker.finalize()
-        
+
         # Finalize the vpacket collection to trim arrays to actual size
         vpacket_collection.finalize_arrays()
 

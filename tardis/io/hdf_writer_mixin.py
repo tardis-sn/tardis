@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Union, Optional, Dict, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -39,9 +39,9 @@ class HDFWriterMixin:
 
     @staticmethod
     def to_hdf_util(
-        path_or_buf: Union[str, pd.HDFStore],
+        path_or_buf: str | pd.HDFStore,
         path: str,
-        elements: Dict[str, Any],
+        elements: dict[str, Any],
         overwrite: bool,
         complevel: int = 9,
         complib: str = "blosc",
@@ -94,7 +94,9 @@ class HDFWriterMixin:
 
         try:  # when path_or_buf is a str, the HDFStore should get created
             buf = pd.HDFStore(
-                path_or_buf, complevel=complevel, complib=complib  # type: ignore[arg-type]
+                path_or_buf,
+                complevel=complevel,
+                complib=complib,  # type: ignore[arg-type]
             )
         except TypeError as e:
             if str(e) == "Expected bytes, got HDFStore":
@@ -159,7 +161,7 @@ class HDFWriterMixin:
         if buf.is_open:
             buf.close()
 
-    def get_properties(self) -> Dict[str, Any]:
+    def get_properties(self) -> dict[str, Any]:
         """
         Get properties for HDF storage.
 
@@ -172,7 +174,7 @@ class HDFWriterMixin:
         return data
 
     @property
-    def full_hdf_properties(self) -> List[str]:
+    def full_hdf_properties(self) -> list[str]:
         """
         Get the full list of HDF properties.
 
@@ -206,11 +208,11 @@ class HDFWriterMixin:
 
     def to_hdf(
         self,
-        file_path_or_buf: Union[str, pd.HDFStore],
+        file_path_or_buf: str | pd.HDFStore,
         path: str = "",
-        name: Optional[str] = None,
+        name: str | None = None,
         overwrite: bool = False,
-        format: Optional[str] = None,
+        format: str | None = None,
     ) -> None:
         """
         Save the object to an HDF file.
@@ -234,13 +236,18 @@ class HDFWriterMixin:
             except AttributeError:
                 name = self.convert_to_snake_case(self.__class__.__name__)
                 logger.debug(
-                    "self.hdf_name not present, setting name to %s for HDF", name
+                    "self.hdf_name not present, setting name to %s for HDF",
+                    name,
                 )
 
         data = self.get_properties()
         buff_path = str(Path(path) / (name or ""))
         self.to_hdf_util(
-            file_path_or_buf, buff_path, data, overwrite=overwrite, format=format
+            file_path_or_buf,
+            buff_path,
+            data,
+            overwrite=overwrite,
+            format=format,
         )
 
 
@@ -249,7 +256,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
     Mixin class for writing plasma data to HDF files.
     """
 
-    def get_properties(self) -> Dict[str, Any]:
+    def get_properties(self) -> dict[str, Any]:
         """
         Get plasma properties for HDF storage.
 
@@ -280,12 +287,12 @@ class PlasmaWriterMixin(HDFWriterMixin):
 
     def to_hdf(
         self,
-        file_path_or_buf: Union[str, pd.HDFStore],
+        file_path_or_buf: str | pd.HDFStore,
         path: str = "",
-        name: Optional[str] = None,
+        name: str | None = None,
         collection: Any = None,
         overwrite: bool = False,
-        format: Optional[str] = None,
+        format: str | None = None,
     ) -> None:
         """
         Save the plasma object to an HDF file.

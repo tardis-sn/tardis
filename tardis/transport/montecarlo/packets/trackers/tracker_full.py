@@ -324,5 +324,3 @@ class TrackerFull:
         self.after_energy = self.after_energy[: self.event_id]
         self.line_absorb_id = self.line_absorb_id[: self.event_id]
         self.line_emit_id = self.line_emit_id[: self.event_id]
-
-

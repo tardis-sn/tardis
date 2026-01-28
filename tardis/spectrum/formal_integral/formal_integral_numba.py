@@ -1,15 +1,14 @@
 import numpy as np
 from numba import njit, prange
-from typing import Tuple
 from numpy.typing import NDArray
 
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.base import (
     C_INV,
     BoundsError,
     calculate_impact_parameters,
     intensity_black_body,
 )
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo import njit_dict, njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import SIGMA_THOMSON
 
@@ -45,8 +44,7 @@ def calculate_intersection_point(
             * C_INV
             * inv_t
         )
-    else:
-        return 0
+    return 0
 
 
 @njit(**njit_dict_no_parallel)
@@ -93,26 +91,25 @@ def populate_intersection_points(
             )
             shell_ids[i] = i
         return N
-    else:
-        # no intersection with photosphere
-        # that means we intersect each shell twice
-        for i in range(N):
-            intersection_point = calculate_intersection_point(
-                r_outer[i], impact_parameter, inv_t
-            )
-            if intersection_point == 0:
-                continue
-            if offset == N:
-                offset = i
-            # calculate the index in the resulting array
-            i_low = N - i - 1  # the far intersection with the shell
-            i_up = N + i - 2 * offset  # the nearer intersection with the shell
+    # no intersection with photosphere
+    # that means we intersect each shell twice
+    for i in range(N):
+        intersection_point = calculate_intersection_point(
+            r_outer[i], impact_parameter, inv_t
+        )
+        if intersection_point == 0:
+            continue
+        if offset == N:
+            offset = i
+        # calculate the index in the resulting array
+        i_low = N - i - 1  # the far intersection with the shell
+        i_up = N + i - 2 * offset  # the nearer intersection with the shell
 
-            intersection_points[i_low] = 1 + intersection_point
-            shell_ids[i_low] = i
-            intersection_points[i_up] = 1 - intersection_point
-            shell_ids[i_up] = i
-        return 2 * (N - offset)
+        intersection_points[i_low] = 1 + intersection_point
+        shell_ids[i_low] = i
+        intersection_points[i_up] = 1 - intersection_point
+        shell_ids[i_up] = i
+    return 2 * (N - offset)
 
 
 @njit(**njit_dict_no_parallel)
@@ -138,7 +135,6 @@ def reverse_binary_search(
     int
         Index of the next boundary to the left.
     """
-
     if (x_insert > x[imin]) or (x_insert < x[imax]):
         raise BoundsError
     return len(x) - 1 - np.searchsorted(x[::-1], x_insert, side="right")
@@ -165,7 +161,6 @@ def line_search(
     int
         Index of the next line to the red. If the key value is redder than the reddest line, returns number_of_lines.
     """
-
     imin = 0
     imax = number_of_lines - 1
     if nu_insert > nu[imin]:
@@ -193,7 +188,7 @@ def initialize_formal_integral_inputs(
     geometry: NumbaRadial1DGeometry,
     time_explosion: float,
     tau_sobolev: NDArray[np.float64],
-) -> Tuple[
+) -> tuple[
     NDArray[np.float64],  # intensities_nu_p
     NDArray[np.float64],  # impact_parameters
     NDArray[np.float64],  # intersection_points
@@ -234,7 +229,6 @@ def initialize_formal_integral_inputs(
     exp_tau_sobolev : ndarray
         Exponential of negative Sobolev optical depths (flattened).
     """
-
     n_frequencies = len(frequencies)
     _, size_shell = tau_sobolev.shape
     exp_tau_sobolev = np.exp(-tau_sobolev.T.ravel())
@@ -304,7 +298,7 @@ def get_electron_scattering_optical_depth(
     mean_intensity_blue_lu: float,
     mean_intensity_red_lu: float,
     intensities_nu_p: float,
-) -> Tuple[float, int, int]:
+) -> tuple[float, int, int]:
     """
     Compute the electron scattering optical depth for given segment
 
@@ -383,7 +377,7 @@ def numba_formal_integral(
     tau_sobolev: NDArray[np.float64],
     electron_densities: NDArray[np.float64],
     n_impact_parameters: int,
-) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Compute the formal integral.
 
@@ -595,7 +589,7 @@ class NumbaFormalIntegrator:
         tau_sobolev: NDArray[np.float64],
         electron_densities: NDArray[np.float64],
         n_impact_parameters: int,
-    ) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """
         Wrapper for the Numba implementation of the formal integral.
 

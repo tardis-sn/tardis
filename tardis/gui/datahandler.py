@@ -1,26 +1,19 @@
 import os
+
+import matplotlib
 from pkg_resources import parse_version
 
-import numpy as np
-import matplotlib
-import matplotlib.pylab as plt
-
-
 if os.environ.get("QT_API", None) == "pyqt":
-    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWidgets
 elif os.environ.get("QT_API", None) == "pyside":
-    from PySide2 import QtGui, QtCore, QtWidgets
+    from PySide2 import QtCore, QtGui, QtWidgets
 else:
     raise ImportError(
         """QT_API was not set! Please exit the IPython console\n
          and at the bash prompt use : \n\n export QT_API=pyside \n or\n
          export QT_API=pyqt \n\n For more information refer to user guide."""
     )
-import yaml
 
-from tardis import run_tardis
-from tardis.gui.widgets import MatplotlibWidget, ModelViewer, ShellInfo
-from tardis.gui.widgets import LineInfo, LineInteractionTables
 
 if parse_version(matplotlib.__version__) >= parse_version("1.4"):
     matplotlib.style.use("fivethirtyeight")
@@ -34,7 +27,7 @@ matplotlib.rcParams["axes.edgecolor"] = matplotlib.rcParams["grid.color"]
 matplotlib.rcParams["axes.linewidth"] = matplotlib.rcParams["grid.linewidth"]
 
 
-class Node(object):
+class Node:
     """Object that serves as the nodes in the TreeModel.
 
     Attributes
@@ -110,8 +103,7 @@ class Node(object):
         """
         if i < self.num_children():
             return self.children[i]
-        else:
-            return None
+        return None
 
     def num_children(self):
         """Number of children this node has."""
@@ -142,8 +134,7 @@ class Node(object):
         """
         if self.parent:
             return self.parent.children.index(self)
-        else:
-            return 0
+        return 0
 
     def set_data(self, column, value):
         """Set the data for the ith index to the provided value. Returns
@@ -196,12 +187,12 @@ class TreeModel(QtCore.QAbstractItemModel):
         """
         if index.isValid():
             return index.internalPointer().num_columns()
-        else:
-            return self.root.num_columns()
+        return self.root.num_columns()
 
     def data(self, index, role):
         """Returns the asked data for the node specified by the modeLabel
-        index."""
+        index.
+        """
         if not index.isValid():
             return None
 
@@ -268,8 +259,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         childItem = parentItem.get_child(row)
         if childItem:
             return self.createIndex(row, column, childItem)
-        else:
-            return QtCore.QModelIndex()
+        return QtCore.QModelIndex()
 
     def insertColumns(self, position, columns, parent=QtCore.QModelIndex()):
         """Insert columns in the tree model."""
@@ -409,7 +399,7 @@ class TreeModel(QtCore.QAbstractItemModel):
                 else:
                     dictionary[nd.get_data(0)] = self.dict_from_node(nd)
             return dictionary
-        elif len(children) == 1:
+        if len(children) == 1:
             return children[0].get_data(0)
 
 
@@ -433,11 +423,10 @@ class TreeDelegate(QtWidgets.QStyledItemDelegate):
             )
             combobox.setEditable(False)
             return combobox
-        else:
-            editor = QtWidgets.QLineEdit(parent)
-            editor.setText(str(node.get_data(0)))
-            editor.returnPressed.connect(self.close_and_commit)
-            return editor
+        editor = QtWidgets.QLineEdit(parent)
+        editor.setText(str(node.get_data(0)))
+        editor.returnPressed.connect(self.close_and_commit)
+        return editor
 
     def setModelData(self, editor, model, index):
         """Called when new data id set in the model. This is where the
@@ -520,20 +509,18 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
             if self.iterate_header[0] == 1:
                 return self.headerdata[0][0] + str(section + 1)
-            elif self.iterate_header[0] == 2:
+            if self.iterate_header[0] == 2:
                 if self.index_info:
                     return self.headerdata[0][0] + str(self.index_info[section])
-                else:
-                    return self.headerdata[0][0] + str(section + 1)
-            else:
-                return self.headerdata[0][section]
-        elif (
+                return self.headerdata[0][0] + str(section + 1)
+            return self.headerdata[0][section]
+        if (
             orientation == QtCore.Qt.Horizontal
             and role == QtCore.Qt.DisplayRole
         ):
             if self.iterate_header[1] == 1:
                 return self.headerdata[1][0] + str(section + 1)
-            elif self.iterate_header[1] == 2:
+            if self.iterate_header[1] == 2:
                 if self.index_info:
                     return self.headerdata[1][0] + str(self.index_info[section])
             else:
@@ -544,16 +531,17 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         """Return data of specified index and role."""
         if not index.isValid():
             return None
-        elif role != QtCore.Qt.DisplayRole:
+        if role != QtCore.Qt.DisplayRole:
             return None
         return self.arraydata[index.column()][index.row()]
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         """Change the data in the model for specified index and role
-        to specified value."""
+        to specified value.
+        """
         if not index.isValid():
             return False
-        elif role != QtCore.Qt.EditRole:
+        if role != QtCore.Qt.EditRole:
             return False
         self.arraydata[index.column()][index.row()] = value
 

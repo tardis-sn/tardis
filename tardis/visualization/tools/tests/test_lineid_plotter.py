@@ -1,10 +1,14 @@
 import pytest
-from tardis.visualization.tools.sdec_plot import SDECPlotter
 from matplotlib.testing.compare import compare_images
 
+from tardis.visualization.tools.sdec_plot import SDECPlotter
+
 # check if lineid_plot is installed
-lineid_plot = pytest.importorskip("lineid_plot", reason="lineid_plot is not installed")
+lineid_plot = pytest.importorskip(
+    "lineid_plot", reason="lineid_plot is not installed"
+)
 from tardis.visualization.tools.lineid_plotter import lineid_plotter
+
 
 @pytest.fixture(scope="module")
 def plotter(simulation_simple_tracked):

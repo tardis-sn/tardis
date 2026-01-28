@@ -1,15 +1,14 @@
 import logging
 import os
 
-from astropy import units as units
 import numpy as np
 import pandas as pd
+from astropy import units as units
 
 from tardis.iip_plasma.continuum.exceptions import (
     IncompletePhotoionizationDataError,
 )
 from tardis.iip_plasma.continuum.util import *
-
 
 default_photoionization_h5_path = os.path.join(
     os.path.dirname(__file__), "data", "photoionization_data_H30_He.h5"
@@ -18,7 +17,7 @@ default_photoionization_h5_path = os.path.join(
 logger = logging.getLogger(__name__)
 
 
-class BaseContinuumData(object):
+class BaseContinuumData:
     def __init__(
         self,
         atom_data,
@@ -147,7 +146,7 @@ class BaseContinuumData(object):
         return pd.MultiIndex.from_arrays([atomic_number, ion_number])
 
 
-class MCDataMixin(object):
+class MCDataMixin:
     def _set_montecarlo_data(self):
         nu_sorted_continuum_data = self.continuum_data.sort_values(
             "nu", ascending=False
@@ -232,7 +231,7 @@ class ContinuumData(BaseContinuumData, MCDataMixin):
     pass
 
 
-class PhotoionizationData(object):
+class PhotoionizationData:
     @classmethod
     def from_hdf5(cls, fname, atom_data):
         if fname is None:
@@ -262,10 +261,10 @@ class PhotoionizationData(object):
             with pd.HDFStore(fname, "r") as phot_data:
                 photoionization_x_sections = phot_data["photoionization_data"]
                 return photoionization_x_sections
-        except (IOError, err):
+        except (OSError, err):
             print(err.errno)
             print(err)
-            raise IOError(
+            raise OSError(
                 "Cannot import. Error opening the file to read photoionization cross-sections"
             )
 

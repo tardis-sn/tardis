@@ -7,8 +7,8 @@ from scipy.optimize import root
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 __all__ = [
-    "NLTEPopulationSolverRoot",
     "NLTEPopulationSolverLU",
+    "NLTEPopulationSolverRoot",
 ]
 
 logger = logging.getLogger(__name__)
@@ -128,9 +128,9 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 initial_electron_densities[shell],
             )
             # All first guess values have to be positive
-            assert (
-                np.greater_equal(first_guess, 0.0).all()
-            ).all(), "First guess for NLTE solver has negative values, something went wrong."
+            assert (np.greater_equal(first_guess, 0.0).all()).all(), (
+                "First guess for NLTE solver has negative values, something went wrong."
+            )
             solution = root(
                 population_objective_function,
                 first_guess,
@@ -146,7 +146,9 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 ),
                 jac=True,
             )
-            assert solution.success, "No solution for NLTE population equation found or solver takes too long to converge"
+            assert solution.success, (
+                "No solution for NLTE population equation found or solver takes too long to converge"
+            )
             (
                 ion_number_density[shell],
                 electron_densities[shell],
@@ -165,7 +167,9 @@ class NLTEPopulationSolverRoot(ProcessingPlasmaProperty):
                 )
                 / electron_densities[shell]
                 < NLTE_POPULATION_SOLVER_CHARGE_CONSERVATION_TOLERANCE
-            ), "Charge conservation not fulfilled after correcting for negative populations, solver failed."
+            ), (
+                "Charge conservation not fulfilled after correcting for negative populations, solver failed."
+            )
 
         # TODO: change the jacobian and rate matrix to use shell id and get coefficients from the attribute of the class.
 
@@ -348,12 +352,12 @@ class NLTEPopulationSolverLU(ProcessingPlasmaProperty):
         float
             Change in electron density.
         """
-        assert np.all(
-            ion_solution >= 0.0
-        ), "Negative ion number density found, this should not happen."
-        assert (
-            electron_solution >= 0.0
-        ), "Negative electron density found, this should not happen."
+        assert np.all(ion_solution >= 0.0), (
+            "Negative ion number density found, this should not happen."
+        )
+        assert electron_solution >= 0.0, (
+            "Negative electron density found, this should not happen."
+        )
         delta_ion = (ion_number_density - ion_solution) / ion_solution
         delta_electron = (
             electron_densities - electron_solution
@@ -410,16 +414,16 @@ def check_negative_population(
                 ):
                     ion_number_density.loc[atom_number, ion_number] = 0.0
 
-    assert np.greater_equal(
-        ion_number_density, 0.0
-    ).all(), "Negative ion number density found, solver failed."
+    assert np.greater_equal(ion_number_density, 0.0).all(), (
+        "Negative ion number density found, solver failed."
+    )
 
     if electron_densities is None:
         # For the root solver, we don't want to recalculate the electron density
         electron_densities = np.sum(ion_numbers * ion_number_density)
-    assert (
-        electron_densities >= 0.0
-    ), "Negative electron density found, solver failed."
+    assert electron_densities >= 0.0, (
+        "Negative electron density found, solver failed."
+    )
     return ion_number_density, electron_densities
 
 

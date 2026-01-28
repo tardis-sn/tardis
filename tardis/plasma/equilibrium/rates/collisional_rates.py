@@ -3,12 +3,12 @@ import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.plasma.equilibrium.rates.collision_strengths import (
     UpsilonChiantiSolver,
     UpsilonCMFGENSolver,
     UpsilonRegemorterSolver,
 )
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BETA_COLL = (
     (const.h**4 / (8 * const.k_B * const.m_e**3 * np.pi**3)) ** 0.5

@@ -4,8 +4,8 @@ import radioactivedecay as rd
 from astropy import units as u
 from radioactivedecay.decaydata import DEFAULTDATA as RD_DEFAULT_DATA
 
-from tardis.model.matter.decay import IsotopicMassFraction
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.model.matter.decay import IsotopicMassFraction
 
 
 def compile_rd_isotope_masses():
@@ -175,10 +175,9 @@ class Composition:
         """
         if self.isotopic_mass_fraction.empty:
             return self.elemental_mass_fraction
-        else:
-            return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
-                time_explosion
-            )
+        return self.isotopic_mass_fraction.calculate_decayed_mass_fractions(
+            time_explosion
+        )
 
     def calculate_elemental_cell_masses(self, volume):
         """

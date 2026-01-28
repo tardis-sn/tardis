@@ -66,8 +66,8 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
                 no_of_bad_elements != 0
             ):
                 logger.info(
-                    "Replacing {} photoionization rates with values based on the "
-                    "radiation field model".format(no_of_bad_elements)
+                    f"Replacing {no_of_bad_elements} photoionization rates with values based on the "
+                    "radiation field model"
                 )
 
                 rate_coefficient = self._calculate_rate_coefficient_combination(
@@ -88,9 +88,9 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         -----
         .. math::
 
-            \tilde \gamma_i = 4 \pi \int_{\nu_i}^{\infty} \! \frac{\tilde a_{i \kappa}}{h \nu} J_{\nu}
-             \, \mathrm{d}\nu \\
-            \tilde a_{i\kappa}(\nu)= a_{i\kappa}(\nu)\left(1-\frac{n_{\kappa} n_i^*}{n_i n_{\kappa}^*}
+            \tilde \\gamma_i = 4 \\pi \\int_{\nu_i}^{\\infty} \\! \frac{\tilde a_{i \\kappa}}{h \nu} J_{\nu}
+             \\, \\mathrm{d}\nu \\
+            \tilde a_{i\\kappa}(\nu)= a_{i\\kappa}(\nu)\\left(1-\frac{n_{\\kappa} n_i^*}{n_i n_{\\kappa}^*}
             e^{-h\nu/kT} \right)
 
         """
@@ -170,10 +170,8 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         no_of_bad_elements = (estimator_statistics < count_threshold).sum()
         if no_of_bad_elements != 0:
             logger.warning(
-                "{} MC estimators have been updated less than {} times, with a minimum of"
-                " {} updates".format(
-                    no_of_bad_elements, count_threshold, min_count
-                )
+                f"{no_of_bad_elements} MC estimators have been updated less than {count_threshold} times, with a minimum of"
+                f" {min_count} updates"
             )
         return no_of_bad_elements
 

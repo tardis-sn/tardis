@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-import numpy as np
 import pandas as pd
-from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData

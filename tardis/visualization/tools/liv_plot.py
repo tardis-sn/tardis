@@ -50,7 +50,9 @@ class LIVPlotter:
         # the Liv plotter only supports real packets at the moment
         packet_data = pu.extract_and_process_packet_data(sim, "real")
         plotter.packets_df = packet_data["packets_df"]
-        plotter.packets_df_line_interaction = packet_data["packets_df_line_interaction"]
+        plotter.packets_df_line_interaction = packet_data[
+            "packets_df_line_interaction"
+        ]
 
         return plotter
 
@@ -81,7 +83,9 @@ class LIVPlotter:
             ]
             packet_data = pu.extract_and_process_packet_data_hdf(hdf, "real")
             plotter.packets_df = packet_data["packets_df"]
-            plotter.packets_df_line_interaction = packet_data["packets_df_line_interaction"]
+            plotter.packets_df_line_interaction = packet_data[
+                "packets_df_line_interaction"
+            ]
 
         return plotter
 
@@ -102,13 +106,15 @@ class LIVPlotter:
         plotter.velocity = workflow.simulation_state.velocity
         # Handle time_explosion from workflow properly - it may be a Quantity already
         time_explosion = workflow.transport_state.time_explosion
-        if hasattr(time_explosion, 'unit'):
+        if hasattr(time_explosion, "unit"):
             plotter.time_explosion = time_explosion
         else:
             plotter.time_explosion = time_explosion * u.s
         packet_data = pu.extract_and_process_packet_data(workflow, "real")
         plotter.packets_df = packet_data["packets_df"]
-        plotter.packets_df_line_interaction = packet_data["packets_df_line_interaction"]
+        plotter.packets_df_line_interaction = packet_data[
+            "packets_df_line_interaction"
+        ]
 
         return plotter
 
@@ -214,11 +220,9 @@ class LIVPlotter:
         """
         Generate plot data and colors for species in the model.
         """
-        groups = (
-            self.packets_df_line_interaction
-            .loc[self.packet_nu_line_range_mask]
-            .groupby(by="last_line_interaction_species")
-        )
+        groups = self.packets_df_line_interaction.loc[
+            self.packet_nu_line_range_mask
+        ].groupby(by="last_line_interaction_species")
 
         self.plot_colors = []
         self.plot_data = []
@@ -299,9 +303,14 @@ class LIVPlotter:
             found in the model.
         """
         # Extract all unique elements from the packets data
-        if self.packets_df_line_interaction is not None and not self.packets_df_line_interaction.empty:
+        if (
+            self.packets_df_line_interaction is not None
+            and not self.packets_df_line_interaction.empty
+        ):
             species_in_model = np.unique(
-                self.packets_df_line_interaction["last_line_interaction_species"].to_numpy()
+                self.packets_df_line_interaction[
+                    "last_line_interaction_species"
+                ].to_numpy()
             )
         else:
             species_in_model = []
@@ -320,15 +329,14 @@ class LIVPlotter:
                     "No line interactions found in the packet data. "
                     "The LIV plot requires packets that underwent line interactions."
                 )
-            else:
-                raise ValueError("No species provided for plotting.")
+            raise ValueError("No species provided for plotting.")
         self.species = list(set(self._species_list) & set(species_in_model))
 
         if len(self.species) == 0:
             raise ValueError(
                 f"No valid species found for plotting. "
                 f"Requested species: {species_list}, "
-                f"Available species in model: {[f'{atomic_number2element_symbol(s[0])} {int_to_roman(s[1]+1)}' for s in species_in_model]}"
+                f"Available species in model: {[f'{atomic_number2element_symbol(s[0])} {int_to_roman(s[1] + 1)}' for s in species_in_model]}"
             )
 
         self._make_colorbar_labels()

@@ -35,8 +35,15 @@ class SpectrumSolver(HDFWriterMixin):
         self._spectrum_integrated = None
 
     def setup_optional_spectra(
-        self, transport_state, virtual_packet_luminosity=None, integrator=None,
-        simulation_state=None, transport=None, plasma=None, opacity_state=None, macro_atom_state=None
+        self,
+        transport_state,
+        virtual_packet_luminosity=None,
+        integrator=None,
+        simulation_state=None,
+        transport=None,
+        plasma=None,
+        opacity_state=None,
+        macro_atom_state=None,
     ):
         """Set up the solver to handle real and virtual spectra
 

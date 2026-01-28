@@ -115,4 +115,6 @@ class TestBlackBodySimpleSourceRel:
         ]
         assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
         assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
-        assert_allclose(expected_bb.time_explosion, actual_bb.time_explosion.value)
+        assert_allclose(
+            expected_bb.time_explosion, actual_bb.time_explosion.value
+        )

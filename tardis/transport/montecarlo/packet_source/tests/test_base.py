@@ -41,7 +41,7 @@ class TestBasePacketSource:
         """Test reseeding functionality."""
         base_packet_source._reseed(42)
         # Check that rng is created and is different from initial state
-        assert hasattr(base_packet_source, 'rng')
+        assert hasattr(base_packet_source, "rng")
         assert base_packet_source.rng is not None
 
     def test_create_packets(self, base_packet_source):
@@ -79,7 +79,9 @@ class TestBasePacketSource:
         # Check that luminosity scales with temperature^4 and radius^2
         base_packet_source.temperature *= 2
         luminosity_2x_temp = base_packet_source.calculate_radfield_luminosity()
-        assert (luminosity_2x_temp / luminosity).value == pytest.approx(16, rel=1e-10)
+        assert (luminosity_2x_temp / luminosity).value == pytest.approx(
+            16, rel=1e-10
+        )
 
     def test_abstract_methods_must_be_implemented(self):
         """Test that abstract methods must be implemented in subclasses."""

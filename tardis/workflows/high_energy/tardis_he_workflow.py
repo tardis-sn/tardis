@@ -23,9 +23,10 @@ logging.basicConfig(level=logging.INFO)
 
 class TARDISHEWorkflow:
     def __init__(self, atom_data, configuration, config_type="yaml"):
-
         if config_type == "csvy":
-            self.simulation_state = SimulationState.from_csvy(configuration, atom_data)
+            self.simulation_state = SimulationState.from_csvy(
+                configuration, atom_data
+            )
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration, atom_data
@@ -33,7 +34,9 @@ class TARDISHEWorkflow:
 
         self.gamma_ray_lines = atom_data.decay_radiation_data
 
-        self.shell_masses = self.simulation_state.volume * self.simulation_state.density
+        self.shell_masses = (
+            self.simulation_state.volume * self.simulation_state.density
+        )
 
         self.isotopic_mass_fraction = (
             self.simulation_state.composition.isotopic_mass_fraction
@@ -57,10 +60,14 @@ class TARDISHEWorkflow:
             A dataframe containing the total number of decays for each isotope
             in the simulation state between t_start and t_end for each shell.
         """
-        isotopes = create_isotope_dicts(self.isotopic_mass_fraction, self.shell_masses)
+        isotopes = create_isotope_dicts(
+            self.isotopic_mass_fraction, self.shell_masses
+        )
         inventories = create_inventories_dict(isotopes)
 
-        total_decays = calculate_total_decays(inventories, time_end - time_start)
+        total_decays = calculate_total_decays(
+            inventories, time_end - time_start
+        )
 
         return total_decays
 
@@ -101,7 +108,10 @@ class TARDISHEWorkflow:
             each shell for all time steps between t_start and t_end.
         """
         return time_evolve_cumulative_decay(
-            self.isotopic_mass_fraction, self.shell_masses, self.gamma_ray_lines, times
+            self.isotopic_mass_fraction,
+            self.shell_masses,
+            self.gamma_ray_lines,
+            times,
         )
 
     def get_times(self, time_start, time_end, time_space, time_steps):
@@ -124,7 +134,9 @@ class TARDISHEWorkflow:
         times : array
             An array of times in days.
         """
-        return get_effective_time_array(time_start, time_end, time_space, time_steps)
+        return get_effective_time_array(
+            time_start, time_end, time_space, time_steps
+        )
 
     def run(
         self,
@@ -208,7 +220,6 @@ class TARDISHEWorkflow:
 
 @dataclass
 class TARDISHEWorkflowResult(HDFWriterMixin):
-
     hdf_properties = [
         "decay_radiation",
         "escape_energy",

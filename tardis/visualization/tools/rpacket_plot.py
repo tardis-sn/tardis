@@ -1,12 +1,9 @@
 import logging
-from typing import Dict, List, Optional, Tuple
 
 import astropy.units as u
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 
 class RPacketPlotter:
@@ -97,7 +94,6 @@ class RPacketPlotter:
                 "color_dark": "#6A4C93",
                 "opacity": 0.8,
             },
-
         }
         self.theme_colors = dict(
             light=dict(
@@ -358,7 +354,9 @@ class RPacketPlotter:
                 ),
                 name="e-scattering",
                 hoverlabel=dict(font=dict(color="#222")),
-                marker=dict(color=self.interaction_from_num["ESCATTERING"]["color"]),
+                marker=dict(
+                    color=self.interaction_from_num["ESCATTERING"]["color"]
+                ),
             )
         )
         self.fig.add_trace(
@@ -454,7 +452,7 @@ class RPacketPlotter:
         time: float,
         last_interaction_type: pd.Series,
         theta_initial: float = 0,
-    ) -> Tuple[np.ndarray, np.ndarray, List[int]]:
+    ) -> tuple[np.ndarray, np.ndarray, list[int]]:
         """
         Generate 2D coordinates for a single packet trajectory.
 
@@ -492,7 +490,7 @@ class RPacketPlotter:
 
         # getting thetas at different steps of the packet movement
 
-        for step_no in range(0, len(r_track)):
+        for step_no in range(len(r_track)):
             # for the first step the packet is at photosphere, so theta will be equal to the intial angle we are launching the packet from
             if step_no == 0:
                 theta.append(theta_initial)
@@ -513,7 +511,6 @@ class RPacketPlotter:
                     new_theta += np.asin(-1 * sin_term)
                 theta.append(new_theta)
 
-
         # converting the thetas into x and y coordinates using radius as radius*cos(theta) and radius*sin(theta) respectively
         rpacket_x = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
         rpacket_y = (np.array(r_track)) * np.sin(np.array(theta)) * 1e-5 / time
@@ -533,7 +530,7 @@ class RPacketPlotter:
 
     def get_coordinates_multiple_packets(
         self, r_packet_tracker: pd.DataFrame
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Generate coordinates for multiple packet trajectories.
 
@@ -561,7 +558,7 @@ class RPacketPlotter:
         """
         # Remove rows with any NaN values
         r_packet_tracker = r_packet_tracker.dropna()
-        
+
         # for plotting packets at equal intervals throught the circle, we choose thetas distributed uniformly
         thetas = np.linspace(0, 2 * np.pi, self.no_of_packets + 1)
         all_rpackets_x_coords = []
@@ -573,7 +570,7 @@ class RPacketPlotter:
             packet_data = r_packet_tracker.loc[packet_no]
             interaction_types = packet_data["interaction_type"]
             mu_data = packet_data["after_mu"]
-            
+
             (
                 rpacket_x,
                 rpacket_y,
@@ -599,7 +596,7 @@ class RPacketPlotter:
         rpacket_x: np.ndarray,
         rpacket_y: np.ndarray,
         interactions: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
         """
         Normalize coordinate arrays to equal size for animation frames.
 
@@ -638,7 +635,9 @@ class RPacketPlotter:
             if padding_size > 0:
                 x_padding = np.ones(padding_size) * rpacket_x[packet_no][-1]
                 y_padding = np.ones(padding_size) * rpacket_y[packet_no][-1]
-                interactions_padding = np.full(padding_size, interactions[packet_no][-1])
+                interactions_padding = np.full(
+                    padding_size, interactions[packet_no][-1]
+                )
 
                 rpacket_x[packet_no] = np.append(
                     rpacket_x[packet_no], x_padding
@@ -663,7 +662,7 @@ class RPacketPlotter:
         rpacket_y: np.ndarray,
         interactions: np.ndarray,
         theme: str,
-    ) -> List[go.Scatter]:
+    ) -> list[go.Scatter]:
         """
         Create individual animation frames with scatter plot objects.
 
@@ -695,7 +694,12 @@ class RPacketPlotter:
         """
         return [
             self.create_packet_scatter(
-                packet_no, rpacket_x, rpacket_y, interactions, theme, frame=frame
+                packet_no,
+                rpacket_x,
+                rpacket_y,
+                interactions,
+                theme,
+                frame=frame,
             )
             for packet_no in range(len(rpacket_x))
         ]
@@ -707,7 +711,7 @@ class RPacketPlotter:
         rpacket_y: np.ndarray,
         interactions: np.ndarray,
         theme: str,
-        frame: Optional[int] = None,
+        frame: int | None = None,
     ) -> go.Scatter:
         """
         Create a scatter plot object for a single packet trajectory.
@@ -782,7 +786,7 @@ class RPacketPlotter:
             ),
         )
 
-    def get_slider_steps(self, rpacket_max_array_size: int) -> List[Dict]:
+    def get_slider_steps(self, rpacket_max_array_size: int) -> list[dict]:
         """
         Generate timeline slider steps for animated plot frames.
 

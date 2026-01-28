@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import numpy as np
 import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
@@ -15,10 +14,12 @@ from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     time_evolve_cumulative_decay,
 )
-from tardis.transport.montecarlo.packet_source.high_energy import GammaRayPacketSource
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
+from tardis.transport.montecarlo.packet_source.high_energy import (
+    GammaRayPacketSource,
+)
 
 
 @pytest.fixture(scope="module")
@@ -76,7 +77,9 @@ def effective_time_array():
 
 
 @pytest.fixture(scope="module")
-def cumulative_decays_df(simulation_state, atomic_dataset, effective_time_array):
+def cumulative_decays_df(
+    simulation_state, atomic_dataset, effective_time_array
+):
     """
     Create cumulative decays dataframe that evolves over time,
     similar to workflow's time_evolve_cumulative_decay_expanded.
@@ -96,7 +99,10 @@ def cumulative_decays_df(simulation_state, atomic_dataset, effective_time_array)
 
 @pytest.fixture(scope="module")
 def packet_source_params(
-    simulation_state, isotope_decay_df, effective_time_array, cumulative_decays_df
+    simulation_state,
+    isotope_decay_df,
+    effective_time_array,
+    cumulative_decays_df,
 ):
     """Calculate parameters for packet source from simulation state."""
     inner_velocities = simulation_state.v_inner.to("cm/s").value

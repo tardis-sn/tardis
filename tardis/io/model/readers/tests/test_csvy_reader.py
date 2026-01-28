@@ -47,5 +47,8 @@ def test_missing_required_property(csvy_missing_fname):
     with pytest.raises(Exception):
         vy = validate_dict(
             yaml_dict,
-            schemapath=Path(tardis.__path__[0]) / "io" / "schemas" / "csvy_model.yml",
+            schemapath=Path(tardis.__path__[0])
+            / "io"
+            / "schemas"
+            / "csvy_model.yml",
         )

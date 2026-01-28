@@ -2,11 +2,10 @@ import numpy as np
 import numpy.testing as ntest
 import pytest
 
+import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.base import C_INV
-import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
-
 
 TESTDATA = [
     {
@@ -41,7 +40,9 @@ def calculate_intersection_point(r, p):
 
 
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
-def test_calculate_intersection_point(formal_integral_geometry, time_explosion, p):
+def test_calculate_intersection_point(
+    formal_integral_geometry, time_explosion, p
+):
     inv_t = 1.0 / time_explosion
     size = len(formal_integral_geometry.r_outer)
     r_outer = formal_integral_geometry.r_outer
@@ -75,7 +76,9 @@ def test_populate_z_photosphere(formal_integral_geometry, time_explosion, p):
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
 
-    ntest.assert_allclose(oz, 1 - calculate_intersection_point(r_outer, p), atol=1e-5)
+    ntest.assert_allclose(
+        oz, 1 - calculate_intersection_point(r_outer, p), atol=1e-5
+    )
 
 
 @pytest.mark.parametrize("p", [1e-5, 0.5, 0.99, 1])

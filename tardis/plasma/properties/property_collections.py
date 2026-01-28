@@ -1,5 +1,5 @@
-from tardis.plasma.properties import *
 from tardis.opacities.continuum.bound_free import BoundFreeOpacity
+from tardis.plasma.properties import *
 
 
 class PlasmaPropertyCollection(list):

@@ -1,6 +1,7 @@
 import numpy as np
 from astropy import constants as const
 from astropy import units as u
+
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 

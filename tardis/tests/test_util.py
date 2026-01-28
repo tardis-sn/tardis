@@ -28,10 +28,10 @@ from tardis.util.base import (
 def artis_data_dir():
     return Path("tardis/io/model/artis/tests/data")
 
+
 @pytest.fixture
 def artis_abundances_fname(artis_data_dir):
     return artis_data_dir / "artis_abundances.dat"
-
 
 
 @pytest.fixture(scope="session")

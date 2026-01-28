@@ -1,8 +1,8 @@
 import astropy.constants as const
-from scipy.interpolate import interp1d
 import astropy.units as u
 import numpy as np
 from numba import njit
+from scipy.interpolate import interp1d
 
 from tardis.transport.montecarlo import njit_dict_no_parallel
 

@@ -3,7 +3,6 @@ import pandas as pd
 import pytest
 
 from tardis.util.base import species_string_to_tuple
-
 from tardis.visualization.widgets.line_info import LineInfoWidget
 
 
@@ -153,7 +152,9 @@ class TestLineInfoWidgetEvents:
             None,  # No selection of wavelength range
         ],
     )
-    def liw_with_selection(self, simulation_simple_tracked, request, monkeysession):
+    def liw_with_selection(
+        self, simulation_simple_tracked, request, monkeysession
+    ):
         """
         Makes different wavelength range selection on figure (specified by
         params) after creating a LineInfoWidget object.

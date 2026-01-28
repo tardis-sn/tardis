@@ -4,8 +4,8 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_array_almost_equal
 
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis import __version__
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 
 # Test Cases
 
@@ -167,7 +167,7 @@ def test_tardis_version_metadata(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(1.5)
     actual.to_hdf(fname, path="test", overwrite=True)
-    
+
     metadata = pd.read_hdf(fname, key="/test/mock_hdf/metadata")
     assert "tardis_version" in metadata
     assert metadata["tardis_version"] == __version__

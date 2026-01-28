@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import astropy.tests.helper as test_helper
 import numpy as np
 import pandas as pd
@@ -70,7 +68,6 @@ def test_luminosity_density_lambda(spectrum):
 
 def test_flux_nu(spectrum):
     if getattr(spectrum, "distance", None) is not None:
-
         with pytest.warns(DeprecationWarning):
             test_helper.assert_quantity_allclose(
                 spectrum.flux_nu,
@@ -87,7 +84,6 @@ def test_flux_nu(spectrum):
 
 def test_flux_lambda(spectrum):
     if getattr(spectrum, "distance", None) is not None:
-
         with pytest.warns(DeprecationWarning):
             test_helper.assert_quantity_allclose(
                 spectrum.flux_lambda,

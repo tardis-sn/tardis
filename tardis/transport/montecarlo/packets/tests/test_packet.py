@@ -7,7 +7,6 @@ import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 import tardis.transport.montecarlo.estimators.radfield_mc_estimators
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
@@ -15,6 +14,7 @@ from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_line_estimators,
 )
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value

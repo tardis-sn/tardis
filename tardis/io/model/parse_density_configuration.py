@@ -1,5 +1,4 @@
 import logging
-from typing import Tuple
 
 import numpy as np
 from astropy import units as u
@@ -17,7 +16,7 @@ def parse_density_section_config(
     density_configuration: ConfigurationNameSpace,
     v_middle: u.Quantity,
     time_explosion: u.Quantity,
-) -> Tuple[u.Quantity, u.Quantity]:
+) -> tuple[u.Quantity, u.Quantity]:
     """
     Parse the density section of the configuration file and produce a density at
     time_explosion.

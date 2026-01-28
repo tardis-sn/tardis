@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import re
+
 import panel as pn
 
 logger = logging.getLogger(__name__)
@@ -32,8 +33,10 @@ class PanelTableWidget:
     def _create_table(self):
         """Create the Panel table widget."""
         # Configure table parameters
-        pagination = 'remote' if self.table_options.get('maxVisibleRows') else None
-        page_size = self.table_options.get('maxVisibleRows', len(self._df))
+        pagination = (
+            "remote" if self.table_options.get("maxVisibleRows") else None
+        )
+        page_size = self.table_options.get("maxVisibleRows", len(self._df))
 
         # Create the table
         self.table = pn.widgets.Tabulator(
@@ -42,17 +45,17 @@ class PanelTableWidget:
             page_size=page_size,
             selectable=True,  # Single row selection (radio button style)
             show_index=True,
-            sizing_mode='stretch_width',
+            sizing_mode="stretch_width",
             height=min(400, max(200, len(self._df) * 30 + 50)),
             disabled=True,  # Make cells non-editable
             configuration={
-                'selectable': 'highlight',  # Make entire row selectable/highlightable
-                'selectableRangeMode': 'click',  # Allow clicking anywhere on row to select
-            }
+                "selectable": "highlight",  # Make entire row selectable/highlightable
+                "selectableRangeMode": "click",  # Allow clicking anywhere on row to select
+            },
         )
 
         # Set up selection callback
-        self.table.param.watch(self._on_selection_change, 'selection')
+        self.table.param.watch(self._on_selection_change, "selection")
 
     def _on_selection_change(self, event):
         """Handle selection changes in the table."""
@@ -71,9 +74,11 @@ class PanelTableWidget:
         for callback in self._selection_callbacks:
             # Create event dict similar to qgrid format
             event_dict = {
-                'new': selected_indices,
-                'old': [int(i) for i in getattr(event, 'old', [])] if hasattr(event, 'old') and event.old else [],
-                'source': 'user'
+                "new": selected_indices,
+                "old": [int(i) for i in getattr(event, "old", [])]
+                if hasattr(event, "old") and event.old
+                else [],
+                "source": "user",
             }
             callback(event_dict, self)
 
@@ -99,11 +104,17 @@ class PanelTableWidget:
             self._selected_rows = []
         else:
             # For single selection, only take the first index value
-            idx_val = index_values[0] if isinstance(index_values, list) else index_values
+            idx_val = (
+                index_values[0]
+                if isinstance(index_values, list)
+                else index_values
+            )
             try:
                 row_pos = self._df.index.get_loc(idx_val)
                 row_position = int(row_pos)  # Convert to Python int
-                self.table.selection = [row_position]  # Panel expects a list even for single selection
+                self.table.selection = [
+                    row_position
+                ]  # Panel expects a list even for single selection
                 self._selected_rows = [row_position]
             except (KeyError, TypeError) as e:
                 print(f"Error selecting index {idx_val}: {e}")
@@ -112,7 +123,7 @@ class PanelTableWidget:
 
     def on(self, event_type, callback):
         """Register an event callback."""
-        if event_type == 'selection_changed':
+        if event_type == "selection_changed":
             self._selection_callbacks.append(callback)
 
     @property
@@ -204,7 +215,11 @@ class TableSummaryLabel:
             Value to be shown in label
         """
         # Update the value component with new value
-        self.widget[1].object = f"<div style='padding:0px 2px; margin:0px;'>{str(value)}</div>"
+        self.widget[
+            1
+        ].object = (
+            f"<div style='padding:0px 2px; margin:0px;'>{str(value)}</div>"
+        )
 
         # For Panel components, sizing is handled automatically with sizing_mode='stretch_width'
         # No manual width calculation needed as Panel handles responsive sizing
@@ -220,7 +235,7 @@ class TableSummaryLabel:
         """
         # Extract value from HTML content
         html_content = self.widget[1].object
-        match = re.search(r'<div[^>]*>([^<]*)</div>', html_content)
+        match = re.search(r"<div[^>]*>([^<]*)</div>", html_content)
         if match:
             return match.group(1)
         return "0"
@@ -244,18 +259,16 @@ class TableSummaryLabel:
         # Create Panel HTML components with styling
         key_component = pn.pane.HTML(
             f"<div style='text-align:right; padding:0px 2px; margin:0px;'> <b>{key}:</b> </div>",
-            sizing_mode='stretch_width'
+            sizing_mode="stretch_width",
         )
 
         value_component = pn.pane.HTML(
             f"<div style='padding:0px 2px; margin:0px;'>{str(value)}</div>",
-            sizing_mode='stretch_width'
+            sizing_mode="stretch_width",
         )
 
         return pn.Row(
-            key_component,
-            value_component,
-            sizing_mode='stretch_width'
+            key_component, value_component, sizing_mode="stretch_width"
         )
 
 

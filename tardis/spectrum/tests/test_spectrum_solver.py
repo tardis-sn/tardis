@@ -1,15 +1,11 @@
-from pathlib import Path
-
 import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
 from astropy.tests.helper import assert_quantity_allclose
-
-from tardis.io.configuration.config_reader import Configuration
-from tardis.simulation.base import Simulation
-from tardis.spectrum.base import SpectrumSolver
 from tardisbase.testing.regression_data.regression_data import RegressionData
+
+from tardis.spectrum.base import SpectrumSolver
 
 
 class TestSpectrumSolver:
@@ -22,7 +18,9 @@ class TestSpectrumSolver:
         request: pytest.FixtureRequest,
     ):
         request.cls.regression_data = RegressionData(request)
-        data = request.cls.regression_data.sync_hdf_store(simulation_verysimple_default)
+        data = request.cls.regression_data.sync_hdf_store(
+            simulation_verysimple_default
+        )
 
         yield simulation_verysimple_default
         data.close()
@@ -32,7 +30,9 @@ class TestSpectrumSolver:
 
     def test_initialization(self, simulation_regression_data):
         transport_state = simulation_regression_data.transport.transport_state
-        spectrum_frequency_grid = simulation_regression_data.transport.spectrum_frequency_grid
+        spectrum_frequency_grid = (
+            simulation_regression_data.transport.spectrum_frequency_grid
+        )
 
         solver = SpectrumSolver(transport_state, spectrum_frequency_grid, None)
         assert solver.transport_state == transport_state
@@ -49,7 +49,9 @@ class TestSpectrumSolver:
 
     def test_spectrum_real_packets(self, simulation_regression_data):
         transport_state = simulation_regression_data.transport.transport_state
-        spectrum_frequency_grid = simulation_regression_data.transport.spectrum_frequency_grid
+        spectrum_frequency_grid = (
+            simulation_regression_data.transport.spectrum_frequency_grid
+        )
 
         solver = SpectrumSolver(transport_state, spectrum_frequency_grid, None)
         result = solver.spectrum_real_packets.luminosity
@@ -65,7 +67,9 @@ class TestSpectrumSolver:
 
     def test_spectrum_real_packets_reabsorbed(self, simulation_regression_data):
         transport_state = simulation_regression_data.transport.transport_state
-        spectrum_frequency_grid = simulation_regression_data.transport.spectrum_frequency_grid
+        spectrum_frequency_grid = (
+            simulation_regression_data.transport.spectrum_frequency_grid
+        )
 
         solver = SpectrumSolver(transport_state, spectrum_frequency_grid, None)
         result = solver.spectrum_real_packets_reabsorbed.luminosity
@@ -81,7 +85,9 @@ class TestSpectrumSolver:
 
     def test_solve(self, simulation_regression_data):
         transport_state = simulation_regression_data.transport.transport_state
-        spectrum_frequency_grid = simulation_regression_data.transport.spectrum_frequency_grid
+        spectrum_frequency_grid = (
+            simulation_regression_data.transport.spectrum_frequency_grid
+        )
 
         solver = SpectrumSolver(transport_state, spectrum_frequency_grid, None)
         result_real, result_virtual, result_integrated = solver.solve(

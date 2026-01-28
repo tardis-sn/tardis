@@ -659,6 +659,10 @@ class CollExcCooling(ProcessingPlasmaProperty):
         return coll_exc_cooling.sum(), coll_deexc_heating.sum()
 
 
+from scipy.special import exp1
+
+from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
+from tardis.iip_plasma.continuum.util import get_ion_multi_index
 from tardis.iip_plasma.properties.general import BetaRadiation, GElectron
 from tardis.iip_plasma.properties.ion_population import PhiSahaElectrons
 from tardis.iip_plasma.properties.level_population import PhiLucy
@@ -666,10 +670,6 @@ from tardis.iip_plasma.properties.partition_function import (
     LevelBoltzmannFactorLTETe,
     PartitionFunction,
 )
-from scipy.special import exp1
-
-from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
-from tardis.iip_plasma.continuum.util import get_ion_multi_index
 
 
 class ThermalBalanceTest(ProcessingPlasmaProperty):

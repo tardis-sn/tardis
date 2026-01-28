@@ -10,13 +10,13 @@ from tardis.iip_plasma.properties.base import (
     ConvergedPlasmaProperty,
     ProcessingPlasmaProperty,
 )
-from tardis.opacities.tau_sobolev import calculate_beta_sobolev
-from tardis.opacities.macro_atom.util import (
-    fast_calculate_transition_probabilities,
-)
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
+from tardis.opacities.macro_atom.util import (
+    fast_calculate_transition_probabilities,
+)
+from tardis.opacities.tau_sobolev import calculate_beta_sobolev
 
 logger = logging.getLogger(__name__)
 

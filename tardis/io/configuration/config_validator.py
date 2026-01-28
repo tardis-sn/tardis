@@ -64,7 +64,9 @@ def extend_with_default(
         """Set default values for properties that don't exist in the instance."""
         # This validator also checks if default values are of the correct type
         # and properly sets default values on schemas that use the oneOf keyword
-        if not list(validate_properties(validator, properties, instance, schema)):
+        if not list(
+            validate_properties(validator, properties, instance, schema)
+        ):
             for property_name, subschema in properties.items():
                 if "default" in subschema:
                     instance.setdefault(property_name, subschema["default"])
@@ -107,8 +109,12 @@ def _create_schema_registry() -> Registry:
             schema_content = yaml.load(f, Loader=YAMLLoader)
 
         # Create a resource with the filename as the URI, explicitly specifying Draft 7
-        resource = Resource.from_contents(schema_content, default_specification=DRAFT7)
-        registry = registry.with_resource(uri=schema_file.name, resource=resource)
+        resource = Resource.from_contents(
+            schema_content, default_specification=DRAFT7
+        )
+        registry = registry.with_resource(
+            uri=schema_file.name, resource=resource
+        )
 
     return registry
 
@@ -183,8 +189,12 @@ def validate_dict(
     registry = _create_schema_registry()
 
     validated_dict = deepcopy(config_dict)
-    custom_type_checker = validator.TYPE_CHECKER.redefine("quantity", is_quantity)
-    custom_validator = validators.extend(validator, type_checker=custom_type_checker)
+    custom_type_checker = validator.TYPE_CHECKER.redefine(
+        "quantity", is_quantity
+    )
+    custom_validator = validators.extend(
+        validator, type_checker=custom_type_checker
+    )
 
     # Create validator with registry for reference resolution
     validator_instance = custom_validator(schema=schema, registry=registry)

@@ -33,9 +33,9 @@ def load_csvy(fname):
         yaml_end_ind = -1
         for i, line in enumerate(fh):
             if i == 0:
-                assert (
-                    line.strip() == YAML_DELIMITER
-                ), "First line of csvy file is not '---'"
+                assert line.strip() == YAML_DELIMITER, (
+                    "First line of csvy file is not '---'"
+                )
             yaml_lines.append(line)
             if i > 0 and line.strip() == YAML_DELIMITER:
                 yaml_end_ind = i
@@ -69,9 +69,9 @@ def load_yaml_from_csvy(fname):
         yaml_end_ind = -1
         for i, line in enumerate(fh):
             if i == 0:
-                assert (
-                    line.strip() == YAML_DELIMITER
-                ), "First line of csvy file is not '---'"
+                assert line.strip() == YAML_DELIMITER, (
+                    "First line of csvy file is not '---'"
+                )
             yaml_lines.append(line)
             if i > 0 and line.strip() == YAML_DELIMITER:
                 yaml_end_ind = i
