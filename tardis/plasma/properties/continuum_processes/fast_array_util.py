@@ -54,7 +54,7 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
     """
     n_blocks = len(block_references) - 1
     integrated = np.zeros_like(f)
-    for i in prange(f.shape[1]): #columns
+    for i in prange(f.shape[1]):  # columns
 	tmp=numba_cumulative_trapezoid(f[:,i],x)
 	#pad so length matches f
 	full_integ=np.zeros(f.shape[0])
