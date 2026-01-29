@@ -27,28 +27,15 @@ jobs:
 
   check-first-time-committer:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     steps:
-      - name: Check if first-time contributor
-        id: check_contributor
-        run: |
-          AUTHOR_ASSOCIATION=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} --jq '.author_association')
-          echo "Author association: $AUTHOR_ASSOCIATION"
-          if [[ "$AUTHOR_ASSOCIATION" == "FIRST_TIME_CONTRIBUTOR" || "$AUTHOR_ASSOCIATION" == "FIRST_TIMER" ]]; then
-            echo "is_first_time=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_first_time=false" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
-
-      - name: Add welcome comment
-        if: steps.check_contributor.outputs.is_first_time == 'true'
-        uses: peter-evans/create-or-update-comment@v4
+      - name: Welcome first-time contributor
+        uses: actions/first-interaction@v1
         with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
+          repo-token: ${{ secrets.BOT_TOKEN }}
+          pr-message: |
             👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
             Before asking for reviews, please make sure all checks have passed.
 
