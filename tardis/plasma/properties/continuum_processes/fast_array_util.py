@@ -60,7 +60,7 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
 	full_integ=np.zeros(f.shape[0])
 	full_integ[1:]=tmp  # leave index 0 as zero so the cumulative integral starts from 0
         # TODO: Avoid this loop through vectorization of cumulative_trapezoid
-        for j in prange(n_rows):  # rows
+        for j in prange(n_blocks):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
             block=full_integ[start:stop]
