@@ -68,5 +68,5 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
 	    norm=block[-1]
 	    if norm > 0:
                block=block/norm
-	    integrated[start:stop,i]=block
+	    integrated[start:stop, i]=block
     return integrated
