@@ -52,14 +52,21 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
         Array with cumulatively integrated values. Shape is (N_freq, N_shells)
         same as f.
     """
-    n_rows = len(block_references) - 1
+    n_blocks = len(block_references) - 1
     integrated = np.zeros_like(f)
-    for i in prange(f.shape[1]):  # columns
+    for i in prange(f.shape[1]): #columns
+	tmp=numba_cumulative_trapezoid(f[:,i],x)
+	#pad so length matches f
+	full_integ=np.zeros(f.shape[0])
+	full_integ[1:]=tmp  #
         # TODO: Avoid this loop through vectorization of cumulative_trapezoid
         for j in prange(n_rows):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
-            integrated[start + 1 : stop, i] = numba_cumulative_trapezoid(
-                f[start:stop, i], x[start:stop]
-            )
+            block=full_integ[start:stop]
+	    block=block-block[0]
+	    norm=block[-1]
+	    if norm>0:
+               block=block/norm
+	    integrated[start:stop,i]=block
     return integrated
