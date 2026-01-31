@@ -35,7 +35,7 @@ from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
-BASE_DIR = tardis.__path__[0]
+BASE_DIR = resources.files("tardis")
 YAML_DELIMITER = "---"
 
 

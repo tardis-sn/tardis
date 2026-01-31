@@ -3,6 +3,7 @@ import logging
 import re
 import warnings
 from collections import OrderedDict
+from importlib import resources
 from pathlib import Path
 
 import numexpr as ne
@@ -25,7 +26,7 @@ m_e_cgs = constants.m_e.cgs.value
 e_charge_gauss = constants.e.gauss.value
 
 logger = logging.getLogger(__name__)
-tardis_dir = Path(tardis.__path__[0]).resolve()
+tardis_dir = Path(resources.files("tardis"))
 
 ATOMIC_SYMBOLS_DATA = (
     pd.read_csv(
