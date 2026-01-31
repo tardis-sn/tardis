@@ -1,7 +1,7 @@
 """Class to create and display Custom Abundance Widget."""
 
 from pathlib import Path
-
+from importlib import resources
 import ipywidgets as ipw
 import numpy as np
 import pandas as pd

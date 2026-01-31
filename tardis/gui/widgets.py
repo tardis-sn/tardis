@@ -1265,7 +1265,7 @@ class Tardis(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
 
         # path to icons folder
-        self.path = Path(resources.files("tardis") / "gui" / "images"
+        self.path = Path(resources.files("tardis")) / "gui" / "images"
 
         # Check if configuration file was provided
         self.mode = "passive"
