@@ -63,7 +63,7 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
         for j in prange(n_blocks):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
-            block = full_integ[start:stio]
+            block = full_integ[start:stop]
             block = block-block[0]
             norm = block[-1]
             if norm > 0:
