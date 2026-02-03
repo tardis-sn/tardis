@@ -367,15 +367,16 @@ def trace_vpacket_volley(
 
         v_packet.energy *= math.exp(-tau_vpacket)
 
+        # these are all placeholders and not actual values
         vpacket_collection.add_packet(
             v_packet.nu,
             v_packet.energy,
             v_packet_mu,
             r_packet.r,
-            r_packet.last_interaction_in_nu,
-            r_packet.last_interaction_in_r,
-            r_packet.last_interaction_type,
-            r_packet.last_line_interaction_in_id,
-            r_packet.last_line_interaction_out_id,
-            r_packet.last_line_interaction_shell_id,
+            -99,
+            -99,
+            -99,
+            -99,
+            -99,
+            -99,
         )

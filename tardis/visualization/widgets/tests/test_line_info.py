@@ -4,16 +4,12 @@ import pytest
 
 from tardis.util.base import species_string_to_tuple
 
-# check if qgrid is installed for the widgets
-qgridnext = pytest.importorskip(
-    "qgridnext", reason="qgridnext is not installed"
-)
 from tardis.visualization.widgets.line_info import LineInfoWidget
 
 
 @pytest.fixture(scope="class")
-def line_info_widget(simulation_verysimple):
-    line_info_widget = LineInfoWidget.from_simulation(simulation_verysimple)
+def line_info_widget(simulation_simple_tracked):
+    line_info_widget = LineInfoWidget.from_simulation(simulation_simple_tracked)
     return line_info_widget
 
 
@@ -157,12 +153,12 @@ class TestLineInfoWidgetEvents:
             None,  # No selection of wavelength range
         ],
     )
-    def liw_with_selection(self, simulation_verysimple, request, monkeysession):
+    def liw_with_selection(self, simulation_simple_tracked, request, monkeysession):
         """
         Makes different wavelength range selection on figure (specified by
         params) after creating a LineInfoWidget object.
         """
-        liw = LineInfoWidget.from_simulation(simulation_verysimple)
+        liw = LineInfoWidget.from_simulation(simulation_simple_tracked)
         monkeysession.setattr(
             "tardis.util.environment.Environment.is_notebook", lambda: True
         )
