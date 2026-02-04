@@ -7,7 +7,6 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   tardis.io.model.arepo.arepo
    tardis.io.model.arepo.data
    tardis.io.model.arepo.readers
    tardis.io.model.arepo.utils

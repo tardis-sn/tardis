@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=8a738f46"></script>
+      <script src="../../../../../_static/documentation_options.js?v=232ba5c5"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -143,6 +143,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+from astropy import units as u
 from scipy import stats
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
@@ -702,7 +703,7 @@ def export_profile_to_csvy(
     rho_prof: np.ndarray,
     mass_prof: np.ndarray,
     xnuc_prof: dict,
-    time: float,
+    time: u.Quantity,
     filename: str | Path,
     nshells: int,
     overwrite: bool = False,
@@ -722,8 +723,8 @@ def export_profile_to_csvy(
         Mass profile (g).
     xnuc_prof : dict
         Nuclear fraction profiles keyed by species name.
-    time : float
-        Time of the snapshot in seconds.
+    time : astropy.units.Quantity
+        Time of the snapshot.
     filename : str or pathlib.Path
         Name of the exported file.
     nshells : int
@@ -762,8 +763,8 @@ def export_profile_to_csvy(
                 [
                     &quot;---\n&quot;,
                     &quot;name: csvy_full\n&quot;,
-                    f&quot;model_density_time_0: {time / (3600 * 24):g} day\n&quot;,
-                    f&quot;model_isotope_time_0: {time / (3600 * 24):g} day\n&quot;,
+                    f&quot;model_density_time_0: {time.to(u.day):g}\n&quot;,
+                    f&quot;model_isotope_time_0: {time.to(u.day):g}\n&quot;,
                     &quot;description: Config file for TARDIS from Arepo snapshot.\n&quot;,
                     &quot;tardis_model_config_version: v1.0\n&quot;,
                     &quot;datatype:\n&quot;,
@@ -825,7 +826,7 @@ def plot_profile(
     rho_prof_n: np.ndarray,
     xnuc_prof_p: dict,
     xnuc_prof_n: dict,
-    time: float,
+    time: u.Quantity,
     save: str | Path | None = None,
     dpi: int = 600,
     **kwargs,
@@ -851,8 +852,8 @@ def plot_profile(
         Nuclear fraction profiles in positive direction.
     xnuc_prof_n : dict
         Nuclear fraction profiles in negative direction.
-    time : float
-        Time of the snapshot in seconds.
+    time : astropy.units.Quantity
+        Time of the snapshot.
     save : str or pathlib.Path, optional
         Path to save the figure. Default: None
     dpi : int, optional
@@ -928,7 +929,7 @@ def plot_profile(
         labels,
         loc=&quot;upper left&quot;,
         bbox_to_anchor=(1.05, 1.05),
-        title=f&quot;Time = {time:.2f} s&quot;,
+        title=f&quot;Time = {time}&quot;,
     )
 
     if save is not None:
@@ -946,7 +947,7 @@ def plot_profile(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Feb 2026.
+      <span class="lastupdated">Last updated on 04 Feb 2026.
       </span></p>
   </div>
 
