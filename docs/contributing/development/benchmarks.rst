@@ -65,6 +65,20 @@ and store the results through the ``asv.conf.json`` file.
     > asv machine --yes
 
 
+Local ASV Benchmarks
+====================
+
+Running ASV benchmarks locally does not require regression data.
+
+Only the standard TARDIS atomic data is required for running benchmarks on
+a local machine. Regression data is used exclusively in continuous
+integration (CI) to compare performance between commits.
+
+If you encounter errors related to missing regression data when running
+ASV locally, this usually indicates a misconfigured environment rather
+than a missing dependency.
+
+
 Execution
 =========
 
