@@ -99,7 +99,7 @@ def get_cone_csvy_model(arepo_snapshot_fname, example_model_file_dir):
         rho_prof_p,
         mass_prof_p,
         xnuc_prof_p,
-        time,
+        arepo_data.time,
         example_model_file_dir / "arepo_parser_test.csvy",
         nshells=20,
     )

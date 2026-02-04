@@ -11,8 +11,8 @@ class ArepoData:
 
     Parameters
     ----------
-    time : astropy.units.Quantity
-        Time of the snapshot.
+    time : astropy.units.Quantity or float
+        Time of the snapshot. If a float is provided, it is assumed to be in seconds.
     pos : numpy.ndarray
         Position array in Cartesian coordinates (3, N) in cm.
     vel : numpy.ndarray
@@ -25,12 +25,16 @@ class ArepoData:
         Dictionary of nuclear mass fractions keyed by species name.
     """
 
-    time: u.Quantity
+    time: u.Quantity | float
     position: np.ndarray
     velocities: np.ndarray
     densities: np.ndarray
     mass: np.ndarray
     isotope_dict: dict = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Ensure time has astropy units."""
+        self.time = u.Quantity(self.time, u.s)
 
     @property
     def volume(self) -> np.ndarray:
