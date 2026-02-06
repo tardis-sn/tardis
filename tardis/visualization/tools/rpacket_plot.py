@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 
+
 class RPacketPlotter:
     """
     Animated plotting interface for Monte Carlo packet trajectories.
@@ -310,11 +311,12 @@ class RPacketPlotter:
                 # photosphere
                 self.fig.add_shape(
                     **shape_props,
+                    layer="below",
                     line_color=self.theme_colors[theme][
                         "photosphere_line_color"
                     ],
                     fillcolor=self.theme_colors[theme]["photosphere_fillcolor"],
-                    opacity=1,
+                    opacity=0.25,
                 )
             elif shell_no == (len(self.sim.simulation_state.radius.value) - 1):
                 # outermost shell
