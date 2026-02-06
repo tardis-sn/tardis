@@ -92,7 +92,9 @@ class ContinuumProcess:
             [dataframe.iloc[:, :no_ref_columns], normalized_dataframe_orig],
             axis=1,
         )
-        normalized_dataframe.reindex_like(normalized_dataframe_orig)
+        normalized_dataframe = normalized_dataframe.reindex_like(
+            normalized_dataframe_orig
+        )
         normalized_dataframe = normalized_dataframe.fillna(0.0)
         return normalized_dataframe
 
