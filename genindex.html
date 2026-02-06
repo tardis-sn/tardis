@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=959eceea"></script>
+      <script src="_static/documentation_options.js?v=f6ea0856"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -227,12 +227,16 @@
 </li>
       <li><a href="api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.angle_aberration_LF_to_CMF">angle_aberration_LF_to_CMF() (in module tardis.transport.frame_transformations)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.apply_to_multiple_shells">apply_to_multiple_shells() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.ArepoSnapshot">ArepoSnapshot (class in tardis.io.model.readers.arepo)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData">ArepoData (class in tardis.io.model.arepo)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData">(class in tardis.io.model.arepo.data)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.base.html#tardis.iip_plasma.properties.base.ArrayInput">ArrayInput (class in tardis.iip_plasma.properties.base)</a>
 
       <ul>
@@ -558,6 +562,8 @@
 </li>
         <li><a href="api/tardis.opacities.continuum.bound_free.html#tardis.opacities.continuum.bound_free.BoundFreeOpacity.calculate">(tardis.opacities.continuum.bound_free.BoundFreeOpacity method)</a>
 </li>
+        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.calculate">(tardis.opacities.macro_atom.base.TransitionProbabilities method)</a>
+</li>
         <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.calculate">(tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs method)</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.MarkovChainIndex.calculate">(tardis.opacities.macro_atom.transition_probabilities.MarkovChainIndex method)</a>
@@ -853,14 +859,14 @@
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.collision_strengths.html#tardis.plasma.equilibrium.rates.collision_strengths.calculate_upsilon_g_2_collisional_rates">calculate_upsilon_g_2_collisional_rates() (in module tardis.plasma.equilibrium.rates.collision_strengths)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.properties.ion_population.html#tardis.iip_plasma.properties.ion_population.IonNumberDensity.calculate_with_n_electron">calculate_with_n_electron() (tardis.iip_plasma.properties.ion_population.IonNumberDensity method)</a>
 
       <ul>
         <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate_with_n_electron">(tardis.plasma.properties.ion_population.IonNumberDensity static method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.calculate_yg_van_regemorter">calculate_yg_van_regemorter() (tardis.plasma.properties.atomic.YgData class method)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.Timer.cancel">cancel() (tardis.visualization.widgets.util.Timer method)</a>
@@ -1019,8 +1025,6 @@
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.compton_theta_distribution">compton_theta_distribution() (in module tardis.energy_input.util)</a>
 </li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.ConeProfile">ConeProfile (class in tardis.io.model.readers.arepo)</a>
-</li>
       <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration">Configuration (class in tardis.io.configuration.config_reader)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.configuration_initialize">configuration_initialize() (in module tardis.transport.montecarlo.configuration.base)</a>
@@ -1097,6 +1101,8 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.convert_species_to_multi_index">convert_species_to_multi_index() (in module tardis.plasma.assembly.base)</a>
 </li>
+      <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.convert_to_nuclide_mass_fractions">convert_to_nuclide_mass_fractions() (in module tardis.io.model.parse_mass_fraction_configuration)</a>
+</li>
       <li><a href="api/tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin.convert_to_snake_case">convert_to_snake_case() (tardis.io.hdf_writer_mixin.HDFWriterMixin static method)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.InverseProcess.cooling">cooling (tardis.iip_plasma.continuum.base.InverseProcess attribute)</a>
@@ -1121,9 +1127,13 @@
 </li>
       <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#tardis.plasma.properties.continuum_processes.rates.CorrPhotoIonRateCoeff">CorrPhotoIonRateCoeff (class in tardis.plasma.properties.continuum_processes.rates)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.utils.html#tardis.io.model.arepo.utils.create_cone_profile">create_cone_profile() (in module tardis.io.model.arepo.utils)</a>
+</li>
       <li><a href="api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.create_energy_cdf">create_energy_cdf() (in module tardis.energy_input.samplers)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomYAML.create_fields_dict">create_fields_dict() (tardis.visualization.widgets.custom_abundance.CustomYAML method)</a>
+</li>
+      <li><a href="api/tardis.io.model.arepo.utils.html#tardis.io.model.arepo.utils.create_full_profile">create_full_profile() (in module tardis.io.model.arepo.utils)</a>
 </li>
       <li><a href="api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.create_inventories_dict">create_inventories_dict() (in module tardis.energy_input.gamma_ray_channel)</a>
 </li>
@@ -1253,12 +1263,6 @@
       </ul></li>
       <li><a href="api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.create_plasma_plot">create_plasma_plot() (tardis.visualization.tools.convergence_plot.ConvergencePlots method)</a>
 </li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.ConeProfile.create_profile">create_profile() (tardis.io.model.readers.arepo.ConeProfile method)</a>
-
-      <ul>
-        <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.FullProfile.create_profile">(tardis.io.model.readers.arepo.FullProfile method)</a>
-</li>
-      </ul></li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver.create_source_and_destination_idx_columns">create_source_and_destination_idx_columns() (tardis.opacities.macro_atom.macroatom_solver.BoundBoundMacroAtomSolver method)</a>
 </li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.create_synpp_yaml">create_synpp_yaml() (in module tardis.util.base)</a>
@@ -1341,6 +1345,12 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.delta_treatment">delta_treatment (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData.densities">densities (tardis.io.model.arepo.ArepoData attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData.densities">(tardis.io.model.arepo.data.ArepoData attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.plasma_input.html#tardis.iip_plasma.properties.plasma_input.Density">Density (class in tardis.iip_plasma.properties.plasma_input)</a>
 </li>
       <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.density">density (tardis.model.base.SimulationState property)</a>
@@ -1355,10 +1365,10 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.determine_bf_macro_activation_idx">determine_bf_macro_activation_idx() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.determine_continuum_macro_activation_idx">determine_continuum_macro_activation_idx() (in module tardis.transport.montecarlo.interaction_event_callers)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.determine_continuum_macro_activation_idx">determine_continuum_macro_activation_idx() (in module tardis.transport.montecarlo.interaction_event_callers)</a>
+</li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.PanelTableWidget.df">df (tardis.visualization.widgets.util.PanelTableWidget property)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.base.html#tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties.dilute_blackbody_radiationfield_state">dilute_blackbody_radiationfield_state (tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties attribute)</a>
@@ -1513,7 +1523,7 @@
       </ul></li>
       <li><a href="api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.expand_species_list">expand_species_list() (in module tardis.visualization.plot_util)</a>
 </li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.Profile.export">export() (tardis.io.model.readers.arepo.Profile method)</a>
+      <li><a href="api/tardis.io.model.arepo.utils.html#tardis.io.model.arepo.utils.export_profile_to_csvy">export_profile_to_csvy() (in module tardis.io.model.arepo.utils)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.trackers.array_utils.html#tardis.transport.montecarlo.packets.trackers.array_utils.extend_array">extend_array() (in module tardis.transport.montecarlo.packets.trackers.array_utils)</a>
 </li>
@@ -1713,8 +1723,6 @@
       </ul></li>
       <li><a href="api/tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin.full_hdf_properties">full_hdf_properties (tardis.io.hdf_writer_mixin.HDFWriterMixin property)</a>
 </li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.FullProfile">FullProfile (class in tardis.io.model.readers.arepo)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -1829,18 +1837,16 @@
         <li><a href="api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_upper">(tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor method)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.ArepoSnapshot.get_grids">get_grids() (tardis.io.model.readers.arepo.ArepoSnapshot method)</a>
-</li>
       <li><a href="api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.get_hex_color_strings">get_hex_color_strings() (in module tardis.visualization.plot_util)</a>
 </li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.get_index">get_index() (in module tardis.energy_input.util)</a>
 </li>
       <li><a href="api/tardis.io.configuration.config_internal.html#tardis.io.configuration.config_internal.get_internal_configuration">get_internal_configuration() (in module tardis.io.configuration.config_internal)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.util.html#tardis.io.util.get_internal_data_path">get_internal_data_path() (in module tardis.io.util)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor">get_inverse_doppler_factor() (in module tardis.transport.frame_transformations)</a>
 </li>
       <li><a href="api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor_full_relativity">get_inverse_doppler_factor_full_relativity() (in module tardis.transport.frame_transformations)</a>
@@ -1859,6 +1865,8 @@
         <li><a href="api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty.get_latex_label">(tardis.plasma.properties.base.BasePlasmaProperty method)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_macro_atom_data">get_macro_atom_data() (in module tardis.opacities.macro_atom.base)</a>
+</li>
       <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor.get_metastable_upper">get_metastable_upper() (tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor method)</a>
 
       <ul>
@@ -1878,8 +1886,6 @@
       <li><a href="api/tardis.iip_plasma.continuum.base_continuum_data.html#tardis.iip_plasma.continuum.base_continuum_data.MCDataMixin.get_phot_table_nu">get_phot_table_nu() (tardis.iip_plasma.continuum.base_continuum_data.MCDataMixin method)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.base_continuum_data.html#tardis.iip_plasma.continuum.base_continuum_data.MCDataMixin.get_phot_table_xsect">get_phot_table_xsect() (tardis.iip_plasma.continuum.base_continuum_data.MCDataMixin method)</a>
-</li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.Profile.get_profiles">get_profiles() (tardis.io.model.readers.arepo.Profile method)</a>
 </li>
       <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigWriterMixin.get_properties">get_properties() (tardis.io.configuration.config_reader.ConfigWriterMixin method)</a>
 
@@ -1916,6 +1922,8 @@
       <li><a href="api/tardis.workflows.util.html#tardis.workflows.util.get_tau_integ">get_tau_integ() (in module tardis.workflows.util)</a>
 </li>
       <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow.get_times">get_times() (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow method)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_transition_probability_coefs">get_transition_probability_coefs() (in module tardis.opacities.macro_atom.base)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.base.html#tardis.iip_plasma.base.BasePlasma.get_value">get_value() (tardis.iip_plasma.base.BasePlasma method)</a>
 
@@ -2113,12 +2121,22 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.initialize_last_interaction_tracker">initialize_last_interaction_tracker() (in module tardis.transport.montecarlo.packets.packet_collections)</a>
 </li>
-      <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.initialize_macro_atom_transition_type_filters">initialize_macro_atom_transition_type_filters() (tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities method)</a>
+      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_macro_atom_transition_type_filters">initialize_macro_atom_transition_type_filters() (in module tardis.opacities.macro_atom.base)</a>
+
+      <ul>
+        <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.initialize_macro_atom_transition_type_filters">(tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities method)</a>
 </li>
+        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.initialize_macro_atom_transition_type_filters">(tardis.opacities.macro_atom.base.TransitionProbabilities method)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.io.model.parse_packet_source_configuration.html#tardis.io.model.parse_packet_source_configuration.initialize_packet_source">initialize_packet_source() (in module tardis.io.model.parse_packet_source_configuration)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.initialize_transition_probabilities">initialize_transition_probabilities() (tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver method)</a>
+      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_transition_probabilities">initialize_transition_probabilities() (in module tardis.opacities.macro_atom.base)</a>
+
+      <ul>
+        <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.initialize_transition_probabilities">(tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver method)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.transport.montecarlo.base.html#tardis.transport.montecarlo.base.MonteCarloTransportSolver.initialize_transport_state">initialize_transport_state() (tardis.transport.montecarlo.base.MonteCarloTransportSolver method)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.base.html#tardis.iip_plasma.properties.base.Input">Input (class in tardis.iip_plasma.properties.base)</a>
@@ -2247,6 +2265,12 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.is_zero_defined">is_zero_defined() (in module tardis.visualization.widgets.grotrian)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData.isotope_dict">isotope_dict (tardis.io.model.arepo.ArepoData attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData.isotope_dict">(tardis.io.model.arepo.data.ArepoData attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.io.model.snec.snec_input.html#tardis.io.model.snec.snec_input.SNECIsotopeProfile.isotope_mass_fraction">isotope_mass_fraction (tardis.io.model.snec.snec_input.SNECIsotopeProfile attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.IsotopeAbundance">IsotopeAbundance (class in tardis.plasma.properties.plasma_input)</a>
@@ -2891,6 +2915,12 @@
 </li>
       <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.MarkovChainTransProbsCollector">MarkovChainTransProbsCollector (class in tardis.opacities.macro_atom.transition_probabilities)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData.mass">mass (tardis.io.model.arepo.ArepoData attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData.mass">(tardis.io.model.arepo.data.ArepoData attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions">mass_fractions (tardis.io.model.artis.data.ArtisData attribute)</a>
 </li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.MockRegexPattern.match">match() (tardis.io.util.MockRegexPattern method)</a>
@@ -3073,6 +3103,14 @@
 </li>
         <li><a href="api/tardis.io.model.html#module-tardis.io.model">tardis.io.model</a>
 </li>
+        <li><a href="api/tardis.io.model.arepo.html#module-tardis.io.model.arepo">tardis.io.model.arepo</a>
+</li>
+        <li><a href="api/tardis.io.model.arepo.data.html#module-tardis.io.model.arepo.data">tardis.io.model.arepo.data</a>
+</li>
+        <li><a href="api/tardis.io.model.arepo.readers.html#module-tardis.io.model.arepo.readers">tardis.io.model.arepo.readers</a>
+</li>
+        <li><a href="api/tardis.io.model.arepo.utils.html#module-tardis.io.model.arepo.utils">tardis.io.model.arepo.utils</a>
+</li>
         <li><a href="api/tardis.io.model.artis.html#module-tardis.io.model.artis">tardis.io.model.artis</a>
 </li>
         <li><a href="api/tardis.io.model.artis.data.html#module-tardis.io.model.artis.data">tardis.io.model.artis.data</a>
@@ -3083,6 +3121,10 @@
 </li>
         <li><a href="api/tardis.io.model.parse_density_configuration.html#module-tardis.io.model.parse_density_configuration">tardis.io.model.parse_density_configuration</a>
 </li>
+        <li><a href="api/tardis.io.model.parse_geometry_configuration.html#module-tardis.io.model.parse_geometry_configuration">tardis.io.model.parse_geometry_configuration</a>
+</li>
+        <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#module-tardis.io.model.parse_mass_fraction_configuration">tardis.io.model.parse_mass_fraction_configuration</a>
+</li>
         <li><a href="api/tardis.io.model.parse_packet_source_configuration.html#module-tardis.io.model.parse_packet_source_configuration">tardis.io.model.parse_packet_source_configuration</a>
 </li>
         <li><a href="api/tardis.io.model.parse_radiation_field_configuration.html#module-tardis.io.model.parse_radiation_field_configuration">tardis.io.model.parse_radiation_field_configuration</a>
@@ -3090,8 +3132,6 @@
         <li><a href="api/tardis.io.model.parse_simulation_state.html#module-tardis.io.model.parse_simulation_state">tardis.io.model.parse_simulation_state</a>
 </li>
         <li><a href="api/tardis.io.model.readers.html#module-tardis.io.model.readers">tardis.io.model.readers</a>
-</li>
-        <li><a href="api/tardis.io.model.readers.arepo.html#module-tardis.io.model.readers.arepo">tardis.io.model.readers.arepo</a>
 </li>
         <li><a href="api/tardis.io.model.readers.base.html#module-tardis.io.model.readers.base">tardis.io.model.readers.base</a>
 </li>
@@ -3142,6 +3182,8 @@
         <li><a href="api/tardis.opacities.continuum.continuum_state.html#module-tardis.opacities.continuum.continuum_state">tardis.opacities.continuum.continuum_state</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.html#module-tardis.opacities.macro_atom">tardis.opacities.macro_atom</a>
+</li>
+        <li><a href="api/tardis.opacities.macro_atom.base.html#module-tardis.opacities.macro_atom.base">tardis.opacities.macro_atom.base</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.continuum_processes.html#module-tardis.opacities.macro_atom.continuum_processes">tardis.opacities.macro_atom.continuum_processes</a>
 </li>
@@ -3536,10 +3578,10 @@
 </li>
       <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.NLTEIonizationSpecies">NLTEIonizationSpecies (class in tardis.plasma.properties.plasma_input)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.properties.ion_population.html#tardis.iip_plasma.properties.ion_population.NLTEIonNumberDensity">NLTEIonNumberDensity (class in tardis.iip_plasma.properties.ion_population)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverLU">NLTEPopulationSolverLU (class in tardis.plasma.properties.nlte_rate_equation_solver)</a>
 </li>
       <li><a href="api/tardis.plasma.properties.nlte_rate_equation_solver.html#tardis.plasma.properties.nlte_rate_equation_solver.NLTEPopulationSolverRoot">NLTEPopulationSolverRoot (class in tardis.plasma.properties.nlte_rate_equation_solver)</a>
@@ -3563,6 +3605,8 @@
       <li><a href="api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells_active">no_of_shells_active (tardis.model.geometry.radial1d.HomologousRadial1DGeometry property)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.NonContinuumTransProbsMask">NonContinuumTransProbsMask (class in tardis.opacities.macro_atom.transition_probabilities)</a>
+</li>
+      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities">NonMarkovChainTransitionProbabilities (class in tardis.opacities.macro_atom.base)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.normalize">normalize (tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver attribute)</a>
 </li>
@@ -3806,6 +3850,10 @@
         <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.outputs">(tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities attribute)</a>
 </li>
         <li><a href="api/tardis.opacities.continuum.bound_free.html#tardis.opacities.continuum.bound_free.BoundFreeOpacity.outputs">(tardis.opacities.continuum.bound_free.BoundFreeOpacity attribute)</a>
+</li>
+        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities.outputs">(tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities attribute)</a>
+</li>
+        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.outputs">(tardis.opacities.macro_atom.base.TransitionProbabilities attribute)</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.outputs">(tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs attribute)</a>
 </li>
@@ -4060,6 +4108,14 @@
 </li>
       <li><a href="api/tardis.scripts.cmfgen2tardis.html#tardis.scripts.cmfgen2tardis.parse_file">parse_file() (in module tardis.scripts.cmfgen2tardis)</a>
 </li>
+      <li><a href="api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_geometry_from_config">parse_geometry_from_config() (in module tardis.io.model.parse_geometry_configuration)</a>
+</li>
+      <li><a href="api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_geometry_from_csvy">parse_geometry_from_csvy() (in module tardis.io.model.parse_geometry_configuration)</a>
+</li>
+      <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_config">parse_mass_fractions_from_config() (in module tardis.io.model.parse_mass_fraction_configuration)</a>
+</li>
+      <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_csvy">parse_mass_fractions_from_csvy() (in module tardis.io.model.parse_mass_fraction_configuration)</a>
+</li>
       <li><a href="api/tardis.io.model.parse_packet_source_configuration.html#tardis.io.model.parse_packet_source_configuration.parse_packet_source_from_config">parse_packet_source_from_config() (in module tardis.io.model.parse_packet_source_configuration)</a>
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.parse_plasma_config">parse_plasma_config() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
@@ -4073,6 +4129,8 @@
       <li><a href="api/tardis.io.model.parse_simulation_state.html#tardis.io.model.parse_simulation_state.parse_simulation_state">parse_simulation_state() (in module tardis.io.model.parse_simulation_state)</a>
 </li>
       <li><a href="api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.parse_species_list_util">parse_species_list_util() (in module tardis.visualization.plot_util)</a>
+</li>
+      <li><a href="api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_structure_from_config">parse_structure_from_config() (in module tardis.io.model.parse_geometry_configuration)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.MoleculeData.partition_functions">partition_functions (tardis.io.atom_data.base.MoleculeData attribute)</a>
 </li>
@@ -4154,14 +4212,14 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_modules">plasma_modules (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.base.html#tardis.iip_plasma.base.BasePlasma.plasma_properties_dict">plasma_properties_dict (tardis.iip_plasma.base.BasePlasma property)</a>
 
       <ul>
         <li><a href="api/tardis.plasma.base.html#tardis.plasma.base.BasePlasma.plasma_properties_dict">(tardis.plasma.base.BasePlasma property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.exceptions.html#tardis.iip_plasma.exceptions.PlasmaConfigError">PlasmaConfigError</a>, <a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaConfigError">[1]</a>
 </li>
       <li><a href="api/tardis.iip_plasma.exceptions.html#tardis.iip_plasma.exceptions.PlasmaException">PlasmaException</a>, <a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaException">[1]</a>
@@ -4192,7 +4250,7 @@
 </li>
       <li><a href="api/tardis.spectrum.spectrum.html#tardis.spectrum.spectrum.TARDISSpectrum.plot">plot() (tardis.spectrum.spectrum.TARDISSpectrum method)</a>
 </li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.Profile.plot_profile">plot_profile() (tardis.io.model.readers.arepo.Profile method)</a>
+      <li><a href="api/tardis.io.model.arepo.utils.html#tardis.io.model.arepo.utils.plot_profile">plot_profile() (in module tardis.io.model.arepo.utils)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.line_info.html#tardis.visualization.widgets.line_info.LineInfoWidget.plot_spectrum">plot_spectrum() (tardis.visualization.widgets.line_info.LineInfoWidget method)</a>
 </li>
@@ -4202,6 +4260,12 @@
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_cuda.html#tardis.spectrum.formal_integral.formal_integral_cuda.populate_intersection_points_cuda">populate_intersection_points_cuda() (in module tardis.spectrum.formal_integral.formal_integral_cuda)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData.position">position (tardis.io.model.arepo.ArepoData attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData.position">(tardis.io.model.arepo.data.ArepoData attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult.positron_energy">positron_energy (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflowResult attribute)</a>
 </li>
       <li><a href="api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.positronium_continuum">positronium_continuum() (in module tardis.energy_input.energy_source)</a>
@@ -4221,7 +4285,11 @@
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_macro_atom_data">prepare_macro_atom_data() (tardis.io.atom_data.base.AtomData method)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.prepare_transition_probabilities">prepare_transition_probabilities() (tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities method)</a>
+
+      <ul>
+        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.prepare_transition_probabilities">(tardis.opacities.macro_atom.base.TransitionProbabilities method)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousBetaSobolev">PreviousBetaSobolev (class in tardis.iip_plasma.properties.nlte)</a>
 
       <ul>
@@ -4300,8 +4368,6 @@
         <li><a href="api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.ProcessingPlasmaProperty">(class in tardis.plasma.properties.base)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.Profile">Profile (class in tardis.io.model.readers.arepo)</a>
-</li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.property_kwargs">property_kwargs (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
   </ul></td>
@@ -4408,6 +4474,12 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.read_abundance">read_abundance() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.read_arepo_snapshot">read_arepo_snapshot() (in module tardis.io.model.arepo)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.readers.html#tardis.io.model.arepo.readers.read_arepo_snapshot">(in module tardis.io.model.arepo.readers)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density">read_artis_density() (in module tardis.io.model.artis.readers)</a>
 </li>
       <li><a href="api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.read_artis_lines">read_artis_lines() (in module tardis.energy_input.energy_source)</a>
@@ -4428,10 +4500,10 @@
 </li>
       <li><a href="api/tardis.io.model.readers.util.html#tardis.io.model.readers.util.read_csv_isotope_mass_fractions">read_csv_isotope_mass_fractions() (in module tardis.io.model.readers.util)</a>
 </li>
-      <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.DensityEditor.read_density">read_density() (tardis.visualization.widgets.custom_abundance.DensityEditor method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.DensityEditor.read_density">read_density() (tardis.visualization.widgets.custom_abundance.DensityEditor method)</a>
+</li>
       <li><a href="api/tardis.io.model.readers.base.html#tardis.io.model.readers.base.read_density_file">read_density_file() (in module tardis.io.model.readers.base)</a>
 </li>
       <li><a href="api/tardis.io.model.readers.base.html#tardis.io.model.readers.base.read_mass_fractions_file">read_mass_fractions_file() (in module tardis.io.model.readers.base)</a>
@@ -4462,7 +4534,7 @@
 </li>
       <li><a href="api/tardis.io.model.snec.xg_files.html#tardis.io.model.snec.xg_files.read_xg_file">read_xg_file() (in module tardis.io.model.snec.xg_files)</a>
 </li>
-      <li><a href="api/tardis.io.model.readers.arepo.html#tardis.io.model.readers.arepo.Profile.rebin">rebin() (tardis.io.model.readers.arepo.Profile method)</a>
+      <li><a href="api/tardis.io.model.arepo.utils.html#tardis.io.model.arepo.utils.rebin_profile">rebin_profile() (in module tardis.io.model.arepo.utils)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.RECOMB_INTERNAL">RECOMB_INTERNAL (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
@@ -4760,6 +4832,12 @@
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionState">SourceFunctionState (class in tardis.spectrum.formal_integral.source_function)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData.species">species (tardis.io.model.arepo.ArepoData property)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData.species">(tardis.io.model.arepo.data.ArepoData property)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.species_string_to_tuple">species_string_to_tuple() (in module tardis.util.base)</a>
 </li>
       <li><a href="api/tardis.util.base.html#tardis.util.base.species_tuple_to_string">species_tuple_to_string() (in module tardis.util.base)</a>
@@ -5340,6 +5418,34 @@
 </li>
       </ul></li>
       <li>
+    tardis.io.model.arepo
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.html#module-tardis.io.model.arepo">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.io.model.arepo.data
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#module-tardis.io.model.arepo.data">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.io.model.arepo.readers
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.readers.html#module-tardis.io.model.arepo.readers">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.io.model.arepo.utils
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.utils.html#module-tardis.io.model.arepo.utils">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.io.model.artis
 
       <ul>
@@ -5375,6 +5481,20 @@
 </li>
       </ul></li>
       <li>
+    tardis.io.model.parse_geometry_configuration
+
+      <ul>
+        <li><a href="api/tardis.io.model.parse_geometry_configuration.html#module-tardis.io.model.parse_geometry_configuration">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.io.model.parse_mass_fraction_configuration
+
+      <ul>
+        <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#module-tardis.io.model.parse_mass_fraction_configuration">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.io.model.parse_packet_source_configuration
 
       <ul>
@@ -5400,13 +5520,6 @@
 
       <ul>
         <li><a href="api/tardis.io.model.readers.html#module-tardis.io.model.readers">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.io.model.readers.arepo
-
-      <ul>
-        <li><a href="api/tardis.io.model.readers.arepo.html#module-tardis.io.model.readers.arepo">module</a>
 </li>
       </ul></li>
       <li>
@@ -5582,6 +5695,13 @@
 
       <ul>
         <li><a href="api/tardis.opacities.macro_atom.html#module-tardis.opacities.macro_atom">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.opacities.macro_atom.base
+
+      <ul>
+        <li><a href="api/tardis.opacities.macro_atom.base.html#module-tardis.opacities.macro_atom.base">module</a>
 </li>
       </ul></li>
       <li>
@@ -5871,6 +5991,8 @@
         <li><a href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html#module-tardis.plasma.properties.continuum_processes.fast_array_util">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff
 
@@ -5885,8 +6007,6 @@
         <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#module-tardis.plasma.properties.continuum_processes.rates">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.continuum_processes.recomb_rate_coeff
 
@@ -6657,6 +6777,12 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.thomson_scatter">thomson_scatter() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData.time">time (tardis.io.model.arepo.ArepoData attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData.time">(tardis.io.model.arepo.data.ArepoData attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.energy_input.gamma_ray_channel.html#tardis.energy_input.gamma_ray_channel.time_evolve_cumulative_decay">time_evolve_cumulative_decay() (in module tardis.energy_input.gamma_ray_channel)</a>
 </li>
       <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow.time_evolve_cumulative_decay_expanded">time_evolve_cumulative_decay_expanded() (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow method)</a>
@@ -6816,6 +6942,8 @@
       <ul>
         <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities">(class in tardis.iip_plasma.properties.radiative_properties)</a>
 </li>
+        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities">(class in tardis.opacities.macro_atom.base)</a>
+</li>
       </ul></li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.TransitionProbabilitiesMixin">TransitionProbabilitiesMixin (class in tardis.iip_plasma.continuum.base)</a>
 </li>
@@ -6941,6 +7069,12 @@
 </li>
       <li><a href="api/tardis.io.configuration.config_validator.html#tardis.io.configuration.config_validator.validate_yaml">validate_yaml() (in module tardis.io.configuration.config_validator)</a>
 </li>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData.velocities">velocities (tardis.io.model.arepo.ArepoData attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData.velocities">(tardis.io.model.arepo.data.ArepoData attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.velocity">velocity (tardis.io.model.artis.data.ArtisData attribute)</a>
 
       <ul>
@@ -6975,9 +7109,13 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virtual_packet_luminosity">virtual_packet_luminosity (tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState property)</a>
 </li>
-      <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.volume">volume (tardis.model.base.SimulationState property)</a>
+      <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData.volume">volume (tardis.io.model.arepo.ArepoData property)</a>
 
       <ul>
+        <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData.volume">(tardis.io.model.arepo.data.ArepoData property)</a>
+</li>
+        <li><a href="api/tardis.model.base.html#tardis.model.base.SimulationState.volume">(tardis.model.base.SimulationState property)</a>
+</li>
         <li><a href="api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.volume">(tardis.model.geometry.radial1d.HomologousRadial1DGeometry property)</a>
 </li>
       </ul></li>
@@ -7096,7 +7234,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Feb 2026.
+      <span class="lastupdated">Last updated on 06 Feb 2026.
       </span></p>
   </div>
 

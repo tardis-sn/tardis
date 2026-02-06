@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=959eceea"></script>
+      <script src="../_static/documentation_options.js?v=f6ea0856"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -261,6 +261,11 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tardis.io.model.html">tardis.io.model package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tardis.io.model.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.arepo.html">tardis.io.model.arepo package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.arepo.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.arepo.html#module-tardis.io.model.arepo">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.artis.html">tardis.io.model.artis package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.artis.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.artis.html#module-tardis.io.model.artis">Module contents</a></li>
@@ -294,8 +299,18 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.parse_density_section_csvy"><code class="docutils literal notranslate"><span class="pre">parse_density_section_csvy()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_geometry_configuration.html">tardis.io.model.parse_geometry_configuration module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_mass_fraction_configuration.html">tardis.io.model.parse_mass_fraction_configuration module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_geometry_configuration.html">tardis.io.model.parse_geometry_configuration module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_geometry_from_config"><code class="docutils literal notranslate"><span class="pre">parse_geometry_from_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_geometry_from_csvy"><code class="docutils literal notranslate"><span class="pre">parse_geometry_from_csvy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_structure_from_config"><code class="docutils literal notranslate"><span class="pre">parse_structure_from_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_mass_fraction_configuration.html">tardis.io.model.parse_mass_fraction_configuration module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.convert_to_nuclide_mass_fractions"><code class="docutils literal notranslate"><span class="pre">convert_to_nuclide_mass_fractions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_config"><code class="docutils literal notranslate"><span class="pre">parse_mass_fractions_from_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_csvy"><code class="docutils literal notranslate"><span class="pre">parse_mass_fractions_from_csvy()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.parse_packet_source_configuration.html">tardis.io.model.parse_packet_source_configuration module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_packet_source_configuration.html#tardis.io.model.parse_packet_source_configuration.initialize_packet_source"><code class="docutils literal notranslate"><span class="pre">initialize_packet_source()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.io.model.parse_packet_source_configuration.html#tardis.io.model.parse_packet_source_configuration.parse_packet_source_from_config"><code class="docutils literal notranslate"><span class="pre">parse_packet_source_from_config()</span></code></a></li>
@@ -380,7 +395,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Feb 2026.
+      <span class="lastupdated">Last updated on 06 Feb 2026.
       </span></p>
   </div>
 
