@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 
 import numpy as np
@@ -21,7 +20,7 @@ def arepo_snapshot_fname(tardis_regression_path):
 
 
 @pytest.fixture
-def get_cone_csvy_model(arepo_snapshot_fname, example_model_file_dir):
+def get_cone_csvy_model(arepo_snapshot_fname, tmp_path):
     with open(arepo_snapshot_fname) as json_file:
         snapshot_data = json.loads(json.load(json_file))
 
@@ -100,21 +99,18 @@ def get_cone_csvy_model(arepo_snapshot_fname, example_model_file_dir):
         mass_prof_p,
         xnuc_prof_p,
         arepo_data.time,
-        example_model_file_dir / "arepo_parser_test.csvy",
+        tmp_path / "arepo_parser_test.csvy",
         nshells=20,
     )
 
     with open(testfile) as file:
         csvy_lines = file.readlines()
 
-    print(testfile)
-    os.remove(testfile)
-
     return csvy_lines
 
 
 @pytest.fixture
-def get_full_csvy_model(arepo_snapshot_fname, example_model_file_dir):
+def get_full_csvy_model(arepo_snapshot_fname, tmp_path):
     with open(arepo_snapshot_fname) as json_file:
         snapshot_data = json.loads(json.load(json_file))
 
@@ -190,44 +186,48 @@ def get_full_csvy_model(arepo_snapshot_fname, example_model_file_dir):
         rho_prof_p,
         mass_prof_p,
         xnuc_prof_p,
-        time,
-        example_model_file_dir / "arepo_parser_test.csvy",
+        arepo_data.time,
+        tmp_path / "arepo_parser_test.csvy",
         nshells=20,
     )
 
     with open(testfile) as file:
         csvy_lines = file.readlines()
 
-    os.remove(testfile)
-
     return csvy_lines
 
 
-@pytest.fixture
-def get_cone_reference_data(example_model_file_dir):
-    with open(
-        example_model_file_dir / "arepo_cone_reference_model.csvy"
-    ) as file:
-        reference_lines = file.readlines()
+def test_cone_profile(get_cone_csvy_model, regression_data):
+    """
+    Test cone profile generation against regression data.
 
-    return reference_lines
-
-
-@pytest.fixture
-def get_full_reference_data(example_model_file_dir):
-    with open(
-        example_model_file_dir / "arepo_full_reference_model.csvy"
-    ) as file:
-        reference_lines = file.readlines()
-
-    return reference_lines
+    Parameters
+    ----------
+    get_cone_csvy_model : list
+        Generated CSVY lines from cone profile.
+    regression_data : pytest fixture
+        Regression data fixture for comparison.
+    """
+    csvy_array = np.array(
+        get_cone_csvy_model
+    )  # this is essentially a file (list of lines)
+    expected = regression_data.sync_ndarray(csvy_array)
+    np.testing.assert_array_equal(csvy_array, expected)
 
 
-@pytest.mark.ignore_generate
-def test_cone_profile(get_cone_csvy_model, get_cone_reference_data):
-    assert get_cone_csvy_model == get_cone_reference_data
+def test_full_profile(get_full_csvy_model, regression_data):
+    """
+    Test full profile generation against regression data.
 
-
-@pytest.mark.ignore_generate
-def test_full_profile(get_full_csvy_model, get_full_reference_data):
-    assert get_full_csvy_model == get_full_reference_data
+    Parameters
+    ----------
+    get_full_csvy_model : list
+        Generated CSVY lines from full profile.
+    regression_data : pytest fixture
+        Regression data fixture for comparison.
+    """
+    csvy_array = np.array(
+        get_full_csvy_model
+    )  # this is essentially a file (list of lines)
+    expected = regression_data.sync_ndarray(csvy_array)
+    np.testing.assert_array_equal(csvy_array, expected)
