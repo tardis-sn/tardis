@@ -141,9 +141,9 @@ jobs:
         run: pip install -e .
         working-directory: tardisbase
 
-      - name: Install qgridnext and lineid_plot
+      - name: Install lineid_plot
         run: |
-          pip install --no-deps qgridnext lineid_plot
+          pip install --no-deps lineid_plot
 
       # installation doesnt work with no-deps
       - name: Install GitPython

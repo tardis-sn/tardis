@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+from astropy import units as u
 from scipy import stats
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
@@ -553,7 +554,7 @@ def export_profile_to_csvy(
     rho_prof: np.ndarray,
     mass_prof: np.ndarray,
     xnuc_prof: dict,
-    time: float,
+    time: u.Quantity,
     filename: str | Path,
     nshells: int,
     overwrite: bool = False,
@@ -573,8 +574,8 @@ def export_profile_to_csvy(
         Mass profile (g).
     xnuc_prof : dict
         Nuclear fraction profiles keyed by species name.
-    time : float
-        Time of the snapshot in seconds.
+    time : astropy.units.Quantity
+        Time of the snapshot.
     filename : str or pathlib.Path
         Name of the exported file.
     nshells : int
@@ -613,8 +614,8 @@ def export_profile_to_csvy(
                 [
                     "---\n",
                     "name: csvy_full\n",
-                    f"model_density_time_0: {time / (3600 * 24):g} day\n",
-                    f"model_isotope_time_0: {time / (3600 * 24):g} day\n",
+                    f"model_density_time_0: {time.to(u.day):g}\n",
+                    f"model_isotope_time_0: {time.to(u.day):g}\n",
                     "description: Config file for TARDIS from Arepo snapshot.\n",
                     "tardis_model_config_version: v1.0\n",
                     "datatype:\n",
@@ -673,7 +674,7 @@ def plot_profile(
     rho_prof_n: np.ndarray,
     xnuc_prof_p: dict,
     xnuc_prof_n: dict,
-    time: float,
+    time: u.Quantity,
     save: str | Path | None = None,
     dpi: int = 600,
     **kwargs,
@@ -699,8 +700,8 @@ def plot_profile(
         Nuclear fraction profiles in positive direction.
     xnuc_prof_n : dict
         Nuclear fraction profiles in negative direction.
-    time : float
-        Time of the snapshot in seconds.
+    time : astropy.units.Quantity
+        Time of the snapshot.
     save : str or pathlib.Path, optional
         Path to save the figure. Default: None
     dpi : int, optional
@@ -776,7 +777,7 @@ def plot_profile(
         labels,
         loc="upper left",
         bbox_to_anchor=(1.05, 1.05),
-        title=f"Time = {time:.2f} s",
+        title=f"Time = {time}",
     )
 
     if save is not None:
