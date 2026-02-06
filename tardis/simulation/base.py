@@ -31,8 +31,14 @@ from tardis.spectrum.luminosity import (
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.configuration.base import (
+    configuration_initialize,
+)
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
+)
+from tardis.transport.montecarlo.montecarlo_transport_state import (
+    initialize_transport_state,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
@@ -476,14 +482,25 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma.stimulated_emission_factor,
                 )
 
-        transport_state = self.transport.initialize_transport_state(
+        transport_state = initialize_transport_state(
             self.simulation_state,
             self.opacity_state,
             self.macro_atom_state,
             self.plasma,
+            self.transport.packet_source,
             no_of_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
+            self.transport.line_interaction_type,
             iteration=self.iterations_executed,
+        )
+
+        transport_state.enable_full_relativity = (
+            self.transport.montecarlo_configuration.ENABLE_FULL_RELATIVITY
+        )
+
+        configuration_initialize(
+            self.transport.montecarlo_configuration,
+            self.transport,
+            no_of_virtual_packets,
         )
 
         v_packets_energy_hist = self.transport.run(

@@ -450,14 +450,32 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
 
-        self.transport_state = self.transport_solver.initialize_transport_state(
+        from tardis.transport.montecarlo.montecarlo_transport_state import (
+            initialize_transport_state,
+        )
+        from tardis.transport.montecarlo.configuration.base import (
+            configuration_initialize,
+        )
+
+        self.transport_state = initialize_transport_state(
             self.simulation_state,
             opacity_state,
             macro_atom_state,
             self.plasma_solver,
+            self.transport_solver.packet_source,
             no_of_real_packets,
-            no_of_virtual_packets=no_of_virtual_packets,
+            self.transport_solver.line_interaction_type,
             iteration=self.completed_iterations,
+        )
+
+        self.transport_state.enable_full_relativity = (
+            self.transport_solver.montecarlo_configuration.ENABLE_FULL_RELATIVITY
+        )
+
+        configuration_initialize(
+            self.transport_solver.montecarlo_configuration,
+            self.transport_solver,
+            no_of_virtual_packets,
         )
 
         virtual_packet_energies = self.transport_solver.run(

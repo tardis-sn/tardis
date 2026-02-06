@@ -3,6 +3,9 @@ import warnings
 from astropy import units as u
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+    initialize_estimator_statistics,
+)
 
 
 class MonteCarloTransportState(HDFWriterMixin):
@@ -281,3 +284,71 @@ class MonteCarloTransportState(HDFWriterMixin):
                 UserWarning,
             )
             return None
+
+
+def initialize_transport_state(
+    simulation_state,
+    opacity_state,
+    macro_atom_state,
+    plasma,
+    packet_source,
+    no_of_packets,
+    line_interaction_type,
+    iteration=0,
+):
+    """
+    Initialize a MonteCarloTransportState from simulation components.
+
+    Parameters
+    ----------
+    simulation_state : SimulationState
+        The simulation state.
+    opacity_state : OpacityState
+        The opacity state.
+    macro_atom_state : MacroAtomState
+        The macro atom state.
+    plasma : Plasma
+        The plasma.
+    packet_source : PacketSource
+        The packet source.
+    no_of_packets : int
+        Number of packets to create.
+    line_interaction_type : str
+        Type of line interaction.
+    iteration : int, optional
+        Iteration number for seed offset, by default 0
+
+    Returns
+    -------
+    MonteCarloTransportState
+        Initialized transport state.
+    """
+    if not plasma.continuum_interaction_species.empty:
+        gamma_shape = plasma.gamma.shape
+    else:
+        gamma_shape = (0, 0)
+
+    packet_collection = packet_source.create_packets(
+        no_of_packets, seed_offset=iteration
+    )
+
+    geometry_state = simulation_state.geometry.to_numba()
+    opacity_state_numba = opacity_state.to_numba(
+        macro_atom_state,
+        line_interaction_type,
+    )
+    opacity_state_numba = opacity_state_numba[
+        simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+    ]
+
+    estimators = initialize_estimator_statistics(
+        opacity_state_numba.tau_sobolev.shape, gamma_shape
+    )
+
+    return MonteCarloTransportState(
+        packet_collection,
+        estimators,
+        geometry_state=geometry_state,
+        opacity_state=opacity_state_numba,
+        time_explosion=simulation_state.time_explosion,
+    )

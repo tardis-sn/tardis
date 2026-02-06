@@ -100,56 +100,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         mc_tracker.DEBUG_MODE = debug_packets
         mc_tracker.BUFFER = logger_buffer
 
-    def initialize_transport_state(
-        self,
-        simulation_state,
-        opacity_state,
-        macro_atom_state,
-        plasma,
-        no_of_packets,
-        no_of_virtual_packets=0,
-        iteration=0,
-    ):
-        if not plasma.continuum_interaction_species.empty:
-            gamma_shape = plasma.gamma.shape
-        else:
-            gamma_shape = (0, 0)
-
-        packet_collection = self.packet_source.create_packets(
-            no_of_packets, seed_offset=iteration
-        )
-
-        geometry_state = simulation_state.geometry.to_numba()
-        opacity_state_numba = opacity_state.to_numba(
-            macro_atom_state,
-            self.line_interaction_type,
-        )
-        opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
-        ]
-
-        estimators = initialize_estimator_statistics(
-            opacity_state_numba.tau_sobolev.shape, gamma_shape
-        )
-
-        transport_state = MonteCarloTransportState(
-            packet_collection,
-            estimators,
-            geometry_state=geometry_state,
-            opacity_state=opacity_state_numba,
-            time_explosion=simulation_state.time_explosion,
-        )
-
-        transport_state.enable_full_relativity = (
-            self.montecarlo_configuration.ENABLE_FULL_RELATIVITY
-        )
-
-        configuration_initialize(
-            self.montecarlo_configuration, self, no_of_virtual_packets
-        )
-
-        return transport_state
-
     def run(
         self,
         transport_state,
