@@ -1,14 +1,70 @@
 import warnings
 
+import pandas as pd
 from astropy import units as u
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.model.geometry.radial1d import (
+    HomologousRadial1DGeometry,
+    NumbaRadial1DGeometry,
+)
+from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
+from tardis.opacities.opacity_state import OpacityState
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.plasma.base import BasePlasma
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+    RadiationFieldMCEstimators,
     initialize_estimator_statistics,
+)
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
+from tardis.transport.montecarlo.packets.packet_collections import (
+    PacketCollection,
+    VPacketCollection,
 )
 
 
 class MonteCarloTransportState(HDFWriterMixin):
+    """
+    Monte Carlo transport state containing packet data and radiation field estimators.
+
+    Attributes
+    ----------
+    packet_collection : PacketCollection
+        Collection of Monte Carlo packets with initial and final properties.
+    radfield_mc_estimators : RadiationFieldMCEstimators
+        Estimators for radiation field properties.
+    geometry_state : NumbaRadial1DGeometry
+        Numba-compiled geometry state with shell boundaries.
+    opacity_state : OpacityStateNumba
+        Numba-compiled opacity state with line and continuum opacities.
+    time_explosion : u.Quantity
+        Time since explosion.
+    enable_full_relativity : bool
+        Flag for full relativistic corrections.
+    enable_continuum_processes : bool
+        Flag for continuum processes.
+    tracker_full_df : pd.DataFrame | None
+        Full packet tracking data.
+    tracker_last_interaction_df : pd.DataFrame | None
+        Last interaction tracking data for each packet.
+    vpacket_tracker : VPacketCollection | None
+        Virtual packet tracking collection.
+    last_interaction_type : None
+        Last interaction type placeholder.
+    last_interaction_in_nu : None
+        Last interaction frequency placeholder.
+    last_interaction_in_r : None
+        Last interaction radius placeholder.
+    last_line_interaction_out_id : None
+        Last line interaction output ID placeholder.
+    last_line_interaction_in_id : None
+        Last line interaction input ID placeholder.
+    last_line_interaction_shell_id : None
+        Last line interaction shell ID placeholder.
+    virt_logging : bool
+        Flag for virtual packet logging.
+    """
+
     hdf_properties = [
         "output_nu",
         "output_energy",
@@ -39,7 +95,18 @@ class MonteCarloTransportState(HDFWriterMixin):
         "virt_packet_last_line_interaction_shell_id",
     ]
 
-    hdf_name = "transport_state"
+    hdf_name: str = "transport_state"
+
+    packet_collection: PacketCollection
+    radfield_mc_estimators: RadiationFieldMCEstimators
+    geometry_state: NumbaRadial1DGeometry
+    opacity_state: OpacityStateNumba
+    time_explosion: u.Quantity
+    enable_full_relativity: bool
+    enable_continuum_processes: bool
+    tracker_full_df: pd.DataFrame | None
+    tracker_last_interaction_df: pd.DataFrame | None
+    vpacket_tracker: VPacketCollection | None
 
     last_interaction_type = None
     last_interaction_in_nu = None
@@ -48,19 +115,41 @@ class MonteCarloTransportState(HDFWriterMixin):
     last_line_interaction_in_id = None
     last_line_interaction_shell_id = None
 
-    virt_logging = False
+    virt_logging: bool = False
 
     def __init__(
         self,
-        packet_collection,
-        radfield_mc_estimators,
-        geometry_state,
-        opacity_state,
-        time_explosion,
-        tracker_full_df=None,
-        tracker_last_interaction_df=None,
-        vpacket_tracker=None,
-    ):
+        packet_collection: PacketCollection,
+        radfield_mc_estimators: RadiationFieldMCEstimators,
+        geometry_state: NumbaRadial1DGeometry,
+        opacity_state: OpacityStateNumba,
+        time_explosion: u.Quantity,
+        tracker_full_df: pd.DataFrame | None = None,
+        tracker_last_interaction_df: pd.DataFrame | None = None,
+        vpacket_tracker: VPacketCollection | None = None,
+    ) -> None:
+        """
+        Initialize a Monte Carlo transport state.
+
+        Parameters
+        ----------
+        packet_collection : PacketCollection
+            Collection of Monte Carlo packets with initial properties.
+        radfield_mc_estimators : RadiationFieldMCEstimators
+            Estimators for radiation field properties.
+        geometry_state : NumbaRadial1DGeometry
+            Numba-compiled geometry state with shell boundaries.
+        opacity_state : OpacityStateNumba
+            Numba-compiled opacity state with line and continuum opacities.
+        time_explosion : u.Quantity
+            Time since explosion.
+        tracker_full_df : pd.DataFrame, optional
+            Full packet tracking data. Default is None.
+        tracker_last_interaction_df : pd.DataFrame, optional
+            Last interaction tracking data for each packet. Default is None.
+        vpacket_tracker : VPacketCollection, optional
+            Virtual packet tracking collection. Default is None.
+        """
         self.packet_collection = packet_collection
         self.radfield_mc_estimators = radfield_mc_estimators
         self.enable_full_relativity = False
@@ -287,44 +376,44 @@ class MonteCarloTransportState(HDFWriterMixin):
 
 
 def initialize_transport_state(
-    geometry_state,
-    time_explosion,
-    opacity_state,
-    macro_atom_state,
-    plasma,
-    packet_source,
-    no_of_packets,
-    line_interaction_type,
-    iteration=0,
-):
+    geometry_state: HomologousRadial1DGeometry,
+    time_explosion: u.Quantity,
+    opacity_state: OpacityState,
+    macro_atom_state: MacroAtomState,
+    plasma: BasePlasma,
+    packet_source: BasePacketSource,
+    no_of_packets: int,
+    line_interaction_type: str,
+    iteration: int = 0,
+) -> MonteCarloTransportState:
     """
     Initialize a MonteCarloTransportState from simulation components.
 
     Parameters
     ----------
-    simulation_state : SimulationState
-        The simulation state.
-    time_explosion : float
+    geometry_state : HomologousRadial1DGeometry
+        Geometry state containing shell boundaries and velocity information.
+    time_explosion : u.Quantity
         Time since explosion.
     opacity_state : OpacityState
-        The opacity state.
+        Opacity state containing line and continuum opacities.
     macro_atom_state : MacroAtomState
-        The macro atom state.
-    plasma : Plasma
-        The plasma.
-    packet_source : PacketSource
-        The packet source.
+        Macro atom state with transition probabilities.
+    plasma : BasePlasma
+        Plasma state with physical properties.
+    packet_source : BasePacketSource
+        Packet source for creating initial packets.
     no_of_packets : int
         Number of packets to create.
     line_interaction_type : str
-        Type of line interaction.
+        Type of line interaction (e.g., 'scatter', 'macroatom', 'downbranch').
     iteration : int, optional
-        Iteration number for seed offset, by default 0
+        Iteration number for seed offset. Default is 0.
 
     Returns
     -------
     MonteCarloTransportState
-        Initialized transport state.
+        Initialized transport state ready for Monte Carlo simulation.
     """
     if not plasma.continuum_interaction_species.empty:
         gamma_shape = plasma.gamma.shape
