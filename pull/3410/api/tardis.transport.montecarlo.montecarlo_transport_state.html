@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=cac1a523"></script>
+      <script src="../_static/documentation_options.js?v=ccaf40ba"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -174,19 +174,66 @@
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.montecarlo_transport_state.</span></span><span class="sig-name descname"><span class="pre">MonteCarloTransportState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/montecarlo_transport_state.html#MonteCarloTransportState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin" title="tardis.io.hdf_writer_mixin.HDFWriterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code></a></p>
-<p>Create a new instance and initialize HDF properties.</p>
+<p>Monte Carlo transport state containing packet data and radiation field estimators.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>*args</strong><span class="classifier">Any</span></dt><dd><p>Positional arguments passed to the parent class.</p>
+<dt><strong>packet_collection</strong><span class="classifier">PacketCollection</span></dt><dd><p>Collection of Monte Carlo packets with initial and final properties.</p>
 </dd>
-<dt><strong>**kwargs</strong><span class="classifier">Any</span></dt><dd><p>Keyword arguments passed to the parent class.</p>
+<dt><strong>radfield_mc_estimators</strong><span class="classifier">RadiationFieldMCEstimators</span></dt><dd><p>Estimators for radiation field properties.</p>
+</dd>
+<dt><strong>geometry_state</strong><span class="classifier">NumbaRadial1DGeometry</span></dt><dd><p>Numba-compiled geometry state with shell boundaries.</p>
+</dd>
+<dt><strong>opacity_state</strong><span class="classifier">OpacityStateNumba</span></dt><dd><p>Numba-compiled opacity state with line and continuum opacities.</p>
+</dd>
+<dt><strong>time_explosion</strong><span class="classifier">u.Quantity</span></dt><dd><p>Time since explosion.</p>
+</dd>
+<dt><strong>enable_full_relativity</strong><span class="classifier">bool</span></dt><dd><p>Flag for full relativistic corrections.</p>
+</dd>
+<dt><strong>enable_continuum_processes</strong><span class="classifier">bool</span></dt><dd><p>Flag for continuum processes.</p>
+</dd>
+<dt><strong>tracker_full_df</strong><span class="classifier">pd.DataFrame | None</span></dt><dd><p>Full packet tracking data.</p>
+</dd>
+<dt><strong>tracker_last_interaction_df</strong><span class="classifier">pd.DataFrame | None</span></dt><dd><p>Last interaction tracking data for each packet.</p>
+</dd>
+<dt><strong>vpacket_tracker</strong><span class="classifier">VPacketCollection | None</span></dt><dd><p>Virtual packet tracking collection.</p>
+</dd>
+<dt><strong>last_interaction_type</strong><span class="classifier">None</span></dt><dd><p>Last interaction type placeholder.</p>
+</dd>
+<dt><strong>last_interaction_in_nu</strong><span class="classifier">None</span></dt><dd><p>Last interaction frequency placeholder.</p>
+</dd>
+<dt><strong>last_interaction_in_r</strong><span class="classifier">None</span></dt><dd><p>Last interaction radius placeholder.</p>
+</dd>
+<dt><strong>last_line_interaction_out_id</strong><span class="classifier">None</span></dt><dd><p>Last line interaction output ID placeholder.</p>
+</dd>
+<dt><strong>last_line_interaction_in_id</strong><span class="classifier">None</span></dt><dd><p>Last line interaction input ID placeholder.</p>
+</dd>
+<dt><strong>last_line_interaction_shell_id</strong><span class="classifier">None</span></dt><dd><p>Last line interaction shell ID placeholder.</p>
+</dd>
+<dt><strong>virt_logging</strong><span class="classifier">bool</span></dt><dd><p>Flag for virtual packet logging.</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>HDFWriterMixin</dt><dd><p>The new instance with initialized HDF properties.</p>
+</dl>
+<p>Initialize a Monte Carlo transport state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>packet_collection</strong><span class="classifier">PacketCollection</span></dt><dd><p>Collection of Monte Carlo packets with initial properties.</p>
+</dd>
+<dt><strong>radfield_mc_estimators</strong><span class="classifier">RadiationFieldMCEstimators</span></dt><dd><p>Estimators for radiation field properties.</p>
+</dd>
+<dt><strong>geometry_state</strong><span class="classifier">NumbaRadial1DGeometry</span></dt><dd><p>Numba-compiled geometry state with shell boundaries.</p>
+</dd>
+<dt><strong>opacity_state</strong><span class="classifier">OpacityStateNumba</span></dt><dd><p>Numba-compiled opacity state with line and continuum opacities.</p>
+</dd>
+<dt><strong>time_explosion</strong><span class="classifier">u.Quantity</span></dt><dd><p>Time since explosion.</p>
+</dd>
+<dt><strong>tracker_full_df</strong><span class="classifier">pd.DataFrame, optional</span></dt><dd><p>Full packet tracking data. Default is None.</p>
+</dd>
+<dt><strong>tracker_last_interaction_df</strong><span class="classifier">pd.DataFrame, optional</span></dt><dd><p>Last interaction tracking data for each packet. Default is None.</p>
+</dd>
+<dt><strong>vpacket_tracker</strong><span class="classifier">VPacketCollection, optional</span></dt><dd><p>Virtual packet tracking collection. Default is None.</p>
 </dd>
 </dl>
 </dd>
@@ -207,8 +254,23 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.enable_continuum_processes">
+<span class="sig-name descname"><span class="pre">enable_continuum_processes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.enable_continuum_processes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.enable_full_relativity">
+<span class="sig-name descname"><span class="pre">enable_full_relativity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.enable_full_relativity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.geometry_state">
+<span class="sig-name descname"><span class="pre">geometry_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.NumbaRadial1DGeometry" title="tardis.model.geometry.radial1d.NumbaRadial1DGeometry"><span class="pre">NumbaRadial1DGeometry</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.geometry_state" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.hdf_name">
-<span class="sig-name descname"><span class="pre">hdf_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'transport_state'</span></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.hdf_name" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">hdf_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'transport_state'</span></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.hdf_name" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -261,6 +323,11 @@
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">nu_bar_estimator</span></span><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.nu_bar_estimator" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.opacity_state">
+<span class="sig-name descname"><span class="pre">opacity_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.OpacityStateNumba" title="tardis.opacities.opacity_state_numba.OpacityStateNumba"><span class="pre">OpacityStateNumba</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.opacity_state" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.output_energy">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_energy</span></span><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.output_energy" title="Link to this definition">¶</a></dt>
@@ -271,9 +338,19 @@
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_nu</span></span><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.output_nu" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.packet_collection">
+<span class="sig-name descname"><span class="pre">packet_collection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.PacketCollection" title="tardis.transport.montecarlo.packets.packet_collections.PacketCollection"><span class="pre">PacketCollection</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.packet_collection" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.packet_luminosity">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">packet_luminosity</span></span><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.packet_luminosity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.radfield_mc_estimators">
+<span class="sig-name descname"><span class="pre">radfield_mc_estimators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators" title="tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators"><span class="pre">RadiationFieldMCEstimators</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.radfield_mc_estimators" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -286,14 +363,29 @@
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reabsorbed_packet_nu</span></span><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.reabsorbed_packet_nu" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_explosion">
+<span class="sig-name descname"><span class="pre">time_explosion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_explosion" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_of_simulation">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time_of_simulation</span></span><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.time_of_simulation" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.tracker_full_df">
+<span class="sig-name descname"><span class="pre">tracker_full_df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.tracker_full_df" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.tracker_last_interaction_df">
+<span class="sig-name descname"><span class="pre">tracker_last_interaction_df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.tracker_last_interaction_df" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_logging">
-<span class="sig-name descname"><span class="pre">virt_logging</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_logging" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">virt_logging</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.virt_logging" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -356,36 +448,43 @@
 <span class="sig-name descname"><span class="pre">vpacket_hdf_properties</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['virt_packet_nus',</span> <span class="pre">'virt_packet_energies',</span> <span class="pre">'virt_packet_initial_rs',</span> <span class="pre">'virt_packet_initial_mus',</span> <span class="pre">'virt_packet_last_interaction_in_nu',</span> <span class="pre">'virt_packet_last_interaction_in_r',</span> <span class="pre">'virt_packet_last_interaction_type',</span> <span class="pre">'virt_packet_last_line_interaction_in_id',</span> <span class="pre">'virt_packet_last_line_interaction_out_id',</span> <span class="pre">'virt_packet_last_line_interaction_shell_id']</span></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.vpacket_hdf_properties" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.vpacket_tracker">
+<span class="sig-name descname"><span class="pre">vpacket_tracker</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.VPacketCollection" title="tardis.transport.montecarlo.packets.packet_collections.VPacketCollection"><span class="pre">VPacketCollection</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.vpacket_tracker" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.montecarlo_transport_state.initialize_transport_state">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.montecarlo_transport_state.</span></span><span class="sig-name descname"><span class="pre">initialize_transport_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_packets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/montecarlo_transport_state.html#initialize_transport_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.initialize_transport_state" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.montecarlo_transport_state.</span></span><span class="sig-name descname"><span class="pre">initialize_transport_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry" title="tardis.model.geometry.radial1d.HomologousRadial1DGeometry"><span class="pre">HomologousRadial1DGeometry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.opacities.opacity_state.html#tardis.opacities.opacity_state.OpacityState" title="tardis.opacities.opacity_state.OpacityState"><span class="pre">OpacityState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">macro_atom_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState" title="tardis.opacities.macro_atom.macroatom_state.MacroAtomState"><span class="pre">MacroAtomState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plasma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.plasma.base.html#tardis.plasma.base.BasePlasma" title="tardis.plasma.base.BasePlasma"><span class="pre">BasePlasma</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.transport.montecarlo.packet_source.base.html#tardis.transport.montecarlo.packet_source.base.BasePacketSource" title="tardis.transport.montecarlo.packet_source.base.BasePacketSource"><span class="pre">BasePacketSource</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_packets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_interaction_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState" title="tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState"><span class="pre">MonteCarloTransportState</span></a></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/montecarlo_transport_state.html#initialize_transport_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.montecarlo_transport_state.initialize_transport_state" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize a MonteCarloTransportState from simulation components.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>simulation_state</strong><span class="classifier">SimulationState</span></dt><dd><p>The simulation state.</p>
+<dt><strong>geometry_state</strong><span class="classifier">HomologousRadial1DGeometry</span></dt><dd><p>Geometry state containing shell boundaries and velocity information.</p>
 </dd>
-<dt><strong>opacity_state</strong><span class="classifier">OpacityState</span></dt><dd><p>The opacity state.</p>
+<dt><strong>time_explosion</strong><span class="classifier">u.Quantity</span></dt><dd><p>Time since explosion.</p>
 </dd>
-<dt><strong>macro_atom_state</strong><span class="classifier">MacroAtomState</span></dt><dd><p>The macro atom state.</p>
+<dt><strong>opacity_state</strong><span class="classifier">OpacityState</span></dt><dd><p>Opacity state containing line and continuum opacities.</p>
 </dd>
-<dt><strong>plasma</strong><span class="classifier">Plasma</span></dt><dd><p>The plasma.</p>
+<dt><strong>macro_atom_state</strong><span class="classifier">MacroAtomState</span></dt><dd><p>Macro atom state with transition probabilities.</p>
 </dd>
-<dt><strong>packet_source</strong><span class="classifier">PacketSource</span></dt><dd><p>The packet source.</p>
+<dt><strong>plasma</strong><span class="classifier">BasePlasma</span></dt><dd><p>Plasma state with physical properties.</p>
+</dd>
+<dt><strong>packet_source</strong><span class="classifier">BasePacketSource</span></dt><dd><p>Packet source for creating initial packets.</p>
 </dd>
 <dt><strong>no_of_packets</strong><span class="classifier">int</span></dt><dd><p>Number of packets to create.</p>
 </dd>
-<dt><strong>line_interaction_type</strong><span class="classifier">str</span></dt><dd><p>Type of line interaction.</p>
+<dt><strong>line_interaction_type</strong><span class="classifier">str</span></dt><dd><p>Type of line interaction (e.g., ‘scatter’, ‘macroatom’, ‘downbranch’).</p>
 </dd>
-<dt><strong>iteration</strong><span class="classifier">int, optional</span></dt><dd><p>Iteration number for seed offset, by default 0</p>
+<dt><strong>iteration</strong><span class="classifier">int, optional</span></dt><dd><p>Iteration number for seed offset. Default is 0.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>MonteCarloTransportState</dt><dd><p>Initialized transport state.</p>
+<dt>MonteCarloTransportState</dt><dd><p>Initialized transport state ready for Monte Carlo simulation.</p>
 </dd>
 </dl>
 </dd>
@@ -406,7 +505,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 06 Feb 2026.
+      <span class="lastupdated">Last updated on 07 Feb 2026.
       </span></p>
   </div>
 
