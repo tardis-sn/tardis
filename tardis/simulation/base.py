@@ -483,7 +483,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 )
 
         transport_state = initialize_transport_state(
-            self.simulation_state,
+            self.simulation_state.geometry,
+            self.simulation_state.time_explosion,
             self.opacity_state,
             self.macro_atom_state,
             self.plasma,

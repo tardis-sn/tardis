@@ -23,8 +23,14 @@ from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
 from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.configuration.base import (
+    configuration_initialize,
+)
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
+)
+from tardis.transport.montecarlo.montecarlo_transport_state import (
+    initialize_transport_state,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
@@ -450,15 +456,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
 
-        from tardis.transport.montecarlo.montecarlo_transport_state import (
-            initialize_transport_state,
-        )
-        from tardis.transport.montecarlo.configuration.base import (
-            configuration_initialize,
-        )
-
         self.transport_state = initialize_transport_state(
-            self.simulation_state,
+            self.simulation_state.geometry,
+            self.simulation_state.time_explosion,
             opacity_state,
             macro_atom_state,
             self.plasma_solver,
@@ -468,9 +468,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             iteration=self.completed_iterations,
         )
 
-        self.transport_state.enable_full_relativity = (
-            self.transport_solver.montecarlo_configuration.ENABLE_FULL_RELATIVITY
-        )
+        self.transport_state.enable_full_relativity = self.transport_solver.montecarlo_configuration.ENABLE_FULL_RELATIVITY
 
         configuration_initialize(
             self.transport_solver.montecarlo_configuration,
