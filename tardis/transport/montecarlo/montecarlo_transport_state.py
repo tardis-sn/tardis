@@ -51,7 +51,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         self,
         packet_collection,
         geometry_state,
-        opacity_state,
+        opacity_state_numba,
         time_explosion,
         n_levels_bf_species_by_n_cells_tuple,
         tracker_full_df=None,
@@ -69,7 +69,7 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.enable_continuum_processes = False
         self.time_explosion = time_explosion
         self.geometry_state = geometry_state
-        self.opacity_state = opacity_state
+        self.opacity_state_numba = opacity_state_numba
         self.tracker_full_df = tracker_full_df
         self.tracker_last_interaction_df = tracker_last_interaction_df
         self.vpacket_tracker = vpacket_tracker
