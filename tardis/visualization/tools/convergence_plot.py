@@ -2,6 +2,8 @@
 
 from collections import defaultdict
 import warnings
+import os
+import csv
 
 import ipywidgets as widgets
 import numpy as np
@@ -12,6 +14,7 @@ from IPython.display import HTML, display
 # labels on the convergence plots not rendering correctly.
 import plotly
 import plotly.graph_objects as go
+import plotly.io as pio
 
 import tardis.visualization.plot_util as pu
 
@@ -50,6 +53,15 @@ class ConvergencePlots:
     export_convergence_plots : bool, default: False, optional
         If True, plots are displayed again using the `notebook_connected` renderer. This helps
         to display the plots in the documentation or in platforms like nbviewer.
+    export_format : str, optional
+        If provided, file export is performed on the last iteration in the specified format.
+        Supported formats: 'ascii', 'csv' for data export, or image formats supported by
+        plotly/kaleido (e.g. 'png', 'svg', 'pdf'). File export is independent of export_convergence_plots.
+    export_path : str, optional
+        Directory where exported files will be written. Defaults to the current working
+        directory.
+    export_prefix : str, optional
+        Filename prefix used for exported files. Defaults to 'convergence_plots'.
 
     Notes
     -----
@@ -69,6 +81,9 @@ class ConvergencePlots:
         self.plasma_plot = None
         self.t_inner_luminosities_plot = None
         self.display_handle = None
+        self.export_format = kwargs.get("export_format", None)
+        self.export_path = kwargs.get("export_path", None)
+        self.export_prefix = kwargs.get("export_prefix", "convergence_plots")
 
         if "plasma_plot_config" in kwargs:
             self.plasma_plot_config = kwargs["plasma_plot_config"]
@@ -378,7 +393,7 @@ class ConvergencePlots:
                 "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
             )
 
-    def update(self, export_convergence_plots=False, last=False):
+    def update(self, export_convergence_plots=False, last=False, export_format=None, export_path=None, export_prefix="convergence_plots"):
         """
         Update the convergence plots every iteration.
 
@@ -390,6 +405,15 @@ class ConvergencePlots:
             Please see https://plotly.com/python/renderers/ for more information.
         last : bool, default: False, optional
             True if it's last iteration.
+        export_format : str, optional
+            If provided, file export is triggered on the last iteration in the specified format.
+            Supported formats: 'ascii', 'csv' for data export, or image formats supported by
+            plotly/kaleido (e.g. 'png', 'svg', 'pdf'). File export is independent of export_convergence_plots.
+        export_path : str, optional
+            Directory where exported files will be written. Defaults to the current working
+            directory.
+        export_prefix : str, default: 'convergence_plots', optional
+            Filename prefix used for exported files.
         """
         if self.iterable_data != {}:
             # build only at first iteration
@@ -420,6 +444,29 @@ class ConvergencePlots:
 
         self.current_iteration += 1
 
+        # Resolve effective export parameters (allow instance-level defaults)
+        efmt = export_format or getattr(self, "export_format", None)
+        epath = export_path or getattr(self, "export_path", os.getcwd())
+        prefix = export_prefix or getattr(self, "export_prefix", "convergence_plots")
+
+        # Triggered on last=True when export_format is set
+        if last and efmt and self.plasma_plot is not None and self.t_inner_luminosities_plot is not None:
+            try:
+                os.makedirs(epath, exist_ok=True)
+            except Exception:
+                warnings.warn(f"Could not create export directory '{epath}'")
+
+            if efmt in ("ascii", "csv"):
+                try:
+                    self._export_csv(epath, prefix)
+                except Exception as e:
+                    warnings.warn(f"Failed to export CSV data to {epath}. Error: {e}")
+            else:
+                try:
+                    self._export_images(epath, prefix, efmt)
+                except Exception as e:
+                    warnings.warn(f"Failed to export images to {epath}. Error: {e}")
+
         # Export convergence plots for sharing on platforms like nbviewer
         # This creates additional outputs that work better for static notebook sharing
         # but can cause duplicate displays in interactive environments
@@ -431,3 +478,148 @@ class ConvergencePlots:
         ):
             self.plasma_plot.show(renderer="notebook_connected")
             self.t_inner_luminosities_plot.show(renderer="notebook_connected")
+
+    def _export_images(self, export_path, prefix, fmt):
+        """
+        Export plots as static images using Plotly + Kaleido.
+
+        Parameters
+        ----------
+        export_path : str
+            Directory where images will be written.
+        prefix : str
+            Filename prefix.
+        fmt : str
+            Image format (e.g. 'png', 'svg', 'pdf').
+        """
+        plasma_file = os.path.join(export_path, f"{prefix}_plasma.{fmt}")
+        tinner_file = os.path.join(export_path, f"{prefix}_tinner.{fmt}")
+
+        try:
+            plasma_fig = go.Figure(self.plasma_plot.to_plotly_json())
+            tinner_fig = go.Figure(self.t_inner_luminosities_plot.to_plotly_json())
+        except Exception:
+            plasma_fig = go.Figure(self.plasma_plot)
+            tinner_fig = go.Figure(self.t_inner_luminosities_plot)
+
+        try:
+            import kaleido
+        except Exception:
+            warnings.warn(
+                "Kaleido is not available; image export may fail. Install 'kaleido' to enable image export."
+            )
+
+        try:
+            plasma_fig.write_image(plasma_file)
+            tinner_fig.write_image(tinner_file)
+        except Exception as e:
+            warnings.warn(
+                f"Failed to write images to {export_path}. Ensure 'kaleido' is installed. Error: {e}"
+            )
+
+    def _export_csv(self, export_path, prefix):
+        """
+        Export convergence history and last-iteration plasma data as CSV/ASCII.
+
+        Parameters
+        ----------
+        export_path : str
+            Directory where CSV files will be written.
+        prefix : str
+            Filename prefix.
+        """
+
+        tinner_file = os.path.join(export_path, f"{prefix}_tinner.csv")
+        tinner_values = self.value_data.get("t_inner", [])
+        emitted_values = self.value_data.get("Emitted", [])
+        absorbed_values = self.value_data.get("Absorbed", [])
+        requested_values = self.value_data.get("Requested", [])
+
+        iterations = list(range(1, len(tinner_values) + 1))
+
+        residuals = []
+        for e, r in zip(emitted_values, requested_values):
+            try:
+                residuals.append(((e - r) * 100) / r)
+            except Exception:
+                residuals.append(None)
+
+        with open(tinner_file, "w", newline="") as fh:
+            writer = csv.writer(fh)
+            header = [
+                "iteration",
+                "t_inner [K]",
+                "Emitted [erg s^-1]",
+                "Absorbed [erg s^-1]",
+                "Requested [erg s^-1]",
+                "Residual_percent [%]",
+            ]
+            writer.writerow(header)
+
+            for i in range(len(tinner_values)):
+                tval = tinner_values[i]
+                if hasattr(tval, "to"):
+                    try:
+                        tval_out = float(tval.to(u.K).value)
+                    except Exception:
+                        tval_out = float(getattr(tval, "value", tval))
+                else:
+                    tval_out = float(getattr(tval, "value", tval))
+
+                def _val_at(arr, idx):
+                    if idx >= len(arr):
+                        return None
+                    v = arr[idx]
+                    if hasattr(v, "to"):
+                        try:
+                            return float(v.to(u.erg / u.s).value)
+                        except Exception:
+                            return float(getattr(v, "value", v))
+                    else:
+                        return float(getattr(v, "value", v))
+
+                row = [
+                    iterations[i],
+                    tval_out,
+                    _val_at(emitted_values, i),
+                    _val_at(absorbed_values, i),
+                    _val_at(requested_values, i),
+                    residuals[i] if i < len(residuals) else None,
+                ]
+                writer.writerow(row)
+
+        plasma_file = os.path.join(export_path, f"{prefix}_plasma_last.csv")
+        vel = self.iterable_data.get("velocity")
+        t_rad = self.iterable_data.get("t_rad")
+        w = self.iterable_data.get("w")
+
+        if vel is None or t_rad is None or w is None:
+            warnings.warn("Plasma data not available for CSV export; skipping plasma CSV.")
+            return
+
+        try:
+            vel_vals = [float(v.to(u.km / u.s).value) for v in vel]
+        except Exception:
+            try:
+                vel_vals = list(getattr(vel, "to", lambda unit: vel)(u.km / u.s).value)
+            except Exception:
+                vel_vals = [float(getattr(v, "value", v)) for v in vel]
+
+        try:
+            tvals = [float(t.to(u.K).value) for t in t_rad]
+        except Exception:
+            try:
+                tvals = list(getattr(t_rad, "to", lambda unit: t_rad)(u.K).value)
+            except Exception:
+                tvals = [float(getattr(t, "value", t)) for t in t_rad]
+
+        try:
+            w_vals = [float(getattr(wi, "value", wi)) for wi in w]
+        except Exception:
+            w_vals = [float(wi) for wi in w]
+
+        with open(plasma_file, "w", newline="") as fh:
+            writer = csv.writer(fh)
+            writer.writerow(["velocity [km s^-1]", "t_rad [K]", "w [dimensionless]"])
+            for xv, yv, wv in zip(vel_vals, tvals, w_vals):
+                writer.writerow([xv, yv, wv])
