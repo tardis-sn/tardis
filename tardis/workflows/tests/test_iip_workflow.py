@@ -324,6 +324,22 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         iip_regression_path / "ctardis_transition_probabilities_init_nlte.h5",
         key="data",
     )
+    electron_densities_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_electron_densities_init_nlte.h5",
+        key="data",
+    )
+    p_fb_deactivation_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_p_fb_deactivation_init_nlte.h5",
+        key="data",
+    )
+    chi_bf_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_chi_bf_init_nlte.h5",
+        key="data",
+    )
+    t_electrons_ctardis = pd.read_hdf(
+        iip_regression_path / "ctardis_t_electrons_init_nlte.h5",
+        key="data"
+    )
 
     print(
         "init transition_probabilities max rel diff: {:.3e}".format(
@@ -404,16 +420,6 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         check_dtype=False,
     )
 
-    # TODO: get the actual values for these and store in regression data
-    store = pd.HDFStore(
-        "/storage/mcconnor/ctardis_h5/opacity_state.h5", mode="r"
-    )
-    electron_densities_ctardis = store["electron_densities"]
-    t_electrons_ctardis = store["t_electrons"]
-    p_fb_deactivation_ctardis = store["p_fb_deactivation"]
-    chi_bf_ctardis = store["chi_bf"]
-    store.close()
-
     print(
         "init electron_densities max rel diff: {:.3e}".format(
             _max_rel_diff(
@@ -429,6 +435,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         atol=0,
         check_dtype=False,
     )
+
     print(
         "init t_electrons max rel diff: {:.3e}".format(
             _max_rel_diff(
@@ -443,6 +450,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         rtol=2e-13,
         atol=0,
     )
+
     print(
         "init p_fb_deactivation max rel diff: {:.3e}".format(
             _max_rel_diff(
@@ -457,6 +465,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         rtol=2e-13,
         atol=0,
     )
+
     print(
         "init chi_bf max rel diff: {:.3e}".format(
             _max_rel_diff(
