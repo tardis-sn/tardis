@@ -20,7 +20,7 @@ class MacroAtomTransitionType(IntEnum):
     BF_EMISSION = -2  # This is recombination emission, aka k-packet to r-packet
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
-    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Don't do that - need separate for cooling estimators - maybe is the same thing as BF EMISSION
+    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
     TWO_PHOTON = -6
     COLL_DOWN_TO_K_PACKET = 9
     COLL_DOWN_INTERNAL = 10
