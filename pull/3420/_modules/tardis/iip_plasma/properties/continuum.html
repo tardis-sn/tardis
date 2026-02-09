@@ -1,0 +1,1758 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.iip_plasma.properties.continuum &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=cb0465ef"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.iip_plasma.properties.continuum</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.iip_plasma.properties.continuum</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import numpy as np
+import pandas as pd
+from astropy import constants as const
+from scipy.integrate import simpson, trapezoid
+from scipy.interpolate import PchipInterpolator
+
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.iip_plasma.continuum.util import get_ion_multi_index
+from tardis.iip_plasma.properties.base import Input, ProcessingPlasmaProperty
+from tardis.plasma.properties.continuum_processes.fast_array_util import (
+    cumulative_integrate_array_by_blocks,
+)
+from tardis.plasma.properties.continuum_processes.rates import (
+    cooling_rate_series2dataframe,
+    get_ground_state_multi_index,
+)
+from tardis.util.base import intensity_black_body
+
+logger = logging.getLogger(__name__)
+
+__all__ = [
+    &quot;BfHeatingRateCoeff&quot;,
+    &quot;BfHeatingRateCoeffEstim&quot;,
+    &quot;CollDeexcRateCoeff&quot;,
+    &quot;CollExcCooling&quot;,
+    &quot;CollExcRateCoeff&quot;,
+    &quot;CollIonRateCoeff&quot;,
+    &quot;CollRecombRateCoeff&quot;,
+    &quot;Logger&quot;,
+    &quot;PhotoIonRateCoeff&quot;,
+    &quot;SpontRecombRateCoeff&quot;,
+    &quot;StimRecombCoolingRateCoeff&quot;,
+    &quot;StimRecombRateCoeff&quot;,
+    &quot;ThermalBalanceTest&quot;,
+    &quot;Yg&quot;,
+    &quot;YgInterpolator&quot;,
+]
+
+
+def get_estimator_index(photo_ion_index_sorted):
+    index = pd.MultiIndex.from_tuples(photo_ion_index_sorted)
+    index.names = [&quot;atomic_number&quot;, &quot;ion_number&quot;, &quot;level_number&quot;]
+    return index
+
+
+def calculate_rate_coefficient_from_estimator(
+    estimator, photo_ion_index_sorted
+):
+    no_of_shells = estimator.shape[1]
+    index = get_estimator_index(photo_ion_index_sorted)
+    rate_coeff = pd.DataFrame(
+        estimator, index=index, columns=np.arange(no_of_shells), copy=True
+    )
+    return rate_coeff
+
+
+<div class="viewcode-block" id="SpontRecombRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.SpontRecombRateCoeff">[docs]</a>
+class SpontRecombRateCoeff(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    alpha_sp : Pandas DataFrame, dtype float
+               The rate coefficient for spontaneous recombination.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;alpha_sp&quot;,)
+    latex_name = (&quot;\\alpha^{\\textrm{sp}}&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="SpontRecombRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.SpontRecombRateCoeff.calculate">[docs]</a>
+    def calculate(self, photo_ion_cross_sections, t_electrons, phi_lucy):
+        # print &quot;Calculate alpha_sp \n&quot;
+        x_sect = photo_ion_cross_sections[&quot;x_sect&quot;]
+        nu = photo_ion_cross_sections[&quot;nu&quot;]
+
+        alpha_sp = (
+            8 * np.pi * x_sect * nu**2 / (const.c.cgs.value) ** 2
+        ).values
+        alpha_sp = alpha_sp[:, np.newaxis]
+        boltzmann_factor = np.exp(
+            -nu.values[np.newaxis].T
+            / t_electrons
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+        recomb_coeff = pd.DataFrame(boltzmann_factor * alpha_sp, index=nu.index)
+        recomb_coeff.insert(0, &quot;nu&quot;, nu)
+        recomb_coeff = recomb_coeff.groupby(level=[0, 1, 2])
+        tmp = {}
+        for i in range(len(t_electrons)):
+            tmp[i] = recomb_coeff.apply(
+                lambda sub: trapezoid(sub[i], sub[&quot;nu&quot;])
+            )
+        alpha_sp = pd.DataFrame(tmp)
+        phi_lucy = phi_lucy.loc[alpha_sp.index]
+
+        # TODO: Revert
+        if self.plasma_parent.niter &gt; self.plasma_parent.niter_ly:
+            # print &quot;Set alpha_sp to zero&quot;
+            alpha_sp.loc[(1, 0, 0)] = 0.0
+        return alpha_sp.multiply(phi_lucy)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="PhotoIonRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.PhotoIonRateCoeff">[docs]</a>
+class PhotoIonRateCoeff(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    gamma : Pandas DataFrame, dtype float
+               The rate coefficient for radiative ionization.
+    &quot;&quot;&quot;
+
+    outputs = (
+        &quot;gamma&quot;,
+        &quot;gamma_Ly_estim&quot;,
+        &quot;gamma_Ly_analytic&quot;,
+        &quot;gamma_Ly_analytic_evolution&quot;,
+        &quot;gamma_Ly_estim_evolution&quot;,
+    )
+    latex_name = (&quot;\\gamma&quot;, &quot;&quot;, &quot;&quot;)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="PhotoIonRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.PhotoIonRateCoeff.calculate">[docs]</a>
+    def calculate(
+        self,
+        photo_ion_estimator,
+        photo_ion_index_sorted,
+        previous_t_electrons,
+        photo_ion_cross_sections,
+        previous_b,
+    ):
+        # print &quot;Calculate gamma \n&quot;
+        if photo_ion_estimator is not None:
+            gamma = calculate_rate_coefficient_from_estimator(
+                photo_ion_estimator, photo_ion_index_sorted
+            )
+            gamma_Ly_old = gamma.loc[(1, 0, 0)].copy(deep=True).values
+            gamma_Ly_new = self._update_Lymann_continuum(
+                gamma,
+                photo_ion_cross_sections,
+                previous_t_electrons,
+                previous_b,
+            )
+            gamma_Ly_new = gamma_Ly_new[0]
+
+            # gamma.loc[(1,0,0)] = gamma_Ly_new
+            # print &quot;\n&quot;
+            # print &quot;gamma_anal/gamma_estim:&quot;
+            # print gamma_Ly_new / gamma_Ly_old
+            # print &quot;\n\n&quot;
+            self.gamma_Ly_analytic_evolution.append(gamma_Ly_new)
+            self.gamma_Ly_estim_evolution.append(gamma_Ly_old)
+            # print self.plasma_parent.niter, self.plasma_parent.niter_ly
+            if self.plasma_parent.niter &gt; self.plasma_parent.niter_ly:
+                # print &quot;Setting gamma to zero&quot;
+                gamma.loc[(1, 0, 0)] = 0.0
+        else:
+            gamma = None
+            gamma_Ly_new = None
+            gamma_Ly_old = None
+            self.gamma_Ly_estim_evolution = []
+            self.gamma_Ly_analytic_evolution = []
+        return (
+            gamma,
+            gamma_Ly_old,
+            gamma_Ly_new,
+            self.gamma_Ly_analytic_evolution,
+            self.gamma_Ly_estim_evolution,
+        )</div>
+
+
+<div class="viewcode-block" id="PhotoIonRateCoeff.calculate_from_radiation_field_model">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.PhotoIonRateCoeff.calculate_from_radiation_field_model">[docs]</a>
+    def calculate_from_radiation_field_model(
+        self, photo_ion_cross_sections, w, t_rad
+    ):
+        j_nus = self._calculate_j_nus(photo_ion_cross_sections, w, t_rad)
+        photoion_coeff = j_nus.multiply(
+            4.0
+            * np.pi
+            * photo_ion_cross_sections[&quot;x_sect&quot;]
+            / photo_ion_cross_sections[&quot;nu&quot;]
+            / const.h.cgs.value,
+            axis=0,
+        )
+        photoion_coeff.insert(0, &quot;nu&quot;, photo_ion_cross_sections[&quot;nu&quot;])
+        photoion_coeff = photoion_coeff.groupby(level=[0, 1, 2])
+        tmp = {}
+        for i in range(len(w)):
+            tmp[i] = photoion_coeff.apply(
+                lambda sub: trapezoid(sub[i], sub[&quot;nu&quot;])
+            )
+        photoion_coeff = pd.DataFrame(tmp)
+
+        # if photo_ion_estimator is not None:
+        #    print &quot;Bf_estim/bf:&quot;, photo_ion_estimator/photoion_coeff
+        return photoion_coeff</div>
+
+
+    def _update_Lymann_continuum(
+        self, gamma, photo_ion_cross_sections, t_electrons, previous_b
+    ):
+        x_sect_Ly = photo_ion_cross_sections.loc[(1, 0, 0)]
+        # print &quot;Previous b:&quot;, previous_b.loc[(1,0,0)]
+        W = (previous_b.loc[(1, 0, 0)].values) ** -1
+        gamma_Ly = self.calculate_from_radiation_field_model(
+            x_sect_Ly, W, t_electrons
+        )
+        return gamma_Ly.values
+
+    @staticmethod
+    def _calculate_j_nus(photoionization_data, ws, t_rads):
+        nus = photoionization_data[&quot;nu&quot;].values
+        j_nus = ws * intensity_black_body(nus[np.newaxis].T, t_rads)
+        return pd.DataFrame(j_nus, index=photoionization_data.index)</div>
+
+
+
+<div class="viewcode-block" id="BfHeatingRateCoeffEstim">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.BfHeatingRateCoeffEstim">[docs]</a>
+class BfHeatingRateCoeffEstim(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    gamma : Pandas DataFrame, dtype float
+               The rate coefficient for bound-free heating.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;bf_heating_coeff_estim&quot;,)
+    latex_name = (&quot;\\h_{\\textrm{bf}}}&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="BfHeatingRateCoeffEstim.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.BfHeatingRateCoeffEstim.calculate">[docs]</a>
+    def calculate(self, bf_heating_estimator, photo_ion_index_sorted):
+        if bf_heating_estimator is not None:
+            bf_heating_coeff = calculate_rate_coefficient_from_estimator(
+                bf_heating_estimator, photo_ion_index_sorted
+            )
+            if self.plasma_parent.niter &gt; self.plasma_parent.niter_ly:
+                bf_heating_coeff.loc[(1, 0, 0)] = 0.0
+        else:
+            bf_heating_coeff = None
+        return bf_heating_coeff</div>
+</div>
+
+
+
+<div class="viewcode-block" id="BfHeatingRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.BfHeatingRateCoeff">[docs]</a>
+class BfHeatingRateCoeff(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    gamma : Pandas DataFrame, dtype float
+               The rate coefficient for bound-free heating.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;bf_heating_coeff&quot;,)
+    latex_name = (&quot;\\h_{\\textrm{bf}}}&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="BfHeatingRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.BfHeatingRateCoeff.calculate">[docs]</a>
+    def calculate(self, bf_heating_estimator, photo_ion_index_sorted):
+        if bf_heating_estimator is not None:
+            bf_heating_coeff = calculate_rate_coefficient_from_estimator(
+                bf_heating_estimator, photo_ion_index_sorted
+            )
+            if self.plasma_parent.niter &gt; self.plasma_parent.niter_ly:
+                bf_heating_coeff.loc[(1, 0, 0)] = 0.0
+        else:
+            bf_heating_coeff = None
+        return bf_heating_coeff</div>
+
+
+<div class="viewcode-block" id="BfHeatingRateCoeff.calculate_from_radiation_field_model">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.BfHeatingRateCoeff.calculate_from_radiation_field_model">[docs]</a>
+    def calculate_from_radiation_field_model(
+        self, photo_ion_cross_sections, w, t_rad
+    ):
+        j_nus = self._calculate_j_nus(photo_ion_cross_sections, w, t_rad)
+        nu_i = photo_ion_cross_sections[&quot;nu&quot;].groupby(level=[0, 1, 2]).first()
+        nu_is = nu_i.loc[photo_ion_cross_sections.index]
+        photoion_heating_coeff = j_nus.multiply(
+            4.0
+            * np.pi
+            * photo_ion_cross_sections[&quot;x_sect&quot;]
+            * (1 - nu_is / photo_ion_cross_sections[&quot;nu&quot;]),
+            axis=0,
+        )
+        photoion_heating_coeff.insert(0, &quot;nu&quot;, photo_ion_cross_sections[&quot;nu&quot;])
+        photoion_heating_coeff = photoion_heating_coeff.groupby(level=[0, 1, 2])
+        tmp = {}
+        for i in range(len(w)):
+            tmp[i] = photoion_heating_coeff.apply(
+                lambda sub: simpson(sub[i], sub[&quot;nu&quot;], even=&quot;first&quot;)
+            )
+        photoion_heating_coeff = pd.DataFrame(tmp)
+
+        return photoion_heating_coeff</div>
+
+
+    @staticmethod
+    def _calculate_j_nus(photoionization_data, ws, t_rads):
+        nus = photoionization_data[&quot;nu&quot;].values
+        j_nus = ws * intensity_black_body(nus[np.newaxis].T, t_rads)
+        return pd.DataFrame(j_nus, index=photoionization_data.index)</div>
+
+
+
+<div class="viewcode-block" id="StimRecombCoolingRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.StimRecombCoolingRateCoeff">[docs]</a>
+class StimRecombCoolingRateCoeff(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    gamma : Pandas DataFrame, dtype float
+               The rate coefficient for stimulated recombination cooling.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;stim_recomb_cooling_coeff&quot;,)
+    latex_name = (&quot;\\alpha^{\\textrm{stim, E}}}&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="StimRecombCoolingRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.StimRecombCoolingRateCoeff.calculate">[docs]</a>
+    def calculate(self, stim_recomb_cooling_estimator, photo_ion_index_sorted):
+        if stim_recomb_cooling_estimator is not None:
+            coeff = calculate_rate_coefficient_from_estimator(
+                stim_recomb_cooling_estimator, photo_ion_index_sorted
+            )
+            if self.plasma_parent.niter &gt; self.plasma_parent.niter_ly:
+                coeff.loc[(1, 0, 0)] = 0.0
+        else:
+            coeff = None
+        return coeff</div>
+</div>
+
+
+
+<div class="viewcode-block" id="StimRecombRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.StimRecombRateCoeff">[docs]</a>
+class StimRecombRateCoeff(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    gamma : Pandas DataFrame, dtype float
+               The rate coefficient for radiative ionization.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;alpha_stim&quot;,)
+    latex_name = (&quot;\\alpha^{\\textrm{stim}}&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="StimRecombRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.StimRecombRateCoeff.calculate">[docs]</a>
+    def calculate(
+        self, stim_recomb_estimator, photo_ion_index_sorted, phi_lucy
+    ):
+        # print &quot;Calculate alpha_stim \n&quot;
+        if stim_recomb_estimator is not None:
+            alpha_stim = calculate_rate_coefficient_from_estimator(
+                stim_recomb_estimator, photo_ion_index_sorted
+            )
+            phi_lucy = phi_lucy.loc[alpha_stim.index]
+            alpha_stim = alpha_stim.multiply(phi_lucy)
+            if self.plasma_parent.niter &gt; self.plasma_parent.niter_ly:
+                alpha_stim.loc[(1, 0, 0)] = 0.0
+        else:
+            alpha_stim = None
+        return alpha_stim</div>
+
+
+<div class="viewcode-block" id="StimRecombRateCoeff.calculate_from_radiation_field_model">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.StimRecombRateCoeff.calculate_from_radiation_field_model">[docs]</a>
+    def calculate_from_radiation_field_model(
+        self,
+        photo_ion_cross_sections,
+        w,
+        t_rad,
+        stim_recomb_estimator,
+        t_electrons,
+        phi_lucy,
+    ):
+        j_nus = self._calculate_j_nus(photo_ion_cross_sections, w, t_rad)
+        photoion_coeff = j_nus.multiply(
+            4.0
+            * np.pi
+            * photo_ion_cross_sections[&quot;x_sect&quot;]
+            / photo_ion_cross_sections[&quot;nu&quot;]
+            / const.h.cgs.value,
+            axis=0,
+        )
+        boltzmann_factor = np.exp(
+            -photo_ion_cross_sections.nu.values[np.newaxis].T
+            / t_electrons
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+        photoion_coeff = photoion_coeff * boltzmann_factor
+        photoion_coeff.insert(0, &quot;nu&quot;, photo_ion_cross_sections[&quot;nu&quot;])
+        photoion_coeff = photoion_coeff.groupby(level=[0, 1, 2])
+        tmp = {}
+        for i in range(len(w)):
+            tmp[i] = photoion_coeff.apply(
+                lambda sub: trapezoid(sub[i], sub[&quot;nu&quot;])
+            )
+        photoion_coeff = pd.DataFrame(tmp)
+
+        # if stim_recomb_estimator is not None:
+        #    print &quot;stim_recomb_estim/stim_recomb:&quot;, stim_recomb_estimator/photoion_coeff
+
+        phi_lucy = phi_lucy.loc[photoion_coeff.index]
+        alpha_stim = photoion_coeff.multiply(phi_lucy)
+
+        return alpha_stim</div>
+
+
+    @staticmethod
+    def _calculate_j_nus(photoionization_data, ws, t_rads):
+        nus = photoionization_data[&quot;nu&quot;].values
+        j_nus = ws * intensity_black_body(nus[np.newaxis].T, t_rads)
+        return pd.DataFrame(j_nus, index=photoionization_data.index)</div>
+
+
+    # def _calculate_boltzmann_factor(self, nu):
+    #     u0s = self._calculate_u0s(nu)
+    #     return np.exp(-u0s)
+    #
+    # def _calculate_u0s(self, nu, t_electrons):
+    #     u0s = nu[np.newaxis].T / t_electrons * (const.h.cgs.value / const.k_B.cgs.value)
+    #     return u0s
+
+
+<div class="viewcode-block" id="CollIonRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollIonRateCoeff">[docs]</a>
+class CollIonRateCoeff(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    coll_ion_coeff : Pandas DataFrame, dtype float
+               The rate coefficient for collisional ionization.
+               Multiply with the electron density and the level number density
+               to obtain the total rate.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;coll_ion_coeff&quot;,)
+    latex_name = (&quot;\\c_{\\textrm{i,}\\kappa}&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="CollIonRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollIonRateCoeff.calculate">[docs]</a>
+    def calculate(self, photo_ion_cross_sections, t_electrons):
+        &quot;&quot;&quot;
+        Calculates the rate coefficient for ionization by thermal electrons using the Seaton
+        approximation (Equation 5-79 of Mihalas 1978).
+
+        Returns
+        -------
+        recomb_coeff: pd.DataFrame
+            The rate coefficient for collisional ionization.
+
+        &quot;&quot;&quot;
+        # print &quot;Calculate coll_ion \n&quot;
+        collion_coeff = photo_ion_cross_sections.groupby(
+            level=[0, 1, 2]
+        ).first()
+        factor = self._calculate_factor(
+            collion_coeff[&quot;nu&quot;].values, t_electrons, index=collion_coeff.index
+        )
+        collion_coeff = 1.55e13 * collion_coeff[&quot;x_sect&quot;]
+        ion_number = collion_coeff.index.get_level_values(1).values
+        collion_coeff[ion_number == 0] *= 0.1
+        collion_coeff[ion_number == 1] *= 0.2
+        collion_coeff[ion_number &gt;= 2] *= 0.3
+        collion_coeff = factor.multiply(collion_coeff, axis=0)
+        collion_coeff = collion_coeff.divide(np.sqrt(t_electrons), axis=1)
+        return collion_coeff</div>
+
+
+    def _calculate_factor(self, nu_ijk, t_electrons, index):
+        u0s = self._calculate_u0s(nu_ijk, t_electrons)
+        factor = 1.0 / u0s * np.exp(-u0s)
+        factor = pd.DataFrame(
+            factor, index=index, columns=np.arange(len(t_electrons))
+        )
+        return factor
+
+    @staticmethod
+    def _calculate_u0s(nu, t_electrons):
+        u0s = (
+            nu[np.newaxis].T
+            / t_electrons
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+        return u0s</div>
+
+
+
+<div class="viewcode-block" id="CollRecombRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollRecombRateCoeff">[docs]</a>
+class CollRecombRateCoeff(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    coll_recomb_coeff : Pandas DataFrame, dtype float
+               The rate coefficient for collisional recombination.
+               Multiply with the electron density squared and the ion number density
+               to obtain the total rate.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;coll_recomb_coeff&quot;,)
+    latex_name = (&quot;\\c_{\\kappa\\textrm{i,}}&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="CollRecombRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollRecombRateCoeff.calculate">[docs]</a>
+    def calculate(self, phi_lucy, coll_ion_coeff):
+        # print &quot;Calculate coll_recomb \n&quot;
+        return coll_ion_coeff.multiply(phi_lucy.loc[coll_ion_coeff.index])</div>
+</div>
+
+
+
+<div class="viewcode-block" id="YgInterpolator">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.YgInterpolator">[docs]</a>
+class YgInterpolator(ProcessingPlasmaProperty):
+    outputs = (&quot;Yg_interp&quot;, &quot;yg_allowed_index&quot;, &quot;yg_forbidden_index&quot;)
+    latex_name = (&quot;Yg_interp&quot;,)
+
+<div class="viewcode-block" id="YgInterpolator.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.YgInterpolator.calculate">[docs]</a>
+    def calculate(self, yg_data, T_Yg, lines_multi_index):
+        allowed_mask = yg_data.index.isin(lines_multi_index)
+        yg_allowed_index = yg_data.index[allowed_mask]
+        yg_forbidden_index = yg_data.index[~allowed_mask]
+        interp = PchipInterpolator(T_Yg, yg_data, axis=1, extrapolate=True)
+        return interp, yg_allowed_index, yg_forbidden_index</div>
+</div>
+
+
+
+<div class="viewcode-block" id="Yg">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.Yg">[docs]</a>
+class Yg(ProcessingPlasmaProperty):
+    outputs = (&quot;yg&quot;,)
+    latex_name = (&quot;Y/g&quot;,)
+
+<div class="viewcode-block" id="Yg.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.Yg.calculate">[docs]</a>
+    def calculate(self, Yg_interp, Yg_index, t_electrons):
+        yg = Yg_interp(t_electrons)
+        return pd.DataFrame(yg, index=Yg_index)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="CollExcRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollExcRateCoeff">[docs]</a>
+class CollExcRateCoeff(ProcessingPlasmaProperty):
+    outputs = (&quot;coll_exc_coeff&quot;, &quot;nu_lines_coll&quot;)
+    latex_name = (&quot;\\c_{\\kappa\\textrm{i,}}&quot;, &quot;\\nu_\\textrm{lines}_coll&quot;)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="CollExcRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollExcRateCoeff.calculate">[docs]</a>
+    def calculate(
+        self,
+        lines,
+        excitation_energy,
+        t_electrons,
+        yg,
+        yg_allowed_index,
+        yg_forbidden_index,
+    ):
+        I_H = cconst.I_H
+
+        # lines_filtered = lines.query(&#39;atomic_number == 1&#39;)
+        lines_filtered = lines
+        f_lu = lines_filtered.f_lu.values
+        nu_lines = lines_filtered.nu.values
+
+        coll_excitation_coeff = pd.DataFrame(
+            14.5
+            * cconst.c0_reg
+            * f_lu
+            * (I_H / (const.h.cgs.value * nu_lines)) ** 2
+        )
+        coll_excitation_coeff = coll_excitation_coeff.dot(
+            pd.DataFrame(np.sqrt(t_electrons)).T
+        )
+        u0 = (
+            nu_lines[np.newaxis].T
+            / t_electrons
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+        gamma = 0.276 * self.exp1_times_exp(u0)
+        gamma[gamma &lt; 0.2] = 0.2
+        factor = pd.DataFrame(u0 * np.exp(-u0) * gamma)
+        coll_excitation_coeff = coll_excitation_coeff.multiply(factor, axis=0)
+
+        coll_excitation_coeff.set_index(lines_filtered.index, inplace=True)
+
+        # Calculate rates based on PB04
+        ind = yg.index
+        ll_index = pd.MultiIndex.from_arrays(
+            [
+                ind.get_level_values(0),
+                ind.get_level_values(1),
+                ind.get_level_values(2),
+            ]
+        )
+        lu_index = pd.MultiIndex.from_arrays(
+            [
+                ind.get_level_values(0),
+                ind.get_level_values(1),
+                ind.get_level_values(3),
+            ]
+        )
+        e_lu = excitation_energy.loc[lu_index]
+        e_ll = excitation_energy.loc[ll_index]
+        hnu = e_lu.values - e_ll.values
+        hnu = pd.DataFrame(hnu, index=ind)
+        # hnu = pd.DataFrame(const.h.cgs.value * nu_lines, index=index)
+        # boltzman_factor = pd.DataFrame(np.exp(-hnu.values / (const.k_B.cgs.value
+        #    * t_electrons.T)), index=hnu.index)
+        boltzman_factor = pd.DataFrame(
+            np.exp(-hnu.values / (const.k_B.cgs.value * t_electrons.T)),
+            index=yg.index,
+        )
+        q_ij = (
+            8.629e-6 / np.sqrt(t_electrons) * yg * boltzman_factor.loc[yg.index]
+        )
+        # coll_excitation_coeff.loc[q_ij.index] = q_ij
+        coll_excitation_coeff.loc[yg_allowed_index] = q_ij.loc[yg_allowed_index]
+        # coll_excitation_coeff = pd.concat(
+        #    [coll_excitation_coeff, q_ij.loc[yg_forbidden_index]]
+        # )
+        # TODO: Also use forbidden transitions
+
+        return coll_excitation_coeff, nu_lines</div>
+
+
+<div class="viewcode-block" id="CollExcRateCoeff.exp1_times_exp">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollExcRateCoeff.exp1_times_exp">[docs]</a>
+    @staticmethod
+    def exp1_times_exp(x):
+        &quot;&quot;&quot;
+        Product of the Exponential integral E1 and an exponential.
+        This function calculates the product of the Exponential integral E1
+        and an exponential in a way that also works for large values.
+
+        Parameters
+        ----------
+        x : array_like
+            Input values.
+
+        Returns
+        -------
+        array_like
+            Output array.
+        &quot;&quot;&quot;
+        f = exp1(x) * np.exp(x)
+        # Use Laurent series for large values to avoid infinite exponential
+        mask = x &gt; 500
+        f[mask] = (x**-1 - x**-2 + 2 * x**-3 - 6 * x**-4)[mask]
+        return f</div>
+</div>
+
+
+
+<div class="viewcode-block" id="CollDeexcRateCoeff">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollDeexcRateCoeff">[docs]</a>
+class CollDeexcRateCoeff(ProcessingPlasmaProperty):
+    outputs = (&quot;coll_deexc_coeff&quot;,)
+
+<div class="viewcode-block" id="CollDeexcRateCoeff.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollDeexcRateCoeff.calculate">[docs]</a>
+    def calculate(self, lte_level_boltzmann_factor_Te, coll_exc_coeff):
+        atom_number = coll_exc_coeff.index.get_level_values(0).values
+        ion_number = coll_exc_coeff.index.get_level_values(1).values
+        level_number_lower = coll_exc_coeff.index.get_level_values(2).values
+        level_number_upper = coll_exc_coeff.index.get_level_values(3).values
+        index_lower = pd.MultiIndex.from_arrays(
+            [atom_number, ion_number, level_number_lower]
+        )
+        index_upper = pd.MultiIndex.from_arrays(
+            [atom_number, ion_number, level_number_upper]
+        )
+
+        n_lower_prop = lte_level_boltzmann_factor_Te.loc[index_lower].values
+        n_upper_prop = lte_level_boltzmann_factor_Te.loc[index_upper].values
+        lte_level_pop_ratio = n_lower_prop / n_upper_prop
+
+        coll_deexc_coeff = coll_exc_coeff * lte_level_pop_ratio
+        return coll_deexc_coeff</div>
+</div>
+
+
+
+<div class="viewcode-block" id="CollExcCooling">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollExcCooling">[docs]</a>
+class CollExcCooling(ProcessingPlasmaProperty):
+    outputs = (&quot;coll_exc_cooling&quot;, &quot;coll_deexc_heating&quot;)
+
+<div class="viewcode-block" id="CollExcCooling.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.CollExcCooling.calculate">[docs]</a>
+    def calculate(
+        self,
+        coll_exc_coeff,
+        coll_deexc_coeff,
+        level_number_density,
+        electron_densities,
+        nu_lines_coll,
+    ):
+        coll_exc_cooling_coeff = coll_exc_coeff.multiply(
+            nu_lines_coll * const.h.cgs.value, axis=0
+        )
+        coll_exc_cooling_coeff = coll_exc_cooling_coeff.multiply(
+            electron_densities, axis=1
+        )
+
+        coll_deexc_heating_coeff = coll_deexc_coeff.multiply(
+            nu_lines_coll * const.h.cgs.value, axis=0
+        )
+        coll_deexc_heating_coeff = coll_deexc_heating_coeff.multiply(
+            electron_densities, axis=1
+        )
+
+        lower_index = coll_exc_coeff.index.droplevel(level=3)
+        upper_index = coll_exc_coeff.index.droplevel(level=2)
+
+        coll_exc_cooling = coll_exc_cooling_coeff.multiply(
+            level_number_density.loc[lower_index].values
+        )
+        coll_deexc_heating = coll_deexc_heating_coeff.multiply(
+            level_number_density.loc[upper_index].values
+        )
+
+        return coll_exc_cooling.sum(), coll_deexc_heating.sum()</div>
+</div>
+
+
+
+from tardis.iip_plasma.properties.general import BetaRadiation, GElectron
+from tardis.iip_plasma.properties.ion_population import PhiSahaElectrons
+from tardis.iip_plasma.properties.level_population import PhiLucy
+from tardis.iip_plasma.properties.partition_function import (
+    LevelBoltzmannFactorLTETe,
+    PartitionFunction,
+)
+from scipy.special import exp1
+
+from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
+from tardis.iip_plasma.continuum.util import get_ion_multi_index
+
+
+<div class="viewcode-block" id="ThermalBalanceTest">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.ThermalBalanceTest">[docs]</a>
+class ThermalBalanceTest(ProcessingPlasmaProperty):
+    outputs = (&quot;fractional_heating&quot;, &quot;sp_fb_cooling_rates&quot;)
+    latex_name = (&quot;&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+    def __init__(self, plasma_parent, T_min=2500, T_max=1.0e5):
+        super(ThermalBalanceTest, self).__init__(plasma_parent)
+        self.T_min = T_min
+        self.T_max = T_max
+        self._t_diff = None
+        self._counter = -1
+        # self._iterations = -1
+        self.max_it = 25
+        self.t_electrons_evolution = None
+        self.t_electrons_evolution_all = []
+        self.frac_heat_all = []
+        self.level_number_previous = None
+        self.heating_rates = None
+        self._converged_t_electrons = []
+
+<div class="viewcode-block" id="ThermalBalanceTest.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.ThermalBalanceTest.calculate">[docs]</a>
+    def calculate(
+        self,
+        photo_ion_cross_sections,
+        t_rad,
+        t_electrons,
+        previous_t_electrons,
+        excitation_energy,
+        g,
+        levels,
+        ionization_data,
+        ff_heating_estimator,
+        bf_heating_coeff,
+        stim_recomb_cooling_coeff,
+        coll_deexc_heating_estimator,
+        ion_number_density,
+        level_number_density,
+        electron_densities,
+        lines,
+        w,
+        time_explosion,
+        previous_b,
+        coll_exc_cooling,
+        coll_deexc_heating,
+    ):
+        # new_t_electrons = np.zeros_like(electron_densities)
+
+        # self._iterations += 1
+        # print &#39;Iterations:&#39;, self._iterations
+        fractional_heating = np.zeros_like(t_electrons)
+        sp_fb_cooling_rates = pd.DataFrame(columns=ion_number_density.columns)
+        if ff_heating_estimator is not None:
+            # if self.t_electrons_evolution is None:
+            # self.t_electrons_evolution = np.zeros((self.max_it + 2, len(new_t_electrons)))
+            # self.heating_rates = np.zeros((self.max_it + 2, len(new_t_electrons)))
+            # self.coll_exc_heating_evolution = np.zeros((self.max_it + 2, len(new_t_electrons)))
+            # self.coll_t_electrons = np.zeros((self.max_it + 2, len(new_t_electrons)))
+            # self.delta_heat_estim = np.zeros((self.max_it + 2, len(new_t_electrons)))
+            # self.delta_heat = np.zeros((self.max_it + 2, len(new_t_electrons)))
+            # self.frac_heat = np.zeros((self.max_it + 2, len(new_t_electrons)))
+
+            # conv_status = np.ones_like(t_electrons) * 0.8
+            # if self._t_diff is None:
+            #    self._t_diff = np.ones_like(t_electrons) * 100.
+
+            for shell in range(len(electron_densities)):
+                t_old = t_electrons[shell]
+                # if not self._conv_status[shell]:
+                args = (
+                    ff_heating_estimator,
+                    bf_heating_coeff,
+                    stim_recomb_cooling_coeff,
+                    coll_deexc_heating_estimator,
+                    electron_densities,
+                    ion_number_density,
+                    level_number_density,
+                    excitation_energy,
+                    g,
+                    levels,
+                    ionization_data,
+                    photo_ion_cross_sections,
+                    lines,
+                    shell,
+                    t_rad,
+                    w,
+                    time_explosion,
+                    previous_b,
+                    previous_t_electrons,
+                    coll_exc_cooling,
+                    coll_deexc_heating,
+                )
+
+                heat_mid, frac_heating, sp_fb_cooling_rate = (
+                    self.heating_function(t_old, *args)
+                )
+                fractional_heating[shell] = frac_heating
+                sp_fb_cooling_rates[shell] = sp_fb_cooling_rate
+
+        # logger.info(&quot;Fractional Heating: {}&quot;.format(fractional_heating[::2]))
+        return fractional_heating, sp_fb_cooling_rates</div>
+
+        # gradient = (heat_max - heat_min)/(2. * self._t_diff[shell])
+        # delta_T = - 0.4 * heat_mid / gradient
+        # if np.fabs(delta_T) &gt; 0.1 * t_old:
+        #    delta_T = 0.1 * t_old * np.sign(delta_T)
+        # delta_T = - 0.10 * heat_mid / gradient
+        # if np.fabs(delta_T) &gt; 200.:
+        #    delta_T = 200. * np.sign(delta_T)
+        # conv_status[shell] = np.fabs(delta_T)/t_old
+
+        # delta_heat_estim = self.heating_function(t_old + delta_T, *args)[0] - heat_mid
+        # self.delta_heat_estim[self._counter][shell] = delta_heat_estim
+        # self.frac_heat[self._counter][shell] = frac_heating
+
+        # if self._counter &gt; 0:
+        #    delta_heat = heat_mid - self.heating_rates[self._counter - 1][shell]
+        #    self.delta_heat[self._counter - 1][shell] = delta_heat
+
+        # else:
+        #    delta_T = 0.
+        #   conv_status[shell] = 0.0
+        # heat_mid = 0.0
+
+        # self.heating_rates[self._counter][shell] = heat_mid
+        # new_t_electrons[shell] = t_old + delta_T
+        # if new_t_electrons[shell] &lt; self.T_min:
+        #    new_t_electrons[shell] = self.T_min
+
+        # self._t_diff[shell] = 0.1 * np.fabs(delta_T)
+
+        # updated_link_t_rad_t_electron = new_t_electrons / t_rad
+
+        # self.t_electrons_evolution[self._counter] = new_t_electrons
+        # self._conv_status = conv_status &lt; 1.e-4
+        # self._conv_status = conv_status &lt; 1.e-4
+
+        # if self.level_number_previous is not None:
+        #    l_conv = np.fabs(level_number_density - self.level_number_previous)/level_number_density
+        #    print l_conv.max()
+        # self.level_number_previous = level_number_density
+
+        # logger.info(&quot;Thermal balance conv: {} it: {}&quot;.format(conv_status[::2], self._counter))
+        # logger.info(&quot;new_T: {}&quot;.format(new_t_electrons[::2]))
+        # if not np.all(conv_status &lt; 1.e-4):
+        #    if not self._counter &gt; self.max_it:
+        # self._counter += 1
+        #        self.plasma_parent.update(link_t_rad_t_electron=new_link_t_rad_t_electron)
+
+        # self._t_diff = None
+        # self._counter = 0
+        # self.level_number_previous = None
+
+        # TODO: Solve this in a better way
+        # if new_t_electrons.sum() == 0:
+        #    print &quot;Zero t_electrons&quot;
+        #    updated_link_t_rad_t_electron = t_electrons / t_rad
+
+        # if self.t_electrons_evolution is not None:
+        #    if (self.t_electrons_evolution&gt;0).sum():
+        #        self.t_electrons_evolution_all.append(self.t_electrons_evolution)
+        #        self.t_electrons_evolution = np.zeros_like(self.t_electrons_evolution)
+        # if hasattr(self, &#39;frac_heat&#39;):
+        #    if (self.frac_heat&gt;0).sum():
+        #        self.frac_heat_all.append(self.frac_heat)
+        #        self.frac_heat = np.zeros_like(self.frac_heat)
+
+        # self._conv_status = np.zeros(t_electrons.shape, dtype=bool)
+
+        # self._converged_t_electrons.append(new_t_electrons)
+
+    @staticmethod
+    def _calculate_phi_lucy(
+        t_electrons, excitation_energy, g, levels, ionization_data
+    ):
+        beta_electron = BetaRadiation.calculate(np.array([t_electrons]))
+        level_boltzmann_factor = LevelBoltzmannFactorLTETe.calculate(
+            excitation_energy, g, beta_electron, levels
+        )
+        partition_function = PartitionFunction.calculate(level_boltzmann_factor)
+        g_electron_Te = GElectron.calculate(beta_electron)
+        phi_Te = PhiSahaElectrons.calculate(
+            g_electron_Te, beta_electron, partition_function, ionization_data
+        )
+        phi_lucy = PhiLucy(plasma_parent=None).calculate(
+            phi_Te, level_boltzmann_factor, partition_function
+        )
+        return phi_lucy[0]
+
+    def _calculate_ff_heating_balance(
+        self,
+        t_electron,
+        ff_heating_estimator,
+        electron_densities,
+        ion_number_density,
+        shell,
+    ):
+        ff_heating_factor = self._calculate_ff_heating_factor(
+            ion_number_density[shell], electron_densities[shell]
+        )
+        # TODO
+        # heating_balance = (ff_heating_estimator[shell] / np.sqrt(t_electron) - cconst.C0_ff * np.sqrt(t_electron)) \
+        #                  * ff_heating_factor
+        ff_heating = (
+            ff_heating_estimator[shell]
+            / np.sqrt(t_electron)
+            * ff_heating_factor
+        )
+        ff_cooling = cconst.C0_ff * np.sqrt(t_electron) * ff_heating_factor
+        return ff_heating, ff_cooling
+        # return heating_balance
+
+    @staticmethod
+    def _calculate_ff_heating_factor(ion_number_density, electron_densities):
+        ionic_charge_squared = np.square(
+            ion_number_density.index.get_level_values(1).values
+        )
+        factor = (
+            electron_densities
+            * ion_number_density.multiply(ionic_charge_squared, axis=0).sum()
+        )
+        return factor
+
+    def _calculate_bf_heating_rate(
+        self,
+        bf_heating_coeff,
+        level_number_density,
+        shell,
+        t_electron,
+        photo_ion_cross_sections,
+        b,
+        previous_t_electrons,
+    ):
+        bf_heating = bf_heating_coeff[shell]
+        # self._update_Lymann_continuum(bf_heating, photo_ion_cross_sections, previous_t_electrons[shell], b.loc[(1,0,0), shell])
+        return bf_heating.multiply(
+            level_number_density.loc[bf_heating.index, shell]
+        ).sum()
+
+    def _calculate_adiabatic_cooling(
+        self, electron_density, t_electron, time_explosion, shell
+    ):
+        # import pdb; pdb.set_trace()
+        # v_inner = self.plasma_parent.v_inner[shell]
+        # v_outer = self.plasma_parent.v_outer[shell]
+        # volume = 4. * np.pi * (v_outer.value ** 3. - v_inner.value ** 3.) * time_explosion **3. / 3.
+        ad_cool = (
+            3.0
+            * electron_density
+            * const.k_B.cgs.value
+            * t_electron
+            / time_explosion
+        )
+        return ad_cool
+
+    def _calculate_fb_cooling_rate(
+        self,
+        t_electron,
+        stim_recomb_cooling_coeff,
+        phi_lucy,
+        electron_densities,
+        ion_number_density,
+        photo_ion_cross_sections,
+        shell,
+    ):
+        alpha_E_sp = self._calculate_sp_recomb_heating_rate_coeff(
+            t_electron, photo_ion_cross_sections
+        )
+
+        if self.plasma_parent.niter &gt; self.plasma_parent.niter_ly:
+            alpha_E_sp.loc[(1, 0, 0)] = 0.0
+
+        recomb_cooling_coeff = alpha_E_sp
+        level_cooling_rates = (
+            recomb_cooling_coeff.multiply(
+                phi_lucy.loc[recomb_cooling_coeff.index]
+            )
+            * electron_densities[shell]
+        )
+        ion_index = get_ion_multi_index(level_cooling_rates.index)
+        level_cooling_rates = level_cooling_rates.multiply(
+            ion_number_density.loc[ion_index, shell].values
+        )
+        ly_cooling_rate = level_cooling_rates.loc[(1, 0, 0)]
+        cooling_rate = level_cooling_rates.sum()
+
+        st_recomb_cooling_coeff = stim_recomb_cooling_coeff[shell]
+        # st_recomb_cooling_coeff = self._calculate_stim_recomb_heating_rate_coeff(t_electron, photo_ion_cross_sections, t_rad[shell], w[shell])
+        st_level_cooling_rates = (
+            st_recomb_cooling_coeff.multiply(
+                phi_lucy.loc[st_recomb_cooling_coeff.index]
+            )
+            * electron_densities[shell]
+        )
+        ion_index = get_ion_multi_index(st_level_cooling_rates.index)
+        st_level_cooling_rates = st_level_cooling_rates.multiply(
+            ion_number_density.loc[ion_index, shell].values
+        )
+        st_cooling_rate = st_level_cooling_rates.sum()
+
+        return (
+            cooling_rate + st_cooling_rate,
+            ly_cooling_rate,
+            level_cooling_rates,
+        )
+
+    def _calculate_coll_ion_heating_balance(
+        self,
+        t_electron,
+        photo_ion_cross_sections,
+        phi_lucy,
+        electron_densities,
+        level_number_density,
+        ion_number_density,
+        shell,
+    ):
+        electron_density = electron_densities[shell]
+        coll_ion_rate_coeff = CollIonRateCoeff(plasma_parent=None).calculate(
+            photo_ion_cross_sections, np.array([t_electron])
+        )[0]
+        index = coll_ion_rate_coeff.index
+        ion_index = get_ion_multi_index(index)
+        ion_density = ion_number_density.loc[ion_index, shell].values
+        # heating_balance =\
+        #    electron_density * coll_ion_rate_coeff * (phi_lucy.loc[index] * electron_density * ion_density -
+        #        level_number_density.loc[index, shell])
+
+        coll_ion_heating = (
+            electron_density
+            * coll_ion_rate_coeff
+            * phi_lucy.loc[index]
+            * electron_density
+            * ion_density
+        )
+
+        coll_ion_cooling = (
+            level_number_density.loc[index, shell]
+            * electron_density
+            * coll_ion_rate_coeff
+        )
+        nu_i = photo_ion_cross_sections[&quot;nu&quot;].groupby(level=[0, 1, 2]).first()
+        # heating_balance = (heating_balance * nu_i * const.h.cgs.value).sum()
+        # return heating_balance
+        return (coll_ion_heating * nu_i * const.h.cgs.value).sum(), (
+            coll_ion_cooling * nu_i * const.h.cgs.value
+        ).sum()
+
+    def _calculate_sp_recomb_heating_rate_coeff(
+        self, t_electron, photo_ion_cross_sections
+    ):
+        x_sect = photo_ion_cross_sections[&quot;x_sect&quot;]
+        nu = photo_ion_cross_sections[&quot;nu&quot;]
+        nu_i = photo_ion_cross_sections[&quot;nu&quot;].groupby(level=[0, 1, 2]).first()
+        alpha_sp_E = (
+            8
+            * np.pi
+            * x_sect
+            * nu**3
+            * const.h.cgs.value
+            / (const.c.cgs.value) ** 2
+        )
+        alpha_sp_E = alpha_sp_E.multiply(1.0 - nu_i / nu)
+        boltzmann_factor = np.exp(
+            -nu.values / t_electron * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+        alpha_sp_E = pd.DataFrame(alpha_sp_E.multiply(boltzmann_factor))
+        alpha_sp_E.insert(0, &quot;nu&quot;, nu)
+        alpha_sp_E = alpha_sp_E.groupby(level=[0, 1, 2]).apply(
+            lambda sub: trapezoid(sub[0], sub[&quot;nu&quot;])
+        )
+        return alpha_sp_E
+
+    def _calculate_stim_recomb_heating_rate_coeff(
+        self, t_electron, photo_ion_cross_sections, t_rad, w
+    ):
+        nus = photo_ion_cross_sections[&quot;nu&quot;].values
+        j_nus = w * intensity_black_body(nus, t_rad)
+        x_sect = photo_ion_cross_sections[&quot;x_sect&quot;]
+        nu = photo_ion_cross_sections[&quot;nu&quot;]
+        nu_i = photo_ion_cross_sections[&quot;nu&quot;].groupby(level=[0, 1, 2]).first()
+        alpha_sp_E = (4.0 * np.pi * x_sect) * j_nus
+        alpha_sp_E = alpha_sp_E.multiply(1.0 - nu_i / nu)
+        boltzmann_factor = np.exp(
+            -nu.values / t_electron * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+        alpha_sp_E = pd.DataFrame(alpha_sp_E.multiply(boltzmann_factor))
+        alpha_sp_E.insert(0, &quot;nu&quot;, nu)
+        alpha_sp_E = alpha_sp_E.groupby(level=[0, 1, 2]).apply(
+            lambda sub: trapezoid(sub[0], sub[&quot;nu&quot;])
+        )
+        return alpha_sp_E
+
+<div class="viewcode-block" id="ThermalBalanceTest.heating_function">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.ThermalBalanceTest.heating_function">[docs]</a>
+    def heating_function(
+        self,
+        t_electron,
+        ff_heating_estimator,
+        bf_heating_coeff,
+        stim_recomb_cooling_coeff,
+        coll_deexc_heating_estimator,
+        electron_densities,
+        ion_number_density,
+        level_number_density,
+        excitation_energy,
+        g,
+        levels,
+        ionization_data,
+        photo_ion_cross_sections,
+        lines,
+        shell,
+        t_rad,
+        w,
+        time_explosion,
+        b,
+        previous_t_electrons,
+        coll_exc_cooling,
+        coll_deexc_heating,
+        mode=&quot;detailed&quot;,
+    ):
+        bf_heating = self._calculate_bf_heating_rate(
+            bf_heating_coeff,
+            level_number_density,
+            shell,
+            t_electron,
+            photo_ion_cross_sections,
+            b,
+            previous_t_electrons,
+        )
+
+        # TODO: reuse these quantities in calculation of phi_lucy
+        # beta_electron = BetaRadiation.calculate(np.array([t_electron]))
+        # level_boltzmann_factor_Te = LevelBoltzmannFactorLTETe.calculate(excitation_energy, g, beta_electron, levels)
+
+        phi_lucy = self._calculate_phi_lucy(
+            t_electron, excitation_energy, g, levels, ionization_data
+        )
+
+        # ff_heating_balance = self._calculate_ff_heating_balance(
+        #        t_electron, ff_heating_estimator, electron_densities, ion_number_density, shell)
+        ff_heating, ff_cooling = self._calculate_ff_heating_balance(
+            t_electron,
+            ff_heating_estimator,
+            electron_densities,
+            ion_number_density,
+            shell,
+        )
+
+        fb_cooling, ly_cooling_rate, sp_fb_cooling_rate = (
+            self._calculate_fb_cooling_rate(
+                t_electron,
+                stim_recomb_cooling_coeff,
+                phi_lucy,
+                electron_densities,
+                ion_number_density,
+                photo_ion_cross_sections,
+                shell,
+            )
+        )
+
+        # coll_ion_heating_balance = \
+        #    self._calculate_coll_ion_heating_balance(t_electron, photo_ion_cross_sections, phi_lucy,
+        #        electron_densities, level_number_density, ion_number_density, shell)
+
+        coll_ion_heating, coll_ion_cooling = (
+            self._calculate_coll_ion_heating_balance(
+                t_electron,
+                photo_ion_cross_sections,
+                phi_lucy,
+                electron_densities,
+                level_number_density,
+                ion_number_density,
+                shell,
+            )
+        )
+
+        # coll_deexc_heating = coll_deexc_heating_estimator[shell]
+        # coll_deexc_heating = 0.0
+
+        # coll_exc_heating_balance = self._calculate_coll_exc_cooling_rate_regemorter(
+        #    lines, electron_densities[shell], t_electron, level_number_density[shell], level_boltzmann_factor_Te)
+
+        # coll_deexc_heating_old, coll_exc_cooling_old = self._calculate_coll_exc_cooling_rate_regemorter(
+        #    lines, electron_densities[shell], t_electron,
+        #    level_number_density[shell], level_boltzmann_factor_Te)
+
+        #        print &#39;Heating:&#39;, (coll_deexc_heating_old -
+        #                coll_deexc_heating[shell])/coll_deexc_heating_old
+        #
+        #        print &#39;Cooling:&#39;, (coll_exc_cooling_old -
+        #                coll_exc_cooling[shell])/coll_exc_cooling_old
+        #        #self.coll_exc_heating_evolution[self._counter][shell] = coll_exc_heating_balance
+        # self.coll_t_electrons[self._counter][shell] = t_electron
+
+        adiabatic_cooling = self._calculate_adiabatic_cooling(
+            electron_densities[shell], t_electron, time_explosion, shell
+        )
+
+        total_cooling = (
+            fb_cooling + ff_cooling + coll_ion_cooling + coll_exc_cooling[shell]
+        )
+        total_heating = (
+            bf_heating
+            + ff_heating
+            + coll_ion_heating
+            + coll_deexc_heating[shell]
+        )
+
+        # if self.plasma_parent.niter &gt; self.plasma_parent.niter_ly:
+        #    total_heating += ly_cooling_rate
+
+        # print &quot;Frac Adiabatic Cooling:&quot;, adiabatic_cooling/total_cooling
+        # total_cooling += adiabatic_cooling
+
+        total_heating_rate = total_heating - total_cooling
+        conv = (total_heating - total_cooling) / total_cooling
+
+        if not np.isfinite(conv):
+            print(&quot;Nonfinte Heating rate:&quot;)
+            print(f&quot;Shell: {shell}, H: {total_heating}, Q: {total_cooling}&quot;)
+            print(&quot;Setting conv to finite value 1e-16&quot;)
+            conv = 1e-16
+        # total_heating_rate = bf_heating + ff_heating_balance - fb_cooling + coll_ion_heating_balance + \
+        #                     coll_deexc_heating + coll_exc_heating_balance
+        # TODO
+        if mode == &quot;normal&quot;:
+            retval = total_heating_rate
+        elif mode == &quot;detailed&quot;:
+            retval = (total_heating_rate, conv, sp_fb_cooling_rate)
+        else:
+            raise ValueError
+
+        return retval</div>
+
+
+<div class="viewcode-block" id="ThermalBalanceTest.calculate_from_radiation_field_model">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.ThermalBalanceTest.calculate_from_radiation_field_model">[docs]</a>
+    def calculate_from_radiation_field_model(
+        self, photo_ion_cross_sections, w, t_rad
+    ):
+        j_nus = self._calculate_j_nus(photo_ion_cross_sections, w, t_rad)
+        nu_i = photo_ion_cross_sections[&quot;nu&quot;].groupby(level=[0, 1, 2]).first()
+        nu_is = nu_i.loc[photo_ion_cross_sections.index]
+        photoion_heating_coeff = j_nus.multiply(
+            4.0
+            * np.pi
+            * photo_ion_cross_sections[&quot;x_sect&quot;]
+            * (1 - nu_is / photo_ion_cross_sections[&quot;nu&quot;]),
+            axis=0,
+        )
+        photoion_heating_coeff.insert(0, &quot;nu&quot;, photo_ion_cross_sections[&quot;nu&quot;])
+        photoion_heating_coeff = photoion_heating_coeff.groupby(level=[0, 1, 2])
+        tmp = {}
+        for i in range(len(w)):
+            tmp[i] = photoion_heating_coeff.apply(
+                lambda sub: simps(sub[i], sub[&quot;nu&quot;], even=&quot;first&quot;)
+            )
+        photoion_heating_coeff = pd.DataFrame(tmp)
+
+        return photoion_heating_coeff</div>
+
+
+    @staticmethod
+    def _calculate_j_nus(photoionization_data, ws, t_rads):
+        nus = photoionization_data[&quot;nu&quot;].values
+        j_nus = ws * intensity_black_body(nus[np.newaxis].T, t_rads)
+        return pd.DataFrame(j_nus, index=photoionization_data.index)
+
+    def _update_Lymann_continuum(
+        self, bf_heat_coeff, photo_ion_cross_sections, t_electron, b
+    ):
+        W = b**-1
+        x_sect_Ly = photo_ion_cross_sections.loc[(1, 0, 0)]
+        bf_heat_Ly = self.calculate_from_radiation_field_model(
+            x_sect_Ly, np.array([W]), np.array(t_electron)
+        )
+        bf_heat_coeff.loc[(1, 0, 0)] = bf_heat_Ly.values</div>
+
+
+
+<div class="viewcode-block" id="Logger">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.Logger">[docs]</a>
+class Logger(ProcessingPlasmaProperty):
+    outputs = (&quot;logging&quot;,)
+    latex_name = (&quot;&quot;,)
+    # TODO
+    latex_formula = (&quot;&quot;,)
+
+<div class="viewcode-block" id="Logger.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.Logger.calculate">[docs]</a>
+    def calculate(
+        self, ion_number_density, level_number_density, t_electrons, b, gamma
+    ):
+        if not hasattr(self, &quot;t_electrons&quot;):
+            self.t_electrons = []
+            self.ion_number_density = []
+            self.ion_frac = []
+            self.level_number_density = []
+            self.b = []
+            self.b0 = []
+            self.gamma_sp = []
+
+        self.t_electrons.append(t_electrons)
+        self.ion_number_density.append(ion_number_density)
+        self.level_number_density.append(level_number_density)
+        self.b.append(b)
+        self.b0.append(b.loc[(1, 0, 0)])
+        self.gamma_sp.append(gamma)
+        ion_frac = ion_number_density.loc[(1, 0)] / ion_number_density.sum()
+        self.ion_frac.append(ion_frac)
+        logdata = {
+            &quot;ion_frac&quot;: self.ion_frac,
+            &quot;t_electrons&quot;: self.t_electrons,
+            &quot;gamma&quot;: gamma,
+            &quot;b0&quot;: self.b0,
+        }
+        return logdata</div>
+</div>
+
+
+
+class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
+    outputs = (
+        &quot;nu_i&quot;,
+        &quot;level2continuum_idx&quot;,
+        &quot;p_fb_deactivation&quot;,
+        &quot;chi_bf&quot;,
+        &quot;ff_cooling_factor&quot;,
+        &quot;fb_emission_cdf&quot;,
+        &quot;photo_ion_idx&quot;,
+        &quot;k_packet_idx&quot;,
+        &quot;gamma_corr&quot;,
+        &quot;delta_E_yg&quot;,
+        &quot;continuum_interaction_species&quot;,
+    )
+    latex_name = (&quot;&quot;,)
+    latex_formula = (&quot;&quot;,)
+
+    def calculate(
+        self,
+        atomic_data,
+        alpha_sp,
+        electron_densities,
+        ion_number_density,
+        lte_ion_number_density,
+        t_electrons,
+        level_number_density,
+        lte_level_number_density,
+        gamma,
+    ):
+        photoionization_data = atomic_data.photoionization_data
+        nu_i = photoionization_data.groupby(level=[0, 1, 2]).first().nu
+        level2continuum_idx = pd.Series(
+            np.arange(len(nu_i)),
+            nu_i.sort_values(ascending=False, kind=SORTING_ALGORITHM).index,
+            name=&quot;continuum_idx&quot;,
+        )
+
+        # p_fb_deactivation is one to double check
+        next_ion_stage_index = get_ion_multi_index(alpha_sp.index)
+        n_k = ion_number_density.loc[next_ion_stage_index]
+        cool_rate_fb = (
+            alpha_sp.multiply(electron_densities, axis=1) * n_k.values
+        )
+        cool_rate_fb_tot = cooling_rate_series2dataframe(
+            cool_rate_fb.sum(axis=0), &quot;bf&quot;
+        )
+        p_fb_deactivation = cool_rate_fb / cool_rate_fb_tot.values
+        continuum_idx = level2continuum_idx.loc[p_fb_deactivation.index].values
+        p_fb_deactivation = p_fb_deactivation.set_index(
+            continuum_idx
+        ).sort_index(ascending=True, kind=SORTING_ALGORITHM)
+        p_fb_deactivation.index.name = &quot;continuum_idx&quot;
+
+        # NOW CALCULATE CHI_BF
+        nu = photoionization_data[&quot;nu&quot;]
+        # BOLTZMANN FACTOR IS CALCULATED IN MANY PLACES
+        boltzmann_factor = np.exp(
+            -nu.values[np.newaxis].T
+            / t_electrons
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+
+        level_number_density = level_number_density.loc[
+            photoionization_data.index
+        ]
+        lte_level_number_density = lte_level_number_density.loc[
+            photoionization_data.index
+        ]
+        level_number_density_ratio = lte_level_number_density.divide(
+            level_number_density
+        )
+
+        ion_index = get_ion_multi_index(
+            photoionization_data.index, next_higher=True
+        )
+
+        ion_number_density = ion_number_density.loc[ion_index]
+        lte_ion_number_density = lte_ion_number_density.loc[ion_index]
+        ion_number_density_ratio = ion_number_density.divide(
+            lte_ion_number_density
+        )
+
+        level_number_density_ratio = level_number_density_ratio.multiply(
+            ion_number_density_ratio.values
+        )
+
+        chi_bf = (
+            level_number_density
+            * (1.0 - level_number_density_ratio * boltzmann_factor)
+        ).multiply(photoionization_data[&quot;x_sect&quot;].values, axis=0)
+        num_neg_elements = (chi_bf &lt; 0).sum().sum()
+        if num_neg_elements:
+            # raise ValueError(&quot;Negative values in bound-free opacity.&quot;)
+            logger.warning(&quot;Negative values in bound-free opacity.&quot;)
+
+        # NOW FF_COOLING_FACTOR
+        ion_charge = ion_number_density.index.get_level_values(1).values
+        ff_cooling_factor = (
+            electron_densities
+            * ion_number_density.multiply(ion_charge**2, axis=0).sum()
+        ).values
+
+        # NOW FB_EMISSION_CDF
+
+        # alpha_sp_E will be missing a lot of prefactors since we are only
+        # interested in relative values here
+        alpha_sp_E = nu.values**3 * photoionization_data[&quot;x_sect&quot;].values
+        alpha_sp_E = alpha_sp_E[:, np.newaxis]
+        alpha_sp_E = alpha_sp_E * boltzmann_factor
+
+        photo_ion_block_references = np.pad(
+            nu.groupby(level=[0, 1, 2], sort=False).count().values.cumsum(),
+            [1, 0],
+        )
+        alpha_sp_E = cumulative_integrate_array_by_blocks(
+            alpha_sp_E, nu.values, photo_ion_block_references
+        )
+        fb_emission_cdf = pd.DataFrame(
+            alpha_sp_E, index=photoionization_data.index
+        )
+
+        # NOW PHOTO_ION_IDX
+        photo_ion_index = photoionization_data.index.unique()
+        source_idx = atomic_data.macro_atom_references.loc[
+            photo_ion_index
+        ].references_idx
+        destination_idx = atomic_data.macro_atom_references.loc[
+            get_ground_state_multi_index(photo_ion_index)
+        ].references_idx
+        photo_ion_idx = pd.DataFrame(
+            {
+                &quot;source_level_idx&quot;: source_idx.values,
+                &quot;destination_level_idx&quot;: destination_idx.values,
+            },
+            index=photo_ion_index,
+        )
+
+        # NOW K_PACKET_IDX
+        k_packet_idx = (
+            atomic_data.macro_atom_references.references_idx.max() + 1
+        )
+
+        # NOW GAMMA_CORR
+        gamma_corr = gamma
+
+        # NOW DELTA_E_YG
+        energies = atomic_data.levels.energy
+        yg_data = atomic_data.yg_data
+        index = yg_data.index
+        lu_index = index.droplevel(&quot;level_number_lower&quot;)
+        ll_index = index.droplevel(&quot;level_number_upper&quot;)
+        delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values
+        delta_E_yg = pd.Series(delta_E, index=index)
+
+        # ALSO MISSING A CONTINUUM_INTERACTION_SPECIES MULTINDEX
+        continuum_interaction_species = index.droplevel([2, 3]).unique()
+        # continuum_interaction_species = pd.Index(
+        #     {}
+        # )  # This is bad and will turn off continuum interactions in the montecarlo
+        # part, but need to figure out how to get a first iteration gamma before removing
+        return (
+            nu_i,
+            level2continuum_idx,
+            p_fb_deactivation,
+            chi_bf,
+            ff_cooling_factor,
+            fb_emission_cdf,
+            photo_ion_idx,
+            k_packet_idx,
+            gamma_corr,
+            delta_E_yg,
+            continuum_interaction_species,
+        )
+
+
+# phi_ik is SahaFactor
+# trying phi which is PhiSahaNebular
+# could be phi_lte instead
+# could also be phi_lucy which seems most used in christian&#39;s code
+# trying that one
+
+# nus = photo_ion_cross_sections[&quot;nu&quot;].values
+# j_nus = w * intensity_black_body(nus, t_rad)
+# x_sect = photo_ion_cross_sections[&quot;x_sect&quot;]
+# nu = photo_ion_cross_sections[&quot;nu&quot;]
+# nu_i = photo_ion_cross_sections[&quot;nu&quot;].groupby(level=[0, 1, 2]).first()
+# alpha_sp_E = (4.0 * np.pi * x_sect) * j_nus
+# alpha_sp_E = alpha_sp_E.multiply(1.0 - nu_i / nu)
+# boltzmann_factor = np.exp(
+#     -nu.values / t_electron * (const.h.cgs.value / const.k_B.cgs.value)
+# )
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 09 Feb 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
