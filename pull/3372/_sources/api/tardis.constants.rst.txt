@@ -1,0 +1,7 @@
+tardis.constants module
+=======================
+
+.. automodule:: tardis.constants
+   :members:
+   :show-inheritance:
+   :undoc-members:
