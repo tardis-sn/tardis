@@ -27,21 +27,25 @@ jobs:
 
   check-first-time-committer:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
     permissions:
       pull-requests: write
-    
-    steps:
-      - name: Add welcome comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
-            Before asking for reviews, please make sure all checks have passed.
 
-  
+    steps:
+      - name: Welcome first-time contributor
+        uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.BOT_TOKEN }}
+          pr-message: |
+            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
+
+            Before asking for reviews, please fill out the PR description template and ensure that all checks are passing.
+
+            If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and make sure to add GSoC to the PR title like so:
+
+            `GSoC: <title of your pull request>`
+
+            Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.
+
   check-orcid:
     runs-on: ubuntu-latest
     steps:

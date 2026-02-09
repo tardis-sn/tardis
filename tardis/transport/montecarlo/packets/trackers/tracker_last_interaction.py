@@ -6,7 +6,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 @jitclass
 class TrackerLastInteraction:
-    r: nb.float64  # type: ignore[misc]
+    radius: nb.float64  # type: ignore[misc]
     nu: nb.float64  # type: ignore[misc]
     mu: nb.float64  # type: ignore[misc]
     energy: nb.float64  # type: ignore[misc]
@@ -27,6 +27,7 @@ class TrackerLastInteraction:
 
     # Interaction counter
     interactions_count: nb.int64  # type: ignore[misc]
+    _boundary_interactions_buffer: nb.int64  # type: ignore[misc]
 
     """
     Numba JITCLASS for storing the last interaction the RPacket undergoes,
@@ -34,7 +35,7 @@ class TrackerLastInteraction:
 
     Parameters
     ----------
-        r : float
+        radius : float
             Radius of the shell where the RPacket is present
         nu : float
             Frequency of the RPacket
@@ -61,7 +62,7 @@ class TrackerLastInteraction:
         Initialize properties with default values.
         Float values are initialized with NaN for better data quality tracking.
         """
-        self.r = -1.0
+        self.radius = float("nan")
         self.nu = float("nan")
         self.mu = float("nan")  # MISSING INITIALIZATION - this was causing JIT vs non-JIT differences!
         self.energy = float("nan")
@@ -82,6 +83,11 @@ class TrackerLastInteraction:
 
         # Initialize counter
         self.interactions_count = 0
+
+        # Number of boundary interactions since last non-boundary interaction
+        # Starts at -1 since every packet starts at shell id -1 and must pass through
+        # the "0" boundary
+        self._boundary_interactions_buffer = -1
 
     def track_line_interaction_before(self, r_packet) -> None:
         """
@@ -112,9 +118,9 @@ class TrackerLastInteraction:
         self.after_energy = r_packet.energy
         # Track the line ID that was emitted (next_line_id - 1 after emission)
         self.interaction_line_emit_id = r_packet.next_line_id - 1
-        self.interactions_count += 1
+        self.interactions_count += 1 + self._pop_boundary_interactions_buffer()
         # Update general tracking
-        self.r = r_packet.r
+        self.radius = r_packet.r
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
@@ -148,9 +154,9 @@ class TrackerLastInteraction:
         self.after_mu = r_packet.mu
         self.after_nu = r_packet.nu
         self.after_energy = r_packet.energy
-        self.interactions_count += 1
+        self.interactions_count += 1 + self._pop_boundary_interactions_buffer()
         # Update general tracking
-        self.r = r_packet.r
+        self.radius = r_packet.r
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
@@ -184,9 +190,9 @@ class TrackerLastInteraction:
         self.after_nu = r_packet.nu
         self.after_energy = r_packet.energy
         self.after_mu = r_packet.mu
-        self.interactions_count += 1
+        self.interactions_count += 1 + self._pop_boundary_interactions_buffer()
         # Update general tracking
-        self.r = r_packet.r
+        self.radius = r_packet.r
         self.nu = r_packet.nu
         self.energy = r_packet.energy
         self.shell_id = r_packet.current_shell_id
@@ -209,9 +215,10 @@ class TrackerLastInteraction:
             Shell ID the packet is entering (default: -1).
         """
         # For last interaction tracker, boundary events don't count as interactions
-        # But we update the position tracking
-        self.r = r_packet.r
-        self.shell_id = r_packet.current_shell_id
+        # Don't update the radius or shell ID - we're only interested in the radius
+        # and shell ID of *non*-boundary interactions
+        # *Do* increment the boundary interactions counter, though
+        self._boundary_interactions_buffer += 1
 
     def get_interaction_summary(self) -> nb.int64:  # type: ignore[misc]
         """
@@ -235,5 +242,15 @@ class TrackerLastInteraction:
         """
         pass
 
+    def _pop_boundary_interactions_buffer(self) -> nb.int64:  # type: ignore[misc]
+        """
+        Put the number of boundary interactions since the last non-boundary interaction
+        into the count for number of total interactions, then clear the buffer.
+        This is to make the interactions counter match up with the `event_id` in the
+        full tracker.
+        """
+        current_buffer_value = self._boundary_interactions_buffer
+        self._boundary_interactions_buffer = 0
+        return current_buffer_value
 
 

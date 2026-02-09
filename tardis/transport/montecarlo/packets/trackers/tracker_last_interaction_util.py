@@ -49,22 +49,17 @@ def trackers_last_interaction_to_df(tracker_list):
         tracker_full_df2tracker_last_interaction_df output:
         - last_interaction_type: Type of the last interaction (categorical)
         - status: Packet status (categorical)
-        - radius: Radius at interaction (NaN for last interaction trackers)
-        - shell_id: Shell ID where interaction occurred (-1 for last interaction trackers)
+        - radius: Radius at interaction
+        - shell_id: Shell ID where interaction occurred
         - before_nu: Frequency before interaction
         - before_mu: Direction cosine before interaction
         - before_energy: Energy before interaction
         - after_nu: Frequency after interaction
         - after_mu: Direction cosine after interaction
         - after_energy: Energy after interaction
-                - line_absorb_id: Line ID for absorbed line interactions (-1 for non-line)
+        - line_absorb_id: Line ID for absorbed line interactions (-1 for non-line)
         - line_emit_id: Line ID for emitted line interactions (-1 for non-line)
     """
-    # Create categorical dtypes from enums for better performance and type safety
-    """
-    from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
-    
-        """
     # Create categorical dtypes from enums for better performance and type safety
     interaction_type_dtype = CategoricalDtype(
         categories=[member.name for member in InteractionType], ordered=False
@@ -86,7 +81,7 @@ def trackers_last_interaction_to_df(tracker_list):
             interaction_type_labels.append("NO_INTERACTION")
         else:
             interaction_type_labels.append(InteractionType(int_type).name)
-    
+
     last_interaction_type = pd.Categorical(
         interaction_type_labels, dtype=interaction_type_dtype
     )
@@ -96,6 +91,9 @@ def trackers_last_interaction_to_df(tracker_list):
     status_categorical = pd.Categorical(status_labels, dtype=status_dtype)
 
     # Extract interaction data
+    event_id = np.array([tracker.interactions_count for tracker in tracker_list])
+    radius = np.array([tracker.radius for tracker in tracker_list])
+    shell_id = np.array([tracker.shell_id for tracker in tracker_list])
     before_nu = np.array([tracker.before_nu for tracker in tracker_list])
     before_mu = np.array([tracker.before_mu for tracker in tracker_list])
     before_energy = np.array([tracker.before_energy for tracker in tracker_list])
@@ -108,10 +106,11 @@ def trackers_last_interaction_to_df(tracker_list):
     # Create DataFrame with same column order as tracker_full_df2tracker_last_interaction_df
     df = pd.DataFrame(
         {
+            "event_id": event_id,
             "last_interaction_type": last_interaction_type,
             "status": status_categorical,
-            "radius": np.full(len(tracker_list), np.nan),  # Not available in last interaction tracker
-            "shell_id": np.full(len(tracker_list), -1),    # Not available in last interaction tracker
+            "radius": radius,
+            "shell_id": shell_id,
             "before_nu": before_nu,
             "before_mu": before_mu,
             "before_energy": before_energy,

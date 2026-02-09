@@ -114,7 +114,7 @@ def test_defaults():
     assert tracker.shell_id == -1
     assert tracker.interaction_type == -1
     assert tracker.interactions_count == 0
-    npt.assert_almost_equal(tracker.r, -1.0)
+    npt.assert_almost_equal(tracker.radius, float("nan"))
     assert tracker.interaction_line_absorb_id == -1
     assert tracker.interaction_line_emit_id == -1
 
