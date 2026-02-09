@@ -69,16 +69,6 @@ def macro_atom_interaction(
                 current_transition_type = opacity_state.transition_type[
                     transition_id
                 ]
-                # Need to count the number of coll_deexc_down_to_k_packet interactions for the heating estimator
-                # For the markov-chain macro atom, this won't work because this is an internal transition
-                if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-                    if (
-                        current_transition_type
-                        == MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET
-                    ):
-                        # This has to be multiplied by comoving energy, and then increment
-                        # coll_deexc_heating_estimator for the shell
-                        coll_down_to_k_packet_count_buffer += 1
                 break
         else:
             raise MacroAtomError(

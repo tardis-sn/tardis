@@ -252,12 +252,6 @@ def iip_plasma_after_mc(
         key="data",
     )
 
-    coll_deexc_heating_estimator = pd.read_hdf(
-        iip_regression_path
-        / "ctardis_coll_deexc_heating_estimator_after_mc.h5",
-        key="data",
-    )
-
     ff_heating_estimator = [
         4.89135279e-24,
         4.37696370e-24,
@@ -292,9 +286,6 @@ def iip_plasma_after_mc(
     continuum_estimators["bf_heating_estimator"] = bf_heating_estimator
     continuum_estimators["stim_recomb_cooling_estimator"] = (
         stim_recomb_cooling_estimator
-    )
-    continuum_estimators["coll_deexc_heating_estimator"] = (
-        coll_deexc_heating_estimator
     )
     continuum_estimators["ff_heating_estimator"] = ff_heating_estimator
 

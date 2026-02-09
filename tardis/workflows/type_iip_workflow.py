@@ -467,9 +467,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         continuum_estimators["stim_recomb_cooling_estimator"] = (
             self.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator
         )
-        continuum_estimators["coll_deexc_heating_estimator"] = (
-            self.transport_state.radfield_mc_estimators.coll_deexc_heating_estimator
-        )
+        continuum_estimators["coll_deexc_heating_estimator"] = None
         continuum_estimators["ff_heating_estimator"] = (
             self.transport_state.radfield_mc_estimators.ff_heating_estimator
         )
@@ -672,11 +670,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         )
         continuum_estimators["stim_recomb_cooling_estimator"] *= (
             photo_ion_norm_factor * const.h.cgs.value * damp
-        )
-        continuum_estimators["coll_deexc_heating_estimator"] *= (
-            photo_ion_norm_factor
-            * const.h.cgs.value
-            * 0.0  # currently missing coll deexc heating
         )
 
         ff_norm_factor = self.get_ff_heating_norm_factor(
