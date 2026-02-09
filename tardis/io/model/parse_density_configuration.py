@@ -1,5 +1,4 @@
 import logging
-from typing import Tuple
 
 import numpy as np
 from astropy import units as u
@@ -17,10 +16,12 @@ def parse_density_section_config(
     density_configuration: ConfigurationNameSpace,
     v_middle: u.Quantity,
     time_explosion: u.Quantity,
-) -> Tuple[u.Quantity, u.Quantity]:
+) -> tuple[u.Quantity, u.Quantity]:
     """
     Parse the density section of the configuration file and produce a density at
     time_explosion.
+
+    Now uses the new solver-based architecture from tardis.io.model.classic.parse_density.
 
     Parameters
     ----------
@@ -37,36 +38,35 @@ def parse_density_section_config(
     time_0 : astropy.Quantity
         time of the density profile
     """
+    # Lazy imports to avoid circular dependency
+    from tardis.io.model.classic.parse_density import (
+        parse_density_solver_from_density_config,
+    )
+    from tardis.model.mesh import HomologousRadial1DMesh
+
+    # Create solver from density configuration
+    solver = parse_density_solver_from_density_config(density_configuration)
+
+    # Create a temporary mesh for the solver
+    # Insert 0 at the beginning to match the mesh structure
+    velocity = v_middle[0].value * v_middle.unit
+    v_inner = velocity * 0  # Start from 0
+    velocities = np.insert(v_middle, 0, v_inner)
+
+    mesh = HomologousRadial1DMesh.from_velocity_interfaces(
+        velocity=velocities, time_explosion=time_explosion
+    )
+
+    # Solve for density
+    density_result = solver.solve(mesh)
+    density_0 = density_result.data
+
+    # Get time_0
     if density_configuration.type == "branch85_w7":
-        density_0 = calculate_power_law_density(
-            v_middle,
-            density_configuration.w7_v_0,
-            density_configuration.w7_rho_0,
-            -7,
-        )
         time_0 = density_configuration.w7_time_0
-    elif density_configuration.type == "uniform":
-        density_0 = density_configuration.value.to("g cm^-3") * np.ones_like(
-            v_middle.value
-        )
-        time_0 = density_configuration.get("time_0", time_explosion)
-    elif density_configuration.type == "power_law":
-        density_0 = calculate_power_law_density(
-            v_middle,
-            density_configuration.v_0,
-            density_configuration.rho_0,
-            density_configuration.exponent,
-        )
-        time_0 = density_configuration.get("time_0", time_explosion)
-    elif density_configuration.type == "exponential":
-        density_0 = calculate_exponential_density(
-            v_middle, density_configuration.v_0, density_configuration.rho_0
-        )
-        time_0 = density_configuration.get("time_0", time_explosion)
     else:
-        raise ValueError(
-            f"Unrecognized density type '{density_configuration.type}'"
-        )
+        time_0 = density_configuration.get("time_0", time_explosion)
+
     return density_0, time_0
 
 
