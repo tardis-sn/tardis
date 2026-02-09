@@ -59,6 +59,8 @@ jobs:
   pull_request:
     needs: [zenodo, pip_tests]
     runs-on: ubuntu-latest
+    outputs:
+      pr-operation: ${{ steps.create-pr.outputs.pull-request-operation }}
     steps:
       - uses: actions/checkout@v4
 
@@ -134,3 +136,9 @@ jobs:
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
           merge-method: squash
         if: steps.create-pr.outputs.pull-request-operation == 'created'
+
+  release:
+    needs: [pull_request]
+    if: needs.pull_request.outputs.pr-operation != 'created'
+    uses: ./.github/workflows/release.yml
+    secrets: inherit
