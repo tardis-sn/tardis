@@ -485,7 +485,8 @@ class TestCollisionalTransitions:
 
         # Check metadata
         assert (
-            metadata.transition_type == MacroAtomTransitionType.COLL_UP_COOLING
+            metadata.transition_type
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
         ).all()
         # Source is actually a tuple (k, -99, -99), check just the first element
         assert all(src[0] == "k" for src in metadata.source)
