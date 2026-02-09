@@ -16,15 +16,15 @@ class MacroAtomTransitionType(IntEnum):
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
-    BF_EMISSION = -2  # This is recombination emission
+    BF_EMISSION = -2  # This is recombination emission, aka k-packet to r-packet
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
     TWO_PHOTON = -6
     COLL_DOWN_TO_K_PACKET = 9
     COLL_DOWN_INTERNAL = 10
-    COLL_UP_INTERNAL = 11
-    COLL_UP_COOLING = 12  # I think this should be a deactivation event
+    COLL_EXC_COOL_TO_MACRO = 11
+    COLL_ION_COOL_TO_MACRO = 12
 
 
 @njit(**njit_dict_no_parallel)
@@ -68,7 +68,6 @@ def macro_atom_interaction(
                     transition_id
                 ]
                 break
-
         else:
             raise MacroAtomError(
                 "MacroAtom ran out of the block. This should not happen as "
@@ -76,7 +75,6 @@ def macro_atom_interaction(
                 "the probability_event should be less than 1"
             )
 
-    # current_transition_type = MacroAtomTransitionType(current_transition_type)
     return (
         opacity_state.transition_line_id[transition_id],
         current_transition_type,

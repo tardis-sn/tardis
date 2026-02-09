@@ -111,7 +111,10 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         iteration=0,
     ):
         if not plasma.continuum_interaction_species.empty:
-            gamma_shape = plasma.gamma.shape
+            if plasma.gamma is not None:
+                gamma_shape = plasma.gamma.shape
+            else:
+                gamma_shape = plasma.phi_lucy.shape
         else:
             gamma_shape = (0, 0)
 

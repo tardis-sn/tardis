@@ -110,8 +110,8 @@ class ContinuumInputData:
 
     @staticmethod
     def _get_continuum_species_mask(atom_data, selected_continuum_species):
-        atomic_number = atom_data.lines["atomic_number"].values
-        ion_number = atom_data.lines["ion_number"].values
+        atomic_number = atom_data.lines.reset_index()["atomic_number"].values
+        ion_number = atom_data.lines.reset_index()["ion_number"].values
         mask = np.zeros_like(atomic_number, dtype=bool)
         for species in selected_continuum_species:
             species_mask = np.logical_and(
