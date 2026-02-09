@@ -41,6 +41,11 @@ def iip_atom_data(tardis_regression_path):
         atom_data, selected_continuum_species=[(1, 0)]
     )
 
+    # matching prep in workflow
+    atom_data.continuum_data.photoionization_data.loc[(1, 0, 0), "x_sect"] *= (
+        0.0
+    )
+
     atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
 
     atom_data.nlte_data._init_indices()
@@ -337,8 +342,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         key="data",
     )
     t_electrons_ctardis = pd.read_hdf(
-        iip_regression_path / "ctardis_t_electrons_init_nlte.h5",
-        key="data"
+        iip_regression_path / "ctardis_t_electrons_init_nlte.h5", key="data"
     )
 
     print(
