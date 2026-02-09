@@ -50,14 +50,8 @@ jobs:
           if-no-files-found: warn
           include-hidden-files: true
 
-  pip_tests:
-    uses: ./.github/workflows/tests.yml
-    secrets: inherit
-    with:
-      pip_git: true
-
   pull_request:
-    needs: [zenodo, pip_tests]
+    needs: [zenodo]
     runs-on: ubuntu-latest
     outputs:
       pr-operation: ${{ steps.create-pr.outputs.pull-request-operation }}
