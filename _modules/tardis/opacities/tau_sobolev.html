@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=f6ea0856"></script>
+      <script src="../../../_static/documentation_options.js?v=05bec4a2"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -214,6 +214,23 @@ def calculate_sobolev_line_opacity(
 
 
 
+<div class="viewcode-block" id="numba_calculate_beta_sobolev">
+<a class="viewcode-back" href="../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.numba_calculate_beta_sobolev">[docs]</a>
+@jit(nopython=True, parallel=True)
+def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
+    for i in prange(len(tau_sobolevs)):
+        if tau_sobolevs[i] &gt; 1e3:
+            beta_sobolevs[i] = tau_sobolevs[i] ** -1
+        elif tau_sobolevs[i] &lt; 1e-4:
+            beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
+        else:
+            beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
+                tau_sobolevs[i]
+            )
+    return beta_sobolevs</div>
+
+
+
 <div class="viewcode-block" id="calculate_beta_sobolev">
 <a class="viewcode-back" href="../../../api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.calculate_beta_sobolev">[docs]</a>
 def calculate_beta_sobolev(tau_sobolevs):
@@ -230,20 +247,6 @@ def calculate_beta_sobolev(tau_sobolevs):
     pd.DataFrame
         The latest Beta Sobolev opacities.
     &quot;&quot;&quot;
-
-    @jit(nopython=True, parallel=True)
-    def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
-        for i in prange(len(tau_sobolevs)):
-            if tau_sobolevs[i] &gt; 1e3:
-                beta_sobolevs[i] = tau_sobolevs[i] ** -1
-            elif tau_sobolevs[i] &lt; 1e-4:
-                beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
-            else:
-                beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
-                    tau_sobolevs[i]
-                )
-        return beta_sobolevs
-
     beta_sobolev = pd.DataFrame(
         0.0, index=tau_sobolevs.index, columns=tau_sobolevs.columns
     )
@@ -347,7 +350,7 @@ class BetaSobolev(ProcessingPlasmaProperty):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 06 Feb 2026.
+      <span class="lastupdated">Last updated on 09 Feb 2026.
       </span></p>
   </div>
 

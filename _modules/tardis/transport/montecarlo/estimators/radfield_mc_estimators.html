@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=f6ea0856"></script>
+      <script src="../../../../../_static/documentation_options.js?v=05bec4a2"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -179,6 +179,8 @@ def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
 
     stim_recomb_cooling_estimator = np.zeros(gamma_shape, dtype=np.float64)
 
+    ff_heating_estimator = np.zeros(gamma_shape[1], dtype=np.float64)
+
     photo_ion_estimator_statistics = np.zeros(gamma_shape, dtype=np.int64)
     return RadiationFieldMCEstimators(
         j_estimator,
@@ -189,6 +191,7 @@ def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
         stim_recomb_estimator,
         bf_heating_estimator,
         stim_recomb_cooling_estimator,
+        ff_heating_estimator,
         photo_ion_estimator_statistics,
     )</div>
 
@@ -206,6 +209,7 @@ continuum_estimators_spec = [
     (&quot;stim_recomb_estimator&quot;, float64[:, :]),
     (&quot;bf_heating_estimator&quot;, float64[:, :]),
     (&quot;stim_recomb_cooling_estimator&quot;, float64[:, :]),
+    (&quot;ff_heating_estimator&quot;, float64[:]),
     (&quot;photo_ion_estimator_statistics&quot;, int64[:, :]),
 ]
 
@@ -224,6 +228,7 @@ class RadiationFieldMCEstimators:
         stim_recomb_estimator,
         bf_heating_estimator,
         stim_recomb_cooling_estimator,
+        ff_heating_estimator,
         photo_ion_estimator_statistics,
     ):
         self.j_estimator = j_estimator
@@ -234,6 +239,7 @@ class RadiationFieldMCEstimators:
         self.stim_recomb_estimator = stim_recomb_estimator
         self.bf_heating_estimator = bf_heating_estimator
         self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
+        self.ff_heating_estimator = ff_heating_estimator
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
     def increment(self, other):
@@ -259,6 +265,7 @@ class RadiationFieldMCEstimators:
         self.stim_recomb_cooling_estimator += (
             other.stim_recomb_cooling_estimator
         )
+        self.ff_heating_estimator += other.ff_heating_estimator
         self.photo_ion_estimator_statistics += (
             other.photo_ion_estimator_statistics
         )
@@ -277,6 +284,7 @@ class RadiationFieldMCEstimators:
                     np.copy(self.stim_recomb_estimator),
                     np.copy(self.bf_heating_estimator),
                     np.copy(self.stim_recomb_cooling_estimator),
+                    np.copy(self.ff_heating_estimator),
                     np.copy(self.photo_ion_estimator_statistics),
                 )
             )
@@ -292,7 +300,7 @@ class RadiationFieldMCEstimators:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 06 Feb 2026.
+      <span class="lastupdated">Last updated on 09 Feb 2026.
       </span></p>
   </div>
 

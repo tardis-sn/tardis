@@ -10,3 +10,4 @@ The following pages contain the TARDIS workflows:
 * :doc:`workflows/simple_workflow_equilibrium`
 * :doc:`workflows/v_inner_solver_workflow`
 * :doc:`workflows/workflow_notebook`
+* :doc:`workflows/iip_workflow/iip_workflow`
