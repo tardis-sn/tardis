@@ -302,6 +302,7 @@ def iip_plasma_after_mc(
     return iip_plasma_nlte_init
 
 
+@pytest.mark.continuum
 def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
     tau_sobolevs_ctardis = pd.read_hdf(
         iip_regression_path / "ctardis_tau_sobolevs_init_nlte.h5",
@@ -473,6 +474,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
 
 
 # comparison of plasma after the Monte Carlo calculations have been performed
+@pytest.mark.continuum
 def test_iip_plasma_after_mc(
     iip_regression_path,
     iip_plasma_after_mc,
@@ -581,6 +583,7 @@ def test_iip_plasma_after_mc(
     )
 
 
+@pytest.mark.continuum
 def test_thermal_balance_solver(
     iip_regression_path, type_iip_workflow, iip_plasma_after_mc
 ):
@@ -689,6 +692,7 @@ def test_thermal_balance_solver(
     )
 
 
+@pytest.mark.continuum
 def test_solve_continuum_state_after_nlte_init(
     iip_regression_path, type_iip_workflow, iip_plasma_nlte_init
 ):
