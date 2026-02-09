@@ -274,12 +274,14 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         N_H = number_density.loc[1].values
 
-        tau_e_shell = sigma_T * delta_r * N_H
+        # alternative tau calculation from ctardis
+        # tau_e_shell = sigma_T * delta_r * N_H
 
-        tau = tau_e_shell - (1 - doppler_factor) * tau_e_shell ** (
-            2.25 * doppler_factor
-        )
-        tau = tau_e_shell
+        # tau = tau_e_shell - (1 - doppler_factor) * tau_e_shell ** (
+        #    2.25 * doppler_factor
+        # )
+
+        tau = sigma_T * delta_r * N_H
         tau = tau[::-1].cumsum()[::-1]
         T_eff4 = t_inner**4 / (tau[0] + 2.0 / 3.0)
         tau_middle = interp1d(r_inner, tau, fill_value="extrapolate")(r_middle)
