@@ -44,7 +44,6 @@ def macro_atom_interaction(
     -------
     """
     current_transition_type = 0
-    coll_down_to_k_packet_count_buffer = 0
     while current_transition_type >= 0:
         probability = 0.0
         probability_event = np.random.random()
@@ -80,5 +79,4 @@ def macro_atom_interaction(
     return (
         opacity_state.transition_line_id[transition_id],
         current_transition_type,
-        coll_down_to_k_packet_count_buffer,
     )

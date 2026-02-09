@@ -41,10 +41,8 @@ def macro_atom_event(
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
-    transition_id, transition_type, coll_down_to_k_packet_count_buffer = (
-        macro_atom_interaction(
-            destination_level_idx, r_packet.current_shell_id, opacity_state
-        )
+    transition_id, transition_type = macro_atom_interaction(
+        destination_level_idx, r_packet.current_shell_id, opacity_state
     )
 
     if (
@@ -92,7 +90,6 @@ def macro_atom_event(
         raise Exception(
             f"Interaction {transition_type} not known or implemented!"
         )
-    return coll_down_to_k_packet_count_buffer
 
 
 @njit(**njit_dict_no_parallel)
@@ -178,14 +175,13 @@ def continuum_event(
         current_continua,
     )
 
-    coll_down_to_k_packet_count_buffer = macro_atom_event(
+    macro_atom_event(
         destination_level_idx,
         r_packet,
         time_explosion,
         opacity_state,
         enable_full_relativity,
     )
-    return coll_down_to_k_packet_count_buffer
 
 
 @njit(**njit_dict_no_parallel)
@@ -232,7 +228,7 @@ def line_scatter_event(
         activation_level_id = opacity_state.line2macro_level_upper[
             r_packet.next_line_id
         ]
-        coll_down_to_k_packet_count_buffer = macro_atom_event(
+        macro_atom_event(
             activation_level_id,
             r_packet,
             time_explosion,

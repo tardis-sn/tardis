@@ -280,7 +280,7 @@ def single_packet_loop(
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_continuum_interaction_before(r_packet)
-            coll_down_to_k_packet_count_buffer = continuum_event(
+            continuum_event(
                 r_packet,
                 time_explosion,
                 opacity_state,
