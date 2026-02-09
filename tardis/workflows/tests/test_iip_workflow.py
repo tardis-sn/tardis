@@ -412,6 +412,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         check_dtype=False,
     )
 
+    # TODO: get the actual values for these and store in regression data
     store = pd.HDFStore(
         "/storage/mcconnor/ctardis_h5/opacity_state.h5", mode="r"
     )
@@ -694,4 +695,22 @@ def test_thermal_balance_solver(
         rtol=6e-7,
         atol=0,
         check_dtype=False,
+    )
+
+
+def test_solve_continuum_state_after_nlte_init(
+    iip_regression_path, type_iip_workflow, iip_plasma_nlte_init
+):
+    type_iip_workflow.plasma_solver = iip_plasma_nlte_init
+    type_iip_workflow.solve_continuum_state(None)
+
+    recombination_probabilities_ctardis = pd.read_hdf(
+        iip_regression_path / "continuum_recomb_transition_prob_init_nlte.h5",
+        key="data",
+    )
+
+    pd.testing.assert_frame_equal(
+        type_iip_workflow.base_continuum.recombination_transition_probabilities.dataframe,
+        recombination_probabilities_ctardis,
+        rtol=4e-3,
     )
