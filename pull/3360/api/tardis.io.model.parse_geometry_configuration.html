@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=970fd9ff"></script>
+      <script src="../_static/documentation_options.js?v=3f8ec21f"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -177,15 +177,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>config</strong><span class="classifier">object</span></dt><dd><p>Configuration object.</p>
+<dt><strong>config</strong></dt><dd><p>Configuration object.</p>
 </dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>The time of the explosion</p>
+<dt><strong>time_explosion</strong></dt><dd><p>The time of the explosion.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>HomologousRadial1DGeometry</dt><dd><p>The parsed geometry</p>
+<dt>HomologousRadial1DGeometry</dt><dd><p>The parsed geometry.</p>
 </dd>
 </dl>
 </dd>
@@ -199,13 +199,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>config</strong><span class="classifier">Configuration</span></dt><dd><p>The configuration data.</p>
+<dt><strong>config</strong></dt><dd><p>The configuration data.</p>
 </dd>
-<dt><strong>csvy_model_config</strong><span class="classifier">Any</span></dt><dd><p>The configuration data of the CSVY model.</p>
+<dt><strong>csvy_model_config</strong></dt><dd><p>The configuration data of the CSVY model.</p>
 </dd>
-<dt><strong>csvy_model_data</strong><span class="classifier">pd.DataFrame or None</span></dt><dd><p>The data of the CSVY model.</p>
+<dt><strong>csvy_model_data</strong></dt><dd><p>The data of the CSVY model.</p>
 </dd>
-<dt><strong>time_explosion</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>The time of the explosion.</p>
+<dt><strong>time_explosion</strong></dt><dd><p>The time of the explosion.</p>
 </dd>
 </dl>
 </dd>
@@ -213,11 +213,6 @@
 <dd class="field-even"><dl class="simple">
 <dt>HomologousRadial1DGeometry</dt><dd><p>The parsed geometry.</p>
 </dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>None.</dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -234,21 +229,21 @@ used to create a homologous radial 1D geometry object, which is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>config</strong><span class="classifier">object</span></dt><dd><p>The configuration to parse</p>
+<dt><strong>config</strong></dt><dd><p>The configuration to parse</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>Quantity</dt><dd><p>Time at which densities are valid</p>
+<dt>density_time</dt><dd><p>Time at which densities are valid.</p>
 </dd>
-<dt>Quantity</dt><dd><p>Velocities</p>
+<dt>velocity</dt><dd><p>Velocities.</p>
 </dd>
-<dt>Quantity</dt><dd><p>Densities</p>
+<dt>density</dt><dd><p>Densities.</p>
 </dd>
-<dt>Quantity</dt><dd><p>Electron densities</p>
+<dt>electron_densities</dt><dd><p>Electron densities.</p>
 </dd>
-<dt>Quantity</dt><dd><p>Temperatures</p>
+<dt>temperature</dt><dd><p>Temperatures.</p>
 </dd>
 </dl>
 </dd>
