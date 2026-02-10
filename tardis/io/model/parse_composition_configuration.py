@@ -1,5 +1,7 @@
 import logging
+from typing import Any
 
+import pandas as pd
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
@@ -100,37 +102,34 @@ def parse_composition_from_config(atom_data, config, time_explosion, geometry):
 
 
 def parse_composition_from_csvy(
-    atom_data, csvy_model_config, csvy_model_data, time_explosion, geometry
-):
+    csvy_model_config: Configuration,
+    csvy_model_data: pd.DataFrame | None,
+    time_explosion: u.Quantity,
+    geometry: Any,
+) -> Composition:
     """
     Parse the composition data from a CSVY model.
 
     Parameters
     ----------
-    atom_data : object
-        The atom data used for parsing.
-    csvy_model_config : object
+    csvy_model_config : Any
         The configuration data of the CSVY model.
-    csvy_model_data : object
+    csvy_model_data : pd.DataFrame or None
         The data of the CSVY model.
-    time_explosion : float
+    time_explosion : astropy.units.Quantity
         The time of the explosion.
-    geometry : object
+    geometry : Any
         The geometry of the model.
 
     Returns
     -------
-    Composition : object
+    Composition
         The parsed composition
-
-    Raises
-    ------
-    None.
 
     Notes
     -----
-    This function parses the composition data from a CSVY model. It calls the 'parse_density_csvy'
-    function to parse the density data, and the 'parse_mass_fraction_csvy' function to parse the mass fraction
+    This function parses the composition data from a CSVY model. It calls the 'parse_density_from_csvy'
+    function to parse the density data, and the 'parse_mass_fractions_from_csvy' function to parse the mass fraction
     and isotope mass fraction data. The parsed data is returned as a Composition object.
     """
     density = parse_density_from_csvy(

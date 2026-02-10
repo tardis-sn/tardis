@@ -5,7 +5,7 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_deexc_to_k_packet,
     collisional_transition_excitation_cool,
     collisional_transition_internal_down,
-    collisional_transition_internal_up,
+    collisional_transition_excitation_to_macro_atom,
     continuum_adiabatic_cooling,
     continuum_free_free_cooling,
     continuum_transition_photoionization,
@@ -15,7 +15,7 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     probability_collision_deexc_to_k_packet,
     probability_collision_excitation_cool,
     probability_collision_internal_down,
-    probability_collision_internal_up,
+    probability_collision_exc_to_macro,
     probability_free_free_cooling,
     probability_photoionization,
     probability_recombination_emission,
@@ -409,7 +409,7 @@ class TestCollisionalTransitions:
             sample_collisional_data
         )
 
-        result = probability_collision_internal_up(
+        result = probability_collision_exc_to_macro(
             coll_coeff, electron_densities, energy_lowers
         )
 
@@ -425,13 +425,16 @@ class TestCollisionalTransitions:
             sample_collisional_data
         )
 
-        probabilities, metadata = collisional_transition_internal_up(
-            coll_coeff, electron_densities, energy_lowers
+        probabilities, metadata = (
+            collisional_transition_excitation_to_macro_atom(
+                coll_coeff, electron_densities, energy_lowers
+            )
         )
 
         # Check metadata
         assert (
-            metadata.transition_type == MacroAtomTransitionType.COLL_UP_INTERNAL
+            metadata.transition_type
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
         ).all()
 
     def test_probability_collision_excitation_cool(
@@ -482,7 +485,8 @@ class TestCollisionalTransitions:
 
         # Check metadata
         assert (
-            metadata.transition_type == MacroAtomTransitionType.COLL_UP_COOLING
+            metadata.transition_type
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
         ).all()
         # Source is actually a tuple (k, -99, -99), check just the first element
         assert all(src[0] == "k" for src in metadata.source)

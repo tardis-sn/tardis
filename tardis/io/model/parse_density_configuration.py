@@ -1,7 +1,8 @@
 import logging
-from typing import Tuple
+from typing import Any
 
 import numpy as np
+import pandas as pd
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import (
@@ -17,7 +18,7 @@ def parse_density_section_config(
     density_configuration: ConfigurationNameSpace,
     v_middle: u.Quantity,
     time_explosion: u.Quantity,
-) -> Tuple[u.Quantity, u.Quantity]:
+) -> tuple[u.Quantity, u.Quantity]:
     """
     Parse the density section of the configuration file and produce a density at
     time_explosion.
@@ -113,32 +114,32 @@ def parse_density_section_csvy(
     return calculate_density_after_time(density_0, time_0, time_explosion)
 
 
-def parse_density_from_csvy(csvy_model_config, csvy_model_data, time_explosion):
+def parse_density_from_csvy(
+    csvy_model_config: Configuration,
+    csvy_model_data: pd.DataFrame | None,
+    time_explosion: u.Quantity,
+) -> u.Quantity:
     """
     Parse the density data from a CSVY model.
 
     Parameters
     ----------
-    csvy_model_config : object
+    csvy_model_config : Any
         The configuration data of the CSVY model.
-    csvy_model_data : object
+    csvy_model_data : pd.DataFrame or None
         The data of the CSVY model.
-    time_explosion : float
+    time_explosion : astropy.units.Quantity
         The time of the explosion.
 
     Returns
     -------
-    density : object
+    astropy.units.Quantity
         The parsed density data.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----
     This function parses the density data from a CSVY model. If the CSVY model configuration
-    contains a 'density' attribute, it uses the 'parse_csvy_density' function to parse the
+    contains a 'density' attribute, it uses the 'parse_density_section_csvy' function to parse the
     density data. Otherwise, it calculates the density data using the 'calculate_density_after_time'
     function. The parsed density data is returned.
     """
