@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=3f8ec21f"></script>
+      <script src="../../../../_static/documentation_options.js?v=84740558"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -172,18 +172,18 @@ def parse_radiation_field_state_from_config(
 
     Parameters
     ----------
-    config : Configuration
+    config
         The configuration object.
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry object.
-    dilution_factor : np.ndarray or None, optional
+    dilution_factor
         The dilution factor. If None, it is calculated based on the geometry.
-    packet_source : BasePacketSource or None, optional
+    packet_source
         The packet source object.
 
     Returns
     -------
-    DilutePlanckianRadiationField
+    radiation_field
         The parsed radiation field state.
 
     Raises
@@ -233,20 +233,20 @@ def parse_radiation_field_state_from_csvy(
 
     Parameters
     ----------
-    config : Configuration
+    config
         The configuration object.
-    csvy_model_config : Configuration
+    csvy_model_config
         CSVY model configuration.
-    csvy_model_data : pd.DataFrame or None
+    csvy_model_data
         CSVY model data.
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry object.
-    packet_source : BasePacketSource
+    packet_source
         The packet source object.
 
     Returns
     -------
-    DilutePlanckianRadiationField
+    radiation_field
         The parsed radiation field state.
     &quot;&quot;&quot;
     t_radiative = None
@@ -296,14 +296,14 @@ def calculate_t_radiative_from_t_inner(
 
     Parameters
     ----------
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry object.
-    packet_source : BasePacketSource
+    packet_source
         The packet source object.
 
     Returns
     -------
-    u.Quantity
+    t_radiative
         The calculated radiative temperature.
     &quot;&quot;&quot;
     lambda_wien_inner = const.b_wien / packet_source.temperature
@@ -324,12 +324,12 @@ def calculate_geometric_dilution_factor(
 
     Parameters
     ----------
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry object.
 
     Returns
     -------
-    np.ndarray
+    dilution_factors
         The dilution factors for the input geometry.
     &quot;&quot;&quot;
     value = (

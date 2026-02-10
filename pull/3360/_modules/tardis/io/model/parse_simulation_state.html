@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=3f8ec21f"></script>
+      <script src="../../../../_static/documentation_options.js?v=84740558"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,36 +136,41 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tardis.io.model.parse_simulation_state</h1><div class="highlight"><pre>
-<span></span>from tardis.io.model.parse_packet_source_configuration import (
+<span></span>from tardis.io.configuration.config_reader import Configuration
+from tardis.io.model.parse_packet_source_configuration import (
     initialize_packet_source,
 )
 from tardis.model import SimulationState
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
 
 
 <div class="viewcode-block" id="parse_simulation_state">
 <a class="viewcode-back" href="../../../../api/tardis.io.model.parse_simulation_state.html#tardis.io.model.parse_simulation_state.parse_simulation_state">[docs]</a>
 def parse_simulation_state(
-    config, packet_source, enable_legacy_mode, kwargs, atom_data
-):
-    &quot;&quot;&quot;
-    Initialize the simulation state.
+    config: Configuration,
+    packet_source: BasePacketSource | None,
+    enable_legacy_mode: bool,
+    kwargs: dict,
+    atom_data,
+) -&gt; SimulationState:
+    &quot;&quot;&quot;Initialize the simulation state.
 
     Parameters
     ----------
-    config : object
+    config
         The configuration object for the simulation.
-    packet_source : object
+    packet_source
         The packet source for the simulation.
-    legacy_mode_enabled : bool
+    enable_legacy_mode
         Flag indicating if legacy mode is enabled.
-    kwargs : dict
+    kwargs
         Additional keyword arguments.
-    atom_data : object
+    atom_data
         The atom data for the simulation.
 
     Returns
     -------
-    object
+    simulation_state
         The initialized simulation state.
     &quot;&quot;&quot;
     if &quot;model&quot; in kwargs:

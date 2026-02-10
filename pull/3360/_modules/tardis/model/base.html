@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3f8ec21f"></script>
+      <script src="../../../_static/documentation_options.js?v=84740558"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -142,6 +142,7 @@ from pathlib import Path
 import numpy as np
 from astropy import units as u
 
+from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.csvy import load_csvy
@@ -414,18 +415,24 @@ class SimulationState(HDFWriterMixin):
 <div class="viewcode-block" id="SimulationState.from_config">
 <a class="viewcode-back" href="../../../api/tardis.model.base.html#tardis.model.base.SimulationState.from_config">[docs]</a>
     @classmethod
-    def from_config(cls, config, atom_data, legacy_mode_enabled=False):
-        &quot;&quot;&quot;
-        Create a new SimulationState instance from a Configuration object.
+    def from_config(
+        cls, config: Configuration, atom_data: AtomData, legacy_mode_enabled: bool = False
+    ) -&gt; &quot;SimulationState&quot;:
+        &quot;&quot;&quot;Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
-        config : tardis.io.config_reader.Configuration
-        atom_data : tardis.io.AtomData
+        config
+            Configuration object.
+        atom_data
+            Atom data.
+        legacy_mode_enabled
+            Flag indicating if legacy mode is enabled.
 
         Returns
         -------
-        SimulationState
+        simulation_state
+            The initialized simulation state.
         &quot;&quot;&quot;
         time_explosion = config.supernova.time_explosion.cgs
 

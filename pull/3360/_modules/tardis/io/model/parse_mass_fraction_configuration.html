@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=3f8ec21f"></script>
+      <script src="../../../../_static/documentation_options.js?v=84740558"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -158,30 +158,26 @@ logger = logging.getLogger(__name__)
 
 <div class="viewcode-block" id="parse_mass_fractions_from_config">
 <a class="viewcode-back" href="../../../../api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_config">[docs]</a>
-def parse_mass_fractions_from_config(config, geometry, time_explosion):
-    &quot;&quot;&quot;
-    Parse the mass fraction configuration data.
+def parse_mass_fractions_from_config(
+    config: Configuration,
+    geometry: HomologousRadial1DGeometry,
+    time_explosion: u.Quantity,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Parse the mass fraction configuration data.
 
     Parameters
     ----------
-    config : object
+    config
         The configuration data.
-    geometry : object
+    geometry
         The geometry of the model.
-    time_explosion : float
+    time_explosion
         The time of the explosion.
 
     Returns
     -------
-    nuclide_mass_fractions : object
+    nuclide_mass_fractions
         The parsed nuclide mass fraction.
-
-    raw_isotope_mass_fractions : object
-        The parsed raw isotope mass fraction. This is the isotope mass fraction data before decay.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----
@@ -262,28 +258,23 @@ def parse_mass_fractions_from_csvy(
     geometry: HomologousRadial1DGeometry,
     time_explosion: u.Quantity,
 ) -&gt; pd.DataFrame:
-    &quot;&quot;&quot;
-    Parse the mass fraction data from a CSVY model.
+    &quot;&quot;&quot;Parse the mass fraction data from a CSVY model.
 
     Parameters
     ----------
-    csvy_model_config : Configuration
+    csvy_model_config
         The configuration data of the CSVY model.
-    csvy_model_data : pd.DataFrame or None
+    csvy_model_data
         The data of the CSVY model.
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry of the model.
-    time_explosion : astropy.units.Quantity
+    time_explosion
         The time of the explosion.
 
     Returns
     -------
-    pd.DataFrame
+    nuclide_mass_fractions
         The parsed nuclide mass fraction data.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----
@@ -338,25 +329,23 @@ def parse_mass_fractions_from_csvy(
 
 <div class="viewcode-block" id="convert_to_nuclide_mass_fractions">
 <a class="viewcode-back" href="../../../../api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.convert_to_nuclide_mass_fractions">[docs]</a>
-def convert_to_nuclide_mass_fractions(isotopic_mass_fractions, mass_fractions):
-    &quot;&quot;&quot;
-    Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.
+def convert_to_nuclide_mass_fractions(
+    isotopic_mass_fractions: pd.DataFrame | None,
+    mass_fractions: pd.DataFrame | None,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.
 
     Parameters
     ----------
-    isotope_mass_fraction : pandas.DataFrame
+    isotopic_mass_fractions
         The isotope mass fraction data.
-    mass_fractions : pandas.DataFrame
+    mass_fractions
         The mass fraction data.
 
     Returns
     -------
-    nuclide_mass_fraction : pandas.DataFrame
+    nuclide_mass_fractions
         The converted nuclide mass fraction.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3f8ec21f"></script>
+      <script src="../_static/documentation_options.js?v=84740558"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -179,7 +179,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.readers.generic_readers.read_csv_composition">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.generic_readers.</span></span><span class="sig-name descname"><span class="pre">read_csv_composition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\\s+'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/generic_readers.html#read_csv_composition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.generic_readers.read_csv_composition" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.generic_readers.</span></span><span class="sig-name descname"><span class="pre">read_csv_composition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\\s+'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/generic_readers.html#read_csv_composition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.generic_readers.read_csv_composition" title="Link to this definition">¶</a></dt>
 <dd><p>Read composition from a simple CSV file</p>
 <p>The CSV file can contain specific isotopes or elemental mass fractions in the
 different columns. The first row must contain the header in which the
@@ -188,7 +188,7 @@ mass fractions) or by the symbol plus mass number (for isotopic mass fractions).
 <p>Example: C O Fe Ni56 Co</p>
 <p>The i-th row specifies the composition in the i-th shell</p>
 <dl class="simple">
-<dt>fname<span class="classifier">str</span></dt><dd><p>filename of the csv file</p>
+<dt>fname</dt><dd><p>filename of the csv file</p>
 </dd>
 </dl>
 </dd></dl>
@@ -205,17 +205,17 @@ The first density describes the mean density in the center of the model and is n
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>fname</strong><span class="classifier">str</span></dt><dd><p>filename or path with filename</p>
+<dt><strong>fname</strong></dt><dd><p>Filename or path with filename.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>time_of_model</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>time at which the model is valid</p>
+<dt>time_of_model</dt><dd><p>Time at which the model is valid.</p>
 </dd>
-<dt><strong>velocity</strong><span class="classifier">u.Quantity</span></dt><dd><p>velocity</p>
+<dt>velocity</dt><dd><p>Velocity.</p>
 </dd>
-<dt>mean_density: u.Quantity</dt><dd><p>mean density</p>
+<dt>mean_density</dt><dd><p>Mean density.</p>
 </dd>
 </dl>
 </dd>
@@ -224,7 +224,7 @@ The first density describes the mean density in the center of the model and is n
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.readers.generic_readers.read_simple_ascii_mass_fractions">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.generic_readers.</span></span><span class="sig-name descname"><span class="pre">read_simple_ascii_mass_fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/generic_readers.html#read_simple_ascii_mass_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.generic_readers.read_simple_ascii_mass_fractions" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.generic_readers.</span></span><span class="sig-name descname"><span class="pre">read_simple_ascii_mass_fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/io/model/readers/generic_readers.html#read_simple_ascii_mass_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.generic_readers.read_simple_ascii_mass_fractions" title="Link to this definition">¶</a></dt>
 <dd><p>Reading a mass fraction file of the following structure (example; lines starting with hash will be ignored):
 The first line of mass fractions describe the mass fractions in the center of the model and are not used.
 #index element1, element2, …, element30
@@ -232,15 +232,15 @@ The first line of mass fractions describe the mass fractions in the center of th
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>fname</strong><span class="classifier">str</span></dt><dd><p>filename or path with filename</p>
+<dt><strong>fname</strong></dt><dd><p>Filename or path with filename.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>index</strong><span class="classifier">np.ndarray</span></dt><dd><p>containing the indices</p>
+<dt>index</dt><dd><p>Array containing the indices.</p>
 </dd>
-<dt><strong>mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>data frame containing index, element1 - element30 and columns according to the shells</p>
+<dt>mass_fractions</dt><dd><p>Data frame containing index, element1 - element30 and columns according to the shells.</p>
 </dd>
 </dl>
 </dd>
@@ -250,17 +250,22 @@ The first line of mass fractions describe the mass fractions in the center of th
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.readers.generic_readers.read_uniform_mass_fractions">
 <span class="sig-prename descclassname"><span class="pre">tardis.io.model.readers.generic_readers.</span></span><span class="sig-name descname"><span class="pre">read_uniform_mass_fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass_fractions_section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_of_shells</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/readers/generic_readers.html#read_uniform_mass_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.readers.generic_readers.read_uniform_mass_fractions" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Read uniform mass fractions from configuration.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>mass_fractions_section</strong><span class="classifier">config.model.abundances</span></dt><dd></dd>
-<dt><strong>no_of_shells</strong><span class="classifier">int</span></dt><dd></dd>
+<dt><strong>mass_fractions_section</strong></dt><dd><p>Mass fractions section from config.model.abundances.</p>
+</dd>
+<dt><strong>no_of_shells</strong></dt><dd><p>Number of shells.</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
-<dt><strong>isotope_mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd></dd>
+<dt>mass_fractions</dt><dd><p>Elemental mass fractions DataFrame.</p>
+</dd>
+<dt>isotope_mass_fractions</dt><dd><p>Isotopic mass fractions DataFrame.</p>
+</dd>
 </dl>
 </dd>
 </dl>
