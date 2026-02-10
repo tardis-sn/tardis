@@ -1,8 +1,12 @@
 import functools
+from copy import deepcopy
 from os import environ as env
 from pathlib import Path
 
+from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
+from tardis.simulation import Simulation
+from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_MD5
 
 
 class BenchmarkBase:
@@ -45,6 +49,16 @@ class BenchmarkBase:
         return atomic_data_fname
 
     @functools.cached_property
+    def atomic_dataset(self) -> AtomData:
+        atomic_data = AtomData.from_hdf(self.atomic_data_fname)
+
+        if atomic_data.md5 != DEFAULT_ATOM_DATA_MD5:
+            message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_MD5}")'
+            raise Exception(message)
+        else:
+            return atomic_data
+
+    @functools.cached_property
     def example_configuration_dir(self):
         return self.get_absolute_path("tardis/io/configuration/tests/data")
 
@@ -61,3 +75,21 @@ class BenchmarkBase:
         )
         config.montecarlo.tracking.track_rpacket = True
         return config
+
+    @functools.cached_property
+    def simulation_verysimple(self):
+        atomic_data = deepcopy(self.atomic_dataset)
+        sim = Simulation.from_config(
+            self.config_verysimple, atom_data=atomic_data
+        )
+        sim.iterate(4000)
+        return sim
+
+    @functools.cached_property
+    def nb_simulation_verysimple(self):
+        atomic_data = deepcopy(self.atomic_dataset)
+        sim = Simulation.from_config(
+            self.config_verysimple, atom_data=atomic_data
+        )
+        sim.iterate(5)
+        return sim
