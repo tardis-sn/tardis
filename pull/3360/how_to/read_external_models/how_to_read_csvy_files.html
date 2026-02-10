@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="../../_static/documentation_options.js?v=970fd9ff"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -178,7 +178,7 @@
 <h1>How to Read CSVY Format Files<a class="headerlink" href="#How-to-Read-CSVY-Format-Files" title="Link to this heading">¶</a></h1>
 <p>This notebook demonstrates reading CSVY (CSV + YAML) format files used by TARDIS. CSVY files combine YAML metadata with CSV tabular data.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -196,16 +196,16 @@
 <h2>Uniform Density CSVY File<a class="headerlink" href="#Uniform-Density-CSVY-File" title="Link to this heading">¶</a></h2>
 <p>CSVY file with uniform density and abundance profiles defined in YAML only (no CSV data).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">UNIFORM_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;uniform_csvy.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">UNIFORM_CSVY_PATH</span><span class="p">)</span>
+<span class="n">csvy_data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">UNIFORM_CSVY_PATH</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Abundance: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Abundance: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSV Data: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">raw_csv_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -215,104 +215,171 @@
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Name: uniform_csvy
-Density: OrderedDict({&#39;type&#39;: &#39;uniform&#39;, &#39;value&#39;: &lt;Quantity 1.e-09 g / cm3&gt;})
-Abundance: OrderedDict({&#39;type&#39;: &#39;uniform&#39;, &#39;H&#39;: 0.5, &#39;He&#39;: 0.2, &#39;O&#39;: 0.25, &#39;Ni56&#39;: 0.04, &#39;Ni58&#39;: 0.01})
+Density: {&#39;type&#39;: &#39;uniform&#39;, &#39;value&#39;: &lt;Quantity 1.e-09 g / cm3&gt;}
+Abundance: {&#39;type&#39;: &#39;uniform&#39;, &#39;H&#39;: 0.5, &#39;He&#39;: 0.2, &#39;O&#39;: 0.25, &#39;Ni56&#39;: 0.04, &#39;Ni58&#39;: 0.01, &#39;model_isotope_time_0&#39;: &lt;Quantity nan s&gt;}
 CSV Data: None
 </pre></div></div>
 </div>
 </section>
 <section id="Power-Law-Density-CSVY-File">
 <h2>Power-Law Density CSVY File<a class="headerlink" href="#Power-Law-Density-CSVY-File" title="Link to this heading">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">POWERLAW_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;powerlaw_csvy.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">POWERLAW_CSVY_PATH</span><span class="p">)</span>
+<span class="n">csvy_data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">POWERLAW_CSVY_PATH</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density rho_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density exponent: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;exponent&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density type: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density rho_0: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density exponent: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;exponent&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Name: powerlaw_csvy
+Density type: power_law
+Density rho_0: 1e-09 g / cm3
+Density exponent: -2
+</pre></div></div>
 </div>
 </section>
 <section id="Exponential-Density-CSVY-File">
 <h2>Exponential Density CSVY File<a class="headerlink" href="#Exponential-Density-CSVY-File" title="Link to this heading">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">EXPONENTIAL_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;exponential_csvy.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">EXPONENTIAL_CSVY_PATH</span><span class="p">)</span>
+<span class="n">csvy_data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">EXPONENTIAL_CSVY_PATH</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density rho_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density type: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density rho_0: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Name: exponential_csvy
+Density type: exponential
+Density rho_0: 1e-09 g / cm3
+</pre></div></div>
 </div>
 </section>
 <section id="Full-Model-CSVY-File-with-CSV-Data">
 <h2>Full Model CSVY File with CSV Data<a class="headerlink" href="#Full-Model-CSVY-File-with-CSV-Data" title="Link to this heading">¶</a></h2>
 <p>CSVY file where velocity, density, and abundances are provided in the CSV section.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">FULL_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;model_full_csvy.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
+<span class="n">csvy_data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Datatype fields:&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensionless&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">raw_csv_data</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Name: model_full_csvy
+
+Datatype fields:
+  velocity: km/s
+  density: g/cm^3
+  H: dimensionless
+  He: dimensionless
+  Ni56: dimensionless
+
+CSV Data:
+   velocity       density    H    He  Ni56
+0      9000  5.000000e-10  1.0  1.00  1.00
+1     10500  2.000000e-10  0.0  0.99  0.01
+2     12000  9.000000e-11  0.4  0.58  0.02
+</pre></div></div>
 </div>
 </section>
 <section id="Another-Full-CSVY-File-from-IO-Tests">
 <h2>Another Full CSVY File from IO Tests<a class="headerlink" href="#Another-Full-CSVY-File-from-IO-Tests" title="Link to this heading">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CSVY_FULL_PATH</span> <span class="o">=</span> <span class="n">CSVY_IO_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;csvy_full.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">CSVY_FULL_PATH</span><span class="p">)</span>
+<span class="n">csvy_data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">CSVY_FULL_PATH</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v_inner: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v_outer: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v_inner: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v_outer: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">raw_csv_data</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Name: csvy_full
+v_inner: 9000.0 km / s
+v_outer: 15000.0 km / s
+
+CSV Data:
+   velocity       density    H   He
+0     10000  5.000000e-09  0.3  0.7
+1     11000  2.000000e-09  0.6  0.4
+</pre></div></div>
 </div>
 </section>
 <section id="CSVY-File-with-Only-YAML-(No-CSV-Data)">
 <h2>CSVY File with Only YAML (No CSV Data)<a class="headerlink" href="#CSVY-File-with-Only-YAML-(No-CSV-Data)" title="Link to this heading">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">NOCSV_PATH</span> <span class="o">=</span> <span class="n">CSVY_IO_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;csvy_nocsv.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">NOCSV_PATH</span><span class="p">)</span>
+<span class="n">csvy_data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">NOCSV_PATH</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">model_config</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSV Data: </span><span class="si">{</span><span class="n">csvy_data</span><span class="o">.</span><span class="n">raw_csv_data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Name: csvy_nocsv
+Density: {&#39;type&#39;: &#39;branch85_w7&#39;, &#39;w7_time_0&#39;: &lt;Quantity 0.00023148 d&gt;, &#39;w7_rho_0&#39;: &lt;Quantity 3.e+29 g / cm3&gt;, &#39;w7_v_0&#39;: &lt;Quantity 1. km / s&gt;}
+CSV Data: None
+</pre></div></div>
 </div>
 </section>
 <section id="Using-Individual-Reader-Functions">
 <h2>Using Individual Reader Functions<a class="headerlink" href="#Using-Individual-Reader-Functions" title="Link to this heading">¶</a></h2>
 <p>Read only YAML or only CSV data separately.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">yaml_only</span> <span class="o">=</span> <span class="n">load_yaml_from_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
@@ -325,712 +392,22 @@ CSV Data: None
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Model name: model_full_csvy
+TARDIS config version: v1.0
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">tardis</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.csvy.readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_csvy</span><span class="p">,</span> <span class="n">load_yaml_from_csvy</span><span class="p">,</span> <span class="n">load_csv_from_csvy</span>
-
-<span class="n">TARDIS_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tardis</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
-<span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">=</span> <span class="n">TARDIS_DIR</span> <span class="o">/</span> <span class="s2">&quot;model&quot;</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-<span class="n">CSVY_IO_TEST_DIR</span> <span class="o">=</span> <span class="n">TARDIS_DIR</span> <span class="o">/</span> <span class="s2">&quot;io&quot;</span> <span class="o">/</span> <span class="s2">&quot;model&quot;</span> <span class="o">/</span> <span class="s2">&quot;readers&quot;</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-</pre></div>
-</div>
+CSV shape: (3, 5)
+   velocity       density    H    He  Ni56
+0      9000  5.000000e-10  1.0  1.00  1.00
+1     10500  2.000000e-10  0.0  0.99  0.01
+2     12000  9.000000e-11  0.4  0.58  0.02
+</pre></div></div>
 </div>
 </section>
-<section id="id1">
-<h2>Uniform Density CSVY File<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
-<p>CSVY file with uniform density and abundance profiles defined in YAML only (no CSV data).</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">UNIFORM_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;uniform_csvy.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">UNIFORM_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Velocity: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Abundance: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id2">
-<h2>Power-Law Density CSVY File<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
-<p>CSVY file with power-law density profile defined in YAML.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">POWERLAW_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;powerlaw_csvy.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">POWERLAW_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density rho_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density v_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;v_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density exponent: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;exponent&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id3">
-<h2>Exponential Density CSVY File<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
-<p>CSVY file with exponential density profile.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">EXPONENTIAL_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;exponential_csvy.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">EXPONENTIAL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density rho_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Density v_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;v_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id4">
-<h2>Full Model CSVY File with CSV Data<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
-<p>CSVY file where velocity, density, and abundances are provided in the CSV section.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">FULL_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_MODEL_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;model_full_csvy.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Datatype fields:&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensionless&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id5">
-<h2>Another Full CSVY File from IO Tests<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">CSVY_FULL_PATH</span> <span class="o">=</span> <span class="n">CSVY_IO_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;csvy_full.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">CSVY_FULL_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Boundary velocities:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_inner: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_outer: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id6">
-<h2>CSVY File with Only YAML (No CSV Data)<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
-<p>CSVY file containing only YAML metadata without CSV data.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">NOCSV_PATH</span> <span class="o">=</span> <span class="n">CSVY_IO_TEST_DIR</span> <span class="o">/</span> <span class="s2">&quot;csvy_nocsv.csvy&quot;</span>
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">NOCSV_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Abundance: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id7">
-<h2>Using Individual Reader Functions<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
-<p>Read only YAML or only CSV data separately.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">yaml_only</span> <span class="o">=</span> <span class="n">load_yaml_from_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model name: </span><span class="si">{</span><span class="n">yaml_only</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TARDIS config version: </span><span class="si">{</span><span class="n">yaml_only</span><span class="p">[</span><span class="s1">&#39;tardis_model_config_version&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="n">csv_only</span> <span class="o">=</span> <span class="n">load_csv_from_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV DataFrame shape: </span><span class="si">{</span><span class="n">csv_only</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">csv_only</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">csv_only</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.csvy.readers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">load_csvy</span><span class="p">,</span>
-    <span class="n">load_yaml_from_csvy</span><span class="p">,</span>
-    <span class="n">load_csv_from_csvy</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># Define paths to example CSVY files</span>
-<span class="n">TARDIS_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">()</span> <span class="k">else</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
-<span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">=</span> <span class="n">TARDIS_DIR</span> <span class="o">/</span> <span class="s2">&quot;tardis&quot;</span> <span class="o">/</span> <span class="s2">&quot;model&quot;</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-<span class="n">CSVY_IO_TEST_DATA_DIR</span> <span class="o">=</span> <span class="n">TARDIS_DIR</span> <span class="o">/</span> <span class="s2">&quot;tardis&quot;</span> <span class="o">/</span> <span class="s2">&quot;io&quot;</span> <span class="o">/</span> <span class="s2">&quot;model&quot;</span> <span class="o">/</span> <span class="s2">&quot;readers&quot;</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TARDIS directory: </span><span class="si">{</span><span class="n">TARDIS_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test data directory: </span><span class="si">{</span><span class="n">CSVY_TEST_DATA_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.csvy.readers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">load_csvy</span><span class="p">,</span>
-    <span class="n">load_yaml_from_csvy</span><span class="p">,</span>
-    <span class="n">load_csv_from_csvy</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># Define paths to example CSVY files</span>
-<span class="n">TARDIS_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">()</span> <span class="k">else</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
-<span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">=</span> <span class="n">TARDIS_DIR</span> <span class="o">/</span> <span class="s2">&quot;tardis&quot;</span> <span class="o">/</span> <span class="s2">&quot;model&quot;</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-<span class="n">CSVY_IO_TEST_DATA_DIR</span> <span class="o">=</span> <span class="n">TARDIS_DIR</span> <span class="o">/</span> <span class="s2">&quot;tardis&quot;</span> <span class="o">/</span> <span class="s2">&quot;io&quot;</span> <span class="o">/</span> <span class="s2">&quot;model&quot;</span> <span class="o">/</span> <span class="s2">&quot;readers&quot;</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TARDIS directory: </span><span class="si">{</span><span class="n">TARDIS_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test data directory: </span><span class="si">{</span><span class="n">CSVY_TEST_DATA_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-</section>
-<section id="Read-CSVY-File-with-Uniform-Density-and-Abundance">
-<h1>Read CSVY File with Uniform Density and Abundance<a class="headerlink" href="#Read-CSVY-File-with-Uniform-Density-and-Abundance" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file where density and abundance profiles are defined in the YAML section only (no CSV data).</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load uniform density/abundance CSVY file</span>
-<span class="n">UNIFORM_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;uniform_csvy.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">UNIFORM_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;UNIFORM CSVY FILE&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Model density time: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;model_density_time_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Model isotope time: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;model_isotope_time_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Velocity configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Start: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Stop: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">][</span><span class="s1">&#39;stop&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Num: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">][</span><span class="s1">&#39;num&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Value: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abundance configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">elem</span> <span class="o">!=</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Boundary velocities:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_inner_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_outer_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Read-CSVY-File-with-Power-Law-Density-Profile">
-<h1>Read CSVY File with Power-Law Density Profile<a class="headerlink" href="#Read-CSVY-File-with-Power-Law-Density-Profile" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file with a power-law density profile defined in the YAML section.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load power-law density CSVY file</span>
-<span class="n">POWERLAW_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;powerlaw_csvy.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">POWERLAW_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;POWER-LAW CSVY FILE&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  rho_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;v_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Exponent: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;exponent&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abundance configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">elem</span> <span class="o">!=</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Read-CSVY-File-with-Exponential-Density-Profile">
-<h1>Read CSVY File with Exponential Density Profile<a class="headerlink" href="#Read-CSVY-File-with-Exponential-Density-Profile" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file with an exponential density profile defined in the YAML section.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load exponential density CSVY file</span>
-<span class="n">EXPONENTIAL_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;exponential_csvy.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">EXPONENTIAL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXPONENTIAL CSVY FILE&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  rho_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;v_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abundance configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">elem</span> <span class="o">!=</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Read-CSVY-File-with-Full-Model-Data-(CSV-Section)">
-<h1>Read CSVY File with Full Model Data (CSV Section)<a class="headerlink" href="#Read-CSVY-File-with-Full-Model-Data-(CSV-Section)" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file where velocity, density, and abundance data are provided in the CSV section.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load full model CSVY file with CSV data</span>
-<span class="n">FULL_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;model_full_csvy.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FULL MODEL CSVY FILE (WITH CSV DATA)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Datatype fields:&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensionless&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Boundary velocities:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_inner_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_outer_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Read-Another-Full-CSVY-File-from-IO-Tests">
-<h1>Read Another Full CSVY File from IO Tests<a class="headerlink" href="#Read-Another-Full-CSVY-File-from-IO-Tests" title="Link to this heading">¶</a></h1>
-<p>This example shows another CSVY file with CSV data from the IO module tests.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load another full CSVY file</span>
-<span class="n">CSVY_FULL_PATH</span> <span class="o">=</span> <span class="n">CSVY_IO_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;csvy_full.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">CSVY_FULL_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;IO TEST CSVY FILE (WITH CSV DATA)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Datatype fields:&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensionless&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Boundary velocities:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_inner_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_outer_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Read-CSVY-File-with-Only-YAML-(No-CSV-Data)">
-<h1>Read CSVY File with Only YAML (No CSV Data)<a class="headerlink" href="#Read-CSVY-File-with-Only-YAML-(No-CSV-Data)" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file that contains only YAML metadata without CSV data.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load CSVY file with no CSV data</span>
-<span class="n">NOCSV_PATH</span> <span class="o">=</span> <span class="n">CSVY_IO_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;csvy_nocsv.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">NOCSV_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CSVY FILE WITH NO CSV DATA&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Value: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abundance configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">elem</span> <span class="o">!=</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id8">
-<h1>Using Individual Reader Functions<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h1>
-<p>You can also use <code class="docutils literal notranslate"><span class="pre">load_yaml_from_csvy()</span></code> and <code class="docutils literal notranslate"><span class="pre">load_csv_from_csvy()</span></code> to read only the YAML or CSV parts separately.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read only YAML metadata</span>
-<span class="n">yaml_only</span> <span class="o">=</span> <span class="n">load_yaml_from_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;READING ONLY YAML METADATA&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Model name: </span><span class="si">{</span><span class="n">yaml_only</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">yaml_only</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TARDIS config version: </span><span class="si">{</span><span class="n">yaml_only</span><span class="p">[</span><span class="s1">&#39;tardis_model_config_version&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Read only CSV data</span>
-<span class="n">csv_only</span> <span class="o">=</span> <span class="n">load_csv_from_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;READING ONLY CSV DATA&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV DataFrame:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">csv_only</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">DataFrame info:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Shape: </span><span class="si">{</span><span class="n">csv_only</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">csv_only</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Summary">
-<h1>Summary<a class="headerlink" href="#Summary" title="Link to this heading">¶</a></h1>
-<p>This notebook demonstrated how to read various CSVY format files using TARDIS:</p>
-<ol class="arabic simple">
-<li><p><strong>``load_csvy(fname)``</strong>: Returns both YAML metadata and CSV data</p></li>
-<li><p><strong>``load_yaml_from_csvy(fname)``</strong>: Returns only YAML metadata</p></li>
-<li><p><strong>``load_csv_from_csvy(fname)``</strong>: Returns only CSV data</p></li>
-</ol>
-<p>CSVY files can contain:</p>
-<ul class="simple">
-<li><p>YAML-only configurations (density/abundance profiles defined in YAML)</p></li>
-<li><p>CSV data with explicit values for velocity, density, and abundances</p></li>
-<li><p>Combination of both YAML metadata and CSV data</p></li>
-</ul>
-<p>The YAML section is delimited by <code class="docutils literal notranslate"><span class="pre">---</span></code> markers and must be at the beginning of the file.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.model.csvy.readers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">load_csvy</span><span class="p">,</span>
-    <span class="n">load_yaml_from_csvy</span><span class="p">,</span>
-    <span class="n">load_csv_from_csvy</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># Define paths to example CSVY files</span>
-<span class="n">TARDIS_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="k">if</span> <span class="s2">&quot;__file__&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">()</span> <span class="k">else</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
-<span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">=</span> <span class="n">TARDIS_DIR</span> <span class="o">/</span> <span class="s2">&quot;tardis&quot;</span> <span class="o">/</span> <span class="s2">&quot;model&quot;</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-<span class="n">CSVY_IO_TEST_DATA_DIR</span> <span class="o">=</span> <span class="n">TARDIS_DIR</span> <span class="o">/</span> <span class="s2">&quot;tardis&quot;</span> <span class="o">/</span> <span class="s2">&quot;io&quot;</span> <span class="o">/</span> <span class="s2">&quot;model&quot;</span> <span class="o">/</span> <span class="s2">&quot;readers&quot;</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TARDIS directory: </span><span class="si">{</span><span class="n">TARDIS_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test data directory: </span><span class="si">{</span><span class="n">CSVY_TEST_DATA_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load uniform density/abundance CSVY file</span>
-<span class="n">UNIFORM_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;uniform_csvy.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">UNIFORM_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;UNIFORM CSVY FILE&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Model density time: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;model_density_time_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Model isotope time: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;model_isotope_time_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Velocity configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Start: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Stop: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">][</span><span class="s1">&#39;stop&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Num: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;velocity&#39;</span><span class="p">][</span><span class="s1">&#39;num&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Value: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abundance configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">elem</span> <span class="o">!=</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Boundary velocities:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_inner_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_outer_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id9">
-<h1>Read CSVY File with Power-Law Density Profile<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file with a power-law density profile defined in the YAML section.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load power-law density CSVY file</span>
-<span class="n">POWERLAW_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;powerlaw_csvy.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">POWERLAW_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;POWER-LAW CSVY FILE&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  rho_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;v_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Exponent: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;exponent&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abundance configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">elem</span> <span class="o">!=</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id10">
-<h1>Read CSVY File with Exponential Density Profile<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file with an exponential density profile defined in the YAML section.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load exponential density CSVY file</span>
-<span class="n">EXPONENTIAL_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;exponential_csvy.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">EXPONENTIAL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXPONENTIAL CSVY FILE&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  rho_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;rho_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_0: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;v_0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abundance configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">elem</span> <span class="o">!=</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id11">
-<h1>Read CSVY File with Full Model Data (CSV Section)<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file where velocity, density, and abundance data are provided in the CSV section.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load full model CSVY file with CSV data</span>
-<span class="n">FULL_CSVY_PATH</span> <span class="o">=</span> <span class="n">CSVY_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;model_full_csvy.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FULL MODEL CSVY FILE (WITH CSV DATA)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Datatype fields:&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensionless&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Boundary velocities:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_inner_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_outer_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id12">
-<h1>Read Another Full CSVY File from IO Tests<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h1>
-<p>This example shows another CSVY file with CSV data from the IO module tests.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load another full CSVY file</span>
-<span class="n">CSVY_FULL_PATH</span> <span class="o">=</span> <span class="n">CSVY_IO_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;csvy_full.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">CSVY_FULL_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;IO TEST CSVY FILE (WITH CSV DATA)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Datatype fields:&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;datatype&#39;</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;unit&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;dimensionless&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Boundary velocities:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_inner_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_inner_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  v_outer_boundary: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;v_outer_boundary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id13">
-<h1>Read CSVY File with Only YAML (No CSV Data)<a class="headerlink" href="#id13" title="Link to this heading">¶</a></h1>
-<p>This example shows a CSVY file that contains only YAML metadata without CSV data.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load CSVY file with no CSV data</span>
-<span class="n">NOCSV_PATH</span> <span class="o">=</span> <span class="n">CSVY_IO_TEST_DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;csvy_nocsv.csvy&quot;</span>
-
-<span class="n">yaml_dict</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">load_csvy</span><span class="p">(</span><span class="n">NOCSV_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CSVY FILE WITH NO CSV DATA&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">YAML Metadata:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Name: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Description: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Density configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Value: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abundance configuration:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Type: </span><span class="si">{</span><span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">elem</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="s1">&#39;abundance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">elem</span> <span class="o">!=</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV Data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id14">
-<h1>Using Individual Reader Functions<a class="headerlink" href="#id14" title="Link to this heading">¶</a></h1>
-<p>You can also use <code class="docutils literal notranslate"><span class="pre">load_yaml_from_csvy()</span></code> and <code class="docutils literal notranslate"><span class="pre">load_csv_from_csvy()</span></code> to read only the YAML or CSV parts separately.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read only YAML metadata</span>
-<span class="n">yaml_only</span> <span class="o">=</span> <span class="n">load_yaml_from_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;READING ONLY YAML METADATA&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Model name: </span><span class="si">{</span><span class="n">yaml_only</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">yaml_only</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TARDIS config version: </span><span class="si">{</span><span class="n">yaml_only</span><span class="p">[</span><span class="s1">&#39;tardis_model_config_version&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Read only CSV data</span>
-<span class="n">csv_only</span> <span class="o">=</span> <span class="n">load_csv_from_csvy</span><span class="p">(</span><span class="n">FULL_CSVY_PATH</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;READING ONLY CSV DATA&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CSV DataFrame:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">csv_only</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">DataFrame info:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Shape: </span><span class="si">{</span><span class="n">csv_only</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">csv_only</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="id15">
-<h1>Summary<a class="headerlink" href="#id15" title="Link to this heading">¶</a></h1>
-<p>This notebook demonstrated how to read various CSVY format files using TARDIS:</p>
-<ol class="arabic simple">
-<li><p><strong>``load_csvy(fname)``</strong>: Returns both YAML metadata and CSV data</p></li>
-<li><p><strong>``load_yaml_from_csvy(fname)``</strong>: Returns only YAML metadata</p></li>
-<li><p><strong>``load_csv_from_csvy(fname)``</strong>: Returns only CSV data</p></li>
-</ol>
-<p>CSVY files can contain:</p>
-<ul class="simple">
-<li><p>YAML-only configurations (density/abundance profiles defined in YAML)</p></li>
-<li><p>CSV data with explicit values for velocity, density, and abundances</p></li>
-<li><p>Combination of both YAML metadata and CSV data</p></li>
-</ul>
-<p>The YAML section is delimited by <code class="docutils literal notranslate"><span class="pre">---</span></code> markers and must be at the beginning of the file.</p>
 </section>
 
 
@@ -1042,7 +419,7 @@ CSV Data: None
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 

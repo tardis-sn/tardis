@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="../../../../_static/documentation_options.js?v=970fd9ff"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -218,9 +218,7 @@ class ContinuumProcess:
     @data_type_selection
     def _get_ionization_energy(self, multi_index_full):
         ion_number_index = self._get_ion_multi_index(multi_index_full)
-        return self.input.ionization_energies.loc[
-            ion_number_index, &quot;ionization_energy&quot;
-        ]
+        return self.input.ionization_energies.loc[ion_number_index]
 
     def _get_continuum_edge_idx(self, multi_index):
         return self.input.continuum_data.loc[multi_index, &quot;continuum_edge_idx&quot;]
@@ -228,15 +226,14 @@ class ContinuumProcess:
     @staticmethod
     def _normalize_transition_probabilities(dataframe, no_ref_columns=0):
         normalization_fct = lambda x: (x / x.sum())
-        normalized_dataframe = (
+        normalized_dataframe_orig = (
             dataframe.iloc[:, no_ref_columns:]
             .groupby(level=0)
             .transform(normalization_fct)
         )
         normalized_dataframe = pd.concat(
-            [dataframe.iloc[:, :no_ref_columns], normalized_dataframe],
+            [dataframe.iloc[:, :no_ref_columns], normalized_dataframe_orig],
             axis=1,
-            join_axes=[normalized_dataframe.index],
         )
         normalized_dataframe = normalized_dataframe.fillna(0.0)
         return normalized_dataframe
@@ -521,7 +518,7 @@ class InverseProcess(ContinuumProcess, TransitionProbabilitiesMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 

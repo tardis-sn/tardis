@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="_static/documentation_options.js?v=970fd9ff"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -175,23 +175,34 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/multiindex_isotope_decay_data.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># general imports</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="c1"># TARDIS imports for the gamma-ray code</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.energy_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_nuclear_lines_database</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.gamma_ray_channel</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">calculate_total_decays</span><span class="p">,</span>
+    <span class="n">create_inventories_dict</span><span class="p">,</span>
+    <span class="n">create_isotope_decay_df</span><span class="p">,</span>
+    <span class="n">create_isotope_dicts</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomData</span><span class="p">,</span> <span class="n">download_atom_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration</span><span class="w"> </span><span class="kn">import</span> <span class="n">config_reader</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulationState</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePlasma</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.configuration</span><span class="w"> </span><span class="kn">import</span> <span class="n">config_reader</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.io.atom_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_atom_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.energy_source</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_nuclear_lines_database</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.energy_input.gamma_ray_channel</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_isotope_dicts</span><span class="p">,</span> <span class="n">create_inventories_dict</span><span class="p">,</span> <span class="n">calculate_total_decays</span><span class="p">,</span> <span class="n">create_isotope_decay_df</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties</span><span class="w"> </span><span class="kn">import</span> <span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> \
-    <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> \
-    <span class="n">SelectedAtoms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tardis.plasma.properties</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Abundance</span><span class="p">,</span>
+    <span class="n">AtomicData</span><span class="p">,</span>
+    <span class="n">AtomicMass</span><span class="p">,</span>
+    <span class="n">Density</span><span class="p">,</span>
+    <span class="n">IsotopeAbundance</span><span class="p">,</span>
+    <span class="n">IsotopeMass</span><span class="p">,</span>
+    <span class="n">IsotopeNumberDensity</span><span class="p">,</span>
+    <span class="n">NumberDensity</span><span class="p">,</span>
+    <span class="n">SelectedAtoms</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -208,12 +219,12 @@
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "c485612f1f674a699550f3ec2237cc86", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download the atom data file from tardis-regression-data repo to run this cell.</span>
-<span class="n">download_atom_data</span><span class="p">(</span><span class="s1">&#39;kurucz_cd23_chianti_H_He_latest&#39;</span><span class="p">)</span>
-<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s1">&#39;kurucz_cd23_chianti_H_He_latest.h5&#39;</span>
+<span class="n">download_atom_data</span><span class="p">(</span><span class="s2">&quot;kurucz_cd23_chianti_H_He_latest&quot;</span><span class="p">)</span>
+<span class="n">atom_data_file</span> <span class="o">=</span> <span class="s2">&quot;kurucz_cd23_chianti_H_He_latest.h5&quot;</span>
 <span class="n">atom_data</span> <span class="o">=</span> <span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">(</span><span class="n">atom_data_file</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -229,20 +240,22 @@ INFO:tardis.io.atom_data.base:Non provided Atomic Data: synpp_refs, photoionizat
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read the config file and create a configuration object</span>
-<span class="n">config</span> <span class="o">=</span> <span class="n">config_reader</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;tardis_configv1_density_exponential_nebular.yml&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">config_reader</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+    <span class="s2">&quot;tardis_configv1_density_exponential_nebular.yml&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the model</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_csvy</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">atom_data</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">SimulationState</span><span class="o">.</span><span class="n">from_csvy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -274,16 +287,30 @@ INFO:tardis.model.matter.decay:Decaying abundances for 2600540.0352 seconds
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Construct the Plasma</span>
 
-<span class="nb">input</span> <span class="o">=</span> <span class="p">[</span><span class="n">Density</span><span class="p">,</span> <span class="n">Abundance</span><span class="p">,</span> <span class="n">IsotopeAbundance</span><span class="p">,</span> <span class="n">AtomicData</span><span class="p">,</span> <span class="n">AtomicMass</span><span class="p">,</span> <span class="n">IsotopeNumberDensity</span><span class="p">,</span> <span class="n">NumberDensity</span><span class="p">,</span> <span class="n">SelectedAtoms</span><span class="p">,</span> <span class="n">IsotopeMass</span><span class="p">]</span>
+<span class="nb">input</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Density</span><span class="p">,</span>
+    <span class="n">Abundance</span><span class="p">,</span>
+    <span class="n">IsotopeAbundance</span><span class="p">,</span>
+    <span class="n">AtomicData</span><span class="p">,</span>
+    <span class="n">AtomicMass</span><span class="p">,</span>
+    <span class="n">IsotopeNumberDensity</span><span class="p">,</span>
+    <span class="n">NumberDensity</span><span class="p">,</span>
+    <span class="n">SelectedAtoms</span><span class="p">,</span>
+    <span class="n">IsotopeMass</span><span class="p">,</span>
+<span class="p">]</span>
 
-<span class="n">plasma</span> <span class="o">=</span> <span class="n">BasePlasma</span><span class="p">(</span><span class="n">plasma_properties</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span> <span class="n">density</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
-                    <span class="n">abundance</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">abundance</span><span class="p">,</span> <span class="n">isotope_abundance</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">raw_isotope_abundance</span><span class="p">,</span>
-                    <span class="n">atomic_data</span> <span class="o">=</span> <span class="n">atom_data</span><span class="p">)</span>
+<span class="n">plasma</span> <span class="o">=</span> <span class="n">BasePlasma</span><span class="p">(</span>
+    <span class="n">plasma_properties</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span>
+    <span class="n">density</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+    <span class="n">abundance</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">abundance</span><span class="p">,</span>
+    <span class="n">isotope_abundance</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">raw_isotope_abundance</span><span class="p">,</span>
+    <span class="n">atomic_data</span><span class="o">=</span><span class="n">atom_data</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -508,7 +535,7 @@ INFO:tardis.model.matter.decay:Decaying abundances for 2600540.0352 seconds
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 

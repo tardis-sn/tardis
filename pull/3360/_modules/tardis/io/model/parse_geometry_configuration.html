@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="../../../../_static/documentation_options.js?v=970fd9ff"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -137,17 +137,21 @@
              
   <h1>Source code for tardis.io.model.parse_geometry_configuration</h1><div class="highlight"><pre>
 <span></span>from pathlib import Path
+from typing import Any
 
+import pandas as pd
 from astropy import units as u
 
 from tardis.io.model.readers.base import read_density_file
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
 
+from tardis.io.configuration.config_reader import Configuration
+
 
 <div class="viewcode-block" id="parse_structure_from_config">
 <a class="viewcode-back" href="../../../../api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_structure_from_config">[docs]</a>
-def parse_structure_from_config(config):
+def parse_structure_from_config(config: Configuration):
     &quot;&quot;&quot;Parses the structure section from a config object
 
     Parameters
@@ -190,7 +194,9 @@ def parse_structure_from_config(config):
         if Path(structure_config.filename).is_absolute():
             structure_config_fname = structure_config.filename
         else:
-            structure_config_fname = Path(config.config_dirname) / structure_config.filename
+            structure_config_fname = (
+                Path(config.config_dirname) / structure_config.filename
+            )
 
         (
             density_time,
@@ -209,7 +215,7 @@ def parse_structure_from_config(config):
 
 <div class="viewcode-block" id="parse_geometry_from_config">
 <a class="viewcode-back" href="../../../../api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_geometry_from_config">[docs]</a>
-def parse_geometry_from_config(config, time_explosion):
+def parse_geometry_from_config(config: Configuration, time_explosion):
     &quot;&quot;&quot;
     Parse the geometry data from a TARDIS config.
 
@@ -246,25 +252,28 @@ def parse_geometry_from_config(config, time_explosion):
 <div class="viewcode-block" id="parse_geometry_from_csvy">
 <a class="viewcode-back" href="../../../../api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_geometry_from_csvy">[docs]</a>
 def parse_geometry_from_csvy(
-    config, csvy_model_config, csvy_model_data, time_explosion
-):
+    config: Configuration,
+    csvy_model_config: Configuration,
+    csvy_model_data: pd.DataFrame | None,
+    time_explosion: u.Quantity,
+) -&gt; HomologousRadial1DGeometry:
     &quot;&quot;&quot;
     Parse the geometry data from a CSVY model.
 
     Parameters
     ----------
-    config : object
+    config : Configuration
         The configuration data.
-    csvy_model_config : object
+    csvy_model_config : Any
         The configuration data of the CSVY model.
-    csvy_model_data : object
+    csvy_model_data : pd.DataFrame or None
         The data of the CSVY model.
-    time_explosion : float
+    time_explosion : astropy.units.Quantity
         The time of the explosion.
 
     Returns
     -------
-    geometry : object
+    HomologousRadial1DGeometry
         The parsed geometry.
 
     Raises
@@ -326,7 +335,7 @@ def parse_geometry_from_csvy(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 

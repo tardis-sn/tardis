@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="../../../../../_static/documentation_options.js?v=970fd9ff"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -146,6 +146,9 @@ from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
+from tardis.io.configuration.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.csvy.data import CSVYData
 from tardis.io.util import YAMLLoader
 from tardis.util.base import is_valid_nuclide_or_elem, quantity_linspace
 
@@ -156,7 +159,7 @@ logger = logging.getLogger(__name__)
 
 <div class="viewcode-block" id="load_csvy">
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.load_csvy">[docs]</a>
-def load_csvy(fname: str | Path):
+def load_csvy(fname: str | Path) -&gt; CSVYData:
     &quot;&quot;&quot;
     Load CSVY file and return a CSVYData dataclass object.
 
@@ -174,17 +177,15 @@ def load_csvy(fname: str | Path):
     CSVYData
         Dataclass containing YAML metadata, velocity, density, and mass fractions.
     &quot;&quot;&quot;
-    from tardis.io.model.csvy.data import CSVYData
-
     fname = Path(fname)
     with fname.open() as fh:
         yaml_lines = []
         yaml_end_ind = -1
         for i, line in enumerate(fh):
             if i == 0:
-                assert (
-                    line.strip() == YAML_DELIMITER
-                ), &quot;First line of csvy file is not &#39;---&#39;&quot;
+                assert line.strip() == YAML_DELIMITER, (
+                    &quot;First line of csvy file is not &#39;---&#39;&quot;
+                )
             yaml_lines.append(line)
             if i &gt; 0 and line.strip() == YAML_DELIMITER:
                 yaml_end_ind = i
@@ -214,7 +215,9 @@ def load_csvy(fname: str | Path):
         velocity_unit = u.Unit(
             yaml_dict[&quot;datatype&quot;][&quot;fields&quot;][velocity_field_index][&quot;unit&quot;]
         )
-        velocity = (csvy_data[&quot;velocity&quot;].values * velocity_unit).to(&quot;cm/s&quot;).value
+        velocity = (
+            (csvy_data[&quot;velocity&quot;].values * velocity_unit).to(&quot;cm/s&quot;).value
+        )
     else:
         raise ValueError(&quot;Velocity information not found in CSVY file&quot;)
 
@@ -230,7 +233,9 @@ def load_csvy(fname: str | Path):
         density_unit = u.Unit(
             yaml_dict[&quot;datatype&quot;][&quot;fields&quot;][density_field_index][&quot;unit&quot;]
         )
-        density = (csvy_data[&quot;density&quot;].values * density_unit).to(&quot;g/cm^3&quot;).value
+        density = (
+            (csvy_data[&quot;density&quot;].values * density_unit).to(&quot;g/cm^3&quot;).value
+        )
     else:
         density = None
 
@@ -243,8 +248,8 @@ def load_csvy(fname: str | Path):
             col for col in csvy_data.columns if is_valid_nuclide_or_elem(col)
         ]
         if mass_fraction_cols:
-            _, mass_fractions, isotope_mass_fractions = parse_csv_mass_fractions(
-                csvy_data
+            _, mass_fractions, isotope_mass_fractions = (
+                parse_csv_mass_fractions(csvy_data)
             )
             # Remove first column (velocity column index)
             if not mass_fractions.empty:
@@ -256,20 +261,31 @@ def load_csvy(fname: str | Path):
                     isotope_mass_fractions.shape[1]
                 )
 
+    # Validate and wrap yaml_dict into Configuration object
+    csvy_schema_fname = (
+        Path(__file__).parent.parent.parent
+        / &quot;configuration&quot;
+        / &quot;schemas&quot;
+        / &quot;csvy_model.yml&quot;
+    ).resolve()
+    model_config = Configuration(
+        validate_dict(yaml_dict, schemapath=csvy_schema_fname)
+    )
+
     return CSVYData(
-        yaml_dict=yaml_dict,
+        model_config=model_config,
         velocity=velocity,
         density=density,
         mass_fractions=mass_fractions,
         isotope_mass_fractions=isotope_mass_fractions,
-        raw_data=csvy_data,
+        raw_csv_data=csvy_data,
     )</div>
 
 
 
 <div class="viewcode-block" id="load_yaml_from_csvy">
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.load_yaml_from_csvy">[docs]</a>
-def load_yaml_from_csvy(fname: str | Path) -&gt; dict:
+def load_yaml_from_csvy(fpath: str | Path) -&gt; dict:
     &quot;&quot;&quot;
     Load only the YAML metadata from a CSVY file.
 
@@ -280,32 +296,37 @@ def load_yaml_from_csvy(fname: str | Path) -&gt; dict:
 
     Returns
     -------
-    yaml_dict : dict
-        YAML part of the csvy file.
+    dict
+        YAML metadata dictionary from the csvy file.
+
+    Raises
+    ------
+    AssertionError
+        If the first line is not the YAML delimiter &#39;---&#39;.
+    ValueError
+        If the closing YAML delimiter &#39;---&#39; is not found.
     &quot;&quot;&quot;
-    fname = Path(fname)
-    with fname.open() as fh:
+    fpath = Path(fpath)
+    with fpath.open() as fh:
         yaml_lines = []
-        yaml_end_ind = -1
         for i, line in enumerate(fh):
             if i == 0:
-                assert (
-                    line.strip() == YAML_DELIMITER
-                ), &quot;First line of csvy file is not &#39;---&#39;&quot;
+                if line.strip() != YAML_DELIMITER:
+                    raise ValueError(
+                        f&quot;First line of CSVY file must be &#39;{YAML_DELIMITER}&#39;&quot;
+                    )
             yaml_lines.append(line)
             if i &gt; 0 and line.strip() == YAML_DELIMITER:
-                yaml_end_ind = i
-                break
-        else:
-            raise ValueError(f&quot;End {YAML_DELIMITER} not found&quot;)
-        yaml_dict = yaml.load(&quot;&quot;.join(yaml_lines[1:-1]), YAMLLoader)
-    return yaml_dict</div>
+                yaml_dict = yaml.load(&quot;&quot;.join(yaml_lines[1:-1]), YAMLLoader)
+                return yaml_dict
+        raise ValueError(f&quot;End {YAML_DELIMITER} not found&quot;)</div>
+
 
 
 
 <div class="viewcode-block" id="load_csv_from_csvy">
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.load_csv_from_csvy">[docs]</a>
-def load_csv_from_csvy(fname: str | Path) -&gt; pd.DataFrame | None:
+def load_csv_from_csvy(fpath: str | Path) -&gt; pd.DataFrame | None:
     &quot;&quot;&quot;
     Load only the CSV data from a CSVY file.
 
@@ -319,15 +340,15 @@ def load_csv_from_csvy(fname: str | Path) -&gt; pd.DataFrame | None:
     data : pandas.DataFrame or None
         CSV data from csvy file, or None if no CSV data is present.
     &quot;&quot;&quot;
-    fname = Path(fname)
-    with fname.open() as fh:
+    fpath = Path(fpath)
+    with fpath.open() as fh:
         yaml_lines = []
         yaml_end_ind = -1
         for i, line in enumerate(fh):
             if i == 0:
-                assert (
-                    line.strip() == YAML_DELIMITER
-                ), &quot;First line of csvy file is not &#39;---&#39;&quot;
+                assert line.strip() == YAML_DELIMITER, (
+                    &quot;First line of csvy file is not &#39;---&#39;&quot;
+                )
             yaml_lines.append(line)
             if i &gt; 0 and line.strip() == YAML_DELIMITER:
                 yaml_end_ind = i
@@ -335,7 +356,7 @@ def load_csv_from_csvy(fname: str | Path) -&gt; pd.DataFrame | None:
         else:
             raise ValueError(f&quot;End {YAML_DELIMITER} not found&quot;)
         try:
-            data = pd.read_csv(fname, skiprows=yaml_end_ind + 1)
+            data = pd.read_csv(fpath, skiprows=yaml_end_ind + 1)
         except pd.errors.EmptyDataError as e:
             logger.debug(&quot;Could not Read CSV. Setting Dataframe to None&quot;)
             data = None
@@ -403,7 +424,6 @@ def parse_csv_mass_fractions(
 
     return mass_fractions.index, mass_fractions, isotope_mass_fractions</div>
 
-
 </pre></div>
 
            </div>
@@ -414,7 +434,7 @@ def parse_csv_mass_fractions(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 

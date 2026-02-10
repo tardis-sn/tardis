@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="../_static/documentation_options.js?v=970fd9ff"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -179,10 +179,10 @@
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.density"><code class="docutils literal notranslate"><span class="pre">CSVYData.density</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">CSVYData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">CSVYData.mass_fractions</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.raw_data"><code class="docutils literal notranslate"><span class="pre">CSVYData.raw_data</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.model_config"><code class="docutils literal notranslate"><span class="pre">CSVYData.model_config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.raw_csv_data"><code class="docutils literal notranslate"><span class="pre">CSVYData.raw_csv_data</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.to_geometry"><code class="docutils literal notranslate"><span class="pre">CSVYData.to_geometry()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.velocity"><code class="docutils literal notranslate"><span class="pre">CSVYData.velocity</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData.yaml_dict"><code class="docutils literal notranslate"><span class="pre">CSVYData.yaml_dict</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -201,13 +201,13 @@
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tardis.io.model.csvy" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.io.model.csvy.CSVYData">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.model.csvy.</span></span><span class="sig-name descname"><span class="pre">CSVYData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yaml_dict:</span> <span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity:</span> <span class="pre">~numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density:</span> <span class="pre">~numpy.ndarray</span> <span class="pre">|</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_fractions:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_mass_fractions:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_data:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/csvy/data.html#CSVYData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.CSVYData" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.io.model.csvy.</span></span><span class="sig-name descname"><span class="pre">CSVYData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_config:</span> <span class="pre">~tardis.io.configuration.config_reader.Configuration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity:</span> <span class="pre">~numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density:</span> <span class="pre">~numpy.ndarray</span> <span class="pre">|</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_fractions:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_mass_fractions:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_csv_data:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/csvy/data.html#CSVYData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.CSVYData" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Data structure for CSVY model data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>yaml_dict</strong><span class="classifier">dict</span></dt><dd><p>YAML metadata from the CSVY file.</p>
+<dt><strong>model_config</strong><span class="classifier">Configuration</span></dt><dd><p>Validated configuration object from the CSVY file.</p>
 </dd>
 <dt><strong>velocity</strong><span class="classifier">np.ndarray</span></dt><dd><p>Velocity array for the model shells.</p>
 </dd>
@@ -217,7 +217,7 @@
 </dd>
 <dt><strong>isotope_mass_fractions</strong><span class="classifier">pd.DataFrame, optional</span></dt><dd><p>Isotope mass fractions DataFrame with MultiIndex of (atomic_number, mass_number).</p>
 </dd>
-<dt><strong>raw_data</strong><span class="classifier">pd.DataFrame or None, optional</span></dt><dd><p>Raw CSV data from the CSVY file.</p>
+<dt><strong>raw_csv_data</strong><span class="classifier">pd.DataFrame or None, optional</span></dt><dd><p>Raw CSV data from the CSVY file.</p>
 </dd>
 </dl>
 </dd>
@@ -238,24 +238,29 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.io.model.csvy.CSVYData.raw_data">
-<span class="sig-name descname"><span class="pre">raw_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#tardis.io.model.csvy.CSVYData.raw_data" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.io.model.csvy.CSVYData.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration" title="tardis.io.configuration.config_reader.Configuration"><span class="pre">Configuration</span></a></em><a class="headerlink" href="#tardis.io.model.csvy.CSVYData.model_config" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.io.model.csvy.CSVYData.raw_csv_data">
+<span class="sig-name descname"><span class="pre">raw_csv_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#tardis.io.model.csvy.CSVYData.raw_csv_data" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.io.model.csvy.CSVYData.to_geometry">
-<span class="sig-name descname"><span class="pre">to_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry" title="tardis.model.geometry.radial1d.HomologousRadial1DGeometry"><span class="pre">HomologousRadial1DGeometry</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/csvy/data.html#CSVYData.to_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.CSVYData.to_geometry" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/csvy/data.html#CSVYData.to_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.CSVYData.to_geometry" title="Link to this definition">¶</a></dt>
 <dd><p>Construct a HomologousRadial1DGeometry object from this CSVYData.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>time_explosion</strong><span class="classifier">astropy.units.Quantity, optional</span></dt><dd><p>Time of explosion. If None, attempts to extract from yaml_dict.</p>
+<dt><strong>time_explosion</strong><span class="classifier">astropy.units.Quantity, optional</span></dt><dd><p>Time of explosion. If None, attempts to extract from model_config.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>tardis.model.geometry.radial1d.HomologousRadial1DGeometry</dt><dd><p>The geometry object constructed from the CSVY data.</p>
+<dt>HomologousRadial1DGeometry</dt><dd><p>The geometry object constructed from the CSVY data.</p>
 </dd>
 </dl>
 </dd>
@@ -267,16 +272,11 @@
 <span class="sig-name descname"><span class="pre">velocity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#tardis.io.model.csvy.CSVYData.velocity" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.io.model.csvy.CSVYData.yaml_dict">
-<span class="sig-name descname"><span class="pre">yaml_dict</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></em><a class="headerlink" href="#tardis.io.model.csvy.CSVYData.yaml_dict" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.csvy.load_csv_from_csvy">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.csvy.</span></span><span class="sig-name descname"><span class="pre">load_csv_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/csvy/readers.html#load_csv_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.load_csv_from_csvy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.csvy.</span></span><span class="sig-name descname"><span class="pre">load_csv_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/csvy/readers.html#load_csv_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.load_csv_from_csvy" title="Link to this definition">¶</a></dt>
 <dd><p>Load only the CSV data from a CSVY file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -296,7 +296,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.csvy.load_csvy">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.csvy.</span></span><span class="sig-name descname"><span class="pre">load_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/csvy/readers.html#load_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.load_csvy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.csvy.</span></span><span class="sig-name descname"><span class="pre">load_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tardis.io.model.csvy.data.html#tardis.io.model.csvy.data.CSVYData" title="tardis.io.model.csvy.data.CSVYData"><span class="pre">CSVYData</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/csvy/readers.html#load_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.load_csvy" title="Link to this definition">¶</a></dt>
 <dd><p>Load CSVY file and return a CSVYData dataclass object.</p>
 <p>This function extracts velocity, density, and mass fractions from the CSVY file
 and constructs a CSVYData object. Velocity and density can be defined either
@@ -319,7 +319,7 @@ in the YAML metadata or in the CSV data section.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.csvy.load_yaml_from_csvy">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.csvy.</span></span><span class="sig-name descname"><span class="pre">load_yaml_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/csvy/readers.html#load_yaml_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.load_yaml_from_csvy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.csvy.</span></span><span class="sig-name descname"><span class="pre">load_yaml_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/csvy/readers.html#load_yaml_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.csvy.load_yaml_from_csvy" title="Link to this definition">¶</a></dt>
 <dd><p>Load only the YAML metadata from a CSVY file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -330,7 +330,15 @@ in the YAML metadata or in the CSV data section.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>yaml_dict</strong><span class="classifier">dict</span></dt><dd><p>YAML part of the csvy file.</p>
+<dt>dict</dt><dd><p>YAML metadata dictionary from the csvy file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>AssertionError</dt><dd><p>If the first line is not the YAML delimiter ‘—‘.</p>
+</dd>
+<dt>ValueError</dt><dd><p>If the closing YAML delimiter ‘—’ is not found.</p>
 </dd>
 </dl>
 </dd>
@@ -379,7 +387,7 @@ elemental and isotopic mass fractions.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 

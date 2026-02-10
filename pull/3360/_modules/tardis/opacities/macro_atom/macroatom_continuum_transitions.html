@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="../../../../_static/documentation_options.js?v=970fd9ff"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -303,7 +303,10 @@ def continuum_transition_recombination_emission(
     )
 
     destinations = p_recomb_emission.index.values
-    sources = get_ground_state_multi_index(p_recomb_emission.index).values
+    ## TODO: FIX
+    sources = get_ground_state_multi_index(
+        p_recomb_emission.index
+    ).values  # Should be k packet?
 
     unique_idx = photoionization_data_frequencies.index.unique()
     mapping = {idx: i for i, idx in enumerate(unique_idx)}
@@ -702,6 +705,7 @@ def probability_collision_internal_down(
 
 
 
+# Might not be a used transition
 <div class="viewcode-block" id="collisional_transition_internal_down">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_down">[docs]</a>
 def collisional_transition_internal_down(
@@ -748,9 +752,9 @@ def collisional_transition_internal_down(
 
 
 
-<div class="viewcode-block" id="probability_collision_internal_up">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_up">[docs]</a>
-def probability_collision_internal_up(
+<div class="viewcode-block" id="probability_collision_exc_to_macro">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_to_macro">[docs]</a>
+def probability_collision_exc_to_macro(
     coll_exc_coeff, electron_densities, energy_lowers
 ):
     &quot;&quot;&quot;
@@ -770,17 +774,17 @@ def probability_collision_internal_up(
     pd.DataFrame
         DataFrame containing collisional internal up probabilities.
     &quot;&quot;&quot;
-    p_coll_internal_up = (coll_exc_coeff * electron_densities).multiply(
+    p_coll_exc_to_macro = (coll_exc_coeff * electron_densities).multiply(
         energy_lowers.values, axis=0
     )
 
-    return p_coll_internal_up</div>
+    return p_coll_exc_to_macro</div>
 
 
 
-<div class="viewcode-block" id="collisional_transition_internal_up">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_up">[docs]</a>
-def collisional_transition_internal_up(
+<div class="viewcode-block" id="collisional_transition_excitation_to_macro_atom">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_to_macro_atom">[docs]</a>
+def collisional_transition_excitation_to_macro_atom(
     coll_exc_coeff, electron_densities, energies_lowers
 ):
     &quot;&quot;&quot;
@@ -797,30 +801,30 @@ def collisional_transition_internal_up(
 
     Returns
     -------
-    p_coll_internal_up : pd.DataFrame
-        Unnormalized collisional internal up transition probabilities.
-    coll_internal_up_metadata : pd.DataFrame
+    p_coll_exc_to_macro : pd.DataFrame
+        Unnormalized collisional excitation to macro transition probabilities.
+    coll_excite_to_macro_metadata : pd.DataFrame
         Metadata for the collisional internal up transitions.
     &quot;&quot;&quot;
     sources = coll_exc_coeff.index.droplevel(&quot;level_number_upper&quot;).values
     destinations = coll_exc_coeff.index.droplevel(&quot;level_number_lower&quot;).values
 
-    p_coll_internal_up = probability_collision_internal_down(
+    p_coll_exc_to_macro = probability_collision_exc_to_macro(
         coll_exc_coeff, electron_densities, energies_lowers
     )
-    coll_internal_up_metadata = pd.DataFrame(
+    coll_excite_to_macro_metadata = pd.DataFrame(
         {
             &quot;transition_line_id&quot;: -99,
             &quot;source&quot;: sources,
             &quot;destination&quot;: destinations,
-            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_UP_INTERNAL,
+            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO,
             &quot;transition_line_idx&quot;: -99,
             &quot;photoionization_key_idx&quot;: -99,
             &quot;collision_key_idx&quot;: range(len(coll_exc_coeff)),
         },
-        index=p_coll_internal_up.index,
+        index=p_coll_exc_to_macro.index,
     )
-    return p_coll_internal_up, coll_internal_up_metadata</div>
+    return p_coll_exc_to_macro, coll_excite_to_macro_metadata</div>
 
 
 
@@ -920,7 +924,7 @@ def collisional_transition_excitation_cool(
             &quot;transition_line_id&quot;: -99,
             &quot;source&quot;: sources,
             &quot;destination&quot;: destinations,
-            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_UP_COOLING,
+            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO,
             &quot;transition_line_idx&quot;: -99,
             &quot;photoionization_key_idx&quot;: -99,
             &quot;collision_key_idx&quot;: -99,  # Collapsed along level_number_lower, so can&#39;t be mapped to collision keys
@@ -940,7 +944,7 @@ def collisional_transition_excitation_cool(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 

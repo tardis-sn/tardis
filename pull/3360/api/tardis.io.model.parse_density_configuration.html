@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="../_static/documentation_options.js?v=970fd9ff"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -249,41 +249,36 @@ time of the explosion by ^-3</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.parse_density_configuration.parse_density_from_csvy">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_density_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_density_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csvy_model_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csvy_model_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/io/model/parse_density_configuration.html#parse_density_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_density_configuration.parse_density_from_csvy" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_density_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_density_from_csvy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csvy_model_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration" title="tardis.io.configuration.config_reader.Configuration"><span class="pre">Configuration</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">csvy_model_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/parse_density_configuration.html#parse_density_from_csvy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_density_configuration.parse_density_from_csvy" title="Link to this definition">¶</a></dt>
 <dd><p>Parse the density data from a CSVY model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>csvy_model_config</strong><span class="classifier">object</span></dt><dd><p>The configuration data of the CSVY model.</p>
+<dt><strong>csvy_model_config</strong><span class="classifier">Any</span></dt><dd><p>The configuration data of the CSVY model.</p>
 </dd>
-<dt><strong>csvy_model_data</strong><span class="classifier">object</span></dt><dd><p>The data of the CSVY model.</p>
+<dt><strong>csvy_model_data</strong><span class="classifier">pd.DataFrame or None</span></dt><dd><p>The data of the CSVY model.</p>
 </dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>The time of the explosion.</p>
+<dt><strong>time_explosion</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>The time of the explosion.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>density</strong><span class="classifier">object</span></dt><dd><p>The parsed density data.</p>
+<dt>astropy.units.Quantity</dt><dd><p>The parsed density data.</p>
 </dd>
-</dl>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt>None.</dt><dd></dd>
 </dl>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <p>This function parses the density data from a CSVY model. If the CSVY model configuration
-contains a ‘density’ attribute, it uses the ‘parse_csvy_density’ function to parse the
+contains a ‘density’ attribute, it uses the ‘parse_density_section_csvy’ function to parse the
 density data. Otherwise, it calculates the density data using the ‘calculate_density_after_time’
 function. The parsed density data is returned.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.io.model.parse_density_configuration.parse_density_section_config">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_density_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_density_section_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density_configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationNameSpace" title="tardis.io.configuration.config_reader.ConfigurationNameSpace"><span class="pre">ConfigurationNameSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.14)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/io/model/parse_density_configuration.html#parse_density_section_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_density_configuration.parse_density_section_config" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.parse_density_configuration.</span></span><span class="sig-name descname"><span class="pre">parse_density_section_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density_configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.ConfigurationNameSpace" title="tardis.io.configuration.config_reader.ConfigurationNameSpace"><span class="pre">ConfigurationNameSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.2)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/io/model/parse_density_configuration.html#parse_density_section_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.parse_density_configuration.parse_density_section_config" title="Link to this definition">¶</a></dt>
 <dd><p>Parse the density section of the configuration file and produce a density at
 time_explosion.</p>
 <dl class="field-list simple">
@@ -341,7 +336,7 @@ time_explosion.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 

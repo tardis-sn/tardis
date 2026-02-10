@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=34bf42ed"></script>
+      <script src="../_static/documentation_options.js?v=970fd9ff"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -236,6 +236,32 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_to_macro_atom">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_excitation_to_macro_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_excitation_to_macro_atom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_to_macro_atom" title="Link to this definition">¶</a></dt>
+<dd><p>Build collisional internal-up transition probabilities and metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_exc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional excitation coefficients indexed by transitions.</p>
+</dd>
+<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
+</dd>
+<dt><strong>energies_lowers</strong><span class="classifier">object</span></dt><dd><p>Atomic data object providing <code class="xref py py-obj docutils literal notranslate"><span class="pre">levels</span></code> with energy values.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>p_coll_exc_to_macro</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Unnormalized collisional excitation to macro transition probabilities.</p>
+</dd>
+<dt><strong>coll_excite_to_macro_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata for the collisional internal up transitions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_down">
 <span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_internal_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_internal_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_down" title="Link to this definition">¶</a></dt>
 <dd><p>Build collisional internal-down transition probabilities and metadata.</p>
@@ -255,32 +281,6 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 <dt><strong>p_coll_internal_down</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Unnormalized collisional internal down transition probabilities.</p>
 </dd>
 <dt><strong>coll_internal_down_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata for the collisional internal down transitions.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_up">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_internal_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_internal_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_up" title="Link to this definition">¶</a></dt>
-<dd><p>Build collisional internal-up transition probabilities and metadata.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>coll_exc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional excitation coefficients indexed by transitions.</p>
-</dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
-</dd>
-<dt><strong>energies_lowers</strong><span class="classifier">object</span></dt><dd><p>Atomic data object providing <code class="xref py py-obj docutils literal notranslate"><span class="pre">levels</span></code> with energy values.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>p_coll_internal_up</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Unnormalized collisional internal up transition probabilities.</p>
-</dd>
-<dt><strong>coll_internal_up_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata for the collisional internal up transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -465,6 +465,30 @@ adiabatic losses.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_to_macro">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_exc_to_macro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_exc_to_macro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_to_macro" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate collisional internal up probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_exc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional excitation coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron densities.</p>
+</dd>
+<dt><strong>energy_lowers</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy values of the lower levels.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>DataFrame containing collisional internal up probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_excitation_cool">
 <span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_excitation_cool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_excitation_cool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_excitation_cool" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate collisional excitation cooling rates (unnormalized) and aggregate by destination level.</p>
@@ -512,30 +536,6 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
 <dt>pd.DataFrame</dt><dd><p>DataFrame containing collisional de-excitation probabilities.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_up">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_internal_up</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_internal_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_up" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate collisional internal up probabilities.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>coll_exc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional excitation coefficients.</p>
-</dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron densities.</p>
-</dd>
-<dt><strong>energy_lowers</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy values of the lower levels.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>DataFrame containing collisional internal up probabilities.</p>
 </dd>
 </dl>
 </dd>
@@ -655,7 +655,7 @@ an approximate scaling with electron temperature and ion charge.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Feb 2026.
+      <span class="lastupdated">Last updated on 10 Feb 2026.
       </span></p>
   </div>
 
