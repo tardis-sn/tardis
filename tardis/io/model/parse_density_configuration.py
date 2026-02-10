@@ -18,24 +18,24 @@ def parse_density_section_config(
     v_middle: u.Quantity,
     time_explosion: u.Quantity,
 ) -> tuple[u.Quantity, u.Quantity]:
-    """
-    Parse the density section of the configuration file and produce a density at
+    """Parse the density section of the configuration file and produce a density at
     time_explosion.
 
     Parameters
     ----------
-    density_configuration : tardis.io.config_reader.Configuration
-    v_middle : astropy.Quantity
-        middle of the velocity bins
-    time_explosion : astropy.Quantity
-        time of the explosion
+    density_configuration
+        Density configuration namespace.
+    v_middle
+        Middle of the velocity bins.
+    time_explosion
+        Time of the explosion.
 
     Returns
     -------
-    density_0 : astropy.Quantity
-        density at time_0
-    time_0 : astropy.Quantity
-        time of the density profile
+    density_0
+        Density at time_0.
+    time_0
+        Time of the density profile.
     """
     if density_configuration.type == "branch85_w7":
         density_0 = calculate_power_law_density(
@@ -73,19 +73,20 @@ def parse_density_section_config(
 def parse_density_section_csvy(
     csvy_model_config: Configuration, time_explosion: u.Quantity
 ) -> u.Quantity:
-    """
-    Parse the density section of the csvy file and produce a density at
+    """Parse the density section of the csvy file and produce a density at
     time_explosion.
 
     Parameters
     ----------
-    config : tardis.io.config_reader.Configuration
-    csvy_model_config : tardis.io.config_reader.Configuration
+    csvy_model_config
+        CSVY model configuration.
+    time_explosion
+        Time of the explosion.
 
     Returns
     -------
-    density: u.Quantity
-
+    density
+        Density at time_explosion.
     """
     if hasattr(csvy_model_config, "velocity"):
         velocity = quantity_linspace(
@@ -118,21 +119,20 @@ def parse_density_from_csvy(
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
 ) -> u.Quantity:
-    """
-    Parse the density data from a CSVY model.
+    """Parse the density data from a CSVY model.
 
     Parameters
     ----------
-    csvy_model_config : Any
+    csvy_model_config
         The configuration data of the CSVY model.
-    csvy_model_data : pd.DataFrame or None
+    csvy_model_data
         The data of the CSVY model.
-    time_explosion : astropy.units.Quantity
+    time_explosion
         The time of the explosion.
 
     Returns
     -------
-    astropy.units.Quantity
+    density
         The parsed density data.
 
     Notes
@@ -169,26 +169,25 @@ def calculate_power_law_density(
     rho_0: u.Quantity,
     exponent: float,
 ) -> u.Quantity:
-    """
+    """Compute a discrete exponential density profile.
 
-    This function computes a descret exponential density profile.
     :math:`\\rho = \\rho_0 \\times \\left( \\frac{v}{v_0} \\right)^n`
 
     Parameters
     ----------
-    velocities : astropy.Quantity
-        Array like velocity profile
-    velocity_0 : astropy.Quantity
-        reference velocity
-    rho_0 : astropy.Quantity
-        reference density
-    exponent : float
-        exponent used in the powerlaw
+    velocities
+        Array like velocity profile.
+    velocity_0
+        Reference velocity.
+    rho_0
+        Reference density.
+    exponent
+        Exponent used in the powerlaw.
 
     Returns
     -------
-    densities : astropy.Quantity
-
+    densities
+        Computed densities.
     """
     densities = rho_0 * np.power((velocities / velocity_0), exponent)
     return densities
@@ -197,23 +196,23 @@ def calculate_power_law_density(
 def calculate_exponential_density(
     velocities: u.Quantity, velocity_0: u.Quantity, rho_0: u.Quantity
 ) -> u.Quantity:
-    """
-    This function computes the exponential density profile.
+    """Compute the exponential density profile.
+
     :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`
 
     Parameters
     ----------
-    velocities : astropy.Quantity
-        Array like velocity profile
-    velocity_0 : astropy.Quantity
-        reference velocity
-    rho_0 : astropy.Quantity
-        reference density
+    velocities
+        Array like velocity profile.
+    velocity_0
+        Reference velocity.
+    rho_0
+        Reference density.
 
     Returns
     -------
-    densities : astropy.Quantity
-
+    densities
+        Computed densities.
     """
     densities = rho_0 * np.exp(-(velocities / velocity_0))
     return densities
@@ -222,22 +221,21 @@ def calculate_exponential_density(
 def calculate_density_after_time(
     densities: u.Quantity, time_0: u.Quantity, time_explosion: u.Quantity
 ) -> u.Quantity:
-    """
-    scale the density from an initial time of the model to the
-    time of the explosion by ^-3
+    """Scale the density from an initial time of the model to the
+    time of the explosion by ^-3.
 
     Parameters
     ----------
-    densities : astropy.units.Quantity
-        densities
-    time_0 : astropy.units.Quantity
-        time of the model
-    time_explosion : astropy.units.Quantity
-        time to be scaled to
+    densities
+        Densities.
+    time_0
+        Time of the model.
+    time_explosion
+        Time to be scaled to.
 
     Returns
     -------
-    scaled_density : astropy.units.Quantity
-        in g / cm^3
+    scaled_density
+        Scaled density in g / cm^3.
     """
     return (densities * (time_explosion / time_0) ** -3).to(u.g / (u.cm**3))
