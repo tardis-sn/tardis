@@ -6,7 +6,6 @@ import numpy as np
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.csvy import load_csvy
 from tardis.io.model.parse_composition_configuration import (
@@ -316,7 +315,6 @@ class SimulationState(HDFWriterMixin):
     def from_csvy(
         cls,
         config: Configuration,
-        atom_data: Any = None,
         legacy_mode_enabled: bool = False,
     ) -> "SimulationState":
         """
@@ -326,8 +324,6 @@ class SimulationState(HDFWriterMixin):
         ----------
         config : tardis.io.config_reader.Configuration
             Configuration object containing CSVY model path.
-        atom_data : Any, optional
-            The atom data for the simulation, default is None.
         legacy_mode_enabled : bool, optional
             Flag indicating if legacy mode is enabled, default is False.
 
@@ -347,31 +343,27 @@ class SimulationState(HDFWriterMixin):
             csvy_model_fname = config.csvy_model
         else:
             csvy_model_fname = Path(config.config_dirname) / config.csvy_model
-        csvy_model_config, csvy_model_data = load_csvy(csvy_model_fname)
-        csvy_schema_fname = SCHEMA_DIR / "csvy_model.yml"
-        csvy_model_config = Configuration(
-            validate_dict(csvy_model_config, schemapath=csvy_schema_fname)
-        )
+        csvy_data = load_csvy(csvy_model_fname)
 
-        if hasattr(csvy_model_data, "columns"):
+        if hasattr(csvy_data.raw_csv_data, "columns"):
             abund_names = {
                 name
-                for name in csvy_model_data.columns
+                for name in csvy_data.raw_csv_data.columns
                 if is_valid_nuclide_or_elem(name)
             }
             unsupported_columns = (
-                set(csvy_model_data.columns)
+                set(csvy_data.raw_csv_data.columns)
                 - abund_names
                 - CSVY_SUPPORTED_COLUMNS
             )
 
             field_names = {
-                field["name"] for field in csvy_model_config.datatype.fields
+                field["name"] for field in csvy_data.model_config.datatype.fields
             }
-            assert set(csvy_model_data.columns) - field_names == set(), (
+            assert set(csvy_data.raw_csv_data.columns) - field_names == set(), (
                 "CSVY columns exist without field descriptions"
             )
-            assert field_names - set(csvy_model_data.columns) == set(), (
+            assert field_names - set(csvy_data.raw_csv_data.columns) == set(), (
                 "CSVY field descriptions exist without corresponding csv data"
             )
             if unsupported_columns != set():
@@ -386,12 +378,12 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
 
         geometry = parse_geometry_from_csvy(
-            config, csvy_model_config, csvy_model_data, time_explosion
+            config, csvy_data.model_config, csvy_data.raw_csv_data, time_explosion
         )
 
         composition = parse_composition_from_csvy(
-            csvy_model_config,
-            csvy_model_data,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
             time_explosion,
             geometry,
         )
@@ -401,7 +393,7 @@ class SimulationState(HDFWriterMixin):
         )
 
         radiation_field_state = parse_radiation_field_state_from_csvy(
-            config, csvy_model_config, csvy_model_data, geometry, packet_source
+            config, csvy_data.model_config, csvy_data.raw_csv_data, geometry, packet_source
         )
 
         return cls(

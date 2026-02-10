@@ -8,6 +8,8 @@ from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
+from tardis.io.configuration.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.model.csvy.data import CSVYData
 from tardis.io.util import YAMLLoader
 from tardis.util.base import is_valid_nuclide_or_elem, quantity_linspace
@@ -119,8 +121,19 @@ def load_csvy(fname: str | Path) -> CSVYData:
                     isotope_mass_fractions.shape[1]
                 )
 
+    # Validate and wrap yaml_dict into Configuration object
+    csvy_schema_fname = (
+        Path(__file__).parent.parent.parent
+        / "configuration"
+        / "schemas"
+        / "csvy_model.yml"
+    ).resolve()
+    model_config = Configuration(
+        validate_dict(yaml_dict, schemapath=csvy_schema_fname)
+    )
+
     return CSVYData(
-        header_dict=yaml_dict,
+        model_config=model_config,
         velocity=velocity,
         density=density,
         mass_fractions=mass_fractions,

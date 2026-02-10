@@ -112,8 +112,6 @@ def parse_composition_from_csvy(
 
     Parameters
     ----------
-    atom_data : Any
-        The atom data used for parsing.
     csvy_model_config : Any
         The configuration data of the CSVY model.
     csvy_model_data : pd.DataFrame or None
@@ -128,14 +126,10 @@ def parse_composition_from_csvy(
     Composition
         The parsed composition
 
-    Raises
-    ------
-    None.
-
     Notes
     -----
-    This function parses the composition data from a CSVY model. It calls the 'parse_density_csvy'
-    function to parse the density data, and the 'parse_mass_fraction_csvy' function to parse the mass fraction
+    This function parses the composition data from a CSVY model. It calls the 'parse_density_from_csvy'
+    function to parse the density data, and the 'parse_mass_fractions_from_csvy' function to parse the mass fraction
     and isotope mass fraction data. The parsed data is returned as a Composition object.
     """
     density = parse_density_from_csvy(

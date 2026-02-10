@@ -55,9 +55,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         # set up states and solvers
         if csvy:
-            self.simulation_state = SimulationState.from_csvy(
-                configuration, atom_data=atom_data
-            )
+            self.simulation_state = SimulationState.from_csvy(configuration)
             assert np.isclose(
                 self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
                 self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,

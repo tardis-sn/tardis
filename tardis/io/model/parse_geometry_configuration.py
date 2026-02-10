@@ -8,8 +8,10 @@ from tardis.io.model.readers.base import read_density_file
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
 
+from tardis.io.configuration.config_reader import Configuration
 
-def parse_structure_from_config(config):
+
+def parse_structure_from_config(config: Configuration):
     """Parses the structure section from a config object
 
     Parameters
@@ -52,7 +54,9 @@ def parse_structure_from_config(config):
         if Path(structure_config.filename).is_absolute():
             structure_config_fname = structure_config.filename
         else:
-            structure_config_fname = Path(config.config_dirname) / structure_config.filename
+            structure_config_fname = (
+                Path(config.config_dirname) / structure_config.filename
+            )
 
         (
             density_time,
@@ -68,7 +72,7 @@ def parse_structure_from_config(config):
     return density_time, velocity, density, electron_densities, temperature
 
 
-def parse_geometry_from_config(config, time_explosion):
+def parse_geometry_from_config(config: Configuration, time_explosion):
     """
     Parse the geometry data from a TARDIS config.
 
@@ -102,8 +106,8 @@ def parse_geometry_from_config(config, time_explosion):
 
 
 def parse_geometry_from_csvy(
-    config: Any,
-    csvy_model_config: Any,
+    config: Configuration,
+    csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
 ) -> HomologousRadial1DGeometry:
@@ -112,7 +116,7 @@ def parse_geometry_from_csvy(
 
     Parameters
     ----------
-    config : Any
+    config : Configuration
         The configuration data.
     csvy_model_config : Any
         The configuration data of the CSVY model.

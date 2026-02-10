@@ -33,9 +33,7 @@ def parse_simulation_state(
     else:
         if hasattr(config, "csvy_model"):
             simulation_state = SimulationState.from_csvy(
-                config,
-                atom_data=atom_data,
-                legacy_mode_enabled=enable_legacy_mode,
+                config, legacy_mode_enabled=enable_legacy_mode
             )
         else:
             simulation_state = SimulationState.from_config(

@@ -25,7 +25,7 @@ class TARDISHEWorkflow:
     def __init__(self, atom_data, configuration, config_type="yaml"):
 
         if config_type == "csvy":
-            self.simulation_state = SimulationState.from_csvy(configuration, atom_data)
+            self.simulation_state = SimulationState.from_csvy(configuration)
         else:
             self.simulation_state = SimulationState.from_config(
                 configuration, atom_data
