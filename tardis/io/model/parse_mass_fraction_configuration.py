@@ -6,6 +6,9 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 
+from tardis.io.configuration.config_reader import (
+    Configuration,
+)
 from tardis.io.model.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.base import read_mass_fractions_file
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
@@ -111,7 +114,7 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
 
 
 def parse_mass_fractions_from_csvy(
-    csvy_model_config: Any,
+    csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     geometry: Any,
     time_explosion: u.Quantity,

@@ -16,7 +16,7 @@ class ConfigurationError(Exception):
 
 
 def read_simple_ascii_density(
-    fname: Any,
+    fname: str,
 ) -> Tuple[u.Quantity, u.Quantity, u.Quantity]:
     """
     Reading a density file of the following structure (example; lines starting with a hash will be ignored):

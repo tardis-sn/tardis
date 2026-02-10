@@ -102,7 +102,7 @@ def parse_composition_from_config(atom_data, config, time_explosion, geometry):
 
 
 def parse_composition_from_csvy(
-    csvy_model_config: Any,
+    csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
     geometry: Any,
