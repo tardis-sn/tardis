@@ -37,7 +37,7 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
-from tardis.transport.montecarlo.montecarlo_transport_state import (
+from tardis.transport.montecarlo.mc_transport_state.initialize_transport_state import (
     initialize_transport_state,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
