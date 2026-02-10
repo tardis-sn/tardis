@@ -3,11 +3,11 @@ from pathlib import Path
 import astropy.units as u
 import pytest
 
-import tardis
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.util import TARDIS_PATH
 from tardis.simulation import Simulation
 
-DATA_PATH = Path(tardis.__path__[0]) / "plasma" / "tests" / "data"
+DATA_PATH = TARDIS_PATH / "plasma" / "tests" / "data"
 
 
 @pytest.fixture

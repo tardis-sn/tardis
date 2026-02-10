@@ -1,12 +1,13 @@
 import logging
 import shutil
-from importlib import resources
 from pathlib import Path
 
 import yaml
 from astropy.config import get_config_dir
 
-TARDIS_PATH = Path(str(resources.files("tardis")))
+# Use __file__ to get the TARDIS package path robustly.
+# This avoids issues when a local 'tardis' directory exists (Issue #3021).
+TARDIS_PATH = Path(__file__).resolve().parent.parent.parent
 
 DEFAULT_CONFIG_PATH = (
     TARDIS_PATH / "data" / "default_tardis_internal_config.yml"
@@ -21,8 +22,7 @@ def get_internal_configuration():
     config_fpath = Path(get_config_dir()) / "tardis_internal_config.yml"
     if not config_fpath.exists():
         logger.warning(
-            "Configuration File %s does not exist - creating new one from default", 
-            config_fpath
+            f"Configuration File {config_fpath} does not exist - creating new one from default"
         )
         shutil.copy(DEFAULT_CONFIG_PATH, config_fpath)
     with open(config_fpath) as config_fh:
@@ -35,17 +35,11 @@ def get_data_dir():
     if data_dir is None:
         config_fpath = Path(get_config_dir()) / "tardis_internal_config.yml"
         logging.critical(
-            "\n%s\n\nTARDIS will download different kinds of data (e.g. atomic) to its data directory %s\n\n"
-            "TARDIS DATA DIRECTORY not specified in %s:\n\n"
-            "ASSUMING DEFAULT DATA DIRECTORY %s\n "
-            "YOU CAN CHANGE THIS AT ANY TIME IN %s \n\n"
-            "%s \n\n",
-            "*" * 80,
-            DEFAULT_DATA_DIR,
-            config_fpath,
-            DEFAULT_DATA_DIR,
-            config_fpath,
-            "*" * 80
+            f"\n{'*' * 80}\n\nTARDIS will download different kinds of data (e.g. atomic) to its data directory {DEFAULT_DATA_DIR}\n\n"
+            f"TARDIS DATA DIRECTORY not specified in {config_fpath}:\n\n"
+            f"ASSUMING DEFAULT DATA DIRECTORY {DEFAULT_DATA_DIR}\n "
+            f"YOU CAN CHANGE THIS AT ANY TIME IN {config_fpath} \n\n"
+            f"{'*' * 80} \n\n"
         )
         if not DEFAULT_DATA_DIR.exists():
             DEFAULT_DATA_DIR.mkdir(parents=True, exist_ok=True)
