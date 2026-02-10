@@ -35,7 +35,7 @@ jobs:
           python-version: 3.x
 
       - name: Install interrogate
-        run: pip install interrogate==1.5.0 parse==1.19.0 setuptools
+        run: pip install interrogate parse setuptools
 
       - name: Get SHAs
         run: |
