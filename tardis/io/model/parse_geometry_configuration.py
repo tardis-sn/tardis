@@ -1,5 +1,7 @@
 from pathlib import Path
+from typing import Any
 
+import pandas as pd
 from astropy import units as u
 
 from tardis.io.model.readers.base import read_density_file
@@ -100,25 +102,28 @@ def parse_geometry_from_config(config, time_explosion):
 
 
 def parse_geometry_from_csvy(
-    config, csvy_model_config, csvy_model_data, time_explosion
-):
+    config: Any,
+    csvy_model_config: Any,
+    csvy_model_data: pd.DataFrame | None,
+    time_explosion: u.Quantity,
+) -> HomologousRadial1DGeometry:
     """
     Parse the geometry data from a CSVY model.
 
     Parameters
     ----------
-    config : object
+    config : Any
         The configuration data.
-    csvy_model_config : object
+    csvy_model_config : Any
         The configuration data of the CSVY model.
-    csvy_model_data : object
+    csvy_model_data : pd.DataFrame or None
         The data of the CSVY model.
-    time_explosion : float
+    time_explosion : astropy.units.Quantity
         The time of the explosion.
 
     Returns
     -------
-    geometry : object
+    HomologousRadial1DGeometry
         The parsed geometry.
 
     Raises

@@ -28,16 +28,16 @@ class CSVYData:
         Raw CSV data from the CSVY file.
     """
 
-    yaml_dict: dict
+    header_dict: dict
     velocity: np.ndarray
     density: np.ndarray | None
     mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
     isotope_mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
-    raw_data: pd.DataFrame | None = None
+    raw_csv_data: pd.DataFrame | None = None
 
     def __iter__(self):
         """Allow tuple unpacking for backward compatibility: yaml_dict, data = load_csvy()"""
-        return iter((self.yaml_dict, self.raw_data))
+        return iter((self.header_dict, self.raw_csv_data))
 
     def to_geometry(
         self, time_explosion: u.Quantity | None = None
@@ -57,7 +57,7 @@ class CSVYData:
         """
         if time_explosion is None:
             # Try to extract time_explosion from yaml_dict
-            time_explosion = self.yaml_dict.get("time_explosion")
+            time_explosion = self.header_dict.get("time_explosion")
             if time_explosion is not None and not isinstance(
                 time_explosion, u.Quantity
             ):

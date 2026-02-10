@@ -1,6 +1,8 @@
 import logging
+from typing import Any
 
 import numpy as np
+import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
@@ -8,7 +10,9 @@ from tardis.io.model.parse_geometry_configuration import (
     parse_structure_from_config,
 )
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.radiation_field.validate_radiation_field import validate_radiative_temperature
+from tardis.radiation_field.validate_radiation_field import (
+    validate_radiative_temperature,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,26 +73,30 @@ def parse_radiation_field_state_from_config(
 
 
 def parse_radiation_field_state_from_csvy(
-    config, csvy_model_config, csvy_model_data, geometry, packet_source
-):
+    config: Any,
+    csvy_model_config: Any,
+    csvy_model_data: pd.DataFrame | None,
+    geometry: Any,
+    packet_source: Any,
+) -> DilutePlanckianRadiationField:
     """Parses the radiation field state for CSVY model inputs.
 
     Parameters
     ----------
-    config : Config
+    config : Any
         The configuration object.
-    csvy_model_config : Config
+    csvy_model_config : Any
         CSVY model configuration.
-    csvy_model_data : Config
+    csvy_model_data : pd.DataFrame or None
         CSVY model data
-    geometry : Geometry
+    geometry : Any
         The geometry object.
-    packet_source : {None, PacketSource}, optional
+    packet_source : Any
         The packet source object.
 
     Returns
     -------
-    DiluteThermalRadiationFieldState
+    DilutePlanckianRadiationField
         The parsed radiation field state.
     """
     t_radiative = None

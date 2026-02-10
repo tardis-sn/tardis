@@ -1,11 +1,14 @@
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.io.model.csvy import load_csvy
 from tardis.io.model.parse_composition_configuration import (
     parse_composition_from_config,
     parse_composition_from_csvy,
@@ -21,7 +24,6 @@ from tardis.io.model.parse_radiation_field_configuration import (
     parse_radiation_field_state_from_config,
     parse_radiation_field_state_from_csvy,
 )
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
@@ -137,8 +139,7 @@ class SimulationState(HDFWriterMixin):
             ] = new_dilution_factor
         else:
             raise ValueError(
-                "Trying to set dilution_factor for unmatching number"
-                "of shells."
+                "Trying to set dilution_factor for unmatching numberof shells."
             )
 
     @property
@@ -160,7 +161,10 @@ class SimulationState(HDFWriterMixin):
 
     def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (self.composition.elemental_mass_fraction * self.composition.density)
+            (
+                self.composition.elemental_mass_fraction
+                * self.composition.density
+            )
             .divide(element_masses, axis=0)
             .dropna()
         )
@@ -309,21 +313,29 @@ class SimulationState(HDFWriterMixin):
         )
 
     @classmethod
-    def from_csvy(cls, config, atom_data=None, legacy_mode_enabled=False):
+    def from_csvy(
+        cls,
+        config: Configuration,
+        atom_data: Any = None,
+        legacy_mode_enabled: bool = False,
+    ) -> "SimulationState":
         """
         Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
-        atom_data : tardis.io.AtomData
+            Configuration object containing CSVY model path.
+        atom_data : Any, optional
+            The atom data for the simulation, default is None.
+        legacy_mode_enabled : bool, optional
+            Flag indicating if legacy mode is enabled, default is False.
 
         Returns
         -------
         SimulationState
+            The initialized simulation state.
         """
-        from tardis.io.model.csvy import load_csvy
-
         CSVY_SUPPORTED_COLUMNS = {
             "velocity",
             "density",
@@ -356,12 +368,12 @@ class SimulationState(HDFWriterMixin):
             field_names = {
                 field["name"] for field in csvy_model_config.datatype.fields
             }
-            assert (
-                set(csvy_model_data.columns) - field_names == set()
-            ), "CSVY columns exist without field descriptions"
-            assert (
-                field_names - set(csvy_model_data.columns) == set()
-            ), "CSVY field descriptions exist without corresponding csv data"
+            assert set(csvy_model_data.columns) - field_names == set(), (
+                "CSVY columns exist without field descriptions"
+            )
+            assert field_names - set(csvy_model_data.columns) == set(), (
+                "CSVY field descriptions exist without corresponding csv data"
+            )
             if unsupported_columns != set():
                 logger.warning(
                     "The following columns are "
@@ -378,7 +390,6 @@ class SimulationState(HDFWriterMixin):
         )
 
         composition = parse_composition_from_csvy(
-            atom_data,
             csvy_model_config,
             csvy_model_data,
             time_explosion,
