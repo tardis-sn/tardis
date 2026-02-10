@@ -3,9 +3,9 @@ from pathlib import Path
 import numpy.testing as npt
 import pytest
 
-import tardis
 from tardis.io.configuration.config_validator import validate_dict
 from tardis.io.model.readers import csvy
+from tardis.io.util import TARDIS_PATH
 
 
 @pytest.fixture
@@ -47,5 +47,5 @@ def test_missing_required_property(csvy_missing_fname):
     with pytest.raises(Exception):
         vy = validate_dict(
             yaml_dict,
-            schemapath=Path(tardis.__path__[0]) / "io" / "schemas" / "csvy_model.yml",
+            schemapath=TARDIS_PATH / "io" / "schemas" / "csvy_model.yml",
         )

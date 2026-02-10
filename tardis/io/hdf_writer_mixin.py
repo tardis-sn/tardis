@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import re
+from importlib.metadata import version as get_version
 from pathlib import Path
 from typing import Any, Union, Optional, Dict, List
 
 import numpy as np
 import pandas as pd
 
-from tardis import __version__
+# Use importlib.metadata to get version - works even with namespace collision (Issue #3021)
+__version__ = get_version("tardis")
 from tardis.io.util import logger
 
 

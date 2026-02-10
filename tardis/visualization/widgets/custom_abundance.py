@@ -11,7 +11,6 @@ from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
-import tardis
 import tardis.visualization.plot_util as pu
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
@@ -25,6 +24,7 @@ from tardis.io.model.readers.csvy import (
     parse_csv_mass_fractions,
 )
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
+from tardis.io.util import TARDIS_PATH
 from tardis.model import SimulationState
 from tardis.util.base import (
     atomic_number2element_symbol,
@@ -35,7 +35,7 @@ from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
-BASE_DIR = tardis.__path__[0]
+BASE_DIR = str(TARDIS_PATH)
 YAML_DELIMITER = "---"
 
 

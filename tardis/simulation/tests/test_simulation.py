@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import pytest
 from copy import deepcopy
+from importlib.metadata import version as get_version
 
-import tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
 
@@ -118,4 +118,4 @@ def test_plasma_state_storer_reshape(
 
 
 def test_version_tag(simulation_without_loop):
-    assert simulation_without_loop.version == tardis.__version__
+    assert simulation_without_loop.version == get_version("tardis")

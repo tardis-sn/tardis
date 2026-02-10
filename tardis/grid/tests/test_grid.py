@@ -3,10 +3,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-import tardis
 import tardis.grid as grid
+from tardis.io.util import TARDIS_PATH
 
-DATA_PATH = Path(tardis.__path__[0]) / "grid" / "tests" / "data"
+DATA_PATH = TARDIS_PATH / "grid" / "tests" / "data"
 
 
 def test_grid(atomic_dataset):

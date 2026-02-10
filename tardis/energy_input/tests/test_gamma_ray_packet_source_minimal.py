@@ -7,7 +7,6 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
 
-import tardis
 from tardis.energy_input.gamma_ray_channel import (
     calculate_total_decays,
     create_inventories_dict,
@@ -18,6 +17,7 @@ from tardis.energy_input.gamma_ray_channel import (
 from tardis.transport.montecarlo.packet_source.high_energy import GammaRayPacketSource
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 from tardis.io.configuration.config_reader import Configuration
+from tardis.io.util import TARDIS_PATH
 from tardis.model import SimulationState
 
 
@@ -26,7 +26,7 @@ def simulation_state(atomic_dataset):
     """Create a simulation state from the HE workflow config."""
 
     # Get tardis root directory
-    tardis_root = Path(tardis.__path__[0])
+    tardis_root = TARDIS_PATH
     config_path = (
         tardis_root
         / "workflows"

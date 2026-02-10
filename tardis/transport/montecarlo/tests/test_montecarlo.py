@@ -28,13 +28,13 @@ from numpy.testing import (
     assert_almost_equal,
 )
 
-from tardis import __path__ as path
+from tardis.io.util import TARDIS_PATH
 
 
 @pytest.fixture(scope="module")
 def continuum_compare_data_fname():
     fname = "continuum_compare_data.hdf"
-    return str(Path(path[0]) / "montecarlo" / "tests" / "data" / fname)
+    return str(TARDIS_PATH / "montecarlo" / "tests" / "data" / fname)
 
 
 @pytest.fixture(scope="module")

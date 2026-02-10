@@ -14,10 +14,14 @@ import yaml
 from astropy import units as u
 from astropy.utils.data import download_file
 
-from tardis import __path__ as TARDIS_PATH
 from tardis import constants as const
 
 logger = logging.getLogger(__name__)
+
+# Use __file__ to get the TARDIS package path robustly.
+# This avoids issues when a local 'tardis' directory exists (Issue #3021).
+# __file__ always points to the actual installed file location.
+TARDIS_PATH = Path(__file__).resolve().parent.parent
 
 
 def get_internal_data_path(fname: str) -> str:
@@ -33,8 +37,14 @@ def get_internal_data_path(fname: str) -> str:
     -------
     str
         Internal data path of TARDIS joined with the filename.
+
+    Notes
+    -----
+    This function uses ``__file__`` to resolve the path, which works
+    correctly even when a local 'tardis' directory exists in the
+    current working directory (see Issue #3021).
     """
-    return str(Path(TARDIS_PATH[0]) / "data" / fname)
+    return str(TARDIS_PATH / "data" / fname)
 
 
 def quantity_from_str(text: str) -> u.Quantity:
