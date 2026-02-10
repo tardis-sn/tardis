@@ -1,5 +1,3 @@
-from typing import Any, Tuple
-
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -17,7 +15,7 @@ class ConfigurationError(Exception):
 
 def read_simple_ascii_density(
     fname: str,
-) -> Tuple[u.Quantity, u.Quantity, u.Quantity]:
+) -> tuple[u.Quantity, u.Quantity, u.Quantity]:
     """
     Reading a density file of the following structure (example; lines starting with a hash will be ignored):
     The first density describes the mean density in the center of the model and is not used.
@@ -48,8 +46,8 @@ def read_simple_ascii_density(
         fname,
         skip_header=1,
         names=("index", "velocity", "density"),
-        dtype=[('index', 'i8'), ('velocity', 'f8'), ('density', 'f8')], 
-        encoding='utf-8',
+        dtype=[("index", "i8"), ("velocity", "f8"), ("density", "f8")],
+        encoding="utf-8",
     )
     velocity = (data["velocity"] * u.km / u.s).to("cm/s")
     mean_density = (data["density"] * u.Unit("g/cm^3"))[1:]

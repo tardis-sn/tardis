@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 import pandas as pd
 from astropy import units as u
@@ -17,6 +16,7 @@ from tardis.io.model.parse_mass_fraction_configuration import (
     parse_mass_fractions_from_config,
     parse_mass_fractions_from_csvy,
 )
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 
 logger = logging.getLogger(__name__)
@@ -105,20 +105,20 @@ def parse_composition_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
-    geometry: Any,
+    geometry: HomologousRadial1DGeometry,
 ) -> Composition:
     """
     Parse the composition data from a CSVY model.
 
     Parameters
     ----------
-    csvy_model_config : Any
+    csvy_model_config : Configuration
         The configuration data of the CSVY model.
     csvy_model_data : pd.DataFrame or None
         The data of the CSVY model.
     time_explosion : astropy.units.Quantity
         The time of the explosion.
-    geometry : Any
+    geometry : HomologousRadial1DGeometry
         The geometry of the model.
 
     Returns

@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Any
 
 import astropy.units as u
 import numpy as np
@@ -12,6 +11,7 @@ from tardis.io.configuration.config_reader import (
 from tardis.io.model.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.base import read_mass_fractions_file
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
 
@@ -116,7 +116,7 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
 def parse_mass_fractions_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
-    geometry: Any,
+    geometry: HomologousRadial1DGeometry,
     time_explosion: u.Quantity,
 ) -> pd.DataFrame:
     """
@@ -124,11 +124,11 @@ def parse_mass_fractions_from_csvy(
 
     Parameters
     ----------
-    csvy_model_config : Any
+    csvy_model_config : Configuration
         The configuration data of the CSVY model.
     csvy_model_data : pd.DataFrame or None
         The data of the CSVY model.
-    geometry : Any
+    geometry : HomologousRadial1DGeometry
         The geometry of the model.
     time_explosion : astropy.units.Quantity
         The time of the explosion.
