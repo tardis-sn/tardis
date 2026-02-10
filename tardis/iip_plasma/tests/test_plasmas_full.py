@@ -6,15 +6,15 @@ import pytest
 import yaml
 from astropy import units as u
 
-import tardis
 from tardis.base import run_tardis
+from tardis.io.util import TARDIS_PATH
 
 pytestmark = pytest.mark.skip("Skipping tests due to old format")
 
 
 def data_path(fname):
     return os.path.join(
-        tardis.__path__[0], "iip_plasma", "tests", "data", fname
+        str(TARDIS_PATH), "iip_plasma", "tests", "data", fname
     )
 
 
