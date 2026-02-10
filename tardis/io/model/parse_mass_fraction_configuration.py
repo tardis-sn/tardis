@@ -18,30 +18,26 @@ from tardis.model.matter.decay import IsotopicMassFraction
 logger = logging.getLogger(__name__)
 
 
-def parse_mass_fractions_from_config(config, geometry, time_explosion):
-    """
-    Parse the mass fraction configuration data.
+def parse_mass_fractions_from_config(
+    config: Configuration,
+    geometry: HomologousRadial1DGeometry,
+    time_explosion: u.Quantity,
+) -> pd.DataFrame:
+    """Parse the mass fraction configuration data.
 
     Parameters
     ----------
-    config : object
+    config
         The configuration data.
-    geometry : object
+    geometry
         The geometry of the model.
-    time_explosion : float
+    time_explosion
         The time of the explosion.
 
     Returns
     -------
-    nuclide_mass_fractions : object
+    nuclide_mass_fractions
         The parsed nuclide mass fraction.
-
-    raw_isotope_mass_fractions : object
-        The parsed raw isotope mass fraction. This is the isotope mass fraction data before decay.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----
@@ -119,28 +115,23 @@ def parse_mass_fractions_from_csvy(
     geometry: HomologousRadial1DGeometry,
     time_explosion: u.Quantity,
 ) -> pd.DataFrame:
-    """
-    Parse the mass fraction data from a CSVY model.
+    """Parse the mass fraction data from a CSVY model.
 
     Parameters
     ----------
-    csvy_model_config : Configuration
+    csvy_model_config
         The configuration data of the CSVY model.
-    csvy_model_data : pd.DataFrame or None
+    csvy_model_data
         The data of the CSVY model.
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry of the model.
-    time_explosion : astropy.units.Quantity
+    time_explosion
         The time of the explosion.
 
     Returns
     -------
-    pd.DataFrame
+    nuclide_mass_fractions
         The parsed nuclide mass fraction data.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----
@@ -192,25 +183,23 @@ def parse_mass_fractions_from_csvy(
     )
 
 
-def convert_to_nuclide_mass_fractions(isotopic_mass_fractions, mass_fractions):
-    """
-    Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.
+def convert_to_nuclide_mass_fractions(
+    isotopic_mass_fractions: pd.DataFrame | None,
+    mass_fractions: pd.DataFrame | None,
+) -> pd.DataFrame:
+    """Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.
 
     Parameters
     ----------
-    isotope_mass_fraction : pandas.DataFrame
+    isotopic_mass_fractions
         The isotope mass fraction data.
-    mass_fractions : pandas.DataFrame
+    mass_fractions
         The mass fraction data.
 
     Returns
     -------
-    nuclide_mass_fraction : pandas.DataFrame
+    nuclide_mass_fractions
         The converted nuclide mass fraction.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----

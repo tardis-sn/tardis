@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 from astropy import units as u
 
+from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.csvy import load_csvy
@@ -269,18 +270,24 @@ class SimulationState(HDFWriterMixin):
         return self.geometry.no_of_shells
 
     @classmethod
-    def from_config(cls, config, atom_data, legacy_mode_enabled=False):
-        """
-        Create a new SimulationState instance from a Configuration object.
+    def from_config(
+        cls, config: Configuration, atom_data: AtomData, legacy_mode_enabled: bool = False
+    ) -> "SimulationState":
+        """Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
-        config : tardis.io.config_reader.Configuration
-        atom_data : tardis.io.AtomData
+        config
+            Configuration object.
+        atom_data
+            Atom data.
+        legacy_mode_enabled
+            Flag indicating if legacy mode is enabled.
 
         Returns
         -------
-        SimulationState
+        simulation_state
+            The initialized simulation state.
         """
         time_explosion = config.supernova.time_explosion.cgs
 

@@ -32,18 +32,18 @@ def parse_radiation_field_state_from_config(
 
     Parameters
     ----------
-    config : Configuration
+    config
         The configuration object.
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry object.
-    dilution_factor : np.ndarray or None, optional
+    dilution_factor
         The dilution factor. If None, it is calculated based on the geometry.
-    packet_source : BasePacketSource or None, optional
+    packet_source
         The packet source object.
 
     Returns
     -------
-    DilutePlanckianRadiationField
+    radiation_field
         The parsed radiation field state.
 
     Raises
@@ -90,20 +90,20 @@ def parse_radiation_field_state_from_csvy(
 
     Parameters
     ----------
-    config : Configuration
+    config
         The configuration object.
-    csvy_model_config : Configuration
+    csvy_model_config
         CSVY model configuration.
-    csvy_model_data : pd.DataFrame or None
+    csvy_model_data
         CSVY model data.
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry object.
-    packet_source : BasePacketSource
+    packet_source
         The packet source object.
 
     Returns
     -------
-    DilutePlanckianRadiationField
+    radiation_field
         The parsed radiation field state.
     """
     t_radiative = None
@@ -150,14 +150,14 @@ def calculate_t_radiative_from_t_inner(
 
     Parameters
     ----------
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry object.
-    packet_source : BasePacketSource
+    packet_source
         The packet source object.
 
     Returns
     -------
-    u.Quantity
+    t_radiative
         The calculated radiative temperature.
     """
     lambda_wien_inner = const.b_wien / packet_source.temperature
@@ -175,12 +175,12 @@ def calculate_geometric_dilution_factor(
 
     Parameters
     ----------
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry object.
 
     Returns
     -------
-    np.ndarray
+    dilution_factors
         The dilution factors for the input geometry.
     """
     value = (

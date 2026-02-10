@@ -22,19 +22,22 @@ from tardis.model.matter.composition import Composition
 logger = logging.getLogger(__name__)
 
 
-def parse_density_from_config(config: Configuration) -> u.Quantity:
-    """
-    Parse the configuration file and produce a density at
-    time_explosion.
+def parse_density_from_config(
+    config: Configuration,
+) -> tuple[u.Quantity, u.Quantity | None]:
+    """Parse the configuration file and produce a density at time_explosion.
 
     Parameters
     ----------
-    config : tardis.io.config_reader.Configuration
+    config
+        The configuration object.
 
     Returns
     -------
-    density: u.Quantity
-
+    density
+        Density at time_explosion.
+    electron_densities
+        Electron densities.
     """
     time_explosion = config.supernova.time_explosion.cgs
     (
@@ -65,25 +68,30 @@ def parse_density_from_config(config: Configuration) -> u.Quantity:
     return density, electron_densities
 
 
-def parse_composition_from_config(atom_data, config, time_explosion, geometry):
-    """Parse the composition data from a CSVY model.
+def parse_composition_from_config(
+    atom_data,
+    config: Configuration,
+    time_explosion: u.Quantity,
+    geometry: HomologousRadial1DGeometry,
+) -> tuple[Composition, u.Quantity | None]:
+    """Parse the composition data from a config.
 
     Parameters
     ----------
-    atom_data : object
+    atom_data
         The atom data used for parsing.
-    config : object
+    config
         The configuration data.
-    time_explosion : float
+    time_explosion
         The time of the explosion.
-    geometry : object
+    geometry
         The geometry of the model.
 
     Returns
     -------
-    Composition
-        The parsed composition
-    array
+    composition
+        The parsed composition.
+    electron_densities
         Electron densities.
     """
     density, electron_densities = parse_density_from_config(config)
@@ -107,24 +115,23 @@ def parse_composition_from_csvy(
     time_explosion: u.Quantity,
     geometry: HomologousRadial1DGeometry,
 ) -> Composition:
-    """
-    Parse the composition data from a CSVY model.
+    """Parse the composition data from a CSVY model.
 
     Parameters
     ----------
-    csvy_model_config : Configuration
+    csvy_model_config
         The configuration data of the CSVY model.
-    csvy_model_data : pd.DataFrame or None
+    csvy_model_data
         The data of the CSVY model.
-    time_explosion : astropy.units.Quantity
+    time_explosion
         The time of the explosion.
-    geometry : HomologousRadial1DGeometry
+    geometry
         The geometry of the model.
 
     Returns
     -------
-    Composition
-        The parsed composition
+    composition
+        The parsed composition.
 
     Notes
     -----
