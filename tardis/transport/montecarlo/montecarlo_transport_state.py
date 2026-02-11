@@ -60,7 +60,8 @@ class MonteCarloTransportState(HDFWriterMixin):
     ):
         self.packet_collection = packet_collection
         self.gamma_shape = gamma_shape
-        self.radfield_mc_estimators = None
+        self.radfield_estimators = None
+        self.continuum_estimators = None
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
         self.time_explosion = time_explosion
@@ -69,6 +70,36 @@ class MonteCarloTransportState(HDFWriterMixin):
         self.tracker_full_df = tracker_full_df
         self.tracker_last_interaction_df = tracker_last_interaction_df
         self.vpacket_tracker = vpacket_tracker
+
+    @property
+    def radfield_mc_estimators(self):
+        """
+        Backward compatibility property that combines radfield and continuum estimators.
+
+        Returns
+        -------
+        RadiationFieldMCEstimators
+            Combined estimator object containing both radfield and continuum estimators.
+        """
+        from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+            RadiationFieldMCEstimators,
+        )
+
+        if self.radfield_estimators is None or self.continuum_estimators is None:
+            return None
+
+        return RadiationFieldMCEstimators(
+            self.radfield_estimators.j_estimator,
+            self.radfield_estimators.nu_bar_estimator,
+            self.radfield_estimators.j_blue_estimator,
+            self.radfield_estimators.Edotlu_estimator,
+            self.continuum_estimators.photo_ion_estimator,
+            self.continuum_estimators.stim_recomb_estimator,
+            self.continuum_estimators.bf_heating_estimator,
+            self.continuum_estimators.stim_recomb_cooling_estimator,
+            self.continuum_estimators.ff_heating_estimator,
+            self.continuum_estimators.photo_ion_estimator_statistics,
+        )
 
     @property
     def output_nu(self):

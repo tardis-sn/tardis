@@ -188,7 +188,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         (
             v_packets_energy_hist,
             vpacket_tracker,
-            estimators,
+            radfield_estimators,
+            continuum_estimators,
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
@@ -203,7 +204,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         # Attach estimators to transport state
-        transport_state.radfield_mc_estimators = estimators
+        transport_state.radfield_estimators = radfield_estimators
+        transport_state.continuum_estimators = continuum_estimators
 
         # Last interaction trackers are already populated directly in the list
         # No finalization needed with direct list approach

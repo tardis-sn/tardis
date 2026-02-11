@@ -83,15 +83,20 @@ def montecarlo_main_loop(
         - vpacket_tracker : VPacketCollection
             Consolidated virtual packet collection containing all virtual
             packet information from the simulation
-        - estimators : RadiationFieldMCEstimators
-            Updated estimator object containing radiation field statistics
-            collected during packet propagation
+        - radfield_estimators : EstimatorsRadField
+            Updated radiation field estimator object containing line interaction
+            statistics collected during packet propagation
+        - continuum_estimators : EstimatorsContinuum
+            Updated continuum estimator object containing continuum interaction
+            statistics collected during packet propagation
     """
     no_of_packets = len(packet_collection.initial_nus)
 
     # Initialize estimators inside the loop
     tau_sobolev_shape = opacity_state_numba.tau_sobolev.shape
-    estimators = initialize_estimator_statistics(tau_sobolev_shape, gamma_shape)
+    radfield_estimators, continuum_estimators = initialize_estimator_statistics(
+        tau_sobolev_shape, gamma_shape
+    )
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
     delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
@@ -116,8 +121,13 @@ def montecarlo_main_loop(
 
     # betting get thread_id goes from 0 to num threads
     # Note that get_thread_id() returns values from 0 to n_threads-1,
-    # so we iterate from 0 to n_threads-1 to create the estimator_list
-    estimator_list = estimators.create_estimator_list(n_threads)
+    # so we iterate from 0 to n_threads-1 to create the estimator_lists
+    radfield_estimator_list = radfield_estimators.create_estimator_list(
+        n_threads
+    )
+    continuum_estimator_list = continuum_estimators.create_estimator_list(
+        n_threads
+    )
 
     for i in prange(no_of_packets):
         thread_id = get_thread_id()
@@ -142,7 +152,8 @@ def montecarlo_main_loop(
         np.random.seed(r_packet.seed)
 
         # Get the local estimators for this thread
-        local_estimators = estimator_list[thread_id]
+        local_radfield_estimators = radfield_estimator_list[thread_id]
+        local_continuum_estimators = continuum_estimator_list[thread_id]
 
         # Get the local v_packet_collection for this thread
         vpacket_collection = vpacket_collections[i]
@@ -154,7 +165,8 @@ def montecarlo_main_loop(
             geometry_state_numba,
             time_explosion,
             opacity_state_numba,
-            local_estimators,
+            local_radfield_estimators,
+            local_continuum_estimators,
             vpacket_collection,
             tracker,
             montecarlo_configuration,
@@ -184,8 +196,11 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpacket_collection.energies[j]
 
-    for sub_estimator in estimator_list:
-        estimators.increment(sub_estimator)
+    for sub_estimator in radfield_estimator_list:
+        radfield_estimators.increment(sub_estimator)
+
+    for sub_estimator in continuum_estimator_list:
+        continuum_estimators.increment(sub_estimator)
 
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(
@@ -207,5 +222,6 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         vpacket_tracker,
-        estimators,
+        radfield_estimators,
+        continuum_estimators,
     )
