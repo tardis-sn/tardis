@@ -11,7 +11,6 @@ Submodules
    tardis.io.model.readers.blondin_toymodel
    tardis.io.model.readers.cmfgen
    tardis.io.model.readers.cmfgen_deprecated
-   tardis.io.model.readers.csvy
    tardis.io.model.readers.generic_readers
    tardis.io.model.readers.stella
    tardis.io.model.readers.util
