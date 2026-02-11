@@ -163,7 +163,7 @@ def calculate_t_radiative_from_t_inner(
     lambda_wien_inner = const.b_wien / packet_source.temperature
     t_radiative = const.b_wien / (
         lambda_wien_inner
-        * (1 + (geometry.v_middle - geometry.v_inner_boundary) / const.c)
+        * (1 + (geometry.v_middle_active - geometry.v_inner_boundary) / const.c)
     )
     return t_radiative
 
@@ -185,10 +185,7 @@ def calculate_geometric_dilution_factor(
     """
     value = (
         1
-        - (
-            geometry.r_inner[geometry.v_inner_boundary_index] ** 2
-            / geometry.r_middle**2
-        )
+        - (geometry.r_inner_active[0] ** 2 / geometry.r_middle_active**2)
         .to(1)
         .value
     )
