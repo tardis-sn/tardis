@@ -15,12 +15,17 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
-from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_bound_free_estimators,
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
 )
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.transport.montecarlo.estimators.estimators_continuum import (
     EstimatorsContinuum,
-    EstimatorsRadField,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
+)
+from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
+    update_estimators_bound_free,
 )
 from tardis.transport.montecarlo.interaction_event_callers import (
     continuum_event,
@@ -55,8 +60,9 @@ def single_packet_loop(
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumba,
-    radfield_estimators: EstimatorsRadField,
-    continuum_estimators: EstimatorsContinuum,
+    estimators_bulk: EstimatorsBulk,
+    estimators_line: EstimatorsLine,
+    estimators_continuum: EstimatorsContinuum,
     vpacket_collection: VPacketCollection,
     rpacket_tracker,  # Excluded from type hints as it might be different types
     montecarlo_configuration: MonteCarloConfiguration,
@@ -79,9 +85,11 @@ def single_packet_loop(
         Time since explosion in seconds.
     opacity_state : OpacityStateNumba
         Current opacity state containing line and continuum opacities.
-    radfield_estimators : EstimatorsRadField
-        Monte Carlo estimators for radiation field line interaction quantities.
-    continuum_estimators : EstimatorsContinuum
+    estimators_bulk : EstimatorsBulk
+        Monte Carlo estimators for cell-level bulk radiation field quantities.
+    estimators_line : EstimatorsLine
+        Monte Carlo estimators for line-level radiation field quantities.
+    estimators_continuum : EstimatorsContinuum
         Monte Carlo estimators for continuum interaction quantities.
     vpacket_collection : VPacketCollection
         Collection for storing virtual packets when enabled.
@@ -159,18 +167,19 @@ def single_packet_loop(
                 numba_radial_1d_geometry,
                 time_explosion,
                 opacity_state,
-                radfield_estimators,
+                estimators_bulk,
+                estimators_line,
                 chi_continuum,
                 escat_prob,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.DISABLE_LINE_SCATTERING,
             )
-            update_bound_free_estimators(
+            update_estimators_bound_free(
                 comov_nu,
                 r_packet.energy * doppler_factor,
                 r_packet.current_shell_id,
                 distance,
-                continuum_estimators,
+                estimators_continuum,
                 opacity_state.t_electrons[r_packet.current_shell_id],
                 x_sect_bfs,
                 current_continua,
@@ -187,7 +196,8 @@ def single_packet_loop(
                 numba_radial_1d_geometry,
                 time_explosion,
                 opacity_state,
-                radfield_estimators,
+                estimators_bulk,
+                estimators_line,
                 chi_continuum,
                 escat_prob,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
@@ -201,7 +211,7 @@ def single_packet_loop(
                 r_packet,
                 distance,
                 time_explosion,
-                radfield_estimators,
+                estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_boundary_event(
@@ -221,7 +231,7 @@ def single_packet_loop(
                 r_packet,
                 distance,
                 time_explosion,
-                radfield_estimators,
+                estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
 
@@ -251,7 +261,7 @@ def single_packet_loop(
                 r_packet,
                 distance,
                 time_explosion,
-                radfield_estimators,
+                estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_escattering_interaction_before(r_packet)
@@ -280,7 +290,7 @@ def single_packet_loop(
                 r_packet,
                 distance,
                 time_explosion,
-                radfield_estimators,
+                estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_continuum_interaction_before(r_packet)

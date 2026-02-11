@@ -11,8 +11,8 @@ from tardis.transport.geometry.calculate_distances import (
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_base_estimators,
-    update_line_estimators,
+    update_estimators_bulk,
+    update_estimators_line,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
@@ -26,7 +26,8 @@ def trace_packet(
     numba_radial_1d_geometry,
     time_explosion,
     opacity_state,
-    estimators,
+    estimators_bulk,
+    estimators_line,
     chi_continuum,
     escat_prob,
     enable_full_relativity,
@@ -41,7 +42,10 @@ def trace_packet(
     numba_radial_1d_geometry : tardis.transport.montecarlo.numba_interface.NumbaRadial1DGeometry
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
-    estimators : tardis.transport.montecarlo.numba_interface.Estimators
+    estimators_bulk : EstimatorsBulk
+        Cell-level bulk radiation field estimators
+    estimators_line : EstimatorsLine
+        Line-level radiation field estimators
 
     Returns
     -------
@@ -112,7 +116,7 @@ def trace_packet(
                 interaction_type = InteractionType.BOUNDARY  # BOUNDARY
                 r_packet.next_line_id = cur_line_id
                 break
-            elif distance == distance_continuum:
+            if distance == distance_continuum:
                 if not montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
                     interaction_type = InteractionType.ESCATTERING
                 else:
@@ -128,8 +132,8 @@ def trace_packet(
         # This means we are still looking for line interaction and have not
         # been kicked out of the path by boundary or electron interaction
 
-        update_line_estimators(
-            estimators,
+        update_estimators_line(
+            estimators_line,
             r_packet,
             cur_line_id,
             distance_trace,
@@ -177,7 +181,7 @@ def trace_packet(
 
 @njit(**njit_dict_no_parallel)
 def move_r_packet(
-    r_packet, distance, time_explosion, numba_estimator, enable_full_relativity
+    r_packet, distance, time_explosion, estimators_bulk, enable_full_relativity
 ):
     """
     Move packet a distance and recalculate the new angle mu
@@ -188,8 +192,8 @@ def move_r_packet(
         r_packet objects
     time_explosion : float
         time since explosion in s
-    numba_estimator : tardis.transport.montecarlo.numba_interface.NumbaEstimator
-        Estimators object
+    estimators_bulk : EstimatorsBulk
+        Cell-level bulk radiation field estimators
     distance : float
         distance in cm
     """
@@ -212,8 +216,8 @@ def move_r_packet(
         if enable_full_relativity:
             distance *= doppler_factor
 
-        update_base_estimators(
-            r_packet, distance, numba_estimator, comov_nu, comov_energy
+        update_estimators_bulk(
+            r_packet, distance, estimators_bulk, comov_nu, comov_energy
         )
 
 

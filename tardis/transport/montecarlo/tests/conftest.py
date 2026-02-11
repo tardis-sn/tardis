@@ -4,13 +4,12 @@ import numpy as np
 import pytest
 from numba import njit
 
-from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.opacities.opacity_state_numba import (
     opacity_state_numba_initialize,
 )
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.transport.montecarlo.estimators.legacy_mc_estimators import (
     RadiationFieldMCEstimators,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (

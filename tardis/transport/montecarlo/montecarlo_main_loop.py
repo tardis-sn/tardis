@@ -9,8 +9,17 @@ from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    initialize_estimator_statistics,
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    create_estimators_bulk_list,
+    init_estimators_bulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    create_estimators_continuum_list,
+    init_estimators_continuum,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    create_estimators_line_list,
+    init_estimators_line,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
@@ -83,19 +92,25 @@ def montecarlo_main_loop(
         - vpacket_tracker : VPacketCollection
             Consolidated virtual packet collection containing all virtual
             packet information from the simulation
-        - radfield_estimators : EstimatorsRadField
-            Updated radiation field estimator object containing line interaction
+        - estimators_bulk : EstimatorsBulk
+            Updated bulk radiation field estimator object containing cell-level
             statistics collected during packet propagation
-        - continuum_estimators : EstimatorsContinuum
+        - estimators_line : EstimatorsLine
+            Updated line radiation field estimator object containing line interaction
+            statistics collected during packet propagation
+        - estimators_continuum : EstimatorsContinuum
             Updated continuum estimator object containing continuum interaction
             statistics collected during packet propagation
     """
     no_of_packets = len(packet_collection.initial_nus)
 
-    # Initialize estimators inside the loop
+    # Initialize global estimators
     tau_sobolev_shape = opacity_state_numba.tau_sobolev.shape
-    radfield_estimators, continuum_estimators = initialize_estimator_statistics(
-        tau_sobolev_shape, gamma_shape
+    n_cells = len(geometry_state_numba.r_inner)
+    estimators_bulk_global = init_estimators_bulk(n_cells)
+    estimators_line_global = init_estimators_line(tau_sobolev_shape)
+    estimators_continuum_global = init_estimators_continuum(
+        gamma_shape, n_cells
     )
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
@@ -122,11 +137,12 @@ def montecarlo_main_loop(
     # betting get thread_id goes from 0 to num threads
     # Note that get_thread_id() returns values from 0 to n_threads-1,
     # so we iterate from 0 to n_threads-1 to create the estimator_lists
-    radfield_estimator_list = radfield_estimators.create_estimator_list(
-        n_threads
+    estimators_bulk_list_local = create_estimators_bulk_list(n_cells, n_threads)
+    estimators_line_list_local = create_estimators_line_list(
+        tau_sobolev_shape, n_threads
     )
-    continuum_estimator_list = continuum_estimators.create_estimator_list(
-        n_threads
+    estimators_continuum_list_local = create_estimators_continuum_list(
+        gamma_shape, n_cells, n_threads
     )
 
     for i in prange(no_of_packets):
@@ -152,8 +168,9 @@ def montecarlo_main_loop(
         np.random.seed(r_packet.seed)
 
         # Get the local estimators for this thread
-        local_radfield_estimators = radfield_estimator_list[thread_id]
-        local_continuum_estimators = continuum_estimator_list[thread_id]
+        estimators_bulk_local = estimators_bulk_list_local[thread_id]
+        estimators_line_local = estimators_line_list_local[thread_id]
+        estimators_continuum_local = estimators_continuum_list_local[thread_id]
 
         # Get the local v_packet_collection for this thread
         vpacket_collection = vpacket_collections[i]
@@ -165,8 +182,9 @@ def montecarlo_main_loop(
             geometry_state_numba,
             time_explosion,
             opacity_state_numba,
-            local_radfield_estimators,
-            local_continuum_estimators,
+            estimators_bulk_local,
+            estimators_line_local,
+            estimators_continuum_local,
             vpacket_collection,
             tracker,
             montecarlo_configuration,
@@ -196,11 +214,14 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpacket_collection.energies[j]
 
-    for sub_estimator in radfield_estimator_list:
-        radfield_estimators.increment(sub_estimator)
+    for sub_estimator in estimators_bulk_list_local:
+        estimators_bulk_global.increment(sub_estimator)
 
-    for sub_estimator in continuum_estimator_list:
-        continuum_estimators.increment(sub_estimator)
+    for sub_estimator in estimators_line_list_local:
+        estimators_line_global.increment(sub_estimator)
+
+    for sub_estimator in estimators_continuum_list_local:
+        estimators_continuum_global.increment(sub_estimator)
 
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(
@@ -222,6 +243,7 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         vpacket_tracker,
-        radfield_estimators,
-        continuum_estimators,
+        estimators_bulk_global,
+        estimators_line_global,
+        estimators_continuum_global,
     )

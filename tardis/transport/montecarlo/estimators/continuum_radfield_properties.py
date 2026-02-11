@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 
-import numpy as np
 import pandas as pd
-from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+from tardis.transport.montecarlo.estimators.legacy_mc_estimators import (
     RadiationFieldMCEstimators,
 )
 from tardis.transport.montecarlo.estimators.util import (

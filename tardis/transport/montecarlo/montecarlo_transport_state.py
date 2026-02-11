@@ -60,8 +60,9 @@ class MonteCarloTransportState(HDFWriterMixin):
     ):
         self.packet_collection = packet_collection
         self.gamma_shape = gamma_shape
-        self.radfield_estimators = None
-        self.continuum_estimators = None
+        self.estimators_bulk = None
+        self.estimators_line = None
+        self.estimators_continuum = None
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
         self.time_explosion = time_explosion
@@ -74,31 +75,35 @@ class MonteCarloTransportState(HDFWriterMixin):
     @property
     def radfield_mc_estimators(self):
         """
-        Backward compatibility property that combines radfield and continuum estimators.
+        Backward compatibility property that combines all three estimators.
 
         Returns
         -------
         RadiationFieldMCEstimators
-            Combined estimator object containing both radfield and continuum estimators.
+            Combined estimator object containing bulk, line, and continuum estimators.
         """
-        from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
+        from tardis.transport.montecarlo.estimators.legacy_mc_estimators import (
             RadiationFieldMCEstimators,
         )
 
-        if self.radfield_estimators is None or self.continuum_estimators is None:
+        if (
+            self.estimators_bulk is None
+            or self.estimators_line is None
+            or self.estimators_continuum is None
+        ):
             return None
 
         return RadiationFieldMCEstimators(
-            self.radfield_estimators.j_estimator,
-            self.radfield_estimators.nu_bar_estimator,
-            self.radfield_estimators.j_blue_estimator,
-            self.radfield_estimators.Edotlu_estimator,
-            self.continuum_estimators.photo_ion_estimator,
-            self.continuum_estimators.stim_recomb_estimator,
-            self.continuum_estimators.bf_heating_estimator,
-            self.continuum_estimators.stim_recomb_cooling_estimator,
-            self.continuum_estimators.ff_heating_estimator,
-            self.continuum_estimators.photo_ion_estimator_statistics,
+            self.estimators_bulk.mean_intensity_total,
+            self.estimators_bulk.mean_frequency,
+            self.estimators_line.mean_intensity_blue,
+            self.estimators_line.energy_deposition_line,
+            self.estimators_continuum.photo_ion_estimator,
+            self.estimators_continuum.stim_recomb_estimator,
+            self.estimators_continuum.bf_heating_estimator,
+            self.estimators_continuum.stim_recomb_cooling_estimator,
+            self.estimators_continuum.ff_heating_estimator,
+            self.estimators_continuum.photo_ion_estimator_statistics,
         )
 
     @property

@@ -177,8 +177,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             # Initialize the last interaction tracker list directly
-            trackers_list = (
-                generate_tracker_last_interaction_list(number_of_rpackets)
+            trackers_list = generate_tracker_last_interaction_list(
+                number_of_rpackets
             )
 
         # Reset packet progress bar for this iteration
@@ -188,8 +188,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         (
             v_packets_energy_hist,
             vpacket_tracker,
-            radfield_estimators,
-            continuum_estimators,
+            estimators_bulk,
+            estimators_line,
+            estimators_continuum,
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
@@ -204,8 +205,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         )
 
         # Attach estimators to transport state
-        transport_state.radfield_estimators = radfield_estimators
-        transport_state.continuum_estimators = continuum_estimators
+        transport_state.estimators_bulk = estimators_bulk
+        transport_state.estimators_line = estimators_line
+        transport_state.estimators_continuum = estimators_continuum
 
         # Last interaction trackers are already populated directly in the list
         # No finalization needed with direct list approach
@@ -232,7 +234,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             self.transport_state.tracker_full_df = None
-            self.transport_state.tracker_last_interaction_df = trackers_last_interaction_to_df(trackers_list)
+            self.transport_state.tracker_last_interaction_df = (
+                trackers_last_interaction_to_df(trackers_list)
+            )
 
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
