@@ -1,7 +1,0 @@
-tardis.configuration.sorting\_globals module
-============================================
-
-.. automodule:: tardis.configuration.sorting_globals
-   :members:
-   :show-inheritance:
-   :undoc-members:
