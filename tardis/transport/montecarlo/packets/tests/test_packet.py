@@ -55,6 +55,7 @@ def estimators():
         stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
         bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
         stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
+        ff_heating_estimator=np.empty(0, dtype=np.float64),
         photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
     )
 

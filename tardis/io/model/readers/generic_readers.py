@@ -1,5 +1,3 @@
-from typing import Any, Tuple
-
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -16,10 +14,9 @@ class ConfigurationError(Exception):
 
 
 def read_simple_ascii_density(
-    fname: Any,
-) -> Tuple[u.Quantity, u.Quantity, u.Quantity]:
-    """
-    Reading a density file of the following structure (example; lines starting with a hash will be ignored):
+    fname: str,
+) -> tuple[u.Quantity, u.Quantity, u.Quantity]:
+    """Reading a density file of the following structure (example; lines starting with a hash will be ignored):
     The first density describes the mean density in the center of the model and is not used.
     5 s
     #index velocity [km/s] density [g/cm^3]
@@ -28,17 +25,17 @@ def read_simple_ascii_density(
 
     Parameters
     ----------
-    fname : str
-        filename or path with filename
+    fname
+        Filename or path with filename.
 
     Returns
     -------
-    time_of_model : astropy.units.Quantity
-        time at which the model is valid
-    velocity : u.Quantity
-        velocity
-    mean_density: u.Quantity
-        mean density
+    time_of_model
+        Time at which the model is valid.
+    velocity
+        Velocity.
+    mean_density
+        Mean density.
     """
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
@@ -48,8 +45,8 @@ def read_simple_ascii_density(
         fname,
         skip_header=1,
         names=("index", "velocity", "density"),
-        dtype=[('index', 'i8'), ('velocity', 'f8'), ('density', 'f8')], 
-        encoding='utf-8',
+        dtype=[("index", "i8"), ("velocity", "f8"), ("density", "f8")],
+        encoding="utf-8",
     )
     velocity = (data["velocity"] * u.km / u.s).to("cm/s")
     mean_density = (data["density"] * u.Unit("g/cm^3"))[1:]
@@ -57,7 +54,7 @@ def read_simple_ascii_density(
     return time_of_model, velocity, mean_density
 
 
-def read_csv_composition(fname, delimiter=r"\s+"):
+def read_csv_composition(fname: str, delimiter=r"\s+"):
     """Read composition from a simple CSV file
 
     The CSV file can contain specific isotopes or elemental mass fractions in the
@@ -69,7 +66,7 @@ def read_csv_composition(fname, delimiter=r"\s+"):
 
     The i-th row specifies the composition in the i-th shell
 
-    fname : str
+    fname
         filename of the csv file
     """
     return read_csv_isotope_mass_fractions(
@@ -77,24 +74,23 @@ def read_csv_composition(fname, delimiter=r"\s+"):
     )
 
 
-def read_simple_ascii_mass_fractions(fname):
-    """
-    Reading a mass fraction file of the following structure (example; lines starting with hash will be ignored):
+def read_simple_ascii_mass_fractions(fname: str) -> tuple[np.ndarray, pd.DataFrame]:
+    """Reading a mass fraction file of the following structure (example; lines starting with hash will be ignored):
     The first line of mass fractions describe the mass fractions in the center of the model and are not used.
     #index element1, element2, ..., element30
     0 0.4 0.3, .. 0.2
 
     Parameters
     ----------
-    fname : str
-        filename or path with filename
+    fname
+        Filename or path with filename.
 
     Returns
     -------
-    index : np.ndarray
-        containing the indices
-    mass_fractions : pandas.DataFrame
-        data frame containing index, element1 - element30 and columns according to the shells
+    index
+        Array containing the indices.
+    mass_fractions
+        Data frame containing index, element1 - element30 and columns according to the shells.
     """
     data = np.loadtxt(fname)
 
@@ -107,16 +103,21 @@ def read_simple_ascii_mass_fractions(fname):
 
 
 def read_uniform_mass_fractions(mass_fractions_section, no_of_shells):
-    """
+    """Read uniform mass fractions from configuration.
+
     Parameters
     ----------
-    mass_fractions_section : config.model.abundances
-    no_of_shells : int
+    mass_fractions_section
+        Mass fractions section from config.model.abundances.
+    no_of_shells
+        Number of shells.
 
     Returns
     -------
-    mass_fractions : pandas.DataFrame
-    isotope_mass_fractions : pandas.DataFrame
+    mass_fractions
+        Elemental mass fractions DataFrame.
+    isotope_mass_fractions
+        Isotopic mass fractions DataFrame.
     """
     mass_fractions = pd.DataFrame(
         columns=np.arange(no_of_shells),

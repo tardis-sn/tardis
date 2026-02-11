@@ -116,7 +116,9 @@ def single_packet_loop(
         montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
 
-    rpacket_tracker.track_boundary_event(r_packet, from_shell_id=-1, to_shell_id=0)
+    rpacket_tracker.track_boundary_event(
+        r_packet, from_shell_id=-1, to_shell_id=0
+    )
 
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
@@ -169,6 +171,7 @@ def single_packet_loop(
                 x_sect_bfs,
                 current_continua,
                 opacity_state.bf_threshold_list_nu,
+                chi_ff,
             )
         else:
             escat_prob = 1.0
@@ -219,7 +222,7 @@ def single_packet_loop(
             )
 
             rpacket_tracker.track_line_interaction_before(r_packet)
-            
+
             line_scatter_event(
                 r_packet,
                 time_explosion,
@@ -287,6 +290,7 @@ def single_packet_loop(
                 current_continua,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
+
             rpacket_tracker.track_continuum_interaction_after(r_packet)
 
             trace_vpacket_volley(
@@ -301,7 +305,9 @@ def single_packet_loop(
             )
         else:
             # Handle any unrecognized interaction types
-            rpacket_tracker.track_boundary_event(r_packet, from_shell_id=-1, to_shell_id=0)
+            rpacket_tracker.track_boundary_event(
+                r_packet, from_shell_id=-1, to_shell_id=0
+            )
 
     # Registering the final boundary interaction.
     # Only for RPacketTracker
@@ -311,12 +317,12 @@ def single_packet_loop(
     # their final state immediately. In a future time-dependent implementation,
     # this may need to be modified to account for packet propagation time
     # and potentially delayed final state recording.
-            # Track final packet state as simple boundary event (current shell -> current shell + 1)
-        # This explicitly records the packet's exit from the simulation domain
+    # Track final packet state as simple boundary event (current shell -> current shell + 1)
+    # This explicitly records the packet's exit from the simulation domain
     rpacket_tracker.track_boundary_event(
         r_packet,
         from_shell_id=r_packet.current_shell_id,
-        to_shell_id=r_packet.current_shell_id + 1
+        to_shell_id=r_packet.current_shell_id + 1,
     )
 
 

@@ -38,6 +38,7 @@ def update_bound_free_estimators(
     x_sect_bfs,
     current_continua,
     bf_threshold_list_nu,
+    chi_ff,
 ):
     """
     Update the estimators for bound-free processes.
@@ -58,16 +59,21 @@ def update_bound_free_estimators(
         Continuum ids for which absorption is possible for frequency `comov_nu`.
     bf_threshold_list_nu : numpy.ndarray, dtype float
         Threshold frequencies for photoionization sorted by decreasing frequency.
+    chi_ff : float
+        Free-free opacity coefficient in the current cell.
     """
     # TODO: Add full relativity mode
     boltzmann_factor = exp(-(H * comov_nu) / (KB * t_electron))
+    estimator_state.ff_heating_estimator[shell_id] += (
+        comov_energy * distance * chi_ff
+    )
     for i, current_continuum in enumerate(current_continua):
         photo_ion_rate_estimator_increment = (
             comov_energy * distance * x_sect_bfs[i] / comov_nu
         )
-        estimator_state.photo_ion_estimator[
-            current_continuum, shell_id
-        ] += photo_ion_rate_estimator_increment
+        estimator_state.photo_ion_estimator[current_continuum, shell_id] += (
+            photo_ion_rate_estimator_increment
+        )
         estimator_state.stim_recomb_estimator[current_continuum, shell_id] += (
             photo_ion_rate_estimator_increment * boltzmann_factor
         )
@@ -79,12 +85,12 @@ def update_bound_free_estimators(
         bf_heating_estimator_increment = (
             comov_energy * distance * x_sect_bfs[i] * (1 - nu_th / comov_nu)
         )
-        estimator_state.bf_heating_estimator[
-            current_continuum, shell_id
-        ] += bf_heating_estimator_increment
+        estimator_state.bf_heating_estimator[current_continuum, shell_id] += (
+            bf_heating_estimator_increment
+        )
         estimator_state.stim_recomb_cooling_estimator[
             current_continuum, shell_id
-        ] += (bf_heating_estimator_increment * boltzmann_factor)
+        ] += bf_heating_estimator_increment * boltzmann_factor
 
 
 @njit(**njit_dict_no_parallel)
@@ -114,7 +120,7 @@ def update_line_estimators(
 
     radfield_mc_estimators.j_blue_estimator[
         cur_line_id, r_packet.current_shell_id
-    ] += (energy / r_packet.nu)
+    ] += energy / r_packet.nu
     radfield_mc_estimators.Edotlu_estimator[
         cur_line_id, r_packet.current_shell_id
     ] += energy

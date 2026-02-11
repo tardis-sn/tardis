@@ -39,6 +39,8 @@ def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
 
     stim_recomb_cooling_estimator = np.zeros(gamma_shape, dtype=np.float64)
 
+    ff_heating_estimator = np.zeros(gamma_shape[1], dtype=np.float64)
+
     photo_ion_estimator_statistics = np.zeros(gamma_shape, dtype=np.int64)
     return RadiationFieldMCEstimators(
         j_estimator,
@@ -49,6 +51,7 @@ def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
         stim_recomb_estimator,
         bf_heating_estimator,
         stim_recomb_cooling_estimator,
+        ff_heating_estimator,
         photo_ion_estimator_statistics,
     )
 
@@ -65,6 +68,7 @@ continuum_estimators_spec = [
     ("stim_recomb_estimator", float64[:, :]),
     ("bf_heating_estimator", float64[:, :]),
     ("stim_recomb_cooling_estimator", float64[:, :]),
+    ("ff_heating_estimator", float64[:]),
     ("photo_ion_estimator_statistics", int64[:, :]),
 ]
 
@@ -81,6 +85,7 @@ class RadiationFieldMCEstimators:
         stim_recomb_estimator,
         bf_heating_estimator,
         stim_recomb_cooling_estimator,
+        ff_heating_estimator,
         photo_ion_estimator_statistics,
     ):
         self.j_estimator = j_estimator
@@ -91,6 +96,7 @@ class RadiationFieldMCEstimators:
         self.stim_recomb_estimator = stim_recomb_estimator
         self.bf_heating_estimator = bf_heating_estimator
         self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
+        self.ff_heating_estimator = ff_heating_estimator
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
     def increment(self, other):
@@ -116,6 +122,7 @@ class RadiationFieldMCEstimators:
         self.stim_recomb_cooling_estimator += (
             other.stim_recomb_cooling_estimator
         )
+        self.ff_heating_estimator += other.ff_heating_estimator
         self.photo_ion_estimator_statistics += (
             other.photo_ion_estimator_statistics
         )
@@ -134,6 +141,7 @@ class RadiationFieldMCEstimators:
                     np.copy(self.stim_recomb_estimator),
                     np.copy(self.bf_heating_estimator),
                     np.copy(self.stim_recomb_cooling_estimator),
+                    np.copy(self.ff_heating_estimator),
                     np.copy(self.photo_ion_estimator_statistics),
                 )
             )

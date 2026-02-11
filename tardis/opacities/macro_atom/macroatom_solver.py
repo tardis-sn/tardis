@@ -12,14 +12,14 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_deexc_to_k_packet,
     collisional_transition_excitation_cool,
     collisional_transition_internal_down,
-    collisional_transition_internal_up,
+    collisional_transition_excitation_to_macro_atom,
     continuum_transition_photoionization,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
     probability_collision_deexc_to_k_packet,
     probability_collision_excitation_cool,
     probability_collision_internal_down,
-    probability_collision_internal_up,
+    probability_collision_exc_to_macro,
     probability_photoionization,
     probability_recombination_emission,
     probability_recombination_internal,
@@ -1045,7 +1045,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
         p_coll_internal_up, coll_internal_up_metadata = (
-            collisional_transition_internal_up(
+            collisional_transition_excitation_to_macro_atom(
                 coll_exc_coeff, electron_densities, self._coll_energies_lower
             )
         )
@@ -1204,7 +1204,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ].collision_key_idx.to_numpy()
         collisional_up_cool_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_UP_COOLING  # TODO: Something with this - Currently not used
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO  # TODO: Something with this - Currently not used
         ].collision_key_idx.to_numpy()
         collisional_down_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
@@ -1212,7 +1212,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ].collision_key_idx.to_numpy()
         collisional_up_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_UP_INTERNAL
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
         ].collision_key_idx.to_numpy()
 
         probabilities_df = pd.DataFrame(
@@ -1325,8 +1325,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_UP_INTERNAL
-        ] = probability_collision_internal_up(
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
+        ] = probability_collision_exc_to_macro(
             coll_exc_coeff.iloc[collisional_up_internal_idxs],
             electron_densities,
             self._coll_energies_lower.iloc[collisional_up_internal_idxs],
@@ -1336,7 +1336,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         # if they don't get reordered this should be fine
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_UP_COOLING
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
         ] = probability_collision_excitation_cool(
             coll_exc_coeff,
             electron_densities,

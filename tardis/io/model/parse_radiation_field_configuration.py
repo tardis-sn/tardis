@@ -1,38 +1,49 @@
 import logging
 
 import numpy as np
+import pandas as pd
 from astropy import units as u
 
 from tardis import constants as const
+from tardis.io.configuration.config_reader import (
+    Configuration,
+)
 from tardis.io.model.parse_geometry_configuration import (
     parse_structure_from_config,
 )
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-from tardis.radiation_field.validate_radiation_field import validate_radiative_temperature
+from tardis.radiation_field.validate_radiation_field import (
+    validate_radiative_temperature,
+)
+from tardis.transport.montecarlo.packet_source.base import BasePacketSource
 
 logger = logging.getLogger(__name__)
 
 
 def parse_radiation_field_state_from_config(
-    config, geometry, dilution_factor=None, packet_source=None
-):
-    """
-    Parses the radiation field state based on the provided configuration, radiative temperature, geometry, dilution factor, and packet source.
+    config: Configuration,
+    geometry: HomologousRadial1DGeometry,
+    dilution_factor: np.ndarray | None = None,
+    packet_source: BasePacketSource | None = None,
+) -> DilutePlanckianRadiationField:
+    """Parses the radiation field state based on the provided configuration,
+    geometry, dilution factor, and packet source.
 
     Parameters
     ----------
-    config : Config
+    config
         The configuration object.
-    geometry : Geometry
+    geometry
         The geometry object.
-    dilution_factor : {None, ndarray}, optional
+    dilution_factor
         The dilution factor. If None, it is calculated based on the geometry.
-    packet_source : {None, PacketSource}, optional
+    packet_source
         The packet source object.
 
     Returns
     -------
-    DiluteThermalRadiationFieldState
+    radiation_field
         The parsed radiation field state.
 
     Raises
@@ -69,26 +80,30 @@ def parse_radiation_field_state_from_config(
 
 
 def parse_radiation_field_state_from_csvy(
-    config, csvy_model_config, csvy_model_data, geometry, packet_source
-):
+    config: Configuration,
+    csvy_model_config: Configuration,
+    csvy_model_data: pd.DataFrame | None,
+    geometry: HomologousRadial1DGeometry,
+    packet_source: BasePacketSource,
+) -> DilutePlanckianRadiationField:
     """Parses the radiation field state for CSVY model inputs.
 
     Parameters
     ----------
-    config : Config
+    config
         The configuration object.
-    csvy_model_config : Config
+    csvy_model_config
         CSVY model configuration.
-    csvy_model_data : Config
-        CSVY model data
-    geometry : Geometry
+    csvy_model_data
+        CSVY model data.
+    geometry
         The geometry object.
-    packet_source : {None, PacketSource}, optional
+    packet_source
         The packet source object.
 
     Returns
     -------
-    DiluteThermalRadiationFieldState
+    radiation_field
         The parsed radiation field state.
     """
     t_radiative = None
@@ -126,20 +141,23 @@ def parse_radiation_field_state_from_csvy(
     return DilutePlanckianRadiationField(t_radiative, dilution_factor, geometry)
 
 
-def calculate_t_radiative_from_t_inner(geometry, packet_source):
-    """
-    Calculates the radiative temperature based on the inner temperature and the geometry of the system.
+def calculate_t_radiative_from_t_inner(
+    geometry: HomologousRadial1DGeometry,
+    packet_source: BasePacketSource,
+) -> u.Quantity:
+    """Calculates the radiative temperature based on the inner temperature
+    and the geometry of the system.
 
     Parameters
     ----------
-    geometry : Geometry
+    geometry
         The geometry object.
-    packet_source : PacketSource
+    packet_source
         The packet source object.
 
     Returns
     -------
-    Quantity
+    t_radiative
         The calculated radiative temperature.
     """
     lambda_wien_inner = const.b_wien / packet_source.temperature
@@ -150,18 +168,20 @@ def calculate_t_radiative_from_t_inner(geometry, packet_source):
     return t_radiative
 
 
-def calculate_geometric_dilution_factor(geometry):
+def calculate_geometric_dilution_factor(
+    geometry: HomologousRadial1DGeometry,
+) -> np.ndarray:
     """Calculates the geometric dilution factor w for models without a defined w.
 
     Parameters
     ----------
-    geometry : Geometry
-        The geometry object
+    geometry
+        The geometry object.
 
     Returns
     -------
-    np.array
-        The dilution factors for the inout geometry
+    dilution_factors
+        The dilution factors for the input geometry.
     """
     value = (
         1

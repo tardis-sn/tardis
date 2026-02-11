@@ -4,8 +4,10 @@ from pathlib import Path
 import numpy as np
 from astropy import units as u
 
+from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
+from tardis.io.model.csvy import load_csvy
 from tardis.io.model.parse_composition_configuration import (
     parse_composition_from_config,
     parse_composition_from_csvy,
@@ -21,10 +23,6 @@ from tardis.io.model.parse_radiation_field_configuration import (
     parse_radiation_field_state_from_config,
     parse_radiation_field_state_from_csvy,
 )
-from tardis.io.model.readers.csvy import (
-    load_csvy,
-)
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.util.base import is_valid_nuclide_or_elem
 
 logger = logging.getLogger(__name__)
@@ -140,8 +138,7 @@ class SimulationState(HDFWriterMixin):
             ] = new_dilution_factor
         else:
             raise ValueError(
-                "Trying to set dilution_factor for unmatching number"
-                "of shells."
+                "Trying to set dilution_factor for unmatching numberof shells."
             )
 
     @property
@@ -163,7 +160,10 @@ class SimulationState(HDFWriterMixin):
 
     def calculate_elemental_number_density(self, element_masses):
         elemental_number_density = (
-            (self.composition.elemental_mass_fraction * self.composition.density)
+            (
+                self.composition.elemental_mass_fraction
+                * self.composition.density
+            )
             .divide(element_masses, axis=0)
             .dropna()
         )
@@ -270,18 +270,24 @@ class SimulationState(HDFWriterMixin):
         return self.geometry.no_of_shells
 
     @classmethod
-    def from_config(cls, config, atom_data, legacy_mode_enabled=False):
-        """
-        Create a new SimulationState instance from a Configuration object.
+    def from_config(
+        cls, config: Configuration, atom_data: AtomData, legacy_mode_enabled: bool = False
+    ) -> "SimulationState":
+        """Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
-        config : tardis.io.config_reader.Configuration
-        atom_data : tardis.io.AtomData
+        config
+            Configuration object.
+        atom_data
+            Atom data.
+        legacy_mode_enabled
+            Flag indicating if legacy mode is enabled.
 
         Returns
         -------
-        SimulationState
+        simulation_state
+            The initialized simulation state.
         """
         time_explosion = config.supernova.time_explosion.cgs
 
@@ -312,18 +318,25 @@ class SimulationState(HDFWriterMixin):
         )
 
     @classmethod
-    def from_csvy(cls, config, atom_data=None, legacy_mode_enabled=False):
+    def from_csvy(
+        cls,
+        config: Configuration,
+        legacy_mode_enabled: bool = False,
+    ) -> "SimulationState":
         """
         Create a new SimulationState instance from a Configuration object.
 
         Parameters
         ----------
         config : tardis.io.config_reader.Configuration
-        atom_data : tardis.io.AtomData
+            Configuration object containing CSVY model path.
+        legacy_mode_enabled : bool, optional
+            Flag indicating if legacy mode is enabled, default is False.
 
         Returns
         -------
         SimulationState
+            The initialized simulation state.
         """
         CSVY_SUPPORTED_COLUMNS = {
             "velocity",
@@ -336,33 +349,29 @@ class SimulationState(HDFWriterMixin):
             csvy_model_fname = config.csvy_model
         else:
             csvy_model_fname = Path(config.config_dirname) / config.csvy_model
-        csvy_model_config, csvy_model_data = load_csvy(csvy_model_fname)
-        csvy_schema_fname = SCHEMA_DIR / "csvy_model.yml"
-        csvy_model_config = Configuration(
-            validate_dict(csvy_model_config, schemapath=csvy_schema_fname)
-        )
+        csvy_data = load_csvy(csvy_model_fname)
 
-        if hasattr(csvy_model_data, "columns"):
+        if hasattr(csvy_data.raw_csv_data, "columns"):
             abund_names = {
                 name
-                for name in csvy_model_data.columns
+                for name in csvy_data.raw_csv_data.columns
                 if is_valid_nuclide_or_elem(name)
             }
             unsupported_columns = (
-                set(csvy_model_data.columns)
+                set(csvy_data.raw_csv_data.columns)
                 - abund_names
                 - CSVY_SUPPORTED_COLUMNS
             )
 
             field_names = {
-                field["name"] for field in csvy_model_config.datatype.fields
+                field["name"] for field in csvy_data.model_config.datatype.fields
             }
-            assert (
-                set(csvy_model_data.columns) - field_names == set()
-            ), "CSVY columns exist without field descriptions"
-            assert (
-                field_names - set(csvy_model_data.columns) == set()
-            ), "CSVY field descriptions exist without corresponding csv data"
+            assert set(csvy_data.raw_csv_data.columns) - field_names == set(), (
+                "CSVY columns exist without field descriptions"
+            )
+            assert field_names - set(csvy_data.raw_csv_data.columns) == set(), (
+                "CSVY field descriptions exist without corresponding csv data"
+            )
             if unsupported_columns != set():
                 logger.warning(
                     "The following columns are "
@@ -375,13 +384,12 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
 
         geometry = parse_geometry_from_csvy(
-            config, csvy_model_config, csvy_model_data, time_explosion
+            config, csvy_data.model_config, csvy_data.raw_csv_data, time_explosion
         )
 
         composition = parse_composition_from_csvy(
-            atom_data,
-            csvy_model_config,
-            csvy_model_data,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
             time_explosion,
             geometry,
         )
@@ -391,7 +399,7 @@ class SimulationState(HDFWriterMixin):
         )
 
         radiation_field_state = parse_radiation_field_state_from_csvy(
-            config, csvy_model_config, csvy_model_data, geometry, packet_source
+            config, csvy_data.model_config, csvy_data.raw_csv_data, geometry, packet_source
         )
 
         return cls(
