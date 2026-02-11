@@ -2,8 +2,9 @@ import numpy as np
 import pandas as pd
 from numba import njit, prange
 
-from tardis.transport.montecarlo import njit_dict
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.transport.montecarlo import njit_dict
+
 
 def bound_free_estimator_array2frame(
     bound_free_estimator_array, level2continuum_idx

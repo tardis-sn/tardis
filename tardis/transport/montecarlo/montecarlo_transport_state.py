@@ -50,16 +50,17 @@ class MonteCarloTransportState(HDFWriterMixin):
     def __init__(
         self,
         packet_collection,
-        radfield_mc_estimators,
         geometry_state,
         opacity_state,
         time_explosion,
+        gamma_shape,
         tracker_full_df=None,
         tracker_last_interaction_df=None,
         vpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
-        self.radfield_mc_estimators = radfield_mc_estimators
+        self.gamma_shape = gamma_shape
+        self.radfield_mc_estimators = None
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
         self.time_explosion = time_explosion

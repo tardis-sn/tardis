@@ -14,9 +14,6 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
 )
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    initialize_estimator_statistics,
-)
 from tardis.transport.montecarlo.montecarlo_main_loop import (
     montecarlo_main_loop,
 )
@@ -25,10 +22,8 @@ from tardis.transport.montecarlo.montecarlo_transport_state import (
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
-)
-from tardis.transport.montecarlo.packets.trackers.tracker_full_util import tracker_full_df2tracker_last_interaction_df, trackers_full_to_df
-from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
-    TrackerLastInteraction,
+    tracker_full_df2tracker_last_interaction_df,
+    trackers_full_to_df,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (
     generate_tracker_last_interaction_list,
@@ -131,16 +126,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
         ]
 
-        estimators = initialize_estimator_statistics(
-            opacity_state_numba.tau_sobolev.shape, gamma_shape
-        )
-
         transport_state = MonteCarloTransportState(
             packet_collection,
-            estimators,
             geometry_state=geometry_state,
             opacity_state=opacity_state_numba,
             time_explosion=simulation_state.time_explosion,
+            gamma_shape=gamma_shape,
         )
 
         transport_state.enable_full_relativity = (
@@ -197,18 +188,22 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         (
             v_packets_energy_hist,
             vpacket_tracker,
+            estimators,
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
             transport_state.time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
-            transport_state.radfield_mc_estimators,
+            transport_state.gamma_shape,
             self.spectrum_frequency_grid.value,
             trackers_list,
             number_of_vpackets,
             show_progress_bars=show_progress_bars,
         )
+
+        # Attach estimators to transport state
+        transport_state.radfield_mc_estimators = estimators
 
         # Last interaction trackers are already populated directly in the list
         # No finalization needed with direct list approach

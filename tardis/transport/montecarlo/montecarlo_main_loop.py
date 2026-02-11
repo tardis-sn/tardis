@@ -6,18 +6,16 @@ from numba.typed import List
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
 from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
+    initialize_estimator_statistics,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
     VPacketCollection,
     consolidate_vpacket_tracker,
-    initialize_last_interaction_tracker,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
@@ -36,7 +34,7 @@ def montecarlo_main_loop(
     time_explosion: float,
     opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
-    estimators: RadiationFieldMCEstimators,
+    gamma_shape: tuple,
     spectrum_frequency_grid: np.ndarray,
     trackers: List,
     number_of_vpackets: int,
@@ -65,9 +63,8 @@ def montecarlo_main_loop(
     montecarlo_configuration : MonteCarloConfiguration
         Configuration object containing Monte Carlo simulation parameters
         and flags for various physics modules
-    estimators : RadfieldMCEstimators
-        Estimator object for collecting radiation field statistics
-        during packet propagation
+    gamma_shape : tuple
+        Shape of the gamma array for initializing estimators
     spectrum_frequency_grid : numpy.ndarray
         Frequency grid array for virtual packet spectrum calculation
     rpacket_trackers : numba.typed.List
@@ -83,13 +80,18 @@ def montecarlo_main_loop(
         A tuple containing:
         - v_packets_energy_hist : numpy.ndarray
             Energy histogram of virtual packets binned by frequency
-        - last_interaction_tracker : LastInteractionTracker
-            Object tracking the last interaction properties for each packet
         - vpacket_tracker : VPacketCollection
             Consolidated virtual packet collection containing all virtual
             packet information from the simulation
+        - estimators : RadiationFieldMCEstimators
+            Updated estimator object containing radiation field statistics
+            collected during packet propagation
     """
     no_of_packets = len(packet_collection.initial_nus)
+
+    # Initialize estimators inside the loop
+    tau_sobolev_shape = opacity_state_numba.tau_sobolev.shape
+    estimators = initialize_estimator_statistics(tau_sobolev_shape, gamma_shape)
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
     delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
@@ -167,7 +169,7 @@ def montecarlo_main_loop(
 
         # Finalize the tracker (e.g. trim arrays to actual size)
         tracker.finalize()
-        
+
         # Finalize the vpacket collection to trim arrays to actual size
         vpacket_collection.finalize_arrays()
 
@@ -205,4 +207,5 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         vpacket_tracker,
+        estimators,
     )

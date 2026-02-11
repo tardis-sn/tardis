@@ -1,9 +1,10 @@
 import numpy as np
-from numba import float64, int64
+from numba import float64, int64, njit
 from numba.experimental import jitclass
 from numba.typed import List
 
 
+@njit
 def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
     """
     Initializes the estimators used in the Monte Carlo simulation.
@@ -42,6 +43,7 @@ def initialize_estimator_statistics(tau_sobolev_shape, gamma_shape):
     ff_heating_estimator = np.zeros(gamma_shape[1], dtype=np.float64)
 
     photo_ion_estimator_statistics = np.zeros(gamma_shape, dtype=np.int64)
+
     return RadiationFieldMCEstimators(
         j_estimator,
         nu_bar_estimator,
