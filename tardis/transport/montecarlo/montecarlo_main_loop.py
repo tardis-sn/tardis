@@ -171,6 +171,9 @@ def montecarlo_main_loop(
         # Finalize the vpacket collection to trim arrays to actual size
         vpacket_collection.finalize_arrays()
 
+    # Bin vpacket energies sequentially to avoid race conditions in prange
+    for i in range(no_of_packets):
+        vpacket_collection = vpacket_collections[i]
         v_packets_idx = np.floor(
             (vpacket_collection.nus - spectrum_frequency_grid[0]) / delta_nu
         ).astype(np.int64)
