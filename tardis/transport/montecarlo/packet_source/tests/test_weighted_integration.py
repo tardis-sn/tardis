@@ -1,69 +1,62 @@
 from copy import deepcopy
 
 import numpy.testing as npt
-import pandas as pd
 import pytest
 
 from tardis.simulation import Simulation
 
 
-@pytest.mark.xfail(reason="Relies on later test")
-def test_montecarlo_main_loop_weighted(
+@pytest.fixture(scope="function")
+def weighted_transport_state(
     montecarlo_main_loop_config,
-    regression_data,
     atomic_dataset,
     simple_weighted_packet_source,
 ):
     atomic_dataset = deepcopy(atomic_dataset)
-    montecarlo_main_loop_simulation_weighted = Simulation.from_config(
+
+    simulation = Simulation.from_config(
         montecarlo_main_loop_config,
         atom_data=atomic_dataset,
         virtual_packet_logging=False,
         legacy_mode_enabled=True,
     )
-    montecarlo_main_loop_simulation_weighted.packet_source = (
-        simple_weighted_packet_source
-    )
-    montecarlo_main_loop_simulation_weighted.run_convergence()
-    montecarlo_main_loop_simulation_weighted.run_final()
 
-    # Get the montecarlo simple regression data
-    # Directly use the regression data path to construct the path
-    regression_data_dir = (
-        regression_data.regression_data_path
-        / "tardis/transport/montecarlo/tests/test_montecarlo_main_loop/test_montecarlo_main_loop.h5"
-    )
-    expected_hdf_store = pd.HDFStore(regression_data_dir, mode="r")
+    simulation.packet_source = simple_weighted_packet_source
+    simulation.run_convergence()
+    simulation.run_final()
 
-    # Load compare data from refdata
+    return simulation.transport.transport_state
 
-    expected_nu = expected_hdf_store[
-        "/simulation/transport/transport_state/output_nu"
-    ]
-    expected_energy = expected_hdf_store[
-        "/simulation/transport/transport_state/output_energy"
-    ]
-    expected_nu_bar_estimator = expected_hdf_store[
-        "/simulation/transport/transport_state/nu_bar_estimator"
-    ]
-    expected_j_estimator = expected_hdf_store[
-        "/simulation/transport/transport_state/j_estimator"
-    ]
-    expected_hdf_store.close()
-    transport_state = (
-        montecarlo_main_loop_simulation_weighted.transport.transport_state
-    )
-    actual_energy = transport_state.packet_collection.output_energies
-    actual_nu = transport_state.packet_collection.output_nus
-    actual_nu_bar_estimator = (
-        transport_state.radfield_mc_estimators.nu_bar_estimator
-    )
-    actual_j_estimator = transport_state.radfield_mc_estimators.j_estimator
 
-    # Compare
+@pytest.mark.parametrize(
+    "attr_name, getter",
+    [
+        ("output_energies", lambda ts: ts.packet_collection.output_energies),
+        ("output_nus", lambda ts: ts.packet_collection.output_nus),
+        ("nu_bar_estimator", lambda ts: ts.radfield_mc_estimators.nu_bar_estimator),
+        ("j_estimator", lambda ts: ts.radfield_mc_estimators.j_estimator),
+    ],
+    ids=[
+        "output_energies",
+        "output_nus",
+        "nu_bar_estimator",
+        "j_estimator",
+    ],
+)
+def test_montecarlo_main_loop_weighted(
+    weighted_transport_state,
+    regression_data,
+    attr_name,
+    getter,
+):
+    actual_value = getter(weighted_transport_state)
+
+    regression_data.fname = f"test_montecarlo_main_loop_weighted__{attr_name}"
+    expected_value = regression_data.sync_ndarray(actual_value)
+
     npt.assert_allclose(
-        actual_nu_bar_estimator, expected_nu_bar_estimator, rtol=1e-2
+        actual_value,
+        expected_value,
+        rtol=1e-2,
+        err_msg=f"Mismatch in {attr_name}",
     )
-    npt.assert_allclose(actual_j_estimator, expected_j_estimator, rtol=1e-2)
-    npt.assert_allclose(actual_energy, expected_energy, rtol=1e-2)
-    npt.assert_allclose(actual_nu, expected_nu, rtol=1e-2)
