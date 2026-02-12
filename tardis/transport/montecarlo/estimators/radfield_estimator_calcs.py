@@ -156,9 +156,9 @@ def update_estimators_line(
     else:
         energy = calc_packet_energy_full_relativity(r_packet)
 
-    estimators_line.mean_intensity_blue[
+    estimators_line.mean_intensity_blueward[
         cur_line_id, r_packet.current_shell_id
     ] += energy / r_packet.nu
-    estimators_line.energy_deposition_line[
+    estimators_line.energy_deposition_line_rate[
         cur_line_id, r_packet.current_shell_id
     ] += energy

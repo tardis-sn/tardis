@@ -164,7 +164,7 @@ def test_estimated_photoionization_coeff_solver(regression_data):
 
     # Initialize with correct factory signature
     estimators_continuum = init_estimators_continuum(
-        gamma_shape=(3, 1), n_cells=1
+        n_levels_bf_species_by_n_cells_tuple=(3, 1), n_cells=1
     )
 
     # Set the estimator values

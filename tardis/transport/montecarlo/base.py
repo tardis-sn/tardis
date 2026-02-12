@@ -107,11 +107,11 @@ class MonteCarloTransportSolver(HDFWriterMixin):
     ):
         if not plasma.continuum_interaction_species.empty:
             if plasma.gamma is not None:
-                gamma_shape = plasma.gamma.shape
+                n_levels_bf_species_by_n_cells_tuple = plasma.gamma.shape
             else:
-                gamma_shape = plasma.phi_lucy.shape
+                n_levels_bf_species_by_n_cells_tuple = plasma.phi_lucy.shape
         else:
-            gamma_shape = (0, 0)
+            n_levels_bf_species_by_n_cells_tuple = (0, 0)
 
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
@@ -131,7 +131,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             geometry_state=geometry_state,
             opacity_state=opacity_state_numba,
             time_explosion=simulation_state.time_explosion,
-            gamma_shape=gamma_shape,
+            n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
 
         transport_state.enable_full_relativity = (
@@ -197,7 +197,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             transport_state.time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
-            transport_state.gamma_shape,
+            transport_state.n_levels_bf_species_by_n_cells_tuple,
             self.spectrum_frequency_grid.value,
             trackers_list,
             number_of_vpackets,
