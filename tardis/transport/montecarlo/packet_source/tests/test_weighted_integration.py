@@ -55,9 +55,7 @@ def test_montecarlo_main_loop_weighted(
     )
     actual_energy = transport_state.packet_collection.output_energies
     actual_nu = transport_state.packet_collection.output_nus
-    actual_nu_bar_estimator = (
-        transport_state.estimators_bulk.mean_frequency
-    )
+    actual_nu_bar_estimator = transport_state.estimators_bulk.mean_frequency
     actual_j_estimator = transport_state.estimators_bulk.mean_intensity_total
 
     # Compare

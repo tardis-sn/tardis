@@ -23,7 +23,11 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 
 @njit(**njit_dict_no_parallel)
 def update_estimators_bulk(
-    r_packet, distance, estimators_bulk: EstimatorsBulk, comov_nu, comov_energy
+    r_packet,
+    distance: float,
+    estimators_bulk: EstimatorsBulk,
+    comov_nu: float,
+    comov_energy: float,
 ) -> None:
     """
     Update cell-level bulk radiation field estimators.
@@ -51,16 +55,16 @@ def update_estimators_bulk(
 
 @njit(**njit_dict_no_parallel)
 def update_estimators_bound_free(
-    comov_nu,
-    comov_energy,
-    shell_id,
-    distance,
+    comov_nu: float,
+    comov_energy: float,
+    shell_id: int,
+    distance: float,
     estimators_continuum: EstimatorsContinuum,
-    t_electron,
+    t_electron: float,
     x_sect_bfs,
     current_continua,
     bf_threshold_list_nu,
-    chi_ff,
+    chi_ff: float,
 ) -> None:
     """
     Update the estimators for bound-free processes.
@@ -124,10 +128,10 @@ def update_estimators_bound_free(
 def update_estimators_line(
     estimators_line: EstimatorsLine,
     r_packet,
-    cur_line_id,
-    distance_trace,
-    time_explosion,
-    enable_full_relativity,
+    cur_line_id: int,
+    distance_trace: float,
+    time_explosion: float,
+    enable_full_relativity: bool,
 ) -> None:
     """
     Update line-level radiation field estimators.

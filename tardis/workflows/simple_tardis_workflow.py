@@ -432,7 +432,10 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         }
 
     def solve_montecarlo(
-        self, opacity_states: dict, no_of_real_packets: int, no_of_virtual_packets: int = 0
+        self,
+        opacity_states: dict,
+        no_of_real_packets: int,
+        no_of_virtual_packets: int = 0,
     ) -> np.ndarray:
         """Solve the MonteCarlo process
 

@@ -6,6 +6,7 @@ import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
 from astropy import units as u
+
 from tardis import constants as const
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 

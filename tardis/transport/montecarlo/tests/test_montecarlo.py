@@ -16,6 +16,7 @@ from tardis.transport.frame_transformations import (
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
 )
+from tardis.transport.montecarlo.estimators import init_estimators_bulk
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -365,7 +366,6 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     doppler_factor = get_doppler_factor(
         packet.r, packet.mu, time_explosion, full_relativity
     )
-    from tardis.transport.montecarlo.estimators import init_estimators_bulk
 
     numba_estimator = init_estimators_bulk(
         mean_intensity_total=packet_params["j"],
@@ -525,7 +525,6 @@ def test_compute_distance2line_relativistic(
 ):
     packet = radiative_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
     # packet.nu_line = nu_line
-    from tardis.transport.montecarlo.estimators import init_estimators_bulk
 
     numba_estimator = init_estimators_bulk(
         mean_intensity_total=transport.j_estimator,

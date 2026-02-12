@@ -29,6 +29,7 @@ def test_run_tardis_from_config_obj(
     except Exception as e:
         pytest.fail(str(e.args[0]))
 
+
 def test_run_tardis_simulation_callbacks_none(
     atomic_data_fname, example_configuration_dir: Path
 ):
@@ -45,6 +46,7 @@ def test_run_tardis_simulation_callbacks_none(
         assert isinstance(sim, Simulation)
     except Exception as e:
         pytest.fail(f"run_tardis failed with simulation_callbacks=None: {e}")
+
 
 class TestTransportSimple:
     """

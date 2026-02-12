@@ -6,7 +6,6 @@ import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
@@ -14,6 +13,7 @@ from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_line,
 )
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
@@ -42,6 +42,7 @@ def time_explosion():
 @pytest.fixture(scope="function")
 def estimators():
     from tardis.transport.montecarlo.estimators import EstimatorsLine
+
     return EstimatorsLine(
         mean_intensity_blue=np.array(
             [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64
@@ -222,7 +223,8 @@ def test_trace_packet(
     packet,
     verysimple_time_explosion,
     verysimple_opacity_state,
-    verysimple_estimators,
+    verysimple_geometry,
+    verysimple_estimators_line,
     set_seed_fixture,
 ):
     set_seed_fixture(1963)
@@ -231,9 +233,12 @@ def test_trace_packet(
     )
     distance, interaction_type, delta_shell = r_packet_transport.trace_packet(
         packet,
+        verysimple_geometry,
         verysimple_time_explosion,
         verysimple_opacity_state,
-        verysimple_estimators,
+        verysimple_estimators_line,
+        chi_continuum=1.0,  # Placeholder value
+        escat_prob=0.5,  # Placeholder value
         enable_full_relativity=False,
         disable_line_scattering=False,
     )

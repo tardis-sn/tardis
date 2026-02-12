@@ -2,6 +2,8 @@ import numpy as np
 from numba import njit
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
@@ -10,6 +12,12 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_line,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
+)
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bulk,
     update_estimators_line,
@@ -17,38 +25,50 @@ from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
+    RPacket,
 )
 
 
 @njit(**njit_dict_no_parallel)
 def trace_packet(
-    r_packet,
-    numba_radial_1d_geometry,
-    time_explosion,
-    opacity_state,
-    estimators_bulk,
-    estimators_line,
-    chi_continuum,
-    escat_prob,
-    enable_full_relativity,
-    disable_line_scattering,
-):
+    r_packet: RPacket,
+    numba_radial_1d_geometry: NumbaRadial1DGeometry,
+    time_explosion: float,
+    opacity_state: OpacityStateNumba,
+    estimators_line: EstimatorsLine,
+    chi_continuum: float,
+    escat_prob: float,
+    enable_full_relativity: bool,
+    disable_line_scattering: bool,
+) -> tuple:
     """
-    Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation)
+    Traces the RPacket through the ejecta and stops when an interaction happens (heart of the calculation).
 
     Parameters
     ----------
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    numba_radial_1d_geometry : tardis.transport.montecarlo.numba_interface.NumbaRadial1DGeometry
-    time_explosion : float
-    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
-    estimators_bulk : EstimatorsBulk
-        Cell-level bulk radiation field estimators
-    estimators_line : EstimatorsLine
+    r_packet
+        The radiative packet being transported
+    numba_radial_1d_geometry
+        Radial 1D geometry of the model
+    time_explosion
+        Time since explosion in seconds
+    opacity_state
+        Opacity state containing line list and tau sobolev
+    estimators_line
         Line-level radiation field estimators
+    chi_continuum
+        Continuum opacity
+    escat_prob
+        Probability of electron scattering
+    enable_full_relativity
+        Flag to enable full relativistic calculations
+    disable_line_scattering
+        Flag to disable line scattering
 
     Returns
     -------
+    tuple
+        (distance, interaction_type, delta_shell)
     """
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
@@ -181,21 +201,27 @@ def trace_packet(
 
 @njit(**njit_dict_no_parallel)
 def move_r_packet(
-    r_packet, distance, time_explosion, estimators_bulk, enable_full_relativity
-):
+    r_packet: RPacket,
+    distance: float,
+    time_explosion: float,
+    estimators_bulk: EstimatorsBulk,
+    enable_full_relativity: bool,
+) -> None:
     """
-    Move packet a distance and recalculate the new angle mu
+    Move packet a distance and recalculate the new angle mu.
 
     Parameters
     ----------
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
-        r_packet objects
-    time_explosion : float
-        time since explosion in s
-    estimators_bulk : EstimatorsBulk
+    r_packet
+        Radiative packet object
+    distance
+        Distance to move in cm
+    time_explosion
+        Time since explosion in seconds
+    estimators_bulk
         Cell-level bulk radiation field estimators
-    distance : float
-        distance in cm
+    enable_full_relativity
+        Flag to enable full relativistic calculations
     """
     doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
@@ -222,22 +248,21 @@ def move_r_packet(
 
 
 @njit(**njit_dict_no_parallel)
-def move_packet_across_shell_boundary(packet, delta_shell, no_of_shells):
+def move_packet_across_shell_boundary(
+    packet: RPacket, delta_shell: int, no_of_shells: int
+) -> None:
     """
     Move packet across shell boundary - realizing if we are still in the simulation or have
-    moved out through the inner boundary or outer boundary and updating packet
-    status.
+    moved out through the inner boundary or outer boundary and updating packet status.
 
     Parameters
     ----------
-    distance : float
-        distance to move to shell boundary
-
-    delta_shell : int
-        is +1 if moving outward or -1 if moving inward
-
-    no_of_shells : int
-        number of shells in TARDIS simulation
+    packet
+        Radiative packet object
+    delta_shell
+        Change in shell index (+1 if moving outward or -1 if moving inward)
+    no_of_shells
+        Number of shells in TARDIS simulation
     """
     next_shell_id = packet.current_shell_id + delta_shell
 

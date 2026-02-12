@@ -4,6 +4,9 @@ import pandas as pd
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
+from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    EstimatorsContinuum,
+)
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
 )
@@ -20,26 +23,25 @@ class MCContinuumPropertiesSolver:
 
     def solve(
         self,
-        estimators_continuum,
-        time_simulation,
-        volume,
-    ):
+        estimators_continuum: EstimatorsContinuum,
+        time_simulation: float,
+        volume: float,
+    ) -> "ContinuumProperties":
         """
         Solve for the continuum properties.
 
         Parameters
         ----------
-        estimators_continuum : EstimatorsContinuum
+        estimators_continuum
             The Monte Carlo estimators for the continuum radiation field.
-        time_simulation : float
+        time_simulation
             The simulation time.
-        volume : float
+        volume
             The volume of the cells.
 
         Returns
         -------
-        ContinuumProperties
-            The calculated continuum properties.
+        The calculated continuum properties.
         """
         photo_ion_norm_factor = (time_simulation * volume * H) ** -1
 
