@@ -134,7 +134,7 @@ def update_estimators_line(
     enable_full_relativity: bool,
 ) -> None:
     """
-    Update line-level radiation field estimators.
+    Update line-level radiation field estimators in place by thread.
 
     Parameters
     ----------
