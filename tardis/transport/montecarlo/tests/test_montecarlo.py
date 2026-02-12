@@ -13,9 +13,6 @@ from tardis.transport.frame_transformations import (
     angle_aberration_LF_to_CMF,
     get_doppler_factor,
 )
-from tardis.transport.montecarlo.estimators.legacy_mc_estimators import (
-    RadiationFieldMCEstimators,
-)
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
 )
@@ -93,6 +90,7 @@ The tests written further (till next block comment is encountered) have been
 categorized as important tests, these tests correspond to methods which are
 relatively old and stable code.
 """
+
 
 def test_get_random_mu_different_output():
     """
@@ -367,8 +365,11 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     doppler_factor = get_doppler_factor(
         packet.r, packet.mu, time_explosion, full_relativity
     )
-    numba_estimator = RadiationFieldMCEstimators(
-        packet_params["j"], packet_params["nu_bar"], 0, 0
+    from tardis.transport.montecarlo.estimators import init_estimators_bulk
+
+    numba_estimator = init_estimators_bulk(
+        mean_intensity_total=packet_params["j"],
+        mean_frequency=packet_params["nu_bar"],
     )
     r_packet_transport.move_r_packet(
         packet, distance, time_explosion, numba_estimator, full_relativity
@@ -475,7 +476,9 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     inverse_doppler_factor = radiative_packet.get_inverse_doppler_factor(
         r, mu, 1 / inv_t_exp
     )
-    radiative_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
+    radiative_packet.angle_aberration_CMF_to_LF(
+        packet, 1 / inv_t_exp, packet.mu
+    )
 
     doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
     mc.ENABLE_FULL_RELATIVITY = False
@@ -522,11 +525,11 @@ def test_compute_distance2line_relativistic(
 ):
     packet = radiative_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
     # packet.nu_line = nu_line
-    numba_estimator = RadiationFieldMCEstimators(
-        transport.j_estimator,
-        transport.nu_bar_estimator,
-        transport.j_blue_estimator,
-        transport.Edotlu_estimator,
+    from tardis.transport.montecarlo.estimators import init_estimators_bulk
+
+    numba_estimator = init_estimators_bulk(
+        mean_intensity_total=transport.j_estimator,
+        mean_frequency=transport.nu_bar_estimator,
     )
     mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
 

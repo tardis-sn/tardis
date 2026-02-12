@@ -16,22 +16,16 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
     create_estimators_line_list,
     init_estimators_line,
 )
-from tardis.transport.montecarlo.estimators.legacy_mc_estimators import (
-    RadiationFieldMCEstimators,
-    initialize_estimator_statistics,
-)
 
 __all__ = [
     "EstimatedRadiationFieldProperties",
     "EstimatorsBulk",
     "EstimatorsContinuum",
     "EstimatorsLine",
-    "RadiationFieldMCEstimators",
     "create_estimators_bulk_list",
     "create_estimators_continuum_list",
     "create_estimators_line_list",
     "init_estimators_bulk",
     "init_estimators_continuum",
     "init_estimators_line",
-    "initialize_estimator_statistics",
 ]

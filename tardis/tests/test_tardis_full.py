@@ -82,7 +82,7 @@ class TestTransportSimple:
         expected = self.get_expected_data(key)
 
         npt.assert_allclose(
-            simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator,
+            simulation.transport.transport_state.estimators_line.mean_intensity_blue,
             expected.values,
         )
 

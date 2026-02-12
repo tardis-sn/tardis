@@ -6,7 +6,7 @@ import functools
 
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_line_estimators,
+    update_estimators_line,
 )
 
 
@@ -19,10 +19,10 @@ class BenchmarkMontecarloMontecarloNumbaPacket(BenchmarkBase):
 
     @functools.cache
     def setup(self):
-        self.Estimators = self.estimators
+        self.EstimatorsLine = self.estimators_line
         self.StaticPacket = self.static_packet
 
-    def time_update_line_estimators(self):
-        update_line_estimators(
-            self.Estimators, self.StaticPacket, 1, 1e12, 1e10, True
+    def time_update_estimators_line(self):
+        update_estimators_line(
+            self.EstimatorsLine, self.StaticPacket, 1, 1e12, 1e10, True
         )

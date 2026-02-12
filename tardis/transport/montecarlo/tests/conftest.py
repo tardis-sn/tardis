@@ -9,9 +9,6 @@ from tardis.opacities.opacity_state_numba import (
 )
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
-from tardis.transport.montecarlo.estimators.legacy_mc_estimators import (
-    RadiationFieldMCEstimators,
-)
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
@@ -58,23 +55,6 @@ def verysimple_numba_radial_1d_geometry(nb_simulation_verysimple):
 def verysimple_time_explosion(nb_simulation_verysimple):
     model = nb_simulation_verysimple.simulation_state
     return model.time_explosion.cgs.value
-
-
-@pytest.fixture(scope="package")
-def verysimple_estimators(nb_simulation_verysimple):
-    transport = nb_simulation_verysimple.transport
-
-    return RadiationFieldMCEstimators(
-        transport.j_estimator,
-        transport.nu_bar_estimator,
-        transport.j_blue_estimator,
-        transport.Edotlu_estimator,
-        transport.photo_ion_estimator,
-        transport.stim_recomb_estimator,
-        transport.bf_heating_estimator,
-        transport.stim_recomb_cooling_estimator,
-        transport.photo_ion_estimator_statistics,
-    )
 
 
 @pytest.fixture(scope="package")

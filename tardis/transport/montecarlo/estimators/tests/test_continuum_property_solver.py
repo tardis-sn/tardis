@@ -60,7 +60,7 @@ def test_continuum_estimators(
     )
     transport_state = continuum_simulation.transport.transport_state
     continuum_properties_mc = continuum_properties_solver_mc.solve(
-        transport_state.radfield_mc_estimators,
+        transport_state.estimators_continuum,
         transport_state.time_of_simulation,
         transport_state.geometry_state.volume,
     )

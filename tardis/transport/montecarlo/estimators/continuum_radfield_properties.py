@@ -4,9 +4,6 @@ import pandas as pd
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.transport.montecarlo.estimators.legacy_mc_estimators import (
-    RadiationFieldMCEstimators,
-)
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
 )
@@ -23,7 +20,7 @@ class MCContinuumPropertiesSolver:
 
     def solve(
         self,
-        radfield_mc_estimators: RadiationFieldMCEstimators,
+        estimators_continuum,
         time_simulation,
         volume,
     ):
@@ -32,8 +29,8 @@ class MCContinuumPropertiesSolver:
 
         Parameters
         ----------
-        radfield_mc_estimators : RadiationFieldMCEstimators
-            The Monte Carlo estimators for the radiation field.
+        estimators_continuum : EstimatorsContinuum
+            The Monte Carlo estimators for the continuum radiation field.
         time_simulation : float
             The simulation time.
         volume : float
@@ -47,13 +44,13 @@ class MCContinuumPropertiesSolver:
         photo_ion_norm_factor = (time_simulation * volume * H) ** -1
 
         photo_ionization_rate_coefficient = bound_free_estimator_array2frame(
-            radfield_mc_estimators.photo_ion_estimator,
+            estimators_continuum.photo_ion_estimator,
             self.atom_data.level2continuum_edge_idx,
         )
         photo_ionization_rate_coefficient *= photo_ion_norm_factor
 
         stimulated_recomb_rate_factor = bound_free_estimator_array2frame(
-            radfield_mc_estimators.stim_recomb_estimator,
+            estimators_continuum.stim_recomb_estimator,
             self.atom_data.level2continuum_edge_idx,
         )
         stimulated_recomb_rate_factor *= photo_ion_norm_factor

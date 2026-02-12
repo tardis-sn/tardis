@@ -5,7 +5,6 @@ import tardis.opacities.opacities as opacities
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
-import tardis.transport.montecarlo.estimators.legacy_mc_estimators
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 import tardis.transport.montecarlo.r_packet_transport as r_packet_transport

@@ -150,7 +150,6 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.configuration.plasma.nlte,
             initialize_nlte=True,
             n_e_convergence_threshold=0.05,
-            **{},
         )
 
         self.base_continuum = BaseContinuum(
@@ -317,7 +316,8 @@ class TypeIIPWorkflow(WorkflowLogging):
         """
         estimated_radfield_properties = (
             self.transport_solver.radfield_prop_solver.solve(
-                self.transport_state.radfield_mc_estimators,
+                self.transport_state.estimators_bulk,
+                self.transport_state.estimators_line,
                 self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
                 self.transport_state.geometry_state.volume,
@@ -453,34 +453,34 @@ class TypeIIPWorkflow(WorkflowLogging):
         continuum_estimators = {}
 
         continuum_estimators["photo_ion_estimator"] = (
-            self.transport_state.radfield_mc_estimators.photo_ion_estimator
+            self.transport_state.estimators_continuum.photo_ion_estimator
         )
         continuum_estimators["photo_ion_statistics"] = (
-            self.transport_state.radfield_mc_estimators.photo_ion_estimator_statistics
+            self.transport_state.estimators_continuum.photo_ion_estimator_statistics
         )
         continuum_estimators["stim_recomb_estimator"] = (
-            self.transport_state.radfield_mc_estimators.stim_recomb_estimator
+            self.transport_state.estimators_continuum.stim_recomb_estimator
         )
         continuum_estimators["bf_heating_estimator"] = (
-            self.transport_state.radfield_mc_estimators.bf_heating_estimator
+            self.transport_state.estimators_continuum.bf_heating_estimator
         )
         continuum_estimators["stim_recomb_cooling_estimator"] = (
-            self.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator
+            self.transport_state.estimators_continuum.stim_recomb_cooling_estimator
         )
         continuum_estimators["coll_deexc_heating_estimator"] = None
         continuum_estimators["ff_heating_estimator"] = (
-            self.transport_state.radfield_mc_estimators.ff_heating_estimator
+            self.transport_state.estimators_continuum.ff_heating_estimator
         )
 
         j_blues_df = pd.DataFrame(
-            self.transport_state.radfield_mc_estimators.j_blue_estimator,
+            self.transport_state.estimators_line.mean_intensity_blue,
             index=self.plasma_solver.lines.index,
         )
 
         continuum_estimators, j_blues_df = self.normalize_continuum_estimators(
             continuum_estimators,
             j_blues_df,
-            self.transport_state.radfield_mc_estimators.j_estimator,
+            self.transport_state.estimators_bulk.mean_intensity_total,
         )
 
         return continuum_estimators, j_blues_df
@@ -513,7 +513,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         n_e_frac = initial[::2]
         link_t_rad_t_electron = initial[1::2]
 
-        print("Nfev: {} \n".format(nfev))
+        print(f"Nfev: {nfev} \n")
         print("link:", link_t_rad_t_electron)
 
         pl = self.plasma_solver
@@ -760,7 +760,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         else:
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
             j_blues_df = pd.DataFrame(
-                self.transport_state.radfield_mc_estimators.j_blue_estimator,
+                self.transport_state.estimators_line.mean_intensity_blue,
                 index=self.plasma_solver.lines.index,
             )
             macro_atom_state = self.macro_atom_solver.solve(

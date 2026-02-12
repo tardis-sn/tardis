@@ -283,7 +283,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         estimated_radfield_properties = (
             self.transport.radfield_prop_solver.solve(
-                self.transport.transport_state.radfield_mc_estimators,
+                self.transport.transport_state.estimators_bulk,
+                self.transport.transport_state.estimators_line,
                 self.transport.transport_state.time_explosion,
                 self.transport.transport_state.time_of_simulation,
                 self.transport.transport_state.geometry_state.volume,
@@ -418,24 +419,20 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
-        radfield_mc_estimators = (
-            self.transport.transport_state.radfield_mc_estimators
-        )
-
         if "gamma" in self.plasma.outputs_dict:
             continuum_property_solver = MCContinuumPropertiesSolver(
                 self.plasma.atomic_data
             )
             estimated_continuum_properties = continuum_property_solver.solve(
-                radfield_mc_estimators,
+                self.transport.transport_state.estimators_continuum,
                 self.transport.transport_state.time_of_simulation,
                 self.transport.transport_state.geometry_state.volume,
             )
             update_properties.update(
                 gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
                 alpha_stim_factor=estimated_continuum_properties.stimulated_recombination_rate_factor,
-                bf_heating_coeff_estimator=radfield_mc_estimators.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=radfield_mc_estimators.stim_recomb_cooling_estimator,
+                bf_heating_coeff_estimator=self.transport.transport_state.estimators_continuum.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=self.transport.transport_state.estimators_continuum.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)

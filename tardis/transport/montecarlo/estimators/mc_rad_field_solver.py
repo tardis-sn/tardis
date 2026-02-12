@@ -29,7 +29,8 @@ class MCRadiationFieldPropertiesSolver:
 
     def solve(
         self,
-        radfield_mc_estimators,
+        estimators_bulk,
+        estimators_line,
         time_explosion,
         time_of_simulation,
         volume,
@@ -43,19 +44,21 @@ class MCRadiationFieldPropertiesSolver:
 
         Parameters
         ----------
-        nubar_estimator : np.ndarray (float)
-        j_estimator : np.ndarray (float)
+        estimators_bulk : EstimatorsBulk
+            Bulk radiation field estimators
+        estimators_line : EstimatorLine
+            Line interaction estimators
 
         Returns
         -------
-        t_radiative : astropy.units.Quantity (float)
-        dilution_factor : numpy.ndarray (float)
+        EstimatedRadiationFieldProperties
+            Radiation field properties including t_radiative and dilution_factor
         """
         dilute_planck_rad_field = self.estimate_dilute_planck_radiation_field(
-            radfield_mc_estimators, time_of_simulation, volume
+            estimators_bulk, time_of_simulation, volume
         )
         j_blues = self.estimate_jblues(
-            radfield_mc_estimators.j_blue_estimator,
+            estimators_line.mean_intensity_blue,
             dilute_planck_rad_field,
             time_explosion,
             time_of_simulation,
@@ -69,14 +72,14 @@ class MCRadiationFieldPropertiesSolver:
         )
 
     def estimate_dilute_planck_radiation_field(
-        self, radfield_mc_estimators, time_of_simulation, volume
+        self, estimators_bulk, time_of_simulation, volume
     ):
         temperature_radiative = (
             T_RADIATIVE_ESTIMATOR_CONSTANT
-            * radfield_mc_estimators.nu_bar_estimator
-            / radfield_mc_estimators.j_estimator
+            * estimators_bulk.mean_frequency
+            / estimators_bulk.mean_intensity_total
         ) * u.K
-        dilution_factor = radfield_mc_estimators.j_estimator / (
+        dilution_factor = estimators_bulk.mean_intensity_total / (
             4
             * const.sigma_sb.cgs.value
             * temperature_radiative.value**4

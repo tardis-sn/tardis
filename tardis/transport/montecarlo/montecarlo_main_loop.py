@@ -214,14 +214,14 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpacket_collection.energies[j]
 
-    for sub_estimator in estimators_bulk_list_local:
-        estimators_bulk_global.increment(sub_estimator)
+    for estimator_local in estimators_bulk_list_local:
+        estimators_bulk_global.increment(estimator_local)
 
-    for sub_estimator in estimators_line_list_local:
-        estimators_line_global.increment(sub_estimator)
+    for estimator_local in estimators_line_list_local:
+        estimators_line_global.increment(estimator_local)
 
-    for sub_estimator in estimators_continuum_list_local:
-        estimators_continuum_global.increment(sub_estimator)
+    for estimator_local in estimators_continuum_list_local:
+        estimators_continuum_global.increment(estimator_local)
 
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(

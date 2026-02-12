@@ -1,26 +1,32 @@
 import functools
-from os import environ as env
 from copy import deepcopy
+from os import environ as env
 from pathlib import Path
 
 import numpy as np
 
+import tardis.transport.montecarlo.packets.trackers.tracker_last_interaction
+import tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util
 from tardis import run_tardis
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.opacities.opacity_state_numba import opacity_state_numba_initialize
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import DEFAULT_ATOM_DATA_MD5
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
-from tardis.transport.montecarlo.estimators import radfield_mc_estimators
-from tardis.opacities.opacity_state_numba import opacity_state_numba_initialize
-from tardis.transport.montecarlo.packets.packet_collections import VPacketCollection
-import tardis.transport.montecarlo.packets.trackers.tracker_last_interaction
-import tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util
+from tardis.transport.montecarlo.estimators import (
+    init_estimators_bulk,
+    init_estimators_continuum,
+    init_estimators_line,
+)
+from tardis.transport.montecarlo.packets.packet_collections import (
+    VPacketCollection,
+)
 
 
 class BenchmarkBase:
@@ -73,8 +79,7 @@ class BenchmarkBase:
         if atomic_data.md5 != DEFAULT_ATOM_DATA_MD5:
             message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_MD5}")'
             raise Exception(message)
-        else:
-            return atomic_data
+        return atomic_data
 
     @functools.cached_property
     def atomic_data_fname(self):
@@ -230,20 +235,31 @@ class BenchmarkBase:
         )
 
     @functools.cached_property
-    def estimators(self):
-        return radfield_mc_estimators.RadiationFieldMCEstimators(
-            j_estimator=np.array([0.0, 0.0], dtype=np.float64),
-            nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
-            j_blue_estimator=np.array(
+    def estimators_bulk(self):
+        return init_estimators_bulk(
+            mean_intensity_total=np.array([0.0, 0.0], dtype=np.float64),
+            mean_frequency=np.array([0.0, 0.0], dtype=np.float64),
+        )
+
+    @functools.cached_property
+    def estimators_line(self):
+        return init_estimators_line(
+            mean_intensity_blue=np.array(
                 [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64
             ),
-            Edotlu_estimator=np.array(
+            energy_deposition_line=np.array(
                 [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
             ),
+        )
+
+    @functools.cached_property
+    def estimators_continuum(self):
+        return init_estimators_continuum(
             photo_ion_estimator=np.empty((0, 0), dtype=np.float64),
             stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
             bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
             stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
+            ff_heating_estimator=np.empty((0, 0), dtype=np.float64),
             photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
         )
 
