@@ -1,0 +1,20 @@
+tardis.io.model.arepo package
+=============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.io.model.arepo.data
+   tardis.io.model.arepo.readers
+   tardis.io.model.arepo.utils
+
+Module contents
+---------------
+
+.. automodule:: tardis.io.model.arepo
+   :members:
+   :show-inheritance:
+   :undoc-members:
