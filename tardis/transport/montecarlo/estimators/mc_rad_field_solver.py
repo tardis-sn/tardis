@@ -72,7 +72,7 @@ class MCRadiationFieldPropertiesSolver:
             estimators_bulk, time_of_simulation, volume
         )
         j_blues = self.estimate_jblues(
-            estimators_line.mean_intensity_blue,
+            estimators_line.mean_intensity_blueward,
             dilute_planck_rad_field,
             time_explosion,
             time_of_simulation,

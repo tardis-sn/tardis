@@ -68,9 +68,11 @@ class SourceFunctionSolver:
         tau_sobolev = opacity_state_numba.tau_sobolev
         transition_probabilities = opacity_state_numba.transition_probabilities
 
-        j_blue_estimator = transport_state.estimators_line.mean_intensity_blue
+        j_blue_estimator = (
+            transport_state.estimators_line.mean_intensity_blueward
+        )
         e_dot_lu_estimator = (
-            transport_state.estimators_line.energy_deposition_line
+            transport_state.estimators_line.energy_deposition_line_rate
         )
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s

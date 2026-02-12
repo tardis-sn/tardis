@@ -67,7 +67,7 @@ def update_estimators_bound_free(
     chi_ff: float,
 ) -> None:
     """
-    Update the estimators for bound-free processes.
+    Update the estimators for bound-free processes in place by thread.
 
     Parameters
     ----------
@@ -78,7 +78,7 @@ def update_estimators_bound_free(
     shell_id
         Current cell index.
     distance
-        Distance traveled by the packet.
+        Distance traveled by the packet in the current shell.
     estimators_continuum
         Continuum interaction estimators.
     t_electron
@@ -156,9 +156,9 @@ def update_estimators_line(
     else:
         energy = calc_packet_energy_full_relativity(r_packet)
 
-    estimators_line.mean_intensity_blue[
+    estimators_line.mean_intensity_blueward[
         cur_line_id, r_packet.current_shell_id
     ] += energy / r_packet.nu
-    estimators_line.energy_deposition_line[
+    estimators_line.energy_deposition_line_rate[
         cur_line_id, r_packet.current_shell_id
     ] += energy

@@ -78,7 +78,7 @@ class TestTransportSimpleFormalIntegral:
 
     def test_j_blue_estimators(self, simulation, request):
         regression_data = RegressionData(request)
-        j_blue_estimator = simulation.transport.transport_state.estimators_line.mean_intensity_blue
+        j_blue_estimator = simulation.transport.transport_state.estimators_line.mean_intensity_blueward
         expected = regression_data.sync_ndarray(j_blue_estimator)
         npt.assert_allclose(j_blue_estimator, expected)
 

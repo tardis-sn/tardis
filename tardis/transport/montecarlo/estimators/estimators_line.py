@@ -18,32 +18,34 @@ class EstimatorsLine:
 
     Attributes
     ----------
-    mean_intensity_blue : numpy.ndarray
-        Blue-shifted mean intensity estimator per line and cell.
-    energy_deposition_line : numpy.ndarray
-        Energy deposition estimator per line and cell.
+    mean_intensity_blueward : numpy.ndarray
+        Monte Carlo estimator for the mean intensity in a line's extreme blue wing (Lucy 1999).
+    energy_deposition_line_rate : numpy.ndarray
+        Monte Carlo estimator for the rate per unit volume at which energy is removed
+        from the radiation field by line excitations (Lucy 1999).
     """
 
-    mean_intensity_blue: nb.float64[:, :]  # type: ignore[misc]
-    energy_deposition_line: nb.float64[:, :]  # type: ignore[misc]
+    mean_intensity_blueward: nb.float64[:, :]  # type: ignore[misc]
+    energy_deposition_line_rate: nb.float64[:, :]  # type: ignore[misc]
 
     def __init__(
         self,
-        mean_intensity_blue: np.ndarray,
-        energy_deposition_line: np.ndarray,
+        mean_intensity_blueward: np.ndarray,
+        energy_deposition_line_rate: np.ndarray,
     ) -> None:
         """
         Initialize EstimatorsLine with pre-allocated arrays.
 
         Parameters
         ----------
-        mean_intensity_blue
-            Array for blue-shifted mean intensity per line and cell.
-        energy_deposition_line
-            Array for energy deposition per line and cell.
+        mean_intensity_blueward
+            Monte Carlo estimator for the mean intensity in a line's extreme blue wing
+        energy_deposition_line_rate
+            Monte Carlo estimator for the rate per unit volume at which energy is removed
+            from the radiation field by line excitations
         """
-        self.mean_intensity_blue = mean_intensity_blue
-        self.energy_deposition_line = energy_deposition_line
+        self.mean_intensity_blueward = mean_intensity_blueward
+        self.energy_deposition_line_rate = energy_deposition_line_rate
 
     def increment(self, other: "EstimatorsLine") -> None:
         """
@@ -54,8 +56,8 @@ class EstimatorsLine:
         other
             Another EstimatorsLine instance to add.
         """
-        self.mean_intensity_blue += other.mean_intensity_blue
-        self.energy_deposition_line += other.energy_deposition_line
+        self.mean_intensity_blueward += other.mean_intensity_blueward
+        self.energy_deposition_line_rate += other.energy_deposition_line_rate
 
 
 @nb.njit(**njit_dict_no_parallel)
@@ -72,37 +74,35 @@ def init_estimators_line(
 
     Returns
     -------
-    EstimatorsLine
-        Initialized estimators with zero-filled arrays.
+    Initialized estimators with zero-filled arrays.
     """
-    mean_intensity_blue = np.zeros(tau_sobolev_shape, dtype=np.float64)
-    energy_deposition_line = np.zeros(tau_sobolev_shape, dtype=np.float64)
+    mean_intensity_blueward = np.zeros(tau_sobolev_shape, dtype=np.float64)
+    energy_deposition_line_rate = np.zeros(tau_sobolev_shape, dtype=np.float64)
 
-    return EstimatorsLine(mean_intensity_blue, energy_deposition_line)
+    return EstimatorsLine(mean_intensity_blueward, energy_deposition_line_rate)
 
 
 @nb.njit(**njit_dict_no_parallel)
 def create_estimators_line_list(
-    tau_sobolev_shape: tuple[int, int], number: int
+    n_lines_by_n_cells_tuple: tuple[int, int], number: int
 ) -> List[EstimatorsLine]:
     """
     Factory function to create a list of EstimatorsLine instances.
 
     Parameters
     ----------
-    tau_sobolev_shape
-        Shape of tau_sobolev array (n_lines, n_cells).
+    n_lines_by_n_cells_tuple
+        Shape tuple (n_lines, n_cells).
     number
         Number of estimator instances to create.
 
     Returns
     -------
-    numba.typed.List[EstimatorsLine]
-        Typed list of EstimatorsLine instances.
+    Typed list of EstimatorsLine instances.
     """
     estimator_list = List()
 
     for _ in range(number):
-        estimator_list.append(init_estimators_line(tau_sobolev_shape))
+        estimator_list.append(init_estimators_line(n_lines_by_n_cells_tuple))
 
     return estimator_list

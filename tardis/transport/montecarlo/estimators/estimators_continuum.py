@@ -96,29 +96,39 @@ class EstimatorsContinuum:
 
 @nb.njit(**njit_dict_no_parallel)
 def init_estimators_continuum(
-    gamma_shape: tuple[int, int], n_cells: int
+    n_levels_bf_species_by_n_cells_tuple: tuple[int, int], n_cells: int
 ) -> EstimatorsContinuum:
     """
     Factory function to create and initialize EstimatorsContinuum.
 
     Parameters
     ----------
-    gamma_shape
-        Shape of gamma array (n_levels, n_cells).
+    n_levels_bf_species_by_n_cells_tuple
+        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells)
     n_cells
-        Number of cells in the simulation.
+        Number of cells in the simulation
 
     Returns
     -------
     EstimatorsContinuum
-        Initialized estimators with zero-filled arrays.
+        Initialized estimators with zero-filled arrays
     """
-    photo_ion_estimator = np.zeros(gamma_shape, dtype=np.float64)
-    stim_recomb_estimator = np.zeros(gamma_shape, dtype=np.float64)
-    bf_heating_estimator = np.zeros(gamma_shape, dtype=np.float64)
-    stim_recomb_cooling_estimator = np.zeros(gamma_shape, dtype=np.float64)
+    photo_ion_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    stim_recomb_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    bf_heating_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    stim_recomb_cooling_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
     ff_heating_estimator = np.zeros(n_cells, dtype=np.float64)
-    photo_ion_estimator_statistics = np.zeros(gamma_shape, dtype=np.int64)
+    photo_ion_estimator_statistics = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.int64
+    )
 
     return EstimatorsContinuum(
         photo_ion_estimator,
@@ -132,28 +142,34 @@ def init_estimators_continuum(
 
 @nb.njit(**njit_dict_no_parallel)
 def create_estimators_continuum_list(
-    gamma_shape: tuple[int, int], n_cells: int, number: int
+    n_levels_bf_species_by_n_cells_tuple: tuple[int, int],
+    n_cells: int,
+    number: int,
 ) -> List[EstimatorsContinuum]:
     """
     Factory function to create a list of EstimatorsContinuum instances.
 
     Parameters
     ----------
-    gamma_shape
-        Shape of gamma array (n_levels, n_cells).
+    n_levels_bf_species_by_n_cells_tuple
+        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells)
     n_cells
-        Number of cells in the simulation.
+        Number of cells in the simulation
     number
-        Number of estimator instances to create.
+        Number of estimator instances to create
 
     Returns
     -------
     numba.typed.List[EstimatorsContinuum]
-        Typed list of EstimatorsContinuum instances.
+        Typed list of EstimatorsContinuum instances
     """
     estimator_list = List()
 
     for _ in range(number):
-        estimator_list.append(init_estimators_continuum(gamma_shape, n_cells))
+        estimator_list.append(
+            init_estimators_continuum(
+                n_levels_bf_species_by_n_cells_tuple, n_cells
+            )
+        )
 
     return estimator_list

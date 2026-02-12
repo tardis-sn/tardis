@@ -53,13 +53,15 @@ class MonteCarloTransportState(HDFWriterMixin):
         geometry_state,
         opacity_state,
         time_explosion,
-        gamma_shape,
+        n_levels_bf_species_by_n_cells_tuple,
         tracker_full_df=None,
         tracker_last_interaction_df=None,
         vpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
-        self.gamma_shape = gamma_shape
+        self.n_levels_bf_species_by_n_cells_tuple = (
+            n_levels_bf_species_by_n_cells_tuple
+        )
         self.estimators_bulk = None
         self.estimators_line = None
         self.estimators_continuum = None
@@ -90,7 +92,7 @@ class MonteCarloTransportState(HDFWriterMixin):
 
     @property
     def j_blue_estimator(self):
-        return self.estimators_line.mean_intensity_blue
+        return self.estimators_line.mean_intensity_blueward
 
     @property
     def time_of_simulation(self):

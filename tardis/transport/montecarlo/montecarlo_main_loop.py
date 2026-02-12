@@ -43,7 +43,7 @@ def montecarlo_main_loop(
     time_explosion: float,
     opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
-    gamma_shape: tuple,
+    n_levels_bf_species_by_n_cells_tuple: tuple,
     spectrum_frequency_grid: np.ndarray,
     trackers: List,
     number_of_vpackets: int,
@@ -72,8 +72,8 @@ def montecarlo_main_loop(
     montecarlo_configuration
         Configuration object containing Monte Carlo simulation parameters
         and flags for various physics modules
-    gamma_shape
-        Shape of the gamma array for initializing estimators
+    n_levels_bf_species_by_n_cells_tuple
+        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells)
     spectrum_frequency_grid
         Frequency grid array for virtual packet spectrum calculation
     trackers
@@ -123,22 +123,24 @@ def montecarlo_main_loop(
     # Note that get_thread_id() returns values from 0 to n_threads-1,
     # so we iterate from 0 to n_threads-1 to create the estimator_lists
 
-    # Initialize global estimators
-    tau_sobolev_shape = opacity_state_numba.tau_sobolev.shape
+    # Initialize estimators
+    n_lines_by_n_cells_tuple = opacity_state_numba.tau_sobolev.shape
     n_cells = len(geometry_state_numba.r_inner)
-    estimators_bulk_global = init_estimators_bulk(n_cells)
-    estimators_line_global = init_estimators_line(tau_sobolev_shape)
-    estimators_continuum_global = init_estimators_continuum(
-        gamma_shape, n_cells
+    estimators_bulk = init_estimators_bulk(n_cells)
+    estimators_line = init_estimators_line(n_lines_by_n_cells_tuple)
+    estimators_continuum = init_estimators_continuum(
+        n_levels_bf_species_by_n_cells_tuple, n_cells
     )
-    
-    # Initialize local estimators
-    estimators_bulk_list_local = create_estimators_bulk_list(n_cells, n_threads)
-    estimators_line_list_local = create_estimators_line_list(
-        tau_sobolev_shape, n_threads
+
+    # Initialize thread-local estimators
+    estimators_bulk_list_thread = create_estimators_bulk_list(
+        n_cells, n_threads
     )
-    estimators_continuum_list_local = create_estimators_continuum_list(
-        gamma_shape, n_cells, n_threads
+    estimators_line_list_thread = create_estimators_line_list(
+        n_lines_by_n_cells_tuple, n_threads
+    )
+    estimators_continuum_list_thread = create_estimators_continuum_list(
+        n_levels_bf_species_by_n_cells_tuple, n_cells, n_threads
     )
 
     for i in prange(no_of_packets):
@@ -163,12 +165,14 @@ def montecarlo_main_loop(
         # Seed the random number generator
         np.random.seed(r_packet.seed)
 
-        # Get the local estimators for this thread
-        estimators_bulk_local = estimators_bulk_list_local[thread_id]
-        estimators_line_local = estimators_line_list_local[thread_id]
-        estimators_continuum_local = estimators_continuum_list_local[thread_id]
+        # Get the thread-local estimators for this thread
+        estimators_bulk_thread = estimators_bulk_list_thread[thread_id]
+        estimators_line_thread = estimators_line_list_thread[thread_id]
+        estimators_continuum_thread = estimators_continuum_list_thread[
+            thread_id
+        ]
 
-        # Get the local v_packet_collection for this thread
+        # Get the thread-local v_packet_collection for this thread
         vpacket_collection = vpacket_collections[i]
         # RPacket Tracker for this thread
         tracker = trackers[i]
@@ -178,9 +182,9 @@ def montecarlo_main_loop(
             geometry_state_numba,
             time_explosion,
             opacity_state_numba,
-            estimators_bulk_local,
-            estimators_line_local,
-            estimators_continuum_local,
+            estimators_bulk_thread,
+            estimators_line_thread,
+            estimators_continuum_thread,
             vpacket_collection,
             tracker,
             montecarlo_configuration,
@@ -210,14 +214,14 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpacket_collection.energies[j]
 
-    for estimator_local in estimators_bulk_list_local:
-        estimators_bulk_global.increment(estimator_local)
+    for estimator_thread in estimators_bulk_list_thread:
+        estimators_bulk.increment(estimator_thread)
 
-    for estimator_local in estimators_line_list_local:
-        estimators_line_global.increment(estimator_local)
+    for estimator_thread in estimators_line_list_thread:
+        estimators_line.increment(estimator_thread)
 
-    for estimator_local in estimators_continuum_list_local:
-        estimators_continuum_global.increment(estimator_local)
+    for estimator_thread in estimators_continuum_list_thread:
+        estimators_continuum.increment(estimator_thread)
 
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(
@@ -239,7 +243,7 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         vpacket_tracker,
-        estimators_bulk_global,
-        estimators_line_global,
-        estimators_continuum_global,
+        estimators_bulk,
+        estimators_line,
+        estimators_continuum,
     )

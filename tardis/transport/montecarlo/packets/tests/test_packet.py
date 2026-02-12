@@ -1,5 +1,9 @@
 import numpy as np
 import pytest
+from numpy.testing import (
+    assert_allclose,
+    assert_almost_equal,
+)
 
 import tardis.opacities.opacities as opacities
 import tardis.transport.frame_transformations as frame_transformations
@@ -17,11 +21,6 @@ from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
-
-from numpy.testing import (
-    assert_allclose,
-    assert_almost_equal,
-)
 
 
 @pytest.fixture(scope="function")
@@ -44,10 +43,10 @@ def estimators():
     from tardis.transport.montecarlo.estimators import EstimatorsLine
 
     return EstimatorsLine(
-        mean_intensity_blue=np.array(
+        mean_intensity_blueward=np.array(
             [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64
         ),
-        energy_deposition_line=np.array(
+        energy_deposition_line_rate=np.array(
             [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
         ),
     )
@@ -212,8 +211,8 @@ def test_update_line_estimators(
         enable_full_relativity=False,
     )
 
-    assert_allclose(estimators.mean_intensity_blue, expected_j_blue)
-    assert_allclose(estimators.energy_deposition_line, expected_Edotlu)
+    assert_allclose(estimators.mean_intensity_blueward, expected_j_blue)
+    assert_allclose(estimators.energy_deposition_line_rate, expected_Edotlu)
 
 
 # TODO set RNG consistently
