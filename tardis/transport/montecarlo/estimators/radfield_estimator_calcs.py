@@ -67,7 +67,7 @@ def update_estimators_bound_free(
     chi_ff: float,
 ) -> None:
     """
-    Update the estimators for bound-free processes.
+    Update the estimators for bound-free processes in place by thread.
 
     Parameters
     ----------
