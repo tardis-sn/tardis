@@ -114,3 +114,133 @@ def test_velocity_boundary(homologous_radial1d_geometry):
     assert len(homologous_radial1d_geometry.v_inner_active) == (
         len(homologous_radial1d_geometry.v_inner) - 1
     )
+
+
+def test_v_middle_active_default_boundaries(homologous_radial1d_geometry):
+    """Test v_middle_active with default (full range) boundaries"""
+    v_middle_active = homologous_radial1d_geometry.v_middle_active
+
+    # Check that v_middle_active has correct length
+    assert len(v_middle_active) == len(
+        homologous_radial1d_geometry.v_inner_active
+    )
+    assert len(v_middle_active) == len(
+        homologous_radial1d_geometry.v_outer_active
+    )
+
+    # Check that v_middle_active is the average of v_inner_active and v_outer_active
+    expected_v_middle = (
+        homologous_radial1d_geometry.v_inner_active
+        + homologous_radial1d_geometry.v_outer_active
+    ) / 2.0
+    npt.assert_array_almost_equal(
+        v_middle_active.value, expected_v_middle.value
+    )
+
+    # Check correct units
+    assert v_middle_active.unit == u.km / u.s
+
+
+def test_v_middle_active_modified_inner_boundary(homologous_radial1d_geometry):
+    """Test v_middle_active when inner boundary is modified"""
+    # Set inner boundary to a custom value
+    homologous_radial1d_geometry.v_inner_boundary = 9500 * u.km / u.s
+
+    v_middle_active = homologous_radial1d_geometry.v_middle_active
+
+    # Check that v_middle_active has correct length (one less shell)
+    assert len(v_middle_active) == len(
+        homologous_radial1d_geometry.v_inner_active
+    )
+
+    # Check computation
+    expected_v_middle = (
+        homologous_radial1d_geometry.v_inner_active
+        + homologous_radial1d_geometry.v_outer_active
+    ) / 2.0
+    npt.assert_array_almost_equal(
+        v_middle_active.value, expected_v_middle.value
+    )
+
+    # First middle velocity should be between modified boundary and corresponding outer velocity
+    npt.assert_almost_equal(
+        v_middle_active[0].value,
+        (9500 + 10000) / 2.0,
+    )
+
+
+def test_v_middle_active_modified_outer_boundary(homologous_radial1d_geometry):
+    """Test v_middle_active when outer boundary is modified"""
+    # Set outer boundary to a custom value
+    homologous_radial1d_geometry.v_outer_boundary = 19500 * u.km / u.s
+
+    v_middle_active = homologous_radial1d_geometry.v_middle_active
+
+    # Check that v_middle_active has correct length (one less shell)
+    assert len(v_middle_active) == len(
+        homologous_radial1d_geometry.v_inner_active
+    )
+
+    # Check computation
+    expected_v_middle = (
+        homologous_radial1d_geometry.v_inner_active
+        + homologous_radial1d_geometry.v_outer_active
+    ) / 2.0
+    npt.assert_array_almost_equal(
+        v_middle_active.value, expected_v_middle.value
+    )
+
+    # Last middle velocity should be between corresponding inner velocity and modified boundary
+    npt.assert_almost_equal(
+        v_middle_active[-1].value,
+        (19000 + 19500) / 2.0,
+    )
+
+
+def test_v_middle_active_both_boundaries_modified(homologous_radial1d_geometry):
+    """Test v_middle_active when both boundaries are modified"""
+    # Set both boundaries to custom values
+    homologous_radial1d_geometry.v_inner_boundary = 9500 * u.km / u.s
+    homologous_radial1d_geometry.v_outer_boundary = 19500 * u.km / u.s
+
+    v_middle_active = homologous_radial1d_geometry.v_middle_active
+
+    # Check computation
+    expected_v_middle = (
+        homologous_radial1d_geometry.v_inner_active
+        + homologous_radial1d_geometry.v_outer_active
+    ) / 2.0
+    npt.assert_array_almost_equal(
+        v_middle_active.value, expected_v_middle.value
+    )
+
+    # Check first and last values
+    npt.assert_almost_equal(
+        v_middle_active[0].value,
+        (9500 + 10000) / 2.0,
+    )
+    npt.assert_almost_equal(
+        v_middle_active[-1].value,
+        (19000 + 19500) / 2.0,
+    )
+
+
+def test_v_middle_active_narrow_range(homologous_radial1d_geometry):
+    """Test v_middle_active with a narrow range of active shells"""
+    # Set boundaries to include only a few shells
+    homologous_radial1d_geometry.v_inner_boundary = 11500 * u.km / u.s
+    homologous_radial1d_geometry.v_outer_boundary = 14500 * u.km / u.s
+
+    v_middle_active = homologous_radial1d_geometry.v_middle_active
+
+    # Should have 4 active shells: [11500-12000] and [12000-13000] and [13000-14000] and [14000-14500]
+    assert len(v_middle_active) == 4
+
+    # Check computation
+    expected_v_middle = (
+        homologous_radial1d_geometry.v_inner_active
+        + homologous_radial1d_geometry.v_outer_active
+    ) / 2.0
+    npt.assert_array_almost_equal(
+        v_middle_active.value, expected_v_middle.value
+    )
