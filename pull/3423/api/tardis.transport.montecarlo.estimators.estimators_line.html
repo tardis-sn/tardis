@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=1998dafc"></script>
+      <script src="../_static/documentation_options.js?v=d6902942"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -181,9 +181,10 @@
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>mean_intensity_blue</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Blue-shifted mean intensity estimator per line and cell.</p>
+<dt><strong>mean_intensity_blueward</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Monte Carlo estimator for the mean intensity in a line’s extreme blue wing (Lucy 1999).</p>
 </dd>
-<dt><strong>energy_deposition_line</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Energy deposition estimator per line and cell.</p>
+<dt><strong>energy_deposition_line_rate</strong><span class="classifier">numpy.ndarray</span></dt><dd><p>Monte Carlo estimator for the rate per unit volume at which energy is removed
+from the radiation field by line excitations (Lucy 1999).</p>
 </dd>
 </dl>
 </dd>
@@ -192,38 +193,39 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>mean_intensity_blue</strong></dt><dd><p>Array for blue-shifted mean intensity per line and cell.</p>
+<dt><strong>mean_intensity_blueward</strong></dt><dd><p>Monte Carlo estimator for the mean intensity in a line’s extreme blue wing</p>
 </dd>
-<dt><strong>energy_deposition_line</strong></dt><dd><p>Array for energy deposition per line and cell.</p>
+<dt><strong>energy_deposition_line_rate</strong></dt><dd><p>Monte Carlo estimator for the rate per unit volume at which energy is removed
+from the radiation field by line excitations</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.class_type">
-<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.EstimatorsLine#7f76374d1b50&lt;mean_intensity_blue:array(float64,</span> <span class="pre">2d,</span> <span class="pre">A),energy_deposition_line:array(float64,</span> <span class="pre">2d,</span> <span class="pre">A)&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.class_type" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.EstimatorsLine#7f6c4bf5d910&lt;mean_intensity_blueward:array(float64,</span> <span class="pre">2d,</span> <span class="pre">A),energy_deposition_line_rate:array(float64,</span> <span class="pre">2d,</span> <span class="pre">A)&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.class_type" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.energy_deposition_line">
-<span class="sig-name descname"><span class="pre">energy_deposition_line</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Array</span><span class="p"><span class="pre">(</span></span><span class="pre">float64</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'A'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">aligned</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">)</span></span></em><a class="headerlink" href="#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.energy_deposition_line" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.energy_deposition_line_rate">
+<span class="sig-name descname"><span class="pre">energy_deposition_line_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Array</span><span class="p"><span class="pre">(</span></span><span class="pre">float64</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'A'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">aligned</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">)</span></span></em><a class="headerlink" href="#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.energy_deposition_line_rate" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.mean_intensity_blue">
-<span class="sig-name descname"><span class="pre">mean_intensity_blue</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Array</span><span class="p"><span class="pre">(</span></span><span class="pre">float64</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'A'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">aligned</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">)</span></span></em><a class="headerlink" href="#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.mean_intensity_blue" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.mean_intensity_blueward">
+<span class="sig-name descname"><span class="pre">mean_intensity_blueward</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Array</span><span class="p"><span class="pre">(</span></span><span class="pre">float64</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'A'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">aligned</span></span><span class="o"><span class="pre">=</span></span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">)</span></span></em><a class="headerlink" href="#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.mean_intensity_blueward" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.estimators.estimators_line.create_estimators_line_list">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.estimators.estimators_line.</span></span><span class="sig-name descname"><span class="pre">create_estimators_line_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau_sobolev_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine" title="tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine"><span class="pre">EstimatorsLine</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/estimators/estimators_line.html#create_estimators_line_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.estimators.estimators_line.create_estimators_line_list" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.estimators.estimators_line.</span></span><span class="sig-name descname"><span class="pre">create_estimators_line_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_lines_by_n_cells_tuple</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine" title="tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine"><span class="pre">EstimatorsLine</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/estimators/estimators_line.html#create_estimators_line_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.estimators.estimators_line.create_estimators_line_list" title="Link to this definition">¶</a></dt>
 <dd><p>Factory function to create a list of EstimatorsLine instances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>tau_sobolev_shape</strong></dt><dd><p>Shape of tau_sobolev array (n_lines, n_cells).</p>
+<dt><strong>n_lines_by_n_cells_tuple</strong></dt><dd><p>Shape tuple (n_lines, n_cells).</p>
 </dd>
 <dt><strong>number</strong></dt><dd><p>Number of estimator instances to create.</p>
 </dd>
@@ -231,8 +233,7 @@
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>numba.typed.List[EstimatorsLine]</dt><dd><p>Typed list of EstimatorsLine instances.</p>
-</dd>
+<dt>Typed list of EstimatorsLine instances.</dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -251,8 +252,7 @@
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>EstimatorsLine</dt><dd><p>Initialized estimators with zero-filled arrays.</p>
-</dd>
+<dt>Initialized estimators with zero-filled arrays.</dt><dd></dd>
 </dl>
 </dd>
 </dl>

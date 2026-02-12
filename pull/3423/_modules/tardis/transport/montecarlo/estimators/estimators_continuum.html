@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=1998dafc"></script>
+      <script src="../../../../../_static/documentation_options.js?v=d6902942"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -239,29 +239,39 @@ class EstimatorsContinuum:
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.init_estimators_continuum">[docs]</a>
 @nb.njit(**njit_dict_no_parallel)
 def init_estimators_continuum(
-    gamma_shape: tuple[int, int], n_cells: int
+    n_levels_bf_species_by_n_cells_tuple: tuple[int, int], n_cells: int
 ) -&gt; EstimatorsContinuum:
     &quot;&quot;&quot;
     Factory function to create and initialize EstimatorsContinuum.
 
     Parameters
     ----------
-    gamma_shape
-        Shape of gamma array (n_levels, n_cells).
+    n_levels_bf_species_by_n_cells_tuple
+        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells)
     n_cells
-        Number of cells in the simulation.
+        Number of cells in the simulation
 
     Returns
     -------
     EstimatorsContinuum
-        Initialized estimators with zero-filled arrays.
+        Initialized estimators with zero-filled arrays
     &quot;&quot;&quot;
-    photo_ion_estimator = np.zeros(gamma_shape, dtype=np.float64)
-    stim_recomb_estimator = np.zeros(gamma_shape, dtype=np.float64)
-    bf_heating_estimator = np.zeros(gamma_shape, dtype=np.float64)
-    stim_recomb_cooling_estimator = np.zeros(gamma_shape, dtype=np.float64)
+    photo_ion_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    stim_recomb_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    bf_heating_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    stim_recomb_cooling_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
     ff_heating_estimator = np.zeros(n_cells, dtype=np.float64)
-    photo_ion_estimator_statistics = np.zeros(gamma_shape, dtype=np.int64)
+    photo_ion_estimator_statistics = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.int64
+    )
 
     return EstimatorsContinuum(
         photo_ion_estimator,
@@ -278,29 +288,35 @@ def init_estimators_continuum(
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.create_estimators_continuum_list">[docs]</a>
 @nb.njit(**njit_dict_no_parallel)
 def create_estimators_continuum_list(
-    gamma_shape: tuple[int, int], n_cells: int, number: int
+    n_levels_bf_species_by_n_cells_tuple: tuple[int, int],
+    n_cells: int,
+    number: int,
 ) -&gt; List[EstimatorsContinuum]:
     &quot;&quot;&quot;
     Factory function to create a list of EstimatorsContinuum instances.
 
     Parameters
     ----------
-    gamma_shape
-        Shape of gamma array (n_levels, n_cells).
+    n_levels_bf_species_by_n_cells_tuple
+        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells)
     n_cells
-        Number of cells in the simulation.
+        Number of cells in the simulation
     number
-        Number of estimator instances to create.
+        Number of estimator instances to create
 
     Returns
     -------
     numba.typed.List[EstimatorsContinuum]
-        Typed list of EstimatorsContinuum instances.
+        Typed list of EstimatorsContinuum instances
     &quot;&quot;&quot;
     estimator_list = List()
 
     for _ in range(number):
-        estimator_list.append(init_estimators_continuum(gamma_shape, n_cells))
+        estimator_list.append(
+            init_estimators_continuum(
+                n_levels_bf_species_by_n_cells_tuple, n_cells
+            )
+        )
 
     return estimator_list</div>
 
