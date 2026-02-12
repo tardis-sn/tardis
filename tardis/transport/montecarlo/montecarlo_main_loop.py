@@ -58,60 +58,45 @@ def montecarlo_main_loop(
 
     Parameters
     ----------
-    packet_collection : PacketCollection
+    packet_collection
         Collection containing initial packet properties (positions, directions,
         frequencies, energies, and seeds)
-    geometry_state : NumbaRadial1DGeometry
+    geometry_state_numba
         Numba-compiled simulation geometry containing shell boundaries
         and velocity information
-    time_explosion : float
+    time_explosion
         Time since explosion in seconds, used for relativistic calculations
-    opacity_state : OpacityStateNumba
+    opacity_state_numba
         Numba-compiled opacity state containing line opacities, continuum
         opacities, and atomic data required for interactions
-    montecarlo_configuration : MonteCarloConfiguration
+    montecarlo_configuration
         Configuration object containing Monte Carlo simulation parameters
         and flags for various physics modules
-    gamma_shape : tuple
+    gamma_shape
         Shape of the gamma array for initializing estimators
-    spectrum_frequency_grid : numpy.ndarray
+    spectrum_frequency_grid
         Frequency grid array for virtual packet spectrum calculation
-    rpacket_trackers : numba.typed.List
+    trackers
         List of packet trackers for detailed packet interaction logging
-    number_of_vpackets : int
+    number_of_vpackets
         Number of virtual packets to spawn per real packet interaction
-    show_progress_bars : bool
+    show_progress_bars
         Flag to enable/disable progress bar updates during simulation
 
     Returns
     -------
-    tuple
-        A tuple containing:
-        - v_packets_energy_hist : numpy.ndarray
-            Energy histogram of virtual packets binned by frequency
-        - vpacket_tracker : VPacketCollection
-            Consolidated virtual packet collection containing all virtual
-            packet information from the simulation
-        - estimators_bulk : EstimatorsBulk
-            Updated bulk radiation field estimator object containing cell-level
-            statistics collected during packet propagation
-        - estimators_line : EstimatorsLine
-            Updated line radiation field estimator object containing line interaction
-            statistics collected during packet propagation
-        - estimators_continuum : EstimatorsContinuum
-            Updated continuum estimator object containing continuum interaction
-            statistics collected during packet propagation
+    A tuple containing:
+    - v_packets_energy_hist : Energy histogram of virtual packets binned by frequency
+    - vpacket_tracker : Consolidated virtual packet collection containing all virtual
+      packet information from the simulation
+    - estimators_bulk : Updated bulk radiation field estimator object containing cell-level
+      statistics collected during packet propagation
+    - estimators_line : Updated line radiation field estimator object containing line interaction
+      statistics collected during packet propagation
+    - estimators_continuum : Updated continuum estimator object containing continuum interaction
+      statistics collected during packet propagation
     """
     no_of_packets = len(packet_collection.initial_nus)
-
-    # Initialize global estimators
-    tau_sobolev_shape = opacity_state_numba.tau_sobolev.shape
-    n_cells = len(geometry_state_numba.r_inner)
-    estimators_bulk_global = init_estimators_bulk(n_cells)
-    estimators_line_global = init_estimators_line(tau_sobolev_shape)
-    estimators_continuum_global = init_estimators_continuum(
-        gamma_shape, n_cells
-    )
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
     delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
@@ -137,6 +122,17 @@ def montecarlo_main_loop(
     # betting get thread_id goes from 0 to num threads
     # Note that get_thread_id() returns values from 0 to n_threads-1,
     # so we iterate from 0 to n_threads-1 to create the estimator_lists
+
+    # Initialize global estimators
+    tau_sobolev_shape = opacity_state_numba.tau_sobolev.shape
+    n_cells = len(geometry_state_numba.r_inner)
+    estimators_bulk_global = init_estimators_bulk(n_cells)
+    estimators_line_global = init_estimators_line(tau_sobolev_shape)
+    estimators_continuum_global = init_estimators_continuum(
+        gamma_shape, n_cells
+    )
+    
+    # Initialize local estimators
     estimators_bulk_list_local = create_estimators_bulk_list(n_cells, n_threads)
     estimators_line_list_local = create_estimators_line_list(
         tau_sobolev_shape, n_threads
