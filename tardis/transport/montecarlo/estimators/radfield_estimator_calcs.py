@@ -78,7 +78,7 @@ def update_estimators_bound_free(
     shell_id
         Current cell index.
     distance
-        Distance traveled by the packet.
+        Distance traveled by the packet in the current shell.
     estimators_continuum
         Continuum interaction estimators.
     t_electron
