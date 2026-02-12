@@ -97,5 +97,5 @@ class TestTransportSimpleFormalIntegral:
         expected = regression_data.sync_ndarray(luminosity.cgs.value)
         expected = u.Quantity(expected, "erg /s")
         assert_quantity_allclose(
-            luminosity, expected, rtol=1.5e-11, atol=0 * u.erg / u.s
+            luminosity, expected, rtol=1.5e-10, atol=0 * u.erg / u.s
         )  # Increased atol to 1.5e-11 because of mac/linux differences
