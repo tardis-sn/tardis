@@ -473,7 +473,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         )
 
         j_blues_df = pd.DataFrame(
-            self.transport_state.estimators_line.mean_intensity_blue,
+            self.transport_state.estimators_line.mean_intensity_blueward,
             index=self.plasma_solver.lines.index,
         )
 
@@ -760,7 +760,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         else:
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
             j_blues_df = pd.DataFrame(
-                self.transport_state.estimators_line.mean_intensity_blue,
+                self.transport_state.estimators_line.mean_intensity_blueward,
                 index=self.plasma_solver.lines.index,
             )
             macro_atom_state = self.macro_atom_solver.solve(

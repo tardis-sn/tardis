@@ -30,7 +30,7 @@ def update_estimators_bulk(
     comov_energy: float,
 ) -> None:
     """
-    Update cell-level bulk radiation field estimators.
+    Update bulk radiation field estimators per cell
 
     Parameters
     ----------
