@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=a1c4d581"></script>
+      <script src="../../_static/documentation_options.js?v=e4e567fa"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -225,12 +225,12 @@
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Global estimators - final accumulated results</span>
 <span class="n">estimators_bulk_global</span> <span class="o">=</span> <span class="n">init_estimators_bulk</span><span class="p">(</span><span class="n">n_cells</span><span class="p">)</span>
-<span class="n">estimators_line_global</span> <span class="o">=</span> <span class="n">init_estimators_line</span><span class="p">(</span><span class="n">tau_sobolev_shape</span><span class="p">)</span>
+<span class="n">estimators_line_global</span> <span class="o">=</span> <span class="n">init_estimators_line</span><span class="p">(</span><span class="n">n_lines_by_n_cells_tuple</span><span class="p">)</span>
 <span class="n">estimators_continuum_global</span> <span class="o">=</span> <span class="n">init_estimators_continuum</span><span class="p">(</span><span class="n">gamma_shape</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">)</span>
 
 <span class="c1"># Local estimators - one per thread</span>
 <span class="n">estimators_bulk_list_local</span> <span class="o">=</span> <span class="n">create_estimators_bulk_list</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">n_threads</span><span class="p">)</span>
-<span class="n">estimators_line_list_local</span> <span class="o">=</span> <span class="n">create_estimators_line_list</span><span class="p">(</span><span class="n">tau_sobolev_shape</span><span class="p">,</span> <span class="n">n_threads</span><span class="p">)</span>
+<span class="n">estimators_line_list_local</span> <span class="o">=</span> <span class="n">create_estimators_line_list</span><span class="p">(</span><span class="n">n_lines_by_n_cells_tuple</span><span class="p">,</span> <span class="n">n_threads</span><span class="p">)</span>
 <span class="n">estimators_continuum_list_local</span> <span class="o">=</span> <span class="n">create_estimators_continuum_list</span><span class="p">(</span><span class="n">gamma_shape</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">,</span> <span class="n">n_threads</span><span class="p">)</span>
 
 <span class="c1"># After parallel loop: accumulate results</span>
@@ -727,7 +727,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 12 Feb 2026.
+      <span class="lastupdated">Last updated on 13 Feb 2026.
       </span></p>
   </div>
 

@@ -374,7 +374,7 @@
     ")\n",
     "\n",
     "# Initialize separate estimators for bulk, line, and continuum\n",
-    "tau_sobolev_shape = opacity_state.tau_sobolev.shape\n",
+    "n_lines_by_n_cells_tuple = opacity_state.tau_sobolev.shape\n",
     "gamma_shape = (0, geometry_state.no_of_shells)\n",
     "n_cells = geometry_state.no_of_shells\n",
     "\n",
