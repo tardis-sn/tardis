@@ -30,42 +30,6 @@ class OpacitySolver:
         self.line_interaction_type = line_interaction_type
         self.disable_line_scattering = disable_line_scattering
 
-    def legacy_solve(self, plasma) -> OpacityState:
-        """
-        Solves the opacity state
-
-        Parameters
-        ----------
-        plasma : tardis.plasma.BasePlasma
-            legacy base plasma
-
-        Returns
-        -------
-        OpacityState
-        """
-        if self.disable_line_scattering:
-            tau_sobolev = pd.DataFrame(
-                np.zeros(
-                    (
-                        plasma.atomic_data.lines.shape[0],  # number of lines
-                        plasma.number_density.shape[1],  # number of shells
-                    ),
-                    dtype=np.float64,
-                ),
-                index=plasma.atomic_data.lines.index,
-            )
-        else:
-            tau_sobolev = calculate_sobolev_line_opacity(
-                plasma.atomic_data.lines,
-                plasma.level_number_density,
-                plasma.time_explosion,
-                plasma.stimulated_emission_factor,
-            )
-
-        opacity_state = OpacityState.from_legacy_plasma(plasma, tau_sobolev)
-
-        return opacity_state
-
     def solve(self, plasma) -> OpacityState:
         """
         Solves the opacity state
@@ -90,6 +54,7 @@ class OpacitySolver:
                 ),
                 index=plasma.atomic_data.lines.index,
             )
+
         else:
             tau_sobolev = calculate_sobolev_line_opacity(
                 plasma.atomic_data.lines,
@@ -97,7 +62,7 @@ class OpacitySolver:
                 plasma.time_explosion,
                 plasma.stimulated_emission_factor,
             )
-            beta_sobolev = calculate_beta_sobolev(tau_sobolev)
+        beta_sobolev = calculate_beta_sobolev(tau_sobolev)
 
         opacity_state = OpacityState.from_plasma(
             plasma, tau_sobolev, beta_sobolev
