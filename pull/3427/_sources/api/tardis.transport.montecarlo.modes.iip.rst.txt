@@ -1,0 +1,10 @@
+tardis.transport.montecarlo.modes.iip package
+=============================================
+
+Module contents
+---------------
+
+.. automodule:: tardis.transport.montecarlo.modes.iip
+   :members:
+   :show-inheritance:
+   :undoc-members:
