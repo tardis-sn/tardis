@@ -79,12 +79,12 @@ Example:
 ```python
 # Global estimators - final accumulated results
 estimators_bulk_global = init_estimators_bulk(n_cells)
-estimators_line_global = init_estimators_line(tau_sobolev_shape)
+estimators_line_global = init_estimators_line(n_lines_by_n_cells_tuple)
 estimators_continuum_global = init_estimators_continuum(gamma_shape, n_cells)
 
 # Local estimators - one per thread
 estimators_bulk_list_local = create_estimators_bulk_list(n_cells, n_threads)
-estimators_line_list_local = create_estimators_line_list(tau_sobolev_shape, n_threads)
+estimators_line_list_local = create_estimators_line_list(n_lines_by_n_cells_tuple, n_threads)
 estimators_continuum_list_local = create_estimators_continuum_list(gamma_shape, n_cells, n_threads)
 
 # After parallel loop: accumulate results

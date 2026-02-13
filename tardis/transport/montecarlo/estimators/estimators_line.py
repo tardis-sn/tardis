@@ -62,22 +62,22 @@ class EstimatorsLine:
 
 @nb.njit(**njit_dict_no_parallel)
 def init_estimators_line(
-    tau_sobolev_shape: tuple[int, int],
+    n_lines_by_n_cells_tuple: tuple[int, int],
 ) -> EstimatorsLine:
     """
     Factory function to create and initialize EstimatorsLine.
 
     Parameters
     ----------
-    tau_sobolev_shape
+    n_lines_by_n_cells_tuple
         Shape of tau_sobolev array (n_lines, n_cells).
 
     Returns
     -------
     Initialized estimators with zero-filled arrays.
     """
-    mean_intensity_blueward = np.zeros(tau_sobolev_shape, dtype=np.float64)
-    energy_deposition_line_rate = np.zeros(tau_sobolev_shape, dtype=np.float64)
+    mean_intensity_blueward = np.zeros(n_lines_by_n_cells_tuple, dtype=np.float64)
+    energy_deposition_line_rate = np.zeros(n_lines_by_n_cells_tuple, dtype=np.float64)
 
     return EstimatorsLine(mean_intensity_blueward, energy_deposition_line_rate)
 
