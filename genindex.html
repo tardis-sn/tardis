@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8df030e5"></script>
+      <script src="_static/documentation_options.js?v=aab69153"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -369,13 +369,15 @@
         <li><a href="api/tardis.opacities.tau_sobolev.html#tardis.opacities.tau_sobolev.BetaSobolev">(class in tardis.opacities.tau_sobolev)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_COOLING">BF_COOLING (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.montecarlo.interaction_events.html#tardis.transport.montecarlo.interaction_events.bf_cooling">bf_cooling() (in module tardis.transport.montecarlo.interaction_events)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.BF_EMISSION">BF_EMISSION (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.bf_heating_estimator">bf_heating_estimator (tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum attribute)</a>
 </li>
       <li><a href="api/tardis.opacities.continuum.continuum_state.html#tardis.opacities.continuum.continuum_state.ContinuumState.bf_threshold_list_nu">bf_threshold_list_nu (tardis.opacities.continuum.continuum_state.ContinuumState property)</a>
 </li>
@@ -561,8 +563,6 @@
         <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.calculate">(tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities method)</a>
 </li>
         <li><a href="api/tardis.opacities.continuum.bound_free.html#tardis.opacities.continuum.bound_free.BoundFreeOpacity.calculate">(tardis.opacities.continuum.bound_free.BoundFreeOpacity method)</a>
-</li>
-        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.calculate">(tardis.opacities.macro_atom.base.TransitionProbabilities method)</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.calculate">(tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs method)</a>
 </li>
@@ -865,8 +865,6 @@
         <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensity.calculate_with_n_electron">(tardis.plasma.properties.ion_population.IonNumberDensity static method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.plasma.properties.atomic.html#tardis.plasma.properties.atomic.YgData.calculate_yg_van_regemorter">calculate_yg_van_regemorter() (tardis.plasma.properties.atomic.YgData class method)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.Timer.cancel">cancel() (tardis.visualization.widgets.util.Timer method)</a>
@@ -877,6 +875,8 @@
 </li>
       <li><a href="api/tardis.io.util.html#tardis.io.util.check_equality">check_equality() (in module tardis.io.util)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.check_eventhandler">check_eventhandler() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
       <li><a href="api/tardis.spectrum.formal_integral.base.html#tardis.spectrum.formal_integral.base.check_formal_integral_requirements">check_formal_integral_requirements() (in module tardis.spectrum.formal_integral.base)</a>
@@ -906,7 +906,17 @@
 </li>
         <li><a href="api/tardis.transport.montecarlo.configuration.base.html#tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration.class_type">(tardis.transport.montecarlo.configuration.base.MonteCarloConfiguration attribute)</a>
 </li>
-        <li><a href="api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators.class_type">(tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators attribute)</a>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.class_type">(tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk attribute)</a>
+</li>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.class_type">(tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum attribute)</a>
+</li>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.class_type">(tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine attribute)</a>
+</li>
+        <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatorsBulk.class_type">(tardis.transport.montecarlo.estimators.EstimatorsBulk attribute)</a>
+</li>
+        <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatorsContinuum.class_type">(tardis.transport.montecarlo.estimators.EstimatorsContinuum attribute)</a>
+</li>
+        <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatorsLine.class_type">(tardis.transport.montecarlo.estimators.EstimatorsLine attribute)</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.PacketCollection.class_type">(tardis.transport.montecarlo.packets.packet_collections.PacketCollection attribute)</a>
 </li>
@@ -1101,8 +1111,6 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.convert_species_to_multi_index">convert_species_to_multi_index() (in module tardis.plasma.assembly.base)</a>
 </li>
-      <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.convert_to_nuclide_mass_fractions">convert_to_nuclide_mass_fractions() (in module tardis.io.model.parse_mass_fraction_configuration)</a>
-</li>
       <li><a href="api/tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin.convert_to_snake_case">convert_to_snake_case() (tardis.io.hdf_writer_mixin.HDFWriterMixin static method)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.InverseProcess.cooling">cooling (tardis.iip_plasma.continuum.base.InverseProcess attribute)</a>
@@ -1131,6 +1139,24 @@
 </li>
       <li><a href="api/tardis.energy_input.samplers.html#tardis.energy_input.samplers.create_energy_cdf">create_energy_cdf() (in module tardis.energy_input.samplers)</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.create_estimators_bulk_list">create_estimators_bulk_list() (in module tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.create_estimators_bulk_list">(in module tardis.transport.montecarlo.estimators.estimators_bulk)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.create_estimators_continuum_list">create_estimators_continuum_list() (in module tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.create_estimators_continuum_list">(in module tardis.transport.montecarlo.estimators.estimators_continuum)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.create_estimators_line_list">create_estimators_line_list() (in module tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.create_estimators_line_list">(in module tardis.transport.montecarlo.estimators.estimators_line)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomYAML.create_fields_dict">create_fields_dict() (tardis.visualization.widgets.custom_abundance.CustomYAML method)</a>
 </li>
       <li><a href="api/tardis.io.model.arepo.utils.html#tardis.io.model.arepo.utils.create_full_profile">create_full_profile() (in module tardis.io.model.arepo.utils)</a>
@@ -1384,7 +1410,11 @@
       <li><a href="api/tardis.visualization.widgets.util.html#tardis.visualization.widgets.util.PanelTableWidget.df">df (tardis.visualization.widgets.util.PanelTableWidget property)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.base.html#tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties.dilute_blackbody_radiationfield_state">dilute_blackbody_radiationfield_state (tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatedRadiationFieldProperties.dilute_blackbody_radiationfield_state">(tardis.transport.montecarlo.estimators.EstimatedRadiationFieldProperties attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.plasma.properties.plasma_input.html#tardis.plasma.properties.plasma_input.DilutePlanckianRadField">DilutePlanckianRadField (class in tardis.plasma.properties.plasma_input)</a>
 </li>
       <li><a href="api/tardis.plasma.radiation_field.planck_rad_field.html#tardis.plasma.radiation_field.planck_rad_field.DilutePlanckianRadiationField">DilutePlanckianRadiationField (class in tardis.plasma.radiation_field.planck_rad_field)</a>
@@ -1487,6 +1517,8 @@
         <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.energy">(tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.energy_deposition_line_rate">energy_deposition_line_rate (tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine attribute)</a>
+</li>
       <li><a href="api/tardis.util.environment.html#tardis.util.environment.Environment">Environment (class in tardis.util.environment)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.MoleculeData.equilibrium_constants">equilibrium_constants (tardis.io.atom_data.base.MoleculeData attribute)</a>
@@ -1499,26 +1531,48 @@
 </li>
       <li><a href="api/tardis.energy_input.transport.GXPacket.html#tardis.energy_input.transport.GXPacket.GXPacketStatus.ESCAPED">ESCAPED (tardis.energy_input.transport.GXPacket.GXPacketStatus attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.InteractionType.ESCATTERING">ESCATTERING (tardis.transport.montecarlo.packets.radiative_packet.InteractionType attribute)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.mc_rad_field_solver.html#tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver.estimate_dilute_planck_radiation_field">estimate_dilute_planck_radiation_field() (tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver method)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.mc_rad_field_solver.html#tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver.estimate_jblues">estimate_jblues() (tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.simulation.base.html#tardis.simulation.base.Simulation.estimate_t_inner">estimate_t_inner() (tardis.simulation.base.Simulation method)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_strengths.html#tardis.plasma.equilibrium.rates.photoionization_strengths.EstimatedPhotoionizationCoeffSolver">EstimatedPhotoionizationCoeffSolver (class in tardis.plasma.equilibrium.rates.photoionization_strengths)</a>
 </li>
       <li><a href="api/tardis.plasma.equilibrium.rates.photoionization_rates.html#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver">EstimatedPhotoionizationRateSolver (class in tardis.plasma.equilibrium.rates.photoionization_rates)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.base.html#tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties">EstimatedRadiationFieldProperties (class in tardis.transport.montecarlo.estimators.base)</a>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatedRadiationFieldProperties">EstimatedRadiationFieldProperties (class in tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.base.html#tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties">(class in tardis.transport.montecarlo.estimators.base)</a>
 </li>
+      </ul></li>
       <li><a href="resources/zreferences.html#term-Estimator"><strong>Estimator</strong></a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.ContinuumProcess.estimators">estimators (tardis.iip_plasma.continuum.base.ContinuumProcess property)</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatorsBulk">EstimatorsBulk (class in tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk">(class in tardis.transport.montecarlo.estimators.estimators_bulk)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatorsContinuum">EstimatorsContinuum (class in tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum">(class in tardis.transport.montecarlo.estimators.estimators_continuum)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatorsLine">EstimatorsLine (class in tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine">(class in tardis.transport.montecarlo.estimators.estimators_line)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.energy_input.util.html#tardis.energy_input.util.euler_rodrigues">euler_rodrigues() (in module tardis.energy_input.util)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.event_id">event_id (tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull attribute)</a>
@@ -1572,6 +1626,8 @@
       <li><a href="api/tardis.visualization.tools.convergence_plot.html#tardis.visualization.tools.convergence_plot.ConvergencePlots.fetch_data">fetch_data() (tardis.visualization.tools.convergence_plot.ConvergencePlots method)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.FF_EMISSION">FF_EMISSION (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.ff_heating_estimator">ff_heating_estimator (tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum attribute)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.estimators.html#tardis.iip_plasma.properties.estimators.FfHeatingEstimator">FfHeatingEstimator (class in tardis.iip_plasma.properties.estimators)</a>
 </li>
@@ -1855,10 +1911,10 @@
 </li>
       <li><a href="api/tardis.io.configuration.config_internal.html#tardis.io.configuration.config_internal.get_internal_configuration">get_internal_configuration() (in module tardis.io.configuration.config_internal)</a>
 </li>
-      <li><a href="api/tardis.io.util.html#tardis.io.util.get_internal_data_path">get_internal_data_path() (in module tardis.io.util)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.io.util.html#tardis.io.util.get_internal_data_path">get_internal_data_path() (in module tardis.io.util)</a>
+</li>
       <li><a href="api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor">get_inverse_doppler_factor() (in module tardis.transport.frame_transformations)</a>
 </li>
       <li><a href="api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor_full_relativity">get_inverse_doppler_factor_full_relativity() (in module tardis.transport.frame_transformations)</a>
@@ -1877,8 +1933,6 @@
         <li><a href="api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty.get_latex_label">(tardis.plasma.properties.base.BasePlasmaProperty method)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_macro_atom_data">get_macro_atom_data() (in module tardis.opacities.macro_atom.base)</a>
-</li>
       <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor.get_metastable_upper">get_metastable_upper() (tardis.iip_plasma.properties.radiative_properties.StimulatedEmissionFactor method)</a>
 
       <ul>
@@ -1934,8 +1988,6 @@
       <li><a href="api/tardis.workflows.util.html#tardis.workflows.util.get_tau_integ">get_tau_integ() (in module tardis.workflows.util)</a>
 </li>
       <li><a href="api/tardis.workflows.high_energy.tardis_he_workflow.html#tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow.get_times">get_times() (tardis.workflows.high_energy.tardis_he_workflow.TARDISHEWorkflow method)</a>
-</li>
-      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_transition_probability_coefs">get_transition_probability_coefs() (in module tardis.opacities.macro_atom.base)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.base.html#tardis.iip_plasma.base.BasePlasma.get_value">get_value() (tardis.iip_plasma.base.BasePlasma method)</a>
 
@@ -2111,6 +2163,24 @@
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.exceptions.html#tardis.iip_plasma.continuum.exceptions.IncompletePhotoionizationDataError">IncompletePhotoionizationDataError</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.init_estimators_bulk">init_estimators_bulk() (in module tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.init_estimators_bulk">(in module tardis.transport.montecarlo.estimators.estimators_bulk)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.init_estimators_continuum">init_estimators_continuum() (in module tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.init_estimators_continuum">(in module tardis.transport.montecarlo.estimators.estimators_continuum)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.init_estimators_line">init_estimators_line() (in module tardis.transport.montecarlo.estimators)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.init_estimators_line">(in module tardis.transport.montecarlo.estimators.estimators_line)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.io.model.snec.snec_output.html#tardis.io.model.snec.snec_output.SNECOutput.initial_composition">initial_composition (tardis.io.model.snec.snec_output.SNECOutput attribute)</a>
 </li>
       <li><a href="api/tardis.io.model.snec.snec_output.html#tardis.io.model.snec.snec_output.SNECOutput.initial_quantities">initial_quantities (tardis.io.model.snec.snec_output.SNECOutput attribute)</a>
@@ -2123,8 +2193,6 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.initialize_continuum_properties">initialize_continuum_properties() (tardis.plasma.assembly.base.PlasmaSolverFactory method)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.initialize_estimator_statistics">initialize_estimator_statistics() (in module tardis.transport.montecarlo.estimators.radfield_mc_estimators)</a>
-</li>
       <li><a href="api/tardis.spectrum.formal_integral.formal_integral_numba.html#tardis.spectrum.formal_integral.formal_integral_numba.initialize_formal_integral_inputs">initialize_formal_integral_inputs() (in module tardis.spectrum.formal_integral.formal_integral_numba)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.initialize_iterations_pbar">initialize_iterations_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
@@ -2133,22 +2201,12 @@
 </li>
       <li><a href="api/tardis.transport.montecarlo.packets.packet_collections.html#tardis.transport.montecarlo.packets.packet_collections.initialize_last_interaction_tracker">initialize_last_interaction_tracker() (in module tardis.transport.montecarlo.packets.packet_collections)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_macro_atom_transition_type_filters">initialize_macro_atom_transition_type_filters() (in module tardis.opacities.macro_atom.base)</a>
-
-      <ul>
-        <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.initialize_macro_atom_transition_type_filters">(tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities method)</a>
+      <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.initialize_macro_atom_transition_type_filters">initialize_macro_atom_transition_type_filters() (tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities method)</a>
 </li>
-        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.initialize_macro_atom_transition_type_filters">(tardis.opacities.macro_atom.base.TransitionProbabilities method)</a>
-</li>
-      </ul></li>
       <li><a href="api/tardis.io.model.parse_packet_source_configuration.html#tardis.io.model.parse_packet_source_configuration.initialize_packet_source">initialize_packet_source() (in module tardis.io.model.parse_packet_source_configuration)</a>
 </li>
-      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_transition_probabilities">initialize_transition_probabilities() (in module tardis.opacities.macro_atom.base)</a>
-
-      <ul>
-        <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.initialize_transition_probabilities">(tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver method)</a>
+      <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.initialize_transition_probabilities">initialize_transition_probabilities() (tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver method)</a>
 </li>
-      </ul></li>
       <li><a href="api/tardis.transport.montecarlo.base.html#tardis.transport.montecarlo.base.MonteCarloTransportSolver.initialize_transport_state">initialize_transport_state() (tardis.transport.montecarlo.base.MonteCarloTransportSolver method)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.base.html#tardis.iip_plasma.properties.base.Input">Input (class in tardis.iip_plasma.properties.base)</a>
@@ -2316,13 +2374,17 @@
       <li><a href="api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.j_blue_estimator">j_blue_estimator (tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState property)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.estimators.base.html#tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties.j_blues">j_blues (tardis.transport.montecarlo.estimators.base.EstimatedRadiationFieldProperties attribute)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.html#tardis.transport.montecarlo.estimators.EstimatedRadiationFieldProperties.j_blues">(tardis.transport.montecarlo.estimators.EstimatedRadiationFieldProperties attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState.j_estimator">j_estimator (tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState property)</a>
-</li>
-      <li><a href="api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionState.Jblue_lu">Jblue_lu (tardis.spectrum.formal_integral.source_function.SourceFunctionState attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.spectrum.formal_integral.source_function.html#tardis.spectrum.formal_integral.source_function.SourceFunctionState.Jblue_lu">Jblue_lu (tardis.spectrum.formal_integral.source_function.SourceFunctionState attribute)</a>
+</li>
       <li><a href="api/tardis.iip_plasma.properties.plasma_input.html#tardis.iip_plasma.properties.plasma_input.JBlues">JBlues (class in tardis.iip_plasma.properties.plasma_input)</a>
 
       <ul>
@@ -2979,6 +3041,12 @@
 </li>
       <li><a href="api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density">mean_density (tardis.io.model.artis.data.ArtisData attribute)</a>
 </li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_frequency">mean_frequency (tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.mean_intensity_blueward">mean_intensity_blueward (tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine attribute)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.estimators_bulk.html#tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk.mean_intensity_total">mean_intensity_total (tardis.transport.montecarlo.estimators.estimators_bulk.EstimatorsBulk attribute)</a>
+</li>
       <li><a href="api/tardis.model.matter.decay.html#tardis.model.matter.decay.IsotopicMassFraction.merge">merge() (tardis.model.matter.decay.IsotopicMassFraction method)</a>
 </li>
       <li><a href="resources/zreferences.html#term-Meta-Stable"><strong>Meta-Stable</strong></a>
@@ -3165,13 +3233,7 @@
 </li>
         <li><a href="api/tardis.io.model.csvy.readers.html#module-tardis.io.model.csvy.readers">tardis.io.model.csvy.readers</a>
 </li>
-        <li><a href="api/tardis.io.model.parse_composition_configuration.html#module-tardis.io.model.parse_composition_configuration">tardis.io.model.parse_composition_configuration</a>
-</li>
         <li><a href="api/tardis.io.model.parse_density_configuration.html#module-tardis.io.model.parse_density_configuration">tardis.io.model.parse_density_configuration</a>
-</li>
-        <li><a href="api/tardis.io.model.parse_geometry_configuration.html#module-tardis.io.model.parse_geometry_configuration">tardis.io.model.parse_geometry_configuration</a>
-</li>
-        <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#module-tardis.io.model.parse_mass_fraction_configuration">tardis.io.model.parse_mass_fraction_configuration</a>
 </li>
         <li><a href="api/tardis.io.model.parse_packet_source_configuration.html#module-tardis.io.model.parse_packet_source_configuration">tardis.io.model.parse_packet_source_configuration</a>
 </li>
@@ -3228,8 +3290,6 @@
         <li><a href="api/tardis.opacities.continuum.continuum_state.html#module-tardis.opacities.continuum.continuum_state">tardis.opacities.continuum.continuum_state</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.html#module-tardis.opacities.macro_atom">tardis.opacities.macro_atom</a>
-</li>
-        <li><a href="api/tardis.opacities.macro_atom.base.html#module-tardis.opacities.macro_atom.base">tardis.opacities.macro_atom.base</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.continuum_processes.html#module-tardis.opacities.macro_atom.continuum_processes">tardis.opacities.macro_atom.continuum_processes</a>
 </li>
@@ -3411,11 +3471,15 @@
 </li>
         <li><a href="api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#module-tardis.transport.montecarlo.estimators.continuum_radfield_properties">tardis.transport.montecarlo.estimators.continuum_radfield_properties</a>
 </li>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_bulk.html#module-tardis.transport.montecarlo.estimators.estimators_bulk">tardis.transport.montecarlo.estimators.estimators_bulk</a>
+</li>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#module-tardis.transport.montecarlo.estimators.estimators_continuum">tardis.transport.montecarlo.estimators.estimators_continuum</a>
+</li>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_line.html#module-tardis.transport.montecarlo.estimators.estimators_line">tardis.transport.montecarlo.estimators.estimators_line</a>
+</li>
         <li><a href="api/tardis.transport.montecarlo.estimators.mc_rad_field_solver.html#module-tardis.transport.montecarlo.estimators.mc_rad_field_solver">tardis.transport.montecarlo.estimators.mc_rad_field_solver</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#module-tardis.transport.montecarlo.estimators.radfield_estimator_calcs">tardis.transport.montecarlo.estimators.radfield_estimator_calcs</a>
-</li>
-        <li><a href="api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#module-tardis.transport.montecarlo.estimators.radfield_mc_estimators">tardis.transport.montecarlo.estimators.radfield_mc_estimators</a>
 </li>
         <li><a href="api/tardis.transport.montecarlo.estimators.util.html#module-tardis.transport.montecarlo.estimators.util">tardis.transport.montecarlo.estimators.util</a>
 </li>
@@ -3651,8 +3715,6 @@
       <li><a href="api/tardis.model.geometry.radial1d.html#tardis.model.geometry.radial1d.HomologousRadial1DGeometry.no_of_shells_active">no_of_shells_active (tardis.model.geometry.radial1d.HomologousRadial1DGeometry property)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.NonContinuumTransProbsMask">NonContinuumTransProbsMask (class in tardis.opacities.macro_atom.transition_probabilities)</a>
-</li>
-      <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities">NonMarkovChainTransitionProbabilities (class in tardis.opacities.macro_atom.base)</a>
 </li>
       <li><a href="api/tardis.opacities.macro_atom.macroatom_solver.html#tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver.normalize">normalize (tardis.opacities.macro_atom.macroatom_solver.LegacyMacroAtomSolver attribute)</a>
 </li>
@@ -3899,10 +3961,6 @@
 </li>
         <li><a href="api/tardis.opacities.continuum.bound_free.html#tardis.opacities.continuum.bound_free.BoundFreeOpacity.outputs">(tardis.opacities.continuum.bound_free.BoundFreeOpacity attribute)</a>
 </li>
-        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities.outputs">(tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities attribute)</a>
-</li>
-        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.outputs">(tardis.opacities.macro_atom.base.TransitionProbabilities attribute)</a>
-</li>
         <li><a href="api/tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.html#tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs.outputs">(tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob.RawCollIonTransProbs attribute)</a>
 </li>
         <li><a href="api/tardis.opacities.macro_atom.transition_probabilities.html#tardis.opacities.macro_atom.transition_probabilities.MarkovChainIndex.outputs">(tardis.opacities.macro_atom.transition_probabilities.MarkovChainIndex attribute)</a>
@@ -4138,10 +4196,6 @@
 </li>
       <li><a href="api/tardis.io.atom_data.parse_atom_data.html#tardis.io.atom_data.parse_atom_data.parse_atom_data">parse_atom_data() (in module tardis.io.atom_data.parse_atom_data)</a>
 </li>
-      <li><a href="api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_config">parse_composition_from_config() (in module tardis.io.model.parse_composition_configuration)</a>
-</li>
-      <li><a href="api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_csvy">parse_composition_from_csvy() (in module tardis.io.model.parse_composition_configuration)</a>
-</li>
       <li><a href="api/tardis.io.configuration.config_reader.html#tardis.io.configuration.config_reader.Configuration.parse_convergence_section">parse_convergence_section() (tardis.io.configuration.config_reader.Configuration static method)</a>
 </li>
       <li><a href="api/tardis.io.model.csvy.html#tardis.io.model.csvy.parse_csv_mass_fractions">parse_csv_mass_fractions() (in module tardis.io.model.csvy)</a>
@@ -4150,8 +4204,6 @@
         <li><a href="api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.parse_csv_mass_fractions">(in module tardis.io.model.csvy.readers)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_density_from_config">parse_density_from_config() (in module tardis.io.model.parse_composition_configuration)</a>
-</li>
       <li><a href="api/tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.parse_density_from_csvy">parse_density_from_csvy() (in module tardis.io.model.parse_density_configuration)</a>
 </li>
       <li><a href="api/tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.parse_density_section_config">parse_density_section_config() (in module tardis.io.model.parse_density_configuration)</a>
@@ -4159,14 +4211,6 @@
       <li><a href="api/tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.parse_density_section_csvy">parse_density_section_csvy() (in module tardis.io.model.parse_density_configuration)</a>
 </li>
       <li><a href="api/tardis.scripts.cmfgen2tardis.html#tardis.scripts.cmfgen2tardis.parse_file">parse_file() (in module tardis.scripts.cmfgen2tardis)</a>
-</li>
-      <li><a href="api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_geometry_from_config">parse_geometry_from_config() (in module tardis.io.model.parse_geometry_configuration)</a>
-</li>
-      <li><a href="api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_geometry_from_csvy">parse_geometry_from_csvy() (in module tardis.io.model.parse_geometry_configuration)</a>
-</li>
-      <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_config">parse_mass_fractions_from_config() (in module tardis.io.model.parse_mass_fraction_configuration)</a>
-</li>
-      <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#tardis.io.model.parse_mass_fraction_configuration.parse_mass_fractions_from_csvy">parse_mass_fractions_from_csvy() (in module tardis.io.model.parse_mass_fraction_configuration)</a>
 </li>
       <li><a href="api/tardis.io.model.parse_packet_source_configuration.html#tardis.io.model.parse_packet_source_configuration.parse_packet_source_from_config">parse_packet_source_from_config() (in module tardis.io.model.parse_packet_source_configuration)</a>
 </li>
@@ -4181,8 +4225,6 @@
       <li><a href="api/tardis.io.model.parse_simulation_state.html#tardis.io.model.parse_simulation_state.parse_simulation_state">parse_simulation_state() (in module tardis.io.model.parse_simulation_state)</a>
 </li>
       <li><a href="api/tardis.visualization.plot_util.html#tardis.visualization.plot_util.parse_species_list_util">parse_species_list_util() (in module tardis.visualization.plot_util)</a>
-</li>
-      <li><a href="api/tardis.io.model.parse_geometry_configuration.html#tardis.io.model.parse_geometry_configuration.parse_structure_from_config">parse_structure_from_config() (in module tardis.io.model.parse_geometry_configuration)</a>
 </li>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.MoleculeData.partition_functions">partition_functions (tardis.io.atom_data.base.MoleculeData attribute)</a>
 </li>
@@ -4219,6 +4261,12 @@
       <li><a href="api/tardis.opacities.continuum.continuum_state.html#tardis.opacities.continuum.continuum_state.ContinuumState.photo_ion_block_references">photo_ion_block_references (tardis.opacities.continuum.continuum_state.ContinuumState property)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.ContinuumProcess.photo_ion_estimator">photo_ion_estimator (tardis.iip_plasma.continuum.base.ContinuumProcess property)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.photo_ion_estimator">(tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.photo_ion_estimator_statistics">photo_ion_estimator_statistics (tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum attribute)</a>
 </li>
       <li><a href="api/tardis.opacities.continuum.continuum_state.html#tardis.opacities.continuum.continuum_state.ContinuumState.photo_ion_nu_threshold_maxs">photo_ion_nu_threshold_maxs (tardis.opacities.continuum.continuum_state.ContinuumState property)</a>
 </li>
@@ -4264,14 +4312,14 @@
 </li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.plasma_modules">plasma_modules (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.base.html#tardis.iip_plasma.base.BasePlasma.plasma_properties_dict">plasma_properties_dict (tardis.iip_plasma.base.BasePlasma property)</a>
 
       <ul>
         <li><a href="api/tardis.plasma.base.html#tardis.plasma.base.BasePlasma.plasma_properties_dict">(tardis.plasma.base.BasePlasma property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.exceptions.html#tardis.iip_plasma.exceptions.PlasmaConfigError">PlasmaConfigError</a>, <a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaConfigError">[1]</a>
 </li>
       <li><a href="api/tardis.iip_plasma.exceptions.html#tardis.iip_plasma.exceptions.PlasmaException">PlasmaException</a>, <a href="api/tardis.plasma.exceptions.html#tardis.plasma.exceptions.PlasmaException">[1]</a>
@@ -4337,11 +4385,7 @@
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomData.prepare_macro_atom_data">prepare_macro_atom_data() (tardis.io.atom_data.base.AtomData method)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities.prepare_transition_probabilities">prepare_transition_probabilities() (tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities method)</a>
-
-      <ul>
-        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.prepare_transition_probabilities">(tardis.opacities.macro_atom.base.TransitionProbabilities method)</a>
 </li>
-      </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousBetaSobolev">PreviousBetaSobolev (class in tardis.iip_plasma.properties.nlte)</a>
 
       <ul>
@@ -4474,8 +4518,6 @@
         <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.RadiationFieldCorrection">(class in tardis.plasma.properties.ion_population)</a>
 </li>
       </ul></li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators">RadiationFieldMCEstimators (class in tardis.transport.montecarlo.estimators.radfield_mc_estimators)</a>
-</li>
       <li><a href="api/tardis.plasma.assembly.base.html#tardis.plasma.assembly.base.PlasmaSolverFactory.radiative_rates_type">radiative_rates_type (tardis.plasma.assembly.base.PlasmaSolverFactory attribute)</a>
 </li>
       <li><a href="api/tardis.plasma.base.html#tardis.plasma.base.PlasmaSolverSettings.RADIATIVE_RATES_TYPE">RADIATIVE_RATES_TYPE (tardis.plasma.base.PlasmaSolverSettings attribute)</a>
@@ -4940,8 +4982,14 @@
 </li>
       <li><a href="api/tardis.io.model.readers.stella.html#tardis.io.model.readers.stella.STELLAModel">STELLAModel (class in tardis.io.model.readers.stella)</a>
 </li>
-      <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.ContinuumProcess.stim_recomb_estimator">stim_recomb_estimator (tardis.iip_plasma.continuum.base.ContinuumProcess property)</a>
+      <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.stim_recomb_cooling_estimator">stim_recomb_cooling_estimator (tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum attribute)</a>
 </li>
+      <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.ContinuumProcess.stim_recomb_estimator">stim_recomb_estimator (tardis.iip_plasma.continuum.base.ContinuumProcess property)</a>
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.stim_recomb_estimator">(tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum attribute)</a>
+</li>
+      </ul></li>
       <li><a href="api/tardis.iip_plasma.properties.estimators.html#tardis.iip_plasma.properties.estimators.StimRecombCoolingEstimator">StimRecombCoolingEstimator (class in tardis.iip_plasma.properties.estimators)</a>
 </li>
       <li><a href="api/tardis.iip_plasma.properties.continuum.html#tardis.iip_plasma.properties.continuum.StimRecombCoolingRateCoeff">StimRecombCoolingRateCoeff (class in tardis.iip_plasma.properties.continuum)</a>
@@ -5546,31 +5594,10 @@
 </li>
       </ul></li>
       <li>
-    tardis.io.model.parse_composition_configuration
-
-      <ul>
-        <li><a href="api/tardis.io.model.parse_composition_configuration.html#module-tardis.io.model.parse_composition_configuration">module</a>
-</li>
-      </ul></li>
-      <li>
     tardis.io.model.parse_density_configuration
 
       <ul>
         <li><a href="api/tardis.io.model.parse_density_configuration.html#module-tardis.io.model.parse_density_configuration">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.io.model.parse_geometry_configuration
-
-      <ul>
-        <li><a href="api/tardis.io.model.parse_geometry_configuration.html#module-tardis.io.model.parse_geometry_configuration">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.io.model.parse_mass_fraction_configuration
-
-      <ul>
-        <li><a href="api/tardis.io.model.parse_mass_fraction_configuration.html#module-tardis.io.model.parse_mass_fraction_configuration">module</a>
 </li>
       </ul></li>
       <li>
@@ -5767,13 +5794,6 @@
 
       <ul>
         <li><a href="api/tardis.opacities.macro_atom.html#module-tardis.opacities.macro_atom">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.opacities.macro_atom.base
-
-      <ul>
-        <li><a href="api/tardis.opacities.macro_atom.base.html#module-tardis.opacities.macro_atom.base">module</a>
 </li>
       </ul></li>
       <li>
@@ -6063,8 +6083,6 @@
         <li><a href="api/tardis.plasma.properties.continuum_processes.fast_array_util.html#module-tardis.plasma.properties.continuum_processes.fast_array_util">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.continuum_processes.photo_ion_rate_coeff
 
@@ -6079,6 +6097,8 @@
         <li><a href="api/tardis.plasma.properties.continuum_processes.rates.html#module-tardis.plasma.properties.continuum_processes.rates">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     tardis.plasma.properties.continuum_processes.recomb_rate_coeff
 
@@ -6409,6 +6429,27 @@
 </li>
       </ul></li>
       <li>
+    tardis.transport.montecarlo.estimators.estimators_bulk
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_bulk.html#module-tardis.transport.montecarlo.estimators.estimators_bulk">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.transport.montecarlo.estimators.estimators_continuum
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_continuum.html#module-tardis.transport.montecarlo.estimators.estimators_continuum">module</a>
+</li>
+      </ul></li>
+      <li>
+    tardis.transport.montecarlo.estimators.estimators_line
+
+      <ul>
+        <li><a href="api/tardis.transport.montecarlo.estimators.estimators_line.html#module-tardis.transport.montecarlo.estimators.estimators_line">module</a>
+</li>
+      </ul></li>
+      <li>
     tardis.transport.montecarlo.estimators.mc_rad_field_solver
 
       <ul>
@@ -6420,13 +6461,6 @@
 
       <ul>
         <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#module-tardis.transport.montecarlo.estimators.radfield_estimator_calcs">module</a>
-</li>
-      </ul></li>
-      <li>
-    tardis.transport.montecarlo.estimators.radfield_mc_estimators
-
-      <ul>
-        <li><a href="api/tardis.transport.montecarlo.estimators.radfield_mc_estimators.html#module-tardis.transport.montecarlo.estimators.radfield_mc_estimators">module</a>
 </li>
       </ul></li>
       <li>
@@ -7020,8 +7054,6 @@
       <ul>
         <li><a href="api/tardis.iip_plasma.properties.radiative_properties.html#tardis.iip_plasma.properties.radiative_properties.TransitionProbabilities">(class in tardis.iip_plasma.properties.radiative_properties)</a>
 </li>
-        <li><a href="api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities">(class in tardis.opacities.macro_atom.base)</a>
-</li>
       </ul></li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.TransitionProbabilitiesMixin">TransitionProbabilitiesMixin (class in tardis.iip_plasma.continuum.base)</a>
 </li>
@@ -7063,20 +7095,22 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.update_bar_diagonal">update_bar_diagonal() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#tardis.transport.montecarlo.estimators.radfield_estimator_calcs.update_base_estimators">update_base_estimators() (in module tardis.transport.montecarlo.estimators.radfield_estimator_calcs)</a>
-</li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#tardis.transport.montecarlo.estimators.radfield_estimator_calcs.update_bound_free_estimators">update_bound_free_estimators() (in module tardis.transport.montecarlo.estimators.radfield_estimator_calcs)</a>
-</li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.DensityEditor.update_density_plot">update_density_plot() (tardis.visualization.widgets.custom_abundance.DensityEditor method)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table">update_element_count_table() (tardis.visualization.widgets.shell_info.ShellInfoWidget method)</a>
 </li>
-      <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.update_front_end">update_front_end() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
+      <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#tardis.transport.montecarlo.estimators.radfield_estimator_calcs.update_estimators_bound_free">update_estimators_bound_free() (in module tardis.transport.montecarlo.estimators.radfield_estimator_calcs)</a>
 </li>
-      <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.update_he_population">update_he_population() (tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE method)</a>
+      <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#tardis.transport.montecarlo.estimators.radfield_estimator_calcs.update_estimators_bulk">update_estimators_bulk() (in module tardis.transport.montecarlo.estimators.radfield_estimator_calcs)</a>
+</li>
+      <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#tardis.transport.montecarlo.estimators.radfield_estimator_calcs.update_estimators_line">update_estimators_line() (in module tardis.transport.montecarlo.estimators.radfield_estimator_calcs)</a>
+</li>
+      <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.update_front_end">update_front_end() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/tardis.plasma.properties.ion_population.html#tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE.update_he_population">update_he_population() (tardis.plasma.properties.ion_population.IonNumberDensityHeNLTE method)</a>
+</li>
       <li><a href="api/tardis.iip_plasma.properties.ion_population.html#tardis.iip_plasma.properties.ion_population.IonNumberDensity.update_helium_nlte">update_helium_nlte() (tardis.iip_plasma.properties.ion_population.IonNumberDensity method)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.update_input_item_value">update_input_item_value() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
@@ -7088,8 +7122,6 @@
       <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table">update_level_count_table() (tardis.visualization.widgets.shell_info.ShellInfoWidget method)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.update_line_color">update_line_color() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
-</li>
-      <li><a href="api/tardis.transport.montecarlo.estimators.radfield_estimator_calcs.html#tardis.transport.montecarlo.estimators.radfield_estimator_calcs.update_line_estimators">update_line_estimators() (in module tardis.transport.montecarlo.estimators.radfield_estimator_calcs)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.update_packets_pbar">update_packets_pbar() (in module tardis.transport.montecarlo.progress_bars)</a>
 </li>

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=8df030e5"></script>
+      <script src="../../../../../_static/documentation_options.js?v=aab69153"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -158,7 +158,7 @@ logger = logging.getLogger(__name__)
 
 
 <div class="viewcode-block" id="load_csvy">
-<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.load_csvy">[docs]</a>
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.load_csvy">[docs]</a>
 def load_csvy(fname: str | Path) -&gt; CSVYData:
     &quot;&quot;&quot;
     Load CSVY file and return a CSVYData dataclass object.
@@ -284,7 +284,7 @@ def load_csvy(fname: str | Path) -&gt; CSVYData:
 
 
 <div class="viewcode-block" id="load_yaml_from_csvy">
-<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.load_yaml_from_csvy">[docs]</a>
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.load_yaml_from_csvy">[docs]</a>
 def load_yaml_from_csvy(fpath: str | Path) -&gt; dict:
     &quot;&quot;&quot;
     Load only the YAML metadata from a CSVY file.
@@ -325,7 +325,7 @@ def load_yaml_from_csvy(fpath: str | Path) -&gt; dict:
 
 
 <div class="viewcode-block" id="load_csv_from_csvy">
-<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.load_csv_from_csvy">[docs]</a>
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.load_csv_from_csvy">[docs]</a>
 def load_csv_from_csvy(fpath: str | Path) -&gt; pd.DataFrame | None:
     &quot;&quot;&quot;
     Load only the CSV data from a CSVY file.
@@ -365,7 +365,7 @@ def load_csv_from_csvy(fpath: str | Path) -&gt; pd.DataFrame | None:
 
 
 <div class="viewcode-block" id="parse_csv_mass_fractions">
-<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.parse_csv_mass_fractions">[docs]</a>
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.parse_csv_mass_fractions">[docs]</a>
 def parse_csv_mass_fractions(
     csvy_data: pd.DataFrame,
 ) -&gt; tuple[pd.Index, pd.DataFrame, pd.DataFrame]:
