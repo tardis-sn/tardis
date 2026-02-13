@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5b138dec"></script>
+      <script src="../_static/documentation_options.js?v=51f1a618"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -230,7 +230,53 @@ transfer problem.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.base.MonteCarloTransportSolver.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress_bars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/base.html#MonteCarloTransportSolver.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.base.MonteCarloTransportSolver.run" title="Link to this definition">¶</a></dt>
-<dd><p>Run the montecarlo calculation</p>
+<dd><p>Run the montecarlo calculation.</p>
+<p>Automatically detects which mode to use (classic or IIP) based on
+whether continuum processes are enabled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>transport_state</strong><span class="classifier">tardis.transport.montecarlo.transport_state.TransportState</span></dt><dd><p>Transport state containing all the data needed for the Monte Carlo simulation</p>
+</dd>
+<dt><strong>show_progress_bars</strong><span class="classifier">bool</span></dt><dd><p>Show progress bars</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>v_packets_energy_hist</strong><span class="classifier">ndarray</span></dt><dd><p>Histogram of energy from virtual packets</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.base.MonteCarloTransportSolver.run_classic">
+<span class="sig-name descname"><span class="pre">run_classic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress_bars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/base.html#MonteCarloTransportSolver.run_classic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.base.MonteCarloTransportSolver.run_classic" title="Link to this definition">¶</a></dt>
+<dd><p>Run the montecarlo calculation using classic mode (no continuum).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>transport_state</strong><span class="classifier">tardis.transport.montecarlo.transport_state.TransportState</span></dt><dd><p>Transport state containing all the data needed for the Monte Carlo simulation</p>
+</dd>
+<dt><strong>show_progress_bars</strong><span class="classifier">bool</span></dt><dd><p>Show progress bars</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>v_packets_energy_hist</strong><span class="classifier">ndarray</span></dt><dd><p>Histogram of energy from virtual packets</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.base.MonteCarloTransportSolver.run_iip">
+<span class="sig-name descname"><span class="pre">run_iip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress_bars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/base.html#MonteCarloTransportSolver.run_iip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.base.MonteCarloTransportSolver.run_iip" title="Link to this definition">¶</a></dt>
+<dd><p>Run the montecarlo calculation using IIP mode (with continuum).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
