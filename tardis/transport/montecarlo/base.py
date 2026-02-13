@@ -7,7 +7,6 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
@@ -17,9 +16,6 @@ from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
 )
 from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
     montecarlo_transport as montecarlo_main_loop,
-)
-from tardis.transport.montecarlo.modes.iip.montecarlo_transport import (
-    montecarlo_transport as montecarlo_main_loop_iip,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
@@ -156,9 +152,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         """
         Run the montecarlo calculation.
 
-        Automatically detects which mode to use (classic or IIP) based on
-        whether continuum processes are enabled.
-
         Parameters
         ----------
         transport_state : tardis.transport.montecarlo.transport_state.TransportState
@@ -171,11 +164,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         v_packets_energy_hist : ndarray
             Histogram of energy from virtual packets
         """
-        # Detect which mode to use based on continuum processes flag
-        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-            return self.run_iip(transport_state, show_progress_bars)
-        else:
-            return self.run_classic(transport_state, show_progress_bars)
+        return self.run_classic(transport_state, show_progress_bars)
 
     def run_classic(
         self,
@@ -239,107 +228,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # Attach estimators to transport state
         transport_state.estimators_bulk = estimators_bulk
         transport_state.estimators_line = estimators_line
-
-        # Last interaction trackers are already populated directly in the list
-        # No finalization needed with direct list approach
-
-        if self.montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
-            number_of_vpackets > 0
-        ):
-            transport_state.vpacket_tracker = vpacket_tracker
-
-        update_iterations_pbar(1)
-        refresh_packet_pbar()
-
-        # Need to change the implementation of rpacket_trackers_to_dataframe
-        # Such that it also takes of the case of
-        # RPacketLastInteractionTracker
-        if self.enable_rpacket_tracking:
-            self.transport_state.tracker_full_df = trackers_full_to_df(
-                trackers_list
-            )
-            self.transport_state.tracker_last_interaction_df = (
-                tracker_full_df2tracker_last_interaction_df(
-                    self.transport_state.tracker_full_df
-                )
-            )
-        else:
-            self.transport_state.tracker_full_df = None
-            self.transport_state.tracker_last_interaction_df = (
-                trackers_last_interaction_to_df(trackers_list)
-            )
-
-        transport_state.virt_logging = (
-            self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
-        )
-
-        return v_packets_energy_hist
-
-    def run_iip(
-        self,
-        transport_state,
-        show_progress_bars=True,
-    ):
-        """
-        Run the montecarlo calculation using IIP mode (with continuum).
-
-        Parameters
-        ----------
-        transport_state : tardis.transport.montecarlo.transport_state.TransportState
-            Transport state containing all the data needed for the Monte Carlo simulation
-        show_progress_bars : bool
-            Show progress bars
-
-        Returns
-        -------
-        v_packets_energy_hist : ndarray
-            Histogram of energy from virtual packets
-        """
-        set_num_threads(self.nthreads)
-        self.transport_state = transport_state
-
-        number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
-        number_of_rpackets = len(transport_state.packet_collection.initial_nus)
-
-        if self.enable_rpacket_tracking:
-            trackers_list = generate_tracker_full_list(
-                number_of_rpackets,
-                self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
-            )
-        else:
-            # Initialize the last interaction tracker list directly
-            trackers_list = generate_tracker_last_interaction_list(
-                number_of_rpackets
-            )
-
-        # Reset packet progress bar for this iteration
-        if show_progress_bars:
-            reset_packet_pbar(number_of_rpackets)
-
-        # IIP mode: returns 5 values including continuum estimators
-        (
-            v_packets_energy_hist,
-            vpacket_tracker,
-            estimators_bulk,
-            estimators_line,
-            estimators_continuum,
-        ) = montecarlo_main_loop_iip(
-            transport_state.packet_collection,
-            transport_state.geometry_state,
-            transport_state.time_explosion.cgs.value,
-            transport_state.opacity_state,
-            self.montecarlo_configuration,
-            transport_state.n_levels_bf_species_by_n_cells_tuple,
-            self.spectrum_frequency_grid.value,
-            trackers_list,
-            number_of_vpackets,
-            show_progress_bars=show_progress_bars,
-        )
-
-        # Attach estimators to transport state
-        transport_state.estimators_bulk = estimators_bulk
-        transport_state.estimators_line = estimators_line
-        transport_state.estimators_continuum = estimators_continuum
 
         # Last interaction trackers are already populated directly in the list
         # No finalization needed with direct list approach
