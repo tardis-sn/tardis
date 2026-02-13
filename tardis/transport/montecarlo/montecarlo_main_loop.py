@@ -96,6 +96,7 @@ def montecarlo_main_loop(
     - estimators_continuum : Updated continuum estimator object containing continuum interaction
       statistics collected during packet propagation
     """
+    return
     no_of_packets = len(packet_collection.initial_nus)
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
