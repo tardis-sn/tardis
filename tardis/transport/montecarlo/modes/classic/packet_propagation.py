@@ -47,7 +47,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
 @njit
-def packet_transport(
+def packet_propagation(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,

@@ -30,7 +30,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 )
 from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 
-from .packet_transport import packet_transport
+from .packet_propagation import packet_propagation
 
 
 @njit(**njit_dict)
@@ -161,7 +161,7 @@ def montecarlo_transport(
         # RPacket Tracker for this thread
         tracker = trackers[i]
 
-        loop = packet_transport(
+        loop = packet_propagation(
             r_packet,
             geometry_state_numba,
             time_explosion,

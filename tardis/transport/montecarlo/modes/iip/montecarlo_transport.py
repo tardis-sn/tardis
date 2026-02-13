@@ -21,8 +21,8 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
     create_estimators_line_list,
     init_estimators_line,
 )
-from tardis.transport.montecarlo.modes.iip.packet_transport import (
-    packet_transport,
+from tardis.transport.montecarlo.modes.iip.packet_propagation import (
+    packet_propagation,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
@@ -177,7 +177,7 @@ def montecarlo_transport(
         # RPacket Tracker for this thread
         tracker = trackers[i]
 
-        loop = packet_transport(
+        loop = packet_propagation(
             r_packet,
             geometry_state_numba,
             time_explosion,
