@@ -457,7 +457,6 @@ methods related to continuum interactions.
 """
 
 
-@pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ["mu", "r", "inv_t_exp", "full_relativity"],
     [
@@ -486,7 +485,6 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
 
 
-@pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ["mu", "r", "inv_t_exp"],
     [
@@ -507,7 +505,6 @@ def test_angle_transformation_invariance(mu, r, inv_t_exp):
     assert_almost_equal(mu_obtained, mu)
 
 
-@pytest.mark.continuumtest
 @pytest.mark.parametrize("full_relativity", [1, 0])
 @pytest.mark.parametrize(
     ["mu", "r", "t_exp", "nu", "nu_line"],

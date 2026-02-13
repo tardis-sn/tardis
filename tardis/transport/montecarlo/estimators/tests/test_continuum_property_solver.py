@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 import pandas.testing as pdt
-import pytest
+from astropy import units as u
 
 from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticPhotoionizationCoeffSolver,
@@ -13,8 +13,6 @@ from tardis.transport.montecarlo.estimators.continuum_radfield_properties import
 )
 
 
-@pytest.mark.skip("Continuum tests skipping until replaced.")
-@pytest.mark.continuum
 def test_continuum_estimators(
     continuum_config,
     nlte_atomic_dataset,
