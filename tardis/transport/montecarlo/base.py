@@ -14,8 +14,8 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
 )
-from tardis.transport.montecarlo.montecarlo_main_loop import (
-    montecarlo_main_loop,
+from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
+    montecarlo_transport as montecarlo_main_loop,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
@@ -190,14 +190,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             vpacket_tracker,
             estimators_bulk,
             estimators_line,
-            estimators_continuum,
         ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
             transport_state.time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
-            transport_state.n_levels_bf_species_by_n_cells_tuple,
             self.spectrum_frequency_grid.value,
             trackers_list,
             number_of_vpackets,
@@ -207,7 +205,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # Attach estimators to transport state
         transport_state.estimators_bulk = estimators_bulk
         transport_state.estimators_line = estimators_line
-        transport_state.estimators_continuum = estimators_continuum
 
         # Last interaction trackers are already populated directly in the list
         # No finalization needed with direct list approach
