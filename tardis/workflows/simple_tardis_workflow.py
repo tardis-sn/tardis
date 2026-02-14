@@ -23,7 +23,7 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.modes.classic.solver import MonteCarloTransportSolver
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
