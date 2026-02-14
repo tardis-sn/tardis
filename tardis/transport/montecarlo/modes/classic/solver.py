@@ -15,8 +15,8 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
 )
-from tardis.transport.montecarlo.modes.iip.montecarlo_transport import (
-    montecarlo_main_loop as montecarlo_transport,
+from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
+    montecarlo_transport as montecarlo_main_loop,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
@@ -118,8 +118,8 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             no_of_packets, seed_offset=iteration
         )
 
-        # IIP mode: continuum processes always enabled
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
+        # Classic mode: continuum processes disabled
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = False
 
         geometry_state = simulation_state.geometry.to_numba()
         opacity_state_numba = opacity_state.to_numba(
@@ -138,8 +138,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
 
-        # IIP mode: full relativity always enabled
-        transport_state.enable_full_relativity = True
+        transport_state.enable_full_relativity = (
+            self.montecarlo_configuration.ENABLE_FULL_RELATIVITY
+        )
 
         configuration_initialize(
             self.montecarlo_configuration, self, no_of_virtual_packets
@@ -153,7 +154,29 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         show_progress_bars=True,
     ):
         """
-        Run the Monte Carlo calculation using IIP mode (continuum always enabled).
+        Run the montecarlo calculation.
+
+        Parameters
+        ----------
+        transport_state : tardis.transport.montecarlo.transport_state.TransportState
+            Transport state containing all the data needed for the Monte Carlo simulation
+        show_progress_bars : bool
+            Show progress bars
+
+        Returns
+        -------
+        v_packets_energy_hist : ndarray
+            Histogram of energy from virtual packets
+        """
+        return self.run_classic(transport_state, show_progress_bars)
+
+    def run_classic(
+        self,
+        transport_state,
+        show_progress_bars=True,
+    ):
+        """
+        Run the montecarlo calculation using classic mode (no continuum).
 
         Parameters
         ----------
@@ -188,20 +211,18 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         if show_progress_bars:
             reset_packet_pbar(number_of_rpackets)
 
-        # IIP mode: returns 5 values including continuum estimators
+        # Classic mode: returns 4 values (no continuum estimators)
         (
             v_packets_energy_hist,
             vpacket_tracker,
             estimators_bulk,
             estimators_line,
-            estimators_continuum,
-        ) = montecarlo_transport(
+        ) = montecarlo_main_loop(
             transport_state.packet_collection,
             transport_state.geometry_state,
             transport_state.time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
-            transport_state.n_levels_bf_species_by_n_cells_tuple,
             self.spectrum_frequency_grid.value,
             trackers_list,
             number_of_vpackets,
@@ -211,9 +232,6 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         # Attach estimators to transport state
         transport_state.estimators_bulk = estimators_bulk
         transport_state.estimators_line = estimators_line
-        transport_state.estimators_continuum = (
-            estimators_continuum  # IIP mode specific
-        )
 
         # Last interaction trackers are already populated directly in the list
         # No finalization needed with direct list approach

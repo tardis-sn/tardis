@@ -4,4 +4,8 @@ Classic mode implements line-only radiation transport without continuum processe
 This is the standard TARDIS transport mode used for most supernova simulations.
 """
 
-__all__ = []
+from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
+    montecarlo_transport,
+)
+
+__all__ = ["montecarlo_transport"]
