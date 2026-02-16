@@ -26,8 +26,6 @@ from tardis.transport.montecarlo.modes.iip.packet_propagation import (
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
-    VPacketCollection,
-    consolidate_vpacket_tracker,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
@@ -44,81 +42,60 @@ def montecarlo_transport(
     opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
     n_levels_bf_species_by_n_cells_tuple: tuple,
-    spectrum_frequency_grid: np.ndarray,
     trackers: List,
     show_progress_bars: bool,
 ):
     """
-    Main loop of the Monte Carlo radiative transfer routine.
+    Main loop of the Monte Carlo radiative transfer routine for IIP mode.
 
-    This function generates the packet objects from the packet collection and propagates them through the ejecta,
-    performing interactions and collecting statistics for the radiative
-    transfer simulation.
+    This function generates packet objects from the packet collection and
+    propagates them through the ejecta, performing interactions with both
+    lines and continuum processes, and collecting statistics for the
+    radiative transfer simulation.
 
     Parameters
     ----------
-    packet_collection
+    packet_collection : PacketCollection
         Collection containing initial packet properties (positions, directions,
-        frequencies, energies, and seeds)
-    geometry_state_numba
+        frequencies, energies, and seeds).
+    geometry_state_numba : NumbaRadial1DGeometry
         Numba-compiled simulation geometry containing shell boundaries
-        and velocity information
-    time_explosion
-        Time since explosion in seconds, used for relativistic calculations
-    opacity_state_numba
+        and velocity information.
+    time_explosion : float
+        Time since explosion in seconds, used for relativistic calculations.
+    opacity_state_numba : OpacityStateNumba
         Numba-compiled opacity state containing line opacities, continuum
-        opacities, and atomic data required for interactions
-    montecarlo_configuration
+        opacities, and atomic data required for interactions.
+    montecarlo_configuration : MonteCarloConfiguration
         Configuration object containing Monte Carlo simulation parameters
-        and flags for various physics modules
-    n_levels_bf_species_by_n_cells_tuple
-        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells)
-    spectrum_frequency_grid
-        Frequency grid array for virtual packet spectrum calculation
-    trackers
-        List of packet trackers for detailed packet interaction logging
-    number_of_vpackets
-        Number of virtual packets to spawn per real packet interaction
-    show_progress_bars
-        Flag to enable/disable progress bar updates during simulation
+        and flags for various physics modules.
+    n_levels_bf_species_by_n_cells_tuple : tuple
+        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells).
+    trackers : numba.typed.List
+        List of packet trackers for detailed packet interaction logging.
+    show_progress_bars : bool
+        Flag to enable/disable progress bar updates during simulation.
 
     Returns
     -------
-    A tuple containing:
-    - v_packets_energy_hist : Energy histogram of virtual packets binned by frequency
-    - vpacket_tracker : Consolidated virtual packet collection containing all virtual
-      packet information from the simulation
-    - estimators_bulk : Updated bulk radiation field estimator object containing cell-level
-      statistics collected during packet propagation
-    - estimators_line : Updated line radiation field estimator object containing line interaction
-      statistics collected during packet propagation
-    - estimators_continuum : Updated continuum estimator object containing continuum interaction
-      statistics collected during packet propagation
+    tuple
+        A tuple containing:
+        - estimators_bulk : EstimatorsBulk
+            Updated bulk radiation field estimator object containing cell-level
+            statistics collected during packet propagation.
+        - estimators_line : EstimatorsLine
+            Updated line radiation field estimator object containing line
+            interaction statistics collected during packet propagation.
+        - estimators_continuum : EstimatorsContinuum
+            Updated continuum estimator object containing continuum interaction
+            statistics collected during packet propagation.
     """
     no_of_packets = len(packet_collection.initial_nus)
-
-    v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
-    delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
-
-    # Pre-allocate a list of vpacket collections for later storage
-    vpacket_collections = List()
-    for i in range(no_of_packets):
-        vpacket_collections.append(
-            VPacketCollection(
-                i,
-                spectrum_frequency_grid,
-                montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-                montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
-                number_of_vpackets,
-                montecarlo_configuration.TEMPORARY_V_PACKET_BINS,
-            )
-        )
 
     # Get the ID of the main thread and the number of threads
     main_thread_id = get_thread_id()
     n_threads = get_num_threads()
 
-    # betting get thread_id goes from 0 to num threads
     # Note that get_thread_id() returns values from 0 to n_threads-1,
     # so we iterate from 0 to n_threads-1 to create the estimator_lists
 
@@ -171,9 +148,7 @@ def montecarlo_transport(
             thread_id
         ]
 
-        # Get the thread-local v_packet_collection for this thread
-        vpacket_collection = vpacket_collections[i]
-        # RPacket Tracker for this thread
+        # Get the RPacket tracker for this thread
         tracker = trackers[i]
 
         loop = packet_propagation(
@@ -198,20 +173,6 @@ def montecarlo_transport(
         # Finalize the tracker (e.g. trim arrays to actual size)
         tracker.finalize()
 
-        # Finalize the vpacket collection to trim arrays to actual size
-        vpacket_collection.finalize_arrays()
-
-        v_packets_idx = np.floor(
-            (vpacket_collection.nus - spectrum_frequency_grid[0]) / delta_nu
-        ).astype(np.int64)
-
-        for j, idx in enumerate(v_packets_idx):
-            if (vpacket_collection.nus[j] < spectrum_frequency_grid[0]) or (
-                vpacket_collection.nus[j] > spectrum_frequency_grid[-1]
-            ):
-                continue
-            v_packets_energy_hist[idx] += vpacket_collection.energies[j]
-
     for estimator_thread in estimators_bulk_list_thread:
         estimators_bulk.increment(estimator_thread)
 
@@ -221,26 +182,7 @@ def montecarlo_transport(
     for estimator_thread in estimators_continuum_list_thread:
         estimators_continuum.increment(estimator_thread)
 
-    if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
-        vpacket_tracker = consolidate_vpacket_tracker(
-            vpacket_collections,
-            spectrum_frequency_grid,
-            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
-        )
-    else:
-        vpacket_tracker = VPacketCollection(
-            -1,
-            spectrum_frequency_grid,
-            montecarlo_configuration.VPACKET_SPAWN_START_FREQUENCY,
-            montecarlo_configuration.VPACKET_SPAWN_END_FREQUENCY,
-            -1,
-            1,
-        )
-
     return (
-        v_packets_energy_hist,
-        vpacket_tracker,
         estimators_bulk,
         estimators_line,
         estimators_continuum,

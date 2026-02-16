@@ -16,7 +16,7 @@ from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
 )
 from tardis.transport.montecarlo.modes.iip.montecarlo_transport import (
-    montecarlo_transport as montecarlo_transport,
+    montecarlo_transport,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
@@ -188,10 +188,8 @@ class MCTransportSolverIIP(HDFWriterMixin):
         if show_progress_bars:
             reset_packet_pbar(number_of_rpackets)
 
-        # IIP mode: returns 5 values including continuum estimators
+        # IIP mode: returns 3 estimator objects (bulk, line, continuum)
         (
-            v_packets_energy_hist,
-            vpacket_tracker,
             estimators_bulk,
             estimators_line,
             estimators_continuum,
@@ -202,9 +200,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
             transport_state.opacity_state,
             self.montecarlo_configuration,
             transport_state.n_levels_bf_species_by_n_cells_tuple,
-            self.spectrum_frequency_grid.value,
             trackers_list,
-            number_of_vpackets,
             show_progress_bars=show_progress_bars,
         )
 
@@ -217,11 +213,6 @@ class MCTransportSolverIIP(HDFWriterMixin):
 
         # Last interaction trackers are already populated directly in the list
         # No finalization needed with direct list approach
-
-        if self.montecarlo_configuration.ENABLE_VPACKET_TRACKING and (
-            number_of_vpackets > 0
-        ):
-            transport_state.vpacket_tracker = vpacket_tracker
 
         update_iterations_pbar(1)
         refresh_packet_pbar()
@@ -244,11 +235,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
                 trackers_last_interaction_to_df(trackers_list)
             )
 
-        transport_state.virt_logging = (
-            self.montecarlo_configuration.ENABLE_VPACKET_TRACKING
-        )
-
-        return v_packets_energy_hist
+        # IIP mode does not currently track virtual packets in montecarlo_transport
 
     @classmethod
     def from_config(
