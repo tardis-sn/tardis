@@ -43,7 +43,7 @@ montecarlo:
   seed: 23111963
   no_of_packets: 100000
   iterations: 4
-  nthreads: 22
+  nthreads: 2 # reduced from 22 to run on GitHub Actions
 
   last_no_of_packets: 1000000
 
