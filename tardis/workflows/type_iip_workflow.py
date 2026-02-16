@@ -283,13 +283,12 @@ class TypeIIPWorkflow(WorkflowLogging):
         delta_r = r_outer - r_inner
         t_inner = initial_t_inner
 
-        v_inner = geometry_state.v_inner_active.value
-
         sigma_T = const.sigma_T.cgs.value
 
         N_H = number_density.loc[1].values
 
         # alternative tau calculation from ctardis
+        # v_inner = geometry_state.v_inner_active.value
         # doppler_factor = 1.0 - v_inner / const.c.cgs.value
         # tau_e_shell = sigma_T * delta_r * N_H
 
@@ -438,9 +437,10 @@ class TypeIIPWorkflow(WorkflowLogging):
         """
         next_values = {}
 
-        for key, solver in self.convergence_solvers.items():
-            next_values[key] = solver.converge(
-                getattr(self.simulation_state, key), estimated_values[key]
+        for estimate_name, solver in self.convergence_solvers.items():
+            next_values[estimate_name] = solver.converge(
+                getattr(self.simulation_state, estimate_name),
+                estimated_values[estimate_name],
             )
 
         self.simulation_state.t_radiative = next_values["t_radiative"]
@@ -511,7 +511,9 @@ class TypeIIPWorkflow(WorkflowLogging):
             **continuum_estimators,
         )
 
-    def thermal_balance_iteration(self, initial, n_e_max):
+    def thermal_balance_iteration(
+        self, initial_guess, max_electron_number_density
+    ):
         """Compute the thermal balance of the plasma
 
         Parameters
@@ -530,14 +532,16 @@ class TypeIIPWorkflow(WorkflowLogging):
             link_t_rad_t_electron for each shell, in the form
             [n_e_frac_1, link_1, n_e_frac_2, link_2,...]
         """
-        n_e_frac = initial[::2]
-        link_t_rad_t_electron = initial[1::2]
+        electron_density_fraction = initial_guess[::2]
+        link_t_rad_t_electron = initial_guess[1::2]
 
         logger.info("Link: %s", link_t_rad_t_electron)
 
         pl = self.plasma_solver
 
-        electron_densities = n_e_max * n_e_frac
+        electron_densities = (
+            max_electron_number_density * electron_density_fraction
+        )
 
         self.plasma_solver.update(
             previous_ion_number_density=pl.ion_number_density.copy(),
@@ -548,12 +552,16 @@ class TypeIIPWorkflow(WorkflowLogging):
             previous_t_electrons=pl.t_rad * link_t_rad_t_electron,
         )
 
-        output = np.zeros(2 * len(self.plasma_solver.fractional_heating))
-        frac_e_change = (
+        solution = np.zeros(2 * len(self.plasma_solver.fractional_heating))
+        normalized_electron_fraction_change = (
             pl.electron_densities - electron_densities
         ) / electron_densities
-        n_e_frac_new = 1 - pl.electron_densities / n_e_max
-        n_e_frac_change = (n_e_frac_new - (1.0 - n_e_frac)) / (1.0 - n_e_frac)
+        electron_density_fraction_new = (
+            1 - pl.electron_densities / max_electron_number_density
+        )
+        electron_density_fraction_change = (
+            electron_density_fraction_new - (1.0 - electron_density_fraction)
+        ) / (1.0 - electron_density_fraction)
 
         if (
             np.logical_not(
@@ -562,15 +570,26 @@ class TypeIIPWorkflow(WorkflowLogging):
             > 0
         ):
             logger.warning("Heating not finite\n")
-        if np.logical_not(np.isfinite(frac_e_change)).sum() > 0:
-            logger.warning("frac e change not finite\n")
+        if (
+            np.logical_not(
+                np.isfinite(normalized_electron_fraction_change)
+            ).sum()
+            > 0
+        ):
+            logger.warning("Fractional electron change not finite\n")
 
-        output[::2] = frac_e_change
-        output[1::2] = self.plasma_solver.fractional_heating
-        logger.info("Frac e change: %s", frac_e_change)
-        logger.info("n_e_frac_change: %s", n_e_frac_change)
+        solution[::2] = normalized_electron_fraction_change
+        solution[1::2] = self.plasma_solver.fractional_heating
+        logger.info(
+            "Normalized electron fraction change: %s",
+            normalized_electron_fraction_change,
+        )
+        logger.info(
+            "Electron density fraction change: %s",
+            electron_density_fraction_change,
+        )
         logger.info("Heating: %s", self.plasma_solver.fractional_heating)
-        return output
+        return solution
 
     def solve_thermal_balance(self):
         """Solve the heating and cooling balance of the plasma iteratively,
@@ -586,10 +605,12 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.simulation_state.radiation_field_state.dilution_factor
                 ** 0.25
             )
-            logger.info("Setting initial guess for link from ws:")
+            logger.info(
+                "Setting initial guess for link between T_rad and T_e from dilution factor:"
+            )
             logger.info(link_t_rad_t_electron_start)
 
-        n_e_max = (
+        max_electron_number_density = (
             (
                 self.plasma_solver.number_density.multiply(
                     self.plasma_solver.number_density.index.values, axis=0
@@ -598,29 +619,29 @@ class TypeIIPWorkflow(WorkflowLogging):
             .sum()
             .values
         )
-        n_e_frac_start = (
-            self.plasma_solver.electron_densities / n_e_max
+        initial_electron_fraction = (
+            self.plasma_solver.electron_densities / max_electron_number_density
         ).values
 
-        logger.info("n_e_frac: %s", n_e_frac_start)
+        logger.info("Initial electron fraction: %s", initial_electron_fraction)
 
-        initial = np.zeros(2 * len(link_t_rad_t_electron_start))
-        initial[::2] = n_e_frac_start
-        initial[1::2] = link_t_rad_t_electron_start
+        initial_guess = np.zeros(2 * len(link_t_rad_t_electron_start))
+        initial_guess[::2] = initial_electron_fraction
+        initial_guess[1::2] = link_t_rad_t_electron_start
         no_shells = self.simulation_state.geometry.no_of_shells_active
 
         jac_sparsity = block_diag([np.ones((2, 2))] * no_shells)
         t_floor = 1500.0 * u.K
-        link_floor = t_floor / self.simulation_state.t_radiative.min()
-        logger.info("Floor Link: %s", link_floor)
+        minimum_t_rad_link = t_floor / self.simulation_state.t_radiative.min()
+        logger.info("Minimum T_rad link: %s", minimum_t_rad_link)
 
-        lbound = [0.0, link_floor] * no_shells
-        ubound = [1.0, 1.5] * no_shells
+        lower_bound = [0.0, minimum_t_rad_link] * no_shells
+        upper_bound = [1.0, 1.5] * no_shells
         self.plasma_solver.plasma_converged = False
         thermal_lsq_result = lsq(
             self.thermal_balance_iteration,
-            initial,
-            bounds=(lbound, ubound),
+            initial_guess,
+            bounds=(lower_bound, upper_bound),
             jac_sparsity=jac_sparsity,
             xtol=1e-14,
             ftol=1e-12,
@@ -629,11 +650,13 @@ class TypeIIPWorkflow(WorkflowLogging):
             max_nfev=100,
             method="trf",
             gtol=1e-14,
-            args=(n_e_max,),
+            args=(max_electron_number_density,),
         )
         self.plasma_solver.plasma_converged = True
         # final thermal_balance_iteration to set values in plasma
-        self.thermal_balance_iteration(thermal_lsq_result.x, n_e_max)
+        self.thermal_balance_iteration(
+            thermal_lsq_result.x, max_electron_number_density
+        )
 
         ion_ratio = (
             self.plasma_solver.ion_number_density.loc[(1, 0)]
@@ -645,7 +668,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             np.fabs(self.plasma_solver.ion_ratio - ion_ratio**-1)
             / ion_ratio**-1
         )
-        logger.info("Ion Ratio Conv: %s", ion_ratio_conv)
+        logger.info("Ion Ratio Convergence: %s", ion_ratio_conv)
 
     def solve_continuum_state(self, continuum_estimators):
         """Update the BaseContinuum object with the latest continuum estimators.
@@ -701,19 +724,19 @@ class TypeIIPWorkflow(WorkflowLogging):
                 * const.h.cgs.value
             ).value
         )
-        damp = self.get_radiation_field_damping_factor(j_estimators)
+        damping_factor = self.get_radiation_field_damping_factor(j_estimators)
 
         continuum_estimators["photo_ion_estimator"] *= (
-            photo_ion_norm_factor * damp
+            photo_ion_norm_factor * damping_factor
         )
         continuum_estimators["stim_recomb_estimator"] *= (
-            photo_ion_norm_factor * damp
+            photo_ion_norm_factor * damping_factor
         )
         continuum_estimators["bf_heating_estimator"] *= (
-            photo_ion_norm_factor * const.h.cgs.value * damp
+            photo_ion_norm_factor * const.h.cgs.value * damping_factor
         )
         continuum_estimators["stim_recomb_cooling_estimator"] *= (
-            photo_ion_norm_factor * const.h.cgs.value * damp
+            photo_ion_norm_factor * const.h.cgs.value * damping_factor
         )
 
         ff_norm_factor = self.get_ff_heating_norm_factor(
@@ -721,9 +744,11 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.plasma_solver.electron_densities.values,
             self.plasma_solver.t_electrons,
         )
-        ff_norm_factor *= photo_ion_norm_factor * const.h.cgs.value * damp
+        ff_norm_factor *= (
+            photo_ion_norm_factor * const.h.cgs.value * damping_factor
+        )
         continuum_estimators["ff_heating_estimator"] *= ff_norm_factor
-        j_blues *= damp
+        j_blues *= damping_factor
         return continuum_estimators, j_blues
 
     def get_radiation_field_damping_factor(self, j_estimators):
