@@ -82,7 +82,7 @@ jobs:
         run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-macos.yml
 
       - name: Run benchmarks for last 4 commits if not PR
-        if: github.event_name != 'pull_request'
+        # if: github.event_name != 'pull_request'
         run: |
           git log -n 4  --pretty=format:"%H" >> tag_commits.txt
           asv run -a rounds=1 HASHFILE:tag_commits.txt | tee asv-output.log
@@ -92,7 +92,7 @@ jobs:
           fi
 
       - name: Generate Graphs and HTML
-        if: github.event_name != 'pull_request'
+        # if: github.event_name != 'pull_request'
         run: asv publish
 
       - name: Delete env files
