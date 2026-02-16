@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.modes.classic.packet\_transport module
-==================================================================
-
-.. automodule:: tardis.transport.montecarlo.modes.classic.packet_transport
-   :members:
-   :show-inheritance:
-   :undoc-members:
