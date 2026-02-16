@@ -900,47 +900,10 @@ class TypeIIPWorkflow(WorkflowLogging):
 
     def initialize_spectrum_solver(
         self,
-        opacity_states,
-        virtual_packet_energies=None,
     ):
-        """Set up the spectrum solver
-
-        Parameters
-        ----------
-        opacity_states : dict
-            Opacity and (optionally) Macro Atom states.
-        virtual_packet_energies : ndarray, optional
-            Array of virtual packet energies binned by frequency, by default None
-        """
-        # Set up spectrum solver
+        """Set up the spectrum solver"""
+        # probably needs to expand again in the future to handle formal integral
         self.spectrum_solver.transport_state = self.transport_state
-
-        if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-                virtual_packet_energies
-            )
-
-        if self.integrated_spectrum_settings is not None:
-            # Set up spectrum solver integrator
-            self.spectrum_solver.integrator_settings = (
-                self.integrated_spectrum_settings
-            )
-            integrator_settings = self.spectrum_solver.integrator_settings
-            formal_integrator = FormalIntegralSolver(
-                integrator_settings.points,
-                integrator_settings.interpolate_shells,
-                getattr(integrator_settings, "method", None),
-            )
-            self.spectrum_solver.setup_optional_spectra(
-                self.transport_state,
-                virtual_packet_luminosity=None,
-                integrator=formal_integrator,
-                simulation_state=self.simulation_state,
-                transport=self.transport_solver,
-                plasma=self.plasma_solver,
-                opacity_state=opacity_states["opacity_state"],
-                macro_atom_state=opacity_states["macro_atom_state"],
-            )
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
@@ -996,7 +959,4 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.virtual_packet_count,
         )
 
-        self.initialize_spectrum_solver(
-            self.opacity_states,
-            virtual_packet_energies,
-        )
+        self.initialize_spectrum_solver()
