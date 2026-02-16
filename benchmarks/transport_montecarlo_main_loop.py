@@ -5,14 +5,14 @@ Basic TARDIS Benchmark.
 import functools
 
 from benchmarks.benchmark_base import BenchmarkBase
-from tardis.transport.montecarlo.montecarlo_main_loop import (
-    montecarlo_main_loop,
+from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
+    montecarlo_transport as montecarlo_main_loop,
 )
 
 
 class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
     """
-    class to benchmark montecarlo_main_loop function.
+    Class to benchmark montecarlo_main_loop function (classic mode).
     """
 
     repeat = 3
