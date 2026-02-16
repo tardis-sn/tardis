@@ -19,6 +19,9 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
     create_estimators_line_list,
     init_estimators_line,
 )
+from tardis.transport.montecarlo.modes.classic.packet_propagation import (
+    packet_propagation,
+)
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
     VPacketCollection,
@@ -29,8 +32,6 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     RPacket,
 )
 from tardis.transport.montecarlo.progress_bars import update_packets_pbar
-
-from .packet_propagation import packet_propagation
 
 
 @njit(**njit_dict)
