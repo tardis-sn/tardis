@@ -15,7 +15,7 @@ from tardis.transport.montecarlo.packets.packet_collections import (
 
 
 @pytest.fixture(scope="function")
-def montecarlo_main_loop_config(
+def montecarlo_transport_config(
     config_montecarlo_1e5_verysimple,
 ):
     # Setup model config from verysimple

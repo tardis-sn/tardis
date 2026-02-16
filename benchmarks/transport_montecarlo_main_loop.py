@@ -6,13 +6,13 @@ import functools
 
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
-    montecarlo_transport as montecarlo_main_loop,
+    montecarlo_transport,
 )
 
 
 class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
     """
-    Class to benchmark montecarlo_main_loop function (classic mode).
+    Class to benchmark montecarlo_transport function (classic mode).
     """
 
     repeat = 3
@@ -27,8 +27,8 @@ class BenchmarkTransportMontecarloMontecarloMainLoop(BenchmarkBase):
             self.transport_state.radfield_mc_estimators
         )
 
-    def time_montecarlo_main_loop(self):
-        montecarlo_main_loop(
+    def time_montecarlo_transport(self):
+        montecarlo_transport(
             self.packet_collection,
             self.geometry_state,
             self.time_explosion,
