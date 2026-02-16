@@ -67,26 +67,25 @@ jobs:
         with:
           atom-data-sparse: true
 
-      - name: Download environment file
-        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
-
-      - name: Generate Cache Key
-        id: cache-environment-key
-        run: |
-          file_hash=$(cat env-benchmark-linux.yml | shasum -a 256 | cut -d' ' -f1)
-          echo "file_hash=tardis-conda-env-linux-64-${file_hash}-v1" >> "${GITHUB_OUTPUT}"
-
-      - name: Setup Micromamba and Cache
+      - name: Setup Mamba
         uses: mamba-org/setup-micromamba@v2
         with:
-          environment-file: env-benchmark-linux.yml
-          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
-          environment-name: tardis
-          cache-environment: true
+          environment-name: benchmark
+          init-shell: >-
+            bash
+          create-args: >-
+            python
+            asv=0.6.4
+            mamba
+            libmambapy<2.0
+            conda-build
+            conda=24.11.0
 
       - name: Accept all asv questions
         run: asv machine --yes
+
+      - name: Download environment file for benchmarks
+        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
 
       - name: Run benchmarks for last 4 commits if not PR
         if: github.event_name != 'pull_request'
