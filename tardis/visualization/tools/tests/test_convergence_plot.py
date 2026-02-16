@@ -223,7 +223,7 @@ def test_convergence_plot_command_line(
     config_verysimple, atomic_dataset, monkeysession
 ):
     monkeysession.setattr(
-        "tardis.util.environment.Environment.is_notebook",
+        "tardis.util.environment.Environment.allows_widget_display",
         lambda: False,
     )
     atomic_data = deepcopy(atomic_dataset)
