@@ -6,7 +6,7 @@ with continuum processes and full relativistic corrections always enabled.
 """
 
 from tardis.transport.montecarlo.modes.iip.montecarlo_transport import (
-    montecarlo_main_loop as montecarlo_transport,
+    montecarlo_transport as montecarlo_transport,
 )
 
 __all__ = ["montecarlo_transport"]

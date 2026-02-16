@@ -22,7 +22,7 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
     init_estimators_line,
 )
 from tardis.transport.montecarlo.modes.iip.packet_propagation import (
-    single_packet_loop,
+    packet_propagation,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
@@ -37,7 +37,7 @@ from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 
 
 @njit(**njit_dict)
-def montecarlo_main_loop(
+def montecarlo_transport(
     packet_collection: PacketCollection,
     geometry_state_numba: NumbaRadial1DGeometry,
     time_explosion: float,
@@ -46,7 +46,6 @@ def montecarlo_main_loop(
     n_levels_bf_species_by_n_cells_tuple: tuple,
     spectrum_frequency_grid: np.ndarray,
     trackers: List,
-    number_of_vpackets: int,
     show_progress_bars: bool,
 ):
     """
@@ -96,7 +95,6 @@ def montecarlo_main_loop(
     - estimators_continuum : Updated continuum estimator object containing continuum interaction
       statistics collected during packet propagation
     """
-    return
     no_of_packets = len(packet_collection.initial_nus)
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency_grid)
@@ -178,7 +176,7 @@ def montecarlo_main_loop(
         # RPacket Tracker for this thread
         tracker = trackers[i]
 
-        loop = single_packet_loop(
+        loop = packet_propagation(
             r_packet,
             geometry_state_numba,
             time_explosion,
@@ -186,7 +184,6 @@ def montecarlo_main_loop(
             estimators_bulk_thread,
             estimators_line_thread,
             estimators_continuum_thread,
-            vpacket_collection,
             tracker,
             montecarlo_configuration,
         )

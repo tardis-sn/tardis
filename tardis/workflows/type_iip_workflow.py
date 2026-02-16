@@ -33,7 +33,7 @@ from tardis.spectrum.luminosity import (
 )
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.modes.iip.solver import (
-    MonteCarloTransportSolver,
+    MCTransportSolverIIP,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
@@ -183,7 +183,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         )
 
         self.transport_state = None
-        self.transport_solver = MonteCarloTransportSolver.from_config(
+        self.transport_solver = MCTransportSolverIIP.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
             enable_virtual_packet_logging=self.enable_virtual_packet_logging,

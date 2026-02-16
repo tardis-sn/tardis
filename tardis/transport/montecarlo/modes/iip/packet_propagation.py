@@ -46,15 +46,12 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
 )
-from tardis.transport.montecarlo.packets.virtual_packet import (
-    trace_vpacket_volley,
-)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
 @njit
-def single_packet_loop(
+def packet_propagation(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
@@ -62,7 +59,6 @@ def single_packet_loop(
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     estimators_continuum: EstimatorsContinuum,
-    vpacket_collection: VPacketCollection,
     rpacket_tracker,  # Excluded from type hints as it might be different types
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
@@ -111,17 +107,6 @@ def single_packet_loop(
         opacity_state,
         time_explosion,
         enable_full_relativity=True,
-    )
-
-    trace_vpacket_volley(
-        r_packet,
-        vpacket_collection,
-        numba_radial_1d_geometry,
-        time_explosion,
-        opacity_state,
-        enable_full_relativity=True,
-        tau_russian=montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-        survival_probability=montecarlo_configuration.SURVIVAL_PROBABILITY,
     )
 
     rpacket_tracker.track_boundary_event(
@@ -222,16 +207,6 @@ def single_packet_loop(
                 enable_full_relativity=True,
             )
             rpacket_tracker.track_line_interaction_after(r_packet)
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                numba_radial_1d_geometry,
-                time_explosion,
-                opacity_state,
-                enable_full_relativity=True,
-                tau_russian=montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                survival_probability=montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(
@@ -249,16 +224,6 @@ def single_packet_loop(
             )
             rpacket_tracker.track_escattering_interaction_after(r_packet)
 
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                numba_radial_1d_geometry,
-                time_explosion,
-                opacity_state,
-                enable_full_relativity=True,
-                tau_russian=montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                survival_probability=montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
         # IIP mode: continuum processes always enabled
         elif interaction_type == InteractionType.CONTINUUM_PROCESS:
             move_r_packet(
@@ -282,16 +247,6 @@ def single_packet_loop(
 
             rpacket_tracker.track_continuum_interaction_after(r_packet)
 
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                numba_radial_1d_geometry,
-                time_explosion,
-                opacity_state,
-                enable_full_relativity=True,
-                tau_russian=montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                survival_probability=montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
         else:
             # Handle any unrecognized interaction types
             rpacket_tracker.track_boundary_event(

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import tardis.transport.montecarlo.modes.classic.rad_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
-import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
 from tardis.transport.frame_transformations import (
@@ -13,10 +13,10 @@ from tardis.transport.frame_transformations import (
     angle_aberration_LF_to_CMF,
     get_doppler_factor,
 )
+from tardis.transport.montecarlo.estimators import init_estimators_bulk
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
 )
-from tardis.transport.montecarlo.estimators import init_estimators_bulk
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
