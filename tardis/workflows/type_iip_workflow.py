@@ -887,7 +887,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             iteration=self.completed_iterations,
         )
 
-        virtual_packet_energies = self.transport_solver.run(
+        self.transport_solver.run(
             self.transport_state,
             show_progress_bars=self.show_progress_bars,
         )
@@ -895,8 +895,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         output_energy = self.transport_state.packet_collection.output_energies
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
-
-        return virtual_packet_energies
 
     def initialize_spectrum_solver(
         self,
@@ -920,9 +918,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.opacity_states = self.solve_opacity()
 
-            virtual_packet_energies = self.solve_montecarlo(
-                self.opacity_states, self.real_packet_count
-            )
+            self.solve_montecarlo(self.opacity_states, self.real_packet_count)
 
             (
                 estimated_values,
@@ -953,7 +949,7 @@ class TypeIIPWorkflow(WorkflowLogging):
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         self.opacity_states = self.solve_opacity()
-        virtual_packet_energies = self.solve_montecarlo(
+        self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
