@@ -127,11 +127,23 @@ jobs:
       - name: Setup LFS
         uses: tardis-sn/tardis-actions/setup-lfs@main
 
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+      - name: Download environment file
+        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
+
+      - name: Generate Cache Key
+        id: cache-environment-key
+        run: |
+          file_hash=$(cat env-benchmark-linux.yml | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=tardis-conda-env-${{ matrix.label }}-${file_hash}-v1" >> "${GITHUB_OUTPUT}"
+
+      - name: Setup Micromamba and Cache
+        uses: mamba-org/setup-micromamba@v2
         with:
-          os-label: ${{ matrix.label }}
-          lockfile-path: ./conda-${{ matrix.label }}.lock
+          environment-file: env-benchmark-linux.yml
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: tardis
+          cache-environment: true
 
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
@@ -171,11 +183,23 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+      - name: Download environment file
+        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
+
+      - name: Generate Cache Key
+        id: cache-environment-key
+        run: |
+          file_hash=$(cat env-benchmark-linux.yml | shasum -a 256 | cut -d' ' -f1)
+          echo "file_hash=tardis-conda-env-linux-64-${file_hash}-v1" >> "${GITHUB_OUTPUT}"
+
+      - name: Setup Micromamba and Cache
+        uses: mamba-org/setup-micromamba@v2
         with:
-          os-label: linux-64
-          lockfile-path: ./conda-linux-64.lock
+          environment-file: env-benchmark-linux.yml
+          cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          cache-downloads-key: ${{ steps.cache-environment-key.outputs.file_hash }}
+          environment-name: tardis
+          cache-environment: true
 
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v6
