@@ -43,7 +43,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request' &&
       contains(github.event.pull_request.labels.*.name, 'benchmarks')))
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: [test-cache]
     steps:
       - uses: actions/checkout@v5
@@ -85,7 +85,7 @@ jobs:
         run: asv machine --yes
 
       - name: Download environment file for benchmarks
-        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
+        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-macos.yml
 
       - name: Run benchmarks for last 4 commits if not PR
         if: github.event_name != 'pull_request'
