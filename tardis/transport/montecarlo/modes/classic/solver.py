@@ -16,7 +16,7 @@ from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
 )
 from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
-    montecarlo_transport as montecarlo_main_loop,
+    montecarlo_transport,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: refactor this into more parts
-class MonteCarloTransportSolver(HDFWriterMixin):
+class MCTransportSolverClassic(HDFWriterMixin):
     """
     This class modifies the MonteCarloTransportState to solve the radiative
     transfer problem.
@@ -217,7 +217,7 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             vpacket_tracker,
             estimators_bulk,
             estimators_line,
-        ) = montecarlo_main_loop(
+        ) = montecarlo_transport(
             transport_state.packet_collection,
             transport_state.geometry_state,
             transport_state.time_explosion.cgs.value,

@@ -29,7 +29,7 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.modes.classic.solver import MonteCarloTransportSolver
+from tardis.transport.montecarlo.modes.classic.solver import MCTransportSolverClassic
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
@@ -778,7 +778,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "Cannot specify packet_source and transport at the same time."
             )
         if transport is None:
-            transport = MonteCarloTransportSolver.from_config(
+            transport = MCTransportSolverClassic.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,

@@ -23,9 +23,11 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.modes.classic.solver import MonteCarloTransportSolver
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
+)
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
@@ -114,7 +116,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 line_interaction_type,
             )
         self.transport_state = None
-        self.transport_solver = MonteCarloTransportSolver.from_config(
+        self.transport_solver = MCTransportSolverClassic.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
             enable_virtual_packet_logging=self.enable_virtual_packet_logging,
