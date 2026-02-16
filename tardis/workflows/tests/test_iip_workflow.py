@@ -722,3 +722,9 @@ def test_solve_continuum_state_after_nlte_init(
         recombination_probabilities_ctardis,
         rtol=4e-3,
     )
+
+
+@pytest.mark.continuum
+def test_solve_montecarlo(type_iip_workflow):
+    opacity_states = type_iip_workflow.solve_opacity()
+    type_iip_workflow.solve_montecarlo(opacity_states, 1000)
