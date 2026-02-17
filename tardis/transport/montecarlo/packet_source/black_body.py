@@ -64,8 +64,9 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
             New instance initialized with simulation state parameters.
         """
         return cls(
-            simulation_state.r_inner[0],
-            simulation_state.t_inner,
+            radius=simulation_state.geometry.r_inner[0],
+            temperature=simulation_state.model.t_inner,
+            time_explosion=simulation_state.time_explosion,
             *args,
             **kwargs,
         )
@@ -74,6 +75,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         self,
         radius: "u.Quantity | None" = None,
         temperature: "u.Quantity | None" = None,
+        time_explosion: "u.Quantity | None" = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -85,11 +87,14 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
             Initial packet radius. Default is None.
         temperature : astropy.units.Quantity, optional
             Absolute temperature. Default is None.
+        time_explosion : astropy.units.Quantity, optional
+            Time since explosion. Default is None.
         **kwargs : Any
             Additional keyword arguments passed to parent class.
         """
         self.radius = radius
         self.temperature = temperature
+        self.time_explosion = time_explosion
         super().__init__(**kwargs)
 
     def create_packets(self, no_of_packets: int, *args: Any, **kwargs: Any) -> PacketCollection:
@@ -115,9 +120,27 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         ValueError
             If radius or temperature is not set.
         """
-        if self.radius is None or self.temperature is None:
+        if self.radius is None or self.temperature is None or self.time_explosion is None:
             raise ValueError("Black body Radius or Temperature isn't set")
-        return super().create_packets(no_of_packets, *args, **kwargs)
+        
+        packet_collection = super().create_packets(no_of_packets, *args, **kwargs)
+
+        velocity = self.radius / self.time_explosion
+        beta = (velocity / const.c).to(1).value
+
+        gamma = 1.0 / np.sqrt(1 - beta**2)
+
+        mu_comov = packet_collection.mus
+        Doppler_factor_term = 1 + beta * mu_comov
+
+        packet_collection.mus = (mu_comov + beta) / Doppler_factor_term
+        doppler_factor = gamma * Doppler_factor_term
+
+        packet_collection.nus = packet_collection.nus * doppler_factor
+        packet_collection.energies = packet_collection.energies * doppler_factor
+
+
+        return packet_collection
 
     def create_packet_radii(self, no_of_packets: int) -> u.Quantity:
         """
