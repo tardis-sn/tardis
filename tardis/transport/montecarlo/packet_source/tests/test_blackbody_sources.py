@@ -3,6 +3,8 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
 
+RELATIVE_TOLERANCE_BLACKBODY = 1e-7
+
 from tardis.transport.montecarlo.packet_source.black_body import (
     BlackBodySimpleSource,
 )
@@ -33,12 +35,16 @@ class TestBlackBodySimpleSource:
     def test_bb_nus(self, regression_data, blackbodysimplesource):
         actual_nus = blackbodysimplesource.create_packet_nus(100).value
         expected_nus = regression_data.sync_ndarray(actual_nus)
-        assert_allclose(actual_nus, expected_nus)
+        assert_allclose(
+            actual_nus, expected_nus, atol=0, rtol=RELATIVE_TOLERANCE_BLACKBODY
+        )
 
     def test_bb_mus(self, regression_data, blackbodysimplesource):
         actual_mus = blackbodysimplesource.create_packet_mus(100)
         expected_mus = regression_data.sync_ndarray(actual_mus)
-        assert_allclose(actual_mus, expected_mus)
+        assert_allclose(
+            actual_mus, expected_mus, atol=0, rtol=RELATIVE_TOLERANCE_BLACKBODY
+        )
 
     def test_bb_energies(self, regression_data, blackbodysimplesource):
         actual_unif_energies = blackbodysimplesource.create_packet_energies(
@@ -47,16 +53,36 @@ class TestBlackBodySimpleSource:
         expected_unif_energies = regression_data.sync_ndarray(
             actual_unif_energies
         )
-        assert_allclose(actual_unif_energies, expected_unif_energies)
+        assert_allclose(
+            actual_unif_energies,
+            expected_unif_energies,
+            atol=0,
+            rtol=RELATIVE_TOLERANCE_BLACKBODY,
+        )
 
     def test_bb_attributes(self, regression_data, blackbodysimplesource):
         actual_bb = blackbodysimplesource
         expected_bb = regression_data.sync_hdf_store(actual_bb)[
             "/black_body_simple_source/scalars"
         ]
-        assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
-        assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
-        assert_allclose(expected_bb.radius, actual_bb.radius.value)
+        assert_allclose(
+            expected_bb.base_seed,
+            actual_bb.base_seed,
+            atol=0,
+            rtol=RELATIVE_TOLERANCE_BLACKBODY,
+        )
+        assert_allclose(
+            expected_bb.temperature,
+            actual_bb.temperature.value,
+            atol=0,
+            rtol=RELATIVE_TOLERANCE_BLACKBODY,
+        )
+        assert_allclose(
+            expected_bb.radius,
+            actual_bb.radius.value,
+            atol=0,
+            rtol=RELATIVE_TOLERANCE_BLACKBODY,
+        )
 
 
 class TestBlackBodySimpleSourceRel:
@@ -84,7 +110,9 @@ class TestBlackBodySimpleSourceRel:
             100
         ).value
         expected_nus = regression_data.sync_ndarray(actual_nus)
-        assert_allclose(actual_nus, expected_nus)
+        assert_allclose(
+            actual_nus, expected_nus, atol=0, rtol=RELATIVE_TOLERANCE_BLACKBODY
+        )
 
     def test_bb_energies(
         self, regression_data, blackbody_simplesource_relativistic
@@ -98,13 +126,20 @@ class TestBlackBodySimpleSourceRel:
         expected_unif_energies = regression_data.sync_ndarray(
             actual_unif_energies
         )
-        assert_allclose(actual_unif_energies, expected_unif_energies)
+        assert_allclose(
+            actual_unif_energies,
+            expected_unif_energies,
+            atol=0,
+            rtol=RELATIVE_TOLERANCE_BLACKBODY,
+        )
 
     def test_bb_mus(self, regression_data, blackbody_simplesource_relativistic):
         blackbody_simplesource_relativistic._reseed(2508)
         actual_mus = blackbody_simplesource_relativistic.create_packet_mus(10)
         expected_mus = regression_data.sync_ndarray(actual_mus)
-        assert_allclose(actual_mus, expected_mus)
+        assert_allclose(
+            actual_mus, expected_mus, atol=0, rtol=RELATIVE_TOLERANCE_BLACKBODY
+        )
 
     def test_bb_attributes(
         self, regression_data, blackbody_simplesource_relativistic
@@ -113,6 +148,21 @@ class TestBlackBodySimpleSourceRel:
         expected_bb = regression_data.sync_hdf_store(actual_bb)[
             "/black_body_simple_source/scalars"
         ]
-        assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
-        assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
-        assert_allclose(expected_bb.time_explosion, actual_bb.time_explosion.value)
+        assert_allclose(
+            expected_bb.base_seed,
+            actual_bb.base_seed,
+            atol=0,
+            rtol=RELATIVE_TOLERANCE_BLACKBODY,
+        )
+        assert_allclose(
+            expected_bb.temperature,
+            actual_bb.temperature.value,
+            atol=0,
+            rtol=RELATIVE_TOLERANCE_BLACKBODY,
+        )
+        assert_allclose(
+            expected_bb.time_explosion,
+            actual_bb.time_explosion.value,
+            atol=0,
+            rtol=RELATIVE_TOLERANCE_BLACKBODY,
+        )
