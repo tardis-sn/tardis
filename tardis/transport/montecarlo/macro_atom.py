@@ -3,6 +3,7 @@ from enum import IntEnum
 import numpy as np
 from numba import njit
 
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
@@ -78,4 +79,79 @@ def macro_atom_interaction(
     return (
         opacity_state.transition_line_id[transition_id],
         current_transition_type,
+    )
+
+
+@njit(**njit_dict_no_parallel)
+def macro_atom_interaction_iip(
+    activation_level_idx: int,
+    current_shell_id: int,
+    opacity_state: OpacityStateNumba,
+    absorbing_markov_probabilities: np.ndarray,
+):
+    """
+    Parameters
+    ----------
+    activation_level_idx
+        Activation level idx of the macro atom.
+    current_shell_id
+    opacity_state : tardis.transport.montecarlo.numba_interface.opacity_state.OpacityState
+    absorbing_markov_probabilities: np.ndarray
+        shape(cells, states, states)
+        matrix that contains absorbing state probabilities for each source in the macroatom
+
+    Returns
+    -------
+    emission_line_id : int
+        Line or continuum ID for emitting process
+    emission_process : int,
+        Type of process emission defined by MacroAtomTransitionType in this file.
+    """
+    # step to absorbing state level
+    absorbing_state_probability = 0.0
+    probability_event = np.random.random()
+
+    for to_state_index, state_probability in enumerate(
+        absorbing_markov_probabilities[current_shell_id, activation_level_idx]
+    ):
+        absorbing_state_probability += state_probability
+
+        if absorbing_state_probability > probability_event:
+            absorbing_activation_level_idx = to_state_index
+            break
+
+    # Handle second prob call for emission process from that state
+    block_start_index = opacity_state.macro_block_references[
+        absorbing_activation_level_idx
+    ]
+    block_end_index = opacity_state.macro_block_references[
+        absorbing_activation_level_idx + 1
+    ]
+    emission_transition_probability = 0.0
+    probability_emission_event = np.random.random()
+
+    for deactivation_channel_index in range(block_start_index, block_end_index):
+        deactivation_probability = opacity_state.transition_probabilities[
+            deactivation_channel_index, current_shell_id
+        ]
+        emission_transition_probability += deactivation_probability
+
+        if emission_transition_probability > probability_emission_event:
+            emission_process = opacity_state.transition_type[
+                deactivation_channel_index
+            ]
+            emission_line_id = opacity_state.transition_line_id[
+                deactivation_channel_index
+            ]
+            break
+
+    else:
+        raise MacroAtomError(
+            "MacroAtom ran out of the block. This should not happen as "
+            "the sum of probabilities is normalized to 1 and "
+            "the probability_event should be less than 1"
+        )
+    return (
+        emission_line_id,
+        emission_process,
     )

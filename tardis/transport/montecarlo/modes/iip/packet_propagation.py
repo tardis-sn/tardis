@@ -6,7 +6,7 @@ from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
 )
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -26,7 +26,7 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bound_free,
 )
-from tardis.transport.montecarlo.interaction_event_callers import (
+from tardis.transport.montecarlo.modes.iip.interaction_event_callers import (
     continuum_event,
     line_scatter_event,
 )
@@ -55,7 +55,7 @@ def packet_propagation(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumba,
+    opacity_state: OpacityStateNumbaIIP,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     estimators_continuum: EstimatorsContinuum,
@@ -154,18 +154,18 @@ def packet_propagation(
             enable_full_relativity=True,
             disable_line_scattering=montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
-        update_estimators_bound_free(
-            comov_nu,
-            r_packet.energy * doppler_factor,
-            r_packet.current_shell_id,
-            distance,
-            estimators_continuum,
-            opacity_state.t_electrons[r_packet.current_shell_id],
-            x_sect_bfs,
-            current_continua,
-            opacity_state.bf_threshold_list_nu,
-            chi_ff,
-        )
+        # update_estimators_bound_free(
+        #     comov_nu,
+        #     r_packet.energy * doppler_factor,
+        #     r_packet.current_shell_id,
+        #     distance,
+        #     estimators_continuum,
+        #     opacity_state.t_electrons[r_packet.current_shell_id],
+        #     x_sect_bfs,
+        #     current_continua,
+        #     opacity_state.bf_threshold_list_nu,
+        #     chi_ff,
+        # )
 
         # Handle interaction types
         if interaction_type == InteractionType.BOUNDARY:

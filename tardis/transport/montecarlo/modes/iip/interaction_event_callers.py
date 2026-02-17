@@ -1,3 +1,11 @@
+"""
+IIP-specific interaction event callers for Monte Carlo transport.
+
+This module provides event handlers for line scattering, continuum interactions,
+and macroatom events in the Type IIP supernova mode. It uses the precomputed
+absorbing Markov chain probabilities (matrix B) for efficient macroatom transitions.
+"""
+
 import numpy as np
 from numba import njit
 
@@ -18,7 +26,6 @@ from tardis.transport.montecarlo.interaction_events import (
 )
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
-    macro_atom_interaction,
     macro_atom_interaction_iip,
 )
 from tardis.transport.montecarlo.utils import get_random_mu
@@ -33,17 +40,30 @@ def macro_atom_event(
     enable_full_relativity,
 ):
     """
-    Macroatom event handler - run the macroatom and handle the result
+    IIP-specific macroatom event handler using precomputed absorbing probabilities.
+
+    This version uses the absorbing Markov chain approach (matrix B) to directly
+    sample the final emission state, avoiding the random walk through internal
+    transitions used in the standard macroatom implementation.
 
     Parameters
     ----------
     destination_level_idx : int
+        Macro atom activation level index
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
+        Packet being transported
     time_explosion : float
-    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+        Time since explosion in seconds
+    opacity_state : tardis.opacities.opacity_state_numba_iip.OpacityStateNumbaIIP
+        IIP opacity state containing absorbing_markov_probabilities
+    enable_full_relativity : bool
+        Whether to use full relativistic corrections
     """
-    transition_id, transition_type = macro_atom_interaction(
-        destination_level_idx, r_packet.current_shell_id, opacity_state
+    transition_id, transition_type = macro_atom_interaction_iip(
+        destination_level_idx,
+        r_packet.current_shell_id,
+        opacity_state,
+        opacity_state.absorbing_markov_probabilities,
     )
 
     if (
@@ -77,7 +97,7 @@ def macro_atom_event(
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
     ):
-        adiabatic_cooling(r_packet)  # Not sure this does anything yet
+        adiabatic_cooling(r_packet)
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
         line_emission(
@@ -102,22 +122,23 @@ def determine_continuum_macro_activation_idx(
 
     Parameters
     ----------
+    opacity_state : tardis.opacities.opacity_state_numba_iip.OpacityStateNumbaIIP
+        IIP opacity state
     nu : float
         Comoving frequency of the r-packet.
     chi_bf : numpy.ndarray, dtype float
         Bound-free opacity.
-    chi_bf : numpy.ndarray, dtype float
+    chi_ff : numpy.ndarray, dtype float
         Free-free opacity.
     chi_bf_contributions : numpy.ndarray, dtype float
-        Cumulative distribution of bound-free opacities at frequency
-        `nu`.
+        Cumulative distribution of bound-free opacities at frequency `nu`.
     active_continua : numpy.ndarray, dtype int
         Continuum ids for which absorption is possible for frequency `nu`.
 
     Returns
     -------
-    float
-        Macro atom activation idx.
+    int
+        Macro atom activation level index.
     """
     fraction_bf = chi_bf / (chi_bf + chi_ff)
     # TODO: In principle, we can also decide here whether a Thomson
@@ -143,14 +164,29 @@ def continuum_event(
     enable_full_relativity,
 ):
     """
-    continuum event handler - activate the macroatom and run the handler
+    IIP-specific continuum event handler.
+
+    Handles continuum interaction (bound-free or free-free absorption),
+    updates packet properties, and activates the macroatom.
 
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
+        Packet being transported
     time_explosion : float
-    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
-    continuum : tardis.transport.montecarlo.numba_interface.Continuum
+        Time since explosion in seconds
+    opacity_state : tardis.opacities.opacity_state_numba_iip.OpacityStateNumbaIIP
+        IIP opacity state
+    chi_bf_tot : float
+        Total bound-free opacity at packet frequency
+    chi_ff : float
+        Free-free opacity at packet frequency
+    chi_bf_contributions : numpy.ndarray, dtype float
+        Cumulative distribution of bound-free opacities
+    current_continua : numpy.ndarray, dtype int
+        Active continuum indices
+    enable_full_relativity : bool
+        Whether to use full relativistic corrections
     """
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
@@ -161,9 +197,7 @@ def continuum_event(
         r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
     comov_energy = r_packet.energy * old_doppler_factor
-    comov_nu = (
-        r_packet.nu * old_doppler_factor
-    )  # make sure frequency should be updated
+    comov_nu = r_packet.nu * old_doppler_factor
     r_packet.energy = comov_energy * inverse_doppler_factor
     r_packet.nu = comov_nu * inverse_doppler_factor
 
@@ -194,14 +228,24 @@ def line_scatter_event(
     enable_full_relativity,
 ):
     """
-    Line scatter function that handles the scattering itself, including new angle drawn, and calculating nu out using macro atom
+    IIP-specific line scatter event handler.
+
+    Handles line scattering interactions, updates packet angle and energy,
+    and either performs direct line emission (scatter mode) or activates
+    the macroatom (macroatom/downbranch mode).
 
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
+        Packet being transported
     time_explosion : float
+        Time since explosion in seconds
     line_interaction_type : enum
-    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+        Type of line interaction (SCATTER or MACROATOM)
+    opacity_state : tardis.opacities.opacity_state_numba_iip.OpacityStateNumbaIIP
+        IIP opacity state
+    enable_full_relativity : bool
+        Whether to use full relativistic corrections
     """
     old_doppler_factor = get_doppler_factor(
         r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
@@ -224,7 +268,7 @@ def line_scatter_event(
             enable_full_relativity,
         )
     else:  # includes both macro atom and downbranch - encoded in the transition probabilities
-        comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
+        comov_nu = r_packet.nu * old_doppler_factor
         r_packet.nu = comov_nu * inverse_new_doppler_factor
         activation_level_id = opacity_state.line2macro_level_upper[
             r_packet.next_line_id
