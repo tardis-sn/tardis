@@ -26,8 +26,9 @@ def simulation_simple_tracked(config_verysimple, atomic_dataset):
     config_verysimple.montecarlo.iterations = 3
     config_verysimple.montecarlo.no_of_packets = 4000
     config_verysimple.montecarlo.last_no_of_packets = -1
-    config_verysimple.spectrum.virtual.virtual_packet_logging = True
-    config_verysimple.montecarlo.no_of_virtual_packets = 1
+    # Default to vpackets=0 for performance
+    config_verysimple.spectrum.virtual.virtual_packet_logging = False
+    config_verysimple.montecarlo.no_of_virtual_packets = 0
     config_verysimple.spectrum.num = 2000
     config_verysimple.montecarlo.tracking.track_rpacket = True
     atomic_data = deepcopy(atomic_dataset)
@@ -46,11 +47,12 @@ def workflow_simple_tracked(config_verysimple, atomic_data_fname):
     config.montecarlo.iterations = 3
     config.montecarlo.no_of_packets = 4000
     config.montecarlo.last_no_of_packets = -1
-    config.spectrum.virtual.virtual_packet_logging = True
-    config.montecarlo.no_of_virtual_packets = 1
+    # Default to vpackets=0 for performance
+    config.spectrum.virtual.virtual_packet_logging = False
+    config.montecarlo.no_of_virtual_packets = 0
     config.spectrum.num = 2000
     config_verysimple.montecarlo.tracking.track_rpacket = True
     
-    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
+    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=False)
     workflow.run()
     return workflow

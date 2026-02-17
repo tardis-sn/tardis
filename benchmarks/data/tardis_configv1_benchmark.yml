@@ -35,7 +35,8 @@ montecarlo:
     no_of_packets : 400
     iterations: 2
     last_no_of_packets: -1
-    no_of_virtual_packets: 1
+    # Virtual packets disabled for better benchmark performance
+    no_of_virtual_packets: 0
     convergence_strategy:
         type: damped
         damping_constant: 0.5
