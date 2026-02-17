@@ -33,12 +33,14 @@ class TestBlackBodySimpleSource:
     def test_bb_nus(self, regression_data, blackbodysimplesource):
         actual_nus = blackbodysimplesource.create_packet_nus(100).value
         expected_nus = regression_data.sync_ndarray(actual_nus)
-        assert_allclose(actual_nus, expected_nus)
+        # numexpr log/division may vary at ULP level across platforms
+        assert_allclose(actual_nus, expected_nus, atol=0, rtol=1e-14)
 
     def test_bb_mus(self, regression_data, blackbodysimplesource):
         actual_mus = blackbodysimplesource.create_packet_mus(100)
         expected_mus = regression_data.sync_ndarray(actual_mus)
-        assert_allclose(actual_mus, expected_mus)
+        # np.sqrt of seeded random is deterministic; allow platform float diffs
+        assert_allclose(actual_mus, expected_mus, atol=0, rtol=1e-14)
 
     def test_bb_energies(self, regression_data, blackbodysimplesource):
         actual_unif_energies = blackbodysimplesource.create_packet_energies(
@@ -47,16 +49,29 @@ class TestBlackBodySimpleSource:
         expected_unif_energies = regression_data.sync_ndarray(
             actual_unif_energies
         )
-        assert_allclose(actual_unif_energies, expected_unif_energies)
+        # Pure arithmetic (ones/n), expect exact match
+        assert_allclose(
+            actual_unif_energies, expected_unif_energies, atol=0, rtol=0
+        )
 
     def test_bb_attributes(self, regression_data, blackbodysimplesource):
         actual_bb = blackbodysimplesource
         expected_bb = regression_data.sync_hdf_store(actual_bb)[
             "/black_body_simple_source/scalars"
         ]
-        assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
-        assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
-        assert_allclose(expected_bb.radius, actual_bb.radius.value)
+        # Scalar constants set in fixture, expect exact match
+        assert_allclose(
+            expected_bb.base_seed, actual_bb.base_seed, atol=0, rtol=0
+        )
+        assert_allclose(
+            expected_bb.temperature,
+            actual_bb.temperature.value,
+            atol=0,
+            rtol=0,
+        )
+        assert_allclose(
+            expected_bb.radius, actual_bb.radius.value, atol=0, rtol=0
+        )
 
 
 class TestBlackBodySimpleSourceRel:
@@ -84,7 +99,8 @@ class TestBlackBodySimpleSourceRel:
             100
         ).value
         expected_nus = regression_data.sync_ndarray(actual_nus)
-        assert_allclose(actual_nus, expected_nus)
+        # numexpr log/division may vary at ULP level across platforms
+        assert_allclose(actual_nus, expected_nus, atol=0, rtol=1e-14)
 
     def test_bb_energies(
         self, regression_data, blackbody_simplesource_relativistic
@@ -98,13 +114,17 @@ class TestBlackBodySimpleSourceRel:
         expected_unif_energies = regression_data.sync_ndarray(
             actual_unif_energies
         )
-        assert_allclose(actual_unif_energies, expected_unif_energies)
+        # Pure arithmetic (ones/n), expect exact match
+        assert_allclose(
+            actual_unif_energies, expected_unif_energies, atol=0, rtol=0
+        )
 
     def test_bb_mus(self, regression_data, blackbody_simplesource_relativistic):
         blackbody_simplesource_relativistic._reseed(2508)
         actual_mus = blackbody_simplesource_relativistic.create_packet_mus(10)
         expected_mus = regression_data.sync_ndarray(actual_mus)
-        assert_allclose(actual_mus, expected_mus)
+        # np.sqrt of seeded random is deterministic; allow platform float diffs
+        assert_allclose(actual_mus, expected_mus, atol=0, rtol=1e-14)
 
     def test_bb_attributes(
         self, regression_data, blackbody_simplesource_relativistic
@@ -113,6 +133,19 @@ class TestBlackBodySimpleSourceRel:
         expected_bb = regression_data.sync_hdf_store(actual_bb)[
             "/black_body_simple_source/scalars"
         ]
-        assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
-        assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
-        assert_allclose(expected_bb.time_explosion, actual_bb.time_explosion.value)
+        # Scalar constants set in fixture, expect exact match
+        assert_allclose(
+            expected_bb.base_seed, actual_bb.base_seed, atol=0, rtol=0
+        )
+        assert_allclose(
+            expected_bb.temperature,
+            actual_bb.temperature.value,
+            atol=0,
+            rtol=0,
+        )
+        assert_allclose(
+            expected_bb.time_explosion,
+            actual_bb.time_explosion.value,
+            atol=0,
+            rtol=0,
+        )
