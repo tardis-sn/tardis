@@ -3,14 +3,14 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
 
-RELATIVE_TOLERANCE_BLACKBODY = 1e-7
-
 from tardis.transport.montecarlo.packet_source.black_body import (
     BlackBodySimpleSource,
 )
 from tardis.transport.montecarlo.packet_source.black_body_relativistic import (
     BlackBodySimpleSourceRelativistic,
 )
+
+RELATIVE_TOLERANCE_BLACKBODY = 1e-7
 
 
 class TestBlackBodySimpleSource:
