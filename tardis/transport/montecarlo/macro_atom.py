@@ -124,6 +124,11 @@ def macro_atom_interaction_iip(
         if absorbing_state_probability > probability_event:
             absorbing_activation_level_idx = to_state_index
             break
+    else:
+        raise MacroAtomError(
+            "MacroAtom failed to select an absorbing state. The absorbing Markov"
+            "chain probabilities matrix may not be normalized or may contain only zeros."
+        )
 
     # Handle second prob call for emission process from that state
     block_start_index = opacity_state.macro_block_references[
