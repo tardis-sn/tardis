@@ -6,6 +6,7 @@ proposed by M. Kromer (see, for example, Kromer et al. 2013, figure 4).
 """
 
 import logging
+import sys
 
 import astropy.units as u
 import matplotlib.cm as cm
@@ -801,81 +802,87 @@ class SDECPlotter:
         )
 
         if ax is None:
-            self.ax = plt.figure(figsize=figsize).add_subplot(111)
+            created_fig = plt.figure(figsize=figsize)
+            self.ax = created_fig.add_subplot(111)
         else:
+            created_fig = None
             self.ax = ax
 
-        # Get the labels in the color bar. This determines the number of unique colors
-        self._make_colorbar_labels()
-        # Set colormap to be used in elements of emission and absorption plots
-        self.cmap = plt.get_cmap(cmapname, len(self._species_name))
-        # Get the number of unqie colors
-        self._make_colorbar_colors()
-        self._show_colorbar_mpl()
+        try:
+            # Get the labels in the color bar. This determines the number of unique colors
+            self._make_colorbar_labels()
+            # Set colormap to be used in elements of emission and absorption plots
+            self.cmap = plt.get_cmap(cmapname, len(self._species_name))
+            # Get the number of unqie colors
+            self._make_colorbar_colors()
+            self._show_colorbar_mpl()
 
-        # Plot emission and absorption components
-        self._plot_emission_mpl()
-        self._plot_absorption_mpl()
+            # Plot emission and absorption components
+            self._plot_emission_mpl()
+            self._plot_absorption_mpl()
 
-        # Plot modeled spectrum
-        if show_modeled_spectrum:
-            self.ax.plot(
-                self.plot_wavelength.value,
-                self.modeled_spectrum_luminosity.value,
-                "--b",
-                label=f"{packets_mode.capitalize()} Spectrum",
-                linewidth=1,
-            )
-
-        # Plot observed spectrum
-        if observed_spectrum:
-            if distance is None:
-                raise ValueError(
-                    """
-                    Distance must be specified if an observed_spectrum is given
-                    so that the model spectrum can be converted into flux space correctly.
-                    """
+            # Plot modeled spectrum
+            if show_modeled_spectrum:
+                self.ax.plot(
+                    self.plot_wavelength.value,
+                    self.modeled_spectrum_luminosity.value,
+                    "--b",
+                    label=f"{packets_mode.capitalize()} Spectrum",
+                    linewidth=1,
                 )
 
-            # Convert to wavelength and luminosity units
-            observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
-            observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
+            # Plot observed spectrum
+            if observed_spectrum:
+                if distance is None:
+                    raise ValueError(
+                        """
+                        Distance must be specified if an observed_spectrum is given
+                        so that the model spectrum can be converted into flux space correctly.
+                        """
+                    )
 
-            self.ax.plot(
-                observed_spectrum_wavelength.value,
-                observed_spectrum_flux.value,
-                "-k",
-                label="Observed Spectrum",
-                linewidth=1,
+                # Convert to wavelength and luminosity units
+                observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
+                observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
+
+                self.ax.plot(
+                    observed_spectrum_wavelength.value,
+                    observed_spectrum_flux.value,
+                    "-k",
+                    label="Observed Spectrum",
+                    linewidth=1,
+                )
+
+            # Plot photosphere
+            if blackbody_photosphere:
+                self.ax.plot(
+                    self.plot_wavelength.value,
+                    self.photosphere_luminosity.value,
+                    "--r",
+                    label="Blackbody Photosphere",
+                )
+
+            # Set legends and labels
+            xlabel = pu.axis_label_in_latex("Wavelength", u.AA)
+            if distance is not None:  # Set y-axis label for flux
+                ylabel = pu.axis_label_in_latex(
+                    "F_{\\lambda}", u.Unit("erg/(s cm**2 AA)"), only_text=False
+                )
+            else:  # Set y-axis label for luminosity
+                ylabel = pu.axis_label_in_latex(
+                    "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
+                )
+            self.ax.legend(fontsize=12)
+            self.ax.set_xlabel(xlabel, fontsize=12)
+            self.ax.set_ylabel(
+                ylabel,
+                fontsize=12,
             )
 
-        # Plot photosphere
-        if blackbody_photosphere:
-            self.ax.plot(
-                self.plot_wavelength.value,
-                self.photosphere_luminosity.value,
-                "--r",
-                label="Blackbody Photosphere",
-            )
-
-        # Set legends and labels
-        xlabel = pu.axis_label_in_latex("Wavelength", u.AA)
-        if distance is not None:  # Set y-axis label for flux
-            ylabel = pu.axis_label_in_latex(
-                "F_{\\lambda}", u.Unit("erg/(s cm**2 AA)"), only_text=False
-            )
-        else:  # Set y-axis label for luminosity
-            ylabel = pu.axis_label_in_latex(
-                "L_{\\lambda}", u.Unit("erg/(s AA)"), only_text=False
-            )
-        self.ax.legend(fontsize=12)
-        self.ax.set_xlabel(xlabel, fontsize=12)
-        self.ax.set_ylabel(
-            ylabel,
-            fontsize=12,
-        )
-
-        return plt.gca()
+            return plt.gca()
+        finally:
+            if created_fig is not None and sys.exc_info()[0] is not None:
+                plt.close(created_fig)
 
     def _plot_emission_mpl(self):
         """Plot emission part of the SDEC Plot using matplotlib."""
