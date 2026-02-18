@@ -101,10 +101,7 @@ def macro_atom_interaction_iip(
     activation_level_idx
         Activation level idx of the macro atom.
     current_shell_id
-    opacity_state : tardis.transport.montecarlo.numba_interface.opacity_state.OpacityState
-    absorbing_markov_probabilities: np.ndarray
-        shape(cells, states, states)
-        matrix that contains absorbing state probabilities for each source in the macroatom
+    opacity_state
 
     Returns
     -------

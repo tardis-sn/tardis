@@ -2,6 +2,8 @@ import numpy as np
 from numba import njit
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -21,26 +23,27 @@ from tardis.transport.montecarlo.macro_atom import (
     macro_atom_interaction,
     macro_atom_interaction_iip,
 )
+from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 from tardis.transport.montecarlo.utils import get_random_mu
 
 
 @njit(**njit_dict_no_parallel)
 def macro_atom_event(
-    destination_level_idx,
-    r_packet,
-    time_explosion,
-    opacity_state,
-    enable_full_relativity,
+    destination_level_idx: int,
+    r_packet: RPacket,
+    time_explosion: float,
+    opacity_state,  # this currently either accepts the normal numba or the iip numba opacity state
+    enable_full_relativity: bool,
 ):
     """
     Macroatom event handler - run the macroatom and handle the result
 
     Parameters
     ----------
-    destination_level_idx : int
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    time_explosion : float
-    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+    destination_level_idx
+    r_packet
+    time_explosion
+    opacity_state
     """
     if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
         transition_id, transition_type = macro_atom_interaction_iip(
