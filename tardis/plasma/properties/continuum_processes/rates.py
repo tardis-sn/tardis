@@ -5,7 +5,6 @@ import pandas as pd
 from numba import njit
 
 from tardis import constants as const
-from tardis.plasma.exceptions import PlasmaException
 from tardis.plasma.properties.base import (
     Input,
     ProcessingPlasmaProperty,
@@ -310,10 +309,19 @@ class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):
         gamma_corr = gamma - (alpha_stim * n_k / n_i).multiply(
             electron_densities
         )
-        if (gamma_corr < 0).any().any():
-            raise PlasmaException(
-                "Negative values in CorrPhotoIonRateCoeff. Try raising the number of montecarlo packets."
+        # Monte Carlo estimator noise can drive gamma_corr slightly below
+        # zero. This is a statistical artefact: the net photo-ionization
+        # rate is physically non-negative, so we clip and warn rather than
+        # crash. See GitHub issue #3355.
+        neg_mask = gamma_corr < 0
+        if neg_mask.any().any():
+            logger.warning(
+                "Negative values in CorrPhotoIonRateCoeff detected "
+                f"(min={gamma_corr.values.min():.3e}). "
+                "Clipping to zero. Consider raising the number of "
+                "Monte Carlo packets to reduce estimator noise."
             )
+            gamma_corr = gamma_corr.clip(lower=0)
         return gamma_corr
 
 
