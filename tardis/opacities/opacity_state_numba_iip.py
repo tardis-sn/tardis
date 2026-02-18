@@ -65,51 +65,51 @@ class OpacityStateNumbaIIP:
 
         Parameters
         ----------
-        electron_density : numpy.ndarray
+        electron_density
             Electron density in each shell [cm^-3].
-        t_electrons : numpy.ndarray
+        t_electrons
             Electron temperature in each shell [K].
-        line_list_nu : numpy.ndarray
+        line_list_nu
             Frequencies of spectral lines [Hz].
-        tau_sobolev : numpy.ndarray
+        tau_sobolev
             Sobolev optical depths for line transitions.
-        transition_probabilities : numpy.ndarray
+        transition_probabilities
             Probabilities for macro atom transitions.
-        line2macro_level_upper : numpy.ndarray
+        line2macro_level_upper
             Mapping from line indices to macro atom upper levels.
-        macro_block_references : numpy.ndarray
+        macro_block_references
             Block references for macro atom data.
-        transition_type : numpy.ndarray
+        transition_type
             Type identifiers for transitions.
-        destination_level_id : numpy.ndarray
+        destination_level_id
             Destination level indices for transitions.
-        transition_line_id : numpy.ndarray
+        transition_line_id
             Line indices for transitions.
-        bf_threshold_list_nu : numpy.ndarray
+        bf_threshold_list_nu
             Bound-free threshold frequencies [Hz].
-        p_fb_deactivation : numpy.ndarray
+        p_fb_deactivation
             Free-bound deactivation probabilities.
-        photo_ion_nu_threshold_mins : numpy.ndarray
+        photo_ion_nu_threshold_mins
             Minimum photoionization threshold frequencies [Hz].
-        photo_ion_nu_threshold_maxs : numpy.ndarray
+        photo_ion_nu_threshold_maxs
             Maximum photoionization threshold frequencies [Hz].
-        photo_ion_block_references : numpy.ndarray
+        photo_ion_block_references
             Block references for photoionization data.
-        chi_bf : numpy.ndarray
+        chi_bf
             Bound-free absorption coefficients.
-        x_sect : numpy.ndarray
+        x_sect
             Photoionization cross sections [cm^2].
-        phot_nus : numpy.ndarray
+        phot_nus
             Photoionization frequencies [Hz].
-        ff_opacity_factor : numpy.ndarray
+        ff_opacity_factor
             Free-free opacity factors.
-        emissivities : numpy.ndarray
+        emissivities
             Emission coefficients for bound-free transitions.
-        photo_ion_activation_idx : numpy.ndarray
+        photo_ion_activation_idx
             Indices for photoionization activation.
-        k_packet_idx : int
+        k_packet_idx
             Index for k-packet handling.
-        absorbing_markov_probabilities : numpy.ndarray
+        absorbing_markov_probabilities
             Matrix B: Absorbing probabilities of the Markov-chain macro atom.
             Shape: (n_shells, n_states, n_states). For each shell, contains the probability
             of being absorbed in each destination state when starting from each source state.
