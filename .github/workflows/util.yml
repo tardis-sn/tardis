@@ -1,13 +1,12 @@
 name: utility
 
 on:
-  pull_request_target:
-    branches:
-      - master
+  # pull_request_target:
+  #   branches:
+  #     - master
   pull_request:
     branches:
       - master
-    types: [opened, edited, reopened]
 
 jobs:
   git-lfs-pull-label:
