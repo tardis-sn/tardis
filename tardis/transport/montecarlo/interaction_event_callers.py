@@ -19,6 +19,7 @@ from tardis.transport.montecarlo.interaction_events import (
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
     macro_atom_interaction,
+    macro_atom_interaction_iip,
 )
 from tardis.transport.montecarlo.utils import get_random_mu
 
@@ -41,9 +42,14 @@ def macro_atom_event(
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
-    transition_id, transition_type = macro_atom_interaction(
-        destination_level_idx, r_packet.current_shell_id, opacity_state
-    )
+    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        transition_id, transition_type = macro_atom_interaction_iip(
+            destination_level_idx, r_packet.current_shell_id, opacity_state
+        )
+    else:
+        transition_id, transition_type = macro_atom_interaction(
+            destination_level_idx, r_packet.current_shell_id, opacity_state
+        )
 
     if (
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED

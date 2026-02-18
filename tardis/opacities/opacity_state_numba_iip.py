@@ -32,7 +32,6 @@ class OpacityStateNumbaIIP:
     emissivities: nb.float64[:, :]  # type: ignore[misc]
     photo_ion_activation_idx: nb.int64[:]  # type: ignore[misc]
     k_packet_idx: nb.int64  # type: ignore[misc]
-    # IIP-specific field
     absorbing_markov_probabilities: nb.float64[:, :, :]  # type: ignore[misc]
 
     def __init__(
@@ -145,8 +144,6 @@ class OpacityStateNumbaIIP:
         self.emissivities = emissivities
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
-
-        # IIP-specific field
         self.absorbing_markov_probabilities = absorbing_markov_probabilities
 
     def __getitem__(self, i: slice) -> "OpacityStateNumbaIIP":

@@ -3,7 +3,12 @@ from enum import IntEnum
 import numpy as np
 from numba import njit
 
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba import (
+    OpacityStateNumba,
+)
+from tardis.opacities.opacity_state_numba_iip import (
+    OpacityStateNumbaIIP,
+)
 from tardis.transport.montecarlo import njit_dict_no_parallel
 
 
@@ -30,15 +35,17 @@ class MacroAtomTransitionType(IntEnum):
 
 @njit(**njit_dict_no_parallel)
 def macro_atom_interaction(
-    activation_level_id, current_shell_id, opacity_state
+    activation_level_id: int,
+    current_shell_id: int,
+    opacity_state: OpacityStateNumba,
 ):
     """
     Parameters
     ----------
-    activation_level_id : int
+    activation_level_id
         Activation level idx of the macro atom.
-    current_shell_id : int
-    opacity_state : tardis.transport.montecarlo.numba_interface.opacity_state.OpacityState
+    current_shell_id
+    opacity_state
 
     Returns
     -------
@@ -86,8 +93,7 @@ def macro_atom_interaction(
 def macro_atom_interaction_iip(
     activation_level_idx: int,
     current_shell_id: int,
-    opacity_state: OpacityStateNumba,
-    absorbing_markov_probabilities: np.ndarray,
+    opacity_state: OpacityStateNumbaIIP,
 ):
     """
     Parameters
@@ -112,7 +118,9 @@ def macro_atom_interaction_iip(
     probability_event = np.random.random()
 
     for to_state_index, state_probability in enumerate(
-        absorbing_markov_probabilities[current_shell_id, activation_level_idx]
+        opacity_state.absorbing_markov_probabilities[
+            current_shell_id, activation_level_idx
+        ]
     ):
         absorbing_state_probability += state_probability
 

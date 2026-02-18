@@ -26,7 +26,7 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bound_free,
 )
-from tardis.transport.montecarlo.modes.iip.interaction_event_callers import (
+from tardis.transport.montecarlo.interaction_event_callers import (
     continuum_event,
     line_scatter_event,
 )
@@ -37,9 +37,6 @@ from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
     move_packet_across_shell_boundary,
     move_r_packet,
     trace_packet,
-)
-from tardis.transport.montecarlo.packets.packet_collections import (
-    VPacketCollection,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,

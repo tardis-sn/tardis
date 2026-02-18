@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
@@ -33,7 +33,7 @@ def trace_packet(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumba,
+    opacity_state: OpacityStateNumbaIIP,
     estimators_line: EstimatorsLine,
     chi_continuum: float,
     escat_prob: float,
@@ -52,7 +52,7 @@ def trace_packet(
     time_explosion
         Time since explosion in seconds
     opacity_state
-        Opacity state containing line list and tau sobolev
+        Opacity state containing properties of the plasma needed for transport, IIP specific
     estimators_line
         Line-level radiation field estimators
     chi_continuum
@@ -129,13 +129,13 @@ def trace_packet(
         tau_trace_combined = tau_trace_line_combined + tau_trace_continuum
 
         distance = min(distance_trace, distance_boundary, distance_continuum)
-        if distance == distance_trace:
-            print(
-                tau_trace_line_combined,
-                "\n ",
-                distance_trace,
-                distance_boundary,
-            )
+        # if distance == distance_trace:
+        #     print(
+        #         tau_trace_line_combined,
+        #         "\n ",
+        #         distance_trace,
+        #         distance_boundary,
+        #     )
 
         if distance_trace != 0:
             if distance == distance_boundary:
