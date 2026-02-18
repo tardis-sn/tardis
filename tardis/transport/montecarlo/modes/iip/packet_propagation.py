@@ -151,18 +151,18 @@ def packet_propagation(
             enable_full_relativity=True,
             disable_line_scattering=montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )
-        # update_estimators_bound_free(
-        #     comov_nu,
-        #     r_packet.energy * doppler_factor,
-        #     r_packet.current_shell_id,
-        #     distance,
-        #     estimators_continuum,
-        #     opacity_state.t_electrons[r_packet.current_shell_id],
-        #     x_sect_bfs,
-        #     current_continua,
-        #     opacity_state.bf_threshold_list_nu,
-        #     chi_ff,
-        # )
+        update_estimators_bound_free(
+            comov_nu,
+            r_packet.energy * doppler_factor,
+            r_packet.current_shell_id,
+            distance,
+            estimators_continuum,
+            opacity_state.t_electrons[r_packet.current_shell_id],
+            x_sect_bfs,
+            current_continua,
+            opacity_state.bf_threshold_list_nu,
+            chi_ff,
+        )
 
         # Handle interaction types
         if interaction_type == InteractionType.BOUNDARY:
