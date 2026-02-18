@@ -21,7 +21,7 @@ from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
-from tardis.opacities.opacity_solver_iip import OpacitySolverIIP
+from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
@@ -170,7 +170,7 @@ class TypeIIPWorkflow(WorkflowLogging):
                 "Continuum interactions for 'H I' must be included for the IIP workflow. Check plasma.continuum_interaction.species in the configuration."
             )
 
-        self.opacity_solver = OpacitySolverIIP(
+        self.opacity_solver = OpacitySolver(
             line_interaction_type,
             configuration.plasma.disable_line_scattering,
         )

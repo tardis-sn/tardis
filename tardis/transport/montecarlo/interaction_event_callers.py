@@ -19,7 +19,6 @@ from tardis.transport.montecarlo.interaction_events import (
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
     macro_atom_interaction,
-    macro_atom_interaction_iip,
 )
 from tardis.transport.montecarlo.utils import get_random_mu
 
