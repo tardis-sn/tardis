@@ -128,12 +128,12 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-lfs@main
 
       - name: Download environment file
-        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-macos.yml
+        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
 
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
-          environment-file: env-benchmark-macos.yml
+          environment-file: env-benchmark-linux.yml
           environment-name: tardis
 
       - name: Install tardis editable
@@ -175,12 +175,12 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download environment file
-        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-macos.yml
+        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
 
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
-          environment-file: env-benchmark-macos.yml
+          environment-file: env-benchmark-linux.yml
           environment-name: tardis
 
       # will download all artifacts(in this case all are coverage reports)
