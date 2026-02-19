@@ -1,10 +1,6 @@
 ## Changelog
 
 ### release-2026.02.16 (2026/02/19 04:50)
-- [3429](https://github.com/tardis-sn/tardis/pull/3429) Release fixes (3429) (@atharva-2001)
-- [3427](https://github.com/tardis-sn/tardis/pull/3427) New Monte Carlo transport modes (3427) (@wkerzendorf)
-- [3431](https://github.com/tardis-sn/tardis/pull/3431) Extremely basic "does it run" test for MC solver in IIP workflow (3431) (@andrewfullard)
-### release-2026.02.16 (2026/02/19 04:50)
 - [3423](https://github.com/tardis-sn/tardis/pull/3423) Excise the estimators (3423) (@wkerzendorf)
 - [3428](https://github.com/tardis-sn/tardis/pull/3428) Dependabot and PR Checklist (3428) (@atharva-2001)
 - [3425](https://github.com/tardis-sn/tardis/pull/3425) Active geometry fixes (3425) (@andrewfullard)
