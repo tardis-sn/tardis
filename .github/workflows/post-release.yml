@@ -7,6 +7,7 @@ name: post-release
 on:
   release:
     types: [published]
+  pull_request:
   workflow_dispatch: # manual trigger
 
 jobs:
@@ -18,11 +19,22 @@ jobs:
           repository: tardis-sn/tardis
           fetch-depth: 0
 
+      - name: Get release tag
+        id: get-tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$(gh release view --json tagName -q '.tagName')" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
         with:
           config: pyproject.toml
-          args: --verbose --tag ${{ github.event.release.tag_name }}
+          args: --verbose --tag ${{ steps.get-tag.outputs.tag }}
         env:
           OUTPUT: CHANGELOG.md
 
