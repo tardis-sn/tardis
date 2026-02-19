@@ -2,6 +2,8 @@ import numpy.testing as npt
 import pandas.testing as pdt
 import pytest
 
+RELATIVE_TOLERANCE_PLASMA_HDF = 1e-7
+
 ###
 # saving and loading of plasma properties in the HDF file
 ###
@@ -50,7 +52,9 @@ def test_hdf_plasma(simulation_verysimple, attr, regression_data):
         expected = regression_data.sync_ndarray(actual)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        npt.assert_allclose(actual, expected)
+        npt.assert_allclose(
+            actual, expected, atol=0, rtol=RELATIVE_TOLERANCE_PLASMA_HDF
+        )
 
 
 def test_hdf_levels(simulation_verysimple, regression_data):
@@ -70,7 +74,9 @@ def test_hdf_scalars(simulation_verysimple, attr, regression_data):
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     expected = regression_data.sync_ndarray(actual)
-    npt.assert_allclose(actual, expected)
+    npt.assert_allclose(
+        actual, expected, atol=0, rtol=RELATIVE_TOLERANCE_PLASMA_HDF
+    )
 
 
 def test_hdf_helium_treatment(simulation_verysimple, regression_data):
@@ -94,4 +100,6 @@ def test_collection(simulation_verysimple, attr, regression_data):
     expected = regression_data.sync_ndarray(actual)
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
-    npt.assert_allclose(actual, expected)
+    npt.assert_allclose(
+        actual, expected, atol=0, rtol=RELATIVE_TOLERANCE_PLASMA_HDF
+    )

@@ -6,6 +6,8 @@ from tardis.opacities.tau_sobolev import (
     calculate_sobolev_line_opacity,
 )
 
+RELATIVE_TOLERANCE_TAU_SOBOLEV = 1e-7
+
 
 def test_calculate_sobolev_line_opacity(
     nb_simulation_verysimple, regression_data
@@ -33,4 +35,6 @@ def test_calculate_beta_sobolevs(nb_simulation_verysimple, regression_data):
     )
     actual = calculate_beta_sobolev(tau_sobolevs)
     expected = regression_data.sync_ndarray(actual)
-    npt.assert_allclose(actual, expected)
+    npt.assert_allclose(
+        actual, expected, atol=0, rtol=RELATIVE_TOLERANCE_TAU_SOBOLEV
+    )
