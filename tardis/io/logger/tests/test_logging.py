@@ -111,3 +111,11 @@ class TestSimulationLogging:
                 assert record.levelno == LOGGING_LEVELS[log_level.upper()]
             else:
                 assert record.levelno >= LOGGING_LEVELS[log_level.upper()]
+def test_logging_state_without_debug_section():
+    from tardis.io.logger.logger import logging_state
+    cfg={}
+    logging_state(log_level=None, tardis_config=cfg, specific_log_level=None)
+def test_logging_state_without_log_level():
+    from tardis.io.logger.logger import logging_state
+    cfg={"debug": {}}
+    logging_state(log_level=None, tardis_config=cfg, specific_log_level=None)

@@ -88,13 +88,7 @@ class TARDISLogger:
             If an invalid log_level is provided.
         """
         if "debug" in tardis_config:
-            specific_log_level = tardis_config["debug"].get(
-                "specific_log_level", specific_log_level
-            )
-            logging_level = log_level or tardis_config["debug"].get(
-                "log_level", "INFO"
-            )
-            if log_level and tardis_config["debug"].get("log_level"):
+            if log_level and debug_cfg.get("log_level"):
                 self.logger.debug(
                     "log_level is defined both in Functional Argument & YAML Configuration {debug section}, "
                     f"log_level = {log_level.upper()} will be used for Log Level Determination"
@@ -250,6 +244,9 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
     dict
         Dictionary of log columns if display_logging_widget is True, otherwise None.
     """
+    debug_cfg=tardis_config.get("debug",{}) if isinstance(tardis_config, dict) else getattr(tardis_config, "debug", {})
+    cfg_log_level=debug_cfg.get("log_level")
+    cfg_specific_log_level=debug_cfg.get("specific_log_level")
     log_columns = create_logger_columns(start_height=widget_start_height, max_height=widget_max_height)
     tardislogger = TARDISLogger(log_columns=log_columns, batch_size=batch_size)
     tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
