@@ -37,17 +37,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-cache:
-    uses: ./.github/workflows/lfs-cache.yml
-    with:
-      atom-data-sparse: false
-      regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
-
   tests:
     name: tests ${{ matrix.continuum }} continuum ${{ matrix.os }} ${{ matrix.pip_git && 'pip tests enabled' || 'pip tests disabled' }}
     if: github.repository_owner == 'tardis-sn'
-    needs: [test-cache]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -124,16 +116,29 @@ jobs:
         
    
 
-      - name: Setup LFS
-        uses: tardis-sn/tardis-actions/setup-lfs@main
+      - name: Clone regression data
+        uses: actions/checkout@v5
+        with:
+          repository: tardis-sn/tardis-regression-data
+          path: tardis-regression-data
+          lfs: false
+
+      - name: Pull LFS data
+        run: git lfs pull
+        working-directory: tardis-regression-data
 
       - name: Download environment file
-        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-macos.yml
+          fi
 
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
-          environment-file: env-benchmark-linux.yml
+          environment-file: ${{ matrix.os == 'ubuntu-latest' && 'env-benchmark-linux.yml' || 'env-benchmark-macos.yml' }}
           environment-name: tardis
 
       - name: Install tardis editable
