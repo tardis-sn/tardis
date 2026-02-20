@@ -545,6 +545,8 @@ def calculate_first_guess(
     atomic_numbers,
     number_density,
     electron_density,
+    previous_ion_number_density=None,
+    previous_electron_densities=None,
 ):
     """Constructs a first guess for ion number densities and electron density, where all species are singly ionized.
 
@@ -558,12 +560,31 @@ def calculate_first_guess(
         Number density of present species.
     electron_density : float
         Current value of electron density.
+    previous_ion_number_density : pandas.Series
+        Ion number densities from the previous iteration.
+    previous_electron_densities : float
+        Electron density from the previous iteration.
 
     Returns
     -------
     numpy.array
         Guess for ion number densities and electron density.
     """
+    if (
+        previous_ion_number_density is not None
+        and previous_electron_densities is not None
+    ):
+        first_guess = pd.Series(0.0, index=rate_matrix_index)
+        ion_indices = rate_matrix_index.drop("n_e")
+        for idx in ion_indices:
+            atomic_number, ion_number, _ = idx
+            if (atomic_number, ion_number) in previous_ion_number_density.index:
+                first_guess[idx] = previous_ion_number_density.loc[
+                    (atomic_number, ion_number)
+                ]
+        first_guess["n_e"] = previous_electron_densities
+        return first_guess.values
+
     first_guess = pd.Series(0.0, index=rate_matrix_index)
     for atomic_number in atomic_numbers:
         first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
