@@ -129,13 +129,6 @@ def trace_packet(
         tau_trace_combined = tau_trace_line_combined + tau_trace_continuum
 
         distance = min(distance_trace, distance_boundary, distance_continuum)
-        # if distance == distance_trace:
-        #     print(
-        #         tau_trace_line_combined,
-        #         "\n ",
-        #         distance_trace,
-        #         distance_boundary,
-        #     )
 
         if distance_trace != 0:
             if distance == distance_boundary:
@@ -151,7 +144,6 @@ def trace_packet(
                     interaction_type = InteractionType.CONTINUUM_PROCESS
                 r_packet.next_line_id = cur_line_id
                 break
-        # raise (ValueError)
 
         # Updating the J_b_lu and E_dot_lu
         # This means we are still looking for line interaction and have not
