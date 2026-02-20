@@ -17,6 +17,8 @@ Installation
       to be installed on your system.
 
 
+.. _install-with-lockfiles:
+
 Install with lockfiles
 ======================
 
@@ -115,7 +117,7 @@ We strongly recommend installing TARDIS using this method by following the steps
 
 From now on, just activate the ``tardis-{project_name}`` environment before working with the TARDIS package.
 
-You have successfully installed TARDIS! 🎉 Please refer to `Quickstart for TARDIS <quickstart.ipynb>`_ 
+You have successfully installed TARDIS! 🎉 Please refer to :doc:`Quickstart for TARDIS <../quickstart>`
 to start running simulations.
 
 
@@ -132,7 +134,7 @@ Use the following ``conda`` command to remove your current ``tardis`` environmen
 
     $ conda remove --name tardis-{project_name} --all
 
-Now, you can create a new environment by following the steps given `here <https://tardis-sn.github.io/tardis/installation.html#install-with-lockfiles>`_.
+Now, you can create a new environment by following the steps given :ref:`above <install-with-lockfiles>`.
 
 To update the environment, download the latest lockfile and run ``conda update``.
 

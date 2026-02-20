@@ -360,6 +360,7 @@ html_js_files = [
 
 redirects = [
     ("using/gui/index.rst", "using/visualization/index.rst"),
+    ("installation.rst", "getting_started/installation.rst"),
 ]
 
 
