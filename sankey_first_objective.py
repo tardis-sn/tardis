@@ -46,7 +46,7 @@ try:
     # GSoC FIRST OBJECTIVE: Filter and Print Packet History
     # ---------------------------------------------------------
     print("\n" + "="*50)
-    print("🚀 EXECUTING GSoC FIRST OBJECTIVE 🚀")
+    print("EXECUTING GSoC FIRST OBJECTIVE")
     print("="*50)
 
     # 1. Filter out 'BOUNDARY' interactions
@@ -61,14 +61,14 @@ try:
         best_packet_id = packet_counts.idxmax()
         num_interactions = packet_counts.max()
         
-        print(f"\n🎯 Selected Packet ID: {best_packet_id}")
-        print(f"🔄 Total non-boundary interactions: {num_interactions}")
+        print(f"\nSelected Packet ID: {best_packet_id}")
+        print(f"Total non-boundary interactions: {num_interactions}")
         
         # 3. Extract the history for this specific packet
         packet_history = df_filtered.xs(best_packet_id, level='packet_id')
         
         # 4. Print out the list of interactions cleanly
-        print("\n📝 Interaction History (Filtered):")
+        print("\nInteraction History (Filtered):")
         
         # Selecting important columns to show a clean summary
         cols_to_show = ['interaction_type', 'status', 'radius', 'line_absorb_id', 'line_emit_id']
@@ -82,5 +82,5 @@ try:
     # ---------------------------------------------------------
 
 except Exception as e:
-    print("\nError aagaya:")
+    print("\nAn error occured:")
     print(e)
