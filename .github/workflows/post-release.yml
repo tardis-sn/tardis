@@ -77,8 +77,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install rst-include
-        run: pip install rst-include==2.1.2.2 requests==2.27.1
+      - name: Install requests
+        run: pip install requests==2.32.5
 
       - name: Update README.rst
         run: python .ci-helpers/update_credits.py

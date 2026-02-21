@@ -1,15 +1,14 @@
 from pathlib import Path
 
-import numpy as np
 import numpy.testing as npt
 import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.simulation.base import Simulation
-from tardisbase.testing.regression_data.regression_data import RegressionData
 
 config_line_modes = ["downbranch", "macroatom"]
 interpolate_shells = [-1, 30]
@@ -79,7 +78,7 @@ class TestTransportSimpleFormalIntegral:
 
     def test_j_blue_estimators(self, simulation, request):
         regression_data = RegressionData(request)
-        j_blue_estimator = simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator
+        j_blue_estimator = simulation.transport.transport_state.estimators_line.mean_intensity_blueward
         expected = regression_data.sync_ndarray(j_blue_estimator)
         npt.assert_allclose(j_blue_estimator, expected)
 
@@ -98,5 +97,5 @@ class TestTransportSimpleFormalIntegral:
         expected = regression_data.sync_ndarray(luminosity.cgs.value)
         expected = u.Quantity(expected, "erg /s")
         assert_quantity_allclose(
-            luminosity, expected, rtol=1.5e-11, atol=0 * u.erg / u.s
+            luminosity, expected, rtol=1.5e-10, atol=0 * u.erg / u.s
         )  # Increased atol to 1.5e-11 because of mac/linux differences

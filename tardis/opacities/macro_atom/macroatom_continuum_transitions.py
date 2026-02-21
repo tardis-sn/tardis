@@ -151,7 +151,10 @@ def continuum_transition_recombination_emission(
     )
 
     destinations = p_recomb_emission.index.values
-    sources = get_ground_state_multi_index(p_recomb_emission.index).values
+    ## TODO: FIX
+    sources = get_ground_state_multi_index(
+        p_recomb_emission.index
+    ).values  # Should be k packet?
 
     unique_idx = photoionization_data_frequencies.index.unique()
     mapping = {idx: i for i, idx in enumerate(unique_idx)}
@@ -522,6 +525,7 @@ def probability_collision_internal_down(
     return p_coll_internal_down
 
 
+# Might not be a used transition
 def collisional_transition_internal_down(
     coll_deexc_coeff, electron_densities, energies_lowers
 ):
@@ -565,7 +569,7 @@ def collisional_transition_internal_down(
     return p_coll_internal_down, coll_internal_down_metadata
 
 
-def probability_collision_internal_up(
+def probability_collision_exc_to_macro(
     coll_exc_coeff, electron_densities, energy_lowers
 ):
     """
@@ -585,14 +589,14 @@ def probability_collision_internal_up(
     pd.DataFrame
         DataFrame containing collisional internal up probabilities.
     """
-    p_coll_internal_up = (coll_exc_coeff * electron_densities).multiply(
+    p_coll_exc_to_macro = (coll_exc_coeff * electron_densities).multiply(
         energy_lowers.values, axis=0
     )
 
-    return p_coll_internal_up
+    return p_coll_exc_to_macro
 
 
-def collisional_transition_internal_up(
+def collisional_transition_excitation_to_macro_atom(
     coll_exc_coeff, electron_densities, energies_lowers
 ):
     """
@@ -609,30 +613,30 @@ def collisional_transition_internal_up(
 
     Returns
     -------
-    p_coll_internal_up : pd.DataFrame
-        Unnormalized collisional internal up transition probabilities.
-    coll_internal_up_metadata : pd.DataFrame
+    p_coll_exc_to_macro : pd.DataFrame
+        Unnormalized collisional excitation to macro transition probabilities.
+    coll_excite_to_macro_metadata : pd.DataFrame
         Metadata for the collisional internal up transitions.
     """
     sources = coll_exc_coeff.index.droplevel("level_number_upper").values
     destinations = coll_exc_coeff.index.droplevel("level_number_lower").values
 
-    p_coll_internal_up = probability_collision_internal_down(
+    p_coll_exc_to_macro = probability_collision_exc_to_macro(
         coll_exc_coeff, electron_densities, energies_lowers
     )
-    coll_internal_up_metadata = pd.DataFrame(
+    coll_excite_to_macro_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.COLL_UP_INTERNAL,
+            "transition_type": MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": range(len(coll_exc_coeff)),
         },
-        index=p_coll_internal_up.index,
+        index=p_coll_exc_to_macro.index,
     )
-    return p_coll_internal_up, coll_internal_up_metadata
+    return p_coll_exc_to_macro, coll_excite_to_macro_metadata
 
 
 def probability_collision_excitation_cool(
@@ -726,7 +730,7 @@ def collisional_transition_excitation_cool(
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.COLL_UP_COOLING,
+            "transition_type": MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": -99,  # Collapsed along level_number_lower, so can't be mapped to collision keys

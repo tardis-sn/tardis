@@ -36,9 +36,7 @@ def simulation_state(atomic_dataset):
         / "tardis_he_test_config.yml"
     )
 
-    return SimulationState.from_csvy(
-        Configuration.from_yaml(str(config_path)), atom_data=atomic_dataset
-    )
+    return SimulationState.from_csvy(Configuration.from_yaml(str(config_path)))
 
 
 @pytest.fixture(scope="module")

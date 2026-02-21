@@ -5,11 +5,11 @@ import pandas as pd
 import pytest
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis import run_tardis
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation.base import Simulation
-from tardisbase.testing.regression_data.regression_data import RegressionData
 
 
 def test_run_tardis_from_config_obj(
@@ -29,6 +29,7 @@ def test_run_tardis_from_config_obj(
     except Exception as e:
         pytest.fail(str(e.args[0]))
 
+
 def test_run_tardis_simulation_callbacks_none(
     atomic_data_fname, example_configuration_dir: Path
 ):
@@ -45,6 +46,7 @@ def test_run_tardis_simulation_callbacks_none(
         assert isinstance(sim, Simulation)
     except Exception as e:
         pytest.fail(f"run_tardis failed with simulation_callbacks=None: {e}")
+
 
 class TestTransportSimple:
     """
@@ -82,7 +84,7 @@ class TestTransportSimple:
         expected = self.get_expected_data(key)
 
         npt.assert_allclose(
-            simulation.transport.transport_state.radfield_mc_estimators.j_blue_estimator,
+            simulation.transport.transport_state.estimators_line.mean_intensity_blueward,
             expected.values,
         )
 

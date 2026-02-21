@@ -26,7 +26,7 @@ following paragraph to the Acknowledgement section:
     sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
 
 If you use any of the full relativity treatments or use TARDIS for modelling
-Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_
+Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_ 
 to the Acknowledgement.
 
 .. parsed-literal::
@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_18375030
+.. |CITATION| replace:: kerzendorf_2026_18656216
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.18375030-blue
-                 :target: https://doi.org/10.5281/zenodo.18375030
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.18656216-blue
+                 :target: https://doi.org/10.5281/zenodo.18656216
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_18375030,
+    @software{kerzendorf_2026_18656216,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -202,12 +202,11 @@ The following BibTeX entries are needed for the references:
                       Gajanan Nalbalwar, Rudraksh and
                       Sharma, Sampark and
                       Venkat, Shashank},
-      title        = {tardis-sn/tardis: TARDIS v2026.01.26},
-      month        = jan,
+      title        = {tardis-sn/tardis: TARDIS v2026.02.16},
+      month        = feb,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.01.26},
-      doi          = {10.5281/zenodo.18375030},
-      url          = {https://doi.org/10.5281/zenodo.18375030},
+      version      = {release-2026.02.16},
+      doi          = {10.5281/zenodo.18656216},
+      url          = {https://doi.org/10.5281/zenodo.18656216},
     }
-

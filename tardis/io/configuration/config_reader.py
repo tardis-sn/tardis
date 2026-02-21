@@ -9,7 +9,6 @@ from astropy import units as u
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.configuration import config_validator
-from tardis.io.model.readers.csvy import load_yaml_from_csvy
 from tardis.io.util import YAMLLoader, yaml_load_file
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -86,6 +85,8 @@ class ConfigurationNameSpace(dict):
                 "Cannot specify both model and csvy_model in main config file."
             )
         if hasattr(self, "csvy_model"):
+            from tardis.io.model.csvy import load_yaml_from_csvy
+
             model = {}
             csvy_model_path = Path(self.config_dirname) / self.csvy_model
             csvy_yml = load_yaml_from_csvy(csvy_model_path)

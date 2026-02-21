@@ -1,28 +1,26 @@
 import numpy as np
 import pytest
+from numpy.testing import (
+    assert_allclose,
+    assert_almost_equal,
+)
 
 import tardis.opacities.opacities as opacities
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
-import tardis.transport.montecarlo.estimators.radfield_mc_estimators
+import tardis.transport.montecarlo.modes.classic.rad_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
-import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_line_estimators,
+    update_estimators_line,
 )
+from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 SIGMA_THOMSON = const.sigma_T.to("cm^2").value
-
-from numpy.testing import (
-    assert_allclose,
-    assert_almost_equal,
-)
 
 
 @pytest.fixture(scope="function")
@@ -42,20 +40,15 @@ def time_explosion():
 
 @pytest.fixture(scope="function")
 def estimators():
-    return tardis.transport.montecarlo.estimators.radfield_mc_estimators.RadiationFieldMCEstimators(
-        j_estimator=np.array([0.0, 0.0], dtype=np.float64),
-        nu_bar_estimator=np.array([0.0, 0.0], dtype=np.float64),
-        j_blue_estimator=np.array(
+    from tardis.transport.montecarlo.estimators import EstimatorsLine
+
+    return EstimatorsLine(
+        mean_intensity_blueward=np.array(
             [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64
         ),
-        Edotlu_estimator=np.array(
+        energy_deposition_line_rate=np.array(
             [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
         ),
-        photo_ion_estimator=np.empty((0, 0), dtype=np.float64),
-        stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
-        bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
-        stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
-        photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
     )
 
 
@@ -209,7 +202,7 @@ def test_update_line_estimators(
     expected_j_blue,
     expected_Edotlu,
 ):
-    update_line_estimators(
+    update_estimators_line(
         estimators,
         static_packet,
         cur_line_id,
@@ -218,8 +211,8 @@ def test_update_line_estimators(
         enable_full_relativity=False,
     )
 
-    assert_allclose(estimators.j_blue_estimator, expected_j_blue)
-    assert_allclose(estimators.Edotlu_estimator, expected_Edotlu)
+    assert_allclose(estimators.mean_intensity_blueward, expected_j_blue)
+    assert_allclose(estimators.energy_deposition_line_rate, expected_Edotlu)
 
 
 # TODO set RNG consistently
@@ -229,7 +222,8 @@ def test_trace_packet(
     packet,
     verysimple_time_explosion,
     verysimple_opacity_state,
-    verysimple_estimators,
+    verysimple_geometry,
+    verysimple_estimators_line,
     set_seed_fixture,
 ):
     set_seed_fixture(1963)
@@ -238,9 +232,12 @@ def test_trace_packet(
     )
     distance, interaction_type, delta_shell = r_packet_transport.trace_packet(
         packet,
+        verysimple_geometry,
         verysimple_time_explosion,
         verysimple_opacity_state,
-        verysimple_estimators,
+        verysimple_estimators_line,
+        chi_continuum=1.0,  # Placeholder value
+        escat_prob=0.5,  # Placeholder value
         enable_full_relativity=False,
         disable_line_scattering=False,
     )

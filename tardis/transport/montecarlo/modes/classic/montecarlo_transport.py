@@ -1,3 +1,5 @@
+"""Classic Monte Carlo transport - line-only mode without continuum processes."""
+
 import numpy as np
 from numba import njit, objmode, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
@@ -6,71 +8,73 @@ from numba.typed import List
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    create_estimators_bulk_list,
+    init_estimators_bulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    create_estimators_line_list,
+    init_estimators_line,
+)
+from tardis.transport.montecarlo.modes.classic.packet_propagation import (
+    packet_propagation,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
     VPacketCollection,
     consolidate_vpacket_tracker,
-    initialize_last_interaction_tracker,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
     RPacket,
 )
 from tardis.transport.montecarlo.progress_bars import update_packets_pbar
-from tardis.transport.montecarlo.single_packet_loop import (
-    single_packet_loop,
-)
 
 
 @njit(**njit_dict)
-def montecarlo_main_loop(
+def montecarlo_transport(
     packet_collection: PacketCollection,
     geometry_state_numba: NumbaRadial1DGeometry,
     time_explosion: float,
     opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
-    estimators: RadiationFieldMCEstimators,
     spectrum_frequency_grid: np.ndarray,
     trackers: List,
     number_of_vpackets: int,
     show_progress_bars: bool,
-):
+) -> tuple[
+    np.ndarray,
+    VPacketCollection,
+    type,
+    type,
+]:
     """
-    Main loop of the Monte Carlo radiative transfer routine.
+    Main loop of the Monte Carlo radiative transfer routine for classic mode.
 
-    This function generates the packet objects from the packet collection and propagates them through the ejecta,
-    performing interactions and collecting statistics for the radiative
-    transfer simulation.
+    Classic mode implements line-only transport without continuum processes.
 
     Parameters
     ----------
     packet_collection : PacketCollection
         Collection containing initial packet properties (positions, directions,
         frequencies, energies, and seeds)
-    geometry_state : NumbaRadial1DGeometry
+    geometry_state_numba : NumbaRadial1DGeometry
         Numba-compiled simulation geometry containing shell boundaries
         and velocity information
     time_explosion : float
         Time since explosion in seconds, used for relativistic calculations
-    opacity_state : OpacityStateNumba
-        Numba-compiled opacity state containing line opacities, continuum
-        opacities, and atomic data required for interactions
+    opacity_state_numba : OpacityStateNumba
+        Numba-compiled opacity state containing line opacities and atomic data
+        required for interactions
     montecarlo_configuration : MonteCarloConfiguration
         Configuration object containing Monte Carlo simulation parameters
         and flags for various physics modules
-    estimators : RadfieldMCEstimators
-        Estimator object for collecting radiation field statistics
-        during packet propagation
-    spectrum_frequency_grid : numpy.ndarray
+    spectrum_frequency_grid : np.ndarray
         Frequency grid array for virtual packet spectrum calculation
-    rpacket_trackers : numba.typed.List
+    trackers : List
         List of packet trackers for detailed packet interaction logging
     number_of_vpackets : int
         Number of virtual packets to spawn per real packet interaction
@@ -79,15 +83,12 @@ def montecarlo_main_loop(
 
     Returns
     -------
-    tuple
+    tuple[np.ndarray, VPacketCollection, type, type]
         A tuple containing:
-        - v_packets_energy_hist : numpy.ndarray
-            Energy histogram of virtual packets binned by frequency
-        - last_interaction_tracker : LastInteractionTracker
-            Object tracking the last interaction properties for each packet
-        - vpacket_tracker : VPacketCollection
-            Consolidated virtual packet collection containing all virtual
-            packet information from the simulation
+        - v_packets_energy_hist : Energy histogram of virtual packets binned by frequency
+        - vpacket_tracker : Consolidated virtual packet collection
+        - estimators_bulk : Updated bulk radiation field estimator object
+        - estimators_line : Updated line radiation field estimator object
     """
     no_of_packets = len(packet_collection.initial_nus)
 
@@ -114,8 +115,21 @@ def montecarlo_main_loop(
 
     # betting get thread_id goes from 0 to num threads
     # Note that get_thread_id() returns values from 0 to n_threads-1,
-    # so we iterate from 0 to n_threads-1 to create the estimator_list
-    estimator_list = estimators.create_estimator_list(n_threads)
+    # so we iterate from 0 to n_threads-1 to create the estimator_lists
+
+    # Initialize estimators
+    n_lines_by_n_cells_tuple = opacity_state_numba.tau_sobolev.shape
+    n_cells = len(geometry_state_numba.r_inner)
+    estimators_bulk = init_estimators_bulk(n_cells)
+    estimators_line = init_estimators_line(n_lines_by_n_cells_tuple)
+
+    # Initialize thread-local estimators
+    estimators_bulk_list_thread = create_estimators_bulk_list(
+        n_cells, n_threads
+    )
+    estimators_line_list_thread = create_estimators_line_list(
+        n_lines_by_n_cells_tuple, n_threads
+    )
 
     for i in prange(no_of_packets):
         thread_id = get_thread_id()
@@ -139,20 +153,22 @@ def montecarlo_main_loop(
         # Seed the random number generator
         np.random.seed(r_packet.seed)
 
-        # Get the local estimators for this thread
-        local_estimators = estimator_list[thread_id]
+        # Get the thread-local estimators for this thread
+        estimators_bulk_thread = estimators_bulk_list_thread[thread_id]
+        estimators_line_thread = estimators_line_list_thread[thread_id]
 
-        # Get the local v_packet_collection for this thread
+        # Get the thread-local v_packet_collection for this thread
         vpacket_collection = vpacket_collections[i]
         # RPacket Tracker for this thread
         tracker = trackers[i]
 
-        loop = single_packet_loop(
+        loop = packet_propagation(
             r_packet,
             geometry_state_numba,
             time_explosion,
             opacity_state_numba,
-            local_estimators,
+            estimators_bulk_thread,
+            estimators_line_thread,
             vpacket_collection,
             tracker,
             montecarlo_configuration,
@@ -167,7 +183,7 @@ def montecarlo_main_loop(
 
         # Finalize the tracker (e.g. trim arrays to actual size)
         tracker.finalize()
-        
+
         # Finalize the vpacket collection to trim arrays to actual size
         vpacket_collection.finalize_arrays()
 
@@ -182,8 +198,11 @@ def montecarlo_main_loop(
                 continue
             v_packets_energy_hist[idx] += vpacket_collection.energies[j]
 
-    for sub_estimator in estimator_list:
-        estimators.increment(sub_estimator)
+    for estimator_thread in estimators_bulk_list_thread:
+        estimators_bulk.increment(estimator_thread)
+
+    for estimator_thread in estimators_line_list_thread:
+        estimators_line.increment(estimator_thread)
 
     if montecarlo_configuration.ENABLE_VPACKET_TRACKING:
         vpacket_tracker = consolidate_vpacket_tracker(
@@ -205,4 +224,6 @@ def montecarlo_main_loop(
     return (
         v_packets_energy_hist,
         vpacket_tracker,
+        estimators_bulk,
+        estimators_line,
     )

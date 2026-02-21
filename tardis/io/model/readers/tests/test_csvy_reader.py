@@ -3,9 +3,7 @@ from pathlib import Path
 import numpy.testing as npt
 import pytest
 
-import tardis
-from tardis.io.configuration.config_validator import validate_dict
-from tardis.io.model.readers import csvy
+from tardis.io.model import csvy
 
 
 @pytest.fixture
@@ -24,28 +22,29 @@ def csvy_missing_fname(example_model_file_dir: Path):
 
 
 def test_csvy_finds_csv_first_line(csvy_full_fname):
-    yaml_dict, csv = csvy.load_csvy(csvy_full_fname)
-    npt.assert_almost_equal(csv["velocity"][0], 10000)
+    csvy_data = csvy.load_csvy(csvy_full_fname)
+
+    npt.assert_almost_equal(csvy_data.raw_csv_data["velocity"][0], 10000)
 
 
 def test_csv_colnames_equiv_datatype_fields(csvy_full_fname):
-    yaml_dict, csv = csvy.load_csvy(csvy_full_fname)
-    datatype_names = [od["name"] for od in yaml_dict["datatype"]["fields"]]
-    for key in csv.columns:
+    csvy_data = csvy.load_csvy(csvy_full_fname)
+
+    datatype_names = [
+        od["name"] for od in csvy_data.model_config.datatype.fields
+    ]
+    for key in csvy_data.raw_csv_data.columns:
         assert key in datatype_names
     for name in datatype_names:
-        assert name in csv.columns
+        assert name in csvy_data.raw_csv_data.columns
 
 
 def test_csvy_nocsv_data_is_none(csvy_nocsv_fname):
-    yaml_dict, csv = csvy.load_csvy(csvy_nocsv_fname)
-    assert csv is None
+    csvy_data = csvy.load_csvy(csvy_nocsv_fname)
+    assert csvy_data.raw_csv_data is None
 
 
 def test_missing_required_property(csvy_missing_fname):
-    yaml_dict, csv = csvy.load_csvy(csvy_missing_fname)
+    # Validation now happens inside load_csvy, so it should raise during loading
     with pytest.raises(Exception):
-        vy = validate_dict(
-            yaml_dict,
-            schemapath=Path(tardis.__path__[0]) / "io" / "schemas" / "csvy_model.yml",
-        )
+        csvy_data = csvy.load_csvy(csvy_missing_fname)

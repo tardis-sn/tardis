@@ -9,7 +9,7 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 )
 from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
-SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL = 1e-14
+SOURCE_FUNCTION_FORMAL_INTEGRAL_RTOL = 1e-13
 
 config_line_modes = ["downbranch", "macroatom"]
 

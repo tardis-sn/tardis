@@ -1,5 +1,4 @@
-"""Script for updating `credits.rst` and `README.rst` between releases,
-requires the `rst-include` package"""
+"""Script for updating `credits.rst` and `README.rst` between releases."""
 
 import pathlib
 import re
@@ -8,7 +7,29 @@ import warnings
 from datetime import date
 
 import requests
-from rst_include import rst_include
+
+INCLUDE_PATTERN = re.compile(r"^\.\. include:: (.+)$", re.MULTILINE)
+
+
+def resolve_rst_includes(source, target):
+    """Resolve ``.. include::`` directives by inlining referenced files.
+
+    Parameters
+    ----------
+    source : str
+        Path to the RST template containing include directives.
+    target : str
+        Path to write the resolved output.
+    """
+    source_path = pathlib.Path(source)
+    text = source_path.read_text(encoding="utf-8")
+
+    def _replace(match):
+        include_path = source_path.parent / match.group(1)
+        return include_path.read_text(encoding="utf-8")
+
+    resolved = INCLUDE_PATTERN.sub(_replace, text)
+    pathlib.Path(target).write_text(resolved, encoding="utf-8")
 
 
 def generate_zenodo():
@@ -61,22 +82,14 @@ def generate_zenodo():
 def main():
     generate_zenodo()
 
-    rst_include.include(
+    resolve_rst_includes(
         source="docs/resources/credits_template.rst",
         target="docs/resources/credits.rst",
-        quiet=False,
-        inplace=False,
-        source_encoding="utf-8",
-        target_encoding="utf-8",
     )
 
-    rst_include.include(
+    resolve_rst_includes(
         source="README_TEMPLATE.rst",
         target="README.rst",
-        quiet=False,
-        inplace=False,
-        source_encoding="utf-8",
-        target_encoding="utf-8",
     )
 
 

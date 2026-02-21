@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 
-import numpy as np
 import pandas as pd
-from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
+from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    EstimatorsContinuum,
 )
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
@@ -25,37 +23,36 @@ class MCContinuumPropertiesSolver:
 
     def solve(
         self,
-        radfield_mc_estimators: RadiationFieldMCEstimators,
-        time_simulation,
-        volume,
-    ):
+        estimators_continuum: EstimatorsContinuum,
+        time_simulation: float,
+        volume: float,
+    ) -> "ContinuumProperties":
         """
         Solve for the continuum properties.
 
         Parameters
         ----------
-        radfield_mc_estimators : RadiationFieldMCEstimators
-            The Monte Carlo estimators for the radiation field.
-        time_simulation : float
+        estimators_continuum
+            The Monte Carlo estimators for the continuum radiation field.
+        time_simulation
             The simulation time.
-        volume : float
+        volume
             The volume of the cells.
 
         Returns
         -------
-        ContinuumProperties
-            The calculated continuum properties.
+        The calculated continuum properties.
         """
         photo_ion_norm_factor = (time_simulation * volume * H) ** -1
 
         photo_ionization_rate_coefficient = bound_free_estimator_array2frame(
-            radfield_mc_estimators.photo_ion_estimator,
+            estimators_continuum.photo_ion_estimator,
             self.atom_data.level2continuum_edge_idx,
         )
         photo_ionization_rate_coefficient *= photo_ion_norm_factor
 
         stimulated_recomb_rate_factor = bound_free_estimator_array2frame(
-            radfield_mc_estimators.stim_recomb_estimator,
+            estimators_continuum.stim_recomb_estimator,
             self.atom_data.level2continuum_edge_idx,
         )
         stimulated_recomb_rate_factor *= photo_ion_norm_factor

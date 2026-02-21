@@ -5,9 +5,12 @@
 name: release
 
 on:
-  schedule:
-    - cron: "0 0 * * 0"
   workflow_dispatch: # manual trigger
+  workflow_call: # called by pre-release when no PR is created
+    inputs:
+      called-from-pre-release:
+        type: boolean
+        default: true
   pull_request_target:
     branches: [master]
     types: [closed]
@@ -18,7 +21,10 @@ defaults:
 
 jobs:
   create:
-    if: github.event_name == 'workflow_dispatch' || (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      inputs.called-from-pre-release == true ||
+      (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

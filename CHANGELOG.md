@@ -1,5 +1,17 @@
 ## Changelog
 
+### release-2026.02.16 (2026/02/19 04:50)
+- [3423](https://github.com/tardis-sn/tardis/pull/3423) Excise the estimators (3423) (@wkerzendorf)
+- [3428](https://github.com/tardis-sn/tardis/pull/3428) Dependabot and PR Checklist (3428) (@atharva-2001)
+- [3425](https://github.com/tardis-sn/tardis/pull/3425) Active geometry fixes (3425) (@andrewfullard)
+- [3360](https://github.com/tardis-sn/tardis/pull/3360) Restructures CSVY module into dedicated package (3360) (@wkerzendorf)
+- [3415](https://github.com/tardis-sn/tardis/pull/3415) Create release even if pre release failed to create PR (3415) (@atharva-2001)
+- [3421](https://github.com/tardis-sn/tardis/pull/3421) Docstr bugfix (3421) (@atharva-2001)
+- [3372](https://github.com/tardis-sn/tardis/pull/3372) IIP Workflow with ctardis plasma (3372) (@jvshields)
+- [3359](https://github.com/tardis-sn/tardis/pull/3359) Move Arepo snapshot reader and associated tests (3359) (@wkerzendorf)
+- [3389](https://github.com/tardis-sn/tardis/pull/3389) CMFGEN URL Bugfix (3389) (@atharva-2001)
+- [3405](https://github.com/tardis-sn/tardis/pull/3405) First Time Contributor Workflow Bugfixes (3405) (@atharva-2001)
+- [3396](https://github.com/tardis-sn/tardis/pull/3396) Post-release 2026.01.26 (3396) (@tardis-bot)
 ### release-2026.01.26 (2026/01/10 21:51)
 - [3384](https://github.com/tardis-sn/tardis/pull/3384) Post-release 2026.01.11 (3384) (@tardis-bot)
 ### release-2026.01.11 (2026/01/10 21:13)

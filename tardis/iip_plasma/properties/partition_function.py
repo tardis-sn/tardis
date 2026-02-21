@@ -486,7 +486,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     res = root(self._rate_equations, x0=initial, args=args)
 
                     if (res.x[:-1] < 0).sum():
-                        logger.info("Resorting to Lsq Solver for excitation")
+                        logger.warning(
+                            "Resorting to Lsq Solver for excitation in shell %d",
+                            i,
+                        )
                         ubound = [1.0] * (len(initial) - 1) + [np.inf]
                         res = least_squares(
                             self._rate_equations,
