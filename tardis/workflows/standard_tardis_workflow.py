@@ -263,7 +263,7 @@ class StandardTARDISWorkflow(
         )
         self.reshape_plasma_state_store(self.completed_iterations)
         if self.convergence_plots is not None:
-            self.get_convergence_estimates()
+            _, _ = self.get_convergence_estimates()
             self.convergence_plots.update(
                 export_convergence_plots=self.export_convergence_plots,
                 last=True,
