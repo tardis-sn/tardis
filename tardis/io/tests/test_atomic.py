@@ -4,6 +4,7 @@ from astropy.tests.helper import assert_quantity_allclose
 
 from tardis import constants as const
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.io.atom_data.base import AtomData
 
 
 @pytest.fixture
@@ -68,3 +69,29 @@ def test_atomic_reprepare(kurucz_atomic_data):
     assert lines["atomic_number"].isin([14, 20]).all()
     assert len(lines.loc[lines["atomic_number"] == 14]) > 0
     assert len(lines.loc[lines["atomic_number"] == 20]) > 0
+
+
+def test_normalize_hdf_pandas_type_decodes_bytes():
+    class DummyAttrs:
+        pandas_type = b"frame_table"
+
+    class DummyNode:
+        _v_attrs = DummyAttrs()
+
+    class DummyStore:
+        def __init__(self):
+            self.node = DummyNode()
+
+        def __contains__(self, key):
+            return key == "atom_data"
+
+        def get_node(self, key):
+            assert key == "/atom_data"
+            return self.node
+
+    store = DummyStore()
+
+    AtomData._normalize_hdf_pandas_type(store, "atom_data")
+
+    assert isinstance(store.get_node("/atom_data")._v_attrs.pandas_type, str)
+    assert store.get_node("/atom_data")._v_attrs.pandas_type == "frame_table"

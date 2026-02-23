@@ -192,6 +192,7 @@ class AtomData:
 
         with pd.HDFStore(fname, "r") as store:
             for name in cls.hdf_names:
+                cls._normalize_hdf_pandas_type(store, name)
                 try:
                     dataframes[name] = store.select(name)
                 except KeyError:
@@ -266,6 +267,17 @@ class AtomData:
                 )
 
         return atom_data
+
+    @staticmethod
+    def _normalize_hdf_pandas_type(store, key):
+        """Normalize bytes-valued pandas_type metadata for newer Python runtimes."""
+        if key not in store:
+            return
+
+        node = store.get_node(f"/{key}")
+        pandas_type = getattr(node._v_attrs, "pandas_type", None)
+        if isinstance(pandas_type, bytes):
+            node._v_attrs.pandas_type = pandas_type.decode("ascii")
 
     def __init__(
         self,
