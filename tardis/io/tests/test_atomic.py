@@ -95,3 +95,86 @@ def test_normalize_hdf_pandas_type_decodes_bytes():
 
     assert isinstance(store.get_node("/atom_data")._v_attrs.pandas_type, str)
     assert store.get_node("/atom_data")._v_attrs.pandas_type == "frame_table"
+
+
+def test_normalize_hdf_pandas_type_string_unchanged():
+    class DummyAttrs:
+        pandas_type = "frame_table"
+
+    class DummyNode:
+        _v_attrs = DummyAttrs()
+
+    class DummyStore:
+        def __init__(self):
+            self.node = DummyNode()
+
+        def __contains__(self, key):
+            return key == "atom_data"
+
+        def get_node(self, key):
+            assert key == "/atom_data"
+            return self.node
+
+    store = DummyStore()
+
+    AtomData._normalize_hdf_pandas_type(store, "atom_data")
+
+    assert isinstance(store.get_node("/atom_data")._v_attrs.pandas_type, str)
+    assert store.get_node("/atom_data")._v_attrs.pandas_type == "frame_table"
+
+
+def test_normalize_hdf_pandas_type_missing_attribute_no_error():
+    class DummyAttrs:
+        # Intentionally no pandas_type attribute
+        pass
+
+    class DummyNode:
+        _v_attrs = DummyAttrs()
+
+    class DummyStore:
+        def __init__(self):
+            self.node = DummyNode()
+
+        def __contains__(self, key):
+            return key == "atom_data"
+
+        def get_node(self, key):
+            assert key == "/atom_data"
+            return self.node
+
+    store = DummyStore()
+
+    # Should not raise even though pandas_type attribute is missing
+    AtomData._normalize_hdf_pandas_type(store, "atom_data")
+
+    # pandas_type should still be absent
+    assert not hasattr(store.get_node("/atom_data")._v_attrs, "pandas_type")
+
+
+def test_normalize_hdf_pandas_type_missing_key_no_error():
+    class DummyAttrs:
+        pandas_type = b"frame_table"
+
+    class DummyNode:
+        _v_attrs = DummyAttrs()
+
+    class DummyStore:
+        def __init__(self):
+            self.node = DummyNode()
+            self.get_node_called = False
+
+        def __contains__(self, key):
+            # Simulate missing key in the store
+            return False
+
+        def get_node(self, key):
+            # If this is called, the early return behavior is broken
+            self.get_node_called = True
+            raise AssertionError("get_node should not be called when key is missing")
+
+    store = DummyStore()
+
+    # Should return early without raising, even though pandas_type exists on the node
+    AtomData._normalize_hdf_pandas_type(store, "atom_data")
+
+    assert store.get_node_called is False
