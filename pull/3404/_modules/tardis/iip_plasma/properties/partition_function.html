@@ -1,0 +1,1045 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.iip_plasma.properties.partition_function &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=9e8177cc"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.iip_plasma.properties.partition_function</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.iip_plasma.properties.partition_function</h1><div class="highlight"><pre>
+<span></span>import logging
+
+import numpy as np
+import pandas as pd
+from scipy.optimize import least_squares, root
+
+from tardis.iip_plasma.exceptions import (
+    PlasmaConfigError,
+    PlasmaNLTEExcitationError,
+)
+from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
+from tardis.opacities.tau_sobolev import calculate_beta_sobolev
+
+logger = logging.getLogger(__name__)
+
+__all__ = [
+    &quot;LTEPartitionFunction&quot;,
+    &quot;LTEPartitionFunctionTe&quot;,
+    &quot;LevelBoltzmannFactorDiluteLTE&quot;,
+    &quot;LevelBoltzmannFactorLTE&quot;,
+    &quot;LevelBoltzmannFactorLTECont&quot;,
+    &quot;LevelBoltzmannFactorLTETe&quot;,
+    &quot;LevelBoltzmannFactorNLTE&quot;,
+    &quot;LevelBoltzmannFactorNoNLTE&quot;,
+    &quot;PartitionFunction&quot;,
+]
+
+
+<div class="viewcode-block" id="LevelBoltzmannFactorLTE">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorLTE">[docs]</a>
+class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    general_level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Level population proportionality values. Indexed
+                             by atomic number, ion number, level number.
+                             Columns corresponding to zones. Does not consider
+                             NLTE.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;general_level_boltzmann_factor&quot;,)
+    latex_name = (&quot;bf_{i,j,k}&quot;,)
+    latex_formula = (
+        &quot;g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
+        \\textrm{B}}T_{\\textrm{rad}}}}&quot;,
+    )
+
+<div class="viewcode-block" id="LevelBoltzmannFactorLTE.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorLTE.calculate">[docs]</a>
+    @staticmethod
+    def calculate(excitation_energy, g, beta_rad, levels):
+        exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
+        level_boltzmann_factor_array = g.values[np.newaxis].T * exponential
+        level_boltzmann_factor = pd.DataFrame(
+            level_boltzmann_factor_array,
+            index=levels,
+            columns=np.arange(len(beta_rad)),
+            dtype=np.float64,
+        )
+        return level_boltzmann_factor</div>
+</div>
+
+
+
+<div class="viewcode-block" id="LevelBoltzmannFactorLTETe">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorLTETe">[docs]</a>
+class LevelBoltzmannFactorLTETe(LevelBoltzmannFactorLTE):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    level_boltzmann_factor_LTE_Te : Pandas DataFrame, dtype float
+                             Level population proportionality values for LTE.
+                             Evaluated at the kinetic temperature T_e. Indexed
+                             by atomic number, ion number, level number.
+                             Columns corresponding to zones.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;lte_level_boltzmann_factor_Te&quot;,)
+    latex_name = (&quot;bf_{i,j,k}^{\\textrm{LTE}}(T_e)&quot;,)
+    latex_formula = (
+        &quot;g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
+        \\textrm{B}}T_{\\textrm{electron}}}}&quot;,
+    )
+
+<div class="viewcode-block" id="LevelBoltzmannFactorLTETe.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorLTETe.calculate">[docs]</a>
+    @staticmethod
+    def calculate(excitation_energy, g, beta_electron, levels):
+        return super(
+            LevelBoltzmannFactorLTETe, LevelBoltzmannFactorLTETe
+        ).calculate(excitation_energy, g, beta_electron, levels)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="LevelBoltzmannFactorDiluteLTE">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE">[docs]</a>
+class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    general_level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Level population proportionality values. Indexed
+                             by atomic number, ion number, level number.
+                             Columns corresponding to zones. Dilute radiation
+                             field means non-metastable level values are
+                             multiplied by an additional factor W. Does not
+                             consider NLTE.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;general_level_boltzmann_factor&quot;,)
+    latex_name = (&quot;bf_{i,j,k}&quot;,)
+    latex_formula = (
+        &quot;Wg_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
+        \\textrm{B}}T_{\\textrm{rad}}}}&quot;,
+    )
+
+<div class="viewcode-block" id="LevelBoltzmannFactorDiluteLTE.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorDiluteLTE.calculate">[docs]</a>
+    def calculate(
+        self, levels, g, excitation_energy, beta_rad, w, metastability
+    ):
+        # print &quot;Calculating LevelBoltzmannFactorDiluteLTE\n&quot;
+        level_boltzmann_factor = LevelBoltzmannFactorLTE.calculate(
+            excitation_energy, g, beta_rad, levels
+        )
+        level_boltzmann_factor[~metastability] *= w
+        return level_boltzmann_factor</div>
+</div>
+
+
+
+<div class="viewcode-block" id="LevelBoltzmannFactorNoNLTE">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE">[docs]</a>
+class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Returns general_level_boltzmann_factor as this
+                             property is included if NLTE is not used.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;level_boltzmann_factor&quot;,)
+
+<div class="viewcode-block" id="LevelBoltzmannFactorNoNLTE.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorNoNLTE.calculate">[docs]</a>
+    @staticmethod
+    def calculate(general_level_boltzmann_factor):
+        return general_level_boltzmann_factor</div>
+</div>
+
+
+
+<div class="viewcode-block" id="LevelBoltzmannFactorNLTE">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorNLTE">[docs]</a>
+class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Returns general_level_boltzmann_factor but
+                             updated for those species treated in NLTE.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;level_boltzmann_factor&quot;, &quot;ion_ratio&quot;)
+
+<div class="viewcode-block" id="LevelBoltzmannFactorNLTE.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorNLTE.calculate">[docs]</a>
+    def calculate(self):
+        pass</div>
+
+
+    def __init__(
+        self,
+        plasma_parent,
+        classical_nebular=False,
+        coronal_approximation=False,
+    ):
+        &quot;&quot;&quot;
+        Selects appropriate &#39;calculate&#39; function based on NLTE config
+        options selected.
+        &quot;&quot;&quot;
+        super(LevelBoltzmannFactorNLTE, self).__init__(plasma_parent)
+        if classical_nebular == True and coronal_approximation == False:
+            self.calculate = self._calculate_classical_nebular
+        elif coronal_approximation == True and classical_nebular == False:
+            self.calculate = self._calculate_coronal_approximation
+        elif coronal_approximation == True and classical_nebular == True:
+            raise PlasmaConfigError(
+                &quot;Both coronal approximation and classical&quot;
+                &quot;nebular specified in the config.&quot;
+            )
+        elif self.plasma_parent.continuum_treatment:
+            self.calculate = self._calculate_with_continuum
+        else:
+            self.calculate = self._calculate_general
+        self._update_inputs()
+
+    def _main_nlte_calculation(
+        self,
+        atomic_data,
+        nlte_data,
+        t_electrons,
+        j_blues,
+        beta_sobolevs,
+        general_level_boltzmann_factor,
+        previous_electron_densities,
+    ):
+        &quot;&quot;&quot;
+        The core of the NLTE calculation, used with all possible config.
+        options.
+        &quot;&quot;&quot;
+        for species in self.plasma_parent.nlte_species:
+            # logger.info(&#39;Calculating rates for species %s&#39;, species)
+            rates_matrix, x, lines_idx, r_lu_matrix, r_ul_matrix = (
+                self._setup_bb_rates(
+                    species,
+                    atomic_data,
+                    nlte_data,
+                    t_electrons,
+                    j_blues,
+                    beta_sobolevs,
+                    previous_electron_densities,
+                )
+            )
+
+            for i in range(len(t_electrons)):
+                level_boltzmann_factor = np.linalg.solve(
+                    rates_matrix[:, :, i], x
+                )
+                general_level_boltzmann_factor[i].loc[species] = (
+                    level_boltzmann_factor
+                )
+        return general_level_boltzmann_factor
+
+    def _calculate_classical_nebular(
+        self,
+        t_electrons,
+        lines,
+        atomic_data,
+        nlte_data,
+        general_level_boltzmann_factor,
+        j_blues,
+        lte_j_blues,
+        previous_electron_densities,
+    ):
+        &quot;&quot;&quot;
+        Performs NLTE calculations using the classical nebular treatment.
+        All beta sobolev values taken as 1.
+        &quot;&quot;&quot;
+        beta_sobolevs = np.ones((len(lines), len(t_electrons)))
+        if len(j_blues) == 0:
+            j_blues = lte_j_blues
+        else:
+            j_blues = pd.DataFrame(
+                j_blues, index=lines.index, columns=range(len(t_electrons))
+            )
+        general_level_boltzmann_factor = self._main_nlte_calculation(
+            atomic_data,
+            nlte_data,
+            t_electrons,
+            j_blues,
+            beta_sobolevs,
+            general_level_boltzmann_factor,
+            previous_electron_densities,
+        )
+        return general_level_boltzmann_factor
+
+    def _calculate_coronal_approximation(
+        self,
+        t_electrons,
+        lines,
+        atomic_data,
+        nlte_data,
+        general_level_boltzmann_factor,
+        previous_electron_densities,
+    ):
+        &quot;&quot;&quot;
+        Performs NLTE calculations using the coronal approximation.
+        All beta sobolev values taken as 1 and j_blues taken as 0.
+        &quot;&quot;&quot;
+        beta_sobolevs = np.ones((len(lines), len(t_electrons)))
+        j_blues = np.zeros((len(lines), len(t_electrons)))
+        general_level_boltzmann_factor = self._main_nlte_calculation(
+            atomic_data,
+            nlte_data,
+            t_electrons,
+            j_blues,
+            beta_sobolevs,
+            general_level_boltzmann_factor,
+            previous_electron_densities,
+        )
+        return general_level_boltzmann_factor
+
+    def _calculate_general(
+        self,
+        t_electrons,
+        lines,
+        atomic_data,
+        nlte_data,
+        general_level_boltzmann_factor,
+        j_blues,
+        previous_beta_sobolev,
+        lte_j_blues,
+        previous_electron_densities,
+    ):
+        &quot;&quot;&quot;
+        Full NLTE calculation without approximations.
+        &quot;&quot;&quot;
+        if previous_beta_sobolev is None:
+            beta_sobolevs = np.ones((len(lines), len(t_electrons)))
+        else:
+            beta_sobolevs = previous_beta_sobolev
+        if len(j_blues) == 0:
+            j_blues = lte_j_blues
+        else:
+            j_blues = pd.DataFrame(
+                j_blues, index=lines.index, columns=range(len(t_electrons))
+            )
+        general_level_boltzmann_factor = self._main_nlte_calculation(
+            atomic_data,
+            nlte_data,
+            t_electrons,
+            j_blues,
+            beta_sobolevs,
+            general_level_boltzmann_factor,
+            previous_electron_densities,
+        )
+        return general_level_boltzmann_factor
+
+    def _calculate_with_continuum(
+        self,
+        t_electrons,
+        lines,
+        atomic_data,
+        nlte_data,
+        general_level_boltzmann_factor,
+        j_blues,
+        previous_beta_sobolev,
+        lte_j_blues,
+        previous_electron_densities,
+        gamma,
+        previous_ion_number_density,
+        alpha_stim,
+        alpha_sp,
+        coll_exc_coeff,
+        coll_deexc_coeff,
+        coll_ion_coeff,
+        coll_recomb_coeff,
+    ):
+        &quot;&quot;&quot;
+        Full NLTE calculation without approximations.
+        &quot;&quot;&quot;
+        if previous_beta_sobolev is None:
+            beta_sobolevs = np.ones((len(lines), len(t_electrons)))
+        else:
+            beta_sobolevs = previous_beta_sobolev
+        if len(j_blues) == 0:
+            j_blues = lte_j_blues
+        else:
+            j_blues = pd.DataFrame(
+                j_blues, index=lines.index, columns=range(len(t_electrons))
+            )
+        general_level_boltzmann_factor, ion_ratio = (
+            self._main_nlte_cont_calculation(
+                atomic_data,
+                nlte_data,
+                t_electrons,
+                j_blues,
+                beta_sobolevs,
+                general_level_boltzmann_factor,
+                previous_electron_densities,
+                gamma,
+                previous_ion_number_density,
+                alpha_stim,
+                alpha_sp,
+                coll_exc_coeff,
+                coll_deexc_coeff,
+                coll_ion_coeff,
+                coll_recomb_coeff,
+            )
+        )
+        return general_level_boltzmann_factor, ion_ratio
+
+    def _main_nlte_cont_calculation(
+        self,
+        atomic_data,
+        nlte_data,
+        t_electrons,
+        j_blues,
+        beta_sobolevs,
+        general_level_boltzmann_factor,
+        previous_electron_densities,
+        gamma,
+        previous_ion_number_density,
+        alpha_stim,
+        alpha_sp,
+        coll_exc_coeff,
+        coll_deexc_coeff,
+        coll_ion_coeff,
+        coll_recomb_coeff,
+    ):
+        &quot;&quot;&quot;
+        The core of the NLTE calculation, used with all possible config.
+        options.
+        &quot;&quot;&quot;
+        for species in self.plasma_parent.nlte_species:
+            # logger.info(&#39;Calculating rates for species %s&#39;, species)
+            (
+                rates_matrix,
+                x,
+                lines_idx,
+                r_lu_matrix,
+                r_ul_matrix,
+                r_lu_index,
+                r_ul_index,
+            ) = self._setup_bb_rates(
+                species,
+                atomic_data,
+                nlte_data,
+                t_electrons,
+                j_blues,
+                beta_sobolevs,
+                previous_electron_densities,
+                coll_exc_coeff,
+                coll_deexc_coeff,
+            )
+
+            no_of_levels = atomic_data.levels.energy.loc[species].count()
+            # general_level_boltzmann_factor_old = general_level_boltzmann_factor.copy(deep=True)
+            ion_ratio = np.zeros_like(t_electrons)
+
+            if previous_ion_number_density is not None and gamma is not None:
+                gamma1 = gamma.loc[species]
+                alpha_sp1 = alpha_sp.loc[species]
+                alpha_stim1 = alpha_stim.loc[species]
+                coll_ion_coeff1 = coll_ion_coeff.loc[species]
+                coll_recomb_coeff1 = coll_recomb_coeff.loc[species]
+
+            for i in range(len(t_electrons)):
+                if (
+                    previous_ion_number_density is not None
+                    and gamma is not None
+                ):
+                    n_e = previous_electron_densities[i]
+
+                    coll_ion = coll_ion_coeff1[i].values * n_e
+                    rates_matrix[:, :, i] -= np.diag(
+                        gamma1[i].values + coll_ion
+                    )
+
+                    gamma_vec = gamma1[i].values + coll_ion
+                    next_ion_index = (species[0], species[1] + 1)
+                    next_ion_density = previous_ion_number_density.loc[
+                        next_ion_index, i
+                    ]
+                    next_ion_density /= previous_ion_number_density.loc[
+                        species, i
+                    ]
+
+                    alpha = alpha_stim1[i].values + alpha_sp1[i].values
+                    coll_recomb = coll_recomb_coeff1[i].values
+                    # TODO: setup x outside of loop
+                    x = (alpha + coll_recomb * n_e) * n_e  # * next_ion_density
+
+                    coll_deexc_coeff_species = coll_deexc_coeff.loc[species]
+                    coll_exc_coeff_species = coll_exc_coeff.loc[species]
+                    collision_rates = self._setup_collision_rate_matrix(
+                        coll_exc_coeff_species,
+                        coll_deexc_coeff_species,
+                        no_of_levels,
+                        i,
+                        n_e,
+                    )
+                    rates_matrix[:, :, i] += collision_rates
+
+                    # x[0] = 0.
+                    rates_matrix[0, :, i] = 1.0
+
+                    remaining_rates = (
+                        -np.diag(gamma1[i].values + coll_ion) + collision_rates
+                    )
+                    # TODO: passing self is horrible
+                    # args = {&#39;self&#39;: self, &#39;x_vec&#39;: x, &#39;remaining_rates&#39;: remaining_rates}
+                    phis = (
+                        self.plasma_parent.phi.loc[(species[0],), i].values
+                        / n_e
+                    )
+
+                    args = (
+                        self,
+                        x,
+                        remaining_rates,
+                        lines_idx,
+                        r_lu_matrix[:, :, i],
+                        r_ul_matrix[:, :, i],
+                        r_lu_index,
+                        r_ul_index,
+                        self.plasma_parent.number_density.loc[species[0], i],
+                        gamma_vec,
+                        species,
+                        phis,
+                    )
+
+                    initial = (
+                        self.plasma_parent.level_number_density[i]
+                        .loc[species]
+                        .values
+                    )
+                    initial /= initial.sum()
+                    initial = np.hstack([initial, np.array(next_ion_density)])
+
+                    res = root(self._rate_equations, x0=initial, args=args)
+
+                    if (res.x[:-1] &lt; 0).sum():
+                        logger.info(&quot;Resorting to Lsq Solver for excitation&quot;)
+                        ubound = [1.0] * (len(initial) - 1) + [np.inf]
+                        res = least_squares(
+                            self._rate_equations,
+                            x0=initial,
+                            args=args,
+                            bounds=(0.0, ubound),
+                        )
+
+                        if (res.x[:-1] &lt; 0).sum():
+                            raise PlasmaNLTEExcitationError(
+                                &quot;level_boltzmann_factor is negative - aborting&quot;
+                            )
+
+                    level_boltzmann_factor = res.x[:-1]
+                    ion_ratio[i] = res.x[-1]
+
+                    general_level_boltzmann_factor.loc[species, i] = (
+                        level_boltzmann_factor
+                    )
+
+        return general_level_boltzmann_factor, ion_ratio
+
+    @staticmethod
+    def _rate_equations(
+        x,
+        self,
+        x_vec,
+        remaining_rates,
+        lines_idx,
+        r_lu_matrix,
+        r_ul_matrix,
+        r_lu_index,
+        r_ul_index,
+        number_density,
+        gamma_vec,
+        species,
+        phis,
+    ):
+        ion_numbers = self._get_ion_numbers(
+            species, phis, number_density, phi_nlte=x[-1]
+        )
+        level_density_nlte_species = ion_numbers[species[1]] * x[:-1]
+        level_density = pd.DataFrame(
+            self.plasma_parent.level_number_density[0].copy(deep=True)
+        )
+
+        level_density.loc[species, 0] = level_density_nlte_species
+
+        try:
+            beta_sobolev = self._caculate_beta_sobolevs(level_density)
+        except Exception:
+            import pdb
+
+            pdb.set_trace()
+        radiative_rates = self._setup_radiative_rates(
+            beta_sobolev,
+            lines_idx,
+            r_ul_matrix.copy(),
+            r_lu_matrix.copy(),
+            r_lu_index,
+            r_ul_index,
+        )
+
+        # print &quot;Set radiative rates to zero&quot;
+        # radiative_rates=0
+        rates_matrix = radiative_rates + remaining_rates
+
+        rates_matrix[0, :] = 1.0
+        x_tot = -x_vec.sum()
+        x_vec[0] = 0.0
+
+        rates_matrix = np.append(rates_matrix, np.expand_dims(x_vec, axis=1), 1)
+        # gamma_vec[0] = 0.0
+        rates_matrix = np.append(
+            rates_matrix, [np.hstack([gamma_vec, x_tot])], 0
+        )
+        num_vec = np.zeros(rates_matrix.shape[0])
+        num_vec[0] = 1.0
+
+        func = np.dot(rates_matrix, x) - num_vec
+        # jac = np.ones((20,20))
+
+        # level_boltzmann_factor = np.linalg.solve(rates_matrix, x_vec)
+        return func
+
+    @staticmethod
+    def _get_ion_numbers(species, phis, number_density, phi_nlte):
+        number_ratio_matrix = np.diag(np.ones(species[0]), k=1)
+        number_ratio_matrix[-1] = 1.0
+        diag_indices = np.diag_indices(len(number_ratio_matrix) - 1)
+        number_ratio_matrix[diag_indices] = -phis
+        number_ratio_matrix[species[1], species[1]] = -phi_nlte
+        number_conservation_vec = np.zeros(len(number_ratio_matrix))
+        number_conservation_vec[-1] = number_density
+        ion_numbers = np.linalg.solve(
+            number_ratio_matrix, number_conservation_vec
+        )
+        return ion_numbers
+
+    def _setup_radiative_rates(
+        self,
+        beta_sobolev,
+        lines_idx,
+        r_ul_matrix,
+        r_lu_matrix,
+        r_lu_index,
+        r_ul_index,
+    ):
+        # number_of_levels = 20
+        # r_ul_matrix_reshaped = r_ul_matrix.reshape(number_of_levels**2)
+        # r_lu_matrix_reshaped = r_lu_matrix.reshape(number_of_levels**2)
+
+        r_ul_matrix_reshaped = r_ul_matrix.reshape(-1)
+        r_lu_matrix_reshaped = r_lu_matrix.reshape(-1)
+
+        # TODO: ? is this the right thing to do
+        r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev[lines_idx].ravel()
+        r_lu_matrix_reshaped[r_lu_index] *= beta_sobolev[lines_idx].ravel()
+
+        rates_matrix = r_lu_matrix + r_ul_matrix
+
+        # TODO: Revert
+        # rates_matrix[0,:] = 0.0
+        # rates_matrix[:,0] = 0.0
+
+        # rates_matrix[0,:3] = 0.0
+        # rates_matrix[:3,0] = 0.0
+
+        # rates_matrix[0, 5:] = 0.0
+        # rates_matrix[5:,0] = 0.0
+
+        # rates_matrix[0,:5] = 0.0
+        # rates_matrix[:5,0] = 0.0
+
+        for i in range(r_ul_matrix.shape[0]):
+            rates_matrix[i, i] = -rates_matrix[:, i].sum(axis=0)
+
+        return rates_matrix
+
+    def _caculate_beta_sobolevs(self, level_number_density):
+        pl = self.plasma_parent
+
+        tau_sobolev_calc = self.plasma_parent.plasma_properties_dict[
+            &quot;TauSobolev&quot;
+        ].calculate
+        # beta_sobolev_calc = self.plasma_parent.plasma_properties_dict[&#39;BetaSobolev&#39;].calculate
+        stim_emission_factor_calc = self.plasma_parent.plasma_properties_dict[
+            &quot;StimulatedEmissionFactor&quot;
+        ].calculate
+
+        stim_emission_factor = stim_emission_factor_calc(
+            pl.g,
+            level_number_density,
+            pl.lines_lower_level_index,
+            pl.lines_upper_level_index,
+            pl.metastability,
+            pl.lines,
+        )
+
+        tau_sobolev = tau_sobolev_calc(
+            pl.lines,
+            level_number_density,
+            pl.lines_lower_level_index,
+            pl.time_explosion,
+            stim_emission_factor,
+            pl.j_blues,
+            pl.f_lu,
+            pl.wavelength_cm,
+        )
+
+        # import ipdb; ipdb.set_trace()
+        beta_sobolev = np.zeros_like(tau_sobolev.values)
+
+        beta_sobolev = calculate_beta_sobolev(tau_sobolev)
+
+        return beta_sobolev.values
+
+    @staticmethod
+    def _setup_bb_rates(
+        species,
+        atomic_data,
+        nlte_data,
+        t_electrons,
+        j_blues,
+        beta_sobolevs,
+        previous_electron_densities,
+        coll_exc_coeff=None,
+        coll_deexc_coeff=None,
+    ):
+        j_blues = j_blues.values
+        number_of_levels = atomic_data.levels.energy.loc[species].count()
+        lnl = nlte_data.lines_level_number_lower[species]
+        lnu = nlte_data.lines_level_number_upper[species]
+        lines_index = nlte_data.lines_idx[species]
+        A_uls = nlte_data.A_uls[species]
+        B_uls = nlte_data.B_uls[species]
+        B_lus = nlte_data.B_lus[species]
+        r_lu_index = lnu * number_of_levels + lnl
+        r_ul_index = lnl * number_of_levels + lnu
+        r_ul_matrix = np.zeros(
+            (number_of_levels, number_of_levels, len(t_electrons)),
+            dtype=np.float64,
+        )
+        r_ul_matrix_reshaped = r_ul_matrix.reshape(
+            (number_of_levels**2, len(t_electrons))
+        )
+        r_ul_matrix_reshaped[r_ul_index] = (
+            A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
+        )
+        # TODO: Revert
+        # r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
+        r_lu_matrix = np.zeros_like(r_ul_matrix)
+        r_lu_matrix_reshaped = r_lu_matrix.reshape(
+            (number_of_levels**2, len(t_electrons))
+        )
+        # r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
+        #        j_blues[lines_index] * beta_sobolevs[lines_index]
+        r_lu_matrix_reshaped[r_lu_index] = (
+            B_lus[np.newaxis].T * j_blues[lines_index]
+        )
+        if atomic_data.has_collision_data:
+            if previous_electron_densities is None:
+                collision_matrix = r_ul_matrix.copy()
+                collision_matrix.fill(0.0)
+            else:
+                collision_matrix = (
+                    nlte_data.get_collision_matrix(species, t_electrons)
+                    * previous_electron_densities.values
+                )
+        elif coll_exc_coeff is not None:
+            collision_matrix = r_ul_matrix.copy()
+            collision_matrix.fill(0.0)
+        else:
+            collision_matrix = r_ul_matrix.copy()
+            collision_matrix.fill(0.0)
+        rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
+        for i in range(number_of_levels):
+            rates_matrix[i, i] = -rates_matrix[:, i].sum(axis=0)
+        rates_matrix[0, :, :] = 1.0
+        x = np.zeros(rates_matrix.shape[0])
+        x[0] = 1.0
+        # import ipdb; ipdb.set_trace()
+        return (
+            rates_matrix,
+            x,
+            lines_index,
+            r_lu_matrix,
+            r_ul_matrix,
+            r_lu_index,
+            r_ul_index,
+        )
+
+    def _setup_collision_rate_matrix(
+        self, coll_exc_coeff, coll_deexc_coeff, no_of_levels, shell, n_e
+    ):
+        coll_deexc_coeff.index = coll_deexc_coeff.index.swaplevel(0, 1)
+
+        index = list(self._get_rate_index(no_of_levels))
+        coll_excitation_rates = (coll_exc_coeff[shell].reindex(index)).fillna(
+            0
+        ).values.reshape((no_of_levels, no_of_levels)) * n_e
+        coll_deexcitation_rates = (
+            coll_deexc_coeff[shell].reindex(index)
+        ).fillna(0).values.reshape((no_of_levels, no_of_levels)) * n_e
+
+        diag_exc = np.zeros(no_of_levels)
+        diag_deexc = np.zeros(no_of_levels)
+
+        coll_exc_lvl_sum = coll_exc_coeff[shell].groupby(level=0).sum()
+        coll_deexc_lvl_sum = coll_deexc_coeff[shell].groupby(level=0).sum()
+
+        diag_exc[coll_exc_lvl_sum.index.astype(int)] = coll_exc_lvl_sum.values
+        diag_deexc[coll_deexc_lvl_sum.index.astype(int)] = (
+            coll_deexc_lvl_sum.values
+        )
+
+        diag = -np.diag(diag_exc + diag_deexc) * n_e
+
+        collision_rate_matrix = (
+            coll_deexcitation_rates + coll_excitation_rates + diag
+        )
+
+        # x = np.zeros(collision_rate_matrix.shape[0])
+        # x[0] = 1
+        # collision_rate_matrix[0,:] = 1
+        # level_boltzmann_factor = np.linalg.solve(collision_rate_matrix, x)
+        return collision_rate_matrix
+
+    @staticmethod
+    def _get_rate_index(no_of_levels):
+        x_ind, y_ind = np.indices((no_of_levels, no_of_levels))
+        index = zip(y_ind.flatten(), x_ind.flatten())
+        return index</div>
+
+
+
+<div class="viewcode-block" id="PartitionFunction">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.PartitionFunction">[docs]</a>
+class PartitionFunction(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    partition_function : Pandas DataFrame, dtype float
+                         Indexed by atomic number, ion number.
+                         Columns are zones.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;partition_function&quot;,)
+    latex_name = (&quot;Z_{i,j}&quot;,)
+    latex_formula = (&quot;\\sum_{k}bf_{i,j,k}&quot;,)
+
+<div class="viewcode-block" id="PartitionFunction.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.PartitionFunction.calculate">[docs]</a>
+    @staticmethod
+    def calculate(level_boltzmann_factor):
+        return level_boltzmann_factor.groupby(
+            level=[&quot;atomic_number&quot;, &quot;ion_number&quot;]
+        ).sum()</div>
+</div>
+
+
+
+<div class="viewcode-block" id="LevelBoltzmannFactorLTECont">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LevelBoltzmannFactorLTECont">[docs]</a>
+class LevelBoltzmannFactorLTECont(LevelBoltzmannFactorLTE):
+    outputs = (&quot;lte_level_boltzmann_factor&quot;,)</div>
+
+
+
+<div class="viewcode-block" id="LTEPartitionFunction">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LTEPartitionFunction">[docs]</a>
+class LTEPartitionFunction(PartitionFunction):
+    outputs = (&quot;lte_partition_function&quot;,)
+
+<div class="viewcode-block" id="LTEPartitionFunction.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LTEPartitionFunction.calculate">[docs]</a>
+    def calculate(self, lte_level_boltzmann_factor):
+        return super(LTEPartitionFunction, self).calculate(
+            lte_level_boltzmann_factor
+        )</div>
+</div>
+
+
+
+<div class="viewcode-block" id="LTEPartitionFunctionTe">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LTEPartitionFunctionTe">[docs]</a>
+class LTEPartitionFunctionTe(PartitionFunction):
+    outputs = (&quot;lte_partition_function_Te&quot;,)
+
+<div class="viewcode-block" id="LTEPartitionFunctionTe.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.partition_function.html#tardis.iip_plasma.properties.partition_function.LTEPartitionFunctionTe.calculate">[docs]</a>
+    def calculate(self, lte_level_boltzmann_factor_Te):
+        return super(LTEPartitionFunctionTe, self).calculate(
+            lte_level_boltzmann_factor_Te
+        )</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 24 Feb 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
