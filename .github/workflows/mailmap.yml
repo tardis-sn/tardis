@@ -27,7 +27,7 @@ jobs:
           while IFS= read -r author; do
             [ -z "$author" ] && continue
 
-            if ! grep -Fq "$author" .mailmap; then
+            if ! grep -Fq -- "$author" .mailmap; then
               echo "Missing from .mailmap: $author"
               missing=1
             fi
