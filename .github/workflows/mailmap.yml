@@ -18,7 +18,20 @@ jobs:
           fetch-depth: 0
 
       - name: Check PR authors
-        run: cat .mailmap | grep "$(git log $PR_BASE_SHA..HEAD --pretty='%aN <%aE>')"
+        run: |
+          set -euo pipefail
+
+          missing=0
+          while IFS= read -r author; do
+            [ -z "$author" ] && continue
+
+            if ! grep -Fq "$author" .mailmap; then
+              echo "Missing from .mailmap: $author"
+              missing=1
+            fi
+          done < <(git log "$PR_BASE_SHA..HEAD" --pretty='%aN <%aE>' | sort -u)
+
+          exit "$missing"
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
