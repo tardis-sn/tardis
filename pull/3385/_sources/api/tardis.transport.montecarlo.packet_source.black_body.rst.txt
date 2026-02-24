@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.packet\_source.black\_body module
-=============================================================
-
-.. automodule:: tardis.transport.montecarlo.packet_source.black_body
-   :members:
-   :show-inheritance:
-   :undoc-members:
