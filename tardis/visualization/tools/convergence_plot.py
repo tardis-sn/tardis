@@ -453,18 +453,18 @@ class ConvergencePlots:
         if last and efmt and self.plasma_plot is not None and self.t_inner_luminosities_plot is not None:
             try:
                 os.makedirs(epath, exist_ok=True)
-            except Exception:
+            except OSError:
                 warnings.warn(f"Could not create export directory '{epath}'")
 
             if efmt in ("ascii", "csv"):
                 try:
                     self._export_csv(epath, prefix)
-                except Exception as e:
+                except (OSError, csv.Error) as e:
                     warnings.warn(f"Failed to export CSV data to {epath}. Error: {e}")
             else:
                 try:
                     self._export_images(epath, prefix, efmt)
-                except Exception as e:
+                except (OSError, ValueError, ImportError) as e:
                     warnings.warn(f"Failed to export images to {epath}. Error: {e}")
 
         # Export convergence plots for sharing on platforms like nbviewer
@@ -498,13 +498,13 @@ class ConvergencePlots:
         try:
             plasma_fig = go.Figure(self.plasma_plot.to_plotly_json())
             tinner_fig = go.Figure(self.t_inner_luminosities_plot.to_plotly_json())
-        except Exception:
+        except ValueError:
             plasma_fig = go.Figure(self.plasma_plot)
             tinner_fig = go.Figure(self.t_inner_luminosities_plot)
 
         try:
             import kaleido
-        except Exception:
+        except ImportError:
             warnings.warn(
                 "Kaleido is not available; image export may fail. Install 'kaleido' to enable image export."
             )
@@ -512,7 +512,7 @@ class ConvergencePlots:
         try:
             plasma_fig.write_image(plasma_file)
             tinner_fig.write_image(tinner_file)
-        except Exception as e:
+        except (ValueError, OSError, ImportError) as e:
             warnings.warn(
                 f"Failed to write images to {export_path}. Ensure 'kaleido' is installed. Error: {e}"
             )
@@ -539,10 +539,14 @@ class ConvergencePlots:
 
         residuals = []
         for e, r in zip(emitted_values, requested_values):
-            try:
-                residuals.append(((e - r) * 100) / r)
-            except Exception:
+            if e is None or r is None:
                 residuals.append(None)
+                continue
+            r_val = r.value if hasattr(r, "value") else r
+            if r_val == 0:
+                residuals.append(None)
+            else:
+                residuals.append(((e - r) * 100) / r)
 
         with open(tinner_file, "w", newline="") as fh:
             writer = csv.writer(fh)
@@ -558,11 +562,8 @@ class ConvergencePlots:
 
             for i in range(len(tinner_values)):
                 tval = tinner_values[i]
-                if hasattr(tval, "to"):
-                    try:
-                        tval_out = float(tval.to(u.K).value)
-                    except Exception:
-                        tval_out = float(getattr(tval, "value", tval))
+                if hasattr(tval, "to") and tval.unit.is_equivalent(u.K):
+                    tval_out = float(tval.to(u.K).value)
                 else:
                     tval_out = float(getattr(tval, "value", tval))
 
@@ -570,13 +571,9 @@ class ConvergencePlots:
                     if idx >= len(arr):
                         return None
                     v = arr[idx]
-                    if hasattr(v, "to"):
-                        try:
-                            return float(v.to(u.erg / u.s).value)
-                        except Exception:
-                            return float(getattr(v, "value", v))
-                    else:
-                        return float(getattr(v, "value", v))
+                    if hasattr(v, "to") and v.unit.is_equivalent(u.erg / u.s):
+                        return float(v.to(u.erg / u.s).value)
+                    return float(getattr(v, "value", v))
 
                 row = [
                     iterations[i],
@@ -597,26 +594,23 @@ class ConvergencePlots:
             warnings.warn("Plasma data not available for CSV export; skipping plasma CSV.")
             return
 
-        try:
-            vel_vals = [float(v.to(u.km / u.s).value) for v in vel]
-        except Exception:
-            try:
-                vel_vals = list(getattr(vel, "to", lambda unit: vel)(u.km / u.s).value)
-            except Exception:
-                vel_vals = [float(getattr(v, "value", v)) for v in vel]
+        if hasattr(vel, "to") and vel.unit.is_equivalent(u.km / u.s):
+            vel_vals = list(vel.to(u.km / u.s).value)
+        else:
+            vel_vals = [
+                float(v.to(u.km / u.s).value) if hasattr(v, "to") and v.unit.is_equivalent(u.km / u.s) else float(getattr(v, "value", v))
+                for v in vel
+            ]
 
-        try:
-            tvals = [float(t.to(u.K).value) for t in t_rad]
-        except Exception:
-            try:
-                tvals = list(getattr(t_rad, "to", lambda unit: t_rad)(u.K).value)
-            except Exception:
-                tvals = [float(getattr(t, "value", t)) for t in t_rad]
+        if hasattr(t_rad, "to") and t_rad.unit.is_equivalent(u.K):
+            tvals = list(t_rad.to(u.K).value)
+        else:
+            tvals = [
+                float(t.to(u.K).value) if hasattr(t, "to") and t.unit.is_equivalent(u.K) else float(getattr(t, "value", t))
+                for t in t_rad
+            ]
 
-        try:
-            w_vals = [float(getattr(wi, "value", wi)) for wi in w]
-        except Exception:
-            w_vals = [float(wi) for wi in w]
+        w_vals = [float(getattr(wi, "value", wi)) for wi in w]
 
         with open(plasma_file, "w", newline="") as fh:
             writer = csv.writer(fh)
