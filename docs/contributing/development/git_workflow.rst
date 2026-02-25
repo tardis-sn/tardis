@@ -29,7 +29,7 @@ Preparation and Working with Git
 ================================
 
 In this document, we refer to the TARDIS ``master`` branch as the *trunk*. The first step is to setup up a python environment. We recommend using
-Anaconda for this purpose; refer to our :doc:`Installation guide <../../installation>` which covers this topic.
+Anaconda for this purpose; refer to our :doc:`Installation guide <../../getting_started/installation>` which covers this topic.
 
 .. _forking:
 
@@ -112,7 +112,7 @@ In detail
    Now connect to the TARDIS repository so you can merge in changes from the
    trunk::
 
-    cd
+    cd tardis
     git remote add upstream git://github.com/tardis-sn/tardis.git
 
    ``upstream`` is just the arbitrary name we're using to refer to the main
@@ -143,7 +143,7 @@ TARDIS repository clone.
 
 #. Install TARDIS_ in develop mode::
 
-       $ pip install -e .
+       $ pip install -e ".[tardisbase,viz]"
 
    This semi-permanently installs TARDIS on your path in such a way that
    ``tardis`` is always imported from your repository clone regardless of your
