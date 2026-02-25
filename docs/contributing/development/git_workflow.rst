@@ -112,7 +112,6 @@ In detail
    Now connect to the TARDIS repository so you can merge in changes from the
    trunk::
 
-    cd tardis
     git remote add upstream git://github.com/tardis-sn/tardis.git
 
    ``upstream`` is just the arbitrary name we're using to refer to the main
