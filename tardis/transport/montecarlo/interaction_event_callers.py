@@ -61,7 +61,6 @@ def macro_atom_event(
         free_free_emission(
             r_packet, time_explosion, opacity_state, enable_full_relativity
         )
-
     elif (
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.BF_EMISSION
@@ -72,13 +71,6 @@ def macro_atom_event(
             opacity_state,
             transition_id,
             enable_full_relativity,
-        )
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.BF_COOLING
-    ):
-        bf_cooling(
-            r_packet, time_explosion, opacity_state, enable_full_relativity
         )
 
     elif (

@@ -25,7 +25,7 @@ class MacroAtomTransitionType(IntEnum):
     BF_EMISSION = -2  # This is recombination emission, aka k-packet to r-packet
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
-    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
+    BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Yes this is taken care of by BF_EMISSION
     TWO_PHOTON = -6
     COLL_DOWN_TO_K_PACKET = 9
     COLL_DOWN_INTERNAL = 10
@@ -116,21 +116,24 @@ def macro_atom_interaction_iip(
         absorbing_state_probability = 0.0
         probability_event = np.random.random()
 
-        for to_state_index, state_probability in enumerate(
-            opacity_state.absorbing_markov_probabilities[
-                current_shell_id, activation_level_idx
-            ]
-        ):
-            absorbing_state_probability += state_probability
-
-            if absorbing_state_probability > probability_event:
-                absorbing_activation_level_idx = to_state_index
-                break
+        if activation_level_idx == opacity_state.k_packet_idx:
+            absorbing_activation_level_idx = activation_level_idx
         else:
-            raise MacroAtomError(
-                "MacroAtom failed to select an absorbing state. The absorbing Markov"
-                "chain probabilities matrix may not be normalized or may contain only zeros."
-            )
+            for to_state_index, state_probability in enumerate(
+                opacity_state.absorbing_markov_probabilities[
+                    current_shell_id, activation_level_idx
+                ]
+            ):
+                absorbing_state_probability += state_probability
+
+                if absorbing_state_probability > probability_event:
+                    absorbing_activation_level_idx = to_state_index
+                    break
+            else:
+                raise MacroAtomError(
+                    "MacroAtom failed to select an absorbing state. The absorbing Markov"
+                    "chain probabilities matrix may not be normalized or may contain only zeros."
+                )
 
         # Handle second prob call for emission process from that state
         block_start_index = opacity_state.macro_block_references[
@@ -160,6 +163,9 @@ def macro_atom_interaction_iip(
                 current_transition_type = opacity_state.transition_type[
                     deactivation_channel_index
                 ]
+                activation_level_idx = opacity_state.destination_level_id[
+                    deactivation_channel_index
+                ]  # Used only if you go back into the while loop
                 break
 
         else:
