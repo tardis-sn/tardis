@@ -17,14 +17,22 @@ from tardis.visualization import SDECPlotter, LIVPlotter
 
 def save_sdec_plot(sim, output_path):
     sdec = SDECPlotter.from_simulation(sim)
+
     plot = sdec.generate_plot_mpl(packets_mode="real").figure
-    plot.savefig(Path(output_path)/"SDEC.png", dpi=300, bbox_inches="tight")
+    plot.savefig(Path(output_path)/"SDEC_Real.png", dpi=300, bbox_inches="tight")
+
+    plot = sdec.generate_plot_mpl(packets_mode="virtual").figure
+    plot.savefig(Path(output_path) / "SDEC_Virtual.png", dpi=300, bbox_inches="tight")
 
 
 def save_liv_plot(sim, output_path):
     liv = LIVPlotter.from_simulation(sim)
+
     plot = liv.generate_plot_mpl(packets_mode="real").figure
-    plot.savefig(Path(output_path)/"LIV.png", dpi=300, bbox_inches="tight")
+    plot.savefig(Path(output_path)/"LIV_Real.png", dpi=300, bbox_inches="tight")
+
+    plot = liv.generate_plot_mpl(packets_mode="virtual").figure
+    plot.savefig(Path(output_path) / "LIV_Virtual.png", dpi=300, bbox_inches="tight")
 
 
 def parse_arguments(argv=None):
