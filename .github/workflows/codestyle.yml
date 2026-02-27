@@ -61,12 +61,6 @@ jobs:
         with:
           path: ruff_stats.txt
 
-      - name: Entire output read
-        id: ruff_complete 
-        uses: juliangruber/read-file-action@v1.1.7
-        with:
-          path: ruff_full.txt
-      
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
         uses: peter-evans/find-comment@v1
@@ -97,15 +91,7 @@ jobs:
               ```
 
             </details>
-
-            Complete output(might be large):
-            <details>
-
-              ```diff
-              ${{ steps.ruff_complete.outputs.content }}
-              ```
-              
-            </details>
+            Complete output is attached as a workflow artifact to avoid oversized PR comments.
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
           
