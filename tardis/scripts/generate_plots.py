@@ -12,7 +12,7 @@ import argparse
 from pathlib import Path
 
 from tardis import run_tardis
-from tardis.visualization import SDECPlotter, LIVPlotter
+from tardis.visualization import LIVPlotter, SDECPlotter
 
 
 def save_sdec_plot(sim, output_path):
@@ -37,15 +37,15 @@ def save_sdec_plot(sim, output_path):
 
 def save_liv_plot(sim, output_path):
     """
-        Save LIV plots for both real and virtual packets as PNG files.
+    Save LIV plots for both real and virtual packets as PNG files.
 
-        Parameters
-        ----------
-        sim : tardis.simulation.Simulation
-            TARDIS Simulation object produced by running a simulation
-        output_path : str or Path
-            Directory where the PNG files will be saved
-        """
+    Parameters
+    ----------
+    sim : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+    output_path : str or Path
+        Directory where the PNG files will be saved
+    """
     liv = LIVPlotter.from_simulation(sim)
 
     plot = liv.generate_plot_mpl(packets_mode="real").figure
@@ -57,20 +57,20 @@ def save_liv_plot(sim, output_path):
 
 def parse_arguments(argv=None):
     """
-        Parse command-line arguments for the script.
+    Parse command-line arguments for the script.
 
-        Parameters
-        ----------
-        argv : list of str, optional
-            List of command-line arguments to parse. If None, defaults to sys.argv[1:].
+    Parameters
+    ----------
+    argv : list of str, optional
+        List of command-line arguments to parse. If None, defaults to sys.argv[1:].
 
-        Returns
-        -------
-        argparse.Namespace
-            Parsed command-line arguments with attributes:
-            - config: Path to TARDIS YAML configuration file (str)
-            - atom_data: Path to TARDIS atom-data HDF5 file (str, optional)
-            - output_path: Output directory for PNG files (str, optional)
+    Returns
+    -------
+    argparse.Namespace
+        Parsed command-line arguments with attributes:
+        - config: Path to TARDIS YAML configuration file (str)
+        - atom_data: Path to TARDIS atom-data HDF5 file (str, optional)
+        - output_path: Output directory for PNG files (str, optional)
     """
     parser = argparse.ArgumentParser(
         description="Run TARDIS simulation from YAML and atom-data and save SDEC & LIV plots as PNG."
