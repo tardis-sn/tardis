@@ -5,7 +5,10 @@ import logging
 
 import astropy.units as units
 import numpy as np
-from astropy.modeling.models import Blackbody
+try:
+    from astropy.modeling.models import Blackbody
+except ImportError:
+    from astropy.modeling.models import BlackBody as Blackbody
 
 from tardis import constants as const
 
@@ -123,6 +126,22 @@ class OpacityCalculator:
 
         self._reset_opacities()
 
+    @staticmethod
+    def _coerce_wavelength_boundary(val, name):
+        if val is None:
+            raise ValueError(f"{name} cannot be None")
+
+        try:
+            return val.to("AA")
+        except AttributeError:
+            logger.warning("%s provided without units; assuming AA", name)
+            return val * units.AA
+
+    @staticmethod
+    def _validate_wavelength_order(lam_min, lam_max):
+        if lam_min >= lam_max:
+            raise ValueError("lam_min must be smaller than lam_max")
+
     @property
     def bin_scaling(self):
         return self._bin_scaling
@@ -139,17 +158,28 @@ class OpacityCalculator:
         self._bin_scaling = val
 
     @property
+    def nbins(self):
+        return self._nbins
+
+    @nbins.setter
+    def nbins(self, val):
+        if isinstance(val, bool) or not isinstance(val, int | np.integer):
+            raise ValueError("nbins must be a positive integer")
+        if val <= 0:
+            raise ValueError("nbins must be a positive integer")
+        self._reset_bins()
+        self._nbins = val
+
+    @property
     def lam_min(self):
         return self._lam_min
 
     @lam_min.setter
     def lam_min(self, val):
+        val = self._coerce_wavelength_boundary(val, "lam_min")
+        if self.lam_max is not None:
+            self._validate_wavelength_order(val, self.lam_max)
         self._reset_bins()
-        try:
-            val.to("AA")
-        except AttributeError:
-            logger.warning("lam_min provided without units; assuming AA")
-            val *= units.AA
         self._lam_min = val
 
     @property
@@ -158,12 +188,10 @@ class OpacityCalculator:
 
     @lam_max.setter
     def lam_max(self, val):
+        val = self._coerce_wavelength_boundary(val, "lam_max")
+        if self.lam_min is not None:
+            self._validate_wavelength_order(self.lam_min, val)
         self._reset_bins()
-        try:
-            val.to("AA")
-        except AttributeError:
-            logger.warning("lam_max provided without units; assuming AA")
-            val *= units.AA
         self._lam_max = val
 
     @property
@@ -172,6 +200,8 @@ class OpacityCalculator:
 
     @mdl.setter
     def mdl(self, val):
+        if val is None:
+            raise ValueError("mdl cannot be None")
         self._reset_model()
         self._mdl = val
 
