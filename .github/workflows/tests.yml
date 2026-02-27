@@ -130,15 +130,15 @@ jobs:
       - name: Download environment file
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
+            wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-bench-default-linux.yml
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
-            wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-macos.yml
+            wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-bench-default-macos.yml
           fi
 
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
-          environment-file: ${{ matrix.os == 'ubuntu-latest' && 'env-benchmark-linux.yml' || 'env-benchmark-macos.yml' }}
+          environment-file: ${{ matrix.os == 'ubuntu-latest' && 'env-bench-default-linux.yml' || 'env-bench-default-macos.yml' }}
           environment-name: tardis
 
       - name: Install tardis editable
@@ -180,12 +180,12 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download environment file
-        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-benchmark-linux.yml
+        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-bench-default-linux.yml
 
       - name: Setup Micromamba
         uses: mamba-org/setup-micromamba@v2
         with:
-          environment-file: env-benchmark-linux.yml
+          environment-file: env-bench-default-linux.yml
           environment-name: tardis
 
       # will download all artifacts(in this case all are coverage reports)
