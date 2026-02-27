@@ -61,11 +61,38 @@ jobs:
         with:
           path: ruff_stats.txt
 
-      - name: Entire output read
-        id: ruff_complete 
+      - name: Prepare comment snippets
+        if: github.event_name == 'pull_request_target'
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def write_snippet(source, destination, max_chars):
+              content = Path(source).read_text()
+              if len(content) > max_chars:
+                  content = (
+                      content[:max_chars]
+                      + "\n\n... output truncated in PR comment; download the artifact for the full report.\n"
+                  )
+              Path(destination).write_text(content)
+
+          write_snippet("ruff_stats.txt", "ruff_stats_comment.txt", 12000)
+          write_snippet("ruff_full.txt", "ruff_full_comment.txt", 8000)
+          PY
+
+      - name: Comment statistics output read
+        id: ruff_stats_comment
+        if: github.event_name == 'pull_request_target'
         uses: juliangruber/read-file-action@v1.1.7
         with:
-          path: ruff_full.txt
+          path: ruff_stats_comment.txt
+
+      - name: Comment full output read
+        id: ruff_complete_comment
+        if: github.event_name == 'pull_request_target'
+        uses: juliangruber/read-file-action@v1.1.7
+        with:
+          path: ruff_full_comment.txt
       
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
@@ -93,16 +120,16 @@ jobs:
             <details>
 
               ```diff
-              ${{ steps.ruff_stats.outputs.content }}
+              ${{ steps.ruff_stats_comment.outputs.content }}
               ```
 
             </details>
 
-            Complete output(might be large):
+            Complete output preview:
             <details>
 
               ```diff
-              ${{ steps.ruff_complete.outputs.content }}
+              ${{ steps.ruff_complete_comment.outputs.content }}
               ```
               
             </details>
