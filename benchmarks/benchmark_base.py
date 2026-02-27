@@ -19,11 +19,6 @@ from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
-from tardis.transport.montecarlo.estimators import (
-    init_estimators_bulk,
-    init_estimators_continuum,
-    init_estimators_line,
-)
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
@@ -232,35 +227,6 @@ class BenchmarkBase:
             r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
             v_inner=np.array([-1, -1], dtype=np.float64),
             v_outer=np.array([-1, -1], dtype=np.float64),
-        )
-
-    @functools.cached_property
-    def estimators_bulk(self):
-        return init_estimators_bulk(
-            mean_intensity_total=np.array([0.0, 0.0], dtype=np.float64),
-            mean_frequency=np.array([0.0, 0.0], dtype=np.float64),
-        )
-
-    @functools.cached_property
-    def estimators_line(self):
-        return init_estimators_line(
-            mean_intensity_blue=np.array(
-                [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], dtype=np.float64
-            ),
-            energy_deposition_line=np.array(
-                [[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]], dtype=np.float64
-            ),
-        )
-
-    @functools.cached_property
-    def estimators_continuum(self):
-        return init_estimators_continuum(
-            photo_ion_estimator=np.empty((0, 0), dtype=np.float64),
-            stim_recomb_estimator=np.empty((0, 0), dtype=np.float64),
-            bf_heating_estimator=np.empty((0, 0), dtype=np.float64),
-            stim_recomb_cooling_estimator=np.empty((0, 0), dtype=np.float64),
-            ff_heating_estimator=np.empty((0, 0), dtype=np.float64),
-            photo_ion_estimator_statistics=np.empty((0, 0), dtype=np.int64),
         )
 
     @functools.cached_property
