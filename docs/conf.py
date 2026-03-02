@@ -92,8 +92,9 @@ extensions = [
     "matplotlib.sphinxext.plot_directive",
     "sphinxcontrib.jquery",
     "nbsphinx",
+    "nbsite.pyodide",
     "numpydoc",
-    "recommonmark",
+    "myst_parser",
 ]
 
 bibtex_bibfiles = ["tardis.bib"]
@@ -315,9 +316,36 @@ linkcheck_anchors = False
 # -- Options for Panel -------------------------------------------
 from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
 
+# Temporary patch as docs build is currently failing in the master branch
+nbsphinx_allow_errors = True
+
+pyodide_setup_path = Path(__file__).parent / "_static" / "pyodide_setup.py"
+with open(pyodide_setup_path, "r", encoding="utf-8") as _f:
+    pyodide_setup_code = _f.read()
+
+# Escaping special characters in the setup code to be safely embedded in a JavaScript string
+pyodide_setup_code = (
+    pyodide_setup_code
+    .replace("\\", "\\\\")
+    .replace("'", "\\'")
+    .replace('"', '\\"')
+    .replace("\n", "\\n")
+)
+
 # https://panel.holoviz.org/how_to/wasm/sphinx.html#configuration
 nbsite_pyodide_conf = {
-     "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.js"
+    "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js",
+    "requirements": ["panel", "pandas", "bokeh", "pyodide-http", "cloudpickle", "astropy", "numpy", "scipy", "matplotlib"],
+    "autodetect_deps": False,
+    "scripts": [
+        "https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.js",
+        "https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.8.2.js",
+        "https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.8.2.js",
+        "https://cdn.jsdelivr.net/npm/@holoviz/panel@1.8.7/dist/panel.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.3.1/js/tabulator.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.3.1/css/tabulator.min.css",
+    ],
+    "setup_code": pyodide_setup_code,
 }
 
 html_js_files = [
