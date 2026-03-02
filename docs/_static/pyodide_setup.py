@@ -19,7 +19,9 @@ from pathlib import Path
 
 lib = Path(sysconfig.get_path('purelib'))  # Path to site-packages in pyodide's virtual filesystem
 
-GITHUB_URL = 'https://raw.githubusercontent.com/tardis-sn/tardis/refs/heads/master/'
+# Temporarily, this points to my fork
+# Can be changed to the main repo later
+GITHUB_URL = 'https://raw.githubusercontent.com/SS-9098/tardis/refs/heads/First-Objective-Migrate-to-Panel/'
 # Derive _static/ base URL from the WebWorker's own script URL.
 # The worker is always loaded from _static/PyodideWebWorker.js.
 WORKER_URL = js.self.location.href
