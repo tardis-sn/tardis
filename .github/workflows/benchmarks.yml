@@ -78,7 +78,7 @@ jobs:
         run: asv machine --yes
 
       - name: Download environment file for benchmarks
-        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-bench-default-linux.yml
+        run: wget -q https://raw.githubusercontent.com/atharva-2001/tardisbase/env-benchmark/env-bench-pandas-unpinned-linux.yml
 
       - name: Run benchmarks for last 5 commits if not PR
         # if: github.event_name != 'pull_request'
