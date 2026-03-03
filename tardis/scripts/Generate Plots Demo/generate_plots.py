@@ -107,6 +107,7 @@ def main():
         config=args.config,
         atom_data=args.atom_data,
         virtual_packet_logging=True,
+        show_progress_bars=False,
     )
 
     save_sdec_plot(sim, output_path)
