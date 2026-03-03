@@ -87,20 +87,23 @@ class TARDISLogger:
         ValueError
             If an invalid log_level is provided.
         """
-        if "debug" in tardis_config:
-            specific_log_level = tardis_config["debug"].get(
+        debug_config = {}
+        if hasattr(tardis_config, "get"):
+            debug_config = tardis_config.get("debug") or {}
+
+        if isinstance(debug_config, dict) and debug_config:
+            specific_log_level = debug_config.get(
                 "specific_log_level", specific_log_level
             )
-            logging_level = log_level or tardis_config["debug"].get(
-                "log_level", "INFO"
-            )
-            if log_level and tardis_config["debug"].get("log_level"):
+            logging_level = log_level or debug_config.get("log_level", "INFO")
+            if log_level and debug_config.get("log_level"):
                 self.logger.debug(
                     "log_level is defined both in Functional Argument & YAML Configuration {debug section}, "
                     f"log_level = {log_level.upper()} will be used for Log Level Determination"
                 )
         else:
-            tardis_config["debug"] = {}
+            if hasattr(tardis_config, "__setitem__"):
+                tardis_config["debug"] = {}
             logging_level = log_level or self.config.DEFAULT_LEVEL
             specific_log_level = specific_log_level or self.config.DEFAULT_SPECIFIC_STATE
 
