@@ -27,7 +27,7 @@ jobs:
             ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
 
   add-gsoc-label:
-    if: contains(github.event.pull_request.title, 'GSoC')
+    if: contains(github.event.pull_request.title, '[GSoC]')
     runs-on: ubuntu-latest
     steps:
       - name: Add GSoC label
@@ -110,6 +110,7 @@ jobs:
             ```
 
   check-pr-compliance:
+    if: contains(github.event.pull_request.title, '[GSoC]')
     runs-on: ubuntu-latest
     steps:
       - name: Check PR and label if non-compliant
