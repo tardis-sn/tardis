@@ -18,29 +18,57 @@ jobs:
           fetch-depth: 0
 
       - name: Check PR authors
-        run: cat .mailmap | grep "$(git log $PR_BASE_SHA..HEAD --pretty='%aN <%aE>')"
+        id: check_mailmap
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          missing=0
+          while IFS= read -r author; do
+            [ -z "$author" ] && continue
+
+            if ! grep -Fq -- "$author" .mailmap; then
+              echo "Missing from .mailmap: $author"
+              missing=1
+            fi
+          done < <(git log "$PR_BASE_SHA..HEAD" --pretty='%aN <%aE>' | sort -u)
+
+          exit "$missing"
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
-      - name: Error message
-        run: |
-          echo "Committer name or email couldn't be found in .mailmap"
-          echo; git log $PR_BASE_SHA..HEAD --pretty='%aN <%aE>'
-        if: failure()
-
       - name: Create comment
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            *\*beep\* \*bop\**
+        if: steps.check_mailmap.outcome == 'failure'
+        env:
+          API_URL: ${{ github.api_url }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
 
-            Hi, human.
+          body=$(cat <<'EOF'
+          *\*beep\* \*bop\**
 
-            I'm the @tardis-bot and couldn't find your records in my database. I think we don't know each other, or you changed your credentials recently.
+          Hi, human.
 
-            Please add your **name** and **email** to `.mailmap` in your current branch and push the changes to this pull request.
+          I'm the @tardis-bot and couldn't find your records in my database. I think we don't know each other, or you changed your credentials recently.
 
-            In case you need to map an existing alias, follow [this example](https://docs.enterprise.codescene.io/versions/2.0.0/getting-started/ensure-you-use-a-mailmap.html).
-        if: failure()
+          Please add your **name** and **email** to `.mailmap` in your current branch and push the changes to this pull request.
+
+          In case you need to map an existing alias, follow [this example](https://docs.enterprise.codescene.io/versions/2.0.0/getting-started/ensure-you-use-a-mailmap.html).
+          EOF
+          )
+
+          payload=$(jq -nc --arg body "$body" '{body: $body}')
+
+          curl -sS -L \
+            -H "Authorization: token $BOT_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "$API_URL/repos/$REPO/issues/$PR_NUMBER/comments" \
+            -d "$payload" >/dev/null
+
+      - name: Fail workflow if check failed
+        if: steps.check_mailmap.outcome == 'failure'
+        run: exit 1
