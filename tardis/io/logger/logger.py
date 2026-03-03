@@ -102,10 +102,9 @@ class TARDISLogger:
                     f"log_level = {log_level.upper()} will be used for Log Level Determination"
                 )
         else:
-            if hasattr(tardis_config, "__setitem__"):
-                tardis_config["debug"] = {}
             logging_level = log_level or self.config.DEFAULT_LEVEL
-            specific_log_level = specific_log_level or self.config.DEFAULT_SPECIFIC_STATE
+            if specific_log_level is None:
+                specific_log_level = self.config.DEFAULT_SPECIFIC_STATE
 
         logging_level = logging_level.upper()
         if logging_level not in self.config.LEVELS:
