@@ -30,9 +30,26 @@ def test_temperature_kelvin_property():
     temperature = np.array([5000, 6000]) * u.K
     dilution_factor = np.array([0.5, 0.6])
 
-    rf = DilutePlanckianRadiationField(temperature, dilution_factor)
+    radiation_field = DilutePlanckianRadiationField(temperature, dilution_factor)
 
-    result = rf.temperature_kelvin
+    result = radiation_field.temperature_kelvin
 
     assert isinstance(result, np.ndarray)
     assert np.allclose(result, np.array([5000, 6000]))
+
+
+
+def test_calculate_mean_intensity_shape():
+    temperature = np.array([5000, 6000]) * u.K
+    dilution_factor = np.array([0.5, 0.6])
+
+    radiation_field = DilutePlanckianRadiationField(
+        temperature, dilution_factor
+    )
+
+    nu = np.array([1e14, 2e14])
+
+    intensity = radiation_field.calculate_mean_intensity(nu)
+
+    # shape should be (n_shells, n_frequencies)
+    assert intensity.shape == (len(temperature), len(nu))
