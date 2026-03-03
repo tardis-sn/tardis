@@ -1,25 +1,31 @@
 """Class to create and display Line Info Widget."""
 
+import logging
+
 import numpy as np
 import pandas as pd
 import panel as pn
+import matplotlib.pyplot as plt
 from astropy import units as u
-
-from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure
+
 from tardis.analysis import LastLineInteraction
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.util.base import (
+    atomic_number2element_symbol,
     species_string_to_tuple,
     species_tuple_to_string,
 )
-
+from tardis.util.environment import Environment
+from tardis.visualization import plot_util as pu
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
-from tardis.util.environment import Environment
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
+logger = logging.getLogger(__name__)
 
 class LineInfoWidget:
     """
@@ -45,13 +51,17 @@ class LineInfoWidget:
     COLORS = {"selection_area": "lightpink", "selection_border": "salmon"}
 
     def __init__(
-        self,
-        lines_data,
-        line_interaction_analysis,
-        spectrum_wavelength,
-        spectrum_luminosity_density_lambda,
-        virt_spectrum_wavelength,
-        virt_spectrum_luminosity_density_lambda,
+            self,
+            lines_data,
+            line_interaction_analysis,
+            spectrum_wavelength,
+            spectrum_luminosity_density_lambda,
+            virt_spectrum_wavelength,
+            virt_spectrum_luminosity_density_lambda,
+            sdec_plotter=None,
+            show_sdec=False,
+            sdec_packets_mode="virtual",
+            observed_spectrum=None,
     ):
         """
         Initialize the LineInfoWidget with line interaction and spectrum data.
@@ -73,9 +83,50 @@ class LineInfoWidget:
         virt_spectrum_luminosity_density_lambda : astropy.Quantity
             Luminosity density lambda values of a virtual spectrum, having unit
             of (erg/s)/Angstrom
+        sdec_plotter : SDECPlotter, optional
+            SDECPlotter instance for displaying SDEC plot data
+        show_sdec : bool, optional
+            Whether to plot SDEC data (default: False)
+        sdec_packets_mode : str, optional
+            Packets mode to use for SDEC plotter (default: "virtual")
+        observed_spectrum : tuple or list of astropy.Quantity, optional
+            Option to plot an observed spectrum in the widget. If given, the first element
+            should be the wavelength and the second element should be flux,
+            i.e. (wavelength, flux). The assumed units for wavelength and flux are
+            angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.
         """
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
+        self.sdec_plotter = sdec_plotter
+        self.show_sdec = show_sdec
+        self.sdec_packets_mode = sdec_packets_mode
+        self.observed_spectrum = observed_spectrum
+
+        # Store renderers for toggle functionality
+        self.line_renderers = {}
+
+        self.element_checkboxes = {}
+        self.checkbox_real_packets = pn.widgets.Checkbox(name="Real Packets", value=True)
+        self.checkbox_virtual_packets = pn.widgets.Checkbox(name="Virtual Packets", value=True)
+        if self.show_sdec:
+            self.checkbox_sdec_spectrum = pn.widgets.Checkbox(name="SDEC Spectrum", value=True)
+            self.checkbox_photosphere = pn.widgets.Checkbox(name="Blackbody Photosphere", value=True)
+            self.checkbox_no_interaction = pn.widgets.Checkbox(name="No Interaction", value=True)
+            self.checkbox_electron_scatter = pn.widgets.Checkbox(name="Electron Scatter Only", value=True)
+        if self.observed_spectrum is not None:
+            self.checkbox_observed_spectrum = pn.widgets.Checkbox(name="Observed Spectrum", value=True)
+
+        # Link to callbacks
+        checkboxes = [self.checkbox_real_packets, self.checkbox_virtual_packets]
+        if self.show_sdec:
+            checkboxes.extend([
+                self.checkbox_sdec_spectrum, self.checkbox_photosphere,
+                self.checkbox_no_interaction, self.checkbox_electron_scatter
+            ])
+        if self.observed_spectrum is not None:
+            checkboxes.append(self.checkbox_observed_spectrum)
+        for cb in checkboxes:
+            cb.param.watch(self._on_toggle_line, "value")
 
         # Widgets ------------------------------------------------
         max_rows_option = {"maxVisibleRows": 9}
@@ -114,7 +165,7 @@ class LineInfoWidget:
         self._current_wavelength_range = None  # Track current selection
 
     @classmethod
-    def from_simulation(cls, sim):
+    def from_simulation(cls, sim, show_sdec=False, sdec_packets_mode="virtual",  observed_spectrum=None):
         """
         Create an instance of LineInfoWidget from a TARDIS simulation object.
 
@@ -122,12 +173,21 @@ class LineInfoWidget:
         ----------
         sim : tardis.simulation.Simulation
             TARDIS Simulation object produced by running a simulation
+        show_sdec : bool, optional
+            Whether to plot SDEC data (default: False)
+        observed_spectrum : tuple or list of astropy.Quantity, optional
+            Option to plot an observed spectrum in the widget. If given, the first element
+            should be the wavelength and the second element should be flux,
+            i.e. (wavelength, flux). The assumed units for wavelength and flux are
+            angstroms and erg/(angstroms * s * cm^2), respectively. Default value is None.
 
         Returns
         -------
         LineInfoWidget object
         """
         spectrum_solver = sim.spectrum_solver
+        sdec_plotter = SDECPlotter.from_simulation(sim) if show_sdec else None
+
         return cls(
             lines_data=sim.plasma.lines.reset_index().set_index("line_id"),
             line_interaction_analysis={
@@ -144,6 +204,10 @@ class LineInfoWidget:
             virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
+            sdec_plotter=sdec_plotter,
+            show_sdec=show_sdec,
+            sdec_packets_mode=sdec_packets_mode,
+            observed_spectrum=observed_spectrum,
         )
 
     def get_species_interactions(
@@ -422,56 +486,90 @@ class LineInfoWidget:
         ]
 
     def plot_spectrum(
-        self,
-        wavelength,
-        luminosity_density_lambda,
-        virt_wavelength,
-        virt_luminosity_density_lambda,
+            self,
+            wavelength,
+            luminosity_density_lambda,
+            virt_wavelength,
+            virt_luminosity_density_lambda,
     ):
         """
-        Produce a plotly figure widget by plotting the spectrum of model.
-
-        Parameters
-        ----------
-        wavelength : astropy.Quantity
-            Wavelength values of a real spectrum, having unit of Angstrom
-        luminosity_density_lambda : astropy.Quantity
-            Luminosity density lambda values of a real spectrum, having unit
-            of (erg/s)/Angstrom
-        virt_wavelength : astropy.Quantity
-            Wavelength values of a virtual spectrum, having unit of Angstrom
-        virt_luminosity_density_lambda : astropy.Quantity
-            Luminosity density lambda values of a virtual spectrum, having unit
-            of (erg/s)/Angstrom
-
-        Returns
-        -------
-        plotly.graph_objects.FigureWidget
+        Produce a Bokeh figure by plotting the spectrum of model with SDEC data.
         """
-        # Create Bokeh figure with box select
         p = figure(
             width=800, height=400, title="Spectrum", tools="box_select,reset"
         )
 
-        # Add proper axis labels with units (Bokeh compatible)
         p.xaxis.axis_label = f"Wavelength [{wavelength.unit}]"
         p.yaxis.axis_label = f"Luminosity [{luminosity_density_lambda.unit}]"
 
-        # Add line plots
-        p.line(
+        self.line_renderers["real_packets"] = p.line(
             wavelength.value,
             luminosity_density_lambda.value,
             legend_label="Real packets",
             color="blue",
         )
-        p.line(
+
+        self.line_renderers["virtual_packets"] = p.line(
             virt_wavelength.value,
             virt_luminosity_density_lambda.value,
             legend_label="Virtual packets",
             color="red",
         )
 
-        # Create invisible scatter for selection (needed for box select to work)
+        if self.observed_spectrum is not None:
+            observed_wavelength = self.observed_spectrum[0].to(u.AA)
+            observed_flux = self.observed_spectrum[1]
+            self.line_renderers["observed"] = p.line(
+                observed_wavelength.value,
+                observed_flux.value,
+                legend_label="Observed Spectrum",
+                color="black",
+            )
+
+        if self.show_sdec and self.sdec_plotter is not None:
+            self.sdec_plotter.prepare_plot_data(
+                packets_mode=self.sdec_packets_mode,
+                packet_wvl_range=None,
+                distance=None,
+                species_list=None,
+                nelements=None,
+            )
+
+            self.line_renderers["sdec_spectrum"] = p.line(
+                self.sdec_plotter.plot_wavelength.value,
+                self.sdec_plotter.modeled_spectrum_luminosity.value,
+                legend_label=f"{self.sdec_packets_mode.capitalize()} Spectrum",
+                color="green",
+                line_dash="dashed",
+            )
+
+            self.line_renderers["photosphere"] = p.line(
+                self.sdec_plotter.plot_wavelength.value,
+                self.sdec_plotter.photosphere_luminosity.value,
+                legend_label="Blackbody Photosphere",
+                color="orange",
+                line_dash="dotted",
+            )
+
+            self.line_renderers["no_interaction"] = p.line(
+                self.sdec_plotter.plot_wavelength.value,
+                self.sdec_plotter.emission_luminosities_df[("noint", "")].values,
+                legend_label="No Interaction",
+                color="#4C4C4C",
+                line_width=1.5,
+            )
+
+            self.line_renderers["electron_scatter"] = p.line(
+                self.sdec_plotter.plot_wavelength.value,
+                self.sdec_plotter.emission_luminosities_df[("escatter", "")].values,
+                legend_label="Electron Scatter Only",
+                color="#8F8F8F",
+                line_width=1.5,
+            )
+
+            self._plot_species_contributions(p)
+
+        # Create invisible scatter for selection
         source = ColumnDataSource(
             dict(x=wavelength.value, y=luminosity_density_lambda.value)
         )
@@ -506,6 +604,153 @@ class LineInfoWidget:
         source.selected.on_change("indices", self._selection_callback)
 
         return pn.pane.Bokeh(p)
+
+    def _plot_species_contributions(self, p):
+        """Plot emission and absorption contributions for each element as stacked areas."""
+        if not self.show_sdec or self.sdec_plotter is None:
+            return
+
+        emission_df = self.sdec_plotter.emission_luminosities_df
+        absorption_df = self.sdec_plotter.absorption_luminosities_df
+        wavelength = self.sdec_plotter.plot_wavelength.value
+        species = self.sdec_plotter.species
+
+        if len(species) == 0:
+            return
+
+        cmap = plt.get_cmap("jet", len(species))
+        color_list = [
+            pu.to_rgb255_string(cmap(i / len(species)))
+            for i in range(len(species))
+        ]
+        self._element_info_for_legend = []
+
+        emission_lower = np.zeros(len(wavelength))
+        absorption_upper = np.zeros(len(wavelength))
+
+        # Plot emission contributions
+        for species_counter, identifier in enumerate(species):
+            try:
+                values = emission_df[tuple(identifier)].to_numpy()
+                emission_upper = emission_lower + values
+                color = color_list[species_counter]
+                element_symbol = self._get_element_symbol(identifier[0])
+                key = f"{element_symbol} (emission)"
+
+                self.line_renderers[key] = p.varea(
+                    x=wavelength,
+                    y1=emission_lower,
+                    y2=emission_upper,
+                    fill_color=color,
+                    fill_alpha=0.8,
+                )
+
+                # Create checkbox for this element emission
+                checkbox = pn.widgets.Checkbox(name=key, value=True)
+                checkbox.param.watch(self._on_toggle_line, "value")
+                self.element_checkboxes[key] = checkbox
+
+                # Store info for legend (only once per element)
+                if not any(info[0] == element_symbol for info in self._element_info_for_legend):
+                    self._element_info_for_legend.append((element_symbol, color, identifier[0]))
+
+                emission_lower = emission_upper
+            except KeyError:
+                info_msg = (
+                    f"{atomic_number2element_symbol(identifier)}"
+                    f" is not in the emission packets; skipping"
+                )
+                logger.info(info_msg)
+                pass
+
+        # Plot absorption contributions
+        for species_counter, identifier in enumerate(species):
+            try:
+                values = absorption_df[tuple(identifier)].to_numpy()
+                absorption_lower = absorption_upper - values
+                color = color_list[species_counter]
+                element_symbol = self._get_element_symbol(identifier[0])
+                key = f"{element_symbol} (absorption)"
+
+                self.line_renderers[key] = p.varea(
+                    x=wavelength,
+                    y1=absorption_lower,
+                    y2=absorption_upper,
+                    fill_color=color,
+                    fill_alpha=0.8,
+                )
+
+                # Create checkbox for this element absorption
+                checkbox = pn.widgets.Checkbox(name=key, value=True)
+                checkbox.param.watch(self._on_toggle_line, "value")
+                self.element_checkboxes[key] = checkbox
+
+                absorption_upper = absorption_lower
+            except KeyError:
+                info_msg = (
+                    f"{atomic_number2element_symbol(identifier)}"
+                    f" is not in the absorption packets; skipping"
+                )
+                logger.info(info_msg)
+                pass
+
+    def _add_element_line(self, p, key, x, y, color, label, visible=True, dash="solid", alpha=0.8):
+        """Add an element contribution line to the plot."""
+        self.line_renderers[key] = p.line(x, y, color=color, line_width=1.5,
+                                          line_dash=dash, alpha=alpha, visible=visible)
+        checkbox = pn.widgets.Checkbox(name=label, value=visible)
+        checkbox.param.watch(self._on_toggle_line, "value")
+        self.element_checkboxes[key] = checkbox
+
+    def _create_element_legend_widget(self):
+        """
+        Create a vertical colorbar-style legend widget for elements using Panel.
+
+        Returns
+        -------
+        pn.Column
+            A Panel column containing the colorbar legend
+        """
+        if not hasattr(self, '_element_info_for_legend') or not self._element_info_for_legend:
+            return None
+
+        legend_items = []
+
+        for element_symbol, color, atomic_num in self._element_info_for_legend:
+            color_box = pn.pane.HTML(
+                f"<div style='width: 30px; height: 25px; background-color: {color}; "
+                f"border: 1px solid #ccc;'></div>",
+                width=30, height=25
+            )
+            label = pn.pane.HTML(
+                f"<span style='font-size: 12px; margin-left: 5px;'>{element_symbol}</span>",
+                width=40
+            )
+            legend_items.append(pn.Row(color_box, label, height=27))
+
+        legend_column = pn.Column(
+            *legend_items,
+            pn.pane.HTML("<b style='font-size: 11px;'>Elements</b>"),
+            sizing_mode='fixed',
+            width=80,
+        )
+
+        # Reverse order so highest contribution is at top
+        legend_column = pn.Column(
+            pn.pane.HTML("<b style='font-size: 11px;'>Elements</b>"),
+            *reversed(legend_items),
+            sizing_mode='fixed',
+            width=80,
+        )
+
+        return legend_column
+
+    def _get_element_symbol(self, atomic_num):
+        """Get element symbol from atomic number."""
+        try:
+            return atomic_number2element_symbol(atomic_num)
+        except (KeyError, ValueError):
+            return f"Z={atomic_num}"
 
     def _selection_callback(self, _attr, _old, new):
         """
@@ -597,6 +842,30 @@ class LineInfoWidget:
             )
         else:  # Line counts table will be empty
             self.total_packets_label.update_and_resize(0)
+
+    def _on_toggle_line(self, event):
+        """Toggle visibility of spectrum lines based on widget state."""
+        toggle_map = {
+            "Real Packets": "real_packets",
+            "Virtual Packets": "virtual_packets",
+            "SDEC Spectrum": "sdec_spectrum",
+            "Blackbody Photosphere": "photosphere",
+            "No Interaction": "no_interaction",
+            "Electron Scatter Only": "electron_scatter",
+            "Observed Spectrum": "observed",
+        }
+
+        widget_name = event.obj.name
+        renderer_key = toggle_map.get(widget_name)
+
+        if renderer_key and renderer_key in self.line_renderers:
+            self.line_renderers[renderer_key].visible = event.new
+        else:
+            for key, checkbox in self.element_checkboxes.items():
+                if checkbox is event.obj:
+                    if key in self.line_renderers:
+                        self.line_renderers[key].visible = event.new
+                    break
 
     def _filter_mode_toggle_handler(self, event):
         """
@@ -715,6 +984,45 @@ class LineInfoWidget:
                 "width: 0.8em; height: 1.2em; vertical-align: middle;'></span>"
             )
 
+            visibility_checkboxes = [
+                self.checkbox_real_packets,
+                self.checkbox_virtual_packets,
+            ]
+            if self.show_sdec:
+                visibility_checkboxes.extend([
+                    self.checkbox_sdec_spectrum,
+                    self.checkbox_photosphere,
+                    self.checkbox_no_interaction,
+                    self.checkbox_electron_scatter,
+                ])
+            if self.observed_spectrum is not None:
+                visibility_checkboxes.append(self.checkbox_observed_spectrum)
+
+            row_size = 5
+            visibility_rows = [
+                pn.Row(*visibility_checkboxes[i:i + row_size])
+                for i in range(0, len(visibility_checkboxes), row_size)
+            ]
+
+            visibility_panel = pn.Card(
+                *visibility_rows,
+                title="Line Visibility",
+                collapsed=False,
+            )
+
+            element_panel = None
+            if self.show_sdec and self.element_checkboxes:
+                element_checkbox_list = list(self.element_checkboxes.values())
+                element_rows = [
+                    pn.Row(*element_checkbox_list[i:i + row_size])
+                    for i in range(0, len(element_checkbox_list), row_size)
+                ]
+                element_panel = pn.Card(
+                    *element_rows,
+                    title="Species Contributions",
+                    collapsed=True,
+                )
+
             # Create Panel description components
             filter_description = pn.pane.HTML(
                 f"<span style='font-size: 1.15em;'>Filter selected wavelength range "
@@ -746,8 +1054,27 @@ class LineInfoWidget:
                 sizing_mode="stretch_width",
             )
 
+            element_legend = None
+            if self.show_sdec and hasattr(self, '_element_info_for_legend'):
+                element_legend = self._create_element_legend_widget()
+
+            # Arrange figure with element legend on the right
+            if element_legend is not None:
+                figure_with_legend = pn.Row(
+                    self.figure_widget,
+                    element_legend,
+                    sizing_mode="stretch_width"
+                )
+            else:
+                figure_with_legend = self.figure_widget
+
+            panels = [visibility_panel]
+            if element_panel is not None:
+                panels.append(element_panel)
+            panels.extend([figure_with_legend, tables_row])
+
             widget = pn.Column(
-                self.figure_widget, tables_row, sizing_mode="stretch_width"
+                *panels, sizing_mode="stretch_width"
             )
 
             return widget

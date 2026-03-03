@@ -178,6 +178,38 @@ class SDECPlotter:
             )
         return plotter
 
+    def prepare_plot_data(
+            self,
+            packets_mode="virtual",
+            packet_wvl_range=None,
+            distance=None,
+            species_list=None,
+            nelements=None,
+    ):
+        """
+        Prepare plotting data for external use.
+
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered (default: 'virtual')
+        packet_wvl_range : astropy.Quantity or None, optional
+            Wavelength range to restrict the analysis of escaped packets
+        distance : astropy.Quantity or None, optional
+            Distance used to calculate flux instead of luminosity
+        species_list : list or None, optional
+            List of species to plot
+        nelements : int or None, optional
+            Number of elements to include in plot
+        """
+        self._parse_species_list(species_list=species_list)
+        self._calculate_plotting_data(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+            nelements=nelements,
+        )
+
     def _parse_species_list(self, species_list):
         """
         Parse user requested species list and create list of species ids to be used.
