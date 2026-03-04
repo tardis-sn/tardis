@@ -335,7 +335,7 @@ pyodide_setup_code = (
 # https://panel.holoviz.org/how_to/wasm/sphinx.html#configuration
 nbsite_pyodide_conf = {
     "PYODIDE_URL": "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js",
-    "requirements": ["panel", "pandas", "bokeh", "pyodide-http", "cloudpickle", "astropy", "numpy", "scipy", "matplotlib"],
+    "requirements": ["panel", "pandas", "bokeh", "pyodide-http", "cloudpickle", "astropy", "numpy", "scipy", "matplotlib", "plotly"],
     "autodetect_deps": False,
     "scripts": [
         "https://cdn.bokeh.org/bokeh/release/bokeh-3.8.2.js",
@@ -344,6 +344,7 @@ nbsite_pyodide_conf = {
         "https://cdn.jsdelivr.net/npm/@holoviz/panel@1.8.7/dist/panel.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.3.1/js/tabulator.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.3.1/css/tabulator.min.css",
+        "https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly.min.js",
     ],
     "setup_code": pyodide_setup_code,
 }
