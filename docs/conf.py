@@ -316,8 +316,6 @@ linkcheck_anchors = False
 # -- Options for Panel -------------------------------------------
 from ipywidgets.embed import DEFAULT_EMBED_REQUIREJS_URL
 
-# Temporary patch as docs build is currently failing in the master branch
-nbsphinx_allow_errors = True
 
 pyodide_setup_path = Path(__file__).parent / "_static" / "pyodide_setup.py"
 with open(pyodide_setup_path, "r", encoding="utf-8") as _f:

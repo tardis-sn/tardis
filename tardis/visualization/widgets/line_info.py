@@ -344,7 +344,7 @@ class BaseLineInfoData:
 
 
 class SimulationLineInfoData(BaseLineInfoData):
-    """The simulation information that is used by shell info widget, obtained
+    """The simulation information that is used by line info widget, obtained
     from a TARDIS Simulation object
     """
 
