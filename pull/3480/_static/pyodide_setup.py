@@ -158,7 +158,7 @@ def species_string_to_tuple(species_string):
             )
 
     if ion_number - 1 > atomic_number:
-        raise print("Species given does not exist: ion number > atomic number")
+        print("Species given does not exist: ion number > atomic number")
 
     return atomic_number, ion_number - 1
 """)
