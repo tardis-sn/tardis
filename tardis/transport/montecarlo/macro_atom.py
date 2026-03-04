@@ -173,7 +173,7 @@ def macro_atom_interaction_iip(
                 "MacroAtom ran out of the block. This should not happen as "
                 "the sum of probabilities is normalized to 1 and "
                 "the probability_event should be less than 1. \n"
-                f"block is {block_start_index}, {block_end_index}"
+                f"block indices are {block_start_index}, {block_end_index}"
             )
     return (
         emission_line_id,
