@@ -1,5 +1,6 @@
-"""Class to create and display Line Info Widget."""
+"""Classes to create and display Line Info Widget."""
 
+import cloudpickle
 import numpy as np
 import pandas as pd
 import panel as pn
@@ -21,28 +22,11 @@ from tardis.util.environment import Environment
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
-class LineInfoWidget:
-    """
-    Widget to explore atomic lines that produced features in the simulated spectrum.
-
-    It allows selection of a wavelength range in the spectrum to display a
-    table giving the fraction of packets that experienced their last
-    interaction with each species. Using toggle buttons, users can specify
-    whether to filter the selected range by emitted or absorbed wavelengths
-    of packets. Clicking on a row in the fractional species interactions table
-    shows packet counts for each last line interaction of the selected species,
-    which can be grouped in several ways using the dropdown menu.
-    """
+class BaseLineInfoData:
+    """The simulation information used by the line info widget."""
 
     FILTER_MODES = ("packet_out_nu", "packet_in_nu")
-    FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
     GROUP_MODES = ("both", "exc", "de-exc")
-    GROUP_MODES_DESC = (
-        "Both excitation line (absorption) and de-excitation line (emission)",
-        "Only excitation line (absorption)",
-        "Only de-excitation line (emission)",
-    )
-    COLORS = {"selection_area": "lightpink", "selection_border": "salmon"}
 
     def __init__(
         self,
@@ -76,74 +60,11 @@ class LineInfoWidget:
         """
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
-
-        # Widgets ------------------------------------------------
-        max_rows_option = {"maxVisibleRows": 9}
-        self.species_interactions_table = create_table_widget(
-            data=self.get_species_interactions(None),
-            table_options=max_rows_option,
-        )
-
-        self.last_line_counts_table = create_table_widget(
-            data=self.get_last_line_counts(None),
-            table_options=max_rows_option,
-        )
-        self.total_packets_label = TableSummaryLabel(
-            target_table=self.last_line_counts_table,
-            table_col_widths=[75, 25],
-            label_key="Total Packets",
-            label_value=0,
-        )
-
-        self.figure_widget = self.plot_spectrum(
-            spectrum_wavelength,
-            spectrum_luminosity_density_lambda,
-            virt_spectrum_wavelength,
-            virt_spectrum_luminosity_density_lambda,
-        )
-
-        self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
-            options=list(self.FILTER_MODES_DESC),
-            value=self.FILTER_MODES_DESC[0],
-        )
-
-        self.group_mode_dropdown = pn.widgets.Select(
-            options=list(self.GROUP_MODES_DESC), value=self.GROUP_MODES_DESC[0]
-        )
-
-        self._current_wavelength_range = None  # Track current selection
-
-    @classmethod
-    def from_simulation(cls, sim):
-        """
-        Create an instance of LineInfoWidget from a TARDIS simulation object.
-
-        Parameters
-        ----------
-        sim : tardis.simulation.Simulation
-            TARDIS Simulation object produced by running a simulation
-
-        Returns
-        -------
-        LineInfoWidget object
-        """
-        spectrum_solver = sim.spectrum_solver
-        return cls(
-            lines_data=sim.plasma.lines.reset_index().set_index("line_id"),
-            line_interaction_analysis={
-                filter_mode: LastLineInteraction.from_simulation(
-                    sim, filter_mode
-                )
-                for filter_mode in cls.FILTER_MODES
-            },
-            spectrum_wavelength=spectrum_solver.spectrum_real_packets.wavelength,
-            spectrum_luminosity_density_lambda=spectrum_solver.spectrum_real_packets.luminosity_density_lambda.to(
-                "erg/(s AA)"
-            ),
-            virt_spectrum_wavelength=spectrum_solver.spectrum_virtual_packets.wavelength,
-            virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
-                "erg/(s AA)"
-            ),
+        self.spectrum_wavelength = spectrum_wavelength
+        self.spectrum_luminosity_density_lambda = spectrum_luminosity_density_lambda
+        self.virt_spectrum_wavelength = virt_spectrum_wavelength
+        self.virt_spectrum_luminosity_density_lambda = (
+            virt_spectrum_luminosity_density_lambda
         )
 
     def get_species_interactions(
@@ -420,6 +341,142 @@ class LineInfoWidget:
             (arr[-1] - arr[0]) / 4 + arr[1],
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],
         ]
+
+
+class SimulationLineInfoData(BaseLineInfoData):
+    """The simulation information that is used by shell info widget, obtained
+    from a TARDIS Simulation object
+    """
+
+    def __init__(self, sim_model):
+        spectrum_solver = sim_model.spectrum_solver
+        super().__init__(
+            lines_data=sim_model.plasma.lines.reset_index().set_index("line_id"),
+            line_interaction_analysis={
+                filter_mode: LastLineInteraction.from_simulation(
+                    sim_model, filter_mode
+                )
+                for filter_mode in self.FILTER_MODES
+            },
+            spectrum_wavelength=spectrum_solver.spectrum_real_packets.wavelength,
+            spectrum_luminosity_density_lambda=spectrum_solver.spectrum_real_packets.luminosity_density_lambda.to(
+                "erg/(s AA)"
+            ),
+            virt_spectrum_wavelength=spectrum_solver.spectrum_virtual_packets.wavelength,
+            virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
+                "erg/(s AA)"
+            ),
+        )
+
+
+class LineInfoWidget:
+    """
+    Widget to explore atomic lines that produced features in the simulated spectrum.
+
+    It allows selection of a wavelength range in the spectrum to display a
+    table giving the fraction of packets that experienced their last
+    interaction with each species. Using toggle buttons, users can specify
+    whether to filter the selected range by emitted or absorbed wavelengths
+    of packets. Clicking on a row in the fractional species interactions table
+    shows packet counts for each last line interaction of the selected species,
+    which can be grouped in several ways using the dropdown menu.
+    """
+
+    FILTER_MODES = BaseLineInfoData.FILTER_MODES
+    FILTER_MODES_DESC = ("Emitted Wavelength", "Absorbed Wavelength")
+    GROUP_MODES = BaseLineInfoData.GROUP_MODES
+    GROUP_MODES_DESC = (
+        "Both excitation line (absorption) and de-excitation line (emission)",
+        "Only excitation line (absorption)",
+        "Only de-excitation line (emission)",
+    )
+    COLORS = {"selection_area": "lightpink", "selection_border": "salmon"}
+
+    def __init__(self, line_info_data):
+        self.data = line_info_data
+
+        # Compatibility aliases for existing callers/tests.
+        self.lines_data = self.data.lines_data
+        self.line_interaction_analysis = self.data.line_interaction_analysis
+
+        max_rows_option = {"maxVisibleRows": 9}
+        self.species_interactions_table = create_table_widget(
+            data=self.get_species_interactions(None),
+            table_options=max_rows_option,
+        )
+
+        self.last_line_counts_table = create_table_widget(
+            data=self.get_last_line_counts(None),
+            table_options=max_rows_option,
+        )
+        self.total_packets_label = TableSummaryLabel(
+            target_table=self.last_line_counts_table,
+            table_col_widths=[75, 25],
+            label_key="Total Packets",
+            label_value=0,
+        )
+
+        self.figure_widget = self.plot_spectrum(
+            self.data.spectrum_wavelength,
+            self.data.spectrum_luminosity_density_lambda,
+            self.data.virt_spectrum_wavelength,
+            self.data.virt_spectrum_luminosity_density_lambda,
+        )
+
+        self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
+            options=list(self.FILTER_MODES_DESC),
+            value=self.FILTER_MODES_DESC[0],
+        )
+        self.group_mode_dropdown = pn.widgets.Select(
+            options=list(self.GROUP_MODES_DESC), value=self.GROUP_MODES_DESC[0]
+        )
+
+        self._current_wavelength_range = None
+
+    @classmethod
+    def from_simulation(cls, sim):
+        """
+        Create an instance of LineInfoWidget from a TARDIS simulation object.
+
+        Parameters
+        ----------
+        sim : tardis.simulation.Simulation
+            TARDIS Simulation object produced by running a simulation
+
+        Returns
+        -------
+        LineInfoWidget object
+        """
+        # When running in browser using pyodide, construct widget using pickled data
+        if Environment.get_current_environment() == "pyodide":
+            line_info_data = cloudpickle.load(
+                open("/data/line_info_data.pkl", "rb")
+            )
+            return cls(line_info_data)
+
+        return cls(SimulationLineInfoData(sim))
+
+    def get_species_interactions(
+        self, wavelength_range, filter_mode=FILTER_MODES[0]
+    ):
+        """Proxy to line info data object."""
+        return self.data.get_species_interactions(wavelength_range, filter_mode)
+
+    def get_last_line_counts(
+        self,
+        selected_species,
+        filter_mode=FILTER_MODES[0],
+        group_mode=GROUP_MODES[0],
+    ):
+        """Proxy to line info data object."""
+        return self.data.get_last_line_counts(
+            selected_species, filter_mode, group_mode
+        )
+
+    @staticmethod
+    def get_middle_half_edges(arr):
+        """Proxy to line info data object."""
+        return BaseLineInfoData.get_middle_half_edges(arr)
 
     def plot_spectrum(
         self,
@@ -751,3 +808,8 @@ class LineInfoWidget:
             )
 
             return widget
+
+
+def get_line_data_from_simulation(sim_model):
+    """Get the line info data from a TARDIS simulation object."""
+    return SimulationLineInfoData(sim_model)
