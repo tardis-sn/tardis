@@ -165,7 +165,9 @@ def continuum_event(
         r_packet.nu * old_doppler_factor
     )  # make sure frequency should be updated
     r_packet.energy = comov_energy * inverse_doppler_factor
-    r_packet.nu = comov_nu * inverse_doppler_factor
+    # r_packet.nu = (
+    #     comov_nu * inverse_doppler_factor
+    # )  # Doesn't need to because will be updated in the interaction handler
 
     destination_level_idx = determine_continuum_macro_activation_idx(
         opacity_state,
@@ -224,8 +226,8 @@ def line_scatter_event(
             enable_full_relativity,
         )
     else:  # includes both macro atom and downbranch - encoded in the transition probabilities
-        comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
-        r_packet.nu = comov_nu * inverse_new_doppler_factor
+        # comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
+        # r_packet.nu = comov_nu * inverse_new_doppler_factor
         activation_level_id = opacity_state.line2macro_level_upper[
             r_packet.next_line_id
         ]
