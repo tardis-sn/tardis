@@ -1,8 +1,9 @@
-import pytest
 import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
+
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
+
 
 class DummyRadiationField:
     """A simple mock radiation field to isolate the RadiativeRatesSolver test."""
@@ -27,10 +28,9 @@ def test_radiative_rates_solver(regression_data):
         },
         index=index
     )
-
     # 3. Initialize solver
     solver = RadiativeRatesSolver(einstein_coefficients)
-    
+
     # 4. Mock the radiation field and solve to get rates DataFrame
     radiation_field = DummyRadiationField()
     actual_rates_df = solver.solve(radiation_field)

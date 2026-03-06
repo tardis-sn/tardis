@@ -1,8 +1,11 @@
-import pytest
 import numpy as np
-from numpy.testing import assert_allclose
 from astropy import units as u
-from tardis.plasma.radiation_field.planck_rad_field import DilutePlanckianRadiationField
+from numpy.testing import assert_allclose
+
+from tardis.plasma.radiation_field.planck_rad_field import (
+    DilutePlanckianRadiationField,
+)
+
 
 def test_dilute_planckian_radiation_field(regression_data):
     # 1. Inputs with Astropy units
