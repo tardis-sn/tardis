@@ -7,6 +7,8 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 
+RELATIVE_TOLERANCE_DENSITY = 1e-7
+
 
 @pytest.fixture
 def tardis_model_density_config(example_model_file_dir):
@@ -35,7 +37,9 @@ def raw_plasma(
 def test_electron_densities(raw_plasma, regression_data):
     actual = raw_plasma.electron_densities
     expected = regression_data.sync_ndarray(actual)
-    npt.assert_allclose(actual, expected)
+    npt.assert_allclose(
+        actual, expected, atol=0, rtol=RELATIVE_TOLERANCE_DENSITY
+    )
 
 
 def test_isotope_number_densities(

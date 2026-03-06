@@ -5,10 +5,12 @@ import pandas as pd
 import pytest
 from numpy import testing as npt
 from pandas import testing as pdt
+from tardisbase.testing.regression_data.regression_data import RegressionData
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.simulation import Simulation
-from tardisbase.testing.regression_data.regression_data import RegressionData
+
+RELATIVE_TOLERANCE_PLASMA = 1e-7
 
 PLASMA_CONFIG_FPATH = (
     Path("tardis") / "plasma" / "tests" / "data" / "plasma_base_test_config.yml"
@@ -186,7 +188,12 @@ class TestPlasma:
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if attr == "selected_atoms":
-                npt.assert_allclose(actual.values, expected.values)
+                npt.assert_allclose(
+                    actual.values,
+                    expected.values,
+                    atol=0,
+                    rtol=RELATIVE_TOLERANCE_PLASMA,
+                )
             elif actual.ndim == 1:
                 actual = pd.Series(actual)
                 pdt.assert_series_equal(actual, expected)
@@ -224,4 +231,6 @@ class TestPlasma:
             actual = plasma.zeta_data
             key = "plasma/zeta_data"
             expected = pd.read_hdf(self.regression_data.fpath, key)
-            npt.assert_allclose(actual, expected.values)
+            npt.assert_allclose(
+                actual, expected.values, atol=0, rtol=RELATIVE_TOLERANCE_PLASMA
+            )
