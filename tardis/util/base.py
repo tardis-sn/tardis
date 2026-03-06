@@ -13,9 +13,8 @@ from astropy import units as u
 from radioactivedecay import DEFAULTDATA
 from radioactivedecay.utils import Z_DICT, parse_nuclide
 
-import tardis
 from tardis import constants
-from tardis.io.util import get_internal_data_path
+from tardis.io.util import get_internal_data_path, TARDIS_PATH
 from tardis.util.environment import Environment
 
 k_B_cgs = constants.k_B.cgs.value
@@ -25,7 +24,7 @@ m_e_cgs = constants.m_e.cgs.value
 e_charge_gauss = constants.e.gauss.value
 
 logger = logging.getLogger(__name__)
-tardis_dir = Path(tardis.__path__[0]).resolve()
+tardis_dir = TARDIS_PATH.resolve()
 
 ATOMIC_SYMBOLS_DATA = (
     pd.read_csv(

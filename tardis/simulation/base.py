@@ -1,12 +1,12 @@
 import logging
 import time
 from collections import OrderedDict
+from importlib.metadata import version as get_version
 
 import numpy as np
 import pandas as pd
 from astropy import units as u
 
-import tardis
 from tardis import constants as const
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.io.configuration.config_reader import ConfigurationError
@@ -174,7 +174,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         self.luminosity_requested = luminosity_requested
         self.spectrum_solver = spectrum_solver
         self.show_progress_bars = show_progress_bars
-        self.version = tardis.__version__
+        self.version = get_version("tardis")
 
         # Convergence
         self.convergence_strategy = convergence_strategy

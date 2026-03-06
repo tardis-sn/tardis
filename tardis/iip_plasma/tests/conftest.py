@@ -5,9 +5,9 @@ import pandas as pd
 import pytest
 from astropy import units as u
 
-import tardis
 from tardis.iip_plasma.properties import *
 from tardis.io.atom_data import AtomData
+from tardis.io.util import TARDIS_PATH
 
 # INPUTS
 
@@ -15,7 +15,7 @@ from tardis.io.atom_data import AtomData
 @pytest.fixture
 def atomic_data():
     atomic_db_fname = os.path.join(
-        tardis.__path__[0], "tests", "data", "chianti_he_db.h5"
+        str(TARDIS_PATH), "tests", "data", "chianti_he_db.h5"
     )
     return AtomData.from_hdf(atomic_db_fname)
 

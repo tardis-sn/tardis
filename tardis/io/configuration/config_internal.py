@@ -5,9 +5,10 @@ from pathlib import Path
 import yaml
 from astropy.config import get_config_dir
 
-from tardis import __path__ as TARDIS_PATH
+# Use __file__ to get the TARDIS package path robustly.
+# This avoids issues when a local 'tardis' directory exists (Issue #3021).
+TARDIS_PATH = Path(__file__).resolve().parent.parent.parent
 
-TARDIS_PATH = Path(TARDIS_PATH[0])
 DEFAULT_CONFIG_PATH = (
     TARDIS_PATH / "data" / "default_tardis_internal_config.yml"
 )

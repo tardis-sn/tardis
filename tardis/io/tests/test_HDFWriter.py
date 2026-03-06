@@ -1,3 +1,5 @@
+from importlib.metadata import version as get_version
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -5,7 +7,9 @@ from astropy import units as u
 from numpy.testing import assert_array_almost_equal
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
-from tardis import __version__
+
+# Use importlib.metadata to get version - works even with namespace collision (Issue #3021)
+__version__ = get_version("tardis")
 
 # Test Cases
 
