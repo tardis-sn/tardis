@@ -283,9 +283,14 @@ def simulation_verysimple_default(config_verysimple, atomic_dataset):
 
 @pytest.fixture(scope="session")
 def simulation_verysimple_vpacket_tracking(config_verysimple, atomic_dataset):
+    """Simulation with vpacket tracking enabled for vpacket-specific tests."""
+    config = deepcopy(config_verysimple)
+    # Explicitly enable vpackets for this fixture
+    config.montecarlo.no_of_virtual_packets = 5
+    config.spectrum.virtual.virtual_packet_logging = True
     atomic_data = deepcopy(atomic_dataset)
     sim = Simulation.from_config(
-        config_verysimple, atom_data=atomic_data, virtual_packet_logging=True
+        config, atom_data=atomic_data, virtual_packet_logging=True
     )
     sim.last_no_of_packets = 4000
     sim.run_final()
@@ -327,11 +332,12 @@ def workflow_simple(config_verysimple, atomic_data_fname):
     config.montecarlo.iterations = 3
     config.montecarlo.no_of_packets = 4000
     config.montecarlo.last_no_of_packets = -1
-    config.spectrum.virtual.virtual_packet_logging = True
-    config.montecarlo.no_of_virtual_packets = 1
+    # Default to vpackets=0 for performance; tests that need vpackets should enable explicitly
+    config.spectrum.virtual.virtual_packet_logging = False
+    config.montecarlo.no_of_virtual_packets = 0
     config.spectrum.num = 2000
     
-    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
+    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=False)
     workflow.run()
     return workflow
 

@@ -65,6 +65,10 @@ class TestTransportSimple:
             str(example_configuration_dir / "tardis_configv1_verysimple.yml")
         )
         config["atom_data"] = atomic_data_fname
+        
+        # Explicitly enable vpackets for test_virtual_spectrum
+        config["montecarlo"]["no_of_virtual_packets"] = 5
+        config["spectrum"]["virtual"]["virtual_packet_logging"] = True
 
         simulation = Simulation.from_config(config)
         simulation.run_convergence()
