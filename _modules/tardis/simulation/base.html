@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=f88745fe"></script>
+      <script src="../../../_static/documentation_options.js?v=5ffef9cf"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,7 +167,7 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.modes.classic.solver import MCTransportSolverClassic
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
@@ -956,7 +956,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 &quot;Cannot specify packet_source and transport at the same time.&quot;
             )
         if transport is None:
-            transport = MonteCarloTransportSolver.from_config(
+            transport = MCTransportSolverClassic.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,
@@ -1048,7 +1048,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Feb 2026.
+      <span class="lastupdated">Last updated on 06 Mar 2026.
       </span></p>
   </div>
 

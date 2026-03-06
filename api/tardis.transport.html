@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=f88745fe"></script>
+      <script src="../_static/documentation_options.js?v=5ffef9cf"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -198,6 +198,11 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.estimators.html#module-tardis.transport.montecarlo.estimators">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.modes.html">tardis.transport.montecarlo.modes package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.modes.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.modes.html#module-tardis.transport.montecarlo.modes">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.packet_source.html">tardis.transport.montecarlo.packet_source package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_source.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.packet_source.html#module-tardis.transport.montecarlo.packet_source">Module contents</a></li>
@@ -212,10 +217,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.montecarlo.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.base.html">tardis.transport.montecarlo.base module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.base.html#tardis.transport.montecarlo.base.MonteCarloTransportSolver"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportSolver</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.interaction_event_callers.html">tardis.transport.montecarlo.interaction_event_callers module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.continuum_event"><code class="docutils literal notranslate"><span class="pre">continuum_event()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.interaction_event_callers.html#tardis.transport.montecarlo.interaction_event_callers.determine_continuum_macro_activation_idx"><code class="docutils literal notranslate"><span class="pre">determine_continuum_macro_activation_idx()</span></code></a></li>
@@ -243,10 +244,6 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.macro_atom_interaction"><code class="docutils literal notranslate"><span class="pre">macro_atom_interaction()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_main_loop.html">tardis.transport.montecarlo.montecarlo_main_loop module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_main_loop.html#tardis.transport.montecarlo.montecarlo_main_loop.montecarlo_main_loop"><code class="docutils literal notranslate"><span class="pre">montecarlo_main_loop()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html">tardis.transport.montecarlo.montecarlo_transport_state module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.montecarlo_transport_state.html#tardis.transport.montecarlo.montecarlo_transport_state.MonteCarloTransportState"><code class="docutils literal notranslate"><span class="pre">MonteCarloTransportState</span></code></a></li>
 </ul>
@@ -264,18 +261,6 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.reset_packet_pbar"><code class="docutils literal notranslate"><span class="pre">reset_packet_pbar()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.update_iterations_pbar"><code class="docutils literal notranslate"><span class="pre">update_iterations_pbar()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.progress_bars.html#tardis.transport.montecarlo.progress_bars.update_packets_pbar"><code class="docutils literal notranslate"><span class="pre">update_packets_pbar()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.r_packet_transport.html">tardis.transport.montecarlo.r_packet_transport module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.r_packet_transport.html#tardis.transport.montecarlo.r_packet_transport.move_packet_across_shell_boundary"><code class="docutils literal notranslate"><span class="pre">move_packet_across_shell_boundary()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.r_packet_transport.html#tardis.transport.montecarlo.r_packet_transport.move_r_packet"><code class="docutils literal notranslate"><span class="pre">move_r_packet()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.r_packet_transport.html#tardis.transport.montecarlo.r_packet_transport.trace_packet"><code class="docutils literal notranslate"><span class="pre">trace_packet()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.single_packet_loop.html">tardis.transport.montecarlo.single_packet_loop module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.single_packet_loop.html#tardis.transport.montecarlo.single_packet_loop.set_packet_props_full_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_full_relativity()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.single_packet_loop.html#tardis.transport.montecarlo.single_packet_loop.set_packet_props_partial_relativity"><code class="docutils literal notranslate"><span class="pre">set_packet_props_partial_relativity()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.single_packet_loop.html#tardis.transport.montecarlo.single_packet_loop.single_packet_loop"><code class="docutils literal notranslate"><span class="pre">single_packet_loop()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.utils.html">tardis.transport.montecarlo.utils module</a><ul>
@@ -329,7 +314,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 16 Feb 2026.
+      <span class="lastupdated">Last updated on 06 Mar 2026.
       </span></p>
   </div>
 
