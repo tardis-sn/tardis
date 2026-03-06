@@ -812,6 +812,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             "plasma_cmap",
             "t_inner_luminosities_colors",
             "export_convergence_plots",
+            "export_format",
+            "export_path",
+            "export_prefix",
         ]
         convergence_plots_kwargs = {}
         for item in set(convergence_plots_config_options).intersection(
