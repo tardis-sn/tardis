@@ -68,7 +68,11 @@ class TestLevelPopulationSolver:
 
     def test_solve(self, regression_data):
         """Test the solve method."""
-        expected_populations = False
         result = self.solver.solve()
-        expected_populations = regression_data.sync_dataframe(result)
+
+        # The order of parameters in the auto-generated filename has changed.
+        # We manually specify the path to the existing regression file.
+        expected_fname = "test_solve__collisional_rate_solver0-radiative_transitions0__.h5"
+        expected_fpath = regression_data.fpath.parent / expected_fname
+        expected_populations = pd.read_hdf(expected_fpath)
         pdt.assert_frame_equal(result, expected_populations, atol=0, rtol=1e-15)

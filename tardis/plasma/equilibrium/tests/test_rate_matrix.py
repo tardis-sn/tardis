@@ -33,7 +33,11 @@ def test_rate_matrix_solver(
 
     actual = rate_matrix_solver.solve(rad_field, electron_dist)
 
-    expected = regression_data.sync_dataframe(actual)
+    # The order of parameters in the auto-generated filename has changed.
+    # We manually specify the path to the existing regression file.
+    expected_fname = "test_rate_matrix_solver__collisional_rate_solver0-radiative_transitions0__.h5"
+    expected_fpath = regression_data.fpath.parent / expected_fname
+    expected = pd.read_hdf(expected_fpath)
 
     pdt.assert_frame_equal(actual, expected, atol=0, rtol=1e-15)
 
