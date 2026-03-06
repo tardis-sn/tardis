@@ -6,7 +6,7 @@ from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
 )
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -38,9 +38,6 @@ from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
     move_r_packet,
     trace_packet,
 )
-from tardis.transport.montecarlo.packets.packet_collections import (
-    VPacketCollection,
-)
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
@@ -55,7 +52,7 @@ def packet_propagation(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumba,
+    opacity_state: OpacityStateNumbaIIP,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     estimators_continuum: EstimatorsContinuum,
