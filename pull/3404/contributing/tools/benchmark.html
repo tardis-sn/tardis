@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=9e8177cc"></script>
+      <script src="../../_static/documentation_options.js?v=c59d2b9a"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -205,8 +205,9 @@ conda install conda-build
 </section>
 <section id="Running-the-benchmarks">
 <h2>Running the benchmarks<a class="headerlink" href="#Running-the-benchmarks" title="Link to this heading">¶</a></h2>
-<p>To run the benchmarks, you can run the following command:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>asv run
+<p>To run the benchmarks, you can run the following commands:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/env.yml
+asv run
 </pre></div>
 </div>
 <p>This command will run for last 2 commits. asv can also run for a specific commit or a range of commits which can be done by running the following commands:</p>
@@ -294,7 +295,7 @@ Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /home/runner/Downl
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Feb 2026.
+      <span class="lastupdated">Last updated on 07 Mar 2026.
       </span></p>
   </div>
 

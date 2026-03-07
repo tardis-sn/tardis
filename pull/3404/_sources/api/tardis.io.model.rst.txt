@@ -7,7 +7,9 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   tardis.io.model.arepo
    tardis.io.model.artis
+   tardis.io.model.csvy
    tardis.io.model.readers
    tardis.io.model.snec
 

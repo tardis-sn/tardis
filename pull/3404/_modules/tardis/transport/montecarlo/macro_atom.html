@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=9e8177cc"></script>
+      <script src="../../../../_static/documentation_options.js?v=c59d2b9a"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -159,15 +159,15 @@ class MacroAtomTransitionType(IntEnum):
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
-    BF_EMISSION = -2  # This is recombination emission
+    BF_EMISSION = -2  # This is recombination emission, aka k-packet to r-packet
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION
     TWO_PHOTON = -6
     COLL_DOWN_TO_K_PACKET = 9
     COLL_DOWN_INTERNAL = 10
-    COLL_UP_INTERNAL = 11
-    COLL_UP_COOLING = 12  # I think this should be a deactivation event</div>
+    COLL_EXC_COOL_TO_MACRO = 11
+    COLL_ION_COOL_TO_MACRO = 12</div>
 
 
 
@@ -214,7 +214,6 @@ def macro_atom_interaction(
                     transition_id
                 ]
                 break
-
         else:
             raise MacroAtomError(
                 &quot;MacroAtom ran out of the block. This should not happen as &quot;
@@ -222,7 +221,6 @@ def macro_atom_interaction(
                 &quot;the probability_event should be less than 1&quot;
             )
 
-    # current_transition_type = MacroAtomTransitionType(current_transition_type)
     return (
         opacity_state.transition_line_id[transition_id],
         current_transition_type,
@@ -238,7 +236,7 @@ def macro_atom_interaction(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Feb 2026.
+      <span class="lastupdated">Last updated on 07 Mar 2026.
       </span></p>
   </div>
 

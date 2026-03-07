@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9e8177cc"></script>
+      <script src="../_static/documentation_options.js?v=c59d2b9a"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,7 +35,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="tardis.transport.montecarlo.base module" href="tardis.transport.montecarlo.base.html" />
+    <link rel="next" title="tardis.transport.montecarlo.interaction_event_callers module" href="tardis.transport.montecarlo.interaction_event_callers.html" />
     <link rel="prev" title="tardis.transport.montecarlo.packets.radiative_packet module" href="tardis.transport.montecarlo.packets.radiative_packet.html" />
     <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
 
@@ -169,86 +169,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-tardis.transport.montecarlo.packets.virtual_packet">
-<span id="tardis-transport-montecarlo-packets-virtual-packet-module"></span><h1>tardis.transport.montecarlo.packets.virtual_packet module<a class="headerlink" href="#module-tardis.transport.montecarlo.packets.virtual_packet" title="Link to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.virtual_packet.VPacket">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.virtual_packet.</span></span><span class="sig-name descname"><span class="pre">VPacket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/virtual_packet.html#VPacket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.virtual_packet.VPacket" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#tardis.transport.montecarlo.packets.virtual_packet.VPacket" title="tardis.transport.montecarlo.packets.virtual_packet.VPacket"><code class="xref py py-class docutils literal notranslate"><span class="pre">VPacket</span></code></a></p>
-<p>Initialize virtual packet for Monte Carlo transport.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>r</strong><span class="classifier">float</span></dt><dd><p>Initial radius [cm].</p>
-</dd>
-<dt><strong>mu</strong><span class="classifier">float</span></dt><dd><p>Initial directional cosine.</p>
-</dd>
-<dt><strong>nu</strong><span class="classifier">float</span></dt><dd><p>Initial frequency [Hz].</p>
-</dd>
-<dt><strong>energy</strong><span class="classifier">float</span></dt><dd><p>Initial energy [erg].</p>
-</dd>
-<dt><strong>current_shell_id</strong><span class="classifier">int</span></dt><dd><p>Current shell index.</p>
-</dd>
-<dt><strong>next_line_id</strong><span class="classifier">int</span></dt><dd><p>Next line interaction index.</p>
-</dd>
-<dt><strong>index</strong><span class="classifier">int, optional</span></dt><dd><p>Packet index, by default 0.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.virtual_packet.VPacket.class_type">
-<span class="sig-name descname"><span class="pre">class_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">jitclass.VPacket#7ff56a77ab50&lt;r:float64,mu:float64,nu:float64,energy:float64,next_line_id:int64,current_shell_id:int64,status:int64,index:int64&gt;</span></em><a class="headerlink" href="#tardis.transport.montecarlo.packets.virtual_packet.VPacket.class_type" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.virtual_packet.trace_vpacket">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.virtual_packet.</span></span><span class="sig-name descname"><span class="pre">trace_vpacket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_packet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numba_radial_1d_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_russian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survival_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_full_relativity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/virtual_packet.html#trace_vpacket"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.virtual_packet.trace_vpacket" title="Link to this definition">¶</a></dt>
-<dd><p>Trace single vpacket.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>v_packet</strong></dt><dd></dd>
-<dt><strong>time_explosion</strong></dt><dd></dd>
-<dt><strong>opacity_state</strong></dt><dd></dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"></dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.virtual_packet.trace_vpacket_volley">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.virtual_packet.</span></span><span class="sig-name descname"><span class="pre">trace_vpacket_volley</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_packet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vpacket_collection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numba_radial_1d_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_full_relativity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_russian</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">survival_probability</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/virtual_packet.html#trace_vpacket_volley"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.virtual_packet.trace_vpacket_volley" title="Link to this definition">¶</a></dt>
-<dd><p>Shoot a volley of vpackets (the vpacket collection specifies how many)
-from the current position of the rpacket.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>r_packet</strong><span class="classifier">[type]</span></dt><dd><p>[description]</p>
-</dd>
-<dt><strong>vpacket_collection</strong><span class="classifier">[type]</span></dt><dd><p>[description]</p>
-</dd>
-<dt><strong>numba_radial_1d_geometry</strong><span class="classifier">[type]</span></dt><dd><p>[description]</p>
-</dd>
-<dt><strong>time_explosion</strong><span class="classifier">[type]</span></dt><dd><p>[description]</p>
-</dd>
-<dt><strong>opacity_state</strong><span class="classifier">[type]</span></dt><dd><p>[description]</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.packets.virtual_packet.trace_vpacket_within_shell">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.packets.virtual_packet.</span></span><span class="sig-name descname"><span class="pre">trace_vpacket_within_shell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_packet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numba_radial_1d_geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_full_relativity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/packets/virtual_packet.html#trace_vpacket_within_shell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.packets.virtual_packet.trace_vpacket_within_shell" title="Link to this definition">¶</a></dt>
-<dd><p>Trace VPacket within one shell (relatively simple operation)</p>
-</dd></dl>
-
+  <section id="tardis-transport-montecarlo-packets-virtual-packet-module">
+<h1>tardis.transport.montecarlo.packets.virtual_packet module<a class="headerlink" href="#tardis-transport-montecarlo-packets-virtual-packet-module" title="Link to this heading">¶</a></h1>
 </section>
 
 
@@ -256,14 +178,14 @@ from the current position of the rpacket.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tardis.transport.montecarlo.packets.radiative_packet.html" class="btn btn-neutral float-left" title="tardis.transport.montecarlo.packets.radiative_packet module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tardis.transport.montecarlo.base.html" class="btn btn-neutral float-right" title="tardis.transport.montecarlo.base module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tardis.transport.montecarlo.interaction_event_callers.html" class="btn btn-neutral float-right" title="tardis.transport.montecarlo.interaction_event_callers module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Feb 2026.
+      <span class="lastupdated">Last updated on 07 Mar 2026.
       </span></p>
   </div>
 

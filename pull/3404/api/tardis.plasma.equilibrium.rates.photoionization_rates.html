@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9e8177cc"></script>
+      <script src="../_static/documentation_options.js?v=c59d2b9a"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -220,7 +220,7 @@ case where the radiation field is not estimated.</p>
 case where the radiation field is estimated by Monte Carlo processes.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_energy_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radfield_mc_estimators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_population</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_rates.html#EstimatedPhotoionizationRateSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_energy_distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimators_continuum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_simulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_population</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/plasma/equilibrium/rates/photoionization_rates.html#EstimatedPhotoionizationRateSolver.solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.plasma.equilibrium.rates.photoionization_rates.EstimatedPhotoionizationRateSolver.solve" title="Link to this definition">¶</a></dt>
 <dd><p>Solve the photoionization and spontaneous recombination rates in the
 case where the radiation field is estimated by Monte Carlo processes.</p>
 <dl class="field-list simple">
@@ -228,7 +228,7 @@ case where the radiation field is estimated by Monte Carlo processes.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>electron_energy_distribution</strong><span class="classifier">ThermalElectronEnergyDistribution</span></dt><dd><p>Electron properties.</p>
 </dd>
-<dt><strong>radfield_mc_estimators</strong><span class="classifier">RadiationFieldMCEstimators</span></dt><dd><p>Estimators of the radiation field properties.</p>
+<dt><strong>estimators_continuum</strong><span class="classifier">EstimatorsContinuum</span></dt><dd><p>Estimators of the continuum radiation field properties.</p>
 </dd>
 <dt><strong>time_simulation</strong><span class="classifier">u.Quantity</span></dt><dd><p>Time of simulation.</p>
 </dd>
@@ -265,7 +265,7 @@ case where the radiation field is estimated by Monte Carlo processes.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Feb 2026.
+      <span class="lastupdated">Last updated on 07 Mar 2026.
       </span></p>
   </div>
 

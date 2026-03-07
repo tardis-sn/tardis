@@ -6,7 +6,7 @@ Frequently Asked Questions
 
 **This reference section provides quick answers to common questions about TARDIS.**
 
-This FAQ serves as a reference for finding solutions to frequently encountered issues. For step-by-step learning, see our :doc:`tutorials`. For specific problem-solving guides, check our How-To Guides section.
+This FAQ serves as a reference for finding solutions to frequently encountered issues. For step-by-step learning, see our :doc:`tutorials`. For specific problem-solving guides, check our :doc:`how_to_guides`.
 
 Overview
 --------

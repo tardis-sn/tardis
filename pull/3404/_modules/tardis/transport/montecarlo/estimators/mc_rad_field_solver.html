@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=9e8177cc"></script>
+      <script src="../../../../../_static/documentation_options.js?v=c59d2b9a"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,6 +138,7 @@
   <h1>Source code for tardis.transport.montecarlo.estimators.mc_rad_field_solver</h1><div class="highlight"><pre>
 <span></span>import numpy as np
 from astropy import units as u
+from astropy.units import Quantity
 from scipy.special import zeta
 
 from tardis import constants as const
@@ -146,6 +147,12 @@ from tardis.plasma.radiation_field.planck_rad_field import (
 )
 from tardis.transport.montecarlo.estimators.base import (
     EstimatedRadiationFieldProperties,
+)
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
 )
 
 DILUTION_FACTOR_ESTIMATOR_CONSTANT = (
@@ -164,19 +171,20 @@ T_RADIATIVE_ESTIMATOR_CONSTANT = (
 class MCRadiationFieldPropertiesSolver:
     w_epsilon = 1e-10
 
-    def __init__(self, w_epsilon=1e-10) -&gt; None:
+    def __init__(self, w_epsilon: float = 1e-10) -&gt; None:
         self.w_epsilon = w_epsilon
 
 <div class="viewcode-block" id="MCRadiationFieldPropertiesSolver.solve">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.mc_rad_field_solver.html#tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver.solve">[docs]</a>
     def solve(
         self,
-        radfield_mc_estimators,
-        time_explosion,
-        time_of_simulation,
-        volume,
-        line_list_nu,
-    ):
+        estimators_bulk: EstimatorsBulk,
+        estimators_line: EstimatorsLine,
+        time_explosion: Quantity,
+        time_of_simulation: Quantity,
+        volume: np.ndarray,
+        line_list_nu: np.ndarray,
+    ) -&gt; EstimatedRadiationFieldProperties:
         &quot;&quot;&quot;
         Calculate an updated radiation field from the :math:
         `\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
@@ -185,19 +193,28 @@ class MCRadiationFieldPropertiesSolver:
 
         Parameters
         ----------
-        nubar_estimator : np.ndarray (float)
-        j_estimator : np.ndarray (float)
+        estimators_bulk
+            Bulk radiation field estimators
+        estimators_line
+            Line interaction estimators
+        time_explosion
+            Time since explosion
+        time_of_simulation
+            Time of simulation
+        volume
+            Volume of each cell
+        line_list_nu
+            Frequency list for lines
 
         Returns
         -------
-        t_radiative : astropy.units.Quantity (float)
-        dilution_factor : numpy.ndarray (float)
+        Radiation field properties including t_radiative and dilution_factor
         &quot;&quot;&quot;
         dilute_planck_rad_field = self.estimate_dilute_planck_radiation_field(
-            radfield_mc_estimators, time_of_simulation, volume
+            estimators_bulk, time_of_simulation, volume
         )
         j_blues = self.estimate_jblues(
-            radfield_mc_estimators.j_blue_estimator,
+            estimators_line.mean_intensity_blueward,
             dilute_planck_rad_field,
             time_explosion,
             time_of_simulation,
@@ -214,14 +231,17 @@ class MCRadiationFieldPropertiesSolver:
 <div class="viewcode-block" id="MCRadiationFieldPropertiesSolver.estimate_dilute_planck_radiation_field">
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.mc_rad_field_solver.html#tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver.estimate_dilute_planck_radiation_field">[docs]</a>
     def estimate_dilute_planck_radiation_field(
-        self, radfield_mc_estimators, time_of_simulation, volume
-    ):
+        self,
+        estimators_bulk: EstimatorsBulk,
+        time_of_simulation: Quantity,
+        volume: np.ndarray,
+    ) -&gt; DilutePlanckianRadiationField:
         temperature_radiative = (
             T_RADIATIVE_ESTIMATOR_CONSTANT
-            * radfield_mc_estimators.nu_bar_estimator
-            / radfield_mc_estimators.j_estimator
+            * estimators_bulk.mean_frequency
+            / estimators_bulk.mean_intensity_total
         ) * u.K
-        dilution_factor = radfield_mc_estimators.j_estimator / (
+        dilution_factor = estimators_bulk.mean_intensity_total / (
             4
             * const.sigma_sb.cgs.value
             * temperature_radiative.value**4
@@ -237,13 +257,13 @@ class MCRadiationFieldPropertiesSolver:
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.mc_rad_field_solver.html#tardis.transport.montecarlo.estimators.mc_rad_field_solver.MCRadiationFieldPropertiesSolver.estimate_jblues">[docs]</a>
     def estimate_jblues(
         self,
-        j_blue_estimator,
-        estimated_radfield_state,
-        time_explosion,
-        time_of_simulation,
-        volume,
-        line_list_nu,
-    ):
+        j_blue_estimator: np.ndarray,
+        estimated_radfield_state: DilutePlanckianRadiationField,
+        time_explosion: Quantity,
+        time_of_simulation: Quantity,
+        volume: np.ndarray,
+        line_list_nu: np.ndarray,
+    ) -&gt; np.ndarray:
         j_blues_norm_factor = (
             const.c.cgs
             * time_explosion
@@ -269,7 +289,7 @@ class MCRadiationFieldPropertiesSolver:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Feb 2026.
+      <span class="lastupdated">Last updated on 07 Mar 2026.
       </span></p>
   </div>
 

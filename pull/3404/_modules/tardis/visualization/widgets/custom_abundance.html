@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=9e8177cc"></script>
+      <script src="../../../../_static/documentation_options.js?v=c59d2b9a"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -151,16 +151,16 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 import tardis
 import tardis.visualization.plot_util as pu
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.csvy import (
+    load_csvy,
+    parse_csv_mass_fractions,
+)
 from tardis.io.model.parse_density_configuration import (
     calculate_exponential_density,
     calculate_power_law_density,
-)
-from tardis.io.model.readers.csvy import (
-    load_csvy,
-    parse_csv_mass_fractions,
 )
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
 from tardis.model import SimulationState
@@ -171,7 +171,6 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = &quot;---&quot;
@@ -224,50 +223,47 @@ class CustomAbundanceWidgetData:
 <div class="viewcode-block" id="CustomAbundanceWidgetData.from_csvy">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData.from_csvy">[docs]</a>
     @classmethod
-    def from_csvy(cls, fpath):
+    def from_csvy(cls, fpath: str | Path) -&gt; &quot;CustomAbundanceWidgetData&quot;:
         &quot;&quot;&quot;Create a new CustomAbundanceWidgetData instance with data
         from CSVY file.
 
         Parameters
         ----------
-        fpath : str
+        fpath : str or pathlib.Path
             the path of CSVY file.
 
         Returns
         -------
         CustomAbundanceWidgetData
+            Instance populated with data from the CSVY file.
         &quot;&quot;&quot;
-        csvy_model_config, csvy_model_data = load_csvy(fpath)
-        csvy_schema_file = Path(BASE_DIR) / &quot;io&quot; / &quot;schemas&quot; / &quot;csvy_model.yml&quot;
-        csvy_model_config = Configuration(
-            validate_dict(csvy_model_config, schemapath=csvy_schema_file)
-        )
+        csvy_data = load_csvy(fpath)
 
-        if hasattr(csvy_model_config, &quot;velocity&quot;):
+        if hasattr(csvy_data.model_config, &quot;velocity&quot;):
             velocity = quantity_linspace(
-                csvy_model_config.velocity.start,
-                csvy_model_config.velocity.stop,
-                csvy_model_config.velocity.num + 1,
+                csvy_data.model_config.velocity.start,
+                csvy_data.model_config.velocity.stop,
+                csvy_data.model_config.velocity.num + 1,
             ).cgs
         else:
             velocity_field_index = [
-                field[&quot;name&quot;] for field in csvy_model_config.datatype.fields
+                field[&quot;name&quot;] for field in csvy_data.model_config.datatype.fields
             ].index(&quot;velocity&quot;)
             velocity_unit = u.Unit(
-                csvy_model_config.datatype.fields[velocity_field_index][&quot;unit&quot;]
+                csvy_data.model_config.datatype.fields[velocity_field_index][&quot;unit&quot;]
             )
-            velocity = csvy_model_data[&quot;velocity&quot;].values * velocity_unit
+            velocity = csvy_data.raw_csv_data[&quot;velocity&quot;].values * velocity_unit
 
         no_of_shells = len(velocity) - 1
 
-        if hasattr(csvy_model_config, &quot;density&quot;):
+        if hasattr(csvy_data.model_config, &quot;density&quot;):
             adjusted_velocity = velocity.insert(0, 0)
             v_middle = (
                 adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
             )
             no_of_shells = len(adjusted_velocity) - 1
 
-            d_conf = csvy_model_config.density
+            d_conf = csvy_data.model_config.density
             density_type = d_conf.type
             if density_type == &quot;branch85_w7&quot;:
                 density_0 = calculate_power_law_density(
@@ -291,22 +287,22 @@ class CustomAbundanceWidgetData:
                 raise ValueError(f&quot;Unrecognized density type {d_conf.type}&quot;)
         else:
             density_field_index = [
-                field[&quot;name&quot;] for field in csvy_model_config.datatype.fields
+                field[&quot;name&quot;] for field in csvy_data.model_config.datatype.fields
             ].index(&quot;density&quot;)
             density_unit = u.Unit(
-                csvy_model_config.datatype.fields[density_field_index][&quot;unit&quot;]
+                csvy_data.model_config.datatype.fields[density_field_index][&quot;unit&quot;]
             )
-            density_0 = csvy_model_data[&quot;density&quot;].values * density_unit
-            time_0 = csvy_model_config.model_density_time_0
+            density_0 = csvy_data.raw_csv_data[&quot;density&quot;].values * density_unit
+            time_0 = csvy_data.model_config.model_density_time_0
 
-        if hasattr(csvy_model_config, &quot;abundance&quot;):
-            abundances_section = csvy_model_config.abundance
+        if hasattr(csvy_data.model_config, &quot;abundance&quot;):
+            abundances_section = csvy_data.model_config.abundance
             abundance, isotope_abundance = read_uniform_mass_fractions(
                 abundances_section, no_of_shells
             )
         else:
             _, abundance, isotope_abundance = parse_csv_mass_fractions(
-                csvy_model_data
+                csvy_data.raw_csv_data
             )
             abundance = abundance.loc[:, 1:]
             abundance.columns = np.arange(abundance.shape[1])
@@ -352,9 +348,7 @@ class CustomAbundanceWidgetData:
         if atom_data is None:
             atom_data = AtomData.from_hdf(config.atom_data)
         if hasattr(config, &quot;csvy_model&quot;):
-            simulation_state = SimulationState.from_csvy(
-                config, atom_data=atom_data
-            )
+            simulation_state = SimulationState.from_csvy(config)
         else:
             simulation_state = SimulationState.from_config(
                 config, atom_data=atom_data
@@ -928,8 +922,8 @@ class CustomAbundanceWidget:
 
         return bool(
             index_1 - index_0 &gt; 1
-            or index_1 - index_0 == 1
-            and not np.isclose(v_vals[index_0], v_0)
+            or (index_1 - index_0 == 1
+            and not np.isclose(v_vals[index_0], v_0))
         )</div>
 
 
@@ -1351,8 +1345,7 @@ class CustomAbundanceWidget:
         if v_start &gt;= v_end or v_start &lt; 0 or v_end &lt; 0:
             self.btn_add_shell.disabled = True
             return
-        else:
-            self.btn_add_shell.disabled = False
+        self.btn_add_shell.disabled = False
 
         # Whether overwrite existing shells
         if self.overwrite_existing_shells(v_start, v_end):
@@ -1663,9 +1656,8 @@ class CustomAbundanceWidget:
             raise FileExistsError(
                 &quot;The file already exists. Click the &#39;overwrite&#39; checkbox to overwrite it.&quot;
             )
-        else:
-            self.write_yaml_portion(posix_path)
-            self.write_csv_portion(posix_path)</div>
+        self.write_yaml_portion(posix_path)
+        self.write_csv_portion(posix_path)</div>
 
 
 <div class="viewcode-block" id="CustomAbundanceWidget.write_yaml_portion">
@@ -2136,7 +2128,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Feb 2026.
+      <span class="lastupdated">Last updated on 07 Mar 2026.
       </span></p>
   </div>
 

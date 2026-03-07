@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=9e8177cc"></script>
+      <script src="../../../../../_static/documentation_options.js?v=c59d2b9a"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,14 +138,12 @@
   <h1>Source code for tardis.transport.montecarlo.estimators.continuum_radfield_properties</h1><div class="highlight"><pre>
 <span></span>from dataclasses import dataclass
 
-import numpy as np
 import pandas as pd
-from astropy import units as u
 
 import tardis.constants as const
 from tardis.io.atom_data import AtomData
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
+from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    EstimatorsContinuum,
 )
 from tardis.transport.montecarlo.estimators.util import (
     bound_free_estimator_array2frame,
@@ -167,37 +165,36 @@ class MCContinuumPropertiesSolver:
 <a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.continuum_radfield_properties.html#tardis.transport.montecarlo.estimators.continuum_radfield_properties.MCContinuumPropertiesSolver.solve">[docs]</a>
     def solve(
         self,
-        radfield_mc_estimators: RadiationFieldMCEstimators,
-        time_simulation,
-        volume,
-    ):
+        estimators_continuum: EstimatorsContinuum,
+        time_simulation: float,
+        volume: float,
+    ) -&gt; &quot;ContinuumProperties&quot;:
         &quot;&quot;&quot;
         Solve for the continuum properties.
 
         Parameters
         ----------
-        radfield_mc_estimators : RadiationFieldMCEstimators
-            The Monte Carlo estimators for the radiation field.
-        time_simulation : float
+        estimators_continuum
+            The Monte Carlo estimators for the continuum radiation field.
+        time_simulation
             The simulation time.
-        volume : float
+        volume
             The volume of the cells.
 
         Returns
         -------
-        ContinuumProperties
-            The calculated continuum properties.
+        The calculated continuum properties.
         &quot;&quot;&quot;
         photo_ion_norm_factor = (time_simulation * volume * H) ** -1
 
         photo_ionization_rate_coefficient = bound_free_estimator_array2frame(
-            radfield_mc_estimators.photo_ion_estimator,
+            estimators_continuum.photo_ion_estimator,
             self.atom_data.level2continuum_edge_idx,
         )
         photo_ionization_rate_coefficient *= photo_ion_norm_factor
 
         stimulated_recomb_rate_factor = bound_free_estimator_array2frame(
-            radfield_mc_estimators.stim_recomb_estimator,
+            estimators_continuum.stim_recomb_estimator,
             self.atom_data.level2continuum_edge_idx,
         )
         stimulated_recomb_rate_factor *= photo_ion_norm_factor
@@ -227,7 +224,7 @@ class ContinuumProperties:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 24 Feb 2026.
+      <span class="lastupdated">Last updated on 07 Mar 2026.
       </span></p>
   </div>
 
