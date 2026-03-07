@@ -1,3 +1,4 @@
+import cloudpickle
 import pandas as pd
 import panel as pn
 
@@ -426,6 +427,11 @@ def shell_info_from_simulation(sim_model):
     -------
     ShellInfoWidget
     """
+    # When running in browser using pyodide, construct widget using pickled data
+    if Environment.get_current_environment() == "pyodide":
+        sim = cloudpickle.load(open("/data/shell_info_data.pkl", "rb"))
+        return ShellInfoWidget(sim)
+
     shell_info_data = SimulationShellInfo(sim_model)
     return ShellInfoWidget(shell_info_data)
 
@@ -446,3 +452,18 @@ def shell_info_from_hdf(hdf_fpath):
     """
     shell_info_data = HDFShellInfo(hdf_fpath)
     return ShellInfoWidget(shell_info_data)
+
+
+def get_shell_data_from_simulation(sim_model):
+    """Get the shell info data from a TARDIS simulation object
+
+    Parameters
+    ----------
+    sim_model : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+
+    Returns
+    -------
+    SimulationShellInfo
+    """
+    return SimulationShellInfo(sim_model)
