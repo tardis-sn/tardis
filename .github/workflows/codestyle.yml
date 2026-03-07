@@ -41,11 +41,17 @@ jobs:
 
       - name: Show statistics pull request
         if: github.event_name == 'pull_request_target'
-        run: ruff check --statistics  --show-fixes $(git --no-pager diff --name-only origin/master HEAD --) | tee ruff_stats.txt
+        run: |
+          git --no-pager diff --name-only origin/master...HEAD -- '*.py' \
+            | xargs -r ruff check --statistics --show-fixes \
+            | tee ruff_stats.txt
       
       - name: Show entire output pull request
         if: github.event_name == 'pull_request_target'
-        run: ruff check --output-format=concise $(git --no-pager diff --name-only origin/master HEAD -- | grep -E '\.py$') | tee ruff_full.txt
+        run: |
+          git --no-pager diff --name-only origin/master...HEAD -- '*.py' \
+            | xargs -r ruff check --output-format=concise \
+            | tee ruff_full.txt
 
       - name: Show statistics push
         if: github.event_name == 'push'
@@ -55,18 +61,6 @@ jobs:
         if: github.event_name == 'push'
         run: ruff check --output-format=concise . | tee ruff_full.txt
 
-      - name: Statistics output read
-        id: ruff_stats
-        uses: juliangruber/read-file-action@v1.1.7
-        with:
-          path: ruff_stats.txt
-
-      - name: Entire output read
-        id: ruff_complete 
-        uses: juliangruber/read-file-action@v1.1.7
-        with:
-          path: ruff_full.txt
-      
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
         uses: peter-evans/find-comment@v1
@@ -89,23 +83,7 @@ jobs:
             I ran ruff on the latest commit (${{ github.event.pull_request.head.sha }}). 
             Here are the outputs produced.
             Results can also be downloaded as artifacts [**here**](${{ env.URL }}). 
-            Summarised output:
-            <details>
-
-              ```diff
-              ${{ steps.ruff_stats.outputs.content }}
-              ```
-
-            </details>
-
-            Complete output(might be large):
-            <details>
-
-              ```diff
-              ${{ steps.ruff_complete.outputs.content }}
-              ```
-              
-            </details>
+            Ruff output is attached as a workflow artifact to avoid oversized PR comments.
         env:
           URL: https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}?check_suite_focus=true
           

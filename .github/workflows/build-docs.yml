@@ -123,6 +123,8 @@ jobs:
           pip install sphinxcontrib-googleanalytics
 
       - name: Build documentation
+        env:
+          DISABLE_NBSPHINX: "1"
         run: cd docs/ && make html NCORES=auto
 
       - name: Set destination directory
