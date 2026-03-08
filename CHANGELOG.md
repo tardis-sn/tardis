@@ -1,5 +1,10 @@
 ## Changelog
 
+### release-2026.03.08 (2026/03/06 13:48)
+- [3482](https://github.com/tardis-sn/tardis/pull/3482) Disable IIP workflow notebook rendering (3482) (@andrewfullard)
+- [3420](https://github.com/tardis-sn/tardis/pull/3420) Greatly simplify benchmarks (3420) (@andrewfullard)
+- [3476](https://github.com/tardis-sn/tardis/pull/3476) Benchmarks Pinned Environment (3476) (@atharva-2001)
+- [3474](https://github.com/tardis-sn/tardis/pull/3474) Post-release 2026.03.01 (3474) (@tardis-bot)
 ### release-2026.03.01 (2026/02/24 10:05)
 - [3448](https://github.com/tardis-sn/tardis/pull/3448) Post Release Workflow Dispatch (3448) (@atharva-2001)
 - [3456](https://github.com/tardis-sn/tardis/pull/3456) Post-release 2026.02.22 (3456) (@tardis-bot)
