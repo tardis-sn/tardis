@@ -11,11 +11,6 @@ from tardis.plasma.radiation_field import (
 from tardis.util.base import intensity_black_body
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-
 @pytest.fixture
 def dilute_rad_field():
     """A simple DilutePlanckianRadiationField with 3 shells."""
@@ -28,11 +23,6 @@ def dilute_rad_field():
 def sample_nu():
     """A small array of frequencies covering optical/UV range."""
     return np.array([5e14, 1e15, 2e15]) * u.Hz
-
-
-# ---------------------------------------------------------------------------
-# Construction / Validation Tests
-# ---------------------------------------------------------------------------
 
 
 class TestDilutePlanckianRadiationFieldInit:
@@ -60,7 +50,7 @@ class TestDilutePlanckianRadiationFieldInit:
     def test_init_mismatched_lengths_raises(self):
         """AssertionError when len(temperature) != len(dilution_factor)."""
         temperature = [10000, 12000] * u.K
-        dilution_factor = np.array([0.5, 0.3, 0.1])  # length 3, not 2
+        dilution_factor = np.array([0.5, 0.3, 0.1])
         with pytest.raises(AssertionError):
             DilutePlanckianRadiationField(temperature, dilution_factor)
 
@@ -93,11 +83,6 @@ class TestDilutePlanckianRadiationFieldInit:
         assert rad_field.dilution_factor[0] == 0.0
 
 
-# ---------------------------------------------------------------------------
-# Property Tests
-# ---------------------------------------------------------------------------
-
-
 class TestDilutePlanckianRadiationFieldProperties:
     """Tests for class properties."""
 
@@ -108,18 +93,11 @@ class TestDilutePlanckianRadiationFieldProperties:
         npt.assert_array_equal(T_K, [10000.0, 12000.0, 15000.0])
 
     def test_temperature_kelvin_unit_conversion(self):
-        """temperature_kelvin correctly converts from non-Kelvin input."""
-        temperature = [0, 100, 200] * u.Celsius + 273.15 * u.K
-        # Construct a simple valid field (all-positive after conversion)
+        """temperature_kelvin correctly converts from Kelvin input."""
         temperature_K = np.array([273.15, 373.15, 473.15]) * u.K
         dilution_factor = np.array([0.1, 0.2, 0.3])
         rad_field = DilutePlanckianRadiationField(temperature_K, dilution_factor)
         npt.assert_allclose(rad_field.temperature_kelvin, [273.15, 373.15, 473.15])
-
-
-# ---------------------------------------------------------------------------
-# calculate_mean_intensity Tests
-# ---------------------------------------------------------------------------
 
 
 class TestDilutePlanckianRadiationFieldMeanIntensity:
@@ -128,18 +106,12 @@ class TestDilutePlanckianRadiationFieldMeanIntensity:
     def test_mean_intensity_shape(self, dilute_rad_field, sample_nu):
         """Output shape is (n_frequencies, n_shells)."""
         result = dilute_rad_field.calculate_mean_intensity(sample_nu)
-        # 3 frequencies × 3 shells
         assert result.shape == (3, 3)
 
     def test_mean_intensity_equals_dilution_times_blackbody(
         self, dilute_rad_field, sample_nu
     ):
-        """
-        J_nu = W * B_nu(T).
-
-        The diluted Planckian intensity must equal the dilution factor
-        multiplied by the undiluted Planck function, element-wise.
-        """
+        """J_nu = W * B_nu(T) verified numerically."""
         result = dilute_rad_field.calculate_mean_intensity(sample_nu)
 
         nu_cgs = sample_nu.to(u.Hz).value
@@ -151,12 +123,7 @@ class TestDilutePlanckianRadiationFieldMeanIntensity:
         npt.assert_allclose(result, expected, rtol=1e-10)
 
     def test_zero_dilution_gives_zero_intensity(self, sample_nu):
-        """
-        Shells with W=0 must have zero mean intensity.
-
-        This represents a radiation-free shell — the radiation field is
-        completely suppressed by geometry.
-        """
+        """Shells with W=0 must have zero mean intensity."""
         temperature = [10000, 12000, 15000] * u.K
         dilution_factor = np.array([0.0, 0.0, 0.0])
         rad_field = DilutePlanckianRadiationField(temperature, dilution_factor)
@@ -165,12 +132,7 @@ class TestDilutePlanckianRadiationFieldMeanIntensity:
         npt.assert_array_equal(result, 0.0)
 
     def test_unit_dilution_equals_pure_blackbody(self, sample_nu):
-        """
-        With W=1, DilutePlanckian must equal pure PlanckianRadiationField.
-
-        This is the physical limit: the dilution factor of 1 means the
-        observer is inside the photosphere, seeing the full blackbody.
-        """
+        """With W=1, DilutePlanckian must equal pure PlanckianRadiationField."""
         temperature = [10000, 12000, 15000] * u.K
         dilution_factor = np.ones(3)
 
@@ -188,14 +150,10 @@ class TestDilutePlanckianRadiationFieldMeanIntensity:
         assert np.all(result > 0)
 
     def test_mean_intensity_scales_linearly_with_dilution(self, sample_nu):
-        """
-        Doubling the dilution factor must double the mean intensity.
-
-        This directly verifies the linear scaling J = W * B_nu(T).
-        """
+        """Doubling the dilution factor must double the mean intensity."""
         temperature = [10000] * u.K
         W1 = np.array([0.2])
-        W2 = np.array([0.4])  # double
+        W2 = np.array([0.4])
 
         rad_field_1 = DilutePlanckianRadiationField(temperature, W1)
         rad_field_2 = DilutePlanckianRadiationField(temperature, W2)
@@ -206,12 +164,7 @@ class TestDilutePlanckianRadiationFieldMeanIntensity:
         npt.assert_allclose(result_2, 2 * result_1, rtol=1e-10)
 
     def test_mean_intensity_regression(self, dilute_rad_field, sample_nu, regression_data):
-        """
-        Pin calculate_mean_intensity output against regression data.
-
-        This test ensures that any change to the radiation field calculation
-        (Planck formula, dilution scaling, unit handling) is immediately caught.
-        """
+        """Pin calculate_mean_intensity output against regression data."""
         result = dilute_rad_field.calculate_mean_intensity(sample_nu)
         result_df = pd.DataFrame(
             result,
@@ -223,11 +176,6 @@ class TestDilutePlanckianRadiationFieldMeanIntensity:
         npt.assert_allclose(
             result_df.values, expected_df.values, rtol=1e-10
         )
-
-
-# ---------------------------------------------------------------------------
-# Conversion Test
-# ---------------------------------------------------------------------------
 
 
 class TestDilutePlanckianRadiationFieldConversion:
@@ -247,16 +195,10 @@ class TestDilutePlanckianRadiationFieldConversion:
         )
 
     def test_to_planckian_has_no_dilution(self, dilute_rad_field, sample_nu):
-        """
-        PlanckianRadiationField produced by conversion gives W=1 intensity.
-
-        This is the mathematical equivalent of removing the dilution factor —
-        the converted field represents the full blackbody.
-        """
+        """PlanckianRadiationField produced by conversion gives W=1 intensity."""
         planckian = dilute_rad_field.to_planckian_radiation_field()
         full_intensity = planckian.calculate_mean_intensity(sample_nu)
 
-        # Compare to manually constructed W=1 dilute field
         unit_dilute = DilutePlanckianRadiationField(
             dilute_rad_field.temperature, np.ones(3)
         )
