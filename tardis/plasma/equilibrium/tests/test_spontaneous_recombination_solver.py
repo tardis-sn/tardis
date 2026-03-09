@@ -95,5 +95,3 @@ hopefully this test passes for you.
 #     result = solver.solve(electron_temperature)
 
 #     assert result.loc[(1,0,0)].values[0] == 0
-
-tardis/plasma/equilibrium/tests/test_spontaneous_recombination_solver.py
