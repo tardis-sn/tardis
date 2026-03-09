@@ -11,11 +11,6 @@ from tardis.plasma.radiation_field import (
     PlanckianRadiationField,
 )
 
-
-# ---------------------------------------------------------------------------
-# Helpers / shared mock data
-# ---------------------------------------------------------------------------
-
 EXPECTED_INDEX_NAMES = [
     "atomic_number",
     "ion_number",
@@ -41,20 +36,14 @@ def _make_einstein_coefficients(
     A_ul=6.265e8,
     nu=2.47e15,
 ):
-    """
-    Build a minimal valid Einstein coefficient DataFrame with one transition.
-
-    Uses the Einstein relation:
-        B_ul = A_ul * c^2 / (2 * h * nu^3)
-        B_lu = g_u / g_l * B_ul   (assuming g_u = g_l = 1 for simplicity)
-    """
+    """Build a minimal valid Einstein coefficient DataFrame with one transition."""
     from tardis import constants
 
     c = constants.c.cgs.value
     h = constants.h.cgs.value
 
     B_ul = A_ul * c**2 / (2 * h * nu**3)
-    B_lu = B_ul  # equal statistical weights assumed
+    B_lu = B_ul
 
     index = pd.MultiIndex.from_tuples(
         [(atomic_number, ion_number, level_lower, level_upper)],
@@ -87,11 +76,6 @@ def minimal_solver(minimal_einstein_coefficients):
     return RadiativeRatesSolver(minimal_einstein_coefficients)
 
 
-# ---------------------------------------------------------------------------
-# Construction / Validation Tests
-# ---------------------------------------------------------------------------
-
-
 class TestRadiativeRatesSolverInit:
     """Tests for __init__ validation logic."""
 
@@ -100,7 +84,7 @@ class TestRadiativeRatesSolverInit:
         assert radiative_rate_solver is not None
         assert hasattr(radiative_rate_solver, "einstein_coefficients")
 
-    def test_init_stores_einstein_coefficients(self, minimal_solver, minimal_einstein_coefficients):
+    def test_init_stores_einstein_coefficients(self, minimal_solver):
         """Einstein coefficients DataFrame is stored on the object."""
         assert minimal_solver.einstein_coefficients is not None
         assert set(minimal_solver.einstein_coefficients.columns) >= {
@@ -141,14 +125,9 @@ class TestRadiativeRatesSolverInit:
             RadiativeRatesSolver(df)
 
     def test_init_inverted_level_numbers_raises(self):
-        """
-        AssertionError raised when level_number_lower >= level_number_upper.
-
-        The convention is that lower levels have smaller quantum numbers,
-        so level_number_lower must always be strictly less than level_number_upper.
-        """
+        """AssertionError raised when level_number_lower >= level_number_upper."""
         index = pd.MultiIndex.from_tuples(
-            [(1, 0, 1, 0)],  # lower=1, upper=0 — inverted
+            [(1, 0, 1, 0)],
             names=EXPECTED_INDEX_NAMES,
         )
         df = pd.DataFrame(
@@ -161,7 +140,7 @@ class TestRadiativeRatesSolverInit:
     def test_init_equal_level_numbers_raises(self):
         """AssertionError raised when level_number_lower == level_number_upper."""
         index = pd.MultiIndex.from_tuples(
-            [(1, 0, 0, 0)],  # lower == upper
+            [(1, 0, 0, 0)],
             names=EXPECTED_INDEX_NAMES,
         )
         df = pd.DataFrame(
@@ -172,13 +151,7 @@ class TestRadiativeRatesSolverInit:
             RadiativeRatesSolver(df)
 
     def test_init_sorts_index(self, minimal_einstein_coefficients):
-        """
-        Einstein coefficients are sorted by index after construction.
-
-        Sorted access is required for correct DataFrame alignment when
-        computing rates in solve().
-        """
-        # add a second row with a lower index to force re-sorting
+        """Einstein coefficients are sorted by index after construction."""
         extra_index = pd.MultiIndex.from_tuples(
             [(1, 0, 2, 3)], names=EXPECTED_INDEX_NAMES
         )
@@ -191,11 +164,6 @@ class TestRadiativeRatesSolverInit:
         assert solver.einstein_coefficients.index.is_monotonic_increasing
 
 
-# ---------------------------------------------------------------------------
-# solve() — Output Structure Tests
-# ---------------------------------------------------------------------------
-
-
 class TestRadiativeRatesSolverOutputStructure:
     """Tests for the structure of the DataFrame returned by solve()."""
 
@@ -205,22 +173,12 @@ class TestRadiativeRatesSolverOutputStructure:
         assert isinstance(result, pd.DataFrame)
 
     def test_solve_output_index_names(self, minimal_solver, minimal_rad_field):
-        """
-        Output DataFrame has the correct 6-level MultiIndex.
-
-        The index must encode both source and destination ion/level numbers
-        so it can be consumed directly by the rate matrix solver.
-        """
+        """Output DataFrame has the correct 6-level MultiIndex."""
         result = minimal_solver.solve(minimal_rad_field)
         assert list(result.index.names) == EXPECTED_OUTPUT_INDEX_NAMES
 
     def test_solve_output_row_count(self, minimal_solver, minimal_rad_field):
-        """
-        For N transitions, solve() produces 2N rows: one r_lu and one r_ul.
-
-        Both upward (absorption) and downward (emission) transitions must
-        appear for each spectral line.
-        """
+        """For N transitions, solve() produces 2N rows: one r_lu and one r_ul."""
         result = minimal_solver.solve(minimal_rad_field)
         n_transitions = len(minimal_solver.einstein_coefficients)
         assert len(result) == 2 * n_transitions
@@ -232,23 +190,13 @@ class TestRadiativeRatesSolverOutputStructure:
         assert result.shape[1] == n_shells
 
 
-# ---------------------------------------------------------------------------
-# solve() — Physical Formula Tests
-# ---------------------------------------------------------------------------
-
-
 class TestRadiativeRatesSolverFormulas:
     """Tests verifying the radiative rate equations are correctly implemented."""
 
     def test_r_lu_equals_B_lu_times_J(
         self, minimal_solver, minimal_rad_field, minimal_einstein_coefficients
     ):
-        """
-        r_lu = B_lu * J_nu.
-
-        This is the absorption rate (lower to upper). It depends only on
-        stimulated absorption — no spontaneous term exists going upward.
-        """
+        """r_lu = B_lu * J_nu (absorption, lower to upper, no spontaneous term)."""
         result = minimal_solver.solve(minimal_rad_field)
 
         B_lu = minimal_einstein_coefficients["B_lu"].values[0]
@@ -256,24 +204,15 @@ class TestRadiativeRatesSolverFormulas:
         J_nu = minimal_rad_field.calculate_mean_intensity(
             np.array([nu]) * u.Hz
         )
+        expected_r_lu = B_lu * J_nu[0]
 
-        expected_r_lu = B_lu * J_nu[0]  # single freq, single shell
-
-        # r_lu row: source=lower(0), dest=upper(1)
         r_lu_row = result.loc[(1, 0, 0, 0, 0, 1)]
         npt.assert_allclose(r_lu_row.values, expected_r_lu, rtol=1e-10)
 
     def test_r_ul_equals_B_ul_times_J_plus_A_ul(
         self, minimal_solver, minimal_rad_field, minimal_einstein_coefficients
     ):
-        """
-        r_ul = B_ul * J_nu + A_ul.
-
-        This is the de-excitation rate (upper to lower). It includes both
-        stimulated emission (B_ul * J) and spontaneous emission (A_ul).
-        The spontaneous term A_ul ensures downward transitions can occur
-        even with zero radiation field.
-        """
+        """r_ul = B_ul * J_nu + A_ul (stimulated + spontaneous emission)."""
         result = minimal_solver.solve(minimal_rad_field)
 
         A_ul = minimal_einstein_coefficients["A_ul"].values[0]
@@ -282,22 +221,15 @@ class TestRadiativeRatesSolverFormulas:
         J_nu = minimal_rad_field.calculate_mean_intensity(
             np.array([nu]) * u.Hz
         )
+        expected_r_ul = B_ul * J_nu[0] + A_ul
 
-        expected_r_ul = B_ul * J_nu[0] + A_ul  # single freq, single shell
-
-        # r_ul row: source=upper(1), dest=lower(0)
         r_ul_row = result.loc[(1, 0, 0, 0, 1, 0)]
         npt.assert_allclose(r_ul_row.values, expected_r_ul, rtol=1e-10)
 
     def test_zero_radiation_field_r_lu_is_zero(
         self, minimal_einstein_coefficients
     ):
-        """
-        With W=0, r_lu must be exactly zero.
-
-        There is no radiation to absorb, so no upward transitions can
-        occur via radiative absorption.
-        """
+        """With W=0, r_lu must be exactly zero (no radiation to absorb)."""
         rad_field = DilutePlanckianRadiationField(
             temperature=np.array([10000.0]) * u.K,
             dilution_factor=np.array([0.0]),
@@ -311,12 +243,7 @@ class TestRadiativeRatesSolverFormulas:
     def test_zero_radiation_field_r_ul_equals_A_ul(
         self, minimal_einstein_coefficients
     ):
-        """
-        With W=0, r_ul must equal exactly A_ul (spontaneous emission only).
-
-        Without any radiation field, stimulated emission is zero and only
-        spontaneous emission drives downward transitions.
-        """
+        """With W=0, r_ul must equal A_ul (spontaneous emission only)."""
         rad_field = DilutePlanckianRadiationField(
             temperature=np.array([10000.0]) * u.K,
             dilution_factor=np.array([0.0]),
@@ -331,12 +258,7 @@ class TestRadiativeRatesSolverFormulas:
     def test_r_ul_always_geq_A_ul(
         self, minimal_solver, minimal_rad_field, minimal_einstein_coefficients
     ):
-        """
-        r_ul >= A_ul for any non-negative radiation field.
-
-        Since r_ul = B_ul * J + A_ul and both B_ul and J are non-negative,
-        the stimulated term can only add to the spontaneous rate.
-        """
+        """r_ul >= A_ul for any non-negative radiation field."""
         result = minimal_solver.solve(minimal_rad_field)
         A_ul = minimal_einstein_coefficients["A_ul"].values[0]
         r_ul_row = result.loc[(1, 0, 0, 0, 1, 0)]
@@ -347,31 +269,19 @@ class TestRadiativeRatesSolverFormulas:
         result = minimal_solver.solve(minimal_rad_field)
         assert np.all(result.values >= 0)
 
-    def test_planckian_radiation_field_accepted(
-        self, minimal_solver, minimal_einstein_coefficients
-    ):
-        """
-        solve() works with PlanckianRadiationField (W=1) as input.
-
-        The solver must accept both dilute and pure Planckian radiation fields,
-        as they share the same calculate_mean_intensity interface.
-        """
+    def test_planckian_radiation_field_accepted(self, minimal_solver):
+        """solve() works with PlanckianRadiationField as input."""
         planck_field = PlanckianRadiationField(
             temperature=np.array([10000.0]) * u.K
         )
         result = minimal_solver.solve(planck_field)
         assert isinstance(result, pd.DataFrame)
-        assert len(result) == 2  # one r_lu + one r_ul
+        assert len(result) == 2
 
     def test_planckian_equals_unit_dilution(
         self, minimal_einstein_coefficients
     ):
-        """
-        PlanckianRadiationField gives same rates as DilutePlanckian with W=1.
-
-        This validates that the two radiation field types are consistent
-        at the W=1 physical limit.
-        """
+        """PlanckianRadiationField gives same rates as DilutePlanckian with W=1."""
         planck = PlanckianRadiationField(
             temperature=np.array([10000.0]) * u.K
         )
@@ -391,35 +301,23 @@ class TestRadiativeRatesSolverFormulas:
     def test_rates_scale_with_dilution_factor(
         self, minimal_einstein_coefficients
     ):
-        """
-        Doubling dilution factor doubles r_lu and increases r_ul by B_ul * delta_J.
-
-        Since r_lu = B_lu * W * B_nu(T), it scales linearly with W.
-        r_ul = B_ul * W * B_nu(T) + A_ul, so the stimulated part scales linearly
-        but the total does not double due to the constant A_ul offset.
-        """
+        """Doubling dilution factor doubles r_lu (r_lu = B_lu * W * B_nu)."""
         rad_field_1 = DilutePlanckianRadiationField(
             temperature=np.array([10000.0]) * u.K,
             dilution_factor=np.array([0.2]),
         )
         rad_field_2 = DilutePlanckianRadiationField(
             temperature=np.array([10000.0]) * u.K,
-            dilution_factor=np.array([0.4]),  # doubled
+            dilution_factor=np.array([0.4]),
         )
         solver = RadiativeRatesSolver(minimal_einstein_coefficients)
 
         result_1 = solver.solve(rad_field_1)
         result_2 = solver.solve(rad_field_2)
 
-        # r_lu doubles exactly
         r_lu_1 = result_1.loc[(1, 0, 0, 0, 0, 1)].values
         r_lu_2 = result_2.loc[(1, 0, 0, 0, 0, 1)].values
         npt.assert_allclose(r_lu_2, 2 * r_lu_1, rtol=1e-10)
-
-
-# ---------------------------------------------------------------------------
-# solve() — Regression Tests (using real Si Chianti atomic data)
-# ---------------------------------------------------------------------------
 
 
 class TestRadiativeRatesSolverRegression:
@@ -428,14 +326,7 @@ class TestRadiativeRatesSolverRegression:
     def test_solve_regression_dilute_planckian(
         self, radiative_rate_solver, regression_data
     ):
-        """
-        Pin full solve() output for Si I lines against regression data.
-
-        Uses a DilutePlanckianRadiationField with realistic supernova
-        photosphere conditions (T=10000 K, W=0.5) over 20 shells.
-        Any change to the rate equations, index construction, or unit
-        handling will be caught immediately by this test.
-        """
+        """Pin solve() output for Si I lines with dilute Planckian radiation field."""
         n_shells = 20
         rad_field = DilutePlanckianRadiationField(
             temperature=np.ones(n_shells) * 10000.0 * u.K,
@@ -450,13 +341,7 @@ class TestRadiativeRatesSolverRegression:
     def test_solve_regression_pure_planckian(
         self, radiative_rate_solver, regression_data
     ):
-        """
-        Pin solve() output for a pure PlanckianRadiationField (W=1).
-
-        This tests the W=1 limit separately from the dilute case
-        to confirm both radiation field types produce consistent,
-        reproducible results.
-        """
+        """Pin solve() output for Si I lines with pure Planckian radiation field."""
         n_shells = 20
         rad_field = PlanckianRadiationField(
             temperature=np.ones(n_shells) * 10000.0 * u.K
