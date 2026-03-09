@@ -1,10 +1,14 @@
 import pytest
-from tardis.visualization.tools.sdec_plot import SDECPlotter
 from matplotlib.testing.compare import compare_images
+
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 
 # check if lineid_plot is installed
 lineid_plot = pytest.importorskip("lineid_plot", reason="lineid_plot is not installed")
-from tardis.visualization.tools.lineid_plotter import lineid_plotter
+from tardis.visualization.tools.lineid_plotter import (  # noqa: E402
+    lineid_plotter,
+)
+
 
 @pytest.fixture(scope="module")
 def plotter(simulation_simple_tracked):
@@ -46,7 +50,7 @@ def plotter(simulation_simple_tracked):
 def test_lineid_plotter(
     regression_data, plotter, tmp_path, wavelengths, labels, style
 ):
-    ax = plotter.generate_plot_mpl()
+    ax = plotter.generate_plot_mpl(packets_mode="real")
     spectrum_wavelengths = plotter.plot_wavelength
     spectrum_data = plotter.modeled_spectrum_luminosity
 
