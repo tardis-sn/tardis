@@ -1,0 +1,76 @@
+name: Close Non-Compliant PRs
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  close-non-compliant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close PRs labeled auto-close-pending for 48+ hours
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          script: |
+            const label = 'auto-close-pending';
+
+            // Get all open issues/PRs with the label
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: label,
+              state: 'open',
+              per_page: 100
+            });
+
+            const now = new Date();
+
+            for (const issue of issues) {
+              // Skip non-PRs (issues.listForRepo returns both)
+              if (!issue.pull_request) continue;
+
+              // Find when the label was most recently added
+              const { data: events } = await github.rest.issues.listEvents({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number
+              });
+
+              const labelEvent = events
+                .reverse()
+                .find(e => e.event === 'labeled' && e.label.name === label);
+
+              if (!labelEvent) continue;
+
+              const labeledAt = new Date(labelEvent.created_at);
+              const hoursSinceLabel = (now - labeledAt) / (1000 * 60 * 60);
+
+              const HOURS_THRESHOLD = 48;
+              if (hoursSinceLabel >= HOURS_THRESHOLD) {
+                // Close the PR
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: issue.number,
+                  state: 'closed'
+                });
+
+                // Leave a comment explaining why
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: [
+                    '**This PR has been automatically closed** after 48 hours of non-compliance with contribution guidelines.',
+                    '',
+                    'If you believe this was in error, please fix the issues mentioned above and reopen the PR.'
+                  ].join('\n')
+                });
+
+                console.log(`Closed PR #${issue.number} (labeled ${hoursSinceLabel.toFixed(1)}h ago)`);
+              } else {
+                console.log(`PR #${issue.number} labeled ${hoursSinceLabel.toFixed(1)}h ago - not yet 48h`);
+              }
+            }
