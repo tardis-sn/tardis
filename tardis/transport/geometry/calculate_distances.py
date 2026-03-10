@@ -91,7 +91,8 @@ def calculate_distance_line(
 
     # for numerical reasons, if line is too close, we set the distance to 0.
     if abs(nu_diff / nu) < CLOSE_LINE_THRESHOLD:
-        nu_diff = 0.0
+        # nu_diff = 0.0
+        return 0.0
 
     if nu_diff >= 0:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
