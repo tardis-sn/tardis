@@ -62,7 +62,7 @@ nlte_properties = PlasmaPropertyCollection(
     ]
 )
 nlte_root_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTEPopulationSolverRoot]
+    [NLTEIndexHelper, NLTEPopulationSolverRoot, PreviousIonNumberDensity]
 )
 nlte_lu_solver_properties = PlasmaPropertyCollection(
     [NLTEIndexHelper, NLTEPopulationSolverLU]

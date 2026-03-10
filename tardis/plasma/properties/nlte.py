@@ -9,6 +9,7 @@ from tardis.plasma.properties.base import (
 __all__ = [
     "PreviousElectronDensities",
     "PreviousBetaSobolev",
+    "PreviousIonNumberDensity",
 ]
 
 logger = logging.getLogger(__name__)
@@ -47,3 +48,16 @@ class PreviousBetaSobolev(PreviousIterationProperty):
             columns=kwargs["number_density"].columns,
         )
         self._set_initial_value(initial_value)
+
+
+class PreviousIonNumberDensity(PreviousIterationProperty):
+    """
+    Attributes
+    ----------
+    previous_ion_number_density : The ion number densities converged upon in the previous iteration.
+    """
+
+    outputs = ("previous_ion_number_density",)
+
+    def set_initial_value(self, kwargs):
+        self._set_initial_value(None)
