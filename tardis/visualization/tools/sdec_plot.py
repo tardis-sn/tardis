@@ -565,6 +565,7 @@ class SDECPlotter:
                             self._color_list[species_counter]
                         ),
                         hoverlabel={"namelength": -1},
+                        showlegend=False,
                         **base_kwargs,
                     )
                 )
