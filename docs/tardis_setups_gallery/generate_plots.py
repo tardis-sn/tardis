@@ -10,9 +10,9 @@ import argparse
 import os
 import sys
 
-import matplotlib
+import matplotlib as mpl
 
-matplotlib.use("Agg")
+mpl.use("Agg")
 import matplotlib.pyplot as plt
 
 from tardis import run_tardis
@@ -131,3 +131,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
