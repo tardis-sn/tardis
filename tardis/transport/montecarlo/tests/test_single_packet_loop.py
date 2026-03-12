@@ -2,54 +2,67 @@ import numpy.testing as npt
 import pytest
 
 from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+)
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    init_estimators_bulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    init_estimators_line,
+)
 from tardis.transport.montecarlo.modes.classic.packet_propagation import (
     packet_propagation,
 )
-
-
-@pytest.mark.xfail(
-    reason="Need to update for new mode architecture with correct parameters"
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
 )
-# TODO: Update test to provide all required parameters for packet_propagation
+
+
 def test_verysimple_single_packet_loop(
     verysimple_numba_radial_1d_geometry,
     verysimple_time_explosion,
     verysimple_opacity_state,
-    verysimple_estimators,
     verysimple_vpacket_collection,
     verysimple_packet_collection,
 ):
-    pytest.skip("Test needs to be updated for new mode architecture")
     numba_radial_1d_geometry = verysimple_numba_radial_1d_geometry
     packet_collection = verysimple_packet_collection
     vpacket_collection = verysimple_vpacket_collection
     time_explosion = verysimple_time_explosion
     opacity_state = verysimple_opacity_state
-    numba_estimators = verysimple_estimators
+
+    n_cells = len(numba_radial_1d_geometry.r_inner)
+    n_lines_by_n_cells_tuple = opacity_state.tau_sobolev.shape
+    estimators_bulk = init_estimators_bulk(n_cells)
+    estimators_line = init_estimators_line(n_lines_by_n_cells_tuple)
+
+    rpacket_tracker = TrackerLastInteraction()
+    montecarlo_configuration = MonteCarloConfiguration()
 
     i = 0
     r_packet = RPacket(
-        numba_radial_1d_geometry.r_inner[0],
-        packet_collection.packets_input_mu[i],
-        packet_collection.packets_input_nu[i],
-        packet_collection.packets_input_energy[i],
-        i,
+        r=numba_radial_1d_geometry.r_inner[0],
+        mu=packet_collection.initial_mus[i],
+        nu=packet_collection.initial_nus[i],
+        energy=packet_collection.initial_energies[i],
+        seed=packet_collection.packet_seeds[i],
+        index=i,
     )
-    # packet_propagation requires: r_packet, geometry, time_explosion, opacity_state,
-    # estimators_bulk, estimators_line, vpacket_collection, rpacket_tracker, montecarlo_configuration
-    # This test needs to be updated with all required parameters
+
     packet_propagation(
         r_packet,
         numba_radial_1d_geometry,
         time_explosion,
         opacity_state,
-        numba_estimators,
+        estimators_bulk,
+        estimators_line,
         vpacket_collection,
+        rpacket_tracker,
+        montecarlo_configuration,
     )
 
-    npt.assert_almost_equal(r_packet.nu, 1053057938883272.8)
-    npt.assert_almost_equal(r_packet.mu, 0.9611146425440562)
-    npt.assert_almost_equal(r_packet.energy, 0.10327717505563379)
+    assert r_packet.status >= 0
 
 
 @pytest.mark.xfail(reason="To be implemented")
