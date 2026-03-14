@@ -12,23 +12,23 @@ preferred_mode = None
 
 def ssh_jh():
     """Initialize panel for JupyterHub (colab comms)"""
-    pn.extension(comms="ipywidgets")
+    pn.extension("tabulator", "plotly", comms="ipywidgets")
 
 def notebook():
     """Initialize panel for standard Jupyter notebook (default comms)"""
-    pn.extension(comms="ipywidgets")
+    pn.extension("tabulator", "plotly", comms="ipywidgets")
 
 def vscode():
     """Initialize panel for VSCode (ipywidgets comms)"""
-    pn.extension(comms="ipywidgets")
+    pn.extension("tabulator", "plotly", comms="ipywidgets")
 
 def vscode_noipy():
     """Initialize panel for VSCode without ipywidgets (vscode comms)"""
-    pn.extension(comms="vscode")
+    pn.extension("tabulator", "plotly", comms="vscode")
 
 def sphinx():
     """Initialize panel for Sphinx documentation builds"""
-    pn.extension("ipywidgets")
+    pn.extension("tabulator", "plotly", "ipywidgets")
 
 def auto():
     """Auto-detect environment and initialize panel"""
@@ -43,18 +43,13 @@ def auto():
     
     # Otherwise auto-detect
     if Environment.is_sshjh():
-        print("Auto-detected JupyterHub environment")
         ssh_jh()
     elif Environment.is_vscode():
-        print("Auto-detected VSCode environment")
         vscode()
     elif Environment.is_notebook():
-        print("Auto-detected Jupyter notebook environment")
         notebook()
     elif Environment.is_sphinx():
-        print("Auto-detected Sphinx build environment")
         sphinx()
-    else:
-        print("Defaulting to default panel comms.")
+    elif not Environment.is_terminal():
         pn.extension()
 
