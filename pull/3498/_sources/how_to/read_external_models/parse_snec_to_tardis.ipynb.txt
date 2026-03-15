@@ -1,0 +1,395 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**This notebook is not run by nbsphinx as the data is not available but can be used as a guide.**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from pathlib import Path\n",
+    "\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "from astropy import units as u\n",
+    "from matplotlib import pyplot as plt\n",
+    "from radioactivedecay.utils import Z_DICT\n",
+    "from scipy import interpolate\n",
+    "\n",
+    "from tardis.io.model.readers.snec.snec_input import read_snec_isotope_profile\n",
+    "from tardis.io.model.readers.snec.snec_output import read_snec_output"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SNEC_FOLDER_PATH = Path(\n",
+    "    \"~/Downloads/tardis-data/MESA_STIR_MESA_SNEC\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Convert SNEC to TARDIS configs "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "input_isotope_fraction = read_snec_isotope_profile(\n",
+    "    SNEC_FOLDER_PATH / \"input\" / \"profile8.data.iso.dat\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "input_isotope_fraction_da = input_isotope_fraction.to_xr_array()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "snec_output = read_snec_output(SNEC_FOLDER_PATH)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Build the full dataset using the SNECOutput helper\n",
+    "snec_output_ds = snec_output.to_xr_dataset()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "snec_output_ds.enclosed_mass"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "enclosed_mass_snec = snec_output_ds.enclosed_mass.values\n",
+    "interpolated_isotope_fraction = interpolate.interp1d(\n",
+    "    input_isotope_fraction.enclosed_mass,\n",
+    "    input_isotope_fraction.isotope_mass_fraction.values.T,\n",
+    "    bounds_error=False,\n",
+    "    fill_value=np.nan,\n",
+    ")(enclosed_mass_snec)\n",
+    "\n",
+    "interpolated_isotope_fraction_df = pd.DataFrame(\n",
+    "    data=interpolated_isotope_fraction,\n",
+    "    index=input_isotope_fraction.isotope_mass_fraction.columns,\n",
+    ")\n",
+    "\n",
+    "# Removing Neutron Fraction\n",
+    "interpolated_isotope_fraction_df.drop([(0, 1)], axis=0, inplace=True)\n",
+    "\n",
+    "# Normalizing the isotope fractions\n",
+    "interpolated_isotope_fraction_df = (\n",
+    "    interpolated_isotope_fraction_df / interpolated_isotope_fraction_df.sum(axis=0)\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "interpolated_isotope_fraction_df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Drop the first time step and the innermost cell\n",
+    "snec_output_ds = snec_output_ds.isel(time=slice(1, None), cell_id=slice(0, None))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Explorational Plotting"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "\n",
+    "fig, ax = plt.subplots(figsize=(8, 6))\n",
+    "vel = snec_output_ds.vel\n",
+    "radius = snec_output_ds.radius\n",
+    "for requested_t_idx in range(1, 10):\n",
+    "    radius_au = (radius.isel(time=requested_t_idx).values * u.cm).to(u.AU)[1:]\n",
+    "    vel_kms = (vel.isel(time=requested_t_idx).values * u.cm / u.s).to(u.km / u.s)[1:]\n",
+    "    current_time = snec_output_ds.time.values[requested_t_idx] * u.s\n",
+    "    homology_kms = (radius_au / current_time).to(u.km / u.s)\n",
+    "\n",
+    "    ax.plot(\n",
+    "        radius_au.value / radius_au.max(),\n",
+    "        ((vel_kms - homology_kms) / homology_kms).to(1).value,\n",
+    "        label=f\"time={current_time.to(u.day):.2f}\",\n",
+    "        marker=\"|\",\n",
+    "    )\n",
+    "ax.axhline(0, color=\"black\", linestyle=\"--\", lw=3)\n",
+    "ax.set_xlabel(\"Radius (normalized)\")\n",
+    "ax.set_ylabel(\"Fractional Difference $(v - v_{hom})/v_{hom}$\")\n",
+    "ax.set_title(\"Fractional Difference: Actual vs Homology Velocity\")\n",
+    "ax.legend()\n",
+    "plt.tight_layout()\n",
+    "plt.show()\n",
+    "plt.savefig(\"homology_reached.pdf\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "\n",
+    "fig, ax = plt.subplots(figsize=(8, 6))\n",
+    "ax.plot(\n",
+    "    (snec_output_ds.time.values[1:] * u.s).to(u.day),\n",
+    "    (snec_output_ds.vel_photo.values * (u.cm / u.s)).to(u.km / u.s)[1:],\n",
+    ")  # km/s\n",
+    "ax.set_xlabel(\"Time [days]\")\n",
+    "ax.set_ylabel(\"Photosphere Velocity [km/s]\")\n",
+    "ax.set_title(\"Photosphere Velocity Evolution\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Setting photospheric phase "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "\n",
+    "GAMMA_RAY_ESCAPE_THRESHOLD = 0.2  # used in Lu et al. 2024\n",
+    "\n",
+    "fig, ax = plt.subplots(figsize=(8, 6))\n",
+    "fraction_gamma_ray = (\n",
+    "    snec_output_ds.lum_observed.values[1:] - snec_output_ds.lum_photo.values[1:]\n",
+    ") / snec_output_ds.lum_observed.values[1:]\n",
+    "time_days = (snec_output_ds.time.values[1:] * u.s).to(u.day).value\n",
+    "ax.plot(time_days, fraction_gamma_ray, label=\"Gamma-ray Fraction\")\n",
+    "\n",
+    "ax.axhline(\n",
+    "    GAMMA_RAY_ESCAPE_THRESHOLD,\n",
+    "    color=\"black\",\n",
+    "    linestyle=\"--\",\n",
+    "    lw=3,\n",
+    "    label=\"Threshold (20%)\",\n",
+    ")\n",
+    "ax.set_xlabel(\"Time [days]\")\n",
+    "ax.set_ylabel(\"Fraction of Escaping Gamma-ray Luminosity\")\n",
+    "ax.set_title(\"Fraction of Escaping Gamma-ray Luminosity vs Time\")\n",
+    "\n",
+    "PHOTOSPHERE_START_INDEX = 1\n",
+    "PHOTOSPHERE_END_INDEX = np.abs(fraction_gamma_ray - GAMMA_RAY_ESCAPE_THRESHOLD).argmin()\n",
+    "\n",
+    "# Calculate photosphere times in days\n",
+    "photosphere_start_day = (\n",
+    "    (snec_output_ds.time.values[PHOTOSPHERE_START_INDEX] * u.s).to(u.day).value\n",
+    ")\n",
+    "photosphere_end_day = (\n",
+    "    (snec_output_ds.time.values[PHOTOSPHERE_END_INDEX] * u.s).to(u.day).value\n",
+    ")\n",
+    "\n",
+    "# Shade the photosphere region with axvspan\n",
+    "ax.axvspan(\n",
+    "    photosphere_start_day,\n",
+    "    photosphere_end_day,\n",
+    "    color=\"orange\",\n",
+    "    alpha=0.2,\n",
+    "    label=\"Photosphere Region\",\n",
+    ")\n",
+    "\n",
+    "# Add a textbox in the middle of the shaded region\n",
+    "midpoint = (photosphere_start_day + photosphere_end_day) / 2\n",
+    "ax.text(\n",
+    "    midpoint,\n",
+    "    GAMMA_RAY_ESCAPE_THRESHOLD + 0.05,\n",
+    "    \"Photospheric phase\",\n",
+    "    ha=\"center\",\n",
+    "    va=\"bottom\",\n",
+    "    fontsize=10,\n",
+    "    bbox=dict(facecolor=\"orange\", alpha=0.2, edgecolor=\"none\"),\n",
+    ")\n",
+    "\n",
+    "ax.legend()\n",
+    "plt.tight_layout()\n",
+    "plt.show()\n",
+    "plt.savefig(\"plots/gamma_ray_escape_photosphere.pdf\")\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "# Find the index in time_days closest to requested_time\n",
+    "requested_time = 120 * u.min\n",
+    "requested_t_idx = np.abs(time_days - requested_time.to(u.day).value).argmin()\n",
+    "x_axis_type = \"vel\"\n",
+    "\n",
+    "if x_axis_type != \"vel\":\n",
+    "    raise ValueError(\"does not work - fix the Unit Conversion\")\n",
+    "# Get the x-axis (enclosed mass) from the second time index onwards (skip time=0)\n",
+    "x_axis = snec_output_ds[x_axis_type].isel(time=requested_t_idx).values\n",
+    "\n",
+    "if x_axis_type == \"vel\":\n",
+    "    x_axis = (x_axis * u.cm / u.s).to(u.km / u.s).value\n",
+    "    x_axis_label = \"Velocity [km/s]\"\n",
+    "\n",
+    "if x_axis_type == \"mass\":\n",
+    "    x_axis = (x_axis * u.g).to(u.Msun).value\n",
+    "    x_axis_label = \"Enclosed Mass [Msun]\"\n",
+    "\n",
+    "if x_axis_type == \"radius\":\n",
+    "    x_axis = (x_axis * u.cm).to(u.Rsun).value\n",
+    "    x_axis_label = \"Radius [Rsun]\"\n",
+    "\n",
+    "\n",
+    "# Convert the multi_index of interpolated_isotope_fraction_df to isotope names\n",
+    "df_iso = interpolated_isotope_fraction_df.copy()\n",
+    "df_iso.index = [f\"{Z_DICT.get(z, z)}-{mass}\" for z, mass in df_iso.index]\n",
+    "plt.clf()\n",
+    "fig, ax = plt.subplots(figsize=(8, 6))\n",
+    "for isotope in df_iso.index:\n",
+    "    fraction = df_iso.loc[isotope]\n",
+    "    ax.plot(x_axis, fraction, label=f\"{isotope}\", alpha=0.5, marker=\"|\")\n",
+    "\n",
+    "photo_location_last = 1e99\n",
+    "# Add photosphere positions as vertical lines with time labels\n",
+    "\n",
+    "no_label = True\n",
+    "x_axis_span = x_axis.max() - x_axis.min()\n",
+    "for idx in range(PHOTOSPHERE_START_INDEX + 1, PHOTOSPHERE_END_INDEX + 1):\n",
+    "    snec_time_slice = snec_output_ds.isel(time=idx)\n",
+    "    photosphere_index = int(snec_time_slice.index_photo.values)\n",
+    "    photosphere_location = (\n",
+    "        (\n",
+    "            snec_time_slice.sel(cell_id=photosphere_index)[x_axis_type].values\n",
+    "            * u.cm\n",
+    "            / u.s\n",
+    "        )\n",
+    "        .to(u.km / u.s)\n",
+    "        .value\n",
+    "    )\n",
+    "    t_day = (snec_time_slice.time.values * u.s).to(u.day)\n",
+    "    if np.abs(photo_location_last - photosphere_location) < (x_axis_span / 20):\n",
+    "        continue\n",
+    "\n",
+    "    # Find the cell where velocity is closest to v_photo at time=0\n",
+    "    vel0_kms = (vel.isel(time=0).values[1:] * u.cm / u.s).to(u.km / u.s).value\n",
+    "\n",
+    "    ax.axvline(\n",
+    "        photosphere_location,\n",
+    "        color=\"black\",\n",
+    "        linestyle=\"--\",\n",
+    "        label=\"Photosphere position\" if no_label else \"\",\n",
+    "        lw=1,\n",
+    "    )\n",
+    "    no_label = False\n",
+    "    ax.text(\n",
+    "        photosphere_location,\n",
+    "        0.5,\n",
+    "        f\"{t_day:.1f}\",\n",
+    "        rotation=90,\n",
+    "        color=\"black\",\n",
+    "        va=\"center\",\n",
+    "        ha=\"right\",\n",
+    "        fontsize=8,\n",
+    "        alpha=0.7,\n",
+    "        transform=ax.get_xaxis_transform(),\n",
+    "    )\n",
+    "    photo_location_last = photosphere_location\n",
+    "\n",
+    "ax.set_xlabel(x_axis_label)\n",
+    "ax.set_ylabel(\"Isotope Mass Fraction\")\n",
+    "ax.set_title(\n",
+    "    f\"{x_axis_label} @time t={requested_time:.2f}[idx={requested_t_idx}] vs Isotope Fraction\"\n",
+    ")\n",
+    "ax.legend()\n",
+    "plt.tight_layout()\n",
+    "plt.show()\n",
+    "# plt.semilogy()\n",
+    "# plt.savefig(\"plots/isotope_fraction_photosphere_enclosed_mass.pdf\")\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "tardis-devel",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.2"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

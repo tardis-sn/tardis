@@ -1,0 +1,7 @@
+tardis.plasma.equilibrium.rates.photoionization\_strengths module
+=================================================================
+
+.. automodule:: tardis.plasma.equilibrium.rates.photoionization_strengths
+   :members:
+   :show-inheritance:
+   :undoc-members:
