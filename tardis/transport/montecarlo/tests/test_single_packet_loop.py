@@ -1,4 +1,4 @@
-import numpy.testing as npt
+import numpy as np
 import pytest
 
 from tardis.transport.montecarlo import RPacket
@@ -11,6 +11,7 @@ from tardis.transport.montecarlo.estimators.estimators_bulk import (
 from tardis.transport.montecarlo.estimators.estimators_line import (
     init_estimators_line,
 )
+from tardis.transport.montecarlo.interaction_events import LineInteractionType
 from tardis.transport.montecarlo.modes.classic.packet_propagation import (
     packet_propagation,
 )
@@ -39,8 +40,10 @@ def test_verysimple_single_packet_loop(
 
     rpacket_tracker = TrackerLastInteraction()
     montecarlo_configuration = MonteCarloConfiguration()
+    montecarlo_configuration.LINE_INTERACTION_TYPE = LineInteractionType.MACROATOM
 
     i = 0
+    np.random.seed(packet_collection.packet_seeds[i])
     r_packet = RPacket(
         r=numba_radial_1d_geometry.r_inner[0],
         mu=packet_collection.initial_mus[i],
@@ -62,7 +65,7 @@ def test_verysimple_single_packet_loop(
         montecarlo_configuration,
     )
 
-    assert r_packet.status >= 0
+    assert r_packet.status != 0
 
 
 @pytest.mark.xfail(reason="To be implemented")
