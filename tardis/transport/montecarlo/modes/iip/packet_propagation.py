@@ -83,8 +83,6 @@ def packet_propagation(
         Monte Carlo estimators for line-level radiation field quantities.
     estimators_continuum
         Monte Carlo estimators for continuum interaction quantities.
-    vpacket_collection
-        Collection for storing virtual packets when enabled.
     rpacket_tracker
         Tracker for recording packet interactions and trajectories.
     montecarlo_configuration
