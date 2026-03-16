@@ -32,8 +32,7 @@ def macro_atom_event(
     destination_level_idx: int,
     r_packet: RPacket,
     time_explosion: float,
-    opacity_state: OpacityStateNumba
-    | OpacityStateNumbaIIP,  # this currently either accepts the normal numba or the iip numba opacity state
+    opacity_state: OpacityStateNumba | OpacityStateNumbaIIP,
     enable_full_relativity: bool,
 ):
     """
