@@ -155,13 +155,13 @@ def packet_propagation(
             comov_nu,
             r_packet.energy * doppler_factor,
             r_packet.current_shell_id,
-            distance,
+            distance * doppler_factor,
             estimators_continuum,
             opacity_state.t_electrons[r_packet.current_shell_id],
             x_sect_bfs,
             current_continua,
             opacity_state.bf_threshold_list_nu,
-            chi_ff,
+            chi_ff * doppler_factor,
         )
 
         # Handle interaction types
