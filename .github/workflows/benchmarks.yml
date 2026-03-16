@@ -116,6 +116,7 @@ jobs:
           external_repository: tardis-sn/tardis-benchmarks
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
+          commit_message: "deploy: master - ${{ github.event.head_commit.message }}"
 
       - name: Run benchmarks for base and head commits of PR
         if: github.event_name == 'pull_request_target'
@@ -210,7 +211,8 @@ jobs:
           external_repository: tardis-sn/tardis-benchmarks
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
-      
+          commit_message: "deploy: PR #${{ github.event.number }} - ${{ github.event.pull_request.title }}"
+
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
         uses: peter-evans/find-comment@v1
