@@ -176,9 +176,6 @@ def trace_packet(
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
         # if we are interacting with the boundary or electron scattering
-        if cur_line_id == (len(opacity_state.line_list_nu) - 1):
-            # Treatment for last line
-            cur_line_id += 1
         if distance_continuum < distance_boundary:
             distance = distance_continuum
             # IIP mode: continuum processes always enabled
