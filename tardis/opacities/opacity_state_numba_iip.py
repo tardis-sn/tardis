@@ -182,5 +182,5 @@ class OpacityStateNumbaIIP:
             self.emissivities,
             self.photo_ion_activation_idx,
             self.k_packet_idx,
-            self.absorbing_markov_probabilities[:, i],
+            self.absorbing_markov_probabilities[i, :, :],
         )
