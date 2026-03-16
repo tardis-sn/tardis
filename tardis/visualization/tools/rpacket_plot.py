@@ -307,9 +307,17 @@ class RPacketPlotter:
                 y1=v_shells[shell_no],
             )
             if shell_no == 0:
-                # photosphere
+                # photosphere - drawn at half the inner shell radius so it is
+                # visually smaller than (and distinct from) the innermost shell
+                photo_r = v_shells[shell_no] * 0.5
                 self.fig.add_shape(
-                    **shape_props,
+                    type="circle",
+                    xref="x",
+                    yref="y",
+                    x0=-photo_r,
+                    y0=-photo_r,
+                    x1=photo_r,
+                    y1=photo_r,
                     line_color=self.theme_colors[theme][
                         "photosphere_line_color"
                     ],
