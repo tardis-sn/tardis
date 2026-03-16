@@ -131,7 +131,7 @@ def macro_atom_interaction_iip(
                     break
             else:
                 raise MacroAtomError(
-                    "MacroAtom failed to select an absorbing state. The absorbing Markov"  # noqa: S608
+                    "MacroAtom failed to select an absorbing state. The absorbing Markov"
                     "chain probabilities matrix may not be normalized or may contain only zeros. \n"
                     f"Attempted to activate from {activation_level_idx}."
                 )

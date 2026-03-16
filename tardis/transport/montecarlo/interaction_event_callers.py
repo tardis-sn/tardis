@@ -54,17 +54,11 @@ def macro_atom_event(
             destination_level_idx, r_packet.current_shell_id, opacity_state
         )
 
-    if (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.FF_EMISSION
-    ):
+    if transition_type == MacroAtomTransitionType.FF_EMISSION:
         free_free_emission(
             r_packet, time_explosion, opacity_state, enable_full_relativity
         )
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.BF_EMISSION
-    ):
+    elif transition_type == MacroAtomTransitionType.BF_EMISSION:
         bound_free_emission(
             r_packet,
             time_explosion,
@@ -73,10 +67,7 @@ def macro_atom_event(
             enable_full_relativity,
         )
 
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
-    ):
+    elif transition_type == MacroAtomTransitionType.ADIABATIC_COOLING:
         adiabatic_cooling(r_packet)  # Not sure this does anything yet
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
