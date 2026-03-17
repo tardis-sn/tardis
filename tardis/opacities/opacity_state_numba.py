@@ -8,6 +8,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
+### TODO: Remove all continuum attrs from this class
 @jitclass
 class OpacityStateNumba:
     electron_density: nb.float64[:]  # type: ignore[misc]
@@ -20,6 +21,7 @@ class OpacityStateNumba:
     transition_type: nb.int64[:]  # type: ignore[misc]
     destination_level_id: nb.int64[:]  # type: ignore[misc]
     transition_line_id: nb.int64[:]  # type: ignore[misc]
+    # Everything below this should be removed when we fully split the iip mode
     bf_threshold_list_nu: nb.float64[:]  # type: ignore[misc]
     p_fb_deactivation: nb.float64[:, :]  # type: ignore[misc]
     photo_ion_nu_threshold_mins: nb.float64[:]  # type: ignore[misc]
