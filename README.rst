@@ -30,8 +30,8 @@ stars (*supernovae*).
 .. image:: https://github.com/tardis-sn/tardis/actions/workflows/build-docs.yml/badge.svg
     :target: https://tardis-sn.github.io/tardis/index.html
 
-.. image:: https://img.shields.io/badge/benchmarks-passing-green
-    :target: https://github.com/tardis-sn/tardis/actions/workflows/benchmarks.yml
+.. image:: https://github.com/tardis-sn/tardis/actions/workflows/benchmarks.yml/badge.svg
+    :target: https://tardis-sn.github.io/tardis-benchmarks/
 
 .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/_static/ruff_badge.json
     :target: https://github.com/tardis-sn/tardis/actions/workflows/codestyle.yml
@@ -114,14 +114,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_18820071
+.. |CITATION| replace:: kerzendorf_2026_18906101
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.18820071-blue
-                 :target: https://doi.org/10.5281/zenodo.18820071
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.18906101-blue
+                 :target: https://doi.org/10.5281/zenodo.18906101
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_18820071,
+    @software{kerzendorf_2026_18906101,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -242,13 +242,13 @@ The following BibTeX entries are needed for the references:
                       Gajanan Nalbalwar, Rudraksh and
                       Sharma, Sampark and
                       Venkat, Shashank},
-      title        = {tardis-sn/tardis: TARDIS v2026.03.01},
+      title        = {tardis-sn/tardis: TARDIS v2026.03.08},
       month        = mar,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.03.01},
-      doi          = {10.5281/zenodo.18820071},
-      url          = {https://doi.org/10.5281/zenodo.18820071},
+      version      = {release-2026.03.08},
+      doi          = {10.5281/zenodo.18906101},
+      url          = {https://doi.org/10.5281/zenodo.18906101},
     }
 
 
