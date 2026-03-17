@@ -59,10 +59,12 @@ jobs:
           - label: osx-arm64
             os: macos-latest
             prefix: /Users/runner/miniconda3/envs/tardis
+            envfile: ./env-bench-pandas-unpinned-macos.yml
 
           - label: linux-64
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
+            envfile: ./env-bench-pandas-unpinned-linux.yml
     steps:
       - uses: actions/checkout@v5  
      
@@ -124,14 +126,35 @@ jobs:
         
    
 
-      - name: Setup LFS
-        uses: tardis-sn/tardis-actions/setup-lfs@main
-
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+      - name: Clone tardis-sn/tardis-regression-data
+        uses: actions/checkout@v4
         with:
-          os-label: ${{ matrix.label }}
-          lockfile-path: ./conda-${{ matrix.label }}.lock
+          repository: tardis-sn/tardis-regression-data
+          path: tardis-regression-data
+          lfs: false
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-files-list
+        working-directory: tardis-regression-data
+
+      - name: Restore LFS cache
+        uses: actions/cache/restore@v4
+        id: lfs-cache-regression-data
+        with:
+          path: tardis-regression-data/.git/lfs
+          key: tardis-regression-full-data-${{ hashFiles('tardis-regression-data/.lfs-files-list') }}-tardis-sn/tardis-regression-data-v1
+          fail-on-cache-miss: true
+
+      - name: Git LFS Checkout
+        run: git lfs checkout
+        working-directory: tardis-regression-data
+
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: ${{ matrix.envfile }}
+          environment-name: tardis
+          cache-environment: false
 
       - name: Install tardis editable
         if: ${{ !matrix.pip_git }}
@@ -171,11 +194,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Setup environment
-        uses: tardis-sn/tardis-actions/setup-env@main
+      - name: Setup Micromamba
+        uses: mamba-org/setup-micromamba@v2
         with:
-          os-label: linux-64
-          lockfile-path: ./conda-linux-64.lock
+          environment-file: ./env-bench-pandas-unpinned-linux.yml
+          environment-name: tardis
+          cache-environment: false
 
       # will download all artifacts(in this case all are coverage reports)
       - uses: actions/download-artifact@v6
