@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=0b4d4f7d"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=fec4c4bf"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -144,7 +144,7 @@ from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
 )
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -176,9 +176,6 @@ from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
     move_r_packet,
     trace_packet,
 )
-from tardis.transport.montecarlo.packets.packet_collections import (
-    VPacketCollection,
-)
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
@@ -195,7 +192,7 @@ def packet_propagation(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumba,
+    opacity_state: OpacityStateNumbaIIP,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
     estimators_continuum: EstimatorsContinuum,
@@ -226,8 +223,6 @@ def packet_propagation(
         Monte Carlo estimators for line-level radiation field quantities.
     estimators_continuum
         Monte Carlo estimators for continuum interaction quantities.
-    vpacket_collection
-        Collection for storing virtual packets when enabled.
     rpacket_tracker
         Tracker for recording packet interactions and trajectories.
     montecarlo_configuration
@@ -298,13 +293,13 @@ def packet_propagation(
             comov_nu,
             r_packet.energy * doppler_factor,
             r_packet.current_shell_id,
-            distance,
+            distance * doppler_factor,
             estimators_continuum,
             opacity_state.t_electrons[r_packet.current_shell_id],
             x_sect_bfs,
             current_continua,
             opacity_state.bf_threshold_list_nu,
-            chi_ff,
+            chi_ff * doppler_factor,
         )
 
         # Handle interaction types
@@ -492,7 +487,7 @@ def set_packet_props_full_relativity(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Mar 2026.
+      <span class="lastupdated">Last updated on 18 Mar 2026.
       </span></p>
   </div>
 
