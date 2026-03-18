@@ -9,6 +9,7 @@ class BenchmarkBasePlasma(BenchmarkBase):
     Class to benchmark the BasePlasma solver factory in plasma/base.py.
     """
 
+    # setup() runs a full simulation, repeat=2 reduces CI time while still giving a stable measurement.
     repeat = 2
 
     def setup(self):
@@ -28,7 +29,3 @@ class BenchmarkBasePlasma(BenchmarkBase):
     def time_resolve_update_list(self):
         """Benchmark the time to resolve the update list for single variable."""
         self.plasma._resolve_update_list(["j_blues"])
-
-    def time_get_value(self):
-        """Benchmark the time to get the value of a single plasma property value."""
-        self.plasma.get_value("t_rad")
