@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=231d4ad2"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=462f0ed5"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -140,7 +140,7 @@
 from numba import njit
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
 )
@@ -173,7 +173,7 @@ def trace_packet(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumba,
+    opacity_state: OpacityStateNumbaIIP,
     estimators_line: EstimatorsLine,
     chi_continuum: float,
     escat_prob: float,
@@ -192,7 +192,7 @@ def trace_packet(
     time_explosion
         Time since explosion in seconds
     opacity_state
-        Opacity state containing line list and tau sobolev
+        Opacity state containing properties of the plasma needed for transport, IIP specific
     estimators_line
         Line-level radiation field estimators
     chi_continuum
@@ -316,9 +316,6 @@ def trace_packet(
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
         # if we are interacting with the boundary or electron scattering
-        if cur_line_id == (len(opacity_state.line_list_nu) - 1):
-            # Treatment for last line
-            cur_line_id += 1
         if distance_continuum &lt; distance_boundary:
             distance = distance_continuum
             # IIP mode: continuum processes always enabled
@@ -424,7 +421,7 @@ def move_packet_across_shell_boundary(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 11 Mar 2026.
+      <span class="lastupdated">Last updated on 19 Mar 2026.
       </span></p>
   </div>
 
