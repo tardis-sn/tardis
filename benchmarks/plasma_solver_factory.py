@@ -50,4 +50,3 @@ class BenchmarkPlasmaSolverFactory(BenchmarkBase):
             self.dilute_planckian_radiation_field,
             self.time_explosion,
         )
-        
