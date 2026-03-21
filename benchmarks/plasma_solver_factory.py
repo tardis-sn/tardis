@@ -6,7 +6,7 @@ from tardis.plasma.assembly.base import PlasmaSolverFactory
 
 class BenchmarkPlasmaSolverFactory(BenchmarkBase):
     """
-    Benchmarks for the PlasmaSolverFactory workflow.
+    Benchmarks for the `PlasmaSolverFactory` workflow.
     """
 
     def setup(self):
@@ -44,7 +44,7 @@ class BenchmarkPlasmaSolverFactory(BenchmarkBase):
         )
 
     def time_assemble(self):
-        #only benchmarks the assemble step 
+        # Only benchmark the `assemble` step.
         self.solver.assemble(
             self.number_density,
             self.dilute_planckian_radiation_field,
