@@ -122,13 +122,15 @@ class MCTransportSolverIIP(HDFWriterMixin):
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
 
         geometry_state = simulation_state.geometry.to_numba()
+
+        ###
+        # Same fix as classic mode - the plasma already uses active shells only.
+        # Don't double-slice by the raw boundary indices.
+        ###
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
         )
-        opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
-        ]
 
         transport_state = MonteCarloTransportState(
             packet_collection,
