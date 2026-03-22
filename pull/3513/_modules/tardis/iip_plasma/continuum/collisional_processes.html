@@ -1,0 +1,496 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.iip_plasma.continuum.collisional_processes &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=808f810f"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.iip_plasma.continuum.collisional_processes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.iip_plasma.continuum.collisional_processes</h1><div class="highlight"><pre>
+<span></span>import numpy as np
+import pandas as pd
+
+import tardis.constants as const
+from tardis.iip_plasma.continuum.base import (
+    BoundFreeEnergyMixIn,
+    InverseProcess,
+    PhysicalContinuumProcess,
+)
+
+
+<div class="viewcode-block" id="CollisionalExcitation">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.collisional_processes.html#tardis.iip_plasma.continuum.collisional_processes.CollisionalExcitation">[docs]</a>
+class CollisionalExcitation(PhysicalContinuumProcess):
+    &quot;&quot;&quot;
+    Represents the process of collisional excitation.
+
+    Attributes
+    ----------
+    input: `tardis.iip_plasma.continuum.input_data.ContinuumInputData`-object
+        The common input data object.
+    rate_coefficient: pd.DataFrame
+        Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
+        per unit volume of the transition.
+    cooling_rate: pd.DataFrame
+        The rate per unit volume at which heat is converted into excitation energy by collisions.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    macro_atom_transitions: str
+        The type of transitions in the macro atom.
+    &quot;&quot;&quot;
+
+    name = &quot;collisional_excitation&quot;
+    macro_atom_transitions = &quot;up&quot;
+
+    def __init__(self, input_data, mode=&quot;Van Regemorter&quot;):
+        self.mode = mode
+        super(CollisionalExcitation, self).__init__(input_data)
+
+    def _calculate_rate_coefficient(self):
+        if self.mode == &quot;Van Regemorter&quot;:
+            return self._calculate_rate_coefficient_regemorter()
+        raise NotImplementedError
+
+    def _calculate_cooling_rate(self):
+        energy_lower = self._get_level_energy(self.level_lower_index)
+        energy_upper = self._get_level_energy(self.level_upper_index)
+        level_pop_lower = self._get_level_pop(self.level_lower_index)
+
+        cooling_rate = self.rate_coefficient.multiply(
+            energy_upper - energy_lower, axis=0
+        )
+        cooling_rate = cooling_rate.multiply(level_pop_lower, axis=0)
+        cooling_rate = cooling_rate.groupby(level=1).sum()
+        return cooling_rate
+
+    def _calculate_rate_coefficient_regemorter(self):
+        #        self.level_lower_index = self._get_level_lower_index()
+        #        self.level_upper_index = self._get_level_upper_index()
+        #        I_H = cconst.I_H
+        #        f_lu = self.input.lines.f_lu.values
+        #        n_e = self.electron_densities
+        #        nu_lines = self.input.lines.nu.values
+        #
+        #        coll_excitation_coeff = pd.DataFrame(14.5 * cconst.c0_reg * f_lu * (I_H / (const.h.cgs.value * nu_lines)) ** 2)
+        #        coll_excitation_coeff = coll_excitation_coeff.dot(pd.DataFrame(np.sqrt(self.t_electrons) * n_e).T)
+        #        u0 = nu_lines[np.newaxis].T / self.t_electrons * (const.h.cgs.value / const.k_B.cgs.value)
+        #        # mask_ions = lines.ion_number.values &gt; 0
+        #        # mask_ions = np.expand_dims(mask_ions, axis = 1) * np.ones(u0.shape[1], dtype=bool)
+        #        # mask_neutral = np.logical_not(mask_ions)
+        #        # TODO: gbar is 0.7 for transitions within a principal quantum number and is also different for neutral atoms
+        #        # Cloudy uses a value of gbar = h * nu / (k_B * T_e)/10 for neutral atoms
+        #        gamma = 0.276 * np.exp(u0) * expn(1, u0)
+        #        # gamma[np.logical_and(gamma &lt; 0.2, mask_ions)] = 0.2
+        #        gamma[gamma &lt; 0.2] = 0.2
+        #        factor = pd.DataFrame(u0 * np.exp(-u0) * gamma)
+        #        coll_excitation_coeff = coll_excitation_coeff.multiply(factor, axis=0)
+        #        # coll_excitation_coeff.set_index(self.level_lower_index.set_names[&#39;atomic_number&#39;,
+        #        # &#39;ion_number&#39;, &#39;source_level_number&#39;], inplace=True)
+        #        self._set_coll_excitation_coeff_index(coll_excitation_coeff)
+        #
+        self.level_lower_index = self.input.q_ij.index.droplevel(3)
+        self.level_upper_index = self.input.q_ij.index.droplevel(2)
+
+        q_ij = self._set_coll_excitation_coeff_index(
+            self.input.q_ij, inplace=False
+        )
+        coll_exc_coeff = q_ij * self.electron_densities
+        return coll_exc_coeff
+
+    # def _calculate_rate_coefficient_regemorter(self):
+    #     self.level_lower_index = self._get_level_lower_index()
+    #     self.level_upper_index = self._get_level_upper_index()
+    #     I_H = cconst.I_H
+    #     f_lu = self.input.lines.f_lu.values
+    #     n_e = self.electron_densities
+    #     nu_lines = self.input.lines.nu.values
+    #
+    #     coll_excitation_coeff = pd.DataFrame(14.5 * cconst.c0_reg * f_lu * (I_H / (const.h.cgs.value * nu_lines)) ** 2)
+    #     coll_excitation_coeff = coll_excitation_coeff.dot(pd.DataFrame(np.sqrt(self.t_electrons) * n_e).T)
+    #     u0 = nu_lines[np.newaxis].T / self.t_electrons * (const.h.cgs.value / const.k_B.cgs.value)
+    #     # mask_ions = lines.ion_number.values &gt; 0
+    #     # mask_ions = np.expand_dims(mask_ions, axis = 1) * np.ones(u0.shape[1], dtype=bool)
+    #     # mask_neutral = np.logical_not(mask_ions)
+    #     # TODO: gbar is 0.7 for transitions within a principal quantum number and is also different for neutral atoms
+    #     # Cloudy uses a value of gbar = h * nu / (k_B * T_e)/10 for neutral atoms
+    #     import ipdb; ipdb.set_trace()
+    #     g_bar = const.h.cgs.value * nu_lines[np.newaxis].T / (const.k_B.cgs.value * self.t_electrons)/10.
+    #     gamma = 0.276 * np.exp(u0) * expn(1, u0)
+    #     # gamma[np.logical_and(gamma &lt; 0.2, mask_ions)] = 0.2
+    #     gamma_old = gamma.copy()
+    #     gamma_old[gamma_old &lt; 0.2] = 0.2
+    #     index = np.where(gamma &lt; g_bar)
+    #     gamma[index] = g_bar[index]
+    #     factor = pd.DataFrame(u0 * np.exp(-u0) * gamma)
+    #     coll_excitation_coeff = coll_excitation_coeff.multiply(factor, axis=0)
+    #     # coll_excitation_coeff.set_index(self.level_lower_index.set_names[&#39;atomic_number&#39;,
+    #     # &#39;ion_number&#39;, &#39;source_level_number&#39;], inplace=True)
+    #     self._set_coll_excitation_coeff_index(coll_excitation_coeff)
+    #     return coll_excitation_coeff
+
+    def _set_coll_excitation_coeff_index(
+        self, coll_excitation_coeff, inplace=True
+    ):
+        source_level_idx = self._get_level_idx(self.level_lower_index)
+        destination_level_idx = self._get_level_idx(self.level_upper_index)
+        tmp_multi_index = pd.MultiIndex.from_arrays(
+            [source_level_idx, destination_level_idx],
+            names=[&quot;source_level_idx&quot;, &quot;destination_level_idx&quot;],
+        )
+        return coll_excitation_coeff.set_index(tmp_multi_index, inplace=inplace)
+
+    def _get_level_lower_index(self):
+        lines = self.input.lines
+        return pd.MultiIndex.from_arrays(
+            [
+                lines[&quot;atomic_number&quot;],
+                lines[&quot;ion_number&quot;],
+                lines[&quot;level_number_lower&quot;],
+            ]
+        )
+
+    def _get_level_upper_index(self):
+        lines = self.input.lines
+        return pd.MultiIndex.from_arrays(
+            [
+                lines[&quot;atomic_number&quot;],
+                lines[&quot;ion_number&quot;],
+                lines[&quot;level_number_upper&quot;],
+            ]
+        )
+
+    @property
+    def level_lower_energy(self):
+        return self._get_level_energy(self.level_lower_index)
+
+    @property
+    def level_upper_energy(self):
+        return self._get_level_energy(self.level_upper_index)</div>
+
+
+
+<div class="viewcode-block" id="CollisionalDeexcitation">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.collisional_processes.html#tardis.iip_plasma.continuum.collisional_processes.CollisionalDeexcitation">[docs]</a>
+class CollisionalDeexcitation(InverseProcess):
+    name = &quot;collisional_deexcitation&quot;
+    name_of_inverse_process = &quot;collisional_excitation&quot;
+    macro_atom_transitions = &quot;down&quot;
+
+    @classmethod
+    def _calculate_inverse_rate(cls, inverse_process):
+        &quot;&quot;&quot;
+        Obtains the rate coefficient for collisional deexcitation by detailed balancing of the collisional excitation
+        rates.
+
+        Parameters
+        ----------
+        inverse_process: `tardis.iip_plasma.continuum.collisional_processes.CollisionalExcitation`-object
+            Object representing the inverse process.
+
+        Returns
+        -------
+        recomb_coeff: pd.DataFrame
+            The rate coefficient for deexcitations by thermal electrons.
+        &quot;&quot;&quot;
+        rate_coefficient = inverse_process.rate_coefficient.swaplevel(
+            0, 1, axis=0
+        )
+        rate_coefficient.index.names = (
+            inverse_process.rate_coefficient.index.names[:]
+        )
+        lte_level_pop_lower = inverse_process._get_lte_level_pop(
+            inverse_process.level_lower_index
+        )
+        lte_level_pop_upper = inverse_process._get_lte_level_pop(
+            inverse_process.level_upper_index
+        )
+
+        rate = rate_coefficient * (lte_level_pop_lower / lte_level_pop_upper)
+        rate[np.isnan(rate)] = 0.0
+        return rate</div>
+
+
+
+<div class="viewcode-block" id="CollisionalRecombination">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.collisional_processes.html#tardis.iip_plasma.continuum.collisional_processes.CollisionalRecombination">[docs]</a>
+class CollisionalRecombination(InverseProcess):
+    name = &quot;collisional_recombination&quot;
+    name_of_inverse_process = &quot;collisional_ionization&quot;
+
+    @classmethod
+    def _calculate_inverse_rate(cls, inverse_process):
+        &quot;&quot;&quot;
+        Obtains the rate coefficient for collisional recombination by detailed balancing of the collisional ionization
+        rates.
+
+        Parameters
+        ----------
+        inverse_process: `tardis.iip_plasma.continuuma.continuum.collisional_processes.CollisionalIonization`-object
+            Object representing the inverse process.
+
+        Returns
+        -------
+        recomb_coeff: pd.DataFrame
+            The rate coefficient for collisional recombination.
+        &quot;&quot;&quot;
+        #        level_lower_index = inverse_process.rate_coefficient.index
+        #        lte_level_pop_lower = inverse_process._get_lte_level_pop(level_lower_index)
+        #        lte_pop_continuum = inverse_process._get_lte_ion_number_density(level_lower_index)
+        #        if (lte_pop_continuum  &lt;= 0).sum():
+        #            import pdb; pdb.set_trace()
+        #        rate_coeff = inverse_process.rate_coefficient * (lte_level_pop_lower / lte_pop_continuum)
+        #
+        #        rate_coeff = rate_coeff.divide(inverse_process.electron_densities, axis=1)
+        #
+        # Needed for consistency with the radiative recombination rate coefficient
+        rate_coeff = inverse_process.input.coll_recomb_coeff.multiply(
+            inverse_process.electron_densities
+        )
+        return rate_coeff</div>
+
+
+
+<div class="viewcode-block" id="CollisionalIonization">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.collisional_processes.html#tardis.iip_plasma.continuum.collisional_processes.CollisionalIonization">[docs]</a>
+class CollisionalIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
+    &quot;&quot;&quot;
+    Represents the process of collisional ionization.
+
+    Attributes
+    ----------
+    input: `tardis.iip_plasma.continuum.input_data.ContinuumInputData`-object
+        The common input data object.
+    rate_coefficient: pd.DataFrame
+        Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
+        per unit volume of the transition.
+    cooling_rate: pd.DataFrame
+        The rate per unit volume at which heat is converted into ionization energy by collisions.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    macro_atom_transitions: str
+        The type of transitions in the macro atom.
+    &quot;&quot;&quot;
+
+    name = &quot;collisional_ionization&quot;
+    macro_atom_transitions = &quot;continuum&quot;
+
+    def __init__(self, input_data):
+        super(CollisionalIonization, self).__init__(input_data)
+
+    def _calculate_rate_coefficient(self):
+        &quot;&quot;&quot;
+        Calculates the rate coefficient for ionization by thermal electrons using the Seaton
+        approximation (Equation 5-79 of Mihalas 1978).
+
+        Returns
+        -------
+        recomb_coeff: pd.DataFrame
+            The rate coefficient for collisional ionization.
+
+        &quot;&quot;&quot;
+        #        collion_coeff = self.photoionization_data.groupby(level=[0, 1, 2]).first()
+        #        factor = self._calculate_factor(collion_coeff[&#39;nu&#39;].values, index=collion_coeff.index)
+        #        collion_coeff = 1.55e13 * collion_coeff[&#39;x_sect&#39;]
+        #        ion_number = collion_coeff.index.get_level_values(1).values
+        #        collion_coeff.ix[ion_number == 0] *= 0.1
+        #        collion_coeff.ix[ion_number == 1] *= 0.2
+        #        collion_coeff.ix[ion_number &gt;= 2] *= 0.3
+        #        collion_coeff = factor.multiply(collion_coeff, axis=0)
+        #        collion_coeff = collion_coeff.multiply(self.electron_densities / np.sqrt(self.t_electrons), axis=1)
+
+        collion_coeff = self.input.coll_ion_coeff.multiply(
+            self.electron_densities
+        )
+        return collion_coeff
+
+    def _calculate_cooling_rate(self):
+        source_level_index = self.rate_coefficient.index
+        level_pop = self._get_level_pop(source_level_index)
+        coll_ion_cooling_rate = self.rate_coefficient.multiply(level_pop)
+        coll_ion_cooling_rate = coll_ion_cooling_rate.multiply(
+            self.nu_i * const.h.cgs.value, axis=0
+        )
+        continuum_idx = self._get_continuum_idx(coll_ion_cooling_rate.index)
+        coll_ion_cooling_rate.set_index(continuum_idx, inplace=True)
+        coll_ion_cooling_rate.index.set_names(&quot;continuum_idx&quot;)
+        return coll_ion_cooling_rate
+
+    def _calculate_factor(self, nu_ijk, index):
+        u0s = self._calculate_u0s(nu_ijk)
+        factor = 1.0 / u0s * np.exp(-u0s)
+        factor = pd.DataFrame(
+            factor, index=index, columns=np.arange(len(self.t_electrons))
+        )
+        return factor</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 22 Mar 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
