@@ -1,5 +1,12 @@
 ## Changelog
 
+### release-2026.03.22 (2026/03/21 22:05)
+- [3512](https://github.com/tardis-sn/tardis/pull/3512) Pre-release 2026.03.22 (3512) (@tardis-bot)
+- [3436](https://github.com/tardis-sn/tardis/pull/3436) Add iip opacity state and use absorbing markov chain transition probabilities (3436) (@jvshields)
+- [3495](https://github.com/tardis-sn/tardis/pull/3495) [GSOC] Fix flaky formal integral tests on Ubuntu runners by relaxing numerical tolerances (3495) (@adity1raut)
+- [3484](https://github.com/tardis-sn/tardis/pull/3484) Post-release 2026.03.08 (3484) (@tardis-bot)
+- [3492](https://github.com/tardis-sn/tardis/pull/3492) Revert "GSoC PR Management" (3492) (@andrewfullard)
+- [3464](https://github.com/tardis-sn/tardis/pull/3464) GSoC PR Management (3464) (@atharva-2001)
 ### release-2026.03.08 (2026/03/06 13:48)
 - [3482](https://github.com/tardis-sn/tardis/pull/3482) Disable IIP workflow notebook rendering (3482) (@andrewfullard)
 - [3420](https://github.com/tardis-sn/tardis/pull/3420) Greatly simplify benchmarks (3420) (@andrewfullard)
