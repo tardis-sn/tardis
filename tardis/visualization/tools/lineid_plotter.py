@@ -46,7 +46,6 @@ def lineid_plotter(
     ax: matplotlib.axes._subplots.AxesSubplot
         the original ax with the line markers plotted
     """
-
     if plotter_kwargs is None:
         plotter_kwargs = {}
 

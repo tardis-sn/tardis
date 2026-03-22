@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import yaml
+from IPython.display import display
 from astropy import units as u
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
@@ -1718,16 +1719,6 @@ class DensityEditor:
         new_value = obj.new
         self.data.density_t_0 = new_value * self.data.density_t_0.unit
 
-    def input_d_time_0_eventhandler(self, obj):
-        """Update density time 0 data when the widget gets new input.
-
-        Parameters
-        ----------
-        obj : traitlets.utils.bunch.Bunch
-            A dictionary holding the information about the change.
-        """
-        new_value = obj.new
-        self.data.density_t_0 = new_value * self.data.density_t_0.unit
 
     dtype_out = ipw.Output()
 
