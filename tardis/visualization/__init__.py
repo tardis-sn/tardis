@@ -12,7 +12,9 @@ from tardis.visualization.widgets.shell_info import (
     shell_info_from_simulation,
 )
 
+import logging
 
-print("Initializing tabulator and plotly panel extensions for widgets to work")
+logger = logging.getLogger(__name__)
+logger.info("Initializing tabulator and plotly panel extensions for widgets to work")
 import panel as pn
 pn.extension("tabulator", "plotly")

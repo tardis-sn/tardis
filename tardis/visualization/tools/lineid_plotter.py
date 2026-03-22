@@ -3,7 +3,9 @@ try:
     from lineid_plot import get_line_flux
 
 except ImportError:
-    print("Please pip install lineid_plot to use the lineid_plotter function")
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning("Please pip install lineid_plot to use the lineid_plotter function")
     raise
 
 

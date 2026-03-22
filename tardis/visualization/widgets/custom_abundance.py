@@ -1286,7 +1286,9 @@ class CustomAbundanceWidget:
             A box that contains all the widgets in the GUI.
         """
         if not Environment.allows_widget_display():
-            print("Please use a notebook to display the widget")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning("Please use a notebook to display the widget")
         else:
             # --------------Combine widget components--------------
             self.box_editor = ipw.HBox(
@@ -1445,7 +1447,9 @@ class CustomAbundanceWidget:
 
             f.write(yaml_output)
 
-        print("Saved Successfully!")
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info("Saved Successfully!")
 
     def write_csv_portion(self, path):
         """Write the CSV portion of the output file.

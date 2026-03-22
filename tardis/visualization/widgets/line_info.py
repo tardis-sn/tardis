@@ -693,7 +693,9 @@ class LineInfoWidget:
             Line info widget containing all component widgets
         """
         if not Environment.allows_widget_display():
-            print("Please use a notebook to display the widget")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning("Please use a notebook to display the widget")
         else:
             # Panel tables handle their own sizing
             self.total_packets_label.update_and_resize(0)
