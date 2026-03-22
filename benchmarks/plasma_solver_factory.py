@@ -1,4 +1,10 @@
+"""
+Basic TARDIS Benchmark.
+"""
+
 from copy import deepcopy
+
+from astropy import units as u
 
 from benchmarks.benchmark_base import BenchmarkBase
 from tardis.plasma.assembly.base import PlasmaSolverFactory
@@ -9,10 +15,15 @@ class BenchmarkPlasmaSolverFactory(BenchmarkBase):
     Benchmarks for the `PlasmaSolverFactory` workflow.
     """
 
+    repeat = 2
+
     def setup(self):
         self.config = self.config_verysimple
         self.nb_simulation = self.nb_simulation_verysimple
 
+        self.electron_densities = (
+            self.nb_simulation.plasma.electron_densities.values * (u.cm ** -3)
+        )
         self.selected_atomic_numbers = (
             self.nb_simulation.plasma.atomic_data.selected_atomic_numbers
         )
@@ -20,7 +31,7 @@ class BenchmarkPlasmaSolverFactory(BenchmarkBase):
             "tardis.plasma.properties.legacy_property_collections"
         )
 
-        self.number_density = self.nb_simulation.plasma.number_density
+        self.number_density = self.nb_simulation.plasma.number_density * (u.cm ** -3)
         self.dilute_planckian_radiation_field = (
             self.nb_simulation.plasma.dilute_planckian_radiation_field
         )
@@ -44,9 +55,9 @@ class BenchmarkPlasmaSolverFactory(BenchmarkBase):
         )
 
     def time_assemble(self):
-        # Only benchmark the `assemble` step.
         self.solver.assemble(
             self.number_density,
             self.dilute_planckian_radiation_field,
             self.time_explosion,
+            self.electron_densities,
         )
