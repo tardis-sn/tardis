@@ -141,3 +141,4 @@ def test_bb_zero_packets(self, blackbodysimplesource):
     assert len(nus) == 0
     assert len(mus) == 0
     assert len(energies) == 0
+    
