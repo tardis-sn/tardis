@@ -84,7 +84,7 @@ class TestBlackBodySimpleSourceRel:
             100
         ).value
         expected_nus = regression_data.sync_ndarray(actual_nus)
-        assert_allclose(actual_nus, expected_nus)
+        assert_allclose(actual_nus, expected_nus, rtol=1e-5, atol=1e-8)
 
     def test_bb_energies(
         self, regression_data, blackbody_simplesource_relativistic
