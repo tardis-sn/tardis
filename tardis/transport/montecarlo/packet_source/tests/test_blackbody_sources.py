@@ -116,3 +116,15 @@ class TestBlackBodySimpleSourceRel:
         assert_allclose(expected_bb.base_seed, actual_bb.base_seed)
         assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
         assert_allclose(expected_bb.time_explosion, actual_bb.time_explosion.value)
+
+def test_bb_single_packet(self, blackbodysimplesource):
+    """
+    Test behavior with a single packet to ensure functions handle minimal input correctly.
+    """
+    nus = blackbodysimplesource.create_packet_nus(1).value
+    mus = blackbodysimplesource.create_packet_mus(1)
+    energies = blackbodysimplesource.create_packet_energies(1).value
+
+    assert len(nus) == 1
+    assert len(mus) == 1
+    assert len(energies) == 1
