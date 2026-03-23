@@ -128,3 +128,4 @@ def test_bb_single_packet(self, blackbodysimplesource):
     assert len(nus) == 1
     assert len(mus) == 1
     assert len(energies) == 1
+    
