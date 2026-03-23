@@ -75,10 +75,3 @@ class OpacityReader:
             print(f"An error occurred while reading the file: {e}")
             return None
 
-# if __name__ == "__main__":
-#     file_path = "/home/Sanhik/tardis/Dataset/s92.201.gz"  # Replace with your actual file path
-#     reader_instance = reader(file_path,120, 20)
-#     data = reader_instance.read()
-#     if data is not None:
-#         print(data.to_string())  # Print the first few and last few rows of the DataFrame to see if the tool is working correct.
-
