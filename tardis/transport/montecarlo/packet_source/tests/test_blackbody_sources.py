@@ -128,4 +128,16 @@ def test_bb_single_packet(self, blackbodysimplesource):
     assert len(nus) == 1
     assert len(mus) == 1
     assert len(energies) == 1
-    
+
+def test_bb_zero_packets(self, blackbodysimplesource):
+    """
+    Test behavior when zero packets are requested.
+    Ensures functions handle empty input without errors.
+    """
+    nus = blackbodysimplesource.create_packet_nus(0).value
+    mus = blackbodysimplesource.create_packet_mus(0)
+    energies = blackbodysimplesource.create_packet_energies(0).value
+
+    assert len(nus) == 0
+    assert len(mus) == 0
+    assert len(energies) == 0
