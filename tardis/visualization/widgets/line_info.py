@@ -1,24 +1,27 @@
 """Class to create and display Line Info Widget."""
 
+import logging
+
 import numpy as np
 import pandas as pd
 import panel as pn
 from astropy import units as u
-
-from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure
+
 from tardis.analysis import LastLineInteraction
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.util.base import (
     species_string_to_tuple,
     species_tuple_to_string,
 )
-
+from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
-from tardis.util.environment import Environment
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+
+logger = logging.getLogger(__name__)
 
 
 class LineInfoWidget:
@@ -693,8 +696,6 @@ class LineInfoWidget:
             Line info widget containing all component widgets
         """
         if not Environment.allows_widget_display():
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning("Please use a notebook to display the widget")
         else:
             # Panel tables handle their own sizing

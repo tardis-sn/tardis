@@ -3,7 +3,6 @@ import pandas as pd
 import pytest
 
 from tardis.util.base import species_string_to_tuple
-
 from tardis.visualization.widgets.line_info import LineInfoWidget
 
 

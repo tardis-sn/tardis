@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 import panel as pn
 
@@ -7,6 +9,8 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import create_table_widget
+
+logger = logging.getLogger(__name__)
 
 
 class BaseShellInfo:
@@ -377,8 +381,6 @@ class ShellInfoWidget:
             Shell info widget containing all component widgets
         """
         if not Environment.allows_widget_display():
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning("Please use a notebook to display the widget")
         else:
             # Panel tables handle their own sizing automatically

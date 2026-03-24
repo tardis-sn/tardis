@@ -1,5 +1,6 @@
 """Class to create and display Custom Abundance Widget."""
 
+import logging
 from pathlib import Path
 
 import ipywidgets as ipw
@@ -7,8 +8,8 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import yaml
-from IPython.display import display
 from astropy import units as u
+from IPython.display import display
 from radioactivedecay import Nuclide
 from radioactivedecay.utils import Z_DICT, elem_to_Z
 
@@ -34,6 +35,8 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
@@ -1287,8 +1290,6 @@ class CustomAbundanceWidget:
             A box that contains all the widgets in the GUI.
         """
         if not Environment.allows_widget_display():
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning("Please use a notebook to display the widget")
         else:
             # --------------Combine widget components--------------
@@ -1448,8 +1449,6 @@ class CustomAbundanceWidget:
 
             f.write(yaml_output)
 
-        import logging
-        logger = logging.getLogger(__name__)
         logger.info("Saved Successfully!")
 
     def write_csv_portion(self, path):

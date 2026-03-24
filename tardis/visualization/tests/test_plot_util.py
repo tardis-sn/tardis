@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 from tardis.visualization.plot_util import (
     axis_label_in_latex,
     create_wavelength_mask,
@@ -14,7 +13,6 @@ from tardis.visualization.plot_util import (
     parse_species_list_util,
     to_rgb255_string,
 )
-from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
 
 class TestPlotUtil:

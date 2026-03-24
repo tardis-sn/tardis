@@ -610,8 +610,8 @@ class GrotrianPlot:
                     y=level_info.y_coord * np.ones(10),
                     mode="lines",
                     hovertemplate=f"Energy: {level_info.energy:.2e} eV<br>"
-                    + f"Population: {level_info.population:.2e}"
-                    + "<extra></extra>",
+                     f"Population: {level_info.population:.2e}"
+                     "<extra></extra>",
                     line=dict(
                         color="black",
                         width=level_info.level_width_coefficient
@@ -755,8 +755,8 @@ class GrotrianPlot:
                     if is_excitation
                     else [y_upper, y_lower],
                     hovertemplate=f"Count: {int(line_info.num_electrons)}<br>"
-                    + f"Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}"
-                    + "<extra></extra>",
+                     f"Wavelength: {wavelength:.2e} {ANGSTROM_SYMBOL}"
+                     "<extra></extra>",
                     marker=dict(
                         size=self.arrowhead_size,
                         color=color,
@@ -1177,7 +1177,7 @@ class GrotrianWidget:
             self.wavelength_range_selector.layout.visibility = "hidden"
             return
 
-        elif min_wavelength == max_wavelength:
+        if min_wavelength == max_wavelength:
             self.wavelength_range_selector.layout.visibility = "visible"
             self.wavelength_range_selector.disabled = True
         else:

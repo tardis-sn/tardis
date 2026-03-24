@@ -18,12 +18,12 @@ from tardis.visualization.widgets.shell_info import (
 
 __all__ = [
     "ConvergencePlots",
-    "LIVPlotter",
-    "RPacketPlotter",
-    "SDECPlotter",
     "CustomAbundanceWidget",
     "GrotrianWidget",
+    "LIVPlotter",
     "LineInfoWidget",
+    "RPacketPlotter",
+    "SDECPlotter",
     "shell_info_from_hdf",
     "shell_info_from_simulation",
 ]
@@ -31,4 +31,4 @@ __all__ = [
 logger = logging.getLogger(__name__)
 logger.info("Initializing tabulator and plotly panel extensions for widgets to work")
 
-pn.extension("tabulator", "plotly")
+pn.extension("tabulator", "plotly")
