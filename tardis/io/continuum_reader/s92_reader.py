@@ -4,7 +4,7 @@ Continuum Opacity Source Reader project where there will be an attempt to read f
 
 table that can be used by the project as a whole for TARDIS simulations.
 
-Date : 2024-06-11
+Date : 2026-03-21
 
 Author : Sanhik Nandi
 
@@ -12,8 +12,10 @@ Version : Prototype 0.01
 
 """
 
-import pandas as pd
 import gzip
+
+import pandas as pd
+
 
 class OpacityReader:
     """
@@ -26,6 +28,7 @@ class OpacityReader:
     2. read(): This is the core reader for the Continuum Opacity Source Reader project. This is the method used for
     the actual reading process and is used to work on the data. Returns the Pandas Dataframe.
     """
+
     def __init__(self, file_path, masking_value = None, skip_rows = 0):
         """
         Initializes the class Continuum Opacity Source Reader Class object with file and parsing parameters.
@@ -53,25 +56,21 @@ class OpacityReader:
         Returns :
                 Pandas Dataframe, containing the datatable extrapolated by the method.
         """
-        try:
-            column_names = ['index', 'log_t', 'log_r', 'opacity']
-            with gzip.open(self.file_path, 'rt') as f:
-                data = pd.read_csv(
+        column_names = ['index', 'log_t', 'log_r', 'opacity']
+        with gzip.open(self.file_path, 'rt') as f:
+               data = pd.read_csv(
                     f,
                     sep = r'\s+',
                     engine = 'python',
                     header = None,
                     skiprows = self.skip_rows
                 )
-            data.dropna(axis = 1, how = 'all', inplace = True)
-            data.columns = column_names
-            if (self.masking_value is not None):
+        data.dropna(axis = 1, how = 'all', inplace = True)
+        data.columns = column_names
+        if self.masking_value is not None:
                 data['index']=pd.to_numeric(data['index'], errors = 'coerce')
                 data = data.dropna(subset = ['index'])
                 data = data[data['index'] < self.masking_value]
+        return data
 
-            return data
-        except Exception as e:
-            print(f"An error occurred while reading the file: {e}")
-            return None
 
