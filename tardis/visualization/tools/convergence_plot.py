@@ -1,17 +1,16 @@
 """Convergence Plots to see the convergence of the simulation in real time."""
 
 from collections import defaultdict
-import warnings
 
 import ipywidgets as widgets
 import numpy as np
-from astropy import units as u
-from IPython.display import HTML, display
 
 # Added the below as a (temporary) workaround to the latex
 # labels on the convergence plots not rendering correctly.
 import plotly
 import plotly.graph_objects as go
+from astropy import units as u
+from IPython.display import HTML, display
 
 import tardis.visualization.plot_util as pu
 

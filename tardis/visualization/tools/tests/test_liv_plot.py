@@ -1,18 +1,15 @@
 from itertools import product
-from copy import deepcopy
 
 import astropy.units as u
 import numpy as np
+import pandas as pd
 import pytest
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
-
-import pandas as pd
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
 from tardis.visualization.tools.liv_plot import LIVPlotter
-from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
-from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
 RELATIVE_TOLERANCE_LIV=1e-12
 
@@ -304,8 +301,8 @@ class TestLIVPlotter:
                         path.vertices,
                         expected.get(
                             "plot_data_hdf/"
-                            + "polypath"
-                            + "ind_"
+                             "polypath"
+                             "ind_"
                             + str(index1)
                             + "ind_"
                             + str(index2)
@@ -512,25 +509,25 @@ class TestLIVPlotter:
         self, plotter_prepare_plot_data_from_workflow, liv_regression_data
     ):
         param_idx = plotter_prepare_plot_data_from_workflow._param_idx
-        
+
         for attribute in ["plot_data", "plot_colors", "new_bin_edges"]:
             if attribute == "plot_data" or attribute == "plot_colors":
                 regression_file = liv_regression_data / f"test_prepare_plot_data__plotter_prepare_plot_data{param_idx}-{attribute}__.npy"
                 expected = np.load(regression_file)
-                
+
                 plot_object = getattr(plotter_prepare_plot_data_from_workflow, attribute)
                 plot_object = [item for sublist in plot_object for item in sublist]
                 if all(isinstance(item, u.Quantity) for item in plot_object):
                     plot_object = [item.value for item in plot_object]
-                    
+
                 np.testing.assert_allclose(plot_object, expected, atol=0, rtol=RELATIVE_TOLERANCE_LIV)
             else:
                 regression_file = liv_regression_data / f"test_prepare_plot_data__plotter_prepare_plot_data{param_idx}-{attribute}__.npy"
                 expected = np.load(regression_file)
-                
+
                 plot_object = getattr(plotter_prepare_plot_data_from_workflow, attribute)
                 plot_object = plot_object.value
-                
+
                 np.testing.assert_allclose(plot_object, expected, atol=0, rtol=RELATIVE_TOLERANCE_LIV)
 
     @pytest.fixture(scope="class", params=list(enumerate(combinations)))
@@ -566,18 +563,18 @@ class TestLIVPlotter:
         _, plotter = plotter_generate_plot_mpl_from_workflow
         param_idx = plotter._param_idx
         regression_file = liv_regression_data / f"test_generate_plot_mpl__plotter_generate_plot_mpl{param_idx}__.h5"
-        
+
         # Compare species names and color lists
         expected_species = pd.read_hdf(regression_file, key="plot_data_hdf/_species_name")
         expected_colors = pd.read_hdf(regression_file, key="plot_data_hdf/_color_list")
         expected_step_x = pd.read_hdf(regression_file, key="plot_data_hdf/step_x")
         expected_step_y = pd.read_hdf(regression_file, key="plot_data_hdf/step_y")
-        
+
         np.testing.assert_array_equal(plotter._species_name, expected_species.values.flatten())
-        
+
         color_list = [item for subitem in plotter._color_list for item in subitem]
         np.testing.assert_allclose(color_list, expected_colors.values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_LIV)
-        
+
         np.testing.assert_allclose(plotter.step_x.value, expected_step_x.values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_LIV)
         np.testing.assert_allclose(plotter.step_y, expected_step_y.values.flatten(), atol=0, rtol=RELATIVE_TOLERANCE_LIV)
 
@@ -596,7 +593,7 @@ class TestLIVPlotter:
 
         plotter._prepare_plot_data(**params)
         plotter_from_workflow._prepare_plot_data(**params)
-        
+
         # Test that plot data arrays are identical
         for i, (sim_data, workflow_data) in enumerate(zip(plotter.plot_data, plotter_from_workflow.plot_data)):
             np.testing.assert_allclose(
@@ -608,13 +605,13 @@ class TestLIVPlotter:
     def test_mpl_image_workflow(self, plotter_generate_plot_mpl_from_workflow, tmp_path, liv_regression_data):
         fig, plotter = plotter_generate_plot_mpl_from_workflow
         param_idx = plotter._param_idx
-        
+
         # Save actual image
         actual_image_path = tmp_path / f"test_mpl_image_workflow_{param_idx}.png"
         fig.figure.savefig(actual_image_path)
-        
+
         # Path to expected image
         expected_image_path = liv_regression_data / f"test_mpl_image__plotter_generate_plot_mpl{param_idx}__.png"
-        
+
         # Compare images
         compare_images(str(expected_image_path), str(actual_image_path), tol=1e-3)

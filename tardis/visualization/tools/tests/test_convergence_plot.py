@@ -7,14 +7,9 @@ import plotly.graph_objects as go
 import pytest
 from astropy import units as u
 
-from tardis import run_tardis
-from tardis.visualization.tools.convergence_plot import (
-    ConvergencePlots
-)
-from collections import defaultdict
-import plotly.graph_objects as go
-from astropy import units as u
 import tardis.visualization.plot_util as pu
+from tardis import run_tardis
+from tardis.visualization.tools.convergence_plot import ConvergencePlots
 
 
 @pytest.fixture(scope="module", params=[0, 1, 2])

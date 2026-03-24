@@ -114,8 +114,7 @@ def calculate_absorption_luminosities(
                 "to plot luminosities instead of flux, set distance=None "
                 "or don't specify distance parameter in the function call."
             )
-        else:
-            lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
+        lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
     # Group packets_df by atomic number of elements with which packets
     # had their last absorption (interaction in)
     # or if species_list is requested then group by species id
@@ -272,8 +271,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
                 "to plot luminosities instead of flux, set distance=None "
                 "or don't specify distance parameter in the function call."
             )
-        else:
-            lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
+        lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
 
     # Histogram weights are packet luminosities or flux
@@ -309,7 +307,7 @@ def calculate_emission_luminosities(sim, packets_mode, packet_wvl_range, species
 
     # Contribution of packets which only experienced electron scattering
     mask_escatter = (
-        (packets_df["last_interaction_type"][packet_nu_range_mask] == InteractionType.ESCATTERING)
+        packets_df["last_interaction_type"][packet_nu_range_mask] == InteractionType.ESCATTERING
     ) & (
         packets_df["last_line_interaction_in_id"][packet_nu_range_mask]
         == InteractionType.NO_INTERACTION

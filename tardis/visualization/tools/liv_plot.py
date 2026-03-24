@@ -320,8 +320,7 @@ class LIVPlotter:
                     "No line interactions found in the packet data. "
                     "The LIV plot requires packets that underwent line interactions."
                 )
-            else:
-                raise ValueError("No species provided for plotting.")
+            raise ValueError("No species provided for plotting.")
         self.species = list(set(self._species_list) & set(species_in_model))
 
         if len(self.species) == 0:

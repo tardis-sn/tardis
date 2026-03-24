@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import re
+
 import panel as pn
 
 logger = logging.getLogger(__name__)
@@ -106,7 +107,7 @@ class PanelTableWidget:
                 self.table.selection = [row_position]  # Panel expects a list even for single selection
                 self._selected_rows = [row_position]
             except (KeyError, TypeError) as e:
-                print(f"Error selecting index {idx_val}: {e}")
+                logger.exception("Error selecting index %s", idx_val)
                 self.table.selection = []
                 self._selected_rows = []
 
