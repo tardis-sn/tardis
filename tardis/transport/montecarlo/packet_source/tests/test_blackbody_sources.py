@@ -147,11 +147,14 @@ def test_bb_negative_packets(self, blackbodysimplesource):
     Test behavior when negative packets are requested.
     Ensures proper error handling for invalid input.
     """
-    with pytest.raises(Exception):
+def test_bb_negative_packets(self, blackbodysimplesource):
+    """
+    Test behavior when negative packets are requested.
+    Ensures proper error handling for invalid input.
+    """
+    with pytest.raises(ValueError):
         blackbodysimplesource.create_packet_nus(-1)
-
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         blackbodysimplesource.create_packet_mus(-1)
-
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         blackbodysimplesource.create_packet_energies(-1)
