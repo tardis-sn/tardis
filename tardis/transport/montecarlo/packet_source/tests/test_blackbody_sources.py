@@ -141,3 +141,17 @@ def test_bb_zero_packets(self, blackbodysimplesource):
     assert len(nus) == 0
     assert len(mus) == 0
     assert len(energies) == 0
+
+def test_bb_negative_packets(self, blackbodysimplesource):
+    """
+    Test behavior when negative packets are requested.
+    Ensures proper error handling for invalid input.
+    """
+    with pytest.raises(Exception):
+        blackbodysimplesource.create_packet_nus(-1)
+
+    with pytest.raises(Exception):
+        blackbodysimplesource.create_packet_mus(-1)
+
+    with pytest.raises(Exception):
+        blackbodysimplesource.create_packet_energies(-1)
