@@ -1,0 +1,18 @@
+tardis.io.continuum\_reader package
+===================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.io.continuum_reader.s92_reader
+
+Module contents
+---------------
+
+.. automodule:: tardis.io.continuum_reader
+   :members:
+   :show-inheritance:
+   :undoc-members:

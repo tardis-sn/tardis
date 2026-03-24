@@ -1,0 +1,459 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=33a0bec6"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/io/continuum_reader/tutorial_run_cor.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <dl>
+<dt>{</dt><dd><dl>
+<dt>“cells”: [</dt><dd><dl>
+<dt>{</dt><dd><p>“cell_type”: “markdown”,
+“id”: “eebe455247b16260”,
+“metadata”: {</p>
+<blockquote>
+<div><p>“collapsed”: true,
+“jupyter”: {</p>
+<blockquote>
+<div><p>“outputs_hidden”: true</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“##Continuum Opacity Source Reader:n”,
+“n”,
+“##Version: Prototype 0.01n”,
+“n”,
+“##Author: Sanhik Nandin”,
+“n”,
+“##Date: 22-3-24n”,
+“n”,
+“Welcome to the Continuum Opacity Source Reader. This Notebook is a step by step walkthrough of how we can use this module to read scientific literature data fromn”,
+“.gz files and returns a Pandas DataFrame that contains the required data to be fed into the Carsus engine or be directly used.”</p>
+</div></blockquote>
+<p>]</p>
+</dd>
+</dl>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“id”: “abfaa96ea1e18c3f”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“The Continuum Opacity Source Reader is a file meant to read data from Scientific literature in the form of .gzip files. The file has to be imported from the Continuum Opacity source Reader Module. The module contains a single class : OpacityReader which in turn contains 2 functions :n”,
+“1. ##__init__(file_path(required, takes a string argument), masking_value(optional, default = None, takes integer value), skip_rows(optional, default = 0, takes integer value)##: This is the constructor file of the program and is used to intialise) the class variables that the program shall later use.n”,
+“2. ##read(: This is the function that actually reads the data from the file and returns a Pandas Dataframe of the data collected from the file. The file currently only reads from .gz files.|”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“id”: “b2f6bc41345e6c1a”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“Now that we are introduced to the project as well as it’s methods, let us try to use the Continuum Opacity Source Reader to read fron a source file, that will be s92.201.gz file that is stored in the Datasets folder.n”,
+“n”,
+“First we shall import the Continuum Opacity Source Reader.”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“id”: “4565165a2dd0e723”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“execution”: {</dt><dd><p>“iopub.execute_input”: “2026-03-24T12:24:03.848027Z”,
+“iopub.status.busy”: “2026-03-24T12:24:03.847403Z”,
+“iopub.status.idle”: “2026-03-24T12:24:04.620137Z”,
+“shell.execute_reply”: “2026-03-24T12:24:04.619677Z”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“from tardis.io.continuum_reader.s92_reader import OpacityReader”</p>
+</div></blockquote>
+<p>],
+“outputs”: [],
+“execution_count”: null</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“id”: “9a7e17809e58666a”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“Now that we have the module imported, let us try to use it to read the s92.201.gz fiole. For that we shall first get the location of the required file and shall use the OS module for that.”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“id”: “a9c17ef36ea4af79”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“execution”: {</dt><dd><p>“iopub.execute_input”: “2026-03-24T12:24:04.621969Z”,
+“iopub.status.busy”: “2026-03-24T12:24:04.621749Z”,
+“iopub.status.idle”: “2026-03-24T12:24:04.624473Z”,
+“shell.execute_reply”: “2026-03-24T12:24:04.624123Z”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“import osn”,
+“n”,
+“file_path = os.path.join(&quot;..&quot;,&quot;dataset&quot;,&quot;s92.201.gz&quot;)n”,
+“n”,
+“#Let’s print to see if it’s working:n”,
+“print(f&quot;The file Path is {file_path}&quot;)”</p>
+</div></blockquote>
+<p>],
+“outputs”: [],
+“execution_count”: null</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“id”: “8c8877e9a92a971”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“Now that we have the daqtaset path loaded, let us try to read data from it using the Continuum Opacity Source Reader. We shall the program by creating the object with the file_path with the file_path we found using os.path.join() method and shall use the masking_value = 20 and skip_rows = 120”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“id”: “c2a54362e42828d8”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“execution”: {</dt><dd><p>“iopub.execute_input”: “2026-03-24T12:24:04.625794Z”,
+“iopub.status.busy”: “2026-03-24T12:24:04.625648Z”,
+“iopub.status.idle”: “2026-03-24T12:24:04.647497Z”,
+“shell.execute_reply”: “2026-03-24T12:24:04.647128Z”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“reader_new = OpacityReader(file_path,masking_value=120, skip_rows=20)n”,
+“#Next we shall call the read function to read from the file_path and it will return a dataset to us containing the data that we needed.n”,
+“df = reader_new.read()n”,
+“#let us print the dataset next.n”,
+“df.head()”</p>
+</div></blockquote>
+<p>],
+“outputs”: [],
+“execution_count”: null</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “code”,
+“id”: “c1193ad800b179a2”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“execution”: {</dt><dd><p>“iopub.execute_input”: “2026-03-24T12:24:04.648823Z”,
+“iopub.status.busy”: “2026-03-24T12:24:04.648675Z”,
+“iopub.status.idle”: “2026-03-24T12:24:04.660256Z”,
+“shell.execute_reply”: “2026-03-24T12:24:04.659834Z”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“# Now let us try to check the dataset and dataquality as a whole:n”,
+“print(&quot;— Data Integrity Check —&quot;)n”,
+“n”,
+“# 1. Check for Nulls (Legacy data often has gaps)n”,
+“null_count = df.isnull().sum().sum()n”,
+“print(f&quot;Total Null values: {null_count}&quot;)n”,
+“n”,
+“# 2. Verify Data Types (Ensuring everything is numeric)n”,
+“print(&quot;\nColumn Data Types:&quot;)n”,
+“print(df.dtypes)n”,
+“n”,
+“# 3. Quick Stats (Ensuring log values are in a physical range)n”,
+“print(&quot;\nPhysical Range Summary:&quot;)n”,
+“display(df.describe().loc[[‘min’, ‘max’]])”</p>
+</div></blockquote>
+<p>],
+“outputs”: [],
+“execution_count”: null</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“id”: “6f252b51e89d077f”,
+“metadata”: {},
+“source”: [</p>
+<blockquote>
+<div><p>“<a href="#id1"><span class="problematic" id="id2">|</span></a>##Congratulations, we have successfully read from a .gz file using the Continuum Opacity Source Reader and have got a dataframe from the dataset s92.201.gz.n”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“cell_type”: “markdown”,
+“id”: “a15f6c6b4a28d83a”,
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“ExecuteTime”: {</dt><dd><p>“end_time”: “2026-03-23T04:03:50.402884682Z”,
+“start_time”: “2026-03-23T04:03:50.363922603Z”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>},
+“source”: [</p>
+<blockquote>
+<div><p>“Next we shall make this data Tardis compatible and use it in TARDIS Simulations. For it, we shall create a new variable that will store the Dataframe.”</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+{</p>
+<blockquote>
+<div><p>“metadata”: {},
+“cell_type”: “code”,
+“source”: “”,
+“id”: “65b8f8e2743e5ef4”,
+“outputs”: [],
+“execution_count”: null</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+<p>],
+“metadata”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“kernelspec”: {</dt><dd><p>“display_name”: “Python 3 (ipykernel)”,
+“language”: “python”,
+“name”: “python3”</p>
+</dd>
+</dl>
+<p>},
+“language_info”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“codemirror_mode”: {</dt><dd><p>“name”: “ipython”,
+“version”: 3</p>
+</dd>
+</dl>
+<p>},
+“file_extension”: “.py”,
+“mimetype”: “text/x-python”,
+“name”: “python”,
+“nbconvert_exporter”: “python”,
+“pygments_lexer”: “ipython3”,
+“version”: “3.13.3”</p>
+</div></blockquote>
+<p>},
+“nbsphinx”: {</p>
+<blockquote>
+<div><p>“execute”: “never”</p>
+</div></blockquote>
+<p>},
+“nbformat”: 4,
+“nbformat_minor”: 5</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 24 Mar 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

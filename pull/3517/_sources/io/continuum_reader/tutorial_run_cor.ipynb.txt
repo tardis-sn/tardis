@@ -1,0 +1,205 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "eebe455247b16260",
+   "metadata": {
+    "collapsed": true,
+    "jupyter": {
+     "outputs_hidden": true
+    }
+   },
+   "source": [
+    "##Continuum Opacity Source Reader:\n",
+    "\n",
+    "##Version: Prototype 0.01\n",
+    "\n",
+    "##Author: Sanhik Nandi\n",
+    "\n",
+    "##Date: 22-3-24\n",
+    "\n",
+    "Welcome to the Continuum Opacity Source Reader. This Notebook is a step by step walkthrough of how we can use this module to read scientific literature data from\n",
+    ".gz files and returns a Pandas DataFrame that contains the required data to be fed into the Carsus engine or be directly used."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "abfaa96ea1e18c3f",
+   "metadata": {},
+   "source": [
+    "The Continuum Opacity Source Reader is a file meant to read data from Scientific literature in the form of .gzip files. The file has to be imported from the Continuum Opacity source Reader Module. The module contains a single class : OpacityReader which in turn contains 2 functions :\n",
+    "1. ##__init__(file_path(required, takes a string argument), masking_value(optional, default = None, takes integer value), skip_rows(optional, default = 0, takes integer value)##: This is the constructor file of the program and is used to intialise) the class variables that the program shall later use.\n",
+    "2. ##read(: This is the function that actually reads the data from the file and returns a Pandas Dataframe of the data collected from the file. The file currently only reads from .gz files.|"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "b2f6bc41345e6c1a",
+   "metadata": {},
+   "source": [
+    "Now that we are introduced to the project as well as it's methods, let us try to use the Continuum Opacity Source Reader to read fron a source file, that will be s92.201.gz file that is stored in the Datasets folder.\n",
+    "\n",
+    "First we shall import the Continuum Opacity Source Reader."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "id": "4565165a2dd0e723",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-24T12:24:03.848027Z",
+     "iopub.status.busy": "2026-03-24T12:24:03.847403Z",
+     "iopub.status.idle": "2026-03-24T12:24:04.620137Z",
+     "shell.execute_reply": "2026-03-24T12:24:04.619677Z"
+    }
+   },
+   "source": [
+    "from tardis.io.continuum_reader.s92_reader import OpacityReader"
+   ],
+   "outputs": [],
+   "execution_count": null
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9a7e17809e58666a",
+   "metadata": {},
+   "source": [
+    "Now that we have the module imported, let us try to use it to read the s92.201.gz fiole. For that we shall first get the location of the required file and shall use the OS module for that."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "id": "a9c17ef36ea4af79",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-24T12:24:04.621969Z",
+     "iopub.status.busy": "2026-03-24T12:24:04.621749Z",
+     "iopub.status.idle": "2026-03-24T12:24:04.624473Z",
+     "shell.execute_reply": "2026-03-24T12:24:04.624123Z"
+    }
+   },
+   "source": [
+    "import os\n",
+    "\n",
+    "file_path = os.path.join(\"..\",\"dataset\",\"s92.201.gz\")\n",
+    "\n",
+    "#Let's print to see if it's working:\n",
+    "print(f\"The file Path is {file_path}\")"
+   ],
+   "outputs": [],
+   "execution_count": null
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8c8877e9a92a971",
+   "metadata": {},
+   "source": [
+    "Now that we have the daqtaset path loaded, let us try to read data from it using the Continuum Opacity Source Reader. We shall the program by creating the object with the file_path with the file_path we found using os.path.join() method and shall use the masking_value = 20 and skip_rows = 120"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "id": "c2a54362e42828d8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-24T12:24:04.625794Z",
+     "iopub.status.busy": "2026-03-24T12:24:04.625648Z",
+     "iopub.status.idle": "2026-03-24T12:24:04.647497Z",
+     "shell.execute_reply": "2026-03-24T12:24:04.647128Z"
+    }
+   },
+   "source": [
+    "reader_new = OpacityReader(file_path,masking_value=120, skip_rows=20)\n",
+    "#Next we shall call the read function to read from the file_path and it will return a dataset to us containing the data that we needed.\n",
+    "df = reader_new.read()\n",
+    "#let us print the dataset next.\n",
+    "df.head()"
+   ],
+   "outputs": [],
+   "execution_count": null
+  },
+  {
+   "cell_type": "code",
+   "id": "c1193ad800b179a2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-03-24T12:24:04.648823Z",
+     "iopub.status.busy": "2026-03-24T12:24:04.648675Z",
+     "iopub.status.idle": "2026-03-24T12:24:04.660256Z",
+     "shell.execute_reply": "2026-03-24T12:24:04.659834Z"
+    }
+   },
+   "source": [
+    "# Now let us try to check the dataset and dataquality as a whole:\n",
+    "print(\"--- Data Integrity Check ---\")\n",
+    "\n",
+    "# 1. Check for Nulls (Legacy data often has gaps)\n",
+    "null_count = df.isnull().sum().sum()\n",
+    "print(f\"Total Null values: {null_count}\")\n",
+    "\n",
+    "# 2. Verify Data Types (Ensuring everything is numeric)\n",
+    "print(\"\\nColumn Data Types:\")\n",
+    "print(df.dtypes)\n",
+    "\n",
+    "# 3. Quick Stats (Ensuring log values are in a physical range)\n",
+    "print(\"\\nPhysical Range Summary:\")\n",
+    "display(df.describe().loc[['min', 'max']])"
+   ],
+   "outputs": [],
+   "execution_count": null
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6f252b51e89d077f",
+   "metadata": {},
+   "source": [
+    "|##Congratulations, we have successfully read from a .gz file using the Continuum Opacity Source Reader and have got a dataframe from the dataset s92.201.gz.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a15f6c6b4a28d83a",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2026-03-23T04:03:50.402884682Z",
+     "start_time": "2026-03-23T04:03:50.363922603Z"
+    }
+   },
+   "source": [
+    "Next we shall make this data Tardis compatible and use it in TARDIS Simulations. For it, we shall create a new variable that will store the Dataframe."
+   ]
+  },
+  {
+   "metadata": {},
+   "cell_type": "code",
+   "source": "",
+   "id": "65b8f8e2743e5ef4",
+   "outputs": [],
+   "execution_count": null
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.3"
+  },
+  "nbsphinx": {
+   "execute": "never"
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+ }
+}
