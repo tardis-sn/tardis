@@ -14,6 +14,7 @@ diagnostic visualizations.
 
     how_to_sdec_plot
     how_to_liv_plot
+    plotting_gallery
     tutorial_convergence_plot
 
 
