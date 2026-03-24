@@ -117,44 +117,39 @@ class TestBlackBodySimpleSourceRel:
         assert_allclose(expected_bb.temperature, actual_bb.temperature.value)
         assert_allclose(expected_bb.time_explosion, actual_bb.time_explosion.value)
 
-def test_bb_single_packet(self, blackbodysimplesource):
-    """
-    Test behavior with a single packet to ensure functions handle minimal input correctly.
-    """
-    nus = blackbodysimplesource.create_packet_nus(1).value
-    mus = blackbodysimplesource.create_packet_mus(1)
-    energies = blackbodysimplesource.create_packet_energies(1).value
+    def test_bb_single_packet(self, blackbodysimplesource):
+        """
+        Test behavior with a single packet to ensure functions handle minimal input correctly.
+        """
+        nus = blackbodysimplesource.create_packet_nus(1).value
+        mus = blackbodysimplesource.create_packet_mus(1)
+        energies = blackbodysimplesource.create_packet_energies(1).value
 
-    assert len(nus) == 1
-    assert len(mus) == 1
-    assert len(energies) == 1
+        assert len(nus) == 1
+        assert len(mus) == 1
+        assert len(energies) == 1
 
-def test_bb_zero_packets(self, blackbodysimplesource):
-    """
-    Test behavior when zero packets are requested.
-    Ensures functions handle empty input without errors.
-    """
-    nus = blackbodysimplesource.create_packet_nus(0).value
-    mus = blackbodysimplesource.create_packet_mus(0)
-    energies = blackbodysimplesource.create_packet_energies(0).value
+    def test_bb_zero_packets(self, blackbodysimplesource):
+        """
+        Test behavior when zero packets are requested.
+        Ensures functions handle empty input without errors.
+        """
+        nus = blackbodysimplesource.create_packet_nus(0).value
+        mus = blackbodysimplesource.create_packet_mus(0)
+        energies = blackbodysimplesource.create_packet_energies(0).value
 
-    assert len(nus) == 0
-    assert len(mus) == 0
-    assert len(energies) == 0
+        assert len(nus) == 0
+        assert len(mus) == 0
+        assert len(energies) == 0
 
-def test_bb_negative_packets(self, blackbodysimplesource):
-    """
-    Test behavior when negative packets are requested.
-    Ensures proper error handling for invalid input.
-    """
-def test_bb_negative_packets(self, blackbodysimplesource):
-    """
-    Test behavior when negative packets are requested.
-    Ensures proper error handling for invalid input.
-    """
-    with pytest.raises(ValueError):
-        blackbodysimplesource.create_packet_nus(-1)
-    with pytest.raises(ValueError):
-        blackbodysimplesource.create_packet_mus(-1)
-    with pytest.raises(ValueError):
-        blackbodysimplesource.create_packet_energies(-1)
+    def test_bb_negative_packets(self, blackbodysimplesource):
+        """
+        Test behavior when negative packets are requested.
+        Ensures proper error handling for invalid input.
+        """
+        with pytest.raises(ValueError):
+            blackbodysimplesource.create_packet_nus(-1)
+        with pytest.raises(ValueError):
+            blackbodysimplesource.create_packet_mus(-1)
+        with pytest.raises(ValueError):
+            blackbodysimplesource.create_packet_energies(-1)
