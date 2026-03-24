@@ -1,18 +1,66 @@
-from numpy import testing as npt
-from pandas import testing as pdt
+import astropy.units as u
+import numpy as np
+import pandas as pd
+import pytest
+import itertools
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
-from tardis.io.configuration.config_reader import Configuration
-from tardis.simulation import Simulation
-from tardisbase.testing.regression_data.regression_data import RegressionData
+# intensity tests
+# test mean_intensity for all the fields
 
-from tardis.plasma.radiation_field import (
-    DilutePlanckianRadiationField,
-)
-def test_
-def test_dilute_planckian_rad_field_collisional_sim_state(self,collisional_simulation_state): 
-    expected_rad_field = DilutePlanckianRadiationField(
-        collisional_simulation_state.t_radiative,
-        dilution_factor=np.zeros_like(
-            collisional_simulation_state.t_radiative
-        ),
-    )
+# test the conversion for all the fields
+
+DILUTION_FACTORS_CONSTANT = [1,1,1]
+TEMPERATURE_CONSTANT = [10000,10000,10000] * u.k 
+
+
+# create radiation fields with 3 shells of valid dilution parameters and constant temperature of 100K: uniform density, varied density, uniform 0 density, 
+valid_dilution_factors = [[1,1,1],[0.8,0.6,0.4],[0,0,0]] 
+
+# create radiation fields with 3 shells of valid temperature parameters and constant dilution factor of 1: uniform temperature, varied temperature
+valid_temps = [[10000,10000,10000] * u.k, [8000,6000,4000] * u.k]
+
+# create radiation field with 3 shells of negative temperatures: 
+negative_temps = [-10000,-10000,-10000] * u.k 
+# create radiation field with 3 shells of zero temperatures: 
+zero_temps = [0,0,0] * u.k 
+# create radiation field with 3 shells of no unit specified temperatures: 
+no_unit_temps = [10000,10000,10000]
+
+# create radiation field from very simple valid geometry 
+
+
+# create radiation field from invalid geometry 
+
+# create radiation field from csvy model - temp defined but no dilution factor
+
+# create radition field from csvy model -  no temp dilution factor defined
+
+
+@pytest.fixture(scope="class",params=list(itertools.product(TEMPERATURE_CONSTANT,valid_dilution_factors)))
+def valid_dilute_factors_test_rad_field(request):
+    temperature, dilution = request.param
+    return DilutePlanckianRadiationField(temperature,dilution)
+
+@pytest.fixture(scope="class",params=list(itertools.product(DILUTION_FACTORS_CONSTANT,valid_temps)))
+def valid_temperature_test_rad_field(request):
+    temperature, dilution = request.param
+    return DilutePlanckianRadiationField(temperature,dilution)
+
+@pytest.fixture(scope="class",params=list(itertools.product(DILUTION_FACTORS_CONSTANT,negative_temps)))
+def negative_temperature_test_rad_field(request):
+    temperature, dilution = request.param
+    return DilutePlanckianRadiationField(temperature,dilution)
+
+@pytest.fixture(scope="class",params=list(itertools.product(DILUTION_FACTORS_CONSTANT,zero_temps)))
+def zero_temperature_test_rad_field(request):
+    temperature, dilution = request.param
+    return DilutePlanckianRadiationField(temperature,dilution)
+
+@pytest.fixture(scope="class",params=list(itertools.product(DILUTION_FACTORS_CONSTANT,no_unit_temps)))
+def no_units_temperature_test_rad_field(request):
+    temperature, dilution = request.param
+    return DilutePlanckianRadiationField(temperature,dilution)
+
+
+
