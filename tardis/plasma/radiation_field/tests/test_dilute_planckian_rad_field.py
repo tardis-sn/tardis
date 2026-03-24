@@ -1,9 +1,15 @@
+from pathlib import Path
+import itertools
+import pytest
+
 import astropy.units as u
 import numpy as np
 import pandas as pd
-import pytest
-import itertools
+
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardis.io.configuration.config_reader import Configuration
+from tardis.model.base import SimulationState
+
 
 # intensity tests
 # test mean_intensity for all the fields
@@ -26,6 +32,20 @@ negative_temps = [-10000,-10000,-10000] * u.k
 zero_temps = [0,0,0] * u.k 
 # create radiation field with 3 shells of no unit specified temperatures: 
 no_unit_temps = [10000,10000,10000]
+
+# create radiation field from SimulationState configured from plasma_base_test_config.yml
+# this simulation state is used in test_level_populations so it seems like a good idea to test it directly
+def simulation_state(new_chianti_atomic_dataset_si):
+    config = Configuration.from_yaml(
+        Path("tardis")
+        / "plasma"
+        / "tests"
+        / "data"
+        / "plasma_base_test_config.yml"
+    )
+    return SimulationState.from_config(
+        config, atom_data=new_chianti_atomic_dataset_si
+    )
 
 # create radiation field from very simple valid geometry 
 
@@ -62,5 +82,11 @@ def no_units_temperature_test_rad_field(request):
     temperature, dilution = request.param
     return DilutePlanckianRadiationField(temperature,dilution)
 
+@pytest.fixture(scope="class",params=list(itertools.product(DILUTION_FACTORS_CONSTANT,no_unit_temps)))
+def no_units_temperature_test_rad_field(request):
+    temperature, dilution = request.param
+    return DilutePlanckianRadiationField(temperature,dilution)
 
-
+@pytest.fixture(scope="class")
+def simulation_state_rad_field():
+    return DilutePlanckianRadiationField(simulation_state.t_radiative,dilution_factor=np.zeros_like(simulation_state.t_radiative))
