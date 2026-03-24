@@ -10,7 +10,7 @@ from tardis.plasma.radiation_field.planck_rad_field import (
 def test_length_mismatch_raises():
     """Temperature and dilution factor lengths must match."""
     temperature = np.array([5000, 6000]) * u.K
-    dilution_factor = np.array([0.5])  
+    dilution_factor = np.array([0.5])
 
     with pytest.raises(AssertionError):
         DilutePlanckianRadiationField(temperature, dilution_factor)
@@ -38,8 +38,13 @@ def test_temperature_kelvin_property():
     assert np.allclose(result, np.array([5000, 6000]))
 
 
+def test_calculate_mean_intensity_regression():
+    """
+    Regression test for calculate_mean_intensity.
 
-def test_calculate_mean_intensity_shape():
+    Uses controlled input and compares against reference values
+    generated from a trusted run of the solver.
+    """
     temperature = np.array([5000, 6000]) * u.K
     dilution_factor = np.array([0.5, 0.6])
 
@@ -51,5 +56,20 @@ def test_calculate_mean_intensity_shape():
 
     intensity = radiation_field.calculate_mean_intensity(nu)
 
-    # shape should be (n_shells, n_frequencies)
-    assert intensity.shape == (len(temperature), len(nu))
+    # getting reference data
+    print(intensity)
+
+    # --- Custom reference data (regression values) ---
+    #replaced these values with actual output from a trusted run (intensity values)
+    expected = np.array([
+                [4.57549236e-06, 7.22050336e-06],
+                [1.01359416e-05, 1.79098807e-05],
+                ])
+
+    # --- Assertions ---
+    assert intensity.shape == expected.shape
+    assert np.all(np.isfinite(intensity))
+    assert np.all(intensity >= 0)
+
+    # Regression check
+    assert np.allclose(intensity, expected, rtol=1e-5)
