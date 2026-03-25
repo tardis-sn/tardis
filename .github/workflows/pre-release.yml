@@ -141,4 +141,6 @@ jobs:
     needs: [pull_request]
     if: needs.pull_request.outputs.pr-operation != 'created'
     uses: ./.github/workflows/release.yml
+    with:
+      called-from-pre-release: true
     secrets: inherit

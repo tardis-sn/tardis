@@ -25,6 +25,22 @@ jobs:
             Warning - LFS bandwidth usage
             ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
 
+  add-gsoc-label:
+    if: contains(github.event.pull_request.title, 'GSoC')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add GSoC label
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ['GSoC :sun_with_face:']
+            });
+
   check-first-time-committer:
     runs-on: ubuntu-latest
     permissions:
