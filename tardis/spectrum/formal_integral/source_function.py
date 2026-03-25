@@ -63,12 +63,8 @@ class SourceFunctionSolver:
         time_explosion = sim_state.time_explosion
         volume = sim_state.volume
 
-        ###
-        # opacity_state_numba is already assembled for active shells only
-        # (the plasma uses active-shell-only data from simulation_state).
-        # Do NOT re-slice with v_inner/v_outer_boundary_index — that double-
-        # applies the boundary and gives the wrong shell count.
-        ###
+        # Plasma quantities (tau_sobolev, transition_probabilities) are indexed
+        # over active shells only. Do not re-slice with boundary indices.
         tau_sobolevs = opacity_state_numba.tau_sobolev
         transition_probabilities = opacity_state_numba.transition_probabilities
 

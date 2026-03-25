@@ -123,17 +123,21 @@ class MCTransportSolverClassic(HDFWriterMixin):
 
         geometry_state = simulation_state.geometry.to_numba()
 
-        ###
-        # The plasma is assembled from simulation_state's ACTIVE shells only
-        # (t_radiative, dilution_factor, etc. are already sliced to the active
-        # range). So tau_sobolev already has no_of_shells_active columns.
-        # Slicing again with the raw boundary indices double-applies them,
-        # giving the wrong shell count for models with v_inner/outer_boundary.
-        ###
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,
             self.line_interaction_type,
         )
+        # Slice to active shells only when the plasma spans the full model.
+        # Workflows that update the plasma with active-shell data produce an
+        # opacity state that is already the right size; the slice is a no-op
+        # and would be wrong (double-slicing) in that case.
+        if (
+            opacity_state_numba.tau_sobolev.shape[1]
+            != simulation_state.geometry.no_of_shells_active
+        ):
+            opacity_state_numba = opacity_state_numba[
+                simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+            ]
 
         transport_state = MonteCarloTransportState(
             packet_collection,

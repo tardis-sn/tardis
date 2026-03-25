@@ -1,0 +1,51 @@
+# Example YAML configuration for TARDIS
+tardis_config_version: v1.0
+
+supernova:
+  luminosity_requested: 9.34 log_lsun
+  time_explosion: 12 day
+
+atom_data: https://zenodo.org/record/6787804/files/aoife_atomic_data_onlylevellines_fix.h5?download=1
+
+model:
+  structure:
+    type: file
+    filename: dependencies/HM_model.txt
+    filetype: artis
+    v_inner_boundary: 9400 km/s
+    v_outer_boundary: 30000 km/s
+  abundances:
+    type: file
+    filename: dependencies/HM_abundances.txt
+    filetype: simple_ascii
+
+plasma:
+  disable_electron_scattering: no
+  ionization: nebular
+  excitation: dilute-lte
+  radiative_rates_type: dilute-blackbody
+  line_interaction_type: scatter # Was scatter in paper
+  helium_treatment: recomb-nlte
+
+montecarlo:
+  seed: 23111963
+  no_of_packets: 1.0e+6 #1.e6
+  iterations: 30 #30
+  nthreads: 1
+
+  last_no_of_packets: 1.e+6
+  no_of_virtual_packets: 10
+
+  convergence_strategy:
+    type: damped
+    damping_constant: 1.0
+    threshold: 0.05
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 0.5
+
+spectrum:
+  start: 3000 angstrom
+  stop: 21500 angstrom
+  num: 10000

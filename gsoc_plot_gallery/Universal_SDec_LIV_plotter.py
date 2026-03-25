@@ -15,12 +15,12 @@ import matplotlib
 matplotlib.use("Agg")
 
 #Misc. imports
+import os
 import gc
 import sys
 import matplotlib.pyplot as plt
 from pathlib import Path
 import argparse
-
 
 ###
 # Import function for the atomic data. Since I am using 
@@ -39,7 +39,7 @@ def import_atomic(atom_input):
     try:
         return AtomData.from_hdf(Path(atom_input))
     except Exception as e:
-        raise ValueError(f"Could not load atomic data from {atom_input!r}. Expected a TARDIS HDF5 atomic-data file path or a known atom-data name.") from e
+        raise ValueError(f"Could not load atomic data from {atom_input}. Expected a TARDIS HDF5 atomic-data file path or a known atom-data name.") from e
 
 
 ###
@@ -57,13 +57,13 @@ def import_config(config_input):
     try:
         return Configuration.from_yaml(Path(config_input))
     except Exception as e:
-        raise ValueError(f"Could not load TARDIS config from {config_input!r}. Expected a valid TARDIS YAML configuration file.") from e
+        raise ValueError(f"Could not load TARDIS config from {config_input}. Expected a valid TARDIS YAML configuration file.") from e
 
 ###
 # The spectrum plotter from the quickstart notebook, which I have
 # gracefully stolen and repurposed ("reporposed"? idk)
 ###
-def plot_spectrum(sim, config_name, plot_pdf):
+def plot_spectrum(sim, config_name, plot_pdf, outdir):
     spectrum = sim.spectrum_solver.spectrum_real_packets
     spectrum_virtual = sim.spectrum_solver.spectrum_virtual_packets
 
@@ -82,8 +82,11 @@ def plot_spectrum(sim, config_name, plot_pdf):
         raises=False,
     )
     if can_integrate:
-        spectrum_integrated = sim.spectrum_solver.spectrum_integrated
-        spectrum_integrated.plot(label='Formal integral', color="gold")
+        try:
+            spectrum_integrated = sim.spectrum_solver.spectrum_integrated
+            spectrum_integrated.plot(label='Formal integral', color="gold")
+        except:
+            print("Warning, integral could not be calculated. Usually freq vs wavelength issue - see issue #3508")
 
     plt.xlim(500, 9000)
     plt.title(f"TARDIS {config_name} model spectrum")
@@ -91,9 +94,9 @@ def plot_spectrum(sim, config_name, plot_pdf):
     plt.ylabel(r"Luminosity density [erg/s/$\AA$]")
     plt.legend()
 
-    plt.savefig(f"{config_name}_spectrum.png", dpi=300)
+    plt.savefig(f"{outdir}{config_name}_spectrum.png", dpi=300)
     if plot_pdf:
-        plt.savefig(f"{config_name}_spectrum.pdf", dpi=300)
+        plt.savefig(f"{outdir}{config_name}_spectrum.pdf", dpi=300)
 
 
 def SDec_plot(sim, config_name, plot_pdf):
@@ -114,7 +117,7 @@ def LIV_plot(sim, config_name, plot_pdf):
 
     ax.figure.savefig(f"{config_name}_liv.png", dpi=300, bbox_inches="tight")
     if plot_pdf:
-        ax.figure.savefig(f"{config_name}_liv.png", dpi=300, bbox_inches="tight")
+        ax.figure.savefig(f"{config_name}_liv.pdf", dpi=300, bbox_inches="tight")
 
 
 ###
@@ -127,20 +130,23 @@ def main():
     )
     parser.add_argument("--atomic_data", required=True, help="Input atomic data for the simulation. Accepts PATH, filename and AtomData object.")
     parser.add_argument("--config", required=True, help="Input TARDIS config file for the simulation. Accepts PATH and Configuration object.")
-    parser.add_argument("--plot_pdf", default=True, help="Simple bool to decide whether or not to plot pdf on top of pngs. Takes 0 or 1, True or False.")
-
+    parser.add_argument("--plot_pdf", default=True, help="Simple bool to decide whether or not to plot pdf in addition to pngs. Takes 0 or 1, True or False.")
+    parser.add_argument("--outdir", default="/plots/", help="Specify the out directory for the plots. Default is the current folder.")
     args = parser.parse_args()
     print(args)
 
     config_name = args.config.split("/")[len(args.config.split("/"))-1].split(".")[0]
 
+    config = import_config(args.config)
+    atom_data = import_atomic(args.atomic_data)
+    outdir = os.getcwd() + args.outdir
 
     # Run the simulation itself, no widgets as I run the script in terminal
     # when bugtesting
-    sim = run_tardis(config=args.config, atom_data=args.atomic_data, virtual_packet_logging=False, show_convergence_plots=False, display_logging_widget=False)
+    sim = run_tardis(config=config, atom_data=atom_data, virtual_packet_logging=False, show_convergence_plots=False, display_logging_widget=False)
 
     print("Starting plot_spectrum", flush=True)
-    plot_spectrum(sim, config_name, args.plot_pdf)
+    plot_spectrum(sim, config_name, args.plot_pdf, outdir=outdir)
     plt.close("all")
     gc.collect()
 

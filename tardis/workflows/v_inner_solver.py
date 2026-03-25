@@ -161,9 +161,10 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
             )[self.mean_optical_depth]
         )
 
+        # tau_integ is already indexed over active shells; do not re-slice.
         interpolator = interp1d(
-            self.tau_integ[self.simulation_state.geometry.v_inner_boundary_index :],
-            self.simulation_state.geometry.v_inner_active,  # Only use the active values as we only need a numerical estimate, not an index
+            self.tau_integ,
+            self.simulation_state.geometry.v_inner_active,
             fill_value="extrapolate",
         )
 

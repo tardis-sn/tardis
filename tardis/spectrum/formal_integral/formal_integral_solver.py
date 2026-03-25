@@ -368,11 +368,8 @@ class FormalIntegralSolver:
             r_inner_interpolated + r_outer_interpolated
         ) / 2.0
 
-        ###
-        # electron_densities and opacity_state.tau_sobolev are already
-        # assembled for active shells only (plasma uses active-shell data
-        # from simulation_state). Do NOT re-slice with boundary indices.
-        ###
+        # Plasma quantities (electron_densities, tau_sobolev) are indexed over
+        # active shells only. Do not re-slice with boundary indices.
         electron_densities_interpolated = interp1d(
             r_middle_original,
             np.asarray(electron_densities, dtype=np.float64),
