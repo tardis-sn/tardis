@@ -126,7 +126,7 @@ jobs:
 
             This is an automated benchmark deploy.
             Triggered by: push to master
-            Commit: ${{ github.sha }}
+            Commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
             Commit message: ${{ github.event.head_commit.message }}
             Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
@@ -228,10 +228,10 @@ jobs:
 
             This is an automated benchmark deploy.
             Triggered by: pull_request (#${{ github.event.number }})
-            PR: ${{ github.event.pull_request.title }}
-            PR head commit: ${{ github.event.pull_request.head.sha }}
+            PR: https://github.com/${{ github.repository }}/pull/${{ github.event.number }}
+            PR head commit: https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}
             PR head commit message: ${{ steps.pr_commit_msg.outputs.message }}
-            Base (master) commit: ${{ github.event.pull_request.base.sha }}
+            Base (master) commit: https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.base.sha }}
             Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Find Comment
