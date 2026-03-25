@@ -62,6 +62,11 @@ jobs:
         run: git fetch origin master:master
         if: github.event_name == 'pull_request_target'
 
+      - name: Get PR head commit message
+        if: github.event_name == 'pull_request_target'
+        id: pr_commit_msg
+        run: echo "message=$(git log -1 --format=%s)" >> $GITHUB_OUTPUT
+
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
         with:
@@ -116,6 +121,13 @@ jobs:
           external_repository: tardis-sn/tardis-benchmarks
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
+          full_commit_message: |
+            deploy: master - ${{ github.event.head_commit.message }}
+
+            This is an automated benchmark deploy.
+            Triggered by: push to master
+            Commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Run benchmarks for base and head commits of PR
         if: github.event_name == 'pull_request_target'
@@ -210,7 +222,17 @@ jobs:
           external_repository: tardis-sn/tardis-benchmarks
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
-      
+          full_commit_message: |
+            deploy: PR #${{ github.event.number }} - ${{ github.event.pull_request.title }}
+
+            This is an automated benchmark deploy.
+            Triggered by: pull_request_target (#${{ github.event.number }})
+            PR: https://github.com/${{ github.repository }}/pull/${{ github.event.number }}
+            PR head commit: https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}
+            PR head commit message: ${{ steps.pr_commit_msg.outputs.message }}
+            Base (master) commit: https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.base.sha }}
+            Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
         uses: peter-evans/find-comment@v1

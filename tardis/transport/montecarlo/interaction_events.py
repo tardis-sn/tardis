@@ -106,7 +106,7 @@ def bf_cooling(r_packet, time_explosion, opacity_state, enable_full_relativity):
     fb_cooling_prob = opacity_state.p_fb_deactivation[
         :, r_packet.current_shell_id
     ]
-    p = fb_cooling_prob[0]
+    p = fb_cooling_prob[0]  # First fb_cooling prob_is 0
     i = 0
     zrand = np.random.random()
     while p <= zrand:  # Can't search-sorted this because it's not cumulative
