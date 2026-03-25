@@ -13,7 +13,6 @@ from tardis.model.base import SimulationState
 from tardis.io.atom_data import AtomData
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.io.model import parse_geometry_configuration
-from tardis.io.model import parse_radiation_field_configuration
 
 
 DILUTION_FACTORS_CONSTANT = [np.array([1,1,1])] 
@@ -27,13 +26,12 @@ zero_temps = [0,0,0] * u.K
 no_unit_temps = np.array([10000,10000,10000])
 
 CONFIG_PATHS = [
-    Path("tardis") / "plasma" / "tests" / "data" / "config_init_trad.yml",]
+    Path("tardis") / "plasma" / "tests" / "data" / "config_init_trad.yml"
+    ]
 
 @pytest.fixture(scope="class")
 def atom_dataset(tardis_regression_path):
-    atomic_data_fname = (
-        tardis_regression_path / "atom_data" / "kurucz_cd23_chianti_H_He_latest.h5"
-    )
+    atomic_data_fname = (tardis_regression_path / "atom_data" / "kurucz_cd23_chianti_H_He_latest.h5")
     return AtomData.from_hdf(atomic_data_fname)
 
 @pytest.fixture(scope="class", params=CONFIG_PATHS, ids=["trad_init"])
