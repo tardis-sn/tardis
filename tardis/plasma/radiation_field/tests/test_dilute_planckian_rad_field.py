@@ -17,13 +17,14 @@ from tardis.io.model import parse_radiation_field_configuration
 
 
 DILUTION_FACTORS_CONSTANT = [np.array([1,1,1])] 
-TEMPERATURE_CONSTANT = [[10000,10000,10000]] * u.K 
+TEMPERATURE_CONSTANT = [[10000,10000,10000] * u.K]  
 
 valid_dilution_factors = [np.array([1,1,1]),np.array([0.8,0.6,0.4]),np.array([0,0,0])] 
 valid_temps = [[10000,10000,10000] * u.K, [8000,6000,4000] * u.K]
-negative_temps = [[-10000,-10000,-10000] * u.K] 
-zero_temps = [[0,0,0] * u.K]
-no_unit_temps = [[10000,10000,10000]]
+
+negative_temps = [-10,-10,-10] * u.K
+zero_temps = [0,0,0] * u.K
+no_unit_temps = np.array([10000,10000,10000])
 
 CONFIG_PATHS = [
     Path("tardis") / "plasma" / "tests" / "data" / "config_init_trad.yml",]
@@ -135,23 +136,23 @@ class TestValidFields:
         expected_intensities = regression_data.sync_ndarray(actual_intensities)
         npt.assert_array_equal(actual_intensities, expected_intensities)
 
-# class TestInvalidFields:
-#     def test_negative_temperature(self):
-#         with pytest.raises(AssertionError):
-#             DilutePlanckianRadiationField(negative_temps, DILUTION_FACTORS_CONSTANT)
+class TestInvalidFields:
+    def test_negative_temperature(self):
+        with pytest.raises(AssertionError):
+            DilutePlanckianRadiationField(negative_temps, DILUTION_FACTORS_CONSTANT[0])
 
-#     def test_dilution_factors_negative(self):
-#         with pytest.raises(AssertionError):
-#             DilutePlanckianRadiationField(TEMPERATURE_CONSTANT, [-1,-1,-1])
+    def test_dilution_factors_negative(self):
+        with pytest.raises(AssertionError):
+            DilutePlanckianRadiationField(TEMPERATURE_CONSTANT[0], np.array([-1,-1,-1]))
 
-#     def test_zero_temperature(self):
-#         with pytest.raises(AssertionError):
-#             DilutePlanckianRadiationField(zero_temps, DILUTION_FACTORS_CONSTANT)
+    def test_zero_temperature(self):
+        with pytest.raises(AssertionError):
+            DilutePlanckianRadiationField(zero_temps, DILUTION_FACTORS_CONSTANT[0])
 
-#     def test_no_units(self):
-#         with pytest.raises(u.UnitConversionError):
-#             DilutePlanckianRadiationField(no_unit_temps, DILUTION_FACTORS_CONSTANT)
+    def test_no_units(self):
+        with pytest.raises(u.UnitConversionError):
+            DilutePlanckianRadiationField(no_unit_temps, DILUTION_FACTORS_CONSTANT[0])
 
-#     def test_dilution_factors_no_numpy(self):
-#         with pytest.raises(TypeError):
-#             DilutePlanckianRadiationField(TEMPERATURE_CONSTANT, [1,1,1])
+    def test_dilution_factors_no_numpy(self):
+        with pytest.raises(TypeError):
+            DilutePlanckianRadiationField(TEMPERATURE_CONSTANT[0], [1,1,1])
