@@ -58,14 +58,14 @@ class SourceFunctionSolver:
                 The rate energy density is added to the upper level of transitions excited to it
         """
         # Parse states for required values
-        v_inner_boundary_index = sim_state.geometry.v_inner_boundary_index
-        v_outer_boundary_index = sim_state.geometry.v_outer_boundary_index
         no_of_shells = sim_state.no_of_shells
         dilution_factor = sim_state.dilution_factor
         time_explosion = sim_state.time_explosion
         volume = sim_state.volume
 
-        tau_sobolev = opacity_state_numba.tau_sobolev
+        # Plasma quantities (tau_sobolev, transition_probabilities) are indexed
+        # over active shells only. Do not re-slice with boundary indices.
+        tau_sobolevs = opacity_state_numba.tau_sobolev
         transition_probabilities = opacity_state_numba.transition_probabilities
 
         j_blue_estimator = (
@@ -77,12 +77,6 @@ class SourceFunctionSolver:
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s
         )
-
-        # slice for the active shells
-        local_slice = slice(v_inner_boundary_index, v_outer_boundary_index)
-
-        transition_probabilities = transition_probabilities[:, local_slice]
-        tau_sobolevs = tau_sobolev[:, local_slice]
 
         macroatom_references = macro_atom_state.references_index
         macroatom_transition_metadata = macro_atom_state.transition_metadata

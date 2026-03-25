@@ -1,0 +1,52 @@
+atom_data: /Users/deekshamohanty/Software/tardis/kurucz_cd23_chianti_H_He.h5
+model:
+  abundances:
+    C: 0.003      
+    O: 0.3547     
+    Na: 0.00     
+    Mg: 0.00     
+    Si: 0.15     
+    S: 0.005      
+    Ca: 0.018   
+    Ti: 0.01
+    Cr: 0.00    
+    Sc: 0.000
+    Co: 0.01    
+    Fe: 0.02
+    Ni: 0.41
+    type: uniform
+  structure:
+    filename: mixed_profile.dat
+    filetype: simple_ascii
+    type: file
+    v_inner_boundary: 6800 km/s
+    v_outer_boundary: 12000 km/s
+montecarlo:
+  convergence_strategy:
+    damping_constant: 0.5
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 0.5
+    threshold: 0.05
+    type: damped
+  iterations: 20
+  last_no_of_packets: 1.0e+5
+  no_of_packets: 5.0e+5
+  no_of_virtual_packets: 10
+  nthreads: 4
+  seed: 23
+plasma:
+  disable_electron_scattering: false
+  excitation: dilute-lte
+  ionization: nebular
+  line_interaction_type: macroatom
+  radiative_rates_type: detailed
+spectrum:
+  num: 5000
+  start: 3600 angstrom
+  stop: 9000 angstrom
+supernova:
+  luminosity_requested: 8.95 log_lsun 
+  time_explosion: 12.0 day 
+tardis_config_version: v1.0

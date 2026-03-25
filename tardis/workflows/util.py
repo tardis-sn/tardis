@@ -29,6 +29,13 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     order = np.argsort(freqs, kind=SORTING_ALGORITHM)
     freqs = freqs[order]
     taus = opacity_state.tau_sobolev.values[order]
+    n_active = simulation_state.geometry.no_of_shells_active
+    # Slice to active shells if the opacity state spans the full model.
+    # This can occur when the plasma was assembled before the inner boundary moved.
+    if taus.shape[1] != n_active:
+        i_in = simulation_state.geometry.v_inner_boundary_index
+        i_out = simulation_state.geometry.v_outer_boundary_index
+        taus = taus[:, i_in:i_out]
 
     check_bin_size = True
     while check_bin_size:
@@ -52,7 +59,8 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
     freqs = freqs[1 : n_bins * bin_size + 1]
 
     ct = simulation_state.time_explosion * const.c
-    t_rad = simulation_state.radiation_field_state.temperature
+    # Use active-shell temperature; radiation_field_state.temperature spans all shells.
+    t_rad = simulation_state.t_radiative
 
     def B(nu, T):
         return (
@@ -73,7 +81,13 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
         / ct
         * (1 - np.exp(-taus.reshape(n_bins, bin_size, -1))).sum(axis=1)
     )
-    kappa_thom = plasma.electron_densities.values * u.cm ** (-3) * const.sigma_T
+    ne = plasma.electron_densities.values
+    # Slice to active shells if the plasma electron densities span the full model.
+    if len(ne) != n_active:
+        i_in = simulation_state.geometry.v_inner_boundary_index
+        i_out = simulation_state.geometry.v_outer_boundary_index
+        ne = ne[i_in:i_out]
+    kappa_thom = ne * u.cm ** (-3) * const.sigma_T
     Bdnu = B(bins_low.reshape(-1, 1), t_rad.reshape(1, -1)) * delta_nu.reshape(
         -1, 1
     )
@@ -89,7 +103,8 @@ def get_tau_integ(plasma, opacity_state, simulation_state, bin_size=10):
         (udnu * kappa_tot**-1).sum(axis=0) / (udnu.sum(axis=0))
     ) ** -1
 
-    dr = simulation_state.geometry.r_outer - simulation_state.geometry.r_inner
+    # Use active-shell radii; geometry.r_outer/r_inner span all shells.
+    dr = simulation_state.r_outer - simulation_state.r_inner
     dtau = kappa_planck * dr
     planck_integ_tau = np.cumsum(dtau[::-1])[::-1]
     rosseland_integ_tau = np.cumsum((kappa_rosseland * dr)[::-1])[::-1]
