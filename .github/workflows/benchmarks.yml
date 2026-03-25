@@ -127,7 +127,6 @@ jobs:
             This is an automated benchmark deploy.
             Triggered by: push to master
             Commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
-            Commit message: ${{ github.event.head_commit.message }}
             Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Run benchmarks for base and head commits of PR
