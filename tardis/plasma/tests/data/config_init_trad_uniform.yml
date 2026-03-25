@@ -16,9 +16,7 @@ model:
   structure:
     v_inner_boundary: 3350 km/s
     v_outer_boundary: 3750 km/s
-    type: file
-    filename: density.txt
-    filetype: simple_ascii
+    type: specific
     density:
       type: uniform
       value: 1e-40 g/cm^3

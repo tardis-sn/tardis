@@ -28,6 +28,7 @@ no_unit_temps = [[10000,10000,10000]]
 CONFIG_PATHS = [
     Path("tardis") / "plasma" / "tests" / "data" / "config_init_trad_uniform.yml",
     Path("tardis") / "plasma" / "tests" / "data" / "config_init_trad_branch85_w7.yml",
+    Path("tardis") / "plasma" / "tests" / "data" / "config_init_trad.yml"
 ]
 
 

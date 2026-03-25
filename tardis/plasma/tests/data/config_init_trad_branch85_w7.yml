@@ -16,13 +16,10 @@ model:
   structure:
     v_inner_boundary: 3350 km/s
     v_outer_boundary: 3750 km/s
-    type: file
-    filename: density.txt
-    filetype: simple_ascii
+    type: specific
     density:
       type: branch85_w7
-      w7_time_0: 19.9999584 s
-      w7_rho_0: 3e29 g/cm^3
+
 
   abundances:
     type: file
