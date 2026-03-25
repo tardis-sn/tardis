@@ -19,8 +19,9 @@ model:
     type: file
     filename: density.txt
     filetype: simple_ascii
-    type: uniform
-    value: 1e-40 g/cm^3
+    density:
+      type: uniform
+      value: 1e-40 g/cm^3
 
 
   abundances:

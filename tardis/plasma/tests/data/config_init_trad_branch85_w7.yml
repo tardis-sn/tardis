@@ -19,9 +19,10 @@ model:
     type: file
     filename: density.txt
     filetype: simple_ascii
-    type: branch85_w7
-    w7_time_0: 19.9999584 s
-    w7_rho_0: 3e29 g/cm^3
+    density:
+      type: branch85_w7
+      w7_time_0: 19.9999584 s
+      w7_rho_0: 3e29 g/cm^3
 
   abundances:
     type: file
