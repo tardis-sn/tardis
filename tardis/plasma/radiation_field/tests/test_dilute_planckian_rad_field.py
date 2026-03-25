@@ -4,28 +4,28 @@ import pytest
 
 import astropy.units as u
 import numpy as np
-import pandas as pd
+
+import numpy.testing as npt
 
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+from tardisbase.testing.regression_data.regression_data import RegressionData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import SimulationState
 from tardis.io.atom_data import AtomData
 
-# non np array input
 
-
-DILUTION_FACTORS_CONSTANT = [[1,1,1]]
+DILUTION_FACTORS_CONSTANT = [np.array([1,1,1])] 
 TEMPERATURE_CONSTANT = [[10000,10000,10000]] * u.K 
 
 
 # create radiation fields with 3 shells of valid dilution parameters and constant temperature of 100K: uniform density, varied density, uniform 0 density, 
-valid_dilution_factors = [[1,1,1],[0.8,0.6,0.4],[0,0,0]] 
+valid_dilution_factors = [np.array([1,1,1]),np.array([0.8,0.6,0.4]),np.array([0,0,0])] 
 
 # create radiation fields with 3 shells of valid temperature parameters and constant dilution factor of 1: uniform temperature, varied temperature
 valid_temps = [[10000,10000,10000] * u.K, [8000,6000,4000] * u.K]
 
 # create radiation field with 3 shells of negative temperatures: 
-negative_temps = [[-10000,-10000,-10000]] * u.K 
+negative_temps = [[-10000,-10000,-10000] * u.K ] 
 # create radiation field with 3 shells of zero temperatures: 
 zero_temps = [[0,0,0] * u.K]
 # create radiation field with 3 shells of no unit specified temperatures: 
@@ -51,13 +51,11 @@ def simulation_state():
     )
     return SimulationState.from_config(config, atom_data=kurucz_atom_pure_simple_dataset)
 
-# create radiation field from very simple valid geometry 
+# create radiation fields from config_init_trad
+CONFIG_LIST = [
 
-# create radiation field from invalid geometry 
-
-# create radiation field from csvy model - temp defined but no dilution factor
-
-# create radition field from csvy model -  no temp dilution factor defined
+]
+@pytest.fixture(scope="class")
 
 
 
@@ -68,16 +66,6 @@ def valid_dilute_factors_rad_field(request):
 
 @pytest.fixture(scope="class",params=list(itertools.product(valid_temps,DILUTION_FACTORS_CONSTANT)))
 def valid_temperature_rad_field(request):
-    temperature, dilution = request.param
-    return DilutePlanckianRadiationField(temperature,dilution)
-
-@pytest.fixture(scope="class",params=list(itertools.product(negative_temps,DILUTION_FACTORS_CONSTANT)))
-def negative_temperature_rad_field(request):
-    temperature, dilution = request.param
-    return DilutePlanckianRadiationField(temperature,dilution)
-
-@pytest.fixture(scope="class",params=list(itertools.product(zero_temps,DILUTION_FACTORS_CONSTANT)))
-def zero_temperature_rad_field(request):
     temperature, dilution = request.param
     return DilutePlanckianRadiationField(temperature,dilution)
 
@@ -100,13 +88,11 @@ class TestValidDilutionFactors:
     def test_dilute_factors_len_equals_temp_len(valid_dilute_factors_rad_field):
         assert len(valid_dilute_factors_rad_field.dilution_factor) == len(valid_dilute_factors_rad_field.temperature)
     
-    @pytest.mark.parametrize("nu",kurucz_atom_pure_simple_dataset.lines["nu"].values)
-    def test_calculate_mean_intensity_single_nu(nu):
-        pass 
-    
-    def test_calculate_mean_intensity_nu_array(kurucz_atom_pure_simple_dataset):
+    def test_calculate_mean_intensity(kurucz_atom_pure_simple_dataset,regression_data):
         nu = kurucz_atom_pure_simple_dataset.lines["nu"].values
-        pass 
+        actual_intensities = valid_dilute_factors_rad_field.calculate_mean_intensity(nu)
+        expected_intensities = regression_data.sync_ndarray(actual_intensities)
+        npt.assert_array_array_equal(actual_intensities,expected_intensities)
 
 class TestValidTemperatures:
     def test_temp_len(valid_temperature_rad_field):
@@ -118,12 +104,25 @@ class TestValidTemperatures:
     def test_dilute_factors_len_equals_temp_len(valid_temperature_rad_field):
         assert len(valid_temperature_rad_field.dilution_factor) == len(valid_temperature_rad_field.temperature)
     
-    @pytest.mark.parametrize("nu",kurucz_atom_pure_simple_dataset.lines["nu"].values)
-    def test_calculate_mean_intensity_single_nu(nu):
-        pass 
-    
-    def test_calculate_mean_intensity_nu_array(kurucz_atom_pure_simple_dataset):
+    def test_calculate_mean_intensity(kurucz_atom_pure_simple_dataset,regression_data):
         nu = kurucz_atom_pure_simple_dataset.lines["nu"].values
-        actual_intensity = valid_temperature_rad_field.calculate_mean_intensity(nu)
-        #expected_intensity_frame = 
-        pass 
+        actual_intensities = valid_temperature_rad_field.calculate_mean_intensity(nu)
+        expected_intensities = regression_data.sync_ndarray(actual_intensities)
+        npt.assert_array_array_equal(actual_intensities,expected_intensities)
+
+class TestInvalidFields:
+    def test_negative_temperature():
+        with pytest.raises(AssertionError):
+            DilutePlanckianRadiationField(negative_temps,DILUTION_FACTORS_CONSTANT)
+
+    def test_zero_temperature():
+        with pytest.raises(AssertionError):
+            DilutePlanckianRadiationField(zero_temps,DILUTION_FACTORS_CONSTANT)
+    
+    def test_no_units():
+        with pytest.raises(u.UnitConversionError):
+            DilutePlanckianRadiationField(no_unit_temps,DILUTION_FACTORS_CONSTANT)   
+    
+    def test_dilution_factors_no_numpy():
+        with pytest.raises(TypeError):
+            DilutePlanckianRadiationField(TEMPERATURE_CONSTANT,[1,1,1])
