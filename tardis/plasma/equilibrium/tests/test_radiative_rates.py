@@ -34,4 +34,4 @@ def test_radiative_rate_solver_solve(einstein_coefficients_df, mock_radiation_fi
     expected_radiative_rates = regression_data.sync_dataframe(
         actual_radiative_rates, key="radiative_rates"
     )
-    pdt.assert_frame_equal(actual_radiative_rates,expected_radiative_rates)
+    pdt.assert_frame_equal(actual_radiative_rates,expected_radiative_rates,atol=0,rtol=1e-15)
