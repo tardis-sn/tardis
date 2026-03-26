@@ -37,12 +37,12 @@ jobs:
       allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   build:
-    if: github.repository_owner == 'tardis-sn' &&
-      (github.event_name == 'push' ||
-      (!github.event.pull_request.draft) ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' &&
-      contains(github.event.pull_request.labels.*.name, 'benchmarks')))
+    # if: github.repository_owner == 'tardis-sn' &&
+    #   (github.event_name == 'push' ||
+    #   (!github.event.pull_request.draft) ||
+    #   github.event_name == 'workflow_dispatch' ||
+    #   (github.event_name == 'pull_request' &&
+    #   contains(github.event.pull_request.labels.*.name, 'benchmarks')))
     runs-on: ubuntu-latest
     needs: [test-cache]
     steps:
