@@ -11,6 +11,10 @@ from tardis.visualization.widgets.shell_info import (
     shell_info_from_hdf,
     shell_info_from_simulation,
 )
+from tardis.visualization.sankey import (
+    plot_packet_history_sankey,
+    plot_multi_packet_sankey_after_carbon,
+)
 
 
 print("Initializing tabulator and plotly panel extensions for widgets to work")
