@@ -440,7 +440,7 @@ def probability_collision_deexc_to_k_packet(
         DataFrame containing collisional de-excitation to k packet probabilities.
     """
     p_coll_down_to_k_packet = (coll_deexc_coeff * electron_densities).multiply(
-        delta_E_yg.values, axis=0
+        delta_E_yg, axis=0
     )
 
     return p_coll_down_to_k_packet
@@ -569,8 +569,8 @@ def collisional_transition_internal_down(
     return p_coll_internal_down, coll_internal_down_metadata
 
 
-def probability_collision_exc_to_macro(
-    coll_exc_coeff, electron_densities, energy_lowers
+def probability_collision_exc_internal(
+    coll_exc_coeff, electron_densities, energies_lowers
 ):
     """
     Calculate collisional internal up probabilities.
@@ -581,7 +581,7 @@ def probability_collision_exc_to_macro(
         Collisional excitation coefficients.
     electron_densities : pd.DataFrame
         Electron densities.
-    energy_lowers : pd.Series
+    energies_lowers : pd.Series
         Energy values of the lower levels.
 
     Returns
@@ -589,14 +589,14 @@ def probability_collision_exc_to_macro(
     pd.DataFrame
         DataFrame containing collisional internal up probabilities.
     """
-    p_coll_exc_to_macro = (coll_exc_coeff * electron_densities).multiply(
-        energy_lowers.values, axis=0
+    p_coll_exc_internal = (coll_exc_coeff * electron_densities).multiply(
+        energies_lowers.values, axis=0
     )
 
-    return p_coll_exc_to_macro
+    return p_coll_exc_internal
 
 
-def collisional_transition_excitation_to_macro_atom(
+def collisional_transition_excitation_internal(
     coll_exc_coeff, electron_densities, energies_lowers
 ):
     """
@@ -613,38 +613,36 @@ def collisional_transition_excitation_to_macro_atom(
 
     Returns
     -------
-    p_coll_exc_to_macro : pd.DataFrame
+    p_coll_exc_internal : pd.DataFrame
         Unnormalized collisional excitation to macro transition probabilities.
-    coll_excite_to_macro_metadata : pd.DataFrame
+    coll_excite_internal_metadata : pd.DataFrame
         Metadata for the collisional internal up transitions.
     """
     sources = coll_exc_coeff.index.droplevel("level_number_upper").values
     destinations = coll_exc_coeff.index.droplevel("level_number_lower").values
 
-    p_coll_exc_to_macro = probability_collision_exc_to_macro(
+    p_coll_exc_internal = probability_collision_exc_internal(
         coll_exc_coeff, electron_densities, energies_lowers
     )
-    coll_excite_to_macro_metadata = pd.DataFrame(
+    coll_excite_internal_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO,
+            "transition_type": MacroAtomTransitionType.COLL_UP_INTERNAL,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": range(len(coll_exc_coeff)),
         },
-        index=p_coll_exc_to_macro.index,
+        index=p_coll_exc_internal.index,
     )
-    return p_coll_exc_to_macro, coll_excite_to_macro_metadata
+    return p_coll_exc_internal, coll_excite_internal_metadata
 
 
 def probability_collision_excitation_cool(
     coll_exc_coeff,
     electron_densities,
     delta_E_yg,
-    level_number_density,
-    lower_indices,
 ):
     """
     Calculate collisional excitation cooling rates (unnormalized) and aggregate by destination level.
@@ -670,8 +668,8 @@ def probability_collision_excitation_cool(
         `destination_level_idx`.
     """
     p_coll_excitation_cool = (coll_exc_coeff * electron_densities).multiply(
-        delta_E_yg.values, axis=0
-    ) * level_number_density.loc[lower_indices].values
+        delta_E_yg, axis=0
+    )
 
     p_coll_excitation_cool = p_coll_excitation_cool.groupby(
         level=["atomic_number", "ion_number", "level_number_upper"]
@@ -683,8 +681,6 @@ def collisional_transition_excitation_cool(
     coll_exc_coeff,
     electron_densities,
     delta_E_yg,
-    level_number_density,
-    lower_indices,
 ):
     """
     Build collisional excitation cooling transitions and metadata.
@@ -718,13 +714,9 @@ def collisional_transition_excitation_cool(
         coll_exc_coeff,
         electron_densities,
         delta_E_yg,
-        level_number_density,
-        lower_indices,
     )
     sources = [("k", -99, -99)] * len(p_coll_excitation_cool)
-    destinations = (
-        coll_exc_coeff.index.droplevel(["level_number_lower"]).unique().values
-    )
+    destinations = p_coll_excitation_cool.index.values
     coll_excitation_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,

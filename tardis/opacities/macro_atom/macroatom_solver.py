@@ -11,15 +11,15 @@ from tardis.opacities.macro_atom.base import (
 from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_deexc_to_k_packet,
     collisional_transition_excitation_cool,
+    collisional_transition_excitation_internal,
     collisional_transition_internal_down,
-    collisional_transition_excitation_to_macro_atom,
     continuum_transition_photoionization,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
     probability_collision_deexc_to_k_packet,
+    probability_collision_exc_internal,
     probability_collision_excitation_cool,
     probability_collision_internal_down,
-    probability_collision_exc_to_macro,
     probability_photoionization,
     probability_recombination_emission,
     probability_recombination_internal,
@@ -552,7 +552,7 @@ class BoundBoundMacroAtomSolver:
             self._nus[line_trans_internal_up_ids],
             self._oscillator_strength_lu[line_trans_internal_up_ids],
             stimulated_emission_factors[line_trans_internal_up_ids],
-            mean_intensities_blue_wing.iloc[line_trans_internal_up_ids],
+            mean_intensities_blue_wing[line_trans_internal_up_ids],
             self._energies_lower[line_trans_internal_up_ids],
         ).to_numpy()
 
@@ -1025,10 +1025,16 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         )
         # Then assemble the collisional transitions
         self._coll_energies_lower = self.levels.energy.loc[
-            coll_deexc_coeff.index.droplevel("level_number_upper")
+            coll_exc_coeff.index.droplevel("level_number_upper")
         ]  # This should probably be moved to init - static data,
         self._coll_indices_lower = coll_exc_coeff.index.droplevel(
             "level_number_upper"
+        )
+        self._coll_energies_upper = self.levels.energy.loc[
+            coll_exc_coeff.index.droplevel("level_number_lower")
+        ]  # This should probably be moved to init - static data,
+        self._coll_indices_upper = coll_exc_coeff.index.droplevel(
+            "level_number_lower"
         )
         # but needs coll_deexc_coeff which does change per iteration
 
@@ -1045,8 +1051,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
         p_coll_internal_up, coll_internal_up_metadata = (
-            collisional_transition_excitation_to_macro_atom(
-                coll_exc_coeff, electron_densities, self._coll_energies_lower
+            collisional_transition_excitation_internal(
+                coll_exc_coeff,
+                electron_densities,
+                self._coll_energies_lower,
             )
         )
 
@@ -1055,8 +1063,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_exc_coeff,
                 electron_densities,
                 self._delta_E_yg,
-                level_number_density,
-                self._coll_indices_lower,
             )
         )
 
@@ -1098,10 +1104,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
         probabilities_df["source"] = macro_atom_transition_metadata["source"]
-        normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
-        )
-        # normalized_probabilities = probabilities_df
+        # TODO: CHANGE THIS BACK - FOR DEBUGGING PURPOSES
+        # normalized_probabilities = self.normalize_transition_probabilities(
+        #     probabilities_df
+        # )
+        normalized_probabilities = probabilities_df
 
         line2macro_level_upper, reference_index = (
             self.create_line2macro_level_upper_and_reference_idx(
@@ -1212,7 +1219,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ].collision_key_idx.to_numpy()
         collisional_up_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
+            == MacroAtomTransitionType.COLL_UP_INTERNAL
         ].collision_key_idx.to_numpy()
 
         probabilities_df = pd.DataFrame(
@@ -1254,7 +1261,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self._nus[line_trans_internal_up_ids],
             self._oscillator_strength_lu[line_trans_internal_up_ids],
             stimulated_emission_factors[line_trans_internal_up_ids],
-            mean_intensities_blue_wing.iloc[line_trans_internal_up_ids],
+            mean_intensities_blue_wing[line_trans_internal_up_ids],
             self._energies_lower[line_trans_internal_up_ids],
         ).to_numpy()
 
@@ -1316,6 +1323,15 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
+        ] = probability_collision_excitation_cool(
+            coll_exc_coeff,
+            electron_densities,
+            self._delta_E_yg,
+        ).to_numpy()
+
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_DOWN_INTERNAL
         ] = probability_collision_internal_down(
             coll_deexc_coeff.iloc[collisional_down_internal_idxs],
@@ -1325,8 +1341,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
-        ] = probability_collision_exc_to_macro(
+            == MacroAtomTransitionType.COLL_UP_INTERNAL
+        ] = probability_collision_exc_internal(
             coll_exc_coeff.iloc[collisional_up_internal_idxs],
             electron_densities,
             self._coll_energies_lower.iloc[collisional_up_internal_idxs],
@@ -1341,8 +1357,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             coll_exc_coeff,
             electron_densities,
             self._delta_E_yg,
-            level_number_density,
-            self._coll_indices_lower,
         ).to_numpy()
 
         probabilities_df["source"] = (

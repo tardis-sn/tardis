@@ -27,10 +27,12 @@ class MacroAtomTransitionType(IntEnum):
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Yes this is taken care of by BF_EMISSION
     TWO_PHOTON = -6
+    # Collisions block
     COLL_DOWN_TO_K_PACKET = 9
-    COLL_DOWN_INTERNAL = 10
-    COLL_EXC_COOL_TO_MACRO = 11
-    COLL_ION_COOL_TO_MACRO = 12
+    COLL_UP_INTERNAL = 10
+    COLL_DOWN_INTERNAL = 11
+    COLL_EXC_COOL_TO_MACRO = 12
+    COLL_ION_COOL_TO_MACRO = 13
 
 
 @njit(**njit_dict_no_parallel)
