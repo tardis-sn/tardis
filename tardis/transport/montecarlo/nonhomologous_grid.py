@@ -7,7 +7,7 @@ from tardis.transport.montecarlo import (
 
 
 @njit(**njit_dict_no_parallel)
-def velocity_dvdr(r_packet, geometry):
+def piecewise_linear_dvdr(r_packet, geometry):
     """
     Velocity at radius r and dv/dr of current shell
 
@@ -47,31 +47,56 @@ def tau_sobolev_factor(r_packet, geometry):
     -------
     factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
     """
-    v, dvdr = velocity_dvdr(r_packet, geometry)
+    v, dvdr = piecewise_linear_dvdr(r_packet, geometry)
     r = r_packet.r
     mu = r_packet.mu
     factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
     return factor
 
 
-# @njit(**njit_dict_no_parallel)
-def quartic_roots(a, b, c, d, e, threshold):
-    """
-    Solves ax^4 + bx^3 + cx^2 + dx + e = 0, for the real roots greater than the threshold returns (x - threshold).
-    Uses: https://en.wikipedia.org/wiki/Quartic_function#General_formula_for_roots
+def depressed_quartic(A, B, C, D, E):
 
-    Parameters
-    ----------
-    a, b, c, d, e: coefficients of the equations ax^4 + bx^3 + cx^2 + dx + e = 0, float
-    threshold: lower needed limit on roots, float
+    a = -3.0*B**2.0/(8.0*A**2.0) + C/A
+    b = B**3.0/(8.0*A**3.0) - B*C/(2.0*A**2.0) + D/A
+    c = -3.0*B**4.0/(256.0*A**4.0) + C*B**2.0/(16.0*A**3.0) - B*D/(4.0*A**2.0) + E/A
 
-    Returns
-    -------
-    roots: real positive roots of ax^4 + bx^3 + cx^2 + dx + e = 0
+    p = -a**2.0/12.0 - c
+    q = -a**3.0/108.0 + a*c/3.0 - b**2.0/8.0
 
-    """
-    roots = np.roots((a, b, c, d, e))
-    roots = [root for root in roots if isinstance(root, float)]
-    roots = [root for root in roots if root > threshold]
+    # Handle floating point error to prevent small neg numbers in sqrt
+    # Want these terms to exactly cancel if their difference is ~1e-15 as small
+    # as their value
+    q2p3_thresh = 1e-14 * np.max([np.abs(q**2.0/(4.0)), np.abs(p**3.0/27.0)])
+    q2p3_term = q**2.0/(4.0) + p**3.0/27.0
+    if np.abs(q2p3_term) <= q2p3_thresh:
+        q2p3_term = 0.0
 
+    # Certain solutions will have (physical) complex values of r
+    # but the complex component can cancel out in y
+    r = -q/2 + np.sqrt(q2p3_term, dtype=complex)
+    u = r**(1./3.)
+
+    # Handle case where u=0
+    if u == 0.0:
+        y = -5.0/6.0 * a - q**(1.0/3.0)
+    else:
+        y = -5.0/6.0 * a + u - p/(3.0*u)
+    y = np.real_if_close(y)
+    w = np.sqrt(a + 2.0*y)
+
+    # Handle floating point error to prevent small neg numbers in sqrt
+    aybw_term = [-(3.0*a + 2.0*y + 2.0*b/w), -(3.0*a + 2.0*y - 2.0*b/w)]
+    aybw_thresh = 1e-13 * np.max([np.abs(3.0*a), np.abs(2.0*y), np.abs(2.0*b/w)])
+    for i, term in enumerate(aybw_term):
+        if np.abs(term) <= aybw_thresh:
+           aybw_term[i] = 0.0 
+        elif term < 0.0:
+            aybw_term[i] = np.nan
+
+    x1 = -B/(4.0*A) + 0.5*( w + np.sqrt(aybw_term[0]))
+    x2 = -B/(4.0*A) + 0.5*( w - np.sqrt(aybw_term[0]))
+    x3 = -B/(4.0*A) + 0.5*(-w + np.sqrt(aybw_term[1]))
+    x4 = -B/(4.0*A) + 0.5*(-w - np.sqrt(aybw_term[1]))
+
+    roots = (x1, x2, x3, x4)
     return roots

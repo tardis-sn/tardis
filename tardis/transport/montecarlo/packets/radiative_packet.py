@@ -91,6 +91,7 @@ class RPacket:
         self.seed = seed
         self.index = index
 
+    # TODO:nonhomology - will need to generalize the line search, doppler factor
     def initialize_line_id(
         self, opacity_state, time_explosion, enable_full_relativity
     ):

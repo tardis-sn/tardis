@@ -6,6 +6,7 @@ from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
+from tardis.transport.montecarlo.nonhomologous_grid import piecewise_linear_dvdr
 
 
 @njit(**njit_dict_no_parallel)
@@ -17,6 +18,14 @@ def get_doppler_factor(r, mu, time_explosion, enable_full_relativity):
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_doppler_factor_full_relativity(mu, beta)
+
+
+@njit(**njit_dict_no_parallel)
+def get_doppler_factor_nonhomologous(r, mu, geometry):
+    inv_c = 1 / C_SPEED_OF_LIGHT
+    v, _ = piecewise_linear_dvdr(r, geometry)
+    beta = v * inv_c
+    return get_doppler_factor_partial_relativity(mu, beta)
 
 
 @njit(**njit_dict_no_parallel)
@@ -47,6 +56,23 @@ def get_inverse_doppler_factor(r, mu, time_explosion, enable_full_relativity):
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)
+
+
+@njit(**njit_dict_no_parallel)
+def get_inverse_doppler_factor_nonhomologous(r, mu, geometry):
+    """
+    Calculate doppler factor for frame transformation
+
+    Parameters
+    ----------
+    r : float
+    mu : float
+    geometry : NumbaRadial1DGeometry
+    """
+    inv_c = 1 / C_SPEED_OF_LIGHT
+    v, _ = piecewise_linear_dvdr(r, geometry)
+    beta = v * inv_c
+    return get_inverse_doppler_factor_partial_relativity(mu, beta)
 
 
 @njit(**njit_dict_no_parallel)
