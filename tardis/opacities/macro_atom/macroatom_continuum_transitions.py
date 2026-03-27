@@ -740,14 +740,14 @@ def collisional_transition_ionization_internal(
     electron_densities,
     energies_coll_ion,
 ):
-    p_coll_ionize_internal = probability_collision_ionization_internal(
+    p_coll_ionization_internal = probability_collision_ionization_internal(
         coll_ion_coeff,
         electron_densities,
         energies_coll_ion,
     )
     sources = coll_ion_coeff.index.values
-    destinations = [("i", -99, -99)] * len(p_coll_ionize_internal)
-    coll_excitation_cool_metadata = pd.DataFrame(
+    destinations = [("i", -99, -99)] * len(p_coll_ionization_internal)
+    coll_ionzation_internal_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
@@ -757,10 +757,10 @@ def collisional_transition_ionization_internal(
             "photoionization_key_idx": -99,
             "collision_key_idx": -99,  # Collapsed along level_number_lower, so can't be mapped to collision keys
         },
-        index=p_coll_ionize_internal.index,
+        index=p_coll_ionization_internal.index,
     )
 
-    return p_coll_ionize_internal, coll_excitation_cool_metadata
+    return p_coll_ionization_internal, coll_ionzation_internal_metadata
 
 
 def probability_collision_ionization_emission(
@@ -780,14 +780,16 @@ def collisional_transition_ionization_emission(
     electron_densities,
     energies_diff_coll_ion,
 ):
-    p_coll_ionize_emission = probability_collision_ionization_emission(
+    p_coll_ionization_emission = probability_collision_ionization_emission(
         coll_ion_coeff,
         electron_densities,
         energies_diff_coll_ion,
     )
     sources = coll_ion_coeff.index.values
-    destinations = [("i", -99, -99)] * len(p_coll_ionize_emission)
-    coll_excitation_cool_metadata = pd.DataFrame(
+    destinations = [("i", -99, -99)] * len(
+        p_coll_ionization_emission
+    )  # Maybe supposed to go to K block?
+    coll_ionization_emission_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
@@ -797,7 +799,89 @@ def collisional_transition_ionization_emission(
             "photoionization_key_idx": -99,
             "collision_key_idx": -99,
         },
-        index=p_coll_ionize_emission.index,
+        index=p_coll_ionization_emission.index,
     )
 
-    return p_coll_ionize_emission, coll_excitation_cool_metadata
+    return p_coll_ionization_emission, coll_ionization_emission_metadata
+
+
+def probability_collision_recombination_internal(
+    coll_recomb_coeff,
+    electron_densities,
+    energies_coll_ion,
+):
+    p_coll_ionization_internal = (
+        coll_recomb_coeff * electron_densities
+    ).multiply(energies_coll_ion.values, axis=0)
+
+    return p_coll_ionization_internal
+
+
+def collisional_transition_recombination_internal(
+    coll_recomb_coeff,
+    electron_densities,
+    energies_coll_ion,
+):
+    p_coll_recomb_internal = probability_collision_recombination_internal(
+        coll_recomb_coeff,
+        electron_densities,
+        energies_coll_ion,
+    )
+    sources = [("i", -99, -99)] * len(
+        p_coll_recomb_internal
+    )  # Might also be from K?
+    destinations = coll_recomb_coeff.index.values
+    coll_recomb_internal = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.COLL_RECOMB_INTERNAL,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": -99,
+            "collision_key_idx": -99,
+        },
+        index=p_coll_recomb_internal.index,
+    )
+
+    return p_coll_recomb_internal, coll_recomb_internal
+
+
+def probability_collision_recombination_emission(
+    coll_recomb_coeff,
+    electron_densities,
+    energies_diff_coll_ion,
+):
+    p_coll_ionization_internal = (
+        coll_recomb_coeff * electron_densities
+    ).multiply(energies_diff_coll_ion.values, axis=0)
+
+    return p_coll_ionization_internal
+
+
+def collisional_transition_recombination_emission(
+    coll_recomb_coeff,
+    electron_densities,
+    energies_diff_coll_ion,
+):
+    p_coll_recomb_emission = probability_collision_recombination_emission(
+        coll_recomb_coeff,
+        electron_densities,
+        energies_diff_coll_ion,
+    )
+    sources = [("i", -99, -99)] * len(p_coll_recomb_emission)
+    destinations = coll_recomb_coeff.index.values  # Not sure this is right
+    coll_recomb_emission_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.COLL_RECOMB_EMISSION,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": -99,
+            "collision_key_idx": -99,
+        },
+        index=p_coll_recomb_emission.index,
+    )
+
+    return p_coll_recomb_emission, coll_recomb_emission_metadata

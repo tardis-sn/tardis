@@ -15,6 +15,8 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_internal_down,
     collisional_transition_ionization_emission,
     collisional_transition_ionization_internal,
+    collisional_transition_recombination_emission,
+    collisional_transition_recombination_internal,
     continuum_transition_photoionization,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
@@ -24,6 +26,7 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     probability_collision_internal_down,
     probability_collision_ionization_emission,
     probability_collision_ionization_internal,
+    probability_collision_recombination_internal,
     probability_photoionization,
     probability_recombination_emission,
     probability_recombination_internal,
@@ -1084,7 +1087,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 self._delta_E_yg,
             )
         )
-        p_coll_internal_ion, coll_ionization_internal_metadata = (
+        p_coll_ionization_internal, coll_ionization_internal_metadata = (
             collisional_transition_ionization_internal(
                 coll_ion_coeff, electron_densities, self._coll_ion_energies
             )
@@ -1093,6 +1096,19 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         p_coll_emission_ion, coll_ionization_emission_metadata = (
             collisional_transition_ionization_emission(
                 coll_ion_coeff, electron_densities, self._delta_E_yg_ionization
+            )
+        )
+
+        p_coll_recomb_internal, coll_recomb_internal_metadata = (
+            collisional_transition_recombination_internal(
+                coll_recomb_coeff, electron_densities, self._coll_ion_energies
+            )
+        )
+        p_coll_recomb_emission, coll_recomb_emission_metadata = (
+            collisional_transition_recombination_emission(
+                coll_recomb_coeff,
+                electron_densities,
+                self._delta_E_yg_ionization,
             )
         )
 
@@ -1108,8 +1124,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 p_coll_internal_down,
                 p_coll_internal_up,
                 p_coll_excitation_cool,
-                p_coll_internal_ion,
+                p_coll_ionization_internal,
                 p_coll_emission_ion,
+                p_coll_recomb_internal,
+                p_coll_recomb_emission,
             ],
             ignore_index=True,
         )
@@ -1128,6 +1146,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_excitation_cool_metadata,
                 coll_ionization_internal_metadata,
                 coll_ionization_emission_metadata,
+                coll_recomb_internal_metadata,
+                coll_recomb_emission_metadata,
             ],
             ignore_index=True,
         )
@@ -1171,7 +1191,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             reference_index,
         )
 
-    def _solve_next_macroatom_iteration(
+    def _solve_next_macroatom_iteration(  # TODO: FIGURE OUT NEXT ITER PROB RECREATION - CURRENTLY WRONG
         self,
         mean_intensities_blue_wing: pd.DataFrame,
         beta_sobolevs: pd.DataFrame,
@@ -1183,7 +1203,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.DataFrame,
-        level_number_density: pd.DataFrame,
     ) -> pd.DataFrame:
         """
         Handle subsequent iterations of the solve method.
