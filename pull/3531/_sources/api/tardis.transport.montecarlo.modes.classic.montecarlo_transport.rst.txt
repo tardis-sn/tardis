@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.modes.classic.montecarlo\_transport module
-======================================================================
-
-.. automodule:: tardis.transport.montecarlo.modes.classic.montecarlo_transport
-   :members:
-   :show-inheritance:
-   :undoc-members:

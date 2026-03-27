@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.modes.iip.solver module
-===================================================
-
-.. automodule:: tardis.transport.montecarlo.modes.iip.solver
-   :members:
-   :show-inheritance:
-   :undoc-members:
