@@ -29,7 +29,9 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.modes.classic.solver import MCTransportSolverClassic
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
+)
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
@@ -459,6 +461,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma.alpha_sp,
                     self.plasma.coll_deexc_coeff,
                     self.plasma.coll_exc_coeff,
+                    self.plasma.coll_ion_coeff,
+                    self.plasma.coll_recomb_coeff,
                     self.plasma.electron_densities,
                     self.plasma.level_number_density,
                     self.plasma.delta_E_yg,
@@ -798,6 +802,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                         atom_data.levels,
                         atom_data.lines,
                         atom_data.photoionization_data,
+                        atom_data.ionization_data,
                         line_interaction_type=config.plasma.line_interaction_type,
                     )
                 else:

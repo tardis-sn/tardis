@@ -33,6 +33,8 @@ class MacroAtomTransitionType(IntEnum):
     COLL_DOWN_INTERNAL = 11
     COLL_EXC_COOL_TO_MACRO = 12
     COLL_ION_COOL_TO_MACRO = 13
+    COLL_ION_INTERNAL = 14
+    COLL_ION_EMISSION = -7
 
 
 @njit(**njit_dict_no_parallel)

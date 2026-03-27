@@ -13,6 +13,8 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_excitation_cool,
     collisional_transition_excitation_internal,
     collisional_transition_internal_down,
+    collisional_transition_ionization_emission,
+    collisional_transition_ionization_internal,
     continuum_transition_photoionization,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
@@ -20,6 +22,8 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     probability_collision_exc_internal,
     probability_collision_excitation_cool,
     probability_collision_internal_down,
+    probability_collision_ionization_emission,
+    probability_collision_ionization_internal,
     probability_photoionization,
     probability_recombination_emission,
     probability_recombination_internal,
@@ -35,6 +39,9 @@ from tardis.opacities.macro_atom.macroatom_line_transitions import (
 from tardis.opacities.macro_atom.macroatom_state import (
     LegacyMacroAtomState,
     MacroAtomState,
+)
+from tardis.plasma.properties.continuum_processes.rates import (
+    get_ground_state_multi_index,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
@@ -766,6 +773,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
     lines: pd.DataFrame
     line_interaction_type: str
     photoionization_data: pd.DataFrame
+    ionization_energies: pd.DataFrame
     selected_continuum_transitions: np.ndarray
 
     def __init__(
@@ -773,6 +781,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         levels: pd.DataFrame,
         lines: pd.DataFrame,
         photoionization_data: pd.DataFrame,
+        ionization_energies: pd.DataFrame,
         selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = "macroatom",
     ) -> None:
@@ -821,9 +830,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         self.photoionization_data_level_energies = levels.loc[
             self.photoionization_data.index.unique()
         ].energy
-        self.ionization_frequency_thresholds = (
-            self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
-        )
+        # self.ionization_frequency_thresholds = (
+        #     self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
+        # )
+        self.ionization_energies = ionization_energies
 
     def solve(
         self,
@@ -834,6 +844,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         spontaneous_recombination_coeff: pd.DataFrame,
         coll_deexc_coeff: pd.DataFrame,
         coll_exc_coeff: pd.DataFrame,
+        coll_ion_coeff: pd.DataFrame,
+        coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.DataFrame,
         level_number_density: pd.DataFrame,
         delta_E_yg: pd.DataFrame,
@@ -868,6 +880,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         if is_first_iteration:
             self._delta_E_yg = delta_E_yg  # This should be moved to the init, but can't yet because delta_E_yg comes from the plasma which isn't given to macroatom init
+            self._delta_E_yg_ionization = (
+                self.ionization_energies[
+                    get_ground_state_multi_index(coll_ion_coeff.index)
+                ]
+                - self.levels.energy.loc[coll_ion_coeff.index].values
+            )
             (
                 normalized_probabilities,
                 macro_atom_transition_metadata,
@@ -882,8 +900,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 spontaneous_recombination_coeff,
                 coll_deexc_coeff,
                 coll_exc_coeff,
+                coll_ion_coeff,
+                coll_recomb_coeff,
                 electron_densities,
-                level_number_density,
             )
         else:
             normalized_probabilities = self._solve_next_macroatom_iteration(
@@ -894,6 +913,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 spontaneous_recombination_coeff,
                 coll_deexc_coeff,
                 coll_exc_coeff,
+                coll_ion_coeff,
+                coll_recomb_coeff,
                 electron_densities,
                 level_number_density,
             )
@@ -921,8 +942,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         spontaneous_recombination_coeff: pd.DataFrame,
         coll_deexc_coeff: pd.DataFrame,
         coll_exc_coeff: pd.DataFrame,
+        coll_ion_coeff: pd.DataFrame,
+        coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.DataFrame,
-        level_number_density: pd.DataFrame,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
         """
         Handle the first iteration of the solve method for continuum macro atom.
@@ -1024,19 +1046,16 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
         # Then assemble the collisional transitions
+        # TODO: CONSOLIDATE WITH SOLVE FIRST ITER ATTR SETTING
         self._coll_energies_lower = self.levels.energy.loc[
             coll_exc_coeff.index.droplevel("level_number_upper")
         ]  # This should probably be moved to init - static data,
         self._coll_indices_lower = coll_exc_coeff.index.droplevel(
             "level_number_upper"
         )
-        self._coll_energies_upper = self.levels.energy.loc[
-            coll_exc_coeff.index.droplevel("level_number_lower")
-        ]  # This should probably be moved to init - static data,
-        self._coll_indices_upper = coll_exc_coeff.index.droplevel(
-            "level_number_lower"
-        )
-        # but needs coll_deexc_coeff which does change per iteration
+        self._coll_ion_energies = self.levels.energy.loc[coll_ion_coeff.index]
+        # self._ionization_energies =
+        # but needs coll_deexc_coeff which doesn't exist til plasma
 
         p_coll_down_to_k_packet, coll_down_to_packet_metadata = (
             collisional_transition_deexc_to_k_packet(
@@ -1065,6 +1084,17 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 self._delta_E_yg,
             )
         )
+        p_coll_internal_ion, coll_ionization_internal_metadata = (
+            collisional_transition_ionization_internal(
+                coll_ion_coeff, electron_densities, self._coll_ion_energies
+            )
+        )
+
+        p_coll_emission_ion, coll_ionization_emission_metadata = (
+            collisional_transition_ionization_emission(
+                coll_ion_coeff, electron_densities, self._delta_E_yg_ionization
+            )
+        )
 
         probabilities_df = pd.concat(
             [
@@ -1078,6 +1108,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 p_coll_internal_down,
                 p_coll_internal_up,
                 p_coll_excitation_cool,
+                p_coll_internal_ion,
+                p_coll_emission_ion,
             ],
             ignore_index=True,
         )
@@ -1094,6 +1126,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_internal_down_metadata,
                 coll_internal_up_metadata,
                 coll_excitation_cool_metadata,
+                coll_ionization_internal_metadata,
+                coll_ionization_emission_metadata,
             ],
             ignore_index=True,
         )
@@ -1146,6 +1180,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         spontaneous_recombination_coeff: pd.DataFrame,
         coll_deexc_coeff: pd.DataFrame,
         coll_exc_coeff: pd.DataFrame,
+        coll_ion_coeff: pd.DataFrame,
+        coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.DataFrame,
         level_number_density: pd.DataFrame,
     ) -> pd.DataFrame:

@@ -500,7 +500,7 @@ def collisional_transition_deexc_to_k_packet(
 
 
 def probability_collision_internal_down(
-    coll_deexc_coeff, electron_densities, energies_lowers
+    coll_deexc_coeff, electron_densities, energies_lower
 ):
     """
     Calculate collisional internal de-excitation probabilities.
@@ -511,7 +511,7 @@ def probability_collision_internal_down(
         Collisional de-excitation coefficients.
     electron_densities : pd.DataFrame
         Electron densities.
-    energies_lowers : pd.Series
+    energies_lower : pd.Series
         Energy values of the lower levels.
 
     Returns
@@ -520,14 +520,14 @@ def probability_collision_internal_down(
         DataFrame containing collisional de-excitation probabilities.
     """
     p_coll_internal_down = (coll_deexc_coeff * electron_densities).multiply(
-        energies_lowers.values, axis=0
+        energies_lower.values, axis=0
     )
     return p_coll_internal_down
 
 
 # Might not be a used transition
 def collisional_transition_internal_down(
-    coll_deexc_coeff, electron_densities, energies_lowers
+    coll_deexc_coeff, electron_densities, energies_lower
 ):
     """
     Build collisional internal-down transition probabilities and metadata.
@@ -538,7 +538,7 @@ def collisional_transition_internal_down(
         Collisional de-excitation coefficients indexed by transitions.
     electron_densities : pd.DataFrame or pd.Series
         Electron number densities per zone.
-    energies_lowers : pd.Series
+    energies_lower : pd.Series
         Energy values of the lower levels.
 
     Returns
@@ -551,7 +551,7 @@ def collisional_transition_internal_down(
     sources = coll_deexc_coeff.index.droplevel("level_number_lower").values
     destinations = coll_deexc_coeff.index.droplevel("level_number_upper").values
     p_coll_internal_down = probability_collision_internal_down(
-        coll_deexc_coeff, electron_densities, energies_lowers
+        coll_deexc_coeff, electron_densities, energies_lower
     )
 
     coll_internal_down_metadata = pd.DataFrame(
@@ -570,7 +570,7 @@ def collisional_transition_internal_down(
 
 
 def probability_collision_exc_internal(
-    coll_exc_coeff, electron_densities, energies_lowers
+    coll_exc_coeff, electron_densities, energies_lower
 ):
     """
     Calculate collisional internal up probabilities.
@@ -581,7 +581,7 @@ def probability_collision_exc_internal(
         Collisional excitation coefficients.
     electron_densities : pd.DataFrame
         Electron densities.
-    energies_lowers : pd.Series
+    energies_lower : pd.Series
         Energy values of the lower levels.
 
     Returns
@@ -590,14 +590,14 @@ def probability_collision_exc_internal(
         DataFrame containing collisional internal up probabilities.
     """
     p_coll_exc_internal = (coll_exc_coeff * electron_densities).multiply(
-        energies_lowers.values, axis=0
+        energies_lower.values, axis=0
     )
 
     return p_coll_exc_internal
 
 
 def collisional_transition_excitation_internal(
-    coll_exc_coeff, electron_densities, energies_lowers
+    coll_exc_coeff, electron_densities, energies_lower
 ):
     """
     Build collisional internal-up transition probabilities and metadata.
@@ -608,7 +608,7 @@ def collisional_transition_excitation_internal(
         Collisional excitation coefficients indexed by transitions.
     electron_densities : pd.DataFrame or pd.Series
         Electron number densities per zone.
-    energies_lowers : object
+    energies_lower : object
         Atomic data object providing `levels` with energy values.
 
     Returns
@@ -622,7 +622,7 @@ def collisional_transition_excitation_internal(
     destinations = coll_exc_coeff.index.droplevel("level_number_lower").values
 
     p_coll_exc_internal = probability_collision_exc_internal(
-        coll_exc_coeff, electron_densities, energies_lowers
+        coll_exc_coeff, electron_densities, energies_lower
     )
     coll_excite_internal_metadata = pd.DataFrame(
         {
@@ -655,11 +655,6 @@ def probability_collision_excitation_cool(
         Electron number densities per zone.
     delta_E_yg : pd.Series
         Energy differences for the excitation transitions (level -> g).
-    level_number_density : pd.Series
-        Number density for the lower levels involved in the transitions.
-    lower_indices : pd.Index
-        Index of lower level identifiers that aligns `level_number_density` with
-        the rows of `coll_exc_coeff`.
 
     Returns
     -------
@@ -697,11 +692,6 @@ def collisional_transition_excitation_cool(
         Electron number densities per zone.
     delta_E_yg : pd.Series
         Energy differences for the excitations.
-    level_number_density : pd.Series
-        Number density for the lower levels involved in the transitions.
-    lower_indices : pd.Index
-        Index of lower level identifiers that aligns `level_number_density` with
-        the rows of `coll_exc_coeff`.
 
     Returns
     -------
@@ -731,3 +721,83 @@ def collisional_transition_excitation_cool(
     )
 
     return p_coll_excitation_cool, coll_excitation_cool_metadata
+
+
+def probability_collision_ionization_internal(
+    coll_ion_coeff,
+    electron_densities,
+    energies_coll_ion,
+):
+    p_coll_ionization_internal = (coll_ion_coeff * electron_densities).multiply(
+        energies_coll_ion, axis=0
+    )
+
+    return p_coll_ionization_internal
+
+
+def collisional_transition_ionization_internal(
+    coll_ion_coeff,
+    electron_densities,
+    energies_coll_ion,
+):
+    p_coll_ionize_internal = probability_collision_ionization_internal(
+        coll_ion_coeff,
+        electron_densities,
+        energies_coll_ion,
+    )
+    sources = coll_ion_coeff.index.values
+    destinations = [("i", -99, -99)] * len(p_coll_ionize_internal)
+    coll_excitation_cool_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.COLL_ION_INTERNAL,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": -99,
+            "collision_key_idx": -99,  # Collapsed along level_number_lower, so can't be mapped to collision keys
+        },
+        index=p_coll_ionize_internal.index,
+    )
+
+    return p_coll_ionize_internal, coll_excitation_cool_metadata
+
+
+def probability_collision_ionization_emission(
+    coll_ion_coeff,
+    electron_densities,
+    energy_diff_coll_ion,
+):
+    p_coll_ionization_internal = (coll_ion_coeff * electron_densities).multiply(
+        energy_diff_coll_ion.values, axis=0
+    )
+
+    return p_coll_ionization_internal
+
+
+def collisional_transition_ionization_emission(
+    coll_ion_coeff,
+    electron_densities,
+    energies_diff_coll_ion,
+):
+    p_coll_ionize_emission = probability_collision_ionization_emission(
+        coll_ion_coeff,
+        electron_densities,
+        energies_diff_coll_ion,
+    )
+    sources = coll_ion_coeff.index.values
+    destinations = [("i", -99, -99)] * len(p_coll_ionize_emission)
+    coll_excitation_cool_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": sources,
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.COLL_ION_EMISSION,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": -99,
+            "collision_key_idx": -99,
+        },
+        index=p_coll_ionize_emission.index,
+    )
+
+    return p_coll_ionize_emission, coll_excitation_cool_metadata

@@ -179,6 +179,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.atom_data.levels,
             self.atom_data.lines,
             self.atom_data.photoionization_data,
+            self.atom_data.ionization_data,
             line_interaction_type=line_interaction_type,
         )
 
@@ -754,6 +755,8 @@ class TypeIIPWorkflow(WorkflowLogging):
                 recombination_rate,
                 self.plasma_solver.coll_deexc_coeff,
                 self.plasma_solver.coll_exc_coeff,
+                self.plasma_solver.coll_ion_coeff,
+                self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
                 self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
