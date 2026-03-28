@@ -2,13 +2,15 @@
 Basic TARDIS Benchmark.
 """
 
-from benchmarks.benchmark_base import BenchmarkBase
 from numba.typed import List
 
+from benchmarks.benchmark_base import BenchmarkBase
 from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
     montecarlo_transport,
 )
-from tardis.transport.montecarlo.packets.packet_collections import PacketCollection
+from tardis.transport.montecarlo.packets.packet_collections import (
+    PacketCollection,
+)
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
     TrackerLastInteraction as _TrackerLastInteraction,
 )
