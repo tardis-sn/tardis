@@ -1,0 +1,501 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.transport.montecarlo.packets.trackers.tracker_full &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=89132dbe"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+    <link href="../../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.transport.montecarlo.packets.trackers.tracker_full</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.transport.montecarlo.packets.trackers.tracker_full</h1><div class="highlight"><pre>
+<span></span>import numba as nb
+import numpy as np
+from numba.experimental import jitclass
+
+from tardis.transport.montecarlo.packets.radiative_packet import (
+    InteractionType,
+)
+from tardis.transport.montecarlo.packets.trackers.array_utils import (
+    extend_array,
+    extend_float_array,
+    extend_int_array,
+    extend_interaction_type_array,
+)
+
+NO_INTERACTION_INT = int(InteractionType.NO_INTERACTION)
+
+
+<div class="viewcode-block" id="TrackerFull">
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.TrackerFull">[docs]</a>
+@jitclass
+class TrackerFull:
+    &quot;&quot;&quot;
+    Numba JITCLASS for storing interaction information for RPacket instances.
+
+    Tracks all packet events with before/after shell IDs and interaction data.
+
+    Parameters
+    ----------
+    length : int
+        Initial length of tracking arrays.
+
+    Attributes
+    ----------
+    r : nb.float64[:]
+        Radius of the RPacket at each event.
+    shell_id : nb.int64[:]
+        Shell ID where the RPacket is located at each event.
+    before_shell_id : nb.int64[:]
+        Shell ID before each event (same as shell_id except for boundary events).
+    after_shell_id : nb.int64[:]
+        Shell ID after each event (same as shell_id except for boundary events).
+    interaction_type : nb.int64[:]
+        Type of interaction undergone by the RPacket at each event.
+    status : nb.int64[:]
+        Status of the RPacket at each event.
+    before_nu : nb.float64[:]
+        Frequency before each interaction.
+    before_mu : nb.float64[:]
+        Cosine of angle before each interaction.
+    before_energy : nb.float64[:]
+        Energy before each interaction.
+    after_nu : nb.float64[:]
+        Frequency after each interaction.
+    after_mu : nb.float64[:]
+        Cosine of angle after each interaction.
+    after_energy : nb.float64[:]
+        Energy after each interaction.
+    line_absorb_id : nb.int64[:]
+        Line ID for absorbed line interactions.
+    line_emit_id : nb.int64[:]
+        Line ID for emitted line interactions.
+    event_id : nb.int64
+        Current event counter.
+    extend_factor : nb.int64
+        Factor by which to extend arrays when capacity is reached.
+    &quot;&quot;&quot;
+
+    # All arrays are now &quot;core&quot; arrays
+    radius: nb.float64[:]  # type: ignore[misc]
+    before_shell_id: nb.int64[:]  # type: ignore[misc]
+    after_shell_id: nb.int64[:]  # type: ignore[misc]
+    interaction_type: nb.int64[:]  # type: ignore[misc]
+    status: nb.int64[:]  # type: ignore[misc]
+    before_nu: nb.float64[:]  # type: ignore[misc]
+    before_mu: nb.float64[:]  # type: ignore[misc]
+    before_energy: nb.float64[:]  # type: ignore[misc]
+    after_nu: nb.float64[:]  # type: ignore[misc]
+    after_mu: nb.float64[:]  # type: ignore[misc]
+    after_energy: nb.float64[:]  # type: ignore[misc]
+    line_absorb_id: nb.int64[:]  # type: ignore[misc]
+    line_emit_id: nb.int64[:]  # type: ignore[misc]
+
+    event_id: nb.int64  # type: ignore[misc]
+    extend_factor: nb.int64  # type: ignore[misc]
+
+    def __init__(self, length: int, extend_factor: int) -&gt; None:
+        &quot;&quot;&quot;
+        Initialize the RPacketTracker with arrays for tracking packet events.
+
+        Parameters
+        ----------
+        length : int
+            Initial length of the tracking arrays.
+        &quot;&quot;&quot;
+        # All arrays have the same size now
+        self.radius = np.full(length, np.nan, dtype=np.float64)
+        self.before_shell_id = np.full(length, -99, dtype=np.int64)
+        self.after_shell_id = np.full(length, -99, dtype=np.int64)
+        self.interaction_type = np.full(
+            length, NO_INTERACTION_INT, dtype=np.int64
+        )
+        self.status = np.full(length, -1, dtype=np.int64)
+        self.before_nu = np.full(length, np.nan, dtype=np.float64)
+        self.before_mu = np.full(length, np.nan, dtype=np.float64)
+        self.before_energy = np.full(length, np.nan, dtype=np.float64)
+        self.after_nu = np.full(length, np.nan, dtype=np.float64)
+        self.after_mu = np.full(length, np.nan, dtype=np.float64)
+        self.after_energy = np.full(length, np.nan, dtype=np.float64)
+        self.line_absorb_id = np.full(length, -1, dtype=np.int64)
+        self.line_emit_id = np.full(length, -1, dtype=np.int64)
+
+        self.event_id = 0
+        self.extend_factor = extend_factor
+
+    @property
+    def array_length(self) -&gt; int:
+        &quot;&quot;&quot;
+        Current capacity of tracking arrays.
+
+        Returns
+        -------
+        int
+            Current array capacity.
+        &quot;&quot;&quot;
+        return self.radius.size
+
+    def _extend_arrays(self) -&gt; None:
+        &quot;&quot;&quot;Extend all tracking arrays.&quot;&quot;&quot;
+        new_length = self.array_length * self.extend_factor
+
+        self.radius = extend_array(self.radius, new_length)
+        self.before_shell_id = extend_array(self.before_shell_id, new_length)
+        self.after_shell_id = extend_array(self.after_shell_id, new_length)
+        self.interaction_type = extend_interaction_type_array(
+            self.interaction_type, new_length
+        )
+        self.status = extend_array(self.status, new_length)
+        self.before_nu = extend_float_array(self.before_nu, new_length)
+        self.before_mu = extend_float_array(self.before_mu, new_length)
+        self.before_energy = extend_float_array(self.before_energy, new_length)
+        self.after_nu = extend_float_array(self.after_nu, new_length)
+        self.after_mu = extend_float_array(self.after_mu, new_length)
+        self.after_energy = extend_float_array(self.after_energy, new_length)
+        self.line_absorb_id = extend_int_array(self.line_absorb_id, new_length)
+        self.line_emit_id = extend_int_array(self.line_emit_id, new_length)
+
+    def track_line_interaction_before(self, r_packet) -&gt; None:
+        &quot;&quot;&quot;
+        Track packet state before line interaction.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet before line interaction.
+        &quot;&quot;&quot;
+        # Extend arrays if needed
+        if self.event_id &gt;= self.array_length:
+            self._extend_arrays()
+
+        # Track all packet state
+        self.radius[self.event_id] = r_packet.r
+        self.before_shell_id[self.event_id] = r_packet.current_shell_id
+        self.after_shell_id[self.event_id] = r_packet.current_shell_id
+        self.interaction_type[self.event_id] = InteractionType.LINE
+        self.status[self.event_id] = r_packet.status
+        self.before_nu[self.event_id] = r_packet.nu
+        self.before_mu[self.event_id] = r_packet.mu
+        self.before_energy[self.event_id] = r_packet.energy
+        self.line_absorb_id[self.event_id] = r_packet.next_line_id
+
+    def track_line_interaction_after(self, r_packet) -&gt; None:
+        &quot;&quot;&quot;
+        Track packet state after line interaction.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet after line interaction.
+        &quot;&quot;&quot;
+        # Track after state for the current event
+        self.after_nu[self.event_id] = r_packet.nu
+        self.after_mu[self.event_id] = r_packet.mu
+        self.after_energy[self.event_id] = r_packet.energy
+        self.line_emit_id[self.event_id] = r_packet.next_line_id - 1
+
+        # Increment event counter
+        self.event_id += 1
+
+    def track_escattering_interaction_before(self, r_packet) -&gt; None:
+        &quot;&quot;&quot;
+        Track packet state before electron scattering interaction.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet before electron scattering.
+        &quot;&quot;&quot;
+        # Extend arrays if needed
+        if self.event_id &gt;= self.array_length:
+            self._extend_arrays()
+
+        # Track all packet state
+        self.radius[self.event_id] = r_packet.r
+        self.before_shell_id[self.event_id] = r_packet.current_shell_id
+        self.after_shell_id[self.event_id] = r_packet.current_shell_id
+        self.interaction_type[self.event_id] = InteractionType.ESCATTERING
+        self.status[self.event_id] = r_packet.status
+        self.before_nu[self.event_id] = r_packet.nu
+        self.before_mu[self.event_id] = r_packet.mu
+        self.before_energy[self.event_id] = r_packet.energy
+
+    def track_escattering_interaction_after(self, r_packet) -&gt; None:
+        &quot;&quot;&quot;
+        Track packet state after electron scattering interaction.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet after electron scattering.
+        &quot;&quot;&quot;
+        # Track after state for the current event
+        self.after_nu[self.event_id] = r_packet.nu
+        self.after_mu[self.event_id] = r_packet.mu
+        self.after_energy[self.event_id] = r_packet.energy
+
+        # Increment event counter
+        self.event_id += 1
+
+    def track_continuum_interaction_before(self, r_packet) -&gt; None:
+        &quot;&quot;&quot;
+        Track packet state before continuum process interaction.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet before continuum process.
+        &quot;&quot;&quot;
+        # Extend arrays if needed
+        if self.event_id &gt;= self.array_length:
+            self._extend_arrays()
+
+        # Track all packet state
+        self.radius[self.event_id] = r_packet.r
+        self.before_shell_id[self.event_id] = r_packet.current_shell_id
+        self.after_shell_id[self.event_id] = r_packet.current_shell_id
+        self.interaction_type[self.event_id] = InteractionType.CONTINUUM_PROCESS
+        self.status[self.event_id] = r_packet.status
+        self.before_nu[self.event_id] = r_packet.nu
+        self.before_mu[self.event_id] = r_packet.mu
+        self.before_energy[self.event_id] = r_packet.energy
+
+    def track_continuum_interaction_after(self, r_packet) -&gt; None:
+        &quot;&quot;&quot;
+        Track packet state after continuum process interaction.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet after continuum process.
+        &quot;&quot;&quot;
+        # Track after state for the current event
+        self.after_nu[self.event_id] = r_packet.nu
+        self.after_mu[self.event_id] = r_packet.mu
+        self.after_energy[self.event_id] = r_packet.energy
+
+        # Increment event counter
+        self.event_id += 1
+
+    def track_boundary_event(
+        self, r_packet, from_shell_id: int, to_shell_id: int
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Track boundary event when packet crosses shell boundary.
+
+        Parameters
+        ----------
+        r_packet : RPacket
+            The R-packet crossing the boundary.
+        from_shell_id : int
+            Shell ID the packet is leaving.
+        to_shell_id : int
+            Shell ID the packet is entering.
+        &quot;&quot;&quot;
+        # Extend arrays if needed
+        if self.event_id &gt;= self.array_length:
+            self._extend_arrays()
+
+        # Track boundary event state
+        self.radius[self.event_id] = r_packet.r
+        self.before_shell_id[self.event_id] = from_shell_id
+        self.after_shell_id[self.event_id] = to_shell_id
+        self.interaction_type[self.event_id] = InteractionType.BOUNDARY
+        self.status[self.event_id] = r_packet.status
+
+        # Track before/after data for boundary events
+        self.before_nu[self.event_id] = r_packet.nu
+        self.before_mu[self.event_id] = r_packet.mu
+        self.before_energy[self.event_id] = r_packet.energy
+        # For boundary events, after values are the same as before (no change in packet properties)
+        self.after_nu[self.event_id] = r_packet.nu
+        self.after_mu[self.event_id] = r_packet.mu
+        self.after_energy[self.event_id] = r_packet.energy
+
+        # No line IDs for boundary events
+        self.line_absorb_id[self.event_id] = -1
+        self.line_emit_id[self.event_id] = -1
+
+        self.event_id += 1
+
+    def finalize(self) -&gt; None:
+        &quot;&quot;&quot;
+        Change the size of the arrays from length ( or multiple of length ) to
+        the actual number of events.
+        &quot;&quot;&quot;
+        # Finalize all arrays to actual event count
+        self.radius = self.radius[: self.event_id]
+        self.before_shell_id = self.before_shell_id[: self.event_id]
+        self.after_shell_id = self.after_shell_id[: self.event_id]
+        self.interaction_type = self.interaction_type[: self.event_id]
+        self.status = self.status[: self.event_id]
+        self.before_nu = self.before_nu[: self.event_id]
+        self.before_mu = self.before_mu[: self.event_id]
+        self.before_energy = self.before_energy[: self.event_id]
+        self.after_nu = self.after_nu[: self.event_id]
+        self.after_mu = self.after_mu[: self.event_id]
+        self.after_energy = self.after_energy[: self.event_id]
+        self.line_absorb_id = self.line_absorb_id[: self.event_id]
+        self.line_emit_id = self.line_emit_id[: self.event_id]</div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 28 Mar 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
