@@ -9,7 +9,7 @@ requires-python = ">=3.13"
 dynamic = ["version"]
 
 [project.optional-dependencies]
-viz = ["lineid_plot"]
+viz = ["lineid_plot", "panel", "plotly"]
 tardisbase = ["tardisbase @ git+https://github.com/tardis-sn/tardisbase.git@bb4f0226"]
 
 

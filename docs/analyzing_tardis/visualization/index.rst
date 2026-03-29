@@ -15,6 +15,7 @@ diagnostic visualizations.
     how_to_sdec_plot
     how_to_liv_plot
     tutorial_convergence_plot
+    tutorial_sankey_packet_visualization
 
 
 TARDIS Widgets (Graphical User Interfaces)

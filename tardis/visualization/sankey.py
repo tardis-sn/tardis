@@ -525,6 +525,79 @@ def plot_multi_packet_sankey_after_carbon(
 
 
 
+try:
+    import panel as pn
+    pn.extension('plotly')
+except ImportError:
+    pn = None
+
+
+def create_interactive_sankey_panel(sim_or_df):
+    """
+    Create an interactive Panel dashboard for exploring packet Sankey diagrams.
+    
+    Requires panel and plotly to be installed.
+    
+    Parameters
+    ----------
+    sim_or_df : Simulation or pd.DataFrame
+        TARDIS simulation or tracker_full_df DataFrame
+        
+    Returns
+    -------
+    panel.Column
+        Interactive Panel app
+        
+    Examples
+    --------
+    >>> from tardis.visualization import create_interactive_sankey_panel
+    >>> app = create_interactive_sankey_panel(sim)
+    >>> app.show()  # or pn.serve(app)
+    """
+    if pn is None:
+        raise ImportError("Panel is required for interactive widgets. Install with: pip install panel")
+    
+    df = get_tracking_df(sim_or_df)
+    packet_ids = sorted(df['packet_id'].unique())
+    interaction_types = sorted(df['interaction_type'].unique())
+    
+    # Widgets
+    packet_dropdown = pn.widgets.Select(name='Packet ID', options=packet_ids, value=packet_ids[0])
+    interactions_checkbox = pn.widgets.CheckBoxGroup(name='Include Interactions', options=interaction_types, value=interaction_types)
+    boundary_toggle = pn.widgets.Toggle(name='Ignore Boundary', value=True)
+    
+    # Plot pane
+    plotly_pane = pn.pane.Plotly()
+    
+    def update_plot(event=None):
+        fig = plot_packet_history_sankey(
+            sim_or_df,
+            packet_id=packet_dropdown.value,
+            include_interactions=interactions_checkbox.value,
+            ignore_boundary=boundary_toggle.value
+        )
+        plotly_pane.object = fig
+    
+    # Bind updates
+    packet_dropdown.param.watch(update_plot, 'value')
+    interactions_checkbox.param.watch(update_plot, 'value')
+    boundary_toggle.param.watch(update_plot, 'value')
+    
+    # Initial plot
+    update_plot()
+    
+    # Layout
+    app = pn.Column(
+        "### Interactive Packet Sankey",
+        pn.Row(packet_dropdown, boundary_toggle),
+        interactions_checkbox,
+        plotly_pane
+    )
+    
+    return app
+
+
+
 if __name__ == "__main__":
     demo_df = create_mock_data()
 
