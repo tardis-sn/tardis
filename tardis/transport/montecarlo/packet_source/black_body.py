@@ -138,39 +138,32 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
         return np.ones(no_of_packets) * self.radius.cgs
 
     def create_packet_nus(self, no_of_packets: int, l_samples: int = 1000) -> u.Quantity:
-        r"""
-        Create packet frequency distribution using Bjorkman & Wood 2001 algorithm.
-
-        The algorithm references Carter & Cashwell 1975.
-        First, generate a uniform random number, :math:`\xi_0 \in [0, 1]` and
-        determine the minimum value of :math:`l, l_{\rm min}`, that satisfies:
-
+        """
+        Create packet :math:`\\nu` distributed using the algorithm described in
+        Bjorkman & Wood 2001 (page 4) which references
+        Carter & Cashwell 1975:
+        First, generate a uniform random number, :math:`\\xi_0 \\in [0, 1]` and
+        determine the minimum value of
+        :math:`l, l_{\\rm min}`, that satisfies the condition
         .. math::
-
-            \sum_{i=1}^{l} i^{-4} \ge \frac{\pi^4}{90} m_0 \;.
-
-        Next obtain four additional uniform random numbers (in the range 0 to 1):
-        :math:`\xi_1, \xi_2, \xi_3, \text{ and } \xi_4`.
-
-        Finally, the packet frequency is given by:
-
+            \\sum_{i=1}^{l} i^{-4} \\ge {{\\pi^4}\\over{90}} m_0 \\;.
+        Next obtain four additional uniform random numbers (in the range 0
+        to 1) :math:`\\xi_1, \\xi_2, \\xi_3, {\\rm and } \\xi_4`.
+        Finally, the packet frequency is given by
         .. math::
-
-            x = -\ln(\xi_1\xi_2\xi_3\xi_4) / l_{\rm min}\;.
-
-        where :math:`x = h\nu / kT`
+            x = -\\ln{(\\xi_1\\xi_2\\xi_3\\xi_4)}/l_{\\rm min}\\;.
+        where :math:`x=h\\nu/kT`
 
         Parameters
         ----------
         no_of_packets : int
-            Number of packets to create.
-        l_samples : int, optional
-            Number of l_samples needed in the algorithm. Default is 1000.
+        l_samples : int
+            number of l_samples needed in the algorithm
 
         Returns
         -------
-        astropy.units.Quantity
-            Array of frequencies.
+        array of frequencies
+            numpy.ndarray
         """
         l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64) ** -4)
         l_coef = np.pi**4 / 90.0

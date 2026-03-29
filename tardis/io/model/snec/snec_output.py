@@ -76,9 +76,9 @@ class SNECOutput:
         Returns
         -------
         xr.Dataset
-            An xarray.Dataset containing the combined data from xg_data, em_output,
-            initial_composition, and initial_quantities, all aligned along common
-            dimensions (e.g., time, cell_id).
+                An xarray.Dataset containing the combined data from xg_data, em_output,
+                initial_composition, and initial_quantities, all aligned along common
+                dimensions (e.g., time, cell_id).
         """
         # Base dataset from xg_data
         xg_data_ds = self.xg_data.to_xr_dataset()

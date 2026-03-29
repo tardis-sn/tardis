@@ -5,18 +5,12 @@ import pandas as pd
 
 @dataclass
 class ChiantiCollisionData:
-    """
-    Collisional data from Chianti sources.
-
-    Parameters
-    ----------
-    data : pandas.DataFrame
-        A DataFrame containing the *electron collisions data* with:
-
-        - index: atomic_number, ion_number, level_number_lower, level_number_upper
-        - columns: e_col_id, delta_e, g_ratio, c_ul
-
-    temperatures : numpy.ndarray
+    """Collisional data from Chianti sources
+    data : (pandas.DataFrame, np.array)
+    A DataFrame containing the *electron collisions data* with:
+        index : atomic_number, ion_number, level_number_lower, level_number_upper
+        columns : e_col_id, delta_e, g_ratio, c_ul;
+    temperatures : np.array
         An array with the collision temperatures.
     """
 
@@ -26,15 +20,10 @@ class ChiantiCollisionData:
 
 @dataclass
 class CMFGENCollisionData:
-    """
-    Collisional data from CMFGEN sources.
-
-    Parameters
-    ----------
-    data : pandas.DataFrame
+    """Collisional data from CMFGEN sources
+    data : (pandas.DataFrame, np.array)
         yg data from CMFGEN
-
-    temperatures : numpy.ndarray
+    temperatures : np.array
         An array with the collision temperatures.
     """
 

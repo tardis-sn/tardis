@@ -14,7 +14,6 @@ from tardis.visualization.widgets.shell_info import (
 from tardis.visualization.sankey import (
     plot_packet_history_sankey,
     plot_multi_packet_sankey_after_carbon,
-    create_interactive_sankey_panel,
 )
 
 

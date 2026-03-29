@@ -301,7 +301,7 @@ interaction treatment (see :ref:`Line Interaction Treatments <lineinteraction>`)
 The ratio :math:`\frac{1 - \beta \mu_i}{1 - \beta \mu_f}` can be visualized with the following graph for a plasma
 speed of :math:`1.1 \times 10^4` km/s:
 
-.. plot:: physics_walkthrough/pyplot/plot_mu_in_out_packet.py
+.. plot:: physics/pyplot/plot_mu_in_out_packet.py
 
 
 Implementation: Main Propagation Loop

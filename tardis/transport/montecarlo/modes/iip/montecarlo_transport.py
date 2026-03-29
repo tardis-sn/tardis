@@ -80,7 +80,6 @@ def montecarlo_transport(
     -------
     tuple
         A tuple containing:
-
         - estimators_bulk : EstimatorsBulk
             Updated bulk radiation field estimator object containing cell-level
             statistics collected during packet propagation.

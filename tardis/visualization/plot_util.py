@@ -500,7 +500,6 @@ def get_spectrum_data(packets_mode, sim):
     -------
     dict
         Dictionary containing:
-
         - "spectrum_delta_frequency" : Quantity
             Frequency bin width in Hz.
         - "spectrum_frequency_bins" : Quantity
@@ -543,7 +542,6 @@ def extract_spectrum_data_hdf(hdf, packets_mode):
     -------
     dict
         Dictionary containing:
-
         - "spectrum_delta_frequency" : Quantity
             Frequency bin width in Hz.
         - "spectrum_frequency_bins" : Quantity

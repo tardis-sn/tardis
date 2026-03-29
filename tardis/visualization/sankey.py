@@ -107,8 +107,9 @@ def find_packet_with_diverse_interactions(
         candidates.append((packet_id, len(history_types)))
 
     if not candidates:
-        logger.warning("No packet matched constraints. Falling back to first packet.")
-        return df["packet_id"].iloc[0]
+        raise ValueError(
+            "No packet found with the requested diversity/filter constraints"
+        )
 
     # choose packet with maximum unique interactions and fewest events to keep plot manageable
     candidates.sort(key=lambda x: (-x[1], x[0]))
@@ -240,18 +241,14 @@ def plot_packet_history_sankey(
     df = get_tracking_df(sim_or_df)
 
     if packet_id is None:
-        try:
-            packet_id = find_packet_with_diverse_interactions(
-                df,
-                min_unique_interactions=min_unique_interactions,
-                final_status=final_status,
-                include_interactions=include_interactions,
-                exclude_interactions=exclude_interactions,
-                ignore_boundary=ignore_boundary,
-            )
-        except ValueError:
-            logger.warning("Fallback to default packet")
-            packet_id = df["packet_id"].iloc[0]
+        packet_id = find_packet_with_diverse_interactions(
+            df,
+            min_unique_interactions=min_unique_interactions,
+            final_status=final_status,
+            include_interactions=include_interactions,
+            exclude_interactions=exclude_interactions,
+            ignore_boundary=ignore_boundary,
+        )
 
     packet_history_df = get_packet_history(df, packet_id)
     fig = make_sankey_from_packet_history(
@@ -508,8 +505,10 @@ def plot_multi_packet_sankey_after_carbon(
     packets_with_c = get_packets_with_carbon_interaction(df, lines_df)
     
     if not packets_with_c:
-        logger.warning("No Carbon I packets found")
-        return go.Figure()
+        raise ValueError(
+            "No packets with Carbon I interactions found. "
+            "Check that tracking is enabled and simulation includes C I interactions."
+        )
     
     logger.info(f"Found {len(packets_with_c)} packets with Carbon I interactions")
     
@@ -517,8 +516,7 @@ def plot_multi_packet_sankey_after_carbon(
     flows = get_post_interaction_flows(df, packets_with_c, ignore_boundary=ignore_boundary)
     
     if not flows:
-        logger.warning("No flows found")
-        return go.Figure()
+        raise ValueError("No flows found after Carbon I interactions")
     
     # Create Sankey
     fig = make_aggregated_sankey_from_flows(flows)
