@@ -1,0 +1,354 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.transport.montecarlo.estimators.estimators_continuum &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2e6dbfc4"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.transport.montecarlo.estimators.estimators_continuum</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.transport.montecarlo.estimators.estimators_continuum</h1><div class="highlight"><pre>
+<span></span>&quot;&quot;&quot;Continuum interaction estimators for Monte Carlo simulations.
+
+This module contains estimators for continuum process tracking.
+&quot;&quot;&quot;
+
+import numba as nb
+import numpy as np
+from numba.experimental import jitclass
+from numba.typed import List
+
+from tardis.transport.montecarlo import njit_dict_no_parallel
+
+
+<div class="viewcode-block" id="EstimatorsContinuum">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.EstimatorsContinuum">[docs]</a>
+@jitclass
+class EstimatorsContinuum:
+    &quot;&quot;&quot;
+    Estimators for continuum interaction processes.
+
+    Attributes
+    ----------
+    photo_ion_estimator : numpy.ndarray
+        Photoionization rate estimator.
+    stim_recomb_estimator : numpy.ndarray
+        Stimulated recombination rate estimator.
+    bf_heating_estimator : numpy.ndarray
+        Bound-free heating rate estimator.
+    stim_recomb_cooling_estimator : numpy.ndarray
+        Stimulated recombination cooling rate estimator.
+    ff_heating_estimator : numpy.ndarray
+        Free-free heating rate estimator.
+    photo_ion_estimator_statistics : numpy.ndarray
+        Photoionization statistics counter.
+    &quot;&quot;&quot;
+
+    photo_ion_estimator: nb.float64[:, :]  # type: ignore[misc]
+    stim_recomb_estimator: nb.float64[:, :]  # type: ignore[misc]
+    bf_heating_estimator: nb.float64[:, :]  # type: ignore[misc]
+    stim_recomb_cooling_estimator: nb.float64[:, :]  # type: ignore[misc]
+    ff_heating_estimator: nb.float64[:]  # type: ignore[misc]
+    photo_ion_estimator_statistics: nb.int64[:, :]  # type: ignore[misc]
+
+    def __init__(
+        self,
+        photo_ion_estimator: np.ndarray,
+        stim_recomb_estimator: np.ndarray,
+        bf_heating_estimator: np.ndarray,
+        stim_recomb_cooling_estimator: np.ndarray,
+        ff_heating_estimator: np.ndarray,
+        photo_ion_estimator_statistics: np.ndarray,
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Initialize EstimatorsContinuum with pre-allocated arrays.
+
+        Parameters
+        ----------
+        photo_ion_estimator
+            Array for photoionization rates.
+        stim_recomb_estimator
+            Array for stimulated recombination rates.
+        bf_heating_estimator
+            Array for bound-free heating rates.
+        stim_recomb_cooling_estimator
+            Array for stimulated recombination cooling rates.
+        ff_heating_estimator
+            Array for free-free heating rates.
+        photo_ion_estimator_statistics
+            Array for photoionization statistics.
+        &quot;&quot;&quot;
+        self.photo_ion_estimator = photo_ion_estimator
+        self.stim_recomb_estimator = stim_recomb_estimator
+        self.bf_heating_estimator = bf_heating_estimator
+        self.stim_recomb_cooling_estimator = stim_recomb_cooling_estimator
+        self.ff_heating_estimator = ff_heating_estimator
+        self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
+
+    def increment(self, other: &quot;EstimatorsContinuum&quot;) -&gt; None:
+        &quot;&quot;&quot;
+        Increment estimators with values from another instance.
+
+        Parameters
+        ----------
+        other
+            Another EstimatorsContinuum instance to add.
+        &quot;&quot;&quot;
+        self.photo_ion_estimator += other.photo_ion_estimator
+        self.stim_recomb_estimator += other.stim_recomb_estimator
+        self.bf_heating_estimator += other.bf_heating_estimator
+        self.stim_recomb_cooling_estimator += (
+            other.stim_recomb_cooling_estimator
+        )
+        self.ff_heating_estimator += other.ff_heating_estimator
+        self.photo_ion_estimator_statistics += (
+            other.photo_ion_estimator_statistics
+        )</div>
+
+
+
+<div class="viewcode-block" id="init_estimators_continuum">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.init_estimators_continuum">[docs]</a>
+@nb.njit(**njit_dict_no_parallel)
+def init_estimators_continuum(
+    n_levels_bf_species_by_n_cells_tuple: tuple[int, int], n_cells: int
+) -&gt; EstimatorsContinuum:
+    &quot;&quot;&quot;
+    Factory function to create and initialize EstimatorsContinuum.
+
+    Parameters
+    ----------
+    n_levels_bf_species_by_n_cells_tuple
+        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells)
+    n_cells
+        Number of cells in the simulation
+
+    Returns
+    -------
+    EstimatorsContinuum
+        Initialized estimators with zero-filled arrays
+    &quot;&quot;&quot;
+    photo_ion_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    stim_recomb_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    bf_heating_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    stim_recomb_cooling_estimator = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.float64
+    )
+    ff_heating_estimator = np.zeros(n_cells, dtype=np.float64)
+    photo_ion_estimator_statistics = np.zeros(
+        n_levels_bf_species_by_n_cells_tuple, dtype=np.int64
+    )
+
+    return EstimatorsContinuum(
+        photo_ion_estimator,
+        stim_recomb_estimator,
+        bf_heating_estimator,
+        stim_recomb_cooling_estimator,
+        ff_heating_estimator,
+        photo_ion_estimator_statistics,
+    )</div>
+
+
+
+<div class="viewcode-block" id="create_estimators_continuum_list">
+<a class="viewcode-back" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.create_estimators_continuum_list">[docs]</a>
+@nb.njit(**njit_dict_no_parallel)
+def create_estimators_continuum_list(
+    n_levels_bf_species_by_n_cells_tuple: tuple[int, int],
+    n_cells: int,
+    number: int,
+) -&gt; List[EstimatorsContinuum]:
+    &quot;&quot;&quot;
+    Factory function to create a list of EstimatorsContinuum instances.
+
+    Parameters
+    ----------
+    n_levels_bf_species_by_n_cells_tuple
+        Shape tuple for bound-free transitions (n_levels_bf_species, n_cells)
+    n_cells
+        Number of cells in the simulation
+    number
+        Number of estimator instances to create
+
+    Returns
+    -------
+    numba.typed.List[EstimatorsContinuum]
+        Typed list of EstimatorsContinuum instances
+    &quot;&quot;&quot;
+    estimator_list = List()
+
+    for _ in range(number):
+        estimator_list.append(
+            init_estimators_continuum(
+                n_levels_bf_species_by_n_cells_tuple, n_cells
+            )
+        )
+
+    return estimator_list</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 29 Mar 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

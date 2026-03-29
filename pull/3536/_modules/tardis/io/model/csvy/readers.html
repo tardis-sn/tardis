@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.io.model.csvy.readers &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=2e6dbfc4"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link href="../../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.io.model.csvy.readers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.io.model.csvy.readers</h1><div class="highlight"><pre>
+<span></span>import logging
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import yaml
+from astropy import units as u
+from radioactivedecay import Nuclide
+from radioactivedecay.utils import Z_DICT, elem_to_Z
+
+from tardis.io.configuration.config_reader import Configuration
+from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.csvy.data import CSVYData
+from tardis.io.util import YAMLLoader
+from tardis.util.base import is_valid_nuclide_or_elem, quantity_linspace
+
+YAML_DELIMITER = &quot;---&quot;
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="load_csvy">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.load_csvy">[docs]</a>
+def load_csvy(fname: str | Path) -&gt; CSVYData:
+    &quot;&quot;&quot;
+    Load CSVY file and return a CSVYData dataclass object.
+
+    This function extracts velocity, density, and mass fractions from the CSVY file
+    and constructs a CSVYData object. Velocity and density can be defined either
+    in the YAML metadata or in the CSV data section.
+
+    Parameters
+    ----------
+    fname : str or pathlib.Path
+        Path to csvy file.
+
+    Returns
+    -------
+    CSVYData
+        Dataclass containing YAML metadata, velocity, density, and mass fractions.
+    &quot;&quot;&quot;
+    fname = Path(fname)
+    with fname.open() as fh:
+        yaml_lines = []
+        yaml_end_ind = -1
+        for i, line in enumerate(fh):
+            if i == 0:
+                assert line.strip() == YAML_DELIMITER, (
+                    &quot;First line of csvy file is not &#39;---&#39;&quot;
+                )
+            yaml_lines.append(line)
+            if i &gt; 0 and line.strip() == YAML_DELIMITER:
+                yaml_end_ind = i
+                break
+        else:
+            raise ValueError(f&quot;End {YAML_DELIMITER} not found&quot;)
+        yaml_dict = yaml.load(&quot;&quot;.join(yaml_lines[1:-1]), YAMLLoader)
+        try:
+            csvy_data = pd.read_csv(fname, skiprows=yaml_end_ind + 1)
+        except pd.errors.EmptyDataError as e:
+            logger.debug(&quot;Could not Read CSV. Setting Dataframe to None&quot;)
+            csvy_data = None
+
+    # Extract velocity
+    if &quot;velocity&quot; in yaml_dict and isinstance(yaml_dict[&quot;velocity&quot;], dict):
+        # Velocity defined in YAML as linspace parameters
+        velocity = quantity_linspace(
+            yaml_dict[&quot;velocity&quot;][&quot;start&quot;],
+            yaml_dict[&quot;velocity&quot;][&quot;stop&quot;],
+            yaml_dict[&quot;velocity&quot;][&quot;num&quot;] + 1,
+        ).cgs.value
+    elif csvy_data is not None and &quot;velocity&quot; in csvy_data.columns:
+        # Velocity defined in CSV data
+        velocity_field_index = [
+            field[&quot;name&quot;] for field in yaml_dict[&quot;datatype&quot;][&quot;fields&quot;]
+        ].index(&quot;velocity&quot;)
+        velocity_unit = u.Unit(
+            yaml_dict[&quot;datatype&quot;][&quot;fields&quot;][velocity_field_index][&quot;unit&quot;]
+        )
+        velocity = (
+            (csvy_data[&quot;velocity&quot;].values * velocity_unit).to(&quot;cm/s&quot;).value
+        )
+    else:
+        raise ValueError(&quot;Velocity information not found in CSVY file&quot;)
+
+    # Extract density (similar logic)
+    if &quot;density&quot; in yaml_dict and isinstance(yaml_dict[&quot;density&quot;], dict):
+        # Density is parametric - will be calculated later, set to None for now
+        density = None
+    elif csvy_data is not None and &quot;density&quot; in csvy_data.columns:
+        # Density defined in CSV data
+        density_field_index = [
+            field[&quot;name&quot;] for field in yaml_dict[&quot;datatype&quot;][&quot;fields&quot;]
+        ].index(&quot;density&quot;)
+        density_unit = u.Unit(
+            yaml_dict[&quot;datatype&quot;][&quot;fields&quot;][density_field_index][&quot;unit&quot;]
+        )
+        density = (
+            (csvy_data[&quot;density&quot;].values * density_unit).to(&quot;g/cm^3&quot;).value
+        )
+    else:
+        density = None
+
+    # Extract mass fractions if present in CSV
+    mass_fractions = pd.DataFrame()
+    isotope_mass_fractions = pd.DataFrame()
+
+    if csvy_data is not None:
+        mass_fraction_cols = [
+            col for col in csvy_data.columns if is_valid_nuclide_or_elem(col)
+        ]
+        if mass_fraction_cols:
+            _, mass_fractions, isotope_mass_fractions = (
+                parse_csv_mass_fractions(csvy_data)
+            )
+            # Remove first column (velocity column index)
+            if not mass_fractions.empty:
+                mass_fractions = mass_fractions.iloc[:, 1:]
+                mass_fractions.columns = np.arange(mass_fractions.shape[1])
+            if not isotope_mass_fractions.empty:
+                isotope_mass_fractions = isotope_mass_fractions.iloc[:, 1:]
+                isotope_mass_fractions.columns = np.arange(
+                    isotope_mass_fractions.shape[1]
+                )
+
+    # Validate and wrap yaml_dict into Configuration object
+    csvy_schema_fname = (
+        Path(__file__).parent.parent.parent
+        / &quot;configuration&quot;
+        / &quot;schemas&quot;
+        / &quot;csvy_model.yml&quot;
+    ).resolve()
+    model_config = Configuration(
+        validate_dict(yaml_dict, schemapath=csvy_schema_fname)
+    )
+
+    return CSVYData(
+        model_config=model_config,
+        velocity=velocity,
+        density=density,
+        mass_fractions=mass_fractions,
+        isotope_mass_fractions=isotope_mass_fractions,
+        raw_csv_data=csvy_data,
+    )</div>
+
+
+
+<div class="viewcode-block" id="load_yaml_from_csvy">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.load_yaml_from_csvy">[docs]</a>
+def load_yaml_from_csvy(fpath: str | Path) -&gt; dict:
+    &quot;&quot;&quot;
+    Load only the YAML metadata from a CSVY file.
+
+    Parameters
+    ----------
+    fname : str or pathlib.Path
+        Path to csvy file.
+
+    Returns
+    -------
+    dict
+        YAML metadata dictionary from the csvy file.
+
+    Raises
+    ------
+    AssertionError
+        If the first line is not the YAML delimiter &#39;---&#39;.
+    ValueError
+        If the closing YAML delimiter &#39;---&#39; is not found.
+    &quot;&quot;&quot;
+    fpath = Path(fpath)
+    with fpath.open() as fh:
+        yaml_lines = []
+        for i, line in enumerate(fh):
+            if i == 0:
+                if line.strip() != YAML_DELIMITER:
+                    raise ValueError(
+                        f&quot;First line of CSVY file must be &#39;{YAML_DELIMITER}&#39;&quot;
+                    )
+            yaml_lines.append(line)
+            if i &gt; 0 and line.strip() == YAML_DELIMITER:
+                yaml_dict = yaml.load(&quot;&quot;.join(yaml_lines[1:-1]), YAMLLoader)
+                return yaml_dict
+        raise ValueError(f&quot;End {YAML_DELIMITER} not found&quot;)</div>
+
+
+
+
+<div class="viewcode-block" id="load_csv_from_csvy">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.load_csv_from_csvy">[docs]</a>
+def load_csv_from_csvy(fpath: str | Path) -&gt; pd.DataFrame | None:
+    &quot;&quot;&quot;
+    Load only the CSV data from a CSVY file.
+
+    Parameters
+    ----------
+    fname : str or pathlib.Path
+        Path to csvy file.
+
+    Returns
+    -------
+    data : pandas.DataFrame or None
+        CSV data from csvy file, or None if no CSV data is present.
+    &quot;&quot;&quot;
+    fpath = Path(fpath)
+    with fpath.open() as fh:
+        yaml_lines = []
+        yaml_end_ind = -1
+        for i, line in enumerate(fh):
+            if i == 0:
+                assert line.strip() == YAML_DELIMITER, (
+                    &quot;First line of csvy file is not &#39;---&#39;&quot;
+                )
+            yaml_lines.append(line)
+            if i &gt; 0 and line.strip() == YAML_DELIMITER:
+                yaml_end_ind = i
+                break
+        else:
+            raise ValueError(f&quot;End {YAML_DELIMITER} not found&quot;)
+        try:
+            data = pd.read_csv(fpath, skiprows=yaml_end_ind + 1)
+        except pd.errors.EmptyDataError as e:
+            logger.debug(&quot;Could not Read CSV. Setting Dataframe to None&quot;)
+            data = None
+    return data</div>
+
+
+
+<div class="viewcode-block" id="parse_csv_mass_fractions">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.csvy.readers.html#tardis.io.model.csvy.readers.parse_csv_mass_fractions">[docs]</a>
+def parse_csv_mass_fractions(
+    csvy_data: pd.DataFrame,
+) -&gt; tuple[pd.Index, pd.DataFrame, pd.DataFrame]:
+    &quot;&quot;&quot;
+    Parse the CSV data part of a CSVY model file and extract mass fractions.
+
+    This function filters out columns that are not mass fractions and separates
+    elemental and isotopic mass fractions.
+
+    Parameters
+    ----------
+    csvy_data : pandas.DataFrame
+        CSV data from CSVY file containing mass fraction columns.
+
+    Returns
+    -------
+    index : pandas.Index
+        Index of atomic numbers for elemental mass fractions.
+    mass_fractions : pandas.DataFrame
+        DataFrame of elemental mass fractions with atomic_number as index.
+    isotope_mass_fractions : pandas.DataFrame
+        DataFrame of isotopic mass fractions with MultiIndex of
+        (atomic_number, mass_number).
+    &quot;&quot;&quot;
+    mass_fraction_col_names = [
+        name for name in csvy_data.columns if is_valid_nuclide_or_elem(name)
+    ]
+    df = csvy_data.loc[:, mass_fraction_col_names]
+
+    df = df.transpose()
+
+    mass_fractions = pd.DataFrame(
+        columns=np.arange(df.shape[1]),
+        index=pd.Index([], name=&quot;atomic_number&quot;),
+        dtype=np.float64,
+    )
+
+    isotope_index = pd.MultiIndex(
+        [[]] * 2, [[]] * 2, names=[&quot;atomic_number&quot;, &quot;mass_number&quot;]
+    )
+    isotope_mass_fractions = pd.DataFrame(
+        columns=np.arange(df.shape[1]), index=isotope_index, dtype=np.float64
+    )
+
+    for element_symbol_string in df.index[0:]:
+        if element_symbol_string in Z_DICT.values():
+            z = elem_to_Z(element_symbol_string)
+            mass_fractions.loc[z, :] = df.loc[element_symbol_string].tolist()
+        else:
+            nuc = Nuclide(element_symbol_string)
+            z = nuc.Z
+            mass_no = nuc.A
+            isotope_mass_fractions.loc[(z, mass_no), :] = df.loc[
+                element_symbol_string
+            ].tolist()
+
+    return mass_fractions.index, mass_fractions, isotope_mass_fractions</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 29 Mar 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
