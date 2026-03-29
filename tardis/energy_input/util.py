@@ -452,8 +452,11 @@ def get_index(value, array):
 
 
 def make_isotope_string_tardis_like(isotope_dict):
-    """Converts isotope string to TARDIS format
-        Ni-56 -> Ni56, Co-56 -> Co56
+    """
+    Converts isotope string to TARDIS format.
+
+    Examples: Ni-56 -> Ni56, Co-56 -> Co56
+
     Parameters
     ----------
     isotope : str
