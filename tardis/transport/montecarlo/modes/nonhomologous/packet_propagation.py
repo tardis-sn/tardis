@@ -1,5 +1,6 @@
 """Nonhomologous mode packet transport - line-only without continuum processes."""
 
+import numpy as np
 from numba import njit
 
 from tardis import constants as const
@@ -30,6 +31,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import
     move_r_packet,
     trace_packet,
 )
+from tardis.transport.montecarlo.nonhomologous_grid import piecewise_linear_dvdr
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
@@ -97,11 +99,23 @@ def packet_propagation(
     else:
         set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
     #TODO:nonhomology - the line search will need to be rewritten since the velocity is no longer monotonic
-    r_packet.initialize_line_id(
-        opacity_state,
-        time_explosion,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+    #r_packet.initialize_line_id(
+    #    opacity_state,
+    #    time_explosion,
+    #    montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+    #)
+    # Substitute for r_packet.initialize_line_id until that method is generalized to work with non-homology:
+    inverse_line_list_nu = opacity_state.line_list_nu[::-1]
+    v, _ = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, numba_radial_1d_geometry)
+    doppler_factor = get_doppler_factor_nonhomologous(v, r_packet.mu)
+    comov_nu = r_packet.nu * doppler_factor
+    next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
+        inverse_line_list_nu, comov_nu
     )
+    if next_line_id == len(opacity_state.line_list_nu):
+        next_line_id -= 1
+    r_packet.next_line_id = next_line_id
+    r_packet.prev_line_id = next_line_id - 1
 
     trace_vpacket_volley(
         r_packet,
@@ -121,11 +135,8 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
-        doppler_factor = get_doppler_factor_nonhomologous(
-            r_packet.r,
-            r_packet.mu,
-            numba_radial_1d_geometry
-        )
+        v, _ = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, numba_radial_1d_geometry)
+        doppler_factor = get_doppler_factor_nonhomologous(v, r_packet.mu)
 
         comov_nu = r_packet.nu * doppler_factor
         opacity_electron = chi_electron_calculator(

@@ -130,7 +130,7 @@ def calculate_distance_line_nonhomologous(
     distance (cm)
     """
     r = rpacket.r
-    v, _ = piecewise_linear_dvdr(rpacket, geometry)
+    v, _ = piecewise_linear_dvdr(rpacket.r, rpacket.current_shell_id, geometry)
     nu_rest = rpacket.nu
     mu = rpacket.mu
 
