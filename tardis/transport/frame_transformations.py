@@ -6,9 +6,12 @@ from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
-from tardis.transport.montecarlo.nonhomologous_grid import piecewise_linear_dvdr
 
 
+# TODO: In a future PR collapse to just one function
+#       get_dopper_factor(v, mu, enable_full_relativity)
+#       and calculate v elsewhere either with v = r / t_explosion
+#       or v, _ = piecewise_linear_dvdr(r, geometry)
 @njit(**njit_dict_no_parallel)
 def get_doppler_factor(r, mu, time_explosion, enable_full_relativity):
     inv_c = 1 / C_SPEED_OF_LIGHT
@@ -21,9 +24,8 @@ def get_doppler_factor(r, mu, time_explosion, enable_full_relativity):
 
 
 @njit(**njit_dict_no_parallel)
-def get_doppler_factor_nonhomologous(r, mu, geometry):
+def get_doppler_factor_nonhomologous(v, mu):
     inv_c = 1 / C_SPEED_OF_LIGHT
-    v, _ = piecewise_linear_dvdr(r, geometry)
     beta = v * inv_c
     return get_doppler_factor_partial_relativity(mu, beta)
 
@@ -59,7 +61,7 @@ def get_inverse_doppler_factor(r, mu, time_explosion, enable_full_relativity):
 
 
 @njit(**njit_dict_no_parallel)
-def get_inverse_doppler_factor_nonhomologous(r, mu, geometry):
+def get_inverse_doppler_factor_nonhomologous(v, mu):
     """
     Calculate doppler factor for frame transformation
 
@@ -70,7 +72,6 @@ def get_inverse_doppler_factor_nonhomologous(r, mu, geometry):
     geometry : NumbaRadial1DGeometry
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
-    v, _ = piecewise_linear_dvdr(r, geometry)
     beta = v * inv_c
     return get_inverse_doppler_factor_partial_relativity(mu, beta)
 

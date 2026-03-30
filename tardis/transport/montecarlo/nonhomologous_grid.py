@@ -7,7 +7,7 @@ from tardis.transport.montecarlo import (
 
 
 @njit(**njit_dict_no_parallel)
-def piecewise_linear_dvdr(r_packet, geometry):
+def piecewise_linear_dvdr(r, shell_id, geometry):
     """
     Velocity at radius r and dv/dr of current shell
 
@@ -21,12 +21,10 @@ def piecewise_linear_dvdr(r_packet, geometry):
     v: float, current velocity
     frac: float, dv/dr for current shell
     """
-    shell_id = r_packet.current_shell_id
     v_inner = geometry.v_inner[shell_id]
     v_outer = geometry.v_outer[shell_id]
     r_inner = geometry.r_inner[shell_id]
     r_outer = geometry.r_outer[shell_id]
-    r = r_packet.r
     frac = (v_outer - v_inner) / (r_outer - r_inner)
     return v_inner + frac * (r - r_inner), frac
 
@@ -47,7 +45,7 @@ def tau_sobolev_factor(r_packet, geometry):
     -------
     factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
     """
-    v, dvdr = piecewise_linear_dvdr(r_packet, geometry)
+    v, dvdr = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, geometry)
     r = r_packet.r
     mu = r_packet.mu
     factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)

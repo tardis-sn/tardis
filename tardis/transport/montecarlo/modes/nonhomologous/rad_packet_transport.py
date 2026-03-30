@@ -13,6 +13,7 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_line_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
+from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     EstimatorsBulk,
 )
@@ -21,7 +22,10 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 )
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bulk,
-    update_estimators_line,
+)
+from tardis.transport.montecarlo.nonhomologous_grid import (
+    piecewise_linear_dvdr,
+    tau_sobolev_factor,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
@@ -78,33 +82,33 @@ def trace_packet(
         delta_shell,
     ) = calculate_distance_boundary(r_packet.r, r_packet.mu, r_inner, r_outer)
 
-    # defining start for line interaction
-    start_line_id = r_packet.next_line_id
-
     # defining taus
     tau_event = -np.log(np.random.random())
     tau_trace_line_combined = 0.0
 
-    # Calculating doppler factor
-    doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r,
-        r_packet.mu,
-        numba_radial_1d_geometry
-    )
-    comov_nu = r_packet.nu * doppler_factor
+    v, dvdr = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, numba_radial_1d_geometry)
+
+    # defining start for line interaction
+    # If redshifting, use next line and line list in order
+    # If blueshifting, use previous line and reverse line list
+    if dvdr >= 0.0:
+        start_line_id = r_packet.next_line_id
+        loop_lim, loop_direction = len(opacity_state.line_list_nu), 1
+    else:
+        start_line_id = r_packet.prev_line_id
+        loop_lim, loop_direction = -1, -1
 
     distance_electron = tau_event / opacity_electron
     cur_line_id = start_line_id  # initializing varibale for Numba
     # - do not remove
     last_line_id = len(opacity_state.line_list_nu) - 1
-    for cur_line_id in range(start_line_id, len(opacity_state.line_list_nu)):
+    for cur_line_id in range(start_line_id, loop_lim, loop_direction):
         # Going through the lines
         nu_line = opacity_state.line_list_nu[cur_line_id]
 
         # Getting the tau for the next line
-        tau_trace_line = opacity_state.tau_sobolev[
-            cur_line_id, r_packet.current_shell_id
-        ]
+        tau_factor = tau_sobolev_factor(r_packet, numba_radial_1d_geometry)
+        tau_trace_line = tau_factor * opacity_state.tau_sobolev[cur_line_id, r_packet.current_shell_id]
 
         # Adding it to the tau_trace_line_combined
         tau_trace_line_combined += tau_trace_line
@@ -128,32 +132,66 @@ def trace_packet(
         distance = min(distance_trace, distance_boundary, distance_electron)
 
         if distance_trace != 0:
+            if distance == distance_boundary | distance == distance_electron:
+                if dvdr >= 0.0:
+                    r_packet.next_line_id = cur_line_id
+                    r_packet.prev_line_id = cur_line_id - 1
+                else:
+                    r_packet.next_line_id = cur_line_id + 1
+                    r_packet.prev_line_id = cur_line_id
             if distance == distance_boundary:
                 interaction_type = InteractionType.BOUNDARY  # BOUNDARY
-                r_packet.next_line_id = cur_line_id
                 break
             if distance == distance_electron:
                 interaction_type = InteractionType.ESCATTERING
-                r_packet.next_line_id = cur_line_id
                 break
 
         # Updating the J_b_lu and E_dot_lu
         # This means we are still looking for line interaction and have not
         # been kicked out of the path by boundary or electron interaction
 
-        # TODO:nonhomology - handle any nonhomology-specific changes to the estimator updates for line interaction
-        update_estimators_line(
-            estimators_line,
-            r_packet,
-            cur_line_id,
-            distance_trace,
-            time_explosion,
-            enable_full_relativity,
+        # TODO:nonhomology - replace this function with a generalized version
+        # Will need to pass geometry instead of t_explosion to get correct doppler factor
+        #update_estimators_line(
+        #    estimators_line,
+        #    r_packet,
+        #    cur_line_id,
+        #    distance_trace,
+        #    time_explosion,
+        #    enable_full_relativity,
+        #)
+        # connor-mcclellan: here I reproduce the steps of the update_estimators_line -> calc_packet_energy call
+        # stack, modifying the expressions to not use homologous expansion
+        # This likely belongs somewhere else and can be moved in a future restructure, but for now
+        # I'll keep in within the nonhomologous mode
+        #
+        # First step: getting the packet's new energy to use for the estimator update
+        # Replaces the call to `calc_packet_energy` within `update_estimators_line`
+        new_r = np.sqrt(
+            r_packet.r * r_packet.r + distance_trace * distance_trace + 2.0 * r_packet.r * distance_trace * r_packet.mu
         )
+        new_mu = (r_packet.mu * r_packet.r + distance_trace) / new_r
+        new_v, _ = piecewise_linear_dvdr(new_r, r_packet.current_shell_id, numba_radial_1d_geometry)
+        new_doppler_factor = (1.0 - new_v/C_SPEED_OF_LIGHT * new_mu)
+        energy = r_packet.energy * new_doppler_factor
+
+        # Second step: update the estimators
+        # Replaces the call to `update_estimators_line`
+        estimators_line.mean_intensity_blueward[
+            cur_line_id, r_packet.current_shell_id
+        ] += energy / r_packet.nu
+        estimators_line.energy_deposition_line_rate[
+            cur_line_id, r_packet.current_shell_id
+        ] += energy
 
         if tau_trace_combined > tau_event and not disable_line_scattering:
             interaction_type = InteractionType.LINE  # Line
-            r_packet.next_line_id = cur_line_id
+            if dvdr >= 0.0:
+                r_packet.next_line_id = cur_line_id
+                r_packet.prev_line_id = cur_line_id - 1
+            else:
+                r_packet.next_line_id = cur_line_id + 1
+                r_packet.prev_line_id = cur_line_id
             distance = distance_trace
             break
 
@@ -203,8 +241,9 @@ def move_r_packet(
     enable_full_relativity : bool
         Flag to enable full relativistic calculations
     """
+    v, _ = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, geometry)
     doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry
+        v, r_packet.mu,
     )
 
     r = r_packet.r
