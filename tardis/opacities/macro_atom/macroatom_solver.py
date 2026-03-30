@@ -17,7 +17,8 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_ionization_internal,
     collisional_transition_recombination_emission,
     collisional_transition_recombination_internal,
-    continuum_transition_photoionization,
+    continuum_transition_photoionization_internal,
+    continuum_transition_photoionization_to_k_packet,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
     probability_collision_deexc_to_k_packet,
@@ -27,7 +28,8 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     probability_collision_ionization_emission,
     probability_collision_ionization_internal,
     probability_collision_recombination_internal,
-    probability_photoionization,
+    probability_photoionization_internal,
+    probability_photoionization_to_k_packet,
     probability_recombination_emission,
     probability_recombination_internal,
 )
@@ -1031,15 +1033,22 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ] = -99  # Bound-bound transitions don't have collision ids
 
         # Then assemble photoionization transitions
-        p_photoionization, photoionization_metadata = (
-            continuum_transition_photoionization(
+        p_photoionization_internal, photoionization_internal_metadata = (
+            continuum_transition_photoionization_internal(
                 stim_recomb_corrected_photoionization_rate_coeff,
                 self.photoionization_data_level_energies,
             )
         )
+        p_photoionization_to_k, photoionization_to_k_metadata = (
+            continuum_transition_photoionization_to_k_packet(
+                stim_recomb_corrected_photoionization_rate_coeff,
+                self._delta_E_yg_ionization,
+            )
+        )
+
         p_recombination_emission, recombination_emission_metadata = (
             continuum_transition_recombination_emission(
-                spontaneous_recombination_coeff, self.photoionization_data.nu
+                spontaneous_recombination_coeff, self._delta_E_yg_ionization
             )
         )
         p_recombination_internal, recombination_internal_metadata = (
@@ -1117,7 +1126,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 p_emission_down,
                 p_internal_down,
                 p_internal_up,
-                p_photoionization,
+                p_photoionization_internal,
+                p_photoionization_to_k,
                 p_recombination_emission,
                 p_recombination_internal,
                 p_coll_down_to_k_packet,
@@ -1137,7 +1147,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 emission_down_metadata,
                 internal_down_metadata,
                 internal_up_metadata,
-                photoionization_metadata,
+                photoionization_internal_metadata,
+                photoionization_to_k_metadata,
                 recombination_emission_metadata,
                 recombination_internal_metadata,
                 coll_down_to_packet_metadata,
@@ -1330,7 +1341,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION
-        ] = probability_photoionization(
+        ] = probability_photoionization_internal(
             stim_recomb_corrected_photoionization_rate_coeff.loc[
                 photoionization_sources
             ],

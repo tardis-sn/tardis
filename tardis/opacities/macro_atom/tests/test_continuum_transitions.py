@@ -8,7 +8,7 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_excitation_to_macro_atom,
     continuum_adiabatic_cooling,
     continuum_free_free_cooling,
-    continuum_transition_photoionization,
+    continuum_transition_photoionization_internal,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
     probability_adiabatic_cooling,
@@ -17,7 +17,7 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     probability_collision_internal_down,
     probability_collision_exc_to_macro,
     probability_free_free_cooling,
-    probability_photoionization,
+    probability_photoionization_internal,
     probability_recombination_emission,
     probability_recombination_internal,
 )
@@ -173,7 +173,9 @@ class TestPhotoionizationTransitions:
         """Test photoionization probability calculation."""
         rate_coeff, level_energies = sample_photoionization_data
 
-        result = probability_photoionization(rate_coeff, level_energies)
+        result = probability_photoionization_internal(
+            rate_coeff, level_energies
+        )
 
         # Check basic properties
         assert isinstance(result, pd.DataFrame)
@@ -189,7 +191,7 @@ class TestPhotoionizationTransitions:
         """Test photoionization transition with metadata."""
         rate_coeff, level_energies = sample_photoionization_data
 
-        probabilities, metadata = continuum_transition_photoionization(
+        probabilities, metadata = continuum_transition_photoionization_internal(
             rate_coeff, level_energies
         )
 

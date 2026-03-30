@@ -17,8 +17,10 @@ class MacroAtomError(ValueError):
 
 
 class MacroAtomTransitionType(IntEnum):
-    PHOTOIONIZATION = 3
+    PHOTOIONIZATION_INTERNAL = 3
+    PHOTOIONIZATION_TO_K_PACKET = 16
     RECOMB_INTERNAL = 2
+    RECOMB_EMISSION = -9
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
