@@ -851,7 +851,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_exc_coeff: pd.DataFrame,
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
-        electron_densities: pd.DataFrame,
+        electron_densities: pd.Series,
         level_number_density: pd.DataFrame,
         delta_E_yg: pd.DataFrame,
     ) -> MacroAtomState:
@@ -949,7 +949,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_exc_coeff: pd.DataFrame,
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
-        electron_densities: pd.DataFrame,
+        electron_densities: pd.Series,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
         """
         Handle the first iteration of the solve method for continuum macro atom.
@@ -1213,7 +1213,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_exc_coeff: pd.DataFrame,
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
-        electron_densities: pd.DataFrame,
+        electron_densities: pd.Series,
     ) -> pd.DataFrame:
         """
         Handle subsequent iterations of the solve method.
@@ -1267,7 +1267,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         # Photoionization and recombination indices
         continuum_photoionization_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.PHOTOIONIZATION
+            == MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL
         ].photoionization_key_idx.to_numpy()
 
         # collisional indices
@@ -1335,12 +1335,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         photoionization_sources = pd.MultiIndex.from_tuples(
             macro_atom_transition_metadata[
                 macro_atom_transition_metadata.transition_type
-                == MacroAtomTransitionType.PHOTOIONIZATION
+                == MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL
             ].source
         )
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.PHOTOIONIZATION
+            == MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL
         ] = probability_photoionization_internal(
             stim_recomb_corrected_photoionization_rate_coeff.loc[
                 photoionization_sources
@@ -1352,7 +1352,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.BF_EMISSION
+            == MacroAtomTransitionType.RECOMB_EMISSION
         ] = probability_recombination_emission(
             spontaneous_recombination_coeff,
             self.photoionization_data.nu,
