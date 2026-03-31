@@ -758,7 +758,6 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.plasma_solver.coll_ion_coeff,
                 self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
-                self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
             )
 
@@ -776,8 +775,9 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.plasma_solver.alpha_sp,
                 self.plasma_solver.coll_deexc_coeff,
                 self.plasma_solver.coll_exc_coeff,
+                self.plasma_solver.coll_ion_coeff,
+                self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
-                self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
             )
 

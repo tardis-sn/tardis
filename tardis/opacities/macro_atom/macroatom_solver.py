@@ -853,8 +853,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
-        level_number_density: pd.DataFrame,
-        delta_E_yg: pd.DataFrame,
+        delta_E_yg: pd.Series,
     ) -> MacroAtomState:
         """
         Solve the Macro Atom State including continuum transitions.

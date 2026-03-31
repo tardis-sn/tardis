@@ -418,7 +418,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 self.plasma_solver.coll_ion_coeff,
                 self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
-                self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
             )
             opacity_state.continuum_state.k_packet_idx = macro_atom_state.references_index.iloc[
