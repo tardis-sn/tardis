@@ -930,7 +930,7 @@ def collisional_transition_ionization_emission(
             "transition_type": MacroAtomTransitionType.COLL_ION_EMISSION,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
-            "collision_key_idx": -99,
+            "collision_key_idx": range(len(coll_ion_coeff)),
         },
         index=p_coll_ionization_emission.index,
     )
@@ -1008,7 +1008,7 @@ def collisional_transition_recombination_internal(
             "transition_type": MacroAtomTransitionType.COLL_RECOMB_INTERNAL,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
-            "collision_key_idx": -99,
+            "collision_key_idx": range(len(coll_recomb_coeff)),
         },
         index=p_coll_recomb_internal.index,
     )
@@ -1084,7 +1084,7 @@ def collisional_transition_recombination_emission(
             "transition_type": MacroAtomTransitionType.COLL_RECOMB_EMISSION,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
-            "collision_key_idx": -99,
+            "collision_key_idx": range(len(coll_recomb_coeff)),
         },
         index=p_coll_recomb_emission.index,
     )

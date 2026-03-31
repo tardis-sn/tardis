@@ -27,6 +27,7 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     probability_collision_internal_down,
     probability_collision_ionization_emission,
     probability_collision_ionization_internal,
+    probability_collision_recombination_emission,
     probability_collision_recombination_internal,
     probability_photoionization_internal,
     probability_photoionization_to_k_packet,
@@ -1310,7 +1311,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_RECOMB_INTERNAL
         ].collision_key_idx.to_numpy()
-        collisional_ionization_emission_idxs = macro_atom_transition_metadata[
+        collisional_recomb_emission_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_RECOMB_EMISSION
         ].collision_key_idx.to_numpy()
@@ -1387,13 +1388,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
-        ] = probability_photoionization_internal(
+        ] = probability_photoionization_to_k_packet(
             stim_recomb_corrected_photoionization_rate_coeff.loc[
                 photoionization_to_k_sources
             ],
-            self.photoionization_data_level_energies.iloc[
-                continuum_photoion_to_k_idxs
-            ],
+            self._delta_E_yg_ionization.iloc[continuum_photoion_to_k_idxs],
         ).to_numpy()
 
         probabilities_df[
@@ -1469,6 +1468,35 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             coll_ion_coeff.iloc[collisional_ionization_internal_idxs],
             electron_densities,
             self._coll_ion_energies.iloc[collisional_ionization_internal_idxs],
+        ).to_numpy()
+
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_ION_EMISSION
+        ] = probability_collision_ionization_emission(
+            coll_ion_coeff.iloc[collisional_ionization_emission_idxs],
+            electron_densities,
+            self._delta_E_yg_ionization.iloc[
+                collisional_ionization_emission_idxs
+            ],
+        ).to_numpy()
+
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_RECOMB_INTERNAL
+        ] = probability_collision_recombination_internal(
+            coll_recomb_coeff.iloc[collisional_recomb_internal_idxs],
+            electron_densities,
+            self._coll_ion_energies.iloc[collisional_recomb_internal_idxs],
+        ).to_numpy()
+
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_RECOMB_EMISSION
+        ] = probability_collision_recombination_emission(
+            coll_recomb_coeff.iloc[collisional_recomb_emission_idxs],
+            electron_densities,
+            self._delta_E_yg_ionization.iloc[collisional_recomb_emission_idxs],
         ).to_numpy()
 
         probabilities_df["source"] = (
