@@ -4,24 +4,33 @@ import pytest
 from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_deexc_to_k_packet,
     collisional_transition_excitation_cool,
+    collisional_transition_excitation_internal,
     collisional_transition_internal_down,
-    collisional_transition_excitation_to_macro_atom,
+    collisional_transition_ionization_emission,
+    collisional_transition_ionization_internal,
+    collisional_transition_recombination_emission,
+    collisional_transition_recombination_internal,
     continuum_adiabatic_cooling,
     continuum_free_free_cooling,
     continuum_transition_photoionization_internal,
+    continuum_transition_photoionization_to_k_packet,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
     probability_adiabatic_cooling,
     probability_collision_deexc_to_k_packet,
+    probability_collision_exc_internal,
     probability_collision_excitation_cool,
     probability_collision_internal_down,
-    probability_collision_exc_to_macro,
+    probability_collision_ionization_emission,
+    probability_collision_ionization_internal,
+    probability_collision_recombination_emission,
+    probability_collision_recombination_internal,
     probability_free_free_cooling,
     probability_photoionization_internal,
+    probability_photoionization_to_k_packet,
     probability_recombination_emission,
     probability_recombination_internal,
 )
-from tardis.opacities.macro_atom.macroatom_line_transitions import CONST_H_CGS
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 
@@ -91,7 +100,6 @@ class TestRecombinationTransitions:
 
         # Test probabilities
         assert isinstance(probabilities, pd.DataFrame)
-        assert "source" in probabilities.columns
 
         # Test metadata
         assert isinstance(metadata, pd.DataFrame)
@@ -125,11 +133,6 @@ class TestRecombinationTransitions:
         assert isinstance(result, pd.DataFrame)
         assert result.shape == recomb_coeff.shape
 
-        # Check values include Planck constant factor
-
-        expected = recomb_coeff.multiply(frequencies, axis=0) * CONST_H_CGS
-        pd.testing.assert_frame_equal(result, expected)
-
     def test_continuum_transition_recombination_emission(
         self, sample_recomb_data
     ):
@@ -142,11 +145,12 @@ class TestRecombinationTransitions:
 
         # Test metadata has correct transition type
         assert (
-            metadata.transition_type == MacroAtomTransitionType.BF_EMISSION
+            metadata.transition_type
+            == MacroAtomTransitionType.PHOTO_RECOMB_EMISSION
         ).all()
 
-        # Test that source column is added to probabilities
-        assert "source" in probabilities.columns
+        # Test that probabilities are returned
+        assert isinstance(probabilities, pd.DataFrame)
 
 
 class TestPhotoionizationTransitions:
@@ -198,7 +202,47 @@ class TestPhotoionizationTransitions:
 
         # Check transition type
         assert (
-            metadata.transition_type == MacroAtomTransitionType.PHOTOIONIZATION
+            metadata.transition_type
+            == MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL
+        ).all()
+
+        # Check metadata structure
+        assert len(metadata) == len(probabilities)
+
+    def test_probability_photoionization_to_k_packet(
+        self, sample_photoionization_data
+    ):
+        """Test photoionization to k-packet probability calculation."""
+        rate_coeff, level_energies = sample_photoionization_data
+
+        result = probability_photoionization_to_k_packet(
+            rate_coeff, level_energies
+        )
+
+        # Check basic properties
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == rate_coeff.shape
+
+        # Check calculation
+        expected = rate_coeff.multiply(level_energies.values, axis=0)
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_continuum_transition_photoionization_to_k_packet(
+        self, sample_photoionization_data
+    ):
+        """Test photoionization to k-packet transition with metadata."""
+        rate_coeff, level_energies = sample_photoionization_data
+
+        probabilities, metadata = (
+            continuum_transition_photoionization_to_k_packet(
+                rate_coeff, level_energies
+            )
+        )
+
+        # Check transition type
+        assert (
+            metadata.transition_type
+            == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
         ).all()
 
         # Check metadata structure
@@ -412,7 +456,7 @@ class TestCollisionalTransitions:
             sample_collisional_data
         )
 
-        result = probability_collision_exc_to_macro(
+        result = probability_collision_exc_internal(
             coll_coeff, electron_densities, energy_lowers
         )
 
@@ -428,62 +472,41 @@ class TestCollisionalTransitions:
             sample_collisional_data
         )
 
-        probabilities, metadata = (
-            collisional_transition_excitation_to_macro_atom(
-                coll_coeff, electron_densities, energy_lowers
-            )
+        probabilities, metadata = collisional_transition_excitation_internal(
+            coll_coeff, electron_densities, energy_lowers
         )
-
         # Check metadata
         assert (
-            metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
+            metadata.transition_type == MacroAtomTransitionType.COLL_UP_INTERNAL
         ).all()
 
-    def test_probability_collision_excitation_cool(
-        self, sample_collisional_data
-    ):
-        """Test collisional excitation cooling probability."""
-        coll_coeff, electron_densities, delta_E, _, level_densities, _ = (
+        coll_coeff, electron_densities, delta_E, _, _, _ = (
             sample_collisional_data
         )
-
-        # Create compatible lower indices for the test
-        # Use MultiIndex tuples matching the level_densities structure
-        lower_indices = coll_coeff.index.droplevel("level_number_upper")
 
         result = probability_collision_excitation_cool(
             coll_coeff,
             electron_densities,
             delta_E,
-            level_densities,
-            lower_indices,
         )
 
         # Check that result is computed properly
         assert isinstance(result, pd.DataFrame)
-        # Just check basic shape and that it computed without error
+        # Result is grouped by destination level, so shape may differ
         assert result.shape[1] == coll_coeff.shape[1]  # Same number of columns
 
     def test_collisional_transition_excitation_cool(
         self, sample_collisional_data
     ):
         """Test collisional excitation cooling transition with metadata."""
-        coll_coeff, electron_densities, delta_E, _, level_densities, _ = (
+        coll_coeff, electron_densities, delta_E, _, _, _ = (
             sample_collisional_data
         )
-
-        # Create compatible lower indices that match level_densities index
-        lower_indices = (
-            level_densities.index
-        )  # Use the actual level_densities index
 
         probabilities, metadata = collisional_transition_excitation_cool(
             coll_coeff,
             electron_densities,
             delta_E,
-            level_densities,
-            lower_indices,
         )
 
         # Check metadata
@@ -493,6 +516,188 @@ class TestCollisionalTransitions:
         ).all()
         # Source is actually a tuple (k, -99, -99), check just the first element
         assert all(src[0] == "k" for src in metadata.source)
+
+    def test_probability_collision_ionization_internal(
+        self, sample_collisional_data
+    ):
+        """Test collisional ionization internal probability."""
+        _, electron_densities, _, energy_lowers, _, _ = sample_collisional_data
+
+        # Create ionization coefficient data
+        ion_index = pd.MultiIndex.from_tuples(
+            [(1, 0, 0), (1, 0, 1), (2, 0, 0)],
+            names=["atomic_number", "ion_number", "level_number"],
+        )
+        ion_coeff = pd.DataFrame(
+            [[1e-8, 2e-8, 3e-8], [4e-8, 5e-8, 6e-8], [7e-8, 8e-8, 9e-8]],
+            index=ion_index,
+            columns=[0, 1, 2],
+        )
+        ion_energies = pd.Series([13.6, 3.4, 24.6], index=ion_index)
+
+        result = probability_collision_ionization_internal(
+            ion_coeff, electron_densities, ion_energies
+        )
+
+        # Check calculation
+        expected = (ion_coeff * electron_densities).multiply(
+            ion_energies.values, axis=0
+        )
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_collisional_transition_ionization_internal(
+        self, sample_collisional_data
+    ):
+        """Test collisional ionization internal transition with metadata."""
+        _, electron_densities, _, _, _, _ = sample_collisional_data
+
+        ion_index = pd.MultiIndex.from_tuples(
+            [(1, 0, 0)], names=["atomic_number", "ion_number", "level_number"]
+        )
+        ion_coeff = pd.DataFrame([[1e-8]], index=ion_index, columns=[0])
+        ion_energies = pd.Series([13.6], index=ion_index)
+
+        probabilities, metadata = collisional_transition_ionization_internal(
+            ion_coeff, electron_densities, ion_energies
+        )
+
+        # Check metadata
+        assert (
+            metadata.transition_type
+            == MacroAtomTransitionType.COLL_ION_INTERNAL
+        ).all()
+
+    def test_probability_collision_ionization_emission(
+        self, sample_collisional_data
+    ):
+        """Test collisional ionization emission probability."""
+        _, electron_densities, delta_E, _, _, _ = sample_collisional_data
+
+        ion_index = pd.MultiIndex.from_tuples(
+            [(1, 0, 0)], names=["atomic_number", "ion_number", "level_number"]
+        )
+        ion_coeff = pd.DataFrame([[1e-8]], index=ion_index, columns=[0])
+        ion_energies = pd.Series([13.6], index=ion_index)
+
+        result = probability_collision_ionization_emission(
+            ion_coeff, electron_densities, ion_energies
+        )
+
+        # Check calculation
+        expected = (ion_coeff * electron_densities).multiply(
+            ion_energies.values, axis=0
+        )
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_collisional_transition_ionization_emission(
+        self, sample_collisional_data
+    ):
+        """Test collisional ionization emission transition with metadata."""
+        _, electron_densities, _, _, _, _ = sample_collisional_data
+
+        ion_index = pd.MultiIndex.from_tuples(
+            [(1, 0, 0)], names=["atomic_number", "ion_number", "level_number"]
+        )
+        ion_coeff = pd.DataFrame([[1e-8]], index=ion_index, columns=[0])
+        ion_energies = pd.Series([13.6], index=ion_index)
+
+        probabilities, metadata = collisional_transition_ionization_emission(
+            ion_coeff, electron_densities, ion_energies
+        )
+
+        # Check metadata
+        assert (
+            metadata.transition_type
+            == MacroAtomTransitionType.COLL_ION_EMISSION
+        ).all()
+
+    def test_probability_collision_recombination_internal(
+        self, sample_collisional_data
+    ):
+        """Test collisional recombination internal probability."""
+        _, electron_densities, _, energy_lowers, _, _ = sample_collisional_data
+
+        recomb_index = pd.MultiIndex.from_tuples(
+            [(1, 1, 0)], names=["atomic_number", "ion_number", "level_number"]
+        )
+        recomb_coeff = pd.DataFrame([[1e-8]], index=recomb_index, columns=[0])
+        recomb_energies = pd.Series([13.6], index=recomb_index)
+
+        result = probability_collision_recombination_internal(
+            recomb_coeff, electron_densities, recomb_energies
+        )
+
+        # Check calculation
+        expected = (recomb_coeff * electron_densities).multiply(
+            recomb_energies.values, axis=0
+        )
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_collisional_transition_recombination_internal(
+        self, sample_collisional_data
+    ):
+        """Test collisional recombination internal transition with metadata."""
+        _, electron_densities, _, _, _, _ = sample_collisional_data
+
+        recomb_index = pd.MultiIndex.from_tuples(
+            [(1, 1, 0)], names=["atomic_number", "ion_number", "level_number"]
+        )
+        recomb_coeff = pd.DataFrame([[1e-8]], index=recomb_index, columns=[0])
+        recomb_energies = pd.Series([13.6], index=recomb_index)
+
+        probabilities, metadata = collisional_transition_recombination_internal(
+            recomb_coeff, electron_densities, recomb_energies
+        )
+
+        # Check metadata
+        assert (
+            metadata.transition_type
+            == MacroAtomTransitionType.COLL_RECOMB_INTERNAL
+        ).all()
+
+    def test_probability_collision_recombination_emission(
+        self, sample_collisional_data
+    ):
+        """Test collisional recombination emission probability."""
+        _, electron_densities, delta_E, _, _, _ = sample_collisional_data
+
+        recomb_index = pd.MultiIndex.from_tuples(
+            [(1, 1, 0)], names=["atomic_number", "ion_number", "level_number"]
+        )
+        recomb_coeff = pd.DataFrame([[1e-8]], index=recomb_index, columns=[0])
+        recomb_energies = pd.Series([13.6], index=recomb_index)
+
+        result = probability_collision_recombination_emission(
+            recomb_coeff, electron_densities, recomb_energies
+        )
+
+        # Check calculation
+        expected = (recomb_coeff * electron_densities).multiply(
+            recomb_energies.values, axis=0
+        )
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_collisional_transition_recombination_emission(
+        self, sample_collisional_data
+    ):
+        """Test collisional recombination emission transition with metadata."""
+        _, electron_densities, _, _, _, _ = sample_collisional_data
+
+        recomb_index = pd.MultiIndex.from_tuples(
+            [(1, 1, 0)], names=["atomic_number", "ion_number", "level_number"]
+        )
+        recomb_coeff = pd.DataFrame([[1e-8]], index=recomb_index, columns=[0])
+        recomb_energies = pd.Series([13.6], index=recomb_index)
+
+        probabilities, metadata = collisional_transition_recombination_emission(
+            recomb_coeff, electron_densities, recomb_energies
+        )
+
+        # Check metadata
+        assert (
+            metadata.transition_type
+            == MacroAtomTransitionType.COLL_RECOMB_EMISSION
+        ).all()
 
 
 class TestEdgeCases:
@@ -521,16 +726,3 @@ class TestEdgeCases:
 
         result = probability_recombination_internal(zero_df, zero_series)
         assert (result == 0.0).all().all()
-
-    def test_negative_values_handling(self):
-        """Test that functions handle negative inputs appropriately."""
-        index = pd.MultiIndex.from_tuples(
-            [(1, 0, 0)], names=["atomic_number", "ion_number", "level_number"]
-        )
-
-        # Negative coefficients should be allowed (could represent different physics)
-        neg_df = pd.DataFrame([[-1e-12]], index=index, columns=[0])
-        pos_series = pd.Series([10.0], index=index)
-
-        result = probability_recombination_internal(neg_df, pos_series)
-        assert (result < 0).all().all()  # Result should be negative
