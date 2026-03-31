@@ -18,7 +18,8 @@ from tardis import run_tardis
 from tardis.io.atom_data import download_atom_data
 from tardis.io.configuration.config_reader import Configuration
 
-from tardis.visualization import LIVPlotter, SDECPlotter
+from tardis.visualization.tools.liv_plot import LIVPlotter
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 
 def build_arg_parser():
     """
