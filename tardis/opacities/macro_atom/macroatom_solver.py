@@ -796,13 +796,18 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         Parameters
         ----------
-        levels : pd.DataFrame
-            DataFrame containing atomic level information.
-        lines : pd.DataFrame
+        levels
+            DataFrame containing atomic level energy information.
+        lines
             DataFrame containing spectral line information.
-        photoionization_data : pd.DataFrame
+        photoionization_data
             DataFrame containing photoionization cross-section information.
-        line_interaction_type : str, optional
+        ionization_energies
+            Series containing ionization energies for each level.
+        selected_continuum_transitions
+            Array of selected continuum transitions (atomic_number, ion_number) pairs.
+            If empty, all photoionization transitions are included.
+        line_interaction_type
             Type of line interaction to use. Default is "macroatom".
         """
         super().__init__(
@@ -864,17 +869,29 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         Parameters
         ----------
-        mean_intensities_blue_wing : pd.DataFrame
+        mean_intensities_blue_wing
             Mean intensity of the radiation field of each line in the blue wing for each shell.
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
-        beta_sobolevs : pd.DataFrame
+        beta_sobolevs
             Escape probabilities for the Sobolev approximation.
-        stimulated_emission_factors : np.ndarray
+        stimulated_emission_factors
             Stimulated emission factors for the lines.
-        stim_recomb_corrected_photoionization_rate_coeff : pd.DataFrame
+        stim_recomb_corrected_photoionization_rate_coeff
             Corrected photoionization rate coefficients for continuum transitions.
-        spontaneous_recombination_coeff : pd.DataFrame
+        spontaneous_recombination_coeff
             Spontaneous recombination coefficients for continuum transitions.
+        coll_deexc_coeff
+            Collisional de-excitation coefficients.
+        coll_exc_coeff
+            Collisional excitation coefficients.
+        coll_ion_coeff
+            Collisional ionization coefficients.
+        coll_recomb_coeff
+            Collisional recombination coefficients.
+        electron_densities
+            Electron number densities for each cell.
+        delta_E_yg
+            Energy differences for transitions.
 
         Returns
         -------
@@ -959,29 +976,38 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         Parameters
         ----------
-        mean_intensities_blue_wing : pd.DataFrame
+        mean_intensities_blue_wing
             Mean intensity of the radiation field of each line in the blue wing for each shell.
-        beta_sobolevs : pd.DataFrame
+        beta_sobolevs
             Escape probabilities for the Sobolev approximation.
-        stimulated_emission_factors : np.ndarray
+        stimulated_emission_factors
             Stimulated emission factors for the lines.
-        stim_recomb_corrected_photoionization_rate_coeff : pd.DataFrame
+        stim_recomb_corrected_photoionization_rate_coeff
             Corrected photoionization rate coefficients for continuum transitions.
-
-        spontaneous_recombination_coeff : pd.DataFrame
+        spontaneous_recombination_coeff
             Spontaneous recombination coefficients for continuum transitions.
+        coll_deexc_coeff
+            Collisional de-excitation coefficients.
+        coll_exc_coeff
+            Collisional excitation coefficients.
+        coll_ion_coeff
+            Collisional ionization coefficients.
+        coll_recomb_coeff
+            Collisional recombination coefficients.
+        electron_densities
+            Electron number densities for each cell.
 
         Returns
         -------
-        normalized_probabilities : pd.DataFrame
+        normalized_probabilities
             DataFrame containing normalized transition probabilities where each source group sums to 1.0.
-        macro_atom_transition_metadata : pd.DataFrame
+        macro_atom_transition_metadata
             DataFrame containing metadata for transitions including source and destination levels, transition types, and line indices.
-        line2macro_level_upper : pd.Series
+        line2macro_level_upper
             Series mapping line transitions to macro atom level indices for upper levels.
-        macro_block_references : pd.Series
+        macro_block_references
             Series with unique source levels as index and their first occurrence index in the metadata as values.
-        references_index : pd.Series
+        references_index
             Series with unique source levels as index and their assigned indices as values.
         """
         # Assemble bound-bound transitions first.
@@ -1223,19 +1249,33 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         Parameters
         ----------
-        mean_intensities_blue_wing : pd.DataFrame
+        mean_intensities_blue_wing
             Mean intensity of the radiation field of each line in the blue wing for each shell.
             For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357.
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
             This parameter may have updated values compared to the first iteration.
-        beta_sobolevs : pd.DataFrame
+        beta_sobolevs
             Escape probabilities for the Sobolev approximation. These probabilities
             represent the fraction of photons that escape the line formation region
             without being reabsorbed. Values may be updated from the first iteration.
-        stimulated_emission_factors : np.ndarray
+        stimulated_emission_factors
             Factors accounting for stimulated emission in the transitions. These
             modify the transition probabilities based on the radiation field strength.
             May contain updated values from the radiation field calculation.
+        stim_recomb_corrected_photoionization_rate_coeff
+            Corrected photoionization rate coefficients for continuum transitions.
+        spontaneous_recombination_coeff
+            Spontaneous recombination coefficients for continuum transitions.
+        coll_deexc_coeff
+            Collisional de-excitation coefficients.
+        coll_exc_coeff
+            Collisional excitation coefficients.
+        coll_ion_coeff
+            Collisional ionization coefficients.
+        coll_recomb_coeff
+            Collisional recombination coefficients.
+        electron_densities
+            Electron number densities for each cell.
 
         Returns
         -------
@@ -1271,14 +1311,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         continuum_photoion_to_k_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
-        ].photoionization_key_idx.to_numpy()
-        continuum_recomb_internal_idxs = macro_atom_transition_metadata[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL
-        ].photoionization_key_idx.to_numpy()
-        continuum_recomb_emission_idxs = macro_atom_transition_metadata[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.PHOTO_RECOMB_EMISSION
         ].photoionization_key_idx.to_numpy()
 
         # collisional indices
@@ -1518,9 +1550,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         Parameters
         ----------
-        probabilities : pd.DataFrame
+        probabilities
             DataFrame containing normalized transition probabilities.
-        macro_atom_transition_metadata : pd.DataFrame
+        macro_atom_transition_metadata
             DataFrame containing metadata for macro atom transitions.
 
         Returns
