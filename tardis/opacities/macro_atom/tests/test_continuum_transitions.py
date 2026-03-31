@@ -108,7 +108,8 @@ class TestRecombinationTransitions:
 
         # Check transition type
         assert (
-            metadata.transition_type == MacroAtomTransitionType.RECOMB_INTERNAL
+            metadata.transition_type
+            == MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL
         ).all()
 
         # Check that metadata index matches probabilities

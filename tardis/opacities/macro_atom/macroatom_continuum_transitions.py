@@ -67,7 +67,7 @@ def continuum_transition_recombination_internal(
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.RECOMB_INTERNAL,
+            "transition_type": MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL,
             "transition_line_idx": -99,
             "photoionization_key_idx": range(
                 len(photoionization_data_level_energies)
@@ -139,7 +139,7 @@ def continuum_transition_recombination_emission(
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.RECOMB_EMISSION,
+            "transition_type": MacroAtomTransitionType.PHOTO_RECOMB_EMISSION,
             "transition_line_idx": -99,
             "photoionization_key_idx": range(len(energies_diff_bound_free)),
             "collision_key_idx": -99,
@@ -850,7 +850,9 @@ def collisional_transition_ionization_internal(
             "transition_type": MacroAtomTransitionType.COLL_ION_INTERNAL,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
-            "collision_key_idx": -99,  # Collapsed along level_number_lower, so can't be mapped to collision keys
+            "collision_key_idx": range(
+                len(coll_ion_coeff)
+            ),  # Collapsed along level_number_lower, so can't be mapped to collision keys
         },
         index=p_coll_ionization_internal.index,
     )

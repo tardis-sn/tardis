@@ -778,7 +778,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
     lines: pd.DataFrame
     line_interaction_type: str
     photoionization_data: pd.DataFrame
-    ionization_energies: pd.DataFrame
+    ionization_energies: pd.Series
     selected_continuum_transitions: np.ndarray
 
     def __init__(
@@ -786,7 +786,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         levels: pd.DataFrame,
         lines: pd.DataFrame,
         photoionization_data: pd.DataFrame,
-        ionization_energies: pd.DataFrame,
+        ionization_energies: pd.Series,
         selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = "macroatom",
     ) -> None:
@@ -921,7 +921,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_ion_coeff,
                 coll_recomb_coeff,
                 electron_densities,
-                level_number_density,
             )
             (
                 macro_atom_transition_metadata,
@@ -1045,18 +1044,18 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 self._delta_E_yg_ionization,
             )
         )
-
-        p_recombination_emission, recombination_emission_metadata = (
-            continuum_transition_recombination_emission(
-                spontaneous_recombination_coeff, self._delta_E_yg_ionization
-            )
-        )
         p_recombination_internal, recombination_internal_metadata = (
             continuum_transition_recombination_internal(
                 spontaneous_recombination_coeff,
                 self.photoionization_data_level_energies,
             )
         )
+        p_recombination_emission, recombination_emission_metadata = (
+            continuum_transition_recombination_emission(
+                spontaneous_recombination_coeff, self._delta_E_yg_ionization
+            )
+        )
+
         # Then assemble the collisional transitions
         # TODO: CONSOLIDATE WITH SOLVE FIRST ITER ATTR SETTING
         self._coll_energies_lower = self.levels.energy.loc[
@@ -1265,19 +1264,27 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ].transition_line_idx.to_numpy()
 
         # Photoionization and recombination indices
-        continuum_photoionization_idxs = macro_atom_transition_metadata[
+        continuum_photoion_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL
+        ].photoionization_key_idx.to_numpy()
+        continuum_photoion_to_k_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
+        ].photoionization_key_idx.to_numpy()
+        continuum_recomb_internal_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL
+        ].photoionization_key_idx.to_numpy()
+        continuum_recomb_emission_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.PHOTO_RECOMB_EMISSION
         ].photoionization_key_idx.to_numpy()
 
         # collisional indices
         collisional_down_k_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET
-        ].collision_key_idx.to_numpy()
-        collisional_up_cool_idxs = macro_atom_transition_metadata[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO  # TODO: Something with this - Currently not used
         ].collision_key_idx.to_numpy()
         collisional_down_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
@@ -1286,6 +1293,26 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         collisional_up_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_UP_INTERNAL
+        ].collision_key_idx.to_numpy()
+        collisional_up_cool_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO  # TODO: Something with this - Currently not used
+        ].collision_key_idx.to_numpy()
+        collisional_ionization_internal_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_ION_INTERNAL
+        ].collision_key_idx.to_numpy()
+        collisional_ionization_emission_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_ION_EMISSION
+        ].collision_key_idx.to_numpy()
+        collisional_recomb_internal_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_RECOMB_INTERNAL
+        ].collision_key_idx.to_numpy()
+        collisional_ionization_emission_idxs = macro_atom_transition_metadata[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_RECOMB_EMISSION
         ].collision_key_idx.to_numpy()
 
         probabilities_df = pd.DataFrame(
@@ -1309,6 +1336,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self._energies_upper[line_trans_emission_down_ids],
             self._energies_lower[line_trans_emission_down_ids],
         ).to_numpy()
+
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.INTERNAL_DOWN
@@ -1332,7 +1360,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ).to_numpy()
 
         # Then update the continuum transitions.
-        photoionization_sources = pd.MultiIndex.from_tuples(
+        photoionization_internal_sources = pd.MultiIndex.from_tuples(
             macro_atom_transition_metadata[
                 macro_atom_transition_metadata.transition_type
                 == MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL
@@ -1343,19 +1371,36 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             == MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL
         ] = probability_photoionization_internal(
             stim_recomb_corrected_photoionization_rate_coeff.loc[
-                photoionization_sources
+                photoionization_internal_sources
             ],
             self.photoionization_data_level_energies.iloc[
-                continuum_photoionization_idxs
+                continuum_photoion_internal_idxs
+            ],
+        ).to_numpy()
+
+        photoionization_to_k_sources = pd.MultiIndex.from_tuples(
+            macro_atom_transition_metadata[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
+            ].source
+        )
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
+        ] = probability_photoionization_internal(
+            stim_recomb_corrected_photoionization_rate_coeff.loc[
+                photoionization_to_k_sources
+            ],
+            self.photoionization_data_level_energies.iloc[
+                continuum_photoion_to_k_idxs
             ],
         ).to_numpy()
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.RECOMB_EMISSION
+            == MacroAtomTransitionType.PHOTO_RECOMB_EMISSION
         ] = probability_recombination_emission(
-            spontaneous_recombination_coeff,
-            self.photoionization_data.nu,
+            spontaneous_recombination_coeff, self._delta_E_yg_ionization
         ).to_numpy()  # WARNING - This assumes that the recombination probabilities do not get reordered within a recomb_emission block,
         # because they are matched again against the photoionization nus.
         # There's no reason for them to get reordered, but they are not explicitly tracked.
@@ -1364,12 +1409,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         recomb_internal_destinations = pd.MultiIndex.from_tuples(
             macro_atom_transition_metadata[
                 macro_atom_transition_metadata.transition_type
-                == MacroAtomTransitionType.RECOMB_INTERNAL
+                == MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL
             ].destination
         )
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.RECOMB_INTERNAL
+            == MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL
         ] = probability_recombination_internal(
             spontaneous_recombination_coeff.loc[recomb_internal_destinations],
             self.photoionization_data_level_energies.loc[
@@ -1378,23 +1423,15 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ).to_numpy()
 
         # verify these below are right
+        coll_down_to_k_probs = probability_collision_deexc_to_k_packet(
+            coll_deexc_coeff,
+            electron_densities,
+            self._delta_E_yg,
+        )
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET
-        ] = probability_collision_deexc_to_k_packet(
-            coll_deexc_coeff.iloc[collisional_down_k_idxs],
-            electron_densities,
-            self._delta_E_yg.iloc[collisional_down_k_idxs],
-        ).to_numpy()
-
-        probabilities_df[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
-        ] = probability_collision_excitation_cool(
-            coll_exc_coeff,
-            electron_densities,
-            self._delta_E_yg,
-        ).to_numpy()
+        ] = coll_down_to_k_probs.iloc[collisional_down_k_idxs].to_numpy()
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
@@ -1425,12 +1462,22 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self._delta_E_yg,
         ).to_numpy()
 
+        probabilities_df[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_ION_INTERNAL
+        ] = probability_collision_ionization_internal(
+            coll_ion_coeff.iloc[collisional_ionization_internal_idxs],
+            electron_densities,
+            self._coll_ion_energies.iloc[collisional_ionization_internal_idxs],
+        ).to_numpy()
+
         probabilities_df["source"] = (
             macro_atom_transition_metadata.source.values
         )  # Normalize by source in the next line, so need source column.
-        normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
-        )
+        normalized_probabilities = probabilities_df
+        # normalized_probabilities = self.normalize_transition_probabilities(
+        #     probabilities_df
+        # )
         return normalized_probabilities
 
     def reindex_sort_and_clean_probabilities_and_metadata(
