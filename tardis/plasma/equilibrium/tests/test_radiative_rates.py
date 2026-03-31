@@ -12,13 +12,12 @@ These tests cover:
 """
 
 import numpy as np
-import astropy.units as u
 import pandas as pd
 import pandas.testing as pdt
 import pytest
 
-from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.plasma.equilibrium.rates import RadiativeRatesSolver
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
 
 # ---------------------------------------------------------------------------
