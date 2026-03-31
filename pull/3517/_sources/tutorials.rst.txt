@@ -3,7 +3,7 @@ Tutorials
 
 The following pages contain the TARDIS tutorials:
 
-* :doc:`io/continuum_reader/tutorial_run_cor`
-* :doc:`io/optional/tutorial_logging_configuration`
 * :doc:`io/optional/tutorial_callback_example`
+* :doc:`io/optional/tutorial_logging_configuration`
 * :doc:`io/configuration/tutorial_read_configuration`
+* :doc:`io/continuum_reader/tutorial_run_cor`
