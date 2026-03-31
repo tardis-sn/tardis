@@ -901,12 +901,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         is_first_iteration = not hasattr(self, "computed_metadata")
 
         if is_first_iteration:
-            self._delta_E_yg = delta_E_yg  # This should be moved to the init, but can't yet because delta_E_yg comes from the plasma which isn't given to macroatom init
-            self._delta_E_yg_ionization = (
-                self.ionization_energies[
-                    get_ground_state_multi_index(coll_ion_coeff.index)
-                ]
-                - self.levels.energy.loc[coll_ion_coeff.index].values
+            self.set_static_properties(
+                delta_E_yg, coll_ion_coeff, coll_exc_coeff
             )
             (
                 normalized_probabilities,
@@ -953,6 +949,43 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_block_references,
             references_index,
         )
+
+    def set_static_properties(
+        self,
+        delta_E_yg: pd.Series,
+        coll_ion_coeff: pd.DataFrame,
+        coll_exc_coeff: pd.DataFrame,
+    ) -> None:
+        """
+        Set static properties that are computed from plasma data.
+
+        This method stores energy differences and collision coefficient-derived
+        properties that are needed for the solve iterations but cannot be
+        computed in __init__ because they depend on plasma properties.
+
+        Parameters
+        ----------
+        delta_E_yg
+            Energy differences for collisional transitions.
+        coll_ion_coeff
+            Collisional ionization coefficients.
+        coll_exc_coeff
+            Collisional excitation coefficients.
+        """
+        self._delta_E_yg = delta_E_yg  # This should be moved to the init, but can't yet because delta_E_yg comes from the plasma which isn't given to macroatom init
+        self._delta_E_yg_ionization = (
+            self.ionization_energies[
+                get_ground_state_multi_index(coll_ion_coeff.index)
+            ]
+            - self.levels.energy.loc[coll_ion_coeff.index].values
+        )
+        self._coll_energies_lower = self.levels.energy.loc[
+            coll_exc_coeff.index.droplevel("level_number_upper")
+        ]
+        self._coll_indices_lower = coll_exc_coeff.index.droplevel(
+            "level_number_upper"
+        )
+        self._coll_ion_energies = self.levels.energy.loc[coll_ion_coeff.index]
 
     def _solve_first_macroatom_iteration(
         self,
@@ -1083,17 +1116,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         )
 
         # Then assemble the collisional transitions
-        # TODO: CONSOLIDATE WITH SOLVE FIRST ITER ATTR SETTING
-        self._coll_energies_lower = self.levels.energy.loc[
-            coll_exc_coeff.index.droplevel("level_number_upper")
-        ]  # This should probably be moved to init - static data,
-        self._coll_indices_lower = coll_exc_coeff.index.droplevel(
-            "level_number_upper"
-        )
-        self._coll_ion_energies = self.levels.energy.loc[coll_ion_coeff.index]
-        # self._ionization_energies =
-        # but needs coll_deexc_coeff which doesn't exist til plasma
-
         p_coll_down_to_k_packet, coll_down_to_packet_metadata = (
             collisional_transition_deexc_to_k_packet(
                 coll_deexc_coeff,
@@ -1194,11 +1216,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
         probabilities_df["source"] = macro_atom_transition_metadata["source"]
-        # TODO: CHANGE THIS BACK - FOR DEBUGGING PURPOSES
-        # normalized_probabilities = self.normalize_transition_probabilities(
-        #     probabilities_df
-        # )
-        normalized_probabilities = probabilities_df
+        normalized_probabilities = self.normalize_transition_probabilities(
+            probabilities_df
+        )
+        # normalized_probabilities = probabilities_df # Useful for debugging
 
         line2macro_level_upper, reference_index = (
             self.create_line2macro_level_upper_and_reference_idx(
@@ -1227,7 +1248,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             reference_index,
         )
 
-    def _solve_next_macroatom_iteration(  # TODO: FIGURE OUT NEXT ITER PROB RECREATION - CURRENTLY WRONG
+    def _solve_next_macroatom_iteration(
         self,
         mean_intensities_blue_wing: pd.DataFrame,
         beta_sobolevs: pd.DataFrame,
@@ -1325,10 +1346,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         collisional_up_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_UP_INTERNAL
-        ].collision_key_idx.to_numpy()
-        collisional_up_cool_idxs = macro_atom_transition_metadata[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO  # TODO: Something with this - Currently not used
         ].collision_key_idx.to_numpy()
         collisional_ionization_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
@@ -1533,10 +1550,10 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         probabilities_df["source"] = (
             macro_atom_transition_metadata.source.values
         )  # Normalize by source in the next line, so need source column.
-        normalized_probabilities = probabilities_df
-        # normalized_probabilities = self.normalize_transition_probabilities(
-        #     probabilities_df
-        # )
+        # normalized_probabilities = probabilities_df # Useful for bugtesting
+        normalized_probabilities = self.normalize_transition_probabilities(
+            probabilities_df
+        )
         return normalized_probabilities
 
     def reindex_sort_and_clean_probabilities_and_metadata(
