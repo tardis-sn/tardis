@@ -59,9 +59,17 @@ def continuum_transition_recombination_internal(
         spontaneous_recombination_coeff, photoionization_data_level_energies
     )
 
-    destinations = p_recomb_internal.index.values
-    sources = get_ground_state_multi_index(p_recomb_internal.index).values
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_recomb_internal.index.values
+    ]
 
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in get_ground_state_multi_index(
+            p_recomb_internal.index
+        ).values
+    ]
     recombination_internal_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -131,8 +139,16 @@ def continuum_transition_recombination_emission(
         spontaneous_recombination_coeff, energies_diff_bound_free
     )
 
-    destinations = p_recomb_emission.index.values
-    sources = get_ground_state_multi_index(p_recomb_emission.index).values
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_recomb_emission.index.values
+    ]
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in get_ground_state_multi_index(
+            p_recomb_emission.index
+        ).values
+    ]
 
     recomb_emission_metadata = pd.DataFrame(
         {
@@ -203,10 +219,16 @@ def continuum_transition_photoionization_internal(
         photoionization_data_level_energies,
     )
 
-    sources = p_photoion_internal.index.values
-    destinations = get_ground_state_multi_index(
-        p_photoion_internal.index
-    ).values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_photoion_internal.index.values
+    ]
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in get_ground_state_multi_index(
+            p_photoion_internal.index
+        ).values
+    ]
 
     photoion_internal_metadata = pd.DataFrame(
         {
@@ -279,10 +301,16 @@ def continuum_transition_photoionization_to_k_packet(
         energies_bound_free_lower,
     )
 
-    sources = p_photoion_to_k_packet.index.values
-    destinations = get_ground_state_multi_index(
-        p_photoion_to_k_packet.index
-    ).values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_photoion_to_k_packet.index.values
+    ]
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in get_ground_state_multi_index(
+            p_photoion_to_k_packet.index
+        ).values
+    ]
 
     photoion_to_k_packet_metadata = pd.DataFrame(
         {
@@ -533,9 +561,12 @@ def collisional_transition_deexc_to_k_packet(
         coll_deexc_coeff, electron_densities, delta_E_yg
     )
 
-    sources = p_coll_down_to_k_packet.index.droplevel(
-        "level_number_lower"
-    ).values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_coll_down_to_k_packet.index.droplevel(
+            "level_number_lower"
+        ).values
+    ]
     destinations = [("k", -99, -99)] * len(p_coll_down_to_k_packet.index)
 
     coll_down_to_k_packet_metadata = pd.DataFrame(
@@ -607,8 +638,18 @@ def collisional_transition_internal_down(
     coll_internal_down_metadata
         Metadata for the collisional internal down transitions.
     """
-    sources = coll_deexc_coeff.index.droplevel("level_number_lower").values
-    destinations = coll_deexc_coeff.index.droplevel("level_number_upper").values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_deexc_coeff.index.droplevel(
+            "level_number_lower"
+        ).values
+    ]
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_deexc_coeff.index.droplevel(
+            "level_number_upper"
+        ).values
+    ]
     p_coll_internal_down = probability_collision_internal_down(
         coll_deexc_coeff, electron_densities, energies_lower
     )
@@ -681,8 +722,18 @@ def collisional_transition_excitation_internal(
     coll_up_internal_metadata
         Metadata for the collisional internal up transitions.
     """
-    sources = coll_exc_coeff.index.droplevel("level_number_upper").values
-    destinations = coll_exc_coeff.index.droplevel("level_number_lower").values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_exc_coeff.index.droplevel(
+            "level_number_upper"
+        ).values
+    ]
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_exc_coeff.index.droplevel(
+            "level_number_lower"
+        ).values
+    ]
 
     p_coll_up_internal = probability_collision_exc_internal(
         coll_exc_coeff, electron_densities, energies_lower
@@ -769,7 +820,10 @@ def collisional_transition_excitation_cool(
         delta_E_yg,
     )
     sources = [("k", -99, -99)] * len(p_coll_excitation_cool)
-    destinations = p_coll_excitation_cool.index.values
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_coll_excitation_cool.index.values
+    ]
     coll_excitation_cool_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -844,7 +898,10 @@ def collisional_transition_ionization_internal(
         electron_densities,
         energies_coll_lower_states,
     )
-    sources = coll_ion_coeff.index.values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_ion_coeff.index.values
+    ]
     destinations = [("i", -99, -99)] * len(p_coll_ionization_internal)
     coll_ionzation_internal_metadata = pd.DataFrame(
         {
@@ -922,7 +979,11 @@ def collisional_transition_ionization_emission(
         electron_densities,
         energies_diff_bound_free,
     )
-    sources = coll_ion_coeff.index.values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_ion_coeff.index.values
+    ]
+
     destinations = [("i", -99, -99)] * len(
         p_coll_ionization_emission
     )  # Maybe supposed to go to K block?
@@ -1003,7 +1064,11 @@ def collisional_transition_recombination_internal(
     sources = [("k", -99, -99)] * len(
         p_coll_recomb_internal
     )  # Double check if from k or from i
-    destinations = coll_recomb_coeff.index.values
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_recomb_coeff.index.values
+    ]
+
     coll_recomb_internal = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -1079,7 +1144,11 @@ def collisional_transition_recombination_emission(
         energies_diff_bound_free,
     )
     sources = [("i", -99, -99)] * len(p_coll_recomb_emission)
-    destinations = coll_recomb_coeff.index.values  # Not sure this is right
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_recomb_coeff.index.values
+    ]
+
     coll_recomb_emission_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,

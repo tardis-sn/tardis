@@ -248,14 +248,18 @@ class BoundBoundMacroAtomSolver:
             .reindex(self.lines.index.droplevel("level_number_upper"))
             .to_numpy()
         )
-        self._transition_a_i_l_u_array = self.lines.reset_index()[
-            [
-                "atomic_number",
-                "ion_number",
-                "level_number_lower",
-                "level_number_upper",
+        self._transition_a_i_l_u_array = (
+            self.lines.reset_index()[
+                [
+                    "atomic_number",
+                    "ion_number",
+                    "level_number_lower",
+                    "level_number_upper",
+                ]
             ]
-        ].to_numpy()  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
+            .convert_dtypes(int)
+            .values
+        )  # This is a helper array to make the source and destination columns. The letters stand for atomic_number, ion_number, lower level, upper level.
 
         self._lines_level_upper = self.lines.index.droplevel(
             "level_number_lower"
