@@ -92,7 +92,7 @@ def probability_recombination_emission(
     spontaneous_recombination_coeff
         Rate coefficient for spontaneous recombination from `k` to level `i`.
     energies_diff_bound_free
-        Ionization threshold frequencies for the levels.
+        Energy difference between bound state and ionized state.
 
     Returns
     -------
@@ -118,7 +118,7 @@ def continuum_transition_recombination_emission(
     spontaneous_recombination_coeff
         Rate coefficient for spontaneous recombination from `k` to level `i`.
     energies_diff_bound_free
-        Ionization threshold frequencies for the levels.
+        Energy difference between bound state and ionized state.
 
     Returns
     -------

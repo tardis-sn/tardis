@@ -108,7 +108,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 atom_data.lines,
                 atom_data.photoionization_data,
                 atom_data.ionization_data,
-                selected_continuum_transitions=continuum_interactions.species,
+                selected_continuum_transitions=self.plasma_solver.continuum_interaction_species,
                 line_interaction_type=line_interaction_type,
             )
         else:

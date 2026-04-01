@@ -125,13 +125,16 @@ class TestRecombinationTransitions:
 
     def test_probability_recombination_emission(self, sample_recomb_data):
         """Test emission recombination probability calculation."""
-        recomb_coeff, _, frequencies = sample_recomb_data
+        recomb_coeff, _, energies = sample_recomb_data
 
-        result = probability_recombination_emission(recomb_coeff, frequencies)
+        result = probability_recombination_emission(recomb_coeff, energies)
 
         # Check shape and type
         assert isinstance(result, pd.DataFrame)
         assert result.shape == recomb_coeff.shape
+
+        expected = recomb_coeff.multiply(energies, axis=0)
+        pd.testing.assert_frame_equal(result, expected)
 
     def test_continuum_transition_recombination_emission(
         self, sample_recomb_data
