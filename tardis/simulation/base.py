@@ -464,7 +464,6 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma.coll_ion_coeff,
                     self.plasma.coll_recomb_coeff,
                     self.plasma.electron_densities,
-                    self.plasma.level_number_density,
                     self.plasma.delta_E_yg,
                 )
                 self.opacity_state.continuum_state.k_packet_idx = self.macro_atom_state.references_index.iloc[

@@ -565,7 +565,7 @@ class BoundBoundMacroAtomSolver:
             self._nus[line_trans_internal_up_ids],
             self._oscillator_strength_lu[line_trans_internal_up_ids],
             stimulated_emission_factors[line_trans_internal_up_ids],
-            mean_intensities_blue_wing[line_trans_internal_up_ids],
+            mean_intensities_blue_wing.iloc[line_trans_internal_up_ids],
             self._energies_lower[line_trans_internal_up_ids],
         ).to_numpy()
 
@@ -1219,7 +1219,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )
-        # normalized_probabilities = probabilities_df # Useful for debugging
+        # normalized_probabilities = probabilities_df  # Useful for debugging
 
         line2macro_level_upper, reference_index = (
             self.create_line2macro_level_upper_and_reference_idx(
@@ -1404,7 +1404,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self._nus[line_trans_internal_up_ids],
             self._oscillator_strength_lu[line_trans_internal_up_ids],
             stimulated_emission_factors[line_trans_internal_up_ids],
-            mean_intensities_blue_wing[line_trans_internal_up_ids],
+            mean_intensities_blue_wing.iloc[line_trans_internal_up_ids],
             self._energies_lower[line_trans_internal_up_ids],
         ).to_numpy()
 
@@ -1550,7 +1550,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         probabilities_df["source"] = (
             macro_atom_transition_metadata.source.values
         )  # Normalize by source in the next line, so need source column.
-        # normalized_probabilities = probabilities_df # Useful for bugtesting
+        # normalized_probabilities = probabilities_df  # Useful for debugging
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df
         )
