@@ -746,9 +746,12 @@ class TypeIIPWorkflow(WorkflowLogging):
             recombination_rate = (
                 recomb_rates_solver._calculate_rate_coefficient()
             )
-
-            macro_atom_state = self.macro_atom_solver.solve(
+            j_blues_df = pd.DataFrame(
                 self.plasma_solver.j_blues,
+                index=self.plasma_solver.lines.index,
+            )
+            macro_atom_state = self.macro_atom_solver.solve(
+                j_blues_df,
                 opacity_state.beta_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
                 photoion_rate,
