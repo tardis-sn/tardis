@@ -789,7 +789,7 @@ def collisional_transition_excitation_cool(
 def probability_collision_ionization_internal(
     coll_ion_coeff: pd.DataFrame,
     electron_densities: pd.Series,
-    energies_coll_ion: pd.Series,
+    energies_coll_lower_states: pd.Series,
 ) -> pd.DataFrame:
     """
     Calculate collisional ionization internal probabilities.
@@ -800,7 +800,7 @@ def probability_collision_ionization_internal(
         Collisional ionization coefficients.
     electron_densities
         Electron number densities.
-    energies_coll_ion
+    energies_coll_lower_states
         Energies of the lower states in the transitions.
 
     Returns
@@ -809,7 +809,7 @@ def probability_collision_ionization_internal(
         Unnormalized collisional ionization internal probabilities.
     """
     p_coll_ionization_internal = (coll_ion_coeff * electron_densities).multiply(
-        energies_coll_ion, axis=0
+        energies_coll_lower_states, axis=0
     )
 
     return p_coll_ionization_internal
@@ -818,7 +818,7 @@ def probability_collision_ionization_internal(
 def collisional_transition_ionization_internal(
     coll_ion_coeff: pd.DataFrame,
     electron_densities: pd.Series,
-    energies_coll_ion: pd.Series,
+    energies_coll_lower_states: pd.Series,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Build collisional ionization internal probabilities and metadata.
@@ -829,7 +829,7 @@ def collisional_transition_ionization_internal(
         Collisional ionization coefficients.
     electron_densities
         Electron number densities.
-    energies_coll_ion
+    energies_coll_lower_states
         Energies of the lower states in the transitions.
 
     Returns
@@ -842,7 +842,7 @@ def collisional_transition_ionization_internal(
     p_coll_ionization_internal = probability_collision_ionization_internal(
         coll_ion_coeff,
         electron_densities,
-        energies_coll_ion,
+        energies_coll_lower_states,
     )
     sources = coll_ion_coeff.index.values
     destinations = [("i", -99, -99)] * len(p_coll_ionization_internal)
@@ -945,7 +945,7 @@ def collisional_transition_ionization_emission(
 def probability_collision_recombination_internal(
     coll_recomb_coeff: pd.DataFrame,
     electron_densities: pd.Series,
-    energies_coll_ion: pd.Series,
+    energies_coll_lower_states: pd.Series,
 ) -> pd.DataFrame:
     """
     Calculate collisional recombination internal probabilities.
@@ -956,7 +956,7 @@ def probability_collision_recombination_internal(
         Collisional recombination coefficients.
     electron_densities
         Electron number densities.
-    energies_coll_ion
+    energies_coll_lower_states
         Energies of the lower states in the transitions.
 
     Returns
@@ -966,7 +966,7 @@ def probability_collision_recombination_internal(
     """
     p_coll_ionization_internal = (
         coll_recomb_coeff * electron_densities
-    ).multiply(energies_coll_ion.values, axis=0)
+    ).multiply(energies_coll_lower_states.values, axis=0)
 
     return p_coll_ionization_internal
 
@@ -974,7 +974,7 @@ def probability_collision_recombination_internal(
 def collisional_transition_recombination_internal(
     coll_recomb_coeff: pd.DataFrame,
     electron_densities: pd.Series,
-    energies_coll_ion: pd.Series,
+    energies_coll_lower_states: pd.Series,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Build collisional recombination internal probabilities and metadata.
@@ -985,7 +985,7 @@ def collisional_transition_recombination_internal(
         Collisional recombination coefficients.
     electron_densities
         Electron number densities.
-    energies_coll_ion
+    energies_coll_lower_states
         Energies of the lower states in the transitions.
 
     Returns
@@ -998,7 +998,7 @@ def collisional_transition_recombination_internal(
     p_coll_recomb_internal = probability_collision_recombination_internal(
         coll_recomb_coeff,
         electron_densities,
-        energies_coll_ion,
+        energies_coll_lower_states,
     )
     sources = [("k", -99, -99)] * len(
         p_coll_recomb_internal
