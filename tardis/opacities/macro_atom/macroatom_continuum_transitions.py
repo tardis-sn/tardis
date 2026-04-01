@@ -92,7 +92,7 @@ def probability_recombination_emission(
     spontaneous_recombination_coeff
         Rate coefficient for spontaneous recombination from `k` to level `i`.
     energies_diff_bound_free
-        Energy difference between bound state and ionized state.
+        Energy differences of the states involved in ionization.
 
     Returns
     -------
@@ -118,7 +118,7 @@ def continuum_transition_recombination_emission(
     spontaneous_recombination_coeff
         Rate coefficient for spontaneous recombination from `k` to level `i`.
     energies_diff_bound_free
-        Energy difference between bound state and ionized state.
+        Energy differences of the states involved in ionization
 
     Returns
     -------
@@ -162,17 +162,19 @@ def probability_photoionization_internal(
     stim_recomb_corrected_photoionization_rate_coeff
         Corrected photoionization rate coefficient from level `i` to `k`.
     photoionization_data_level_energies
-        Energies of the levels involved in photoionization.
+        Energies of the states involved in photoionization.
 
     Returns
     -------
-    p_photoion_int
+    p_photoion_internal
         DataFrame containing photoionization probabilities.
     """
-    p_photoion_int = stim_recomb_corrected_photoionization_rate_coeff.multiply(
-        photoionization_data_level_energies, axis=0
+    p_photoion_internal = (
+        stim_recomb_corrected_photoionization_rate_coeff.multiply(
+            photoionization_data_level_energies, axis=0
+        )
     )
-    return p_photoion_int
+    return p_photoion_internal
 
 
 def continuum_transition_photoionization_internal(
@@ -187,22 +189,24 @@ def continuum_transition_photoionization_internal(
     stim_recomb_corrected_photoionization_rate_coeff
         Corrected photoionization rate coefficient from level `i` to `k`.
     photoionization_data_level_energies
-        Energies of the levels involved in photoionization.
+        Energies of the states involved in photoionization.
 
     Returns
     -------
-    p_photoion_int
+    p_photoion_internal
         DataFrame containing photoionization probabilities.
     photoion_internal_metadata
         DataFrame containing metadata for the photoionization transitions.
     """
-    p_photoion_int = probability_photoionization_internal(
+    p_photoion_internal = probability_photoionization_internal(
         stim_recomb_corrected_photoionization_rate_coeff,
         photoionization_data_level_energies,
     )
 
-    sources = p_photoion_int.index.values
-    destinations = get_ground_state_multi_index(p_photoion_int.index).values
+    sources = p_photoion_internal.index.values
+    destinations = get_ground_state_multi_index(
+        p_photoion_internal.index
+    ).values
 
     photoion_internal_metadata = pd.DataFrame(
         {
@@ -216,10 +220,10 @@ def continuum_transition_photoionization_internal(
             ),
             "collision_key_idx": -99,
         },
-        index=p_photoion_int.index,
+        index=p_photoion_internal.index,
     )
 
-    return p_photoion_int, photoion_internal_metadata
+    return p_photoion_internal, photoion_internal_metadata
 
 
 def probability_photoionization_to_k_packet(
@@ -234,7 +238,7 @@ def probability_photoionization_to_k_packet(
     stim_recomb_corrected_photoionization_rate_coeff
         Corrected photoionization rate coefficient from level `i` to `k`.
     energies_diff_bound_free
-        Energies of the levels involved in photoionization.
+        Energy differences of the states involved in ionization.
 
     Returns
     -------
@@ -261,7 +265,7 @@ def continuum_transition_photoionization_to_k_packet(
     stim_recomb_corrected_photoionization_rate_coeff
         Corrected photoionization rate coefficient from level `i` to `k`.
     energies_bound_free_lower
-        Energies of the levels involved in photoionization.
+        Energies of the states involved in photoionization.
 
     Returns
     -------
@@ -481,7 +485,7 @@ def probability_collision_deexc_to_k_packet(
     electron_densities
         Electron densities.
     delta_E_yg
-        Energy differences.
+        Energy differences between upper and lower state.
 
     Returns
     -------
@@ -515,7 +519,7 @@ def collisional_transition_deexc_to_k_packet(
     electron_densities
         Electron number densities per zone.
     delta_E_yg
-        Energy differences for the transitions.
+        Energy differences between upper and lower state for the transitions.
 
     Returns
     -------
@@ -713,7 +717,7 @@ def probability_collision_excitation_cool(
     electron_densities
         Electron number densities per zone.
     delta_E_yg
-        Energy differences for the excitation transitions (level -> g).
+        Energy differences between upper and lower state for the transitions.
 
     Returns
     -------
@@ -750,7 +754,7 @@ def collisional_transition_excitation_cool(
     electron_densities
         Electron number densities per zone.
     delta_E_yg
-        Energy differences for the excitations.
+        Energy differences between upper and lower state for the excitations.
 
     Returns
     -------
@@ -797,7 +801,7 @@ def probability_collision_ionization_internal(
     electron_densities
         Electron number densities.
     energies_coll_ion
-        Ionization energy terms.
+        Energies of the lower states in the transitions.
 
     Returns
     -------
@@ -826,7 +830,7 @@ def collisional_transition_ionization_internal(
     electron_densities
         Electron number densities.
     energies_coll_ion
-        Ionization energy terms.
+        Energies of the lower states in the transitions.
 
     Returns
     -------
@@ -875,7 +879,7 @@ def probability_collision_ionization_emission(
     electron_densities
         Electron number densities.
     energies_diff_bound_free
-        Bound-free energy differences.
+        Energy differences of the states involved in ionization.
 
     Returns
     -------
@@ -904,7 +908,7 @@ def collisional_transition_ionization_emission(
     electron_densities
         Electron number densities.
     energies_diff_bound_free
-        Bound-free energy differences.
+        Energy differences of the states involved in ionization.
 
     Returns
     -------
@@ -953,7 +957,7 @@ def probability_collision_recombination_internal(
     electron_densities
         Electron number densities.
     energies_coll_ion
-        Energy terms.
+        Energies of the lower states in the transitions.
 
     Returns
     -------
@@ -982,7 +986,7 @@ def collisional_transition_recombination_internal(
     electron_densities
         Electron number densities.
     energies_coll_ion
-        Energy terms.
+        Energies of the lower states in the transitions.
 
     Returns
     -------
@@ -996,9 +1000,9 @@ def collisional_transition_recombination_internal(
         electron_densities,
         energies_coll_ion,
     )
-    sources = [("i", -99, -99)] * len(
+    sources = [("k", -99, -99)] * len(
         p_coll_recomb_internal
-    )  # Might also be from K?
+    )  # Double check if from k or from i
     destinations = coll_recomb_coeff.index.values
     coll_recomb_internal = pd.DataFrame(
         {
@@ -1031,7 +1035,7 @@ def probability_collision_recombination_emission(
     electron_densities
         Electron number densities.
     energies_diff_bound_free
-        Bound-free energy differences.
+        Energy differences of the states involved in ionization.
 
     Returns
     -------
@@ -1060,7 +1064,7 @@ def collisional_transition_recombination_emission(
     electron_densities
         Electron number densities.
     energies_diff_bound_free
-        Bound-free energy differences.
+        Energy differences of the states involved in ionization.
 
     Returns
     -------
