@@ -21,6 +21,8 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     continuum_transition_photoionization_to_k_packet,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
+    create_free_bound_cooling_metadata,
+    create_free_free_cooling_metadata,
     probability_collision_deexc_to_k_packet,
     probability_collision_exc_internal,
     probability_collision_excitation_cool,
@@ -426,7 +428,7 @@ class BoundBoundMacroAtomSolver:
             )
         # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS. This also removes the source column from the probabilities DataFrame.
         normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
+            probabilities_df, macro_atom_transition_metadata
         )
 
         normalized_probabilities, macro_atom_transition_metadata = (
@@ -573,11 +575,8 @@ class BoundBoundMacroAtomSolver:
             self._energies_lower[line_trans_internal_up_ids],
         ).to_numpy()
 
-        probabilities_df["source"] = (
-            macro_atom_transition_metadata.source.values
-        )
         normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
+            probabilities_df, macro_atom_transition_metadata
         )
 
         return normalized_probabilities
@@ -701,15 +700,18 @@ class BoundBoundMacroAtomSolver:
     @staticmethod
     def normalize_transition_probabilities(
         probabilities_df: pd.DataFrame,
+        macro_atom_transition_metadata: pd.DataFrame,
     ) -> pd.DataFrame:
         """
         Normalize transition probabilities by their source levels.
 
         Parameters
         ----------
-        probabilities_df : pd.DataFrame
-            DataFrame containing transition probabilities with a 'source' column
-            for grouping.
+        probabilities_df :
+            DataFrame containing transition probabilities.
+        macro_atom_transition_metadata:
+            Dataframe containing all metadata for the transitions.
+            Needed to obtain sources to normalize by.
 
         Returns
         -------
@@ -719,6 +721,8 @@ class BoundBoundMacroAtomSolver:
             probabilities are zero (typically ground levels in macroatom).
         """
         # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS.
+        probabilities_df["source"] = macro_atom_transition_metadata["source"]
+
         normalized_probabilities = probabilities_df.div(
             probabilities_df.groupby("source").transform("sum"),
         )
@@ -863,6 +867,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
         delta_E_yg: pd.Series,
+        coll_exc_cool_rate,
+        coll_ion_cool_rate,
+        fb_cool_rate,
+        fb_cool_probs_arr,
+        ff_cool_rate,
     ) -> MacroAtomState:
         """
         Solve the Macro Atom State including continuum transitions.
@@ -925,6 +934,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_ion_coeff,
                 coll_recomb_coeff,
                 electron_densities,
+                coll_exc_cool_rate,
+                coll_ion_cool_rate,
+                fb_cool_rate,
+                fb_cool_probs_arr,
+                ff_cool_rate,
             )
         else:
             normalized_probabilities = self._solve_next_macroatom_iteration(
@@ -938,6 +952,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_ion_coeff,
                 coll_recomb_coeff,
                 electron_densities,
+                coll_exc_cool_rate,
+                coll_ion_cool_rate,
+                fb_cool_rate,
+                fb_cool_probs_arr,
+                ff_cool_rate,
             )
             (
                 macro_atom_transition_metadata,
@@ -1003,6 +1022,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
+        coll_exc_cool_rate,
+        coll_ion_cool_rate,
+        fb_cool_rate,
+        fb_cool_probs_arr,
+        ff_cool_rate,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
         """
         Handle the first iteration of the solve method for continuum macro atom.
@@ -1219,9 +1243,19 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 probabilities_df, macro_atom_transition_metadata
             )
         )
-        probabilities_df["source"] = macro_atom_transition_metadata["source"]
+        probabilities_df, macro_atom_transition_metadata = (
+            self.normalize_cooling_block_by_rate_fractions(
+                probabilities_df,
+                macro_atom_transition_metadata,
+                coll_exc_cool_rate,
+                coll_ion_cool_rate,
+                fb_cool_rate,
+                fb_cool_probs_arr,
+                ff_cool_rate,
+            )
+        )
         normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
+            probabilities_df, macro_atom_transition_metadata
         )
         # normalized_probabilities = probabilities_df  # Useful for debugging
 
@@ -1264,6 +1298,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
+        coll_exc_cool_rate,
+        coll_ion_cool_rate,
+        fb_cool_rate,
+        fb_cool_probs_arr,
+        ff_cool_rate,
     ) -> pd.DataFrame:
         """
         Handle subsequent iterations of the solve method.
@@ -1551,12 +1590,21 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self._delta_E_yg_ionization.iloc[collisional_recomb_emission_idxs],
         ).to_numpy()
 
-        probabilities_df["source"] = (
-            macro_atom_transition_metadata.source.values
-        )  # Normalize by source in the next line, so need source column.
+        probabilities_df, macro_atom_transition_metadata = (
+            self.normalize_cooling_block_by_rate_fractions(
+                probabilities_df,
+                macro_atom_transition_metadata,
+                coll_exc_cool_rate,
+                coll_ion_cool_rate,
+                fb_cool_rate,
+                fb_cool_probs_arr,
+                ff_cool_rate,
+            )
+        )
+
         # normalized_probabilities = probabilities_df  # Useful for debugging
         normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
+            probabilities_df, macro_atom_transition_metadata
         )
         return normalized_probabilities
 
@@ -1601,4 +1649,90 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata.index
         ]  # Reorder to match the metadata
 
+        return probabilities, macro_atom_transition_metadata
+
+    def normalize_cooling_block_by_rate_fractions(
+        self,
+        probabilities,
+        macro_atom_transition_metadata,
+        coll_exc_cool_rate,
+        coll_ion_cool_rate,
+        fb_cool_rate,
+        fb_cool_probs_arr,
+        ff_cool_rate,
+    ):
+        """
+        Create and normalize k-packet source block. This needs to be separate because
+        free-free cooling and bound-free cooling are not really transitions, and we can't normalize
+        until both of these exist.
+        We also need to incorporate the cooling rates at this stage to get the proporitional
+        deactivation pathways right.
+
+        Parameters
+        ----------
+        probabilities_df :
+            DataFrame containing transition probabilities.
+        macro_atom_transition_metadata:
+            Dataframe containing all metadata for the transitions.
+
+        Returns
+        -------
+        probabilities
+            Probabilities with the cooling block normalized by rate, and free-free deactivation
+            added if it did not exist yet.
+        macro_atom_transition_metadata
+            The input macro_atom_transition_metadata dataframe with a free-free deactivation
+            line appended, if it did not exist yet.
+        """
+        coll_exc_block = probabilities[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
+        ]
+        coll_exc_block *= coll_exc_cool_rate / coll_exc_block.sum(axis=0)
+        probabilities[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
+        ] = coll_exc_block
+
+        coll_ion_block = probabilities[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_RECOMB_EMISSION  # COLL_ION_COOL_TO_MACRO
+        ]
+        coll_ion_block *= coll_ion_cool_rate / coll_ion_block.sum(axis=0)
+        probabilities[
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.COLL_RECOMB_EMISSION  # COLL_ION_COOL_TO_MACRO
+        ] = coll_ion_block
+
+        if ~(
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.FF_EMISSION
+        ).any():
+            metadata_size = len(macro_atom_transition_metadata)
+            macro_atom_transition_metadata = pd.concat(
+                [
+                    macro_atom_transition_metadata,
+                    create_free_free_cooling_metadata(metadata_size),
+                    create_free_bound_cooling_metadata(
+                        metadata_size, fb_cool_probs_arr
+                    ),
+                ]
+            )
+
+            ff_df = pd.DataFrame(ff_cool_rate).T
+            ff_df.index = [metadata_size]
+
+            fb_df = pd.DataFrame(fb_cool_rate * fb_cool_probs_arr.T)
+            fb_df.index = fb_df.index + metadata_size + 1
+
+            probabilities = pd.concat([probabilities, ff_df, fb_df])
+        else:
+            probabilities[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.FF_EMISSION
+            ] = ff_cool_rate
+            probabilities[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.BF_EMISSION
+            ] = fb_cool_rate * fb_cool_probs_arr
         return probabilities, macro_atom_transition_metadata

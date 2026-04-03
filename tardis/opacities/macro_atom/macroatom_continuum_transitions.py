@@ -4,7 +4,7 @@ import pandas as pd
 from tardis.plasma.properties.continuum_processes.rates import (
     F_K,
     K_B,
-    get_ground_state_multi_index,
+    # get_ground_state_multi_index,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
@@ -63,13 +63,13 @@ def continuum_transition_recombination_internal(
         (int(first), int(second), int(third))
         for first, second, third in p_recomb_internal.index.values
     ]
-
-    sources = [
-        (int(first), int(second), int(third))
-        for first, second, third in get_ground_state_multi_index(
-            p_recomb_internal.index
-        ).values
-    ]
+    sources = [("i", -99, -99)] * len(p_recomb_internal.index)
+    # sources = [
+    #     (int(first), int(second), int(third))
+    #     for first, second, third in get_ground_state_multi_index(
+    #         p_recomb_internal.index
+    #     ).values
+    # ]
     recombination_internal_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -104,14 +104,14 @@ def probability_recombination_emission(
 
     Returns
     -------
-    p_recomb_emission
+    p_photo_recomb_emission
         DataFrame containing unnormalized recombination emission probabilities.
     """
-    p_recomb_emission = spontaneous_recombination_coeff.multiply(
+    p_photo_recomb_emission = spontaneous_recombination_coeff.multiply(
         energies_diff_bound_free.values, axis=0
     )
 
-    return p_recomb_emission
+    return p_photo_recomb_emission
 
 
 def continuum_transition_recombination_emission(
@@ -130,40 +130,41 @@ def continuum_transition_recombination_emission(
 
     Returns
     -------
-    p_recomb_emission
+    p_photo_recomb_emission
         DataFrame containing unnormalized recombination emission probabilities.
     recombination_emission_metadata
         DataFrame containing metadata for the recombination emission transitions.
     """
-    p_recomb_emission = probability_recombination_emission(
+    p_photo_recomb_emission = probability_recombination_emission(
         spontaneous_recombination_coeff, energies_diff_bound_free
     )
 
     destinations = [
         (int(first), int(second), int(third))
-        for first, second, third in p_recomb_emission.index.values
+        for first, second, third in p_photo_recomb_emission.index.values
     ]
-    sources = [
-        (int(first), int(second), int(third))
-        for first, second, third in get_ground_state_multi_index(
-            p_recomb_emission.index
-        ).values
-    ]
+    sources = [("i", -99, -99)] * len(p_photo_recomb_emission.index)
+    # [
+    #     (int(first), int(second), int(third))
+    #     for first, second, third in get_ground_state_multi_index(
+    #         p_photo_recomb_emission.index
+    #     ).values
+    # ]
 
-    recomb_emission_metadata = pd.DataFrame(
+    photo_recomb_emission_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.PHOTO_RECOMB_EMISSION,
+            "transition_type": MacroAtomTransitionType.PHOTO_RECOMB_EMISSION,  # creates BF emission from i-packet
             "transition_line_idx": -99,
             "photoionization_key_idx": range(len(energies_diff_bound_free)),
             "collision_key_idx": -99,
         },
-        index=p_recomb_emission.index,
+        index=p_photo_recomb_emission.index,
     )
 
-    return p_recomb_emission, recomb_emission_metadata
+    return p_photo_recomb_emission, photo_recomb_emission_metadata
 
 
 def probability_photoionization_internal(
@@ -223,12 +224,13 @@ def continuum_transition_photoionization_internal(
         (int(first), int(second), int(third))
         for first, second, third in p_photoion_internal.index.values
     ]
-    destinations = [
-        (int(first), int(second), int(third))
-        for first, second, third in get_ground_state_multi_index(
-            p_photoion_internal.index
-        ).values
-    ]
+    destinations = [("i", -99, -99)] * len(p_photoion_internal.index)
+    # destinations = [
+    #     (int(first), int(second), int(third))
+    #     for first, second, third in get_ground_state_multi_index(
+    #         p_photoion_internal.index
+    #     ).values
+    # ]
 
     photoion_internal_metadata = pd.DataFrame(
         {
@@ -305,12 +307,13 @@ def continuum_transition_photoionization_to_k_packet(
         (int(first), int(second), int(third))
         for first, second, third in p_photoion_to_k_packet.index.values
     ]
-    destinations = [
-        (int(first), int(second), int(third))
-        for first, second, third in get_ground_state_multi_index(
-            p_photoion_to_k_packet.index
-        ).values
-    ]
+    destinations = [("k", -99, -99)] * len(p_photoion_to_k_packet.index)
+    # destinations = [
+    #     (int(first), int(second), int(third))
+    #     for first, second, third in get_ground_state_multi_index(
+    #         p_photoion_to_k_packet.index
+    #     ).values
+    # ]
 
     photoion_to_k_packet_metadata = pd.DataFrame(
         {
@@ -984,7 +987,7 @@ def collisional_transition_ionization_emission(
         for first, second, third in coll_ion_coeff.index.values
     ]
 
-    destinations = [("i", -99, -99)] * len(
+    destinations = [("k", -99, -99)] * len(
         p_coll_ionization_emission
     )  # Maybe supposed to go to K block?
     coll_ionization_emission_metadata = pd.DataFrame(
@@ -1061,7 +1064,7 @@ def collisional_transition_recombination_internal(
         electron_densities,
         energies_coll_lower_states,
     )
-    sources = [("k", -99, -99)] * len(
+    sources = [("i", -99, -99)] * len(
         p_coll_recomb_internal
     )  # Double check if from k or from i
     destinations = [
@@ -1144,10 +1147,7 @@ def collisional_transition_recombination_emission(
         energies_diff_bound_free,
     )
     sources = [("i", -99, -99)] * len(p_coll_recomb_emission)
-    destinations = [
-        (int(first), int(second), int(third))
-        for first, second, third in coll_recomb_coeff.index.values
-    ]
+    destinations = [("k", -99, -99)] * len(p_coll_recomb_emission)
 
     coll_recomb_emission_metadata = pd.DataFrame(
         {
@@ -1163,3 +1163,54 @@ def collisional_transition_recombination_emission(
     )
 
     return p_coll_recomb_emission, coll_recomb_emission_metadata
+
+
+def create_free_free_cooling_metadata(transition_size):
+    free_free_cooling_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": [("k", -99, -99)],
+            "destination": [
+                (
+                    -99,
+                    -99,
+                    -99,
+                )
+            ],  # k-packet destruction to ff emission
+            "transition_type": MacroAtomTransitionType.FF_EMISSION,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": -99,
+            "collision_key_idx": -99,
+            "destination_level_idx": -99.0,
+        },
+        index=([transition_size]),
+    )
+
+    return free_free_cooling_metadata
+
+
+def create_free_bound_cooling_metadata(transition_size, fb_cool_probs_arr):
+    free_bound_cooling_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": [("k", -99, -99)],
+            "destination": [
+                (
+                    -99,
+                    -99,
+                    -99,
+                )
+            ],  # k-packet destruction to bf emission
+            "transition_type": MacroAtomTransitionType.BF_EMISSION,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": range(fb_cool_probs_arr.shape[1]),
+            "collision_key_idx": -99,
+            "destination_level_idx": range(fb_cool_probs_arr.shape[1]),
+        },
+        index=range(
+            transition_size + 1,
+            transition_size + 1 + fb_cool_probs_arr.shape[1],
+        ),
+    )
+
+    return free_bound_cooling_metadata
