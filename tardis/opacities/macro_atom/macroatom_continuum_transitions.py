@@ -1165,7 +1165,20 @@ def collisional_transition_recombination_emission(
     return p_coll_recomb_emission, coll_recomb_emission_metadata
 
 
-def create_free_free_cooling_metadata(transition_size):
+def create_free_free_cooling_metadata(transition_size: int) -> pd.DataFrame:
+    """
+    Create metadata for free-free (bremsstrahlung) cooling transitions.
+
+    Parameters
+    ----------
+    transition_size
+        The starting index for the cooling transition to be created.
+
+    Returns
+    -------
+    pd.DataFrame
+        Metadata DataFrame describing the free-free cooling transition.
+    """
     free_free_cooling_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -1189,7 +1202,25 @@ def create_free_free_cooling_metadata(transition_size):
     return free_free_cooling_metadata
 
 
-def create_free_bound_cooling_metadata(transition_size, fb_cool_probs_arr):
+def create_free_bound_cooling_metadata(
+    transition_size: int, fb_cool_probs_arr: np.ndarray
+) -> pd.DataFrame:
+    """
+    Create metadata for free-bound (radiative recombination) cooling transitions.
+
+    Parameters
+    ----------
+    transition_size
+        The starting index for the cooling transitions to be created.
+    fb_cool_probs_arr
+        Array containing free-bound cooling probabilities.
+        Shape is (n_zones, n_bound_levels).
+
+    Returns
+    -------
+    pd.DataFrame
+        Metadata DataFrame describing the free-bound cooling transitions for each bound level.
+    """
     free_bound_cooling_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,

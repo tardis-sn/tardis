@@ -236,7 +236,14 @@ class BoundBoundMacroAtomSolver:
 
         self._precompute_static_data()
 
-    def _precompute_static_data(self):
+    def _precompute_static_data(self) -> None:
+        """
+        Precompute static atomic data arrays.
+
+        This method extracts and reshapes line and level data that will be used
+        repeatedly during solve iterations. Precomputing these avoids redundant
+        operations on each iteration.
+        """
         self._oscillator_strength_ul = self.lines.f_ul.to_numpy().reshape(-1, 1)
         self._oscillator_strength_lu = self.lines.f_lu.to_numpy().reshape(-1, 1)
         self._nus = self.lines.nu.to_numpy().reshape(-1, 1)
@@ -583,10 +590,10 @@ class BoundBoundMacroAtomSolver:
 
     def create_source_and_destination_idx_columns(
         self,
-        macro_atom_transition_metadata,
-    ):
+        macro_atom_transition_metadata: pd.DataFrame,
+    ) -> None:
         """
-        This function creates numerical indices for source and destination levels
+        Create numerical indices for source and destination levels
         by mapping unique source levels to sequential integers. The destination
         indices use -99 for destinations that are not sources (emission-only levels).
 
@@ -615,19 +622,22 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata.source.map(source_to_index)
         ).astype(np.int64)
 
-    def create_macro_block_references(self, macro_atom_transition_metadata):
+    def create_macro_block_references(
+        self, macro_atom_transition_metadata: pd.DataFrame
+    ) -> pd.Series:
         """
         Create macro block references from the macro atom transition metadata.
+
         This method creates a mapping from unique source levels to their first occurrence index in the metadata.
 
         Parameters
         ----------
-        macro_atom_transition_metadata : pandas.DataFrame
+        macro_atom_transition_metadata
             DataFrame containing metadata for macro atom transitions.
 
         Returns
         -------
-        pandas.Series
+        pd.Series
             Series with unique source levels as index and their first occurrence index in the metadata as values.
         """
         unique_source_multi_index = pd.MultiIndex.from_tuples(
@@ -667,6 +677,7 @@ class BoundBoundMacroAtomSolver:
     ) -> tuple[pd.Series, pd.Series]:
         """
         Create a mapping from line transitions to macro atom level indices for upper levels.
+
         This method creates a mapping that connects line transition upper levels to their
         corresponding macro atom level indices. It first extracts unique source levels
         from the macro atom transition metadata and assigns sequential indices to them,
@@ -674,17 +685,15 @@ class BoundBoundMacroAtomSolver:
 
         Parameters
         ----------
-        macro_atom_transition_metadata : pd.DataFrame
-            DataFrame containing macro atom transition metadata
-        lines_level_upper : pd.MultiIndex
-            MultiIndex containing line upper level information
+        macro_atom_transition_metadata
+            DataFrame containing macro atom transition metadata.
+        lines_level_upper
+            MultiIndex containing line upper level information.
 
         Returns
         -------
-        pd.Series
-            Series mapping line transitions to macro atom level indices
-        pd.Series
-            Series with unique source levels as index and their assigned indices as values
+        tuple[pd.Series, pd.Series]
+            Line to macro level upper mapping and unique source indices reference.
         """
         unique_source_index = pd.MultiIndex.from_tuples(
             macro_atom_transition_metadata.source.unique(),
