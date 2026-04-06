@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2026.03.29'
-doi: 10.5281/zenodo.19302777
+title: 'tardis-sn/tardis: TARDIS v2026.04.06'
+doi: 10.5281/zenodo.19437899
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -113,11 +113,11 @@ authors:
 - given-names: Talytha
   family-names: Barbosa
   affiliation:
-- given-names: Jenny
-  family-names: Yu
-  affiliation:
 - given-names: Dhruv
   family-names: Sondhi
+  affiliation:
+- given-names: Jenny
+  family-names: Yu
   affiliation:
 - given-names: Jack
   family-names: O'Brien
@@ -129,30 +129,30 @@ authors:
 - given-names: Maryam
   family-names: Patel
   affiliation:
+- given-names: Shikha
+  family-names: Rathi
+  affiliation:
 - given-names: Kaushik
   family-names: Varanasi
   affiliation:
-- given-names: Shikha
-  family-names: Rathi
+- given-names: Sona
+  family-names: Chitchyan
   affiliation:
 - given-names: James
   family-names: Gillanders
   affiliation: University of Oxford
   orcid: https://orcid.org/0000-0002-8094-6108
-- given-names: Sona
-  family-names: Chitchyan
-  affiliation:
-- given-names: Sumit
-  family-names: Gupta
-  affiliation:
-- given-names: Haille
-  family-names: Marie Lynn
-  affiliation:
 - given-names: Shreyas
   family-names: Singh
   affiliation:
 - given-names: Arjun
   family-names: Savel
+  affiliation:
+- given-names: Haille
+  family-names: Marie Lynn
+  affiliation:
+- given-names: Sumit
+  family-names: Gupta
   affiliation:
 - given-names: Youssef
   family-names: Eweis
@@ -394,7 +394,7 @@ authors:
 - given-names: Sampark
   family-names: Sharma
   affiliation:
-version: release-2026.03.29
-date-released: 2026-03-29
+version: release-2026.04.06
+date-released: 2026-04-06
 repository-code: https://github.com/tardis-sn/tardis
 license: cc-by-4.0
