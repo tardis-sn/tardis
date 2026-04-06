@@ -5,39 +5,39 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 
+from tardis.io.configuration.config_reader import (
+    Configuration,
+)
+from tardis.io.model.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.base import read_mass_fractions_file
-from tardis.io.model.readers.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
 
 logger = logging.getLogger(__name__)
 
 
-def parse_mass_fractions_from_config(config, geometry, time_explosion):
-    """
-    Parse the mass fraction configuration data.
+def parse_mass_fractions_from_config(
+    config: Configuration,
+    geometry: HomologousRadial1DGeometry,
+    time_explosion: u.Quantity,
+) -> pd.DataFrame:
+    """Parse the mass fraction configuration data.
 
     Parameters
     ----------
-    config : object
+    config
         The configuration data.
-    geometry : object
+    geometry
         The geometry of the model.
-    time_explosion : float
+    time_explosion
         The time of the explosion.
 
     Returns
     -------
-    nuclide_mass_fractions : object
+    nuclide_mass_fractions
         The parsed nuclide mass fraction.
-
-    raw_isotope_mass_fractions : object
-        The parsed raw isotope mass fraction. This is the isotope mass fraction data before decay.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----
@@ -62,7 +62,9 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
         if Path(mass_fractions_section.filename).is_absolute():
             mass_fractions_fname = mass_fractions_section.filename
         else:
-            mass_fractions_fname = Path(config.config_dirname) / mass_fractions_section.filename
+            mass_fractions_fname = (
+                Path(config.config_dirname) / mass_fractions_section.filename
+            )
 
         (
             index,
@@ -75,10 +77,14 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
     mass_fractions = mass_fractions.replace(np.nan, 0.0)
     mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
 
-    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(
+        axis=0
+    )
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
-        logger.warning("Mass fractions have not been normalized to 1. - normalizing")
+        logger.warning(
+            "Mass fractions have not been normalized to 1. - normalizing"
+        )
         mass_fractions /= norm_factor
         isotope_mass_fractions /= norm_factor
     # The next line is if the mass_fractions are given via dict
@@ -104,30 +110,28 @@ def parse_mass_fractions_from_config(config, geometry, time_explosion):
 
 
 def parse_mass_fractions_from_csvy(
-    csvy_model_config, csvy_model_data, geometry, time_explosion
-):
-    """
-    Parse the mass fraction data from a CSVY model.
+    csvy_model_config: Configuration,
+    csvy_model_data: pd.DataFrame | None,
+    geometry: HomologousRadial1DGeometry,
+    time_explosion: u.Quantity,
+) -> pd.DataFrame:
+    """Parse the mass fraction data from a CSVY model.
 
     Parameters
     ----------
-    csvy_model_config : object
+    csvy_model_config
         The configuration data of the CSVY model.
-    csvy_model_data : object
+    csvy_model_data
         The data of the CSVY model.
-    geometry : object
+    geometry
         The geometry of the model.
+    time_explosion
+        The time of the explosion.
 
     Returns
     -------
-    mass_fractions : pd.DataFrame
-        The parsed mass fraction data.
-    isotope_mass_fractions : pandas.DataFrame
-        The parsed isotope mass fraction data.
-
-    Raises
-    ------
-    None.
+    nuclide_mass_fractions
+        The parsed nuclide mass fraction data.
 
     Notes
     -----
@@ -150,7 +154,9 @@ def parse_mass_fractions_from_csvy(
         mass_fractions = mass_fractions.loc[:, 1:]
         mass_fractions.columns = np.arange(mass_fractions.shape[1])
         isotope_mass_fractions = isotope_mass_fractions.loc[:, 1:]
-        isotope_mass_fractions.columns = np.arange(isotope_mass_fractions.shape[1])
+        isotope_mass_fractions.columns = np.arange(
+            isotope_mass_fractions.shape[1]
+        )
 
     mass_fractions = mass_fractions.replace(np.nan, 0.0)
     mass_fractions = mass_fractions[mass_fractions.sum(axis=1) > 0]
@@ -158,38 +164,42 @@ def parse_mass_fractions_from_csvy(
     isotope_mass_fractions = isotope_mass_fractions[
         isotope_mass_fractions.sum(axis=1) > 0
     ]
-    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(axis=0)
+    norm_factor = mass_fractions.sum(axis=0) + isotope_mass_fractions.sum(
+        axis=0
+    )
 
     if np.any(np.abs(norm_factor - 1) > 1e-12):
-        logger.warning("Mass fractions have not been normalized to 1. - normalizing")
+        logger.warning(
+            "Mass fractions have not been normalized to 1. - normalizing"
+        )
         mass_fractions /= norm_factor
         isotope_mass_fractions /= norm_factor
 
     isotope_mass_fractions = IsotopicMassFraction(
         isotope_mass_fractions, time_0=csvy_model_config.model_isotope_time_0
     ).calculate_decayed_mass_fractions(time_explosion)
-    return convert_to_nuclide_mass_fractions(isotope_mass_fractions, mass_fractions)
+    return convert_to_nuclide_mass_fractions(
+        isotope_mass_fractions, mass_fractions
+    )
 
 
-def convert_to_nuclide_mass_fractions(isotopic_mass_fractions, mass_fractions):
-    """
-    Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.
+def convert_to_nuclide_mass_fractions(
+    isotopic_mass_fractions: pd.DataFrame | None,
+    mass_fractions: pd.DataFrame | None,
+) -> pd.DataFrame:
+    """Convert the mass fraction and isotope mass fraction data to nuclide mass fraction.
 
     Parameters
     ----------
-    isotope_mass_fraction : pandas.DataFrame
+    isotopic_mass_fractions
         The isotope mass fraction data.
-    mass_fractions : pandas.DataFrame
+    mass_fractions
         The mass fraction data.
 
     Returns
     -------
-    nuclide_mass_fraction : pandas.DataFrame
+    nuclide_mass_fractions
         The converted nuclide mass fraction.
-
-    Raises
-    ------
-    None.
 
     Notes
     -----

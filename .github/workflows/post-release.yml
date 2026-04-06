@@ -18,11 +18,22 @@ jobs:
           repository: tardis-sn/tardis
           fetch-depth: 0
 
+      - name: Get release tag
+        id: get-tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$(gh release view --json tagName -q '.tagName')" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.BOT_TOKEN }}
+
       - name: Generate a changelog
         uses: orhun/git-cliff-action@v4
         with:
           config: pyproject.toml
-          args: --verbose --tag ${{ github.event.release.tag_name }}
+          args: --verbose --tag ${{ steps.get-tag.outputs.tag }}
         env:
           OUTPUT: CHANGELOG.md
 
@@ -77,8 +88,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install rst-include
-        run: pip install rst-include==2.1.2.2 requests==2.27.1
+      - name: Install requests
+        run: pip install requests==2.32.5
 
       - name: Update README.rst
         run: python .ci-helpers/update_credits.py

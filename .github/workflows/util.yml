@@ -25,6 +25,22 @@ jobs:
             Warning - LFS bandwidth usage
             ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
 
+  add-gsoc-label:
+    if: contains(github.event.pull_request.title, 'GSoC')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add GSoC label
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ['GSoC :sun_with_face:']
+            });
+
   check-first-time-committer:
     runs-on: ubuntu-latest
     permissions:
@@ -38,11 +54,7 @@ jobs:
           pr-message: |
             👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
 
-            Before asking for reviews, please fill out the PR description template and ensure that all checks are passing.
-
-            If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and make sure to add GSoC to the PR title like so:
-
-            `GSoC: <title of your pull request>`
+            **If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and our [PR checklist](https://tardis-sn.github.io/summer_of_code/pr_checklist/).**
 
             Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.
 

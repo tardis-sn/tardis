@@ -29,7 +29,9 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
+)
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
@@ -283,7 +285,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
         estimated_radfield_properties = (
             self.transport.radfield_prop_solver.solve(
-                self.transport.transport_state.radfield_mc_estimators,
+                self.transport.transport_state.estimators_bulk,
+                self.transport.transport_state.estimators_line,
                 self.transport.transport_state.time_explosion,
                 self.transport.transport_state.time_of_simulation,
                 self.transport.transport_state.geometry_state.volume,
@@ -418,24 +421,20 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # A check to see if the plasma is set with JBluesDetailed, in which
         # case it needs some extra kwargs.
 
-        radfield_mc_estimators = (
-            self.transport.transport_state.radfield_mc_estimators
-        )
-
         if "gamma" in self.plasma.outputs_dict:
             continuum_property_solver = MCContinuumPropertiesSolver(
                 self.plasma.atomic_data
             )
             estimated_continuum_properties = continuum_property_solver.solve(
-                radfield_mc_estimators,
+                self.transport.transport_state.estimators_continuum,
                 self.transport.transport_state.time_of_simulation,
                 self.transport.transport_state.geometry_state.volume,
             )
             update_properties.update(
                 gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
                 alpha_stim_factor=estimated_continuum_properties.stimulated_recombination_rate_factor,
-                bf_heating_coeff_estimator=radfield_mc_estimators.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=radfield_mc_estimators.stim_recomb_cooling_estimator,
+                bf_heating_coeff_estimator=self.transport.transport_state.estimators_continuum.bf_heating_estimator,
+                stim_recomb_cooling_coeff_estimator=self.transport.transport_state.estimators_continuum.stim_recomb_cooling_estimator,
             )
 
         self.plasma.update(**update_properties)
@@ -462,8 +461,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma.alpha_sp,
                     self.plasma.coll_deexc_coeff,
                     self.plasma.coll_exc_coeff,
+                    self.plasma.coll_ion_coeff,
+                    self.plasma.coll_recomb_coeff,
                     self.plasma.electron_densities,
-                    self.plasma.level_number_density,
                     self.plasma.delta_E_yg,
                 )
                 self.opacity_state.continuum_state.k_packet_idx = self.macro_atom_state.references_index.iloc[
@@ -781,7 +781,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                 "Cannot specify packet_source and transport at the same time."
             )
         if transport is None:
-            transport = MonteCarloTransportSolver.from_config(
+            transport = MCTransportSolverClassic.from_config(
                 config,
                 packet_source=simulation_state.packet_source,
                 enable_virtual_packet_logging=virtual_packet_logging,
@@ -801,6 +801,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                         atom_data.levels,
                         atom_data.lines,
                         atom_data.photoionization_data,
+                        atom_data.ionization_data,
                         line_interaction_type=config.plasma.line_interaction_type,
                     )
                 else:

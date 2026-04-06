@@ -13,16 +13,16 @@ from radioactivedecay.utils import Z_DICT, elem_to_Z
 
 import tardis
 import tardis.visualization.plot_util as pu
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.configuration.config_validator import validate_dict
+from tardis.io.model.csvy import (
+    load_csvy,
+    parse_csv_mass_fractions,
+)
 from tardis.io.model.parse_density_configuration import (
     calculate_exponential_density,
     calculate_power_law_density,
-)
-from tardis.io.model.readers.csvy import (
-    load_csvy,
-    parse_csv_mass_fractions,
 )
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
 from tardis.model import SimulationState
@@ -33,7 +33,6 @@ from tardis.util.base import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization.widgets.util import debounce
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
@@ -79,50 +78,47 @@ class CustomAbundanceWidgetData:
         return np.add(str_symbols, str_mass)
 
     @classmethod
-    def from_csvy(cls, fpath):
+    def from_csvy(cls, fpath: str | Path) -> "CustomAbundanceWidgetData":
         """Create a new CustomAbundanceWidgetData instance with data
         from CSVY file.
 
         Parameters
         ----------
-        fpath : str
+        fpath : str or pathlib.Path
             the path of CSVY file.
 
         Returns
         -------
         CustomAbundanceWidgetData
+            Instance populated with data from the CSVY file.
         """
-        csvy_model_config, csvy_model_data = load_csvy(fpath)
-        csvy_schema_file = Path(BASE_DIR) / "io" / "schemas" / "csvy_model.yml"
-        csvy_model_config = Configuration(
-            validate_dict(csvy_model_config, schemapath=csvy_schema_file)
-        )
+        csvy_data = load_csvy(fpath)
 
-        if hasattr(csvy_model_config, "velocity"):
+        if hasattr(csvy_data.model_config, "velocity"):
             velocity = quantity_linspace(
-                csvy_model_config.velocity.start,
-                csvy_model_config.velocity.stop,
-                csvy_model_config.velocity.num + 1,
+                csvy_data.model_config.velocity.start,
+                csvy_data.model_config.velocity.stop,
+                csvy_data.model_config.velocity.num + 1,
             ).cgs
         else:
             velocity_field_index = [
-                field["name"] for field in csvy_model_config.datatype.fields
+                field["name"] for field in csvy_data.model_config.datatype.fields
             ].index("velocity")
             velocity_unit = u.Unit(
-                csvy_model_config.datatype.fields[velocity_field_index]["unit"]
+                csvy_data.model_config.datatype.fields[velocity_field_index]["unit"]
             )
-            velocity = csvy_model_data["velocity"].values * velocity_unit
+            velocity = csvy_data.raw_csv_data["velocity"].values * velocity_unit
 
         no_of_shells = len(velocity) - 1
 
-        if hasattr(csvy_model_config, "density"):
+        if hasattr(csvy_data.model_config, "density"):
             adjusted_velocity = velocity.insert(0, 0)
             v_middle = (
                 adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
             )
             no_of_shells = len(adjusted_velocity) - 1
 
-            d_conf = csvy_model_config.density
+            d_conf = csvy_data.model_config.density
             density_type = d_conf.type
             if density_type == "branch85_w7":
                 density_0 = calculate_power_law_density(
@@ -146,22 +142,22 @@ class CustomAbundanceWidgetData:
                 raise ValueError(f"Unrecognized density type {d_conf.type}")
         else:
             density_field_index = [
-                field["name"] for field in csvy_model_config.datatype.fields
+                field["name"] for field in csvy_data.model_config.datatype.fields
             ].index("density")
             density_unit = u.Unit(
-                csvy_model_config.datatype.fields[density_field_index]["unit"]
+                csvy_data.model_config.datatype.fields[density_field_index]["unit"]
             )
-            density_0 = csvy_model_data["density"].values * density_unit
-            time_0 = csvy_model_config.model_density_time_0
+            density_0 = csvy_data.raw_csv_data["density"].values * density_unit
+            time_0 = csvy_data.model_config.model_density_time_0
 
-        if hasattr(csvy_model_config, "abundance"):
-            abundances_section = csvy_model_config.abundance
+        if hasattr(csvy_data.model_config, "abundance"):
+            abundances_section = csvy_data.model_config.abundance
             abundance, isotope_abundance = read_uniform_mass_fractions(
                 abundances_section, no_of_shells
             )
         else:
             _, abundance, isotope_abundance = parse_csv_mass_fractions(
-                csvy_model_data
+                csvy_data.raw_csv_data
             )
             abundance = abundance.loc[:, 1:]
             abundance.columns = np.arange(abundance.shape[1])
@@ -204,9 +200,7 @@ class CustomAbundanceWidgetData:
         if atom_data is None:
             atom_data = AtomData.from_hdf(config.atom_data)
         if hasattr(config, "csvy_model"):
-            simulation_state = SimulationState.from_csvy(
-                config, atom_data=atom_data
-            )
+            simulation_state = SimulationState.from_csvy(config)
         else:
             simulation_state = SimulationState.from_config(
                 config, atom_data=atom_data
@@ -738,8 +732,8 @@ class CustomAbundanceWidget:
 
         return bool(
             index_1 - index_0 > 1
-            or index_1 - index_0 == 1
-            and not np.isclose(v_vals[index_0], v_0)
+            or (index_1 - index_0 == 1
+            and not np.isclose(v_vals[index_0], v_0))
         )
 
     def on_btn_add_shell(self, obj):
@@ -1128,8 +1122,7 @@ class CustomAbundanceWidget:
         if v_start >= v_end or v_start < 0 or v_end < 0:
             self.btn_add_shell.disabled = True
             return
-        else:
-            self.btn_add_shell.disabled = False
+        self.btn_add_shell.disabled = False
 
         # Whether overwrite existing shells
         if self.overwrite_existing_shells(v_start, v_end):
@@ -1419,9 +1412,8 @@ class CustomAbundanceWidget:
             raise FileExistsError(
                 "The file already exists. Click the 'overwrite' checkbox to overwrite it."
             )
-        else:
-            self.write_yaml_portion(posix_path)
-            self.write_csv_portion(posix_path)
+        self.write_yaml_portion(posix_path)
+        self.write_csv_portion(posix_path)
 
     @error_view.capture(clear_output=True)
     def write_yaml_portion(self, path):

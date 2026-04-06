@@ -6,20 +6,25 @@ from tardis.opacities.opacities import (
     chi_continuum_calculator,
     chi_electron_calculator,
 )
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
 )
-from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
-from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_bound_free_estimators,
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    EstimatorsBulk,
 )
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
+from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    EstimatorsContinuum,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
+)
+from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
+    update_estimators_bound_free,
 )
 from tardis.transport.montecarlo.interaction_event_callers import (
     continuum_event,
@@ -28,34 +33,29 @@ from tardis.transport.montecarlo.interaction_event_callers import (
 from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
-from tardis.transport.montecarlo.packets.packet_collections import (
-    VPacketCollection,
+from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
+    move_packet_across_shell_boundary,
+    move_r_packet,
+    trace_packet,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
     RPacket,
 )
-from tardis.transport.montecarlo.packets.virtual_packet import (
-    trace_vpacket_volley,
-)
-from tardis.transport.montecarlo.r_packet_transport import (
-    move_packet_across_shell_boundary,
-    move_r_packet,
-    trace_packet,
-)
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
 @njit
-def single_packet_loop(
+def packet_propagation(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumba,
-    estimators: RadiationFieldMCEstimators,
-    vpacket_collection: VPacketCollection,
+    opacity_state: OpacityStateNumbaIIP,
+    estimators_bulk: EstimatorsBulk,
+    estimators_line: EstimatorsLine,
+    estimators_continuum: EstimatorsContinuum,
     rpacket_tracker,  # Excluded from type hints as it might be different types
     montecarlo_configuration: MonteCarloConfiguration,
 ) -> None:
@@ -69,51 +69,39 @@ def single_packet_loop(
 
     Parameters
     ----------
-    r_packet : RPacket
+    r_packet
         The radiative packet to transport through the ejecta.
-    numba_radial_1d_geometry : NumbaRadial1DGeometry
+    numba_radial_1d_geometry
         The spherically symmetric geometry of the supernova ejecta.
-    time_explosion : float
+    time_explosion
         Time since explosion in seconds.
-    opacity_state : OpacityStateNumba
+    opacity_state
         Current opacity state containing line and continuum opacities.
-    estimators : RadiationFieldMCEstimators
-        Monte Carlo estimators for radiation field quantities.
-    vpacket_collection : VPacketCollection
-        Collection for storing virtual packets when enabled.
-    rpacket_tracker : RPacketTracker or RPacketLastInteractionTracker
+    estimators_bulk
+        Monte Carlo estimators for cell-level bulk radiation field quantities.
+    estimators_line
+        Monte Carlo estimators for line-level radiation field quantities.
+    estimators_continuum
+        Monte Carlo estimators for continuum interaction quantities.
+    rpacket_tracker
         Tracker for recording packet interactions and trajectories.
-    montecarlo_configuration : MonteCarloConfiguration
+    montecarlo_configuration
         Configuration parameters for the Monte Carlo simulation.
 
     Returns
     -------
-    None
-        This function modifies the r_packet object in-place and updates
-        estimators and collections. No return value.
+    This function modifies the r_packet object in-place and updates
+    estimators and collections. No return value.
 
     """
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
-    if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        set_packet_props_full_relativity(r_packet, time_explosion)
-    else:
-        set_packet_props_partial_relativity(r_packet, time_explosion)
+    # IIP mode: always use full relativity
+    set_packet_props_full_relativity(r_packet, time_explosion)
     r_packet.initialize_line_id(
         opacity_state,
         time_explosion,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-    )
-
-    trace_vpacket_volley(
-        r_packet,
-        vpacket_collection,
-        numba_radial_1d_geometry,
-        time_explosion,
-        opacity_state,
-        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-        montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-        montecarlo_configuration.SURVIVAL_PROBABILITY,
+        enable_full_relativity=True,
     )
 
     rpacket_tracker.track_boundary_event(
@@ -128,77 +116,60 @@ def single_packet_loop(
             r_packet.r,
             r_packet.mu,
             time_explosion,
-            montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+            enable_full_relativity=True,
         )
 
         comov_nu = r_packet.nu * doppler_factor
         chi_e = chi_electron_calculator(
             opacity_state, comov_nu, r_packet.current_shell_id
         )
-        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-            (
-                chi_bf_tot,
-                chi_bf_contributions,
-                current_continua,
-                x_sect_bfs,
-                chi_ff,
-            ) = chi_continuum_calculator(
-                opacity_state, comov_nu, r_packet.current_shell_id
-            )
-            chi_continuum = chi_e + chi_bf_tot + chi_ff
+        # IIP mode: continuum processes always enabled
+        (
+            chi_bf_tot,
+            chi_bf_contributions,
+            current_continua,
+            x_sect_bfs,
+            chi_ff,
+        ) = chi_continuum_calculator(
+            opacity_state, comov_nu, r_packet.current_shell_id
+        )
+        chi_continuum = chi_e + chi_bf_tot + chi_ff
 
-            escat_prob = chi_e / chi_continuum  # probability of e-scatter
-            if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-                chi_continuum *= doppler_factor
-            distance, interaction_type, delta_shell = trace_packet(
-                r_packet,
-                numba_radial_1d_geometry,
-                time_explosion,
-                opacity_state,
-                estimators,
-                chi_continuum,
-                escat_prob,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            )
-            update_bound_free_estimators(
-                comov_nu,
-                r_packet.energy * doppler_factor,
-                r_packet.current_shell_id,
-                distance,
-                estimators,
-                opacity_state.t_electrons[r_packet.current_shell_id],
-                x_sect_bfs,
-                current_continua,
-                opacity_state.bf_threshold_list_nu,
-                chi_ff,
-            )
-        else:
-            escat_prob = 1.0
-            chi_continuum = chi_e
-            if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-                chi_continuum *= doppler_factor
-            distance, interaction_type, delta_shell = trace_packet(
-                r_packet,
-                numba_radial_1d_geometry,
-                time_explosion,
-                opacity_state,
-                estimators,
-                chi_continuum,
-                escat_prob,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.DISABLE_LINE_SCATTERING,
-            )
+        escat_prob = chi_e / chi_continuum  # probability of e-scatter
+        # IIP mode: full relativity always enabled
+        chi_continuum *= doppler_factor
+        distance, interaction_type, delta_shell = trace_packet(
+            r_packet,
+            numba_radial_1d_geometry,
+            time_explosion,
+            opacity_state,
+            estimators_line,
+            chi_continuum,
+            escat_prob,
+            enable_full_relativity=True,
+            disable_line_scattering=montecarlo_configuration.DISABLE_LINE_SCATTERING,
+        )
+        update_estimators_bound_free(
+            comov_nu,
+            r_packet.energy * doppler_factor,
+            r_packet.current_shell_id,
+            distance * doppler_factor,
+            estimators_continuum,
+            opacity_state.t_electrons[r_packet.current_shell_id],
+            x_sect_bfs,
+            current_continua,
+            opacity_state.bf_threshold_list_nu,
+            chi_ff * doppler_factor,
+        )
 
-        # If continuum processes: update continuum estimators
-
+        # Handle interaction types
         if interaction_type == InteractionType.BOUNDARY:
             move_r_packet(
                 r_packet,
                 distance,
                 time_explosion,
-                estimators,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                estimators_bulk,
+                enable_full_relativity=True,
             )
             rpacket_tracker.track_boundary_event(
                 r_packet,
@@ -217,8 +188,8 @@ def single_packet_loop(
                 r_packet,
                 distance,
                 time_explosion,
-                estimators,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                estimators_bulk,
+                enable_full_relativity=True,
             )
 
             rpacket_tracker.track_line_interaction_before(r_packet)
@@ -228,56 +199,34 @@ def single_packet_loop(
                 time_explosion,
                 line_interaction_type,
                 opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity=True,
             )
             rpacket_tracker.track_line_interaction_after(r_packet)
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                numba_radial_1d_geometry,
-                time_explosion,
-                opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(
                 r_packet,
                 distance,
                 time_explosion,
-                estimators,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                estimators_bulk,
+                enable_full_relativity=True,
             )
             rpacket_tracker.track_escattering_interaction_before(r_packet)
             thomson_scatter(
                 r_packet,
                 time_explosion,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity=True,
             )
             rpacket_tracker.track_escattering_interaction_after(r_packet)
 
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                numba_radial_1d_geometry,
-                time_explosion,
-                opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
-        elif (
-            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-            and interaction_type == InteractionType.CONTINUUM_PROCESS
-        ):
+        # IIP mode: continuum processes always enabled
+        elif interaction_type == InteractionType.CONTINUUM_PROCESS:
             move_r_packet(
                 r_packet,
                 distance,
                 time_explosion,
-                estimators,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                estimators_bulk,
+                enable_full_relativity=True,
             )
             rpacket_tracker.track_continuum_interaction_before(r_packet)
             continuum_event(
@@ -288,21 +237,11 @@ def single_packet_loop(
                 chi_ff,
                 chi_bf_contributions,
                 current_continua,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+                enable_full_relativity=True,
             )
 
             rpacket_tracker.track_continuum_interaction_after(r_packet)
 
-            trace_vpacket_volley(
-                r_packet,
-                vpacket_collection,
-                numba_radial_1d_geometry,
-                time_explosion,
-                opacity_state,
-                montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                montecarlo_configuration.VPACKET_TAU_RUSSIAN,
-                montecarlo_configuration.SURVIVAL_PROBABILITY,
-            )
         else:
             # Handle any unrecognized interaction types
             rpacket_tracker.track_boundary_event(
@@ -338,15 +277,14 @@ def set_packet_props_partial_relativity(
 
     Parameters
     ----------
-    r_packet : RPacket
+    r_packet
         The radiative packet whose properties will be modified.
-    time_explosion : float
+    time_explosion
         Time since explosion in seconds, used to calculate velocity.
 
     Returns
     -------
-    None
-        Modifies r_packet.nu and r_packet.energy in-place.
+    Modifies r_packet.nu and r_packet.energy in-place.
     """
     inverse_doppler_factor = get_inverse_doppler_factor(
         r_packet.r,
@@ -371,15 +309,14 @@ def set_packet_props_full_relativity(
 
     Parameters
     ----------
-    r_packet : RPacket
+    r_packet
         The radiative packet whose properties will be modified.
-    time_explosion : float
+    time_explosion
         Time since explosion in seconds, used to calculate velocity.
 
     Returns
     -------
-    None
-        Modifies r_packet.nu, r_packet.energy, and r_packet.mu in-place.
+    Modifies r_packet.nu, r_packet.energy, and r_packet.mu in-place.
     """
     beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 

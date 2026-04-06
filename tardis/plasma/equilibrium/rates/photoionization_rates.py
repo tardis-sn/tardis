@@ -130,7 +130,7 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
     def solve(
         self,
         electron_energy_distribution,
-        radfield_mc_estimators,
+        estimators_continuum,
         time_simulation,
         volume,
         level_population,
@@ -142,8 +142,8 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         ----------
         electron_energy_distribution : ThermalElectronEnergyDistribution
             Electron properties.
-        radfield_mc_estimators : RadiationFieldMCEstimators
-            Estimators of the radiation field properties.
+        estimators_continuum : EstimatorsContinuum
+            Estimators of the continuum radiation field properties.
         time_simulation : u.Quantity
             Time of simulation.
         volume : u.Quantity
@@ -163,7 +163,7 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         )
 
         photoionization_rate_coeff = photoionization_rate_coeff_solver.solve(
-            radfield_mc_estimators,
+            estimators_continuum,
             time_simulation,
             volume,
         )

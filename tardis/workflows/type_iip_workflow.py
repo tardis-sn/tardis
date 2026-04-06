@@ -31,8 +31,10 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.base import MonteCarloTransportSolver
 from tardis.transport.montecarlo.configuration import montecarlo_globals
+from tardis.transport.montecarlo.modes.iip.solver import (
+    MCTransportSolverIIP,
+)
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
 from tardis.workflows.workflow_logging import WorkflowLogging
@@ -62,9 +64,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         # set up states and solvers
         if csvy:
-            self.simulation_state = SimulationState.from_csvy(
-                configuration, atom_data=self.atom_data
-            )
+            self.simulation_state = SimulationState.from_csvy(configuration)
             assert np.isclose(
                 self.simulation_state.v_inner_boundary.to(u.km / u.s).value,
                 self.simulation_state.geometry.v_inner[0].to(u.km / u.s).value,
@@ -153,7 +153,6 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.configuration.plasma.nlte,
             initialize_nlte=True,
             n_e_convergence_threshold=0.05,
-            **{},
         )
 
         self.base_continuum = BaseContinuum(
@@ -181,11 +180,12 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.atom_data.levels,
             self.atom_data.lines,
             self.atom_data.photoionization_data,
+            self.atom_data.ionization_data,
             line_interaction_type=line_interaction_type,
         )
 
         self.transport_state = None
-        self.transport_solver = MonteCarloTransportSolver.from_config(
+        self.transport_solver = MCTransportSolverIIP.from_config(
             configuration,
             packet_source=self.simulation_state.packet_source,
             enable_virtual_packet_logging=self.enable_virtual_packet_logging,
@@ -334,7 +334,8 @@ class TypeIIPWorkflow(WorkflowLogging):
         """
         estimated_radfield_properties = (
             self.transport_solver.radfield_prop_solver.solve(
-                self.transport_state.radfield_mc_estimators,
+                self.transport_state.estimators_bulk,
+                self.transport_state.estimators_line,
                 self.transport_state.time_explosion,
                 self.transport_state.time_of_simulation,
                 self.transport_state.geometry_state.volume,
@@ -459,34 +460,34 @@ class TypeIIPWorkflow(WorkflowLogging):
         continuum_estimators = {}
 
         continuum_estimators["photo_ion_estimator"] = (
-            self.transport_state.radfield_mc_estimators.photo_ion_estimator
+            self.transport_state.estimators_continuum.photo_ion_estimator
         )
         continuum_estimators["photo_ion_statistics"] = (
-            self.transport_state.radfield_mc_estimators.photo_ion_estimator_statistics
+            self.transport_state.estimators_continuum.photo_ion_estimator_statistics
         )
         continuum_estimators["stim_recomb_estimator"] = (
-            self.transport_state.radfield_mc_estimators.stim_recomb_estimator
+            self.transport_state.estimators_continuum.stim_recomb_estimator
         )
         continuum_estimators["bf_heating_estimator"] = (
-            self.transport_state.radfield_mc_estimators.bf_heating_estimator
+            self.transport_state.estimators_continuum.bf_heating_estimator
         )
         continuum_estimators["stim_recomb_cooling_estimator"] = (
-            self.transport_state.radfield_mc_estimators.stim_recomb_cooling_estimator
+            self.transport_state.estimators_continuum.stim_recomb_cooling_estimator
         )
         continuum_estimators["coll_deexc_heating_estimator"] = None
         continuum_estimators["ff_heating_estimator"] = (
-            self.transport_state.radfield_mc_estimators.ff_heating_estimator
+            self.transport_state.estimators_continuum.ff_heating_estimator
         )
 
         j_blues_df = pd.DataFrame(
-            self.transport_state.radfield_mc_estimators.j_blue_estimator,
+            self.transport_state.estimators_line.mean_intensity_blueward,
             index=self.plasma_solver.lines.index,
         )
 
         continuum_estimators, j_blues_df = self.normalize_continuum_estimators(
             continuum_estimators,
             j_blues_df,
-            self.transport_state.radfield_mc_estimators.j_estimator,
+            self.transport_state.estimators_bulk.mean_intensity_total,
         )
 
         return continuum_estimators, j_blues_df
@@ -840,24 +841,28 @@ class TypeIIPWorkflow(WorkflowLogging):
             recombination_rate = (
                 recomb_rates_solver._calculate_rate_coefficient()
             )
-
-            macro_atom_state = self.macro_atom_solver.solve(
+            j_blues_df = pd.DataFrame(
                 self.plasma_solver.j_blues,
+                index=self.plasma_solver.lines.index,
+            )
+            macro_atom_state = self.macro_atom_solver.solve(
+                j_blues_df,
                 opacity_state.beta_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
                 photoion_rate,
                 recombination_rate,
                 self.plasma_solver.coll_deexc_coeff,
                 self.plasma_solver.coll_exc_coeff,
+                self.plasma_solver.coll_ion_coeff,
+                self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
-                self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
             )
 
         else:
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
             j_blues_df = pd.DataFrame(
-                self.transport_state.radfield_mc_estimators.j_blue_estimator,
+                self.transport_state.estimators_line.mean_intensity_blueward,
                 index=self.plasma_solver.lines.index,
             )
             macro_atom_state = self.macro_atom_solver.solve(
@@ -868,8 +873,9 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.plasma_solver.alpha_sp,
                 self.plasma_solver.coll_deexc_coeff,
                 self.plasma_solver.coll_exc_coeff,
+                self.plasma_solver.coll_ion_coeff,
+                self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
-                self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
             )
 

@@ -7,6 +7,7 @@ import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.logger import montecarlo_tracking as mc_tracker
+from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
     configuration_initialize,
@@ -14,21 +15,16 @@ from tardis.transport.montecarlo.configuration.base import (
 from tardis.transport.montecarlo.estimators.mc_rad_field_solver import (
     MCRadiationFieldPropertiesSolver,
 )
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    initialize_estimator_statistics,
-)
-from tardis.transport.montecarlo.montecarlo_main_loop import (
-    montecarlo_main_loop,
+from tardis.transport.montecarlo.modes.classic.montecarlo_transport import (
+    montecarlo_transport,
 )
 from tardis.transport.montecarlo.montecarlo_transport_state import (
     MonteCarloTransportState,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
-)
-from tardis.transport.montecarlo.packets.trackers.tracker_full_util import tracker_full_df2tracker_last_interaction_df, trackers_full_to_df
-from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
-    TrackerLastInteraction,
+    tracker_full_df2tracker_last_interaction_df,
+    trackers_full_to_df,
 )
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (
     generate_tracker_last_interaction_list,
@@ -47,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: refactor this into more parts
-class MonteCarloTransportSolver(HDFWriterMixin):
+class MCTransportSolverClassic(HDFWriterMixin):
     """
     This class modifies the MonteCarloTransportState to solve the radiative
     transfer problem.
@@ -112,15 +108,18 @@ class MonteCarloTransportSolver(HDFWriterMixin):
     ):
         if not plasma.continuum_interaction_species.empty:
             if plasma.gamma is not None:
-                gamma_shape = plasma.gamma.shape
+                n_levels_bf_species_by_n_cells_tuple = plasma.gamma.shape
             else:
-                gamma_shape = plasma.phi_lucy.shape
+                n_levels_bf_species_by_n_cells_tuple = plasma.phi_lucy.shape
         else:
-            gamma_shape = (0, 0)
+            n_levels_bf_species_by_n_cells_tuple = (0, 0)
 
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
         )
+
+        # Classic mode: continuum processes disabled
+        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = False
 
         geometry_state = simulation_state.geometry.to_numba()
         opacity_state_numba = opacity_state.to_numba(
@@ -131,16 +130,12 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
         ]
 
-        estimators = initialize_estimator_statistics(
-            opacity_state_numba.tau_sobolev.shape, gamma_shape
-        )
-
         transport_state = MonteCarloTransportState(
             packet_collection,
-            estimators,
             geometry_state=geometry_state,
             opacity_state=opacity_state_numba,
             time_explosion=simulation_state.time_explosion,
+            n_levels_bf_species_by_n_cells_tuple=n_levels_bf_species_by_n_cells_tuple,
         )
 
         transport_state.enable_full_relativity = (
@@ -159,7 +154,29 @@ class MonteCarloTransportSolver(HDFWriterMixin):
         show_progress_bars=True,
     ):
         """
-        Run the montecarlo calculation
+        Run the montecarlo calculation.
+
+        Parameters
+        ----------
+        transport_state : tardis.transport.montecarlo.transport_state.TransportState
+            Transport state containing all the data needed for the Monte Carlo simulation
+        show_progress_bars : bool
+            Show progress bars
+
+        Returns
+        -------
+        v_packets_energy_hist : ndarray
+            Histogram of energy from virtual packets
+        """
+        return self.run_classic(transport_state, show_progress_bars)
+
+    def run_classic(
+        self,
+        transport_state,
+        show_progress_bars=True,
+    ):
+        """
+        Run the montecarlo calculation using classic mode (no continuum).
 
         Parameters
         ----------
@@ -186,29 +203,35 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             # Initialize the last interaction tracker list directly
-            trackers_list = (
-                generate_tracker_last_interaction_list(number_of_rpackets)
+            trackers_list = generate_tracker_last_interaction_list(
+                number_of_rpackets
             )
 
         # Reset packet progress bar for this iteration
         if show_progress_bars:
             reset_packet_pbar(number_of_rpackets)
 
+        # Classic mode: returns 4 values (no continuum estimators)
         (
             v_packets_energy_hist,
             vpacket_tracker,
-        ) = montecarlo_main_loop(
+            estimators_bulk,
+            estimators_line,
+        ) = montecarlo_transport(
             transport_state.packet_collection,
             transport_state.geometry_state,
             transport_state.time_explosion.cgs.value,
             transport_state.opacity_state,
             self.montecarlo_configuration,
-            transport_state.radfield_mc_estimators,
             self.spectrum_frequency_grid.value,
             trackers_list,
             number_of_vpackets,
             show_progress_bars=show_progress_bars,
         )
+
+        # Attach estimators to transport state
+        transport_state.estimators_bulk = estimators_bulk
+        transport_state.estimators_line = estimators_line
 
         # Last interaction trackers are already populated directly in the list
         # No finalization needed with direct list approach
@@ -235,7 +258,9 @@ class MonteCarloTransportSolver(HDFWriterMixin):
             )
         else:
             self.transport_state.tracker_full_df = None
-            self.transport_state.tracker_last_interaction_df = trackers_last_interaction_to_df(trackers_list)
+            self.transport_state.tracker_last_interaction_df = (
+                trackers_last_interaction_to_df(trackers_list)
+            )
 
         transport_state.virt_logging = (
             self.montecarlo_configuration.ENABLE_VPACKET_TRACKING

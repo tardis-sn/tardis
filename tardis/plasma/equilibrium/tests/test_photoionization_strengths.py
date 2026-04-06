@@ -13,6 +13,7 @@ from tardis.plasma.equilibrium.rates.photoionization_strengths import (
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
 )
+from tardis.transport.montecarlo.estimators import init_estimators_continuum
 
 
 @pytest.fixture
@@ -154,18 +155,26 @@ def test_estimated_photoionization_coeff_solver(regression_data):
     level2continuum_edge_idx = pd.Series(np.array([0, 2, 4]))
     solver = EstimatedPhotoionizationCoeffSolver(level2continuum_edge_idx)
 
-    class MockRadFieldMCEstimators:
-        photo_ion_estimator = np.array([1e-5, 2e-5, 3e-5])
-        stim_recomb_estimator = np.array([1e-6, 2e-6, 3e-6])
+    # Create mock estimator arrays
+    photo_ion_array = np.array([[1e-5], [2e-5], [3e-5]])
+    stim_recomb_array = np.array([[1e-6], [2e-6], [3e-6]])
 
-    radfield_mc_estimators = MockRadFieldMCEstimators()
     time_simulation = 1e5 * u.s
     volume = 1e30 * u.cm**3
+
+    # Initialize with correct factory signature
+    estimators_continuum = init_estimators_continuum(
+        n_levels_bf_species_by_n_cells_tuple=(3, 1), n_cells=1
+    )
+
+    # Set the estimator values
+    estimators_continuum.photo_ion_estimator[:] = photo_ion_array
+    estimators_continuum.stim_recomb_estimator[:] = stim_recomb_array
 
     (
         actual_photoionization_rate_coeff,
         actual_stimulated_recombination_rate_coeff,
-    ) = solver.solve(radfield_mc_estimators, time_simulation, volume)
+    ) = solver.solve(estimators_continuum, time_simulation, volume)
 
     assert isinstance(actual_photoionization_rate_coeff, pd.DataFrame)
     assert isinstance(actual_stimulated_recombination_rate_coeff, pd.DataFrame)

@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import pandas.testing as pdt
 import pytest
+from astropy import units as u
 
 from tardis.plasma.equilibrium.rates.photoionization_strengths import (
     AnalyticPhotoionizationCoeffSolver,
@@ -13,8 +14,8 @@ from tardis.transport.montecarlo.estimators.continuum_radfield_properties import
 )
 
 
-@pytest.mark.skip("Continuum tests skipping until replaced.")
-@pytest.mark.continuum
+@pytest.mark.skip("Fix once continuum works again")
+
 def test_continuum_estimators(
     continuum_config,
     nlte_atomic_dataset,
@@ -60,7 +61,7 @@ def test_continuum_estimators(
     )
     transport_state = continuum_simulation.transport.transport_state
     continuum_properties_mc = continuum_properties_solver_mc.solve(
-        transport_state.radfield_mc_estimators,
+        transport_state.estimators_continuum,
         transport_state.time_of_simulation,
         transport_state.geometry_state.volume,
     )

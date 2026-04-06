@@ -2,7 +2,6 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
-from copy import deepcopy
 
 import tardis
 from tardis.io.configuration.config_reader import Configuration
@@ -55,9 +54,14 @@ def test_plasma_state_iterations(simulation_one_loop, attr, regression_data):
 )
 def test_plasma_estimates(simulation_one_loop, attr, regression_data):
     if attr in ["nu_bar_estimator", "j_estimator"]:
+        # Map old attribute names to new ones
+        attr_map = {
+            "nu_bar_estimator": "mean_frequency",
+            "j_estimator": "mean_intensity_total",
+        }
         actual = getattr(
-            simulation_one_loop.transport.transport_state.radfield_mc_estimators,
-            attr,
+            simulation_one_loop.transport.transport_state.estimators_bulk,
+            attr_map[attr],
         )
     elif attr in ["t_radiative", "dilution_factor"]:
         actual = getattr(simulation_one_loop.simulation_state, attr)
