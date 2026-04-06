@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_19302777
+.. |CITATION| replace:: kerzendorf_2026_19437899
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.19302777-blue
-                 :target: https://doi.org/10.5281/zenodo.19302777
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.19437899-blue
+                 :target: https://doi.org/10.5281/zenodo.19437899
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_19302777,
+    @software{kerzendorf_2026_19437899,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -112,19 +112,19 @@ The following BibTeX entries are needed for the references:
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Barbosa, Talytha and
-                      Yu, Jenny and
                       Sondhi, Dhruv and
+                      Yu, Jenny and
                       O'Brien, Jack and
                       Shields, Josh and
                       Patel, Maryam and
-                      Varanasi, Kaushik and
                       Rathi, Shikha and
-                      Gillanders, James and
+                      Varanasi, Kaushik and
                       Chitchyan, Sona and
-                      Gupta, Sumit and
-                      Marie Lynn, Haille and
+                      Gillanders, James and
                       Singh, Shreyas and
                       Savel, Arjun and
+                      Marie Lynn, Haille and
+                      Gupta, Sumit and
                       Eweis, Youssef and
                       Reinecke, Martin and
                       Shah, Swayam and
@@ -203,11 +203,11 @@ The following BibTeX entries are needed for the references:
                       Prasad, Rohit and
                       Gajanan Nalbalwar, Rudraksh and
                       Sharma, Sampark},
-      title        = {tardis-sn/tardis: TARDIS v2026.03.29},
-      month        = mar,
+      title        = {tardis-sn/tardis: TARDIS v2026.04.06},
+      month        = apr,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.03.29},
-      doi          = {10.5281/zenodo.19302777},
-      url          = {https://doi.org/10.5281/zenodo.19302777},
+      version      = {release-2026.04.06},
+      doi          = {10.5281/zenodo.19437899},
+      url          = {https://doi.org/10.5281/zenodo.19437899},
     }
