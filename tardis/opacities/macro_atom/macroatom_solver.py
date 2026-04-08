@@ -10,8 +10,8 @@ from tardis.opacities.macro_atom.base import (
 )
 from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_deexc_to_k_packet,
-    collisional_transition_excitation_cool,
     collisional_transition_excitation_internal,
+    collisional_transition_excitation_to_k_packet,
     collisional_transition_internal_down,
     collisional_transition_ionization_emission,
     collisional_transition_ionization_internal,
@@ -21,11 +21,13 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     continuum_transition_photoionization_to_k_packet,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
+    create_coll_excitation_cooling_metadata,
+    create_coll_ionization_cooling_metadata,
     create_free_bound_cooling_metadata,
     create_free_free_cooling_metadata,
     probability_collision_deexc_to_k_packet,
     probability_collision_exc_internal,
-    probability_collision_excitation_cool,
+    probability_collision_excitation_to_k_packet,
     probability_collision_internal_down,
     probability_collision_ionization_emission,
     probability_collision_ionization_internal,
@@ -877,7 +879,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         electron_densities: pd.Series,
         delta_E_yg: pd.Series,
         coll_exc_cool_rate,
+        coll_exc_cool_arr,
         coll_ion_cool_rate,
+        coll_ion_cool_arr,
         fb_cool_rate,
         fb_cool_probs_arr,
         ff_cool_rate,
@@ -944,7 +948,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_recomb_coeff,
                 electron_densities,
                 coll_exc_cool_rate,
+                coll_exc_cool_arr,
                 coll_ion_cool_rate,
+                coll_ion_cool_arr,
                 fb_cool_rate,
                 fb_cool_probs_arr,
                 ff_cool_rate,
@@ -962,7 +968,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_recomb_coeff,
                 electron_densities,
                 coll_exc_cool_rate,
+                coll_exc_cool_arr,
                 coll_ion_cool_rate,
+                coll_ion_cool_arr,
                 fb_cool_rate,
                 fb_cool_probs_arr,
                 ff_cool_rate,
@@ -1032,7 +1040,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
         coll_exc_cool_rate,
+        coll_exc_cool_arr,
         coll_ion_cool_rate,
+        coll_ion_cool_arr,
         fb_cool_rate,
         fb_cool_probs_arr,
         ff_cool_rate,
@@ -1173,8 +1183,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
 
-        p_coll_excitation_cool, coll_excitation_cool_metadata = (
-            collisional_transition_excitation_cool(
+        p_coll_excitation_to_k_packet, coll_excitation_to_k_metadata = (
+            collisional_transition_excitation_to_k_packet(
                 coll_exc_coeff,
                 electron_densities,
                 self._delta_E_yg,
@@ -1217,7 +1227,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 p_coll_down_to_k_packet,
                 p_coll_internal_down,
                 p_coll_internal_up,
-                p_coll_excitation_cool,
+                p_coll_excitation_to_k_packet,
                 p_coll_ionization_internal,
                 p_coll_emission_ion,
                 p_coll_recomb_internal,
@@ -1238,7 +1248,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_down_to_packet_metadata,
                 coll_internal_down_metadata,
                 coll_internal_up_metadata,
-                coll_excitation_cool_metadata,
+                coll_excitation_to_k_metadata,
                 coll_ionization_internal_metadata,
                 coll_ionization_emission_metadata,
                 coll_recomb_internal_metadata,
@@ -1257,7 +1267,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 probabilities_df,
                 macro_atom_transition_metadata,
                 coll_exc_cool_rate,
+                coll_exc_cool_arr,
                 coll_ion_cool_rate,
+                coll_ion_cool_arr,
                 fb_cool_rate,
                 fb_cool_probs_arr,
                 ff_cool_rate,
@@ -1308,7 +1320,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
         coll_exc_cool_rate,
+        coll_exc_cool_arr,
         coll_ion_cool_rate,
+        coll_ion_cool_arr,
         fb_cool_rate,
         fb_cool_probs_arr,
         ff_cool_rate,
@@ -1405,7 +1419,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ].collision_key_idx.to_numpy()
         collisional_ionization_emission_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_ION_EMISSION
+            == MacroAtomTransitionType.COLL_ION_TO_K_PACKET
         ].collision_key_idx.to_numpy()
         collisional_recomb_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
@@ -1413,7 +1427,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ].collision_key_idx.to_numpy()
         collisional_recomb_emission_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_RECOMB_EMISSION
+            == MacroAtomTransitionType.COLL_RECOMB_TO_K_PACKET
         ].collision_key_idx.to_numpy()
 
         probabilities_df = pd.DataFrame(
@@ -1554,8 +1568,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         # if they don't get reordered this should be fine
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
-        ] = probability_collision_excitation_cool(
+            == MacroAtomTransitionType.COLL_EXC_TO_K_PACKET
+        ] = probability_collision_excitation_to_k_packet(
             coll_exc_coeff,
             electron_densities,
             self._delta_E_yg,
@@ -1572,7 +1586,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_ION_EMISSION
+            == MacroAtomTransitionType.COLL_ION_TO_K_PACKET
         ] = probability_collision_ionization_emission(
             coll_ion_coeff.iloc[collisional_ionization_emission_idxs],
             electron_densities,
@@ -1592,7 +1606,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_RECOMB_EMISSION
+            == MacroAtomTransitionType.COLL_RECOMB_TO_K_PACKET
         ] = probability_collision_recombination_emission(
             coll_recomb_coeff.iloc[collisional_recomb_emission_idxs],
             electron_densities,
@@ -1604,7 +1618,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 probabilities_df,
                 macro_atom_transition_metadata,
                 coll_exc_cool_rate,
+                coll_exc_cool_arr,
                 coll_ion_cool_rate,
+                coll_ion_cool_arr,
                 fb_cool_rate,
                 fb_cool_probs_arr,
                 ff_cool_rate,
@@ -1665,7 +1681,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         probabilities,
         macro_atom_transition_metadata,
         coll_exc_cool_rate,
+        coll_exc_cool_arr,
         coll_ion_cool_rate,
+        coll_ion_cool_arr,
         fb_cool_rate,
         fb_cool_probs_arr,
         ff_cool_rate,
@@ -1693,55 +1711,77 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             The input macro_atom_transition_metadata dataframe with a free-free deactivation
             line appended, if it did not exist yet.
         """
-        coll_exc_block = probabilities[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
-        ]
-        coll_exc_block *= coll_exc_cool_rate / coll_exc_block.sum(axis=0)
-        probabilities[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
-        ] = coll_exc_block
-
-        coll_ion_block = probabilities[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_RECOMB_EMISSION  # COLL_ION_COOL_TO_MACRO
-        ]
-        coll_ion_block *= coll_ion_cool_rate / coll_ion_block.sum(axis=0)
-        probabilities[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_RECOMB_EMISSION  # COLL_ION_COOL_TO_MACRO
-        ] = coll_ion_block
-
+        # Check if cooling block exists
         if ~(
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.FF_EMISSION
+            == MacroAtomTransitionType.FB_COOLING
         ).any():
             metadata_size = len(macro_atom_transition_metadata)
+            ff_cool_metadata = create_free_free_cooling_metadata(metadata_size)
+            fb_cool_metadata = create_free_bound_cooling_metadata(
+                metadata_size + len(ff_cool_metadata), fb_cool_probs_arr
+            )
+            coll_exc_cool_metadata = create_coll_excitation_cooling_metadata(
+                metadata_size + len(ff_cool_metadata) + len(fb_cool_metadata),
+                coll_exc_cool_arr,
+                macro_atom_transition_metadata[
+                    macro_atom_transition_metadata.transition_type
+                    == MacroAtomTransitionType.INTERNAL_UP
+                ].destination,
+            )
+            coll_ion_cool_metadata = create_coll_ionization_cooling_metadata(
+                metadata_size
+                + len(ff_cool_metadata)
+                + len(fb_cool_metadata)
+                + len(coll_exc_cool_metadata),
+                coll_ion_cool_arr,
+            )
             macro_atom_transition_metadata = pd.concat(
                 [
                     macro_atom_transition_metadata,
-                    create_free_free_cooling_metadata(metadata_size),
-                    create_free_bound_cooling_metadata(
-                        metadata_size, fb_cool_probs_arr
-                    ),
+                    ff_cool_metadata,
+                    fb_cool_metadata,
+                    coll_exc_cool_metadata,
+                    coll_ion_cool_metadata,
                 ]
             )
-
             ff_df = pd.DataFrame(ff_cool_rate).T
             ff_df.index = [metadata_size]
 
             fb_df = pd.DataFrame(fb_cool_rate * fb_cool_probs_arr.T)
-            fb_df.index = fb_df.index + metadata_size + 1
+            fb_df.index = fb_df.index + metadata_size + len(ff_df)
 
-            probabilities = pd.concat([probabilities, ff_df, fb_df])
+            coll_exc_df = pd.DataFrame(coll_exc_cool_rate * coll_exc_cool_arr.T)
+            coll_exc_df.index = (
+                coll_exc_df.index + metadata_size + len(ff_df) + len(fb_df)
+            )
+            coll_ion_df = pd.DataFrame(coll_ion_cool_rate * coll_ion_cool_arr.T)
+            coll_ion_df.index = (
+                coll_ion_df.index
+                + metadata_size
+                + len(ff_df)
+                + len(fb_df)
+                + len(coll_exc_df)
+            )
+
+            probabilities = pd.concat(
+                [probabilities, ff_df, fb_df, coll_exc_df, coll_ion_df]
+            )
         else:
             probabilities[
                 macro_atom_transition_metadata.transition_type
-                == MacroAtomTransitionType.FF_EMISSION
+                == MacroAtomTransitionType.FF_COOLING
             ] = ff_cool_rate
             probabilities[
                 macro_atom_transition_metadata.transition_type
-                == MacroAtomTransitionType.BF_EMISSION
-            ] = fb_cool_rate * fb_cool_probs_arr
+                == MacroAtomTransitionType.FB_COOLING
+            ] = fb_cool_rate * fb_cool_probs_arr.T
+            probabilities[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.COLL_EXC_COOL
+            ] = coll_exc_cool_rate * coll_exc_cool_arr.T
+            probabilities[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.COLL_ION_COOL
+            ] = coll_ion_cool_rate * coll_ion_cool_arr.T
         return probabilities, macro_atom_transition_metadata

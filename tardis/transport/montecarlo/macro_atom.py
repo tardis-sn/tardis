@@ -34,16 +34,24 @@ class MacroAtomTransitionType(IntEnum):
     )
     PHOTO_RECOMB_INTERNAL = 3  # i-packet to macro
     PHOTO_RECOMB_EMISSION = -7  # i-packet to BF emission
-    # THERE SHOULD BE A BF EMISSION FROM K PACKET
     # Collisions block
     COLL_DOWN_TO_K_PACKET = 11  # macro to k-packet
     COLL_UP_INTERNAL = 4
     COLL_DOWN_INTERNAL = 5
-    COLL_EXC_COOL_TO_MACRO = 20  # From k-packet to macro
+    COLL_EXC_TO_K_PACKET = (
+        20  # k-packet to macro # COLL EXC DEACTIVATION - WHAT THE HELL ARE YOU
+    )
     COLL_ION_INTERNAL = 6  # Macro to i-packet
-    COLL_ION_EMISSION = 12  # Macro to k-packet
-    COLL_RECOMB_INTERNAL = 7  # This is i-packet to macro
-    COLL_RECOMB_EMISSION = 9  # This is k-packet to i-packet, also cooling
+    COLL_ION_TO_K_PACKET = (
+        12  # Macro to k-packet, ctardis coll ion deactivation
+    )
+    COLL_RECOMB_INTERNAL = 7  # i-packet to macro
+    COLL_RECOMB_TO_K_PACKET = 9  # i-packet to k_packet creation
+    # Cooling block
+    FB_COOLING = -10  # k to bf emission
+    FF_COOLING = -11  # k to ff emission
+    COLL_EXC_COOL = 21  # k to macro
+    COLL_ION_COOL = 22  # k to i-packet
 
 
 @njit(**njit_dict_no_parallel)

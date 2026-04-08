@@ -756,7 +756,7 @@ def collisional_transition_excitation_internal(
     return p_coll_up_internal, coll_up_internal_metadata
 
 
-def probability_collision_excitation_cool(
+def probability_collision_excitation_to_k_packet(
     coll_exc_coeff: pd.DataFrame,
     electron_densities: pd.Series,
     delta_E_yg: pd.Series,
@@ -775,21 +775,21 @@ def probability_collision_excitation_cool(
 
     Returns
     -------
-    p_coll_excitation_cool
+    p_coll_excitation_to_k_packet
         Aggregated collisional excitation cooling rates grouped by
         `destination_level_idx`.
     """
-    p_coll_excitation_cool = (coll_exc_coeff * electron_densities).multiply(
-        delta_E_yg, axis=0
-    )
+    p_coll_excitation_to_k_packet = (
+        coll_exc_coeff * electron_densities
+    ).multiply(delta_E_yg, axis=0)
 
-    p_coll_excitation_cool = p_coll_excitation_cool.groupby(
+    p_coll_excitation_to_k_packet = p_coll_excitation_to_k_packet.groupby(
         level=["atomic_number", "ion_number", "level_number_upper"]
     ).sum()
-    return p_coll_excitation_cool
+    return p_coll_excitation_to_k_packet
 
 
-def collisional_transition_excitation_cool(
+def collisional_transition_excitation_to_k_packet(
     coll_exc_coeff: pd.DataFrame,
     electron_densities: pd.Series,
     delta_E_yg: pd.Series,
@@ -812,35 +812,37 @@ def collisional_transition_excitation_cool(
 
     Returns
     -------
-    p_coll_excitation_cool
+    p_coll_excitation_to_k_packet
         Unnormalized collisional excitation cooling rates.
-    coll_excitation_cool_metadata
+    coll_excitation_to_k_metadata
         Metadata for the excitation cooling transitions.
     """
-    p_coll_excitation_cool = probability_collision_excitation_cool(
-        coll_exc_coeff,
-        electron_densities,
-        delta_E_yg,
+    p_coll_excitation_to_k_packet = (
+        probability_collision_excitation_to_k_packet(
+            coll_exc_coeff,
+            electron_densities,
+            delta_E_yg,
+        )
     )
-    sources = [("k", -99, -99)] * len(p_coll_excitation_cool)
-    destinations = [
+    destinations = [("k", -99, -99)] * len(p_coll_excitation_to_k_packet)
+    sources = [
         (int(first), int(second), int(third))
-        for first, second, third in p_coll_excitation_cool.index.values
+        for first, second, third in p_coll_excitation_to_k_packet.index.values
     ]
-    coll_excitation_cool_metadata = pd.DataFrame(
+    coll_excitation_to_k_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO,
+            "transition_type": MacroAtomTransitionType.COLL_EXC_TO_K_PACKET,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": -99,  # Collapsed along level_number_lower, so can't be mapped to collision keys
         },
-        index=p_coll_excitation_cool.index,
+        index=p_coll_excitation_to_k_packet.index,
     )
 
-    return p_coll_excitation_cool, coll_excitation_cool_metadata
+    return p_coll_excitation_to_k_packet, coll_excitation_to_k_metadata
 
 
 def probability_collision_ionization_internal(
@@ -987,15 +989,13 @@ def collisional_transition_ionization_emission(
         for first, second, third in coll_ion_coeff.index.values
     ]
 
-    destinations = [("k", -99, -99)] * len(
-        p_coll_ionization_emission
-    )  # Maybe supposed to go to K block?
+    destinations = [("k", -99, -99)] * len(p_coll_ionization_emission)
     coll_ionization_emission_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.COLL_ION_EMISSION,
+            "transition_type": MacroAtomTransitionType.COLL_ION_TO_K_PACKET,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": range(len(coll_ion_coeff)),
@@ -1154,7 +1154,7 @@ def collisional_transition_recombination_emission(
             "transition_line_id": -99,
             "source": sources,
             "destination": destinations,
-            "transition_type": MacroAtomTransitionType.COLL_RECOMB_EMISSION,
+            "transition_type": MacroAtomTransitionType.COLL_RECOMB_TO_K_PACKET,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": range(len(coll_recomb_coeff)),
@@ -1165,13 +1165,15 @@ def collisional_transition_recombination_emission(
     return p_coll_recomb_emission, coll_recomb_emission_metadata
 
 
-def create_free_free_cooling_metadata(transition_size: int) -> pd.DataFrame:
+def create_free_free_cooling_metadata(
+    transition_starting_index: int,
+) -> pd.DataFrame:
     """
     Create metadata for free-free (bremsstrahlung) cooling transitions.
 
     Parameters
     ----------
-    transition_size
+    transition_starting_index
         The starting index for the cooling transition to be created.
 
     Returns
@@ -1190,27 +1192,27 @@ def create_free_free_cooling_metadata(transition_size: int) -> pd.DataFrame:
                     -99,
                 )
             ],  # k-packet destruction to ff emission
-            "transition_type": MacroAtomTransitionType.FF_EMISSION,
+            "transition_type": MacroAtomTransitionType.FF_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": -99,
             "destination_level_idx": -99.0,
         },
-        index=([transition_size]),
+        index=([transition_starting_index]),
     )
 
     return free_free_cooling_metadata
 
 
 def create_free_bound_cooling_metadata(
-    transition_size: int, fb_cool_probs_arr: np.ndarray
+    transition_starting_index: int, fb_cool_probs_arr: np.ndarray
 ) -> pd.DataFrame:
     """
     Create metadata for free-bound (radiative recombination) cooling transitions.
 
     Parameters
     ----------
-    transition_size
+    transition_starting_index
         The starting index for the cooling transitions to be created.
     fb_cool_probs_arr
         Array containing free-bound cooling probabilities.
@@ -1232,16 +1234,105 @@ def create_free_bound_cooling_metadata(
                     -99,
                 )
             ],  # k-packet destruction to bf emission
-            "transition_type": MacroAtomTransitionType.BF_EMISSION,
+            "transition_type": MacroAtomTransitionType.FB_COOLING,
             "transition_line_idx": -99,
             "photoionization_key_idx": range(fb_cool_probs_arr.shape[1]),
             "collision_key_idx": -99,
             "destination_level_idx": range(fb_cool_probs_arr.shape[1]),
         },
         index=range(
-            transition_size + 1,
-            transition_size + 1 + fb_cool_probs_arr.shape[1],
+            transition_starting_index,
+            transition_starting_index + fb_cool_probs_arr.shape[1],
         ),
     )
 
     return free_bound_cooling_metadata
+
+
+def create_coll_excitation_cooling_metadata(
+    transition_starting_index: int,
+    coll_exc_cool_probs_arr: np.ndarray,
+    internal_up_destinations: pd.Series,
+) -> pd.DataFrame:
+    """
+    Create metadata for free-bound (radiative recombination) cooling transitions.
+
+    Parameters
+    ----------
+    transition_starting_index
+        The starting index for the cooling transitions to be created.
+    fb_cool_probs_arr
+        Array containing free-bound cooling probabilities.
+        Shape is (n_zones, n_bound_levels).
+
+    Returns
+    -------
+    pd.DataFrame
+        Metadata DataFrame describing the free-bound cooling transitions for each bound level.
+    """
+    destinations = internal_up_destinations.unique()[
+        ::-1
+    ]  # Maybe a cleaner way to do this
+    coll_exc_cooling_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": [("k", -99, -99)],
+            "destination": destinations,
+            "transition_type": MacroAtomTransitionType.COLL_EXC_COOL,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": range(coll_exc_cool_probs_arr.shape[1]),
+            "collision_key_idx": -99,
+            "destination_level_idx": range(coll_exc_cool_probs_arr.shape[1]),
+        },
+        index=range(
+            transition_starting_index,
+            transition_starting_index + coll_exc_cool_probs_arr.shape[1],
+        ),
+    )
+
+    return coll_exc_cooling_metadata
+
+
+def create_coll_ionization_cooling_metadata(
+    transition_starting_index: int, coll_ion_cool_probs_arr: np.ndarray
+) -> pd.DataFrame:
+    """
+    Create metadata for free-bound (radiative recombination) cooling transitions.
+
+    Parameters
+    ----------
+    transition_starting_index
+        The starting index for the cooling transitions to be created.
+    fb_cool_probs_arr
+        Array containing free-bound cooling probabilities.
+        Shape is (n_zones, n_bound_levels).
+
+    Returns
+    -------
+    pd.DataFrame
+        Metadata DataFrame describing the free-bound cooling transitions for each bound level.
+    """
+    coll_ionization_cooling_metadata = pd.DataFrame(
+        {
+            "transition_line_id": -99,
+            "source": [("k", -99, -99)],
+            "destination": [
+                (
+                    "i",
+                    -99,
+                    -99,
+                )
+            ],
+            "transition_type": MacroAtomTransitionType.COLL_ION_COOL,
+            "transition_line_idx": -99,
+            "photoionization_key_idx": range(coll_ion_cool_probs_arr.shape[1]),
+            "collision_key_idx": -99,
+            "destination_level_idx": range(coll_ion_cool_probs_arr.shape[1]),
+        },
+        index=range(
+            transition_starting_index,
+            transition_starting_index + coll_ion_cool_probs_arr.shape[1],
+        ),
+    )
+
+    return coll_ionization_cooling_metadata
