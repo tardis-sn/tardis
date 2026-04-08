@@ -79,7 +79,7 @@ class ConvergenceSolver:
 
         Notes
         -----
-        The damping factor is updated in-place and constrained in the interval [lambda_min, lambda_max]
+        The damping factor is updated in place and constrained in the interval [lambda_min, lambda_max]
         """
         delta = self.lambda_step 
         base = self.damping_factor 
