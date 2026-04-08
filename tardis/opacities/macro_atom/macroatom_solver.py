@@ -878,13 +878,13 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
         delta_E_yg: pd.Series,
-        coll_exc_cool_rate,
-        coll_exc_cool_arr,
-        coll_ion_cool_rate,
-        coll_ion_cool_arr,
-        fb_cool_rate,
-        fb_cool_probs_arr,
-        ff_cool_rate,
+        coll_exc_cool_rate: pd.Series,
+        coll_exc_cool_arr: np.ndarray,
+        coll_ion_cool_rate: pd.Series,
+        coll_ion_cool_arr: np.ndarray,
+        fb_cool_rate: pd.Series,
+        fb_cool_probs_arr: np.ndarray,
+        ff_cool_rate: pd.Series,
     ) -> MacroAtomState:
         """
         Solve the Macro Atom State including continuum transitions.
@@ -918,6 +918,20 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Electron number densities for each cell.
         delta_E_yg
             Energy differences for transitions.
+        coll_exc_cool_rate
+            Collisional excitation cooling rates per cell.
+        coll_exc_cool_arr
+            Array of collisional excitation cooling rates by transition.
+        coll_ion_cool_rate
+            Collisional ionization cooling rates per cell.
+        coll_ion_cool_arr
+            Array of collisional ionization cooling rates by transition.
+        fb_cool_rate
+            Free-bound cooling rates per cell.
+        fb_cool_probs_arr
+            Array of free-bound cooling probabilities by bound level.
+        ff_cool_rate
+            Free-free (bremsstrahlung) cooling rates per cell.
 
         Returns
         -------
@@ -1039,13 +1053,13 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
-        coll_exc_cool_rate,
-        coll_exc_cool_arr,
-        coll_ion_cool_rate,
-        coll_ion_cool_arr,
-        fb_cool_rate,
-        fb_cool_probs_arr,
-        ff_cool_rate,
+        coll_exc_cool_rate: pd.Series,
+        coll_exc_cool_arr: np.ndarray,
+        coll_ion_cool_rate: pd.Series,
+        coll_ion_cool_arr: np.ndarray,
+        fb_cool_rate: pd.Series,
+        fb_cool_probs_arr: np.ndarray,
+        ff_cool_rate: pd.Series,
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
         """
         Handle the first iteration of the solve method for continuum macro atom.
@@ -1076,6 +1090,20 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Collisional recombination coefficients.
         electron_densities
             Electron number densities for each cell.
+        coll_exc_cool_rate
+            Collisional excitation cooling rates per cell.
+        coll_exc_cool_arr
+            Array of collisional excitation cooling rates by transition.
+        coll_ion_cool_rate
+            Collisional ionization cooling rates per cell.
+        coll_ion_cool_arr
+            Array of collisional ionization cooling rates by transition.
+        fb_cool_rate
+            Free-bound cooling rates per cell.
+        fb_cool_probs_arr
+            Array of free-bound cooling probabilities by bound level.
+        ff_cool_rate
+            Free-free (bremsstrahlung) cooling rates per cell.
 
         Returns
         -------
@@ -1319,20 +1347,21 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
-        coll_exc_cool_rate,
-        coll_exc_cool_arr,
-        coll_ion_cool_rate,
-        coll_ion_cool_arr,
-        fb_cool_rate,
-        fb_cool_probs_arr,
-        ff_cool_rate,
+        coll_exc_cool_rate: np.ndarray,
+        coll_exc_cool_arr: np.ndarray,
+        coll_ion_cool_rate: np.ndarray,
+        coll_ion_cool_arr: np.ndarray,
+        fb_cool_rate: np.ndarray,
+        fb_cool_probs_arr: np.ndarray,
+        ff_cool_rate: np.ndarray,
     ) -> pd.DataFrame:
         """
-        Handle subsequent iterations of the solve method.
+        Handle subsequent iterations of the solve method for continuum macro atom.
 
         Uses precomputed metadata and only recalculates the probabilities. This method
         is optimized for speed by reusing the transition metadata, block references,
-        and line mappings computed in the first iteration.
+        and line mappings computed in the first iteration. Updates transition probabilities
+        for both bound-bound and continuum transitions.
 
         Parameters
         ----------
@@ -1340,14 +1369,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Mean intensity of the radiation field of each line in the blue wing for each shell.
             For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357.
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
-            This parameter may have updated values compared to the first iteration.
+            May contain updated values compared to the first iteration.
         beta_sobolevs
-            Escape probabilities for the Sobolev approximation. These probabilities
-            represent the fraction of photons that escape the line formation region
-            without being reabsorbed. Values may be updated from the first iteration.
+            Escape probabilities for the Sobolev approximation. Values may be updated from
+            the first iteration.
         stimulated_emission_factors
-            Factors accounting for stimulated emission in the transitions. These
-            modify the transition probabilities based on the radiation field strength.
+            Factors accounting for stimulated emission in the transitions.
             May contain updated values from the radiation field calculation.
         stim_recomb_corrected_photoionization_rate_coeff
             Corrected photoionization rate coefficients for continuum transitions.
@@ -1363,10 +1390,24 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Collisional recombination coefficients.
         electron_densities
             Electron number densities for each cell.
+        coll_exc_cool_rate
+            Collisional excitation cooling rates per cell.
+        coll_exc_cool_arr
+            Array of collisional excitation cooling rates by transition.
+        coll_ion_cool_rate
+            Collisional ionization cooling rates per cell.
+        coll_ion_cool_arr
+            Array of collisional ionization cooling rates by transition.
+        fb_cool_rate
+            Free-bound cooling rates per cell.
+        fb_cool_probs_arr
+            Array of free-bound cooling probabilities by bound level.
+        ff_cool_rate
+            Free-free (bremsstrahlung) cooling rates per cell.
 
         Returns
         -------
-        pd.DataFrame
+        DataFrame
             DataFrame containing normalized transition probabilities where each source
             group sums to 1.0. The structure matches the first iteration output but
             with updated probability values.
@@ -1678,29 +1719,45 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
     def normalize_cooling_block_by_rate_fractions(
         self,
-        probabilities,
-        macro_atom_transition_metadata,
-        coll_exc_cool_rate,
-        coll_exc_cool_arr,
-        coll_ion_cool_rate,
-        coll_ion_cool_arr,
-        fb_cool_rate,
-        fb_cool_probs_arr,
-        ff_cool_rate,
-    ):
+        probabilities: pd.DataFrame,
+        macro_atom_transition_metadata: pd.DataFrame,
+        coll_exc_cool_rate: np.ndarray,
+        coll_exc_cool_arr: np.ndarray,
+        coll_ion_cool_rate: np.ndarray,
+        coll_ion_cool_arr: np.ndarray,
+        fb_cool_rate: np.ndarray,
+        fb_cool_probs_arr: np.ndarray,
+        ff_cool_rate: np.ndarray,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
-        Create and normalize k-packet source block. This needs to be separate because
-        free-free cooling and bound-free cooling are not really transitions, and we can't normalize
-        until both of these exist.
-        We also need to incorporate the cooling rates at this stage to get the proporitional
-        deactivation pathways right.
+        Create and normalize k-packet source block with cooling transitions.
+
+        This method handles cooling transitions (free-free, free-bound, collisional) which are not
+        regular macroatom transitions. They must be added to and normalized separately because
+        we cannot complete the normalization until all cooling pathways exist.
+        The method incorporates cooling rates to establish the proper relative probabilities
+        for deactivation pathways.
 
         Parameters
         ----------
-        probabilities_df :
+        probabilities
             DataFrame containing transition probabilities.
-        macro_atom_transition_metadata:
-            Dataframe containing all metadata for the transitions.
+        macro_atom_transition_metadata
+            DataFrame containing all metadata for the transitions.
+        coll_exc_cool_rate
+            Collisional excitation cooling rates per cell.
+        coll_exc_cool_arr
+            Array of collisional excitation cooling rates by transition.
+        coll_ion_cool_rate
+            Collisional ionization cooling rates per cell.
+        coll_ion_cool_arr
+            Array of collisional ionization cooling rates by transition.
+        fb_cool_rate
+            Free-bound cooling rates per cell.
+        fb_cool_probs_arr
+            Array of free-bound cooling probabilities by bound level.
+        ff_cool_rate
+            Free-free (bremsstrahlung) cooling rates per cell.
 
         Returns
         -------
@@ -1708,8 +1765,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Probabilities with the cooling block normalized by rate, and free-free deactivation
             added if it did not exist yet.
         macro_atom_transition_metadata
-            The input macro_atom_transition_metadata dataframe with a free-free deactivation
-            line appended, if it did not exist yet.
+            Updated metadata with cooling transitions appended if they did not exist.
         """
         # Check if cooling block exists
         if ~(
