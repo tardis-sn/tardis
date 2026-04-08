@@ -22,11 +22,13 @@ class MacroAtomTransitionType(IntEnum):
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
 
-    BF_EMISSION = -2  # This is k-packet to bf emission
+    # Currently unused transitions - bf and ff emission are implemented below
+    BF_EMISSION = -2
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Yes this is taken care of by BF_EMISSION
     TWO_PHOTON = -6
+
     # Photoionization block
     PHOTOIONIZATION_INTERNAL = 2  # macro to i-packet
     PHOTOIONIZATION_TO_K_PACKET = (
@@ -38,18 +40,16 @@ class MacroAtomTransitionType(IntEnum):
     COLL_DOWN_TO_K_PACKET = 11  # macro to k-packet
     COLL_UP_INTERNAL = 4
     COLL_DOWN_INTERNAL = 5
-    COLL_EXC_TO_K_PACKET = (
-        20  # k-packet to macro # COLL EXC DEACTIVATION - WHAT THE HELL ARE YOU
-    )
+    COLL_EXC_TO_K_PACKET = 12  # k-packet to macro
     COLL_ION_INTERNAL = 6  # Macro to i-packet
     COLL_ION_TO_K_PACKET = (
-        12  # Macro to k-packet, ctardis coll ion deactivation
+        13  # Macro to k-packet, ctardis coll ion deactivation
     )
     COLL_RECOMB_INTERNAL = 7  # i-packet to macro
-    COLL_RECOMB_TO_K_PACKET = 9  # i-packet to k_packet creation
+    COLL_RECOMB_TO_K_PACKET = 14  # i-packet to k_packet creation
     # Cooling block
-    FB_COOLING = -10  # k to bf emission
-    FF_COOLING = -11  # k to ff emission
+    FB_COOLING = -20  # k to bf emission
+    FF_COOLING = -21  # k to ff emission
     COLL_EXC_COOL = 21  # k to macro
     COLL_ION_COOL = 22  # k to i-packet
 
