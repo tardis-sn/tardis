@@ -23,7 +23,7 @@ following paragraph to the Acknowledgement section:
     synthesis in supernovae \\citep{2014MNRAS.440..387K, |CITATION|}. The
     development of \\textsc{tardis} received support from GitHub, the Google Summer of Code
     initiative, and from ESA's Summer of Code in Space program. \\textsc{tardis} is a fiscally
-    sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy and Pyne.
+    sponsored project of NumFOCUS. \\textsc{tardis} makes extensive use of Astropy.
 
 If you use any of the full relativity treatments or use TARDIS for modelling
 Type II supernovae, also add `Spectral modeling of type II supernovae. I. Dilution factors <https://ui.adsabs.harvard.edu/abs/2019A%26A...621A..29V>`_ 
@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_18820071
+.. |CITATION| replace:: kerzendorf_2026_19437899
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.18820071-blue
-                 :target: https://doi.org/10.5281/zenodo.18820071
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.19437899-blue
+                 :target: https://doi.org/10.5281/zenodo.19437899
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_18820071,
+    @software{kerzendorf_2026_19437899,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -113,8 +113,8 @@ The following BibTeX entries are needed for the references:
                       Singhal, Jaladh and
                       Barbosa, Talytha and
                       Sondhi, Dhruv and
-                      O'Brien, Jack and
                       Yu, Jenny and
+                      O'Brien, Jack and
                       Shields, Josh and
                       Patel, Maryam and
                       Rathi, Shikha and
@@ -123,90 +123,91 @@ The following BibTeX entries are needed for the references:
                       Gillanders, James and
                       Singh, Shreyas and
                       Savel, Arjun and
-                      Gupta, Sumit and
                       Marie Lynn, Haille and
-                      Shah, Swayam and
-                      Reinecke, Martin and
+                      Gupta, Sumit and
                       Eweis, Youssef and
+                      Reinecke, Martin and
+                      Shah, Swayam and
                       Holas, Alexander and
-                      Bylund, Tomas and
                       Visser, Erin and
+                      Bylund, Tomas and
                       Bentil, Laud and
                       Black, William and
-                      Kumar, Asish and
-                      Dutta, Anirban and
-                      Groneck, Ryan and
                       Lu, Jing and
+                      Kumar, Asish and
+                      Groneck, Ryan and
+                      Dutta, Anirban and
                       Eguren, Jordi and
-                      Bartnik, Matthew and
-                      Srivastava, Sarthak and
                       Kumar, Ansh and
-                      Magee, Mark and
+                      Srivastava, Sarthak and
+                      Bartnik, Matthew and
                       Varma Buddaraju, Rohith and
                       Alam, Arib and
-                      Daksh, Ayushi and
-                      Kambham, Satwik and
+                      Magee, Mark and
                       Livneh, Ran and
-                      Mishra, Sashank and
-                      Rajagopalan, Srinath and
-                      Powers, Cecelia and
+                      Kambham, Satwik and
+                      Daksh, Ayushi and
                       Bhakar, Jayant and
+                      Rajagopalan, Srinath and
+                      Mishra, Sashank and
                       Roldan, Israel and
-                      Actions, GitHub and
-                      Reichenbach, John and
-                      Jain, Rinkle and
+                      Powers, Cecelia and
                       McClellan, Connor and
+                      Reichenbach, John and
                       Nitish, P and
-                      Singh, Sourav and
-                      Chaumal, Aarya and
+                      Actions, GitHub and
+                      Jain, Rinkle and
                       Gupta, Harshul and
+                      Singh, Sourav and
                       Brar, Antreev and
-                      Perkins, Haille and
-                      Matsumura, Yuki and
-                      Gangbhoj, Riddhi and
-                      Selsing, Jonatan and
+                      Chaumal, Aarya and
                       Talegaonkar, Chinmay and
+                      Perkins, Haille and
                       Kowalski, Nathan and
                       Patidar, Abhishek and
+                      Matsumura, Yuki and
+                      Gangbhoj, Riddhi and
                       Sofiatti, Caroline and
+                      Selsing, Jonatan and
+                      Diddige, Harshitha and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
-                      Patel, Pratik and
+                      Singh Rathore, Parikshit and
                       L. Lim, P. and
-                      Diddige, Harshitha and
-                      Buchner, Johannes and
                       Chen, Nutan and
                       Bhandari, Jhalak and
                       Patra, Nilesh and
+                      Vieira, Nicholas and
+                      Buchner, Johannes and
                       Yap, Kevin and
                       Truong, Le and
                       Zingale, Michael and
                       Sandler, Morgan and
                       Zaheer, Musabbiha and
                       Sarafina, Nance and
-                      Vieira, Nicholas and
-                      Gupta, Suyash and
                       Lemoine, Thom and
+                      Nayak U, Ashwin and
                       Prasad, Shilpi and
+                      Dadu, Aaryan and
                       Martinez, Laureano and
                       Watson, Clyde and
                       Kumar, Atul and
-                      Nayak U, Ashwin and
                       Kumar, Aman and
-                      Dadu, Aaryan and
+                      Jaiswal, Abhayraj and
                       Dasgupta, Debajyoti and
+                      Venkat, Shashank and
                       PATIDAR, ABHISHEK and
                       Volodin, Dmitry and
-                      Singh Rathore, Parikshit and
+                      Gupta, Suyash and
+                      Patel, Pratik and
                       Prasad, Rohit and
                       Gajanan Nalbalwar, Rudraksh and
-                      Sharma, Sampark and
-                      Venkat, Shashank},
-      title        = {tardis-sn/tardis: TARDIS v2026.03.01},
-      month        = mar,
+                      Sharma, Sampark},
+      title        = {tardis-sn/tardis: TARDIS v2026.04.06},
+      month        = apr,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.03.01},
-      doi          = {10.5281/zenodo.18820071},
-      url          = {https://doi.org/10.5281/zenodo.18820071},
+      version      = {release-2026.04.06},
+      doi          = {10.5281/zenodo.19437899},
+      url          = {https://doi.org/10.5281/zenodo.19437899},
     }
