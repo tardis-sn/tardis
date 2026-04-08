@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.iip_plasma.continuum.cooling &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=8fc122bb"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.iip_plasma.continuum.cooling</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.iip_plasma.continuum.cooling</h1><div class="highlight"><pre>
+<span></span>from collections import namedtuple
+
+import numpy as np
+
+from tardis.iip_plasma.continuum.base import ContinuumProcess
+
+CoolingData = namedtuple(
+    &quot;CoolingData&quot;,
+    [
+        &quot;cooling_probability&quot;,
+        &quot;probabilities_array&quot;,
+        &quot;prob_array_nd&quot;,
+        &quot;references&quot;,
+    ],
+)
+
+
+<div class="viewcode-block" id="CoolingRates">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.cooling.html#tardis.iip_plasma.continuum.cooling.CoolingRates">[docs]</a>
+class CoolingRates(ContinuumProcess):
+    def __init__(self, input_data, **kwargs):
+        super(CoolingRates, self).__init__(input_data)
+        self.total_cooling_rate = np.zeros(self.no_of_shells)
+        self.cooling_processes = kwargs.keys()
+        self._set_cooling_rates(**kwargs)
+
+    def _set_cooling_rates(self, **kwargs):
+        total_cooling_rates_dict = {}
+        for name, cooling_process in kwargs.items():
+            cooling_rate_of_process = cooling_process.cooling_rate
+            total_cooling_rate_of_process = self._get_total_cooling_rate(
+                cooling_process
+            )
+            total_cooling_rates_dict[name] = total_cooling_rate_of_process
+            individual_cooling_probabilities = (
+                self._get_individual_cooling_probabilities(
+                    cooling_rate_of_process,
+                    total_cooling_rate_of_process,
+                    name=cooling_process.name,
+                )
+            )
+
+            setattr(self, name + &quot;cooling_rate&quot;, cooling_rate_of_process)
+            setattr(self, name + &quot;_total&quot;, total_cooling_rate_of_process)
+            if individual_cooling_probabilities is not None:
+                individual_cooling_probabilities_array = (
+                    self._get_contiguous_array(individual_cooling_probabilities)
+                )
+                prob_array_nd = individual_cooling_probabilities_array.shape[1]
+                references = individual_cooling_probabilities.index.values
+                setattr(
+                    self,
+                    name + &quot;_individual_probabilities&quot;,
+                    individual_cooling_probabilities,
+                )
+                setattr(
+                    self,
+                    name,
+                    CoolingData(
+                        np.zeros(self.no_of_shells),
+                        individual_cooling_probabilities_array,
+                        prob_array_nd,
+                        references,
+                    ),
+                )
+
+            self.total_cooling_rate += total_cooling_rate_of_process
+
+        self._set_cooling_probabilities(total_cooling_rates_dict)
+
+    def _get_total_cooling_rate(self, cooling_process):
+        if cooling_process.name == &quot;free_free&quot;:
+            return cooling_process.cooling_rate
+        return cooling_process.cooling_rate.sum().values
+
+    def _set_cooling_probabilities(self, total_cooling_rates_dict):
+        for (
+            name,
+            total_cooling_rate_of_process,
+        ) in total_cooling_rates_dict.items():
+            cooling_probability_of_process = (
+                total_cooling_rate_of_process / self.total_cooling_rate
+            )
+            setattr(self, name + &quot;_probability&quot;, cooling_probability_of_process)
+            if not name == &quot;free_free&quot;:
+                process = getattr(self, name)
+                process.cooling_probability[:] = cooling_probability_of_process
+
+    def _get_individual_cooling_probabilities(
+        self, cooling_rate_of_process, total_cooling_rate_of_process, name
+    ):
+        if not name == &quot;free_free&quot;:
+            return cooling_rate_of_process.divide(
+                total_cooling_rate_of_process, axis=1
+            )
+        return None</div>
+
+
+
+<div class="viewcode-block" id="CoolingRatesLegacy">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.continuum.cooling.html#tardis.iip_plasma.continuum.cooling.CoolingRatesLegacy">[docs]</a>
+class CoolingRatesLegacy(ContinuumProcess):
+    def __init__(
+        self,
+        input_data,
+        coll_excitation_cooling_rate,
+        coll_ionization_cooling_rate,
+        fb_cooling_rate,
+    ):
+        super(CoolingRatesLegacy, self).__init__(input_data)
+
+        self.ff_cooling = self._calculate_ff_cooling_rate()
+        self.collisional_excitation_cooling = coll_excitation_cooling_rate
+        self.collisional_ionization_cooling = coll_ionization_cooling_rate
+        self.fb_cooling = fb_cooling_rate
+        self._set_total_cooling_rates()
+        self._set_cooling_probabilities()
+        self._set_individual_cooling_probabilities()
+        self._set_montecarlo_data()
+
+    def _calculate_ff_cooling_rate(self):
+        C0 = self.input.C0_ff
+        # TODO: value for Gaunt factor (Lucy: = 1; Osterbrock recommendation for nebular conditions: = 1.3 )
+        factor = (
+            self.ion_number_density.mul(
+                np.square(self.input.ion_charges), axis=0
+            )
+            .sum()
+            .values
+        )
+        cooling_rate = (
+            C0 * self.electron_densities * np.sqrt(self.t_electrons) * factor
+        )
+        return cooling_rate
+
+    def _set_total_cooling_rates(self):
+        self.collisional_excitation_cooling_total = (
+            self.collisional_excitation_cooling.sum().values
+        )
+        self.collisional_ionization_cooling_total = (
+            self.collisional_ionization_cooling.sum().values
+        )
+        self.fb_cooling_total = self.fb_cooling.sum().values
+
+    def _set_cooling_probabilities(self):
+        total_cooling_rate = (
+            self.fb_cooling_total
+            + self.ff_cooling
+            + self.collisional_excitation_cooling_total
+            + self.collisional_ionization_cooling_total
+        )
+        self.fb_cooling_prob = self.fb_cooling_total / total_cooling_rate
+        self.ff_cooling_prob = self.ff_cooling / total_cooling_rate
+        self.coll_ion_cooling_prob = (
+            self.collisional_ionization_cooling_total / total_cooling_rate
+        )
+        self.coll_exc_cooling_prob = (
+            self.collisional_excitation_cooling_total / total_cooling_rate
+        )
+
+    def _set_individual_cooling_probabilities(self):
+        self.fb_cooling_prob_individual = self.fb_cooling.divide(
+            self.fb_cooling_total, axis=1
+        )
+        self.coll_exc_cooling_prob_individual = (
+            self.collisional_excitation_cooling.divide(
+                self.collisional_excitation_cooling_total, axis=1
+            )
+        )
+        self.coll_ion_cooling_prob_individual = (
+            self.collisional_ionization_cooling.divide(
+                self.collisional_ionization_cooling_total, axis=1
+            )
+        )
+
+    def _set_montecarlo_data(self):
+        self.fb_cooling_prob_array = self._get_contiguous_array(
+            self.fb_cooling_prob_individual
+        )
+        self.coll_exc_cooling_prob_array = self._get_contiguous_array(
+            self.coll_exc_cooling_prob_individual
+        )
+        self.coll_ion_cooling_prob_array = self._get_contiguous_array(
+            self.coll_ion_cooling_prob_individual
+        )
+
+    @property
+    def fb_cooling_prob_nd(self):
+        return self.fb_cooling_prob_array.shape[1]
+
+    @property
+    def coll_exc_cooling_prob_nd(self):
+        return self.coll_exc_cooling_prob_array.shape[1]
+
+    @property
+    def coll_ion_cooling_prob_nd(self):
+        return self.coll_ion_cooling_prob_array.shape[1]</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 08 Apr 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
