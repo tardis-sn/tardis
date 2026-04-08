@@ -58,14 +58,17 @@ class OpacityReader:
         """
         column_names = ['index', 'log_t', 'log_r', 'opacity']
         with gzip.open(self.file_path, 'rt') as f:
-               data = pd.read_csv(
-                    f,
-                    sep = r'\s+',
-                    engine = 'python',
-                    header = None,
-                    skiprows = self.skip_rows
-                )
+            data = pd.read_csv(
+                f,
+                sep=r"\s+",
+                engine="python",
+                header=None,
+                skiprows=self.skip_rows,
+                on_bad_lines="warn",
+            )
         data.dropna(axis = 1, how = 'all', inplace = True)
+        if len(data.columns) != len(column_names):
+            return data
         data.columns = column_names
         if self.masking_value is not None:
                 data['index']=pd.to_numeric(data['index'], errors = 'coerce')
