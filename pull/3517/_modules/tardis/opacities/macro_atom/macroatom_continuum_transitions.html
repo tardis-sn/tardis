@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=ee9374f4"></script>
+      <script src="../../../../_static/documentation_options.js?v=fbc1cb54"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -139,9 +139,6 @@
 <span></span>import numpy as np
 import pandas as pd
 
-from tardis.opacities.macro_atom.macroatom_line_transitions import (
-    CONST_H_CGS,
-)
 from tardis.plasma.properties.continuum_processes.rates import (
     F_K,
     K_B,
@@ -161,14 +158,14 @@ def probability_recombination_internal(
 
     Parameters
     ----------
-    spontaneous_recombination_coeff : pd.DataFrame
+    spontaneous_recombination_coeff
         Rate coefficient for spontaneous recombination from `k` to level `i`.
-    photoionization_data_level_energies : pd.Series
+    photoionization_data_level_energies
         Energies of levels with bound-free transitions.
 
     Returns
     -------
-    pd.DataFrame
+    p_recomb_internal
         DataFrame containing unnormalized recombination probabilities for internal transitions.
     &quot;&quot;&quot;
     p_recomb_internal = spontaneous_recombination_coeff.multiply(
@@ -189,31 +186,39 @@ def continuum_transition_recombination_internal(
 
     Parameters
     ----------
-    spontaneous_recombination_coeff : pd.Series
+    spontaneous_recombination_coeff
         Rate coefficient for spontaneous recombination from `k` to level `i`.
-    photoionization_data_level_energies : pd.Series
+    photoionization_data_level_energies
         Energies of levels with bound-free transitions.
 
     Returns
     -------
-    p_recombination : pd.DataFrame
+    p_recombination
         DataFrame containing recombination probabilities.
-    recombination_metadata : pd.DataFrame
+    recombination_metadata
         DataFrame containing metadata for the recombination transitions.
     &quot;&quot;&quot;
     p_recomb_internal = probability_recombination_internal(
         spontaneous_recombination_coeff, photoionization_data_level_energies
     )
 
-    destinations = p_recomb_internal.index.values
-    sources = get_ground_state_multi_index(p_recomb_internal.index).values
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_recomb_internal.index.values
+    ]
 
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in get_ground_state_multi_index(
+            p_recomb_internal.index
+        ).values
+    ]
     recombination_internal_metadata = pd.DataFrame(
         {
             &quot;transition_line_id&quot;: -99,
             &quot;source&quot;: sources,
             &quot;destination&quot;: destinations,
-            &quot;transition_type&quot;: MacroAtomTransitionType.RECOMB_INTERNAL,
+            &quot;transition_type&quot;: MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL,
             &quot;transition_line_idx&quot;: -99,
             &quot;photoionization_key_idx&quot;: range(
                 len(photoionization_data_level_energies)
@@ -223,8 +228,6 @@ def continuum_transition_recombination_internal(
         index=p_recomb_internal.index,
     )
 
-    p_recomb_internal[&quot;source&quot;] = sources
-
     return p_recomb_internal, recombination_internal_metadata</div>
 
 
@@ -233,45 +236,28 @@ def continuum_transition_recombination_internal(
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_emission">[docs]</a>
 def probability_recombination_emission(
     spontaneous_recombination_coeff: pd.DataFrame,
-    photoionization_data_frequencies: pd.Series,
+    energies_diff_bound_free: pd.Series,
 ) -&gt; pd.DataFrame:
     &quot;&quot;&quot;
     Calculate unnormalized probabilities of radiative recombination emission transitions.
 
     Parameters
     ----------
-    spontaneous_recombination_coeff : pd.DataFrame
+    spontaneous_recombination_coeff
         Rate coefficient for spontaneous recombination from `k` to level `i`.
-    photoionization_data_frequencies : pd.Series
-        Ionization threshold frequencies for the levels.
+    energies_diff_bound_free
+        Energy differences of the states involved in ionization.
 
     Returns
     -------
-    pd.DataFrame
+    p_recomb_emission
         DataFrame containing unnormalized recombination emission probabilities.
     &quot;&quot;&quot;
-    p_recomb_emission = (
-        spontaneous_recombination_coeff.multiply(
-            photoionization_data_frequencies, axis=0
-        )
-        * CONST_H_CGS
-    )  # photoionization_data_frequencies is ionization threshold, so I guess delta e is just photoionization_data_frequencies * h?
-    # The above comment comes from the source code, which was a plasma property
+    p_recomb_emission = spontaneous_recombination_coeff.multiply(
+        energies_diff_bound_free.values, axis=0
+    )
+
     return p_recomb_emission</div>
-
-
-
-<div class="viewcode-block" id="probability_recombination_cooling">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_cooling">[docs]</a>
-def probability_recombination_cooling(
-    spontaneous_recombination_cooling_coeff,
-    electron_densities,
-    ion_number_density,
-):
-    # Check BoundFreeThermalRates in plasma.equilibrium.rates.heating_cooling_rates
-    # Implement from FreeBoundCoolingRate in plasma.properties.continuum_processes.rates
-    # This will use MacroAtomTransitionType.BF_COOLING
-    raise NotImplementedError</div>
 
 
 
@@ -279,66 +265,60 @@ def probability_recombination_cooling(
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_recombination_emission">[docs]</a>
 def continuum_transition_recombination_emission(
     spontaneous_recombination_coeff: pd.DataFrame,
-    photoionization_data_frequencies: pd.Series,
+    energies_diff_bound_free: pd.Series,
 ) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
     &quot;&quot;&quot;
     Calculate unnormalized probabilities and metadata for radiative recombination emission transitions (continuum).
 
     Parameters
     ----------
-    spontaneous_recombination_coeff : pd.DataFrame
+    spontaneous_recombination_coeff
         Rate coefficient for spontaneous recombination from `k` to level `i`.
-    photoionization_data_frequencies : pd.Series
-        Ionization threshold frequencies for the levels.
+    energies_diff_bound_free
+        Energy differences of the states involved in ionization
 
     Returns
     -------
-    p_recomb_emission : pd.DataFrame
+    p_recomb_emission
         DataFrame containing unnormalized recombination emission probabilities.
-    recombination_emission_metadata : pd.DataFrame
+    recombination_emission_metadata
         DataFrame containing metadata for the recombination emission transitions.
     &quot;&quot;&quot;
     p_recomb_emission = probability_recombination_emission(
-        spontaneous_recombination_coeff, photoionization_data_frequencies
+        spontaneous_recombination_coeff, energies_diff_bound_free
     )
 
-    destinations = p_recomb_emission.index.values
-    ## TODO: FIX
-    sources = get_ground_state_multi_index(
-        p_recomb_emission.index
-    ).values  # Should be k packet?
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_recomb_emission.index.values
+    ]
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in get_ground_state_multi_index(
+            p_recomb_emission.index
+        ).values
+    ]
 
-    unique_idx = photoionization_data_frequencies.index.unique()
-    mapping = {idx: i for i, idx in enumerate(unique_idx)}
-    ids = pd.Series(
-        photoionization_data_frequencies.index.map(mapping),
-        index=photoionization_data_frequencies.index,
-    ).astype(int)
-
-    recombination_emission_metadata = pd.DataFrame(
+    recomb_emission_metadata = pd.DataFrame(
         {
             &quot;transition_line_id&quot;: -99,
             &quot;source&quot;: sources,
             &quot;destination&quot;: destinations,
-            &quot;transition_type&quot;: MacroAtomTransitionType.BF_EMISSION,
-            &quot;transition_line_idx&quot;: ids,  # this is used to indicate which block of the photoionization data the transition relates to - make it a different column later
-            &quot;photoionization_key_idx&quot;: range(
-                len(photoionization_data_frequencies)
-            ),
+            &quot;transition_type&quot;: MacroAtomTransitionType.PHOTO_RECOMB_EMISSION,
+            &quot;transition_line_idx&quot;: -99,
+            &quot;photoionization_key_idx&quot;: range(len(energies_diff_bound_free)),
             &quot;collision_key_idx&quot;: -99,
         },
         index=p_recomb_emission.index,
     )
 
-    p_recomb_emission[&quot;source&quot;] = sources
-
-    return p_recomb_emission, recombination_emission_metadata</div>
+    return p_recomb_emission, recomb_emission_metadata</div>
 
 
 
-<div class="viewcode-block" id="probability_photoionization">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization">[docs]</a>
-def probability_photoionization(
+<div class="viewcode-block" id="probability_photoionization_internal">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization_internal">[docs]</a>
+def probability_photoionization_internal(
     stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
     photoionization_data_level_energies: pd.Series,
 ) -&gt; pd.DataFrame:
@@ -347,28 +327,28 @@ def probability_photoionization(
 
     Parameters
     ----------
-    stim_recomb_corrected_photoionization_rate_coeff : pd.Series
+    stim_recomb_corrected_photoionization_rate_coeff
         Corrected photoionization rate coefficient from level `i` to `k`.
-    photoionization_data_level_energies : pd.Series
-        Energies of the levels involved in photoionization.
+    photoionization_data_level_energies
+        Energies of the states involved in photoionization.
 
     Returns
     -------
-    pd.DataFrame
+    p_photoion_internal
         DataFrame containing photoionization probabilities.
     &quot;&quot;&quot;
-    p_photoionization = (
+    p_photoion_internal = (
         stim_recomb_corrected_photoionization_rate_coeff.multiply(
             photoionization_data_level_energies, axis=0
         )
     )
-    return p_photoionization</div>
+    return p_photoion_internal</div>
 
 
 
-<div class="viewcode-block" id="continuum_transition_photoionization">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization">[docs]</a>
-def continuum_transition_photoionization(
+<div class="viewcode-block" id="continuum_transition_photoionization_internal">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization_internal">[docs]</a>
+def continuum_transition_photoionization_internal(
     stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
     photoionization_data_level_energies: pd.Series,
 ) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
@@ -377,52 +357,146 @@ def continuum_transition_photoionization(
 
     Parameters
     ----------
-    stim_recomb_corrected_photoionization_rate_coeff : pd.Series
+    stim_recomb_corrected_photoionization_rate_coeff
         Corrected photoionization rate coefficient from level `i` to `k`.
-    photoionization_data_level_energies : pd.Series
-        Energies of the levels involved in photoionization.
+    photoionization_data_level_energies
+        Energies of the states involved in photoionization.
 
     Returns
     -------
-    p_photoionization : pd.DataFrame
+    p_photoion_internal
         DataFrame containing photoionization probabilities.
-    photoionization_metadata : pd.DataFrame
+    photoion_internal_metadata
         DataFrame containing metadata for the photoionization transitions.
     &quot;&quot;&quot;
-    p_photoionization = probability_photoionization(
+    p_photoion_internal = probability_photoionization_internal(
         stim_recomb_corrected_photoionization_rate_coeff,
         photoionization_data_level_energies,
     )
 
-    sources = p_photoionization.index.values
-    destinations = get_ground_state_multi_index(p_photoionization.index).values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_photoion_internal.index.values
+    ]
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in get_ground_state_multi_index(
+            p_photoion_internal.index
+        ).values
+    ]
 
-    photoionization_metadata = pd.DataFrame(
+    photoion_internal_metadata = pd.DataFrame(
         {
             &quot;transition_line_id&quot;: -99,
             &quot;source&quot;: sources,
             &quot;destination&quot;: destinations,
-            &quot;transition_type&quot;: MacroAtomTransitionType.PHOTOIONIZATION,
+            &quot;transition_type&quot;: MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL,
             &quot;transition_line_idx&quot;: -99,
             &quot;photoionization_key_idx&quot;: range(
                 len(photoionization_data_level_energies)
             ),
             &quot;collision_key_idx&quot;: -99,
         },
-        index=p_photoionization.index,
+        index=p_photoion_internal.index,
     )
 
-    p_photoionization[&quot;source&quot;] = sources
+    return p_photoion_internal, photoion_internal_metadata</div>
 
-    return p_photoionization, photoionization_metadata</div>
+
+
+<div class="viewcode-block" id="probability_photoionization_to_k_packet">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization_to_k_packet">[docs]</a>
+def probability_photoionization_to_k_packet(
+    stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
+    energies_diff_bound_free: pd.Series,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate photoionization probability unnormalized.
+
+    Parameters
+    ----------
+    stim_recomb_corrected_photoionization_rate_coeff
+        Corrected photoionization rate coefficient from level `i` to `k`.
+    energies_diff_bound_free
+        Energy differences of the states involved in ionization.
+
+    Returns
+    -------
+    p_photoion_to_k_packet
+        DataFrame containing photoionization probabilities.
+    &quot;&quot;&quot;
+    p_photoion_to_k_packet = (
+        stim_recomb_corrected_photoionization_rate_coeff.multiply(
+            energies_diff_bound_free.values, axis=0
+        )
+    )
+    return p_photoion_to_k_packet</div>
+
+
+
+<div class="viewcode-block" id="continuum_transition_photoionization_to_k_packet">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization_to_k_packet">[docs]</a>
+def continuum_transition_photoionization_to_k_packet(
+    stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
+    energies_bound_free_lower: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
+    &quot;&quot;&quot;
+    Calculate photoionization probability unnormalized.
+
+    Parameters
+    ----------
+    stim_recomb_corrected_photoionization_rate_coeff
+        Corrected photoionization rate coefficient from level `i` to `k`.
+    energies_bound_free_lower
+        Energies of the states involved in photoionization.
+
+    Returns
+    -------
+    p_photoion_to_k_packet
+        DataFrame containing photoionization probabilities.
+    photoion_to_k_packet_metadata
+        DataFrame containing metadata for the photoionization transitions.
+    &quot;&quot;&quot;
+    p_photoion_to_k_packet = probability_photoionization_to_k_packet(
+        stim_recomb_corrected_photoionization_rate_coeff,
+        energies_bound_free_lower,
+    )
+
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_photoion_to_k_packet.index.values
+    ]
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in get_ground_state_multi_index(
+            p_photoion_to_k_packet.index
+        ).values
+    ]
+
+    photoion_to_k_packet_metadata = pd.DataFrame(
+        {
+            &quot;transition_line_id&quot;: -99,
+            &quot;source&quot;: sources,
+            &quot;destination&quot;: destinations,
+            &quot;transition_type&quot;: MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET,
+            &quot;transition_line_idx&quot;: -99,
+            &quot;photoionization_key_idx&quot;: range(len(energies_bound_free_lower)),
+            &quot;collision_key_idx&quot;: -99,
+        },
+        index=p_photoion_to_k_packet.index,
+    )
+
+    return p_photoion_to_k_packet, photoion_to_k_packet_metadata</div>
 
 
 
 <div class="viewcode-block" id="probability_adiabatic_cooling">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_adiabatic_cooling">[docs]</a>
 def probability_adiabatic_cooling(
-    electron_densities, t_electrons, time_explosion
-):
+    electron_densities: pd.DataFrame,
+    t_electrons: pd.Series,
+    time_explosion: float,
+) -&gt; pd.DataFrame:
     &quot;&quot;&quot;
     Calculate the adiabatic cooling rate (unnormalized).
 
@@ -432,16 +506,16 @@ def probability_adiabatic_cooling(
 
     Parameters
     ----------
-    electron_densities : pd.DataFrame or pd.Series
+    electron_densities
         Electron number densities (per shell / spatial zone).
-    t_electrons : pd.DataFrame or pd.Series
+    t_electrons
         Electron temperatures (same index/shape as electron_densities).
-    time_explosion : float
+    time_explosion
         Time since explosion (seconds).
 
     Returns
     -------
-    pd.DataFrame or pd.Series
+    p_adiabatic_cool
         Unnormalized adiabatic cooling rates with the same index as
         `electron_densities` / `t_electrons`.
     &quot;&quot;&quot;
@@ -457,24 +531,28 @@ def probability_adiabatic_cooling(
 <div class="viewcode-block" id="continuum_adiabatic_cooling">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_adiabatic_cooling">[docs]</a>
 def continuum_adiabatic_cooling(
-    electron_densities, t_electrons, time_explosion
-):
+    electron_densities: pd.Series,
+    t_electrons: pd.Series,
+    time_explosion: float,
+) -&gt; tuple[pd.Series, pd.DataFrame]:
     &quot;&quot;&quot;
     Calculate the adiabatic cooling rate.
 
     Parameters
     ----------
-    electron_densities : pd.DataFrame
+    electron_densities
         Electron densities.
-    t_electrons : pd.DataFrame
+    t_electrons
         Electron temperatures.
-    time_explosion : float
+    time_explosion
         Time since explosion.
 
     Returns
     -------
-    pd.DataFrame
-        DataFrame containing the adiabatic cooling rates.
+    p_adiabatic_cool
+        Unnormalized adiabatic cooling rates.
+    adiabatic_cool_metadata
+        Metadata DataFrame describing the cooling transitions.
     &quot;&quot;&quot;
     p_adiabatic_cool = probability_adiabatic_cooling(
         electron_densities, t_electrons, time_explosion
@@ -503,8 +581,10 @@ def continuum_adiabatic_cooling(
 <div class="viewcode-block" id="probability_free_free_cooling">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_free_free_cooling">[docs]</a>
 def probability_free_free_cooling(
-    ion_number_density, electron_densities, t_electrons
-):
+    ion_number_density: pd.Series | pd.DataFrame,
+    electron_densities: pd.Series,
+    t_electrons: pd.Series,
+) -&gt; pd.Series:
     &quot;&quot;&quot;
     Calculate an unnormalized free-free (bremsstrahlung) cooling probability.
 
@@ -514,16 +594,16 @@ def probability_free_free_cooling(
 
     Parameters
     ----------
-    ion_number_density : pd.MultiIndex or pd.DataFrame index
+    ion_number_density
         Index or Series containing ion number densities (levelled by ion).
-    electron_densities : pd.DataFrame or pd.Series
+    electron_densities
         Electron number densities per zone.
-    t_electrons : pd.DataFrame or pd.Series
+    t_electrons
         Electron temperatures per zone.
 
     Returns
     -------
-    pd.DataFrame or pd.Series
+    p_free_free_cool
         Unnormalized free-free cooling rates with the same index as
         `electron_densities` / `t_electrons`.
     &quot;&quot;&quot;
@@ -542,26 +622,28 @@ def probability_free_free_cooling(
 <div class="viewcode-block" id="continuum_free_free_cooling">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_free_free_cooling">[docs]</a>
 def continuum_free_free_cooling(
-    ion_number_density, electron_densities, t_electrons
-):
+    ion_number_density: pd.Series | pd.DataFrame,
+    electron_densities: pd.Series,
+    t_electrons: pd.Series,
+) -&gt; tuple[pd.Series, pd.DataFrame]:
     &quot;&quot;&quot;
     Wrap free-free cooling rates with metadata for macro-atom use.
     NOTE: This I believe is a deactivation transition. It is not implemented or hooked up to the solver yet.
 
     Parameters
     ----------
-    ion_number_density : pd.MultiIndex or pd.DataFrame index
+    ion_number_density
         Index or Series containing ion number densities (levelled by ion).
-    electron_densities : pd.DataFrame or pd.Series
+    electron_densities
         Electron number densities per zone.
-    t_electrons : pd.DataFrame or pd.Series
+    t_electrons
         Electron temperatures per zone.
 
     Returns
     -------
-    p_free_free_cool : pd.DataFrame or pd.Series
+    p_free_free_cool
         Unnormalized free-free cooling rates.
-    free_free_cool_metadata : pd.DataFrame
+    free_free_cool_metadata
         Metadata DataFrame describing the cooling transitions. The index
         matches `p_free_free_cool` and includes fields such as
         `transition_type` and `photoionization_key_idx`.
@@ -593,27 +675,29 @@ def continuum_free_free_cooling(
 <div class="viewcode-block" id="probability_collision_deexc_to_k_packet">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_deexc_to_k_packet">[docs]</a>
 def probability_collision_deexc_to_k_packet(
-    coll_deexc_coeff, electron_densities, delta_E_yg
-):
+    coll_deexc_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    delta_E_yg: pd.Series,
+) -&gt; pd.DataFrame:
     &quot;&quot;&quot;
     Calculate collisional de-excitation to k packet probabilities.
 
     Parameters
     ----------
-    coll_deexc_coeff : pd.DataFrame
+    coll_deexc_coeff
         Collisional de-excitation coefficients.
-    electron_densities : pd.DataFrame
+    electron_densities
         Electron densities.
-    delta_E_yg : pd.Series
-        Energy differences.
+    delta_E_yg
+        Energy differences between upper and lower state.
 
     Returns
     -------
-    pd.DataFrame
+    p_coll_down_to_k_packet
         DataFrame containing collisional de-excitation to k packet probabilities.
     &quot;&quot;&quot;
     p_coll_down_to_k_packet = (coll_deexc_coeff * electron_densities).multiply(
-        delta_E_yg.values, axis=0
+        delta_E_yg, axis=0
     )
 
     return p_coll_down_to_k_packet</div>
@@ -623,8 +707,10 @@ def probability_collision_deexc_to_k_packet(
 <div class="viewcode-block" id="collisional_transition_deexc_to_k_packet">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_deexc_to_k_packet">[docs]</a>
 def collisional_transition_deexc_to_k_packet(
-    coll_deexc_coeff, electron_densities, delta_E_yg
-):
+    coll_deexc_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    delta_E_yg: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
     &quot;&quot;&quot;
     Create collisional de-excitation and deactivation transitions to a &#39;k&#39; packet.
 
@@ -635,18 +721,18 @@ def collisional_transition_deexc_to_k_packet(
 
     Parameters
     ----------
-    coll_deexc_coeff : pd.DataFrame
+    coll_deexc_coeff
         Collisional de-excitation coefficients indexed by transition.
-    electron_densities : pd.DataFrame or pd.Series
+    electron_densities
         Electron number densities per zone.
-    delta_E_yg : pd.Series
-        Energy differences for the transitions.
+    delta_E_yg
+        Energy differences between upper and lower state for the transitions.
 
     Returns
     -------
-    p_coll_down_to_k_packet : pd.DataFrame
+    p_coll_down_to_k_packet
         Unnormalized probabilities (rates) for de-excitation/deactivation.
-    coll_down_to_k_packet_metadata : pd.DataFrame
+    coll_down_to_k_packet_metadata
         Metadata for the de-excitation transitions; index matches
         `p_coll_down_to_k_packet`.
     &quot;&quot;&quot;
@@ -654,9 +740,12 @@ def collisional_transition_deexc_to_k_packet(
         coll_deexc_coeff, electron_densities, delta_E_yg
     )
 
-    sources = p_coll_down_to_k_packet.index.droplevel(
-        &quot;level_number_lower&quot;
-    ).values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_coll_down_to_k_packet.index.droplevel(
+            &quot;level_number_lower&quot;
+        ).values
+    ]
     destinations = [(&quot;k&quot;, -99, -99)] * len(p_coll_down_to_k_packet.index)
 
     coll_down_to_k_packet_metadata = pd.DataFrame(
@@ -679,27 +768,29 @@ def collisional_transition_deexc_to_k_packet(
 <div class="viewcode-block" id="probability_collision_internal_down">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_down">[docs]</a>
 def probability_collision_internal_down(
-    coll_deexc_coeff, electron_densities, energies_lowers
-):
+    coll_deexc_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_lower: pd.Series,
+) -&gt; pd.DataFrame:
     &quot;&quot;&quot;
     Calculate collisional internal de-excitation probabilities.
 
     Parameters
     ----------
-    coll_deexc_coeff : pd.DataFrame
+    coll_deexc_coeff
         Collisional de-excitation coefficients.
-    electron_densities : pd.DataFrame
+    electron_densities
         Electron densities.
-    energies_lowers : pd.Series
+    energies_lower
         Energy values of the lower levels.
 
     Returns
     -------
-    pd.DataFrame
+    p_coll_internal_down
         DataFrame containing collisional de-excitation probabilities.
     &quot;&quot;&quot;
     p_coll_internal_down = (coll_deexc_coeff * electron_densities).multiply(
-        energies_lowers.values, axis=0
+        energies_lower.values, axis=0
     )
     return p_coll_internal_down</div>
 
@@ -709,31 +800,43 @@ def probability_collision_internal_down(
 <div class="viewcode-block" id="collisional_transition_internal_down">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_down">[docs]</a>
 def collisional_transition_internal_down(
-    coll_deexc_coeff, electron_densities, energies_lowers
-):
+    coll_deexc_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_lower: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
     &quot;&quot;&quot;
     Build collisional internal-down transition probabilities and metadata.
 
     Parameters
     ----------
-    coll_deexc_coeff : pd.DataFrame
+    coll_deexc_coeff
         Collisional de-excitation coefficients indexed by transitions.
-    electron_densities : pd.DataFrame or pd.Series
+    electron_densities
         Electron number densities per zone.
-    energies_lowers : pd.Series
+    energies_lower
         Energy values of the lower levels.
 
     Returns
     -------
-    p_coll_internal_down : pd.DataFrame
+    p_coll_internal_down
         Unnormalized collisional internal down transition probabilities.
-    coll_internal_down_metadata : pd.DataFrame
+    coll_internal_down_metadata
         Metadata for the collisional internal down transitions.
     &quot;&quot;&quot;
-    sources = coll_deexc_coeff.index.droplevel(&quot;level_number_lower&quot;).values
-    destinations = coll_deexc_coeff.index.droplevel(&quot;level_number_upper&quot;).values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_deexc_coeff.index.droplevel(
+            &quot;level_number_lower&quot;
+        ).values
+    ]
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_deexc_coeff.index.droplevel(
+            &quot;level_number_upper&quot;
+        ).values
+    ]
     p_coll_internal_down = probability_collision_internal_down(
-        coll_deexc_coeff, electron_densities, energies_lowers
+        coll_deexc_coeff, electron_densities, energies_lower
     )
 
     coll_internal_down_metadata = pd.DataFrame(
@@ -752,117 +855,124 @@ def collisional_transition_internal_down(
 
 
 
-<div class="viewcode-block" id="probability_collision_exc_to_macro">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_to_macro">[docs]</a>
-def probability_collision_exc_to_macro(
-    coll_exc_coeff, electron_densities, energy_lowers
-):
+<div class="viewcode-block" id="probability_collision_exc_internal">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_internal">[docs]</a>
+def probability_collision_exc_internal(
+    coll_exc_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_lower: pd.Series,
+) -&gt; pd.DataFrame:
     &quot;&quot;&quot;
     Calculate collisional internal up probabilities.
 
     Parameters
     ----------
-    coll_exc_coeff : pd.DataFrame
+    coll_exc_coeff
         Collisional excitation coefficients.
-    electron_densities : pd.DataFrame
+    electron_densities
         Electron densities.
-    energy_lowers : pd.Series
+    energies_lower
         Energy values of the lower levels.
 
     Returns
     -------
-    pd.DataFrame
+    p_coll_exc_internal
         DataFrame containing collisional internal up probabilities.
     &quot;&quot;&quot;
-    p_coll_exc_to_macro = (coll_exc_coeff * electron_densities).multiply(
-        energy_lowers.values, axis=0
+    p_coll_exc_internal = (coll_exc_coeff * electron_densities).multiply(
+        energies_lower.values, axis=0
     )
 
-    return p_coll_exc_to_macro</div>
+    return p_coll_exc_internal</div>
 
 
 
-<div class="viewcode-block" id="collisional_transition_excitation_to_macro_atom">
-<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_to_macro_atom">[docs]</a>
-def collisional_transition_excitation_to_macro_atom(
-    coll_exc_coeff, electron_densities, energies_lowers
-):
+<div class="viewcode-block" id="collisional_transition_excitation_internal">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_internal">[docs]</a>
+def collisional_transition_excitation_internal(
+    coll_exc_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_lower: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
     &quot;&quot;&quot;
     Build collisional internal-up transition probabilities and metadata.
 
     Parameters
     ----------
-    coll_exc_coeff : pd.DataFrame
+    coll_exc_coeff
         Collisional excitation coefficients indexed by transitions.
-    electron_densities : pd.DataFrame or pd.Series
+    electron_densities
         Electron number densities per zone.
-    energies_lowers : object
-        Atomic data object providing `levels` with energy values.
+    energies_lower
+        Energy values of the lower levels.
 
     Returns
     -------
-    p_coll_exc_to_macro : pd.DataFrame
+    p_coll_up_internal
         Unnormalized collisional excitation to macro transition probabilities.
-    coll_excite_to_macro_metadata : pd.DataFrame
+    coll_up_internal_metadata
         Metadata for the collisional internal up transitions.
     &quot;&quot;&quot;
-    sources = coll_exc_coeff.index.droplevel(&quot;level_number_upper&quot;).values
-    destinations = coll_exc_coeff.index.droplevel(&quot;level_number_lower&quot;).values
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_exc_coeff.index.droplevel(
+            &quot;level_number_upper&quot;
+        ).values
+    ]
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_exc_coeff.index.droplevel(
+            &quot;level_number_lower&quot;
+        ).values
+    ]
 
-    p_coll_exc_to_macro = probability_collision_exc_to_macro(
-        coll_exc_coeff, electron_densities, energies_lowers
+    p_coll_up_internal = probability_collision_exc_internal(
+        coll_exc_coeff, electron_densities, energies_lower
     )
-    coll_excite_to_macro_metadata = pd.DataFrame(
+    coll_up_internal_metadata = pd.DataFrame(
         {
             &quot;transition_line_id&quot;: -99,
             &quot;source&quot;: sources,
             &quot;destination&quot;: destinations,
-            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO,
+            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_UP_INTERNAL,
             &quot;transition_line_idx&quot;: -99,
             &quot;photoionization_key_idx&quot;: -99,
             &quot;collision_key_idx&quot;: range(len(coll_exc_coeff)),
         },
-        index=p_coll_exc_to_macro.index,
+        index=p_coll_up_internal.index,
     )
-    return p_coll_exc_to_macro, coll_excite_to_macro_metadata</div>
+    return p_coll_up_internal, coll_up_internal_metadata</div>
 
 
 
 <div class="viewcode-block" id="probability_collision_excitation_cool">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_excitation_cool">[docs]</a>
 def probability_collision_excitation_cool(
-    coll_exc_coeff,
-    electron_densities,
-    delta_E_yg,
-    level_number_density,
-    lower_indices,
-):
+    coll_exc_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    delta_E_yg: pd.Series,
+) -&gt; pd.DataFrame:
     &quot;&quot;&quot;
     Calculate collisional excitation cooling rates (unnormalized) and aggregate by destination level.
 
     Parameters
     ----------
-    coll_exc_coeff : pd.DataFrame
+    coll_exc_coeff
         Collisional excitation coefficients indexed by transitions.
-    electron_densities : pd.DataFrame or pd.Series
+    electron_densities
         Electron number densities per zone.
-    delta_E_yg : pd.Series
-        Energy differences for the excitation transitions (level -&gt; g).
-    level_number_density : pd.Series
-        Number density for the lower levels involved in the transitions.
-    lower_indices : pd.Index
-        Index of lower level identifiers that aligns `level_number_density` with
-        the rows of `coll_exc_coeff`.
+    delta_E_yg
+        Energy differences between upper and lower state for the transitions.
 
     Returns
     -------
-    pd.DataFrame or pd.Series
+    p_coll_excitation_cool
         Aggregated collisional excitation cooling rates grouped by
         `destination_level_idx`.
     &quot;&quot;&quot;
     p_coll_excitation_cool = (coll_exc_coeff * electron_densities).multiply(
-        delta_E_yg.values, axis=0
-    ) * level_number_density.loc[lower_indices].values
+        delta_E_yg, axis=0
+    )
 
     p_coll_excitation_cool = p_coll_excitation_cool.groupby(
         level=[&quot;atomic_number&quot;, &quot;ion_number&quot;, &quot;level_number_upper&quot;]
@@ -874,12 +984,10 @@ def probability_collision_excitation_cool(
 <div class="viewcode-block" id="collisional_transition_excitation_cool">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_cool">[docs]</a>
 def collisional_transition_excitation_cool(
-    coll_exc_coeff,
-    electron_densities,
-    delta_E_yg,
-    level_number_density,
-    lower_indices,
-):
+    coll_exc_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    delta_E_yg: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
     &quot;&quot;&quot;
     Build collisional excitation cooling transitions and metadata.
 
@@ -889,36 +997,30 @@ def collisional_transition_excitation_cool(
 
     Parameters
     ----------
-    coll_exc_coeff : pd.DataFrame
+    coll_exc_coeff
         Collisional excitation coefficients indexed by transitions.
-    electron_densities : pd.DataFrame or pd.Series
+    electron_densities
         Electron number densities per zone.
-    delta_E_yg : pd.Series
-        Energy differences for the excitations.
-    level_number_density : pd.Series
-        Number density for the lower levels involved in the transitions.
-    lower_indices : pd.Index
-        Index of lower level identifiers that aligns `level_number_density` with
-        the rows of `coll_exc_coeff`.
+    delta_E_yg
+        Energy differences between upper and lower state for the excitations.
 
     Returns
     -------
-    p_coll_excitation_cool : pd.DataFrame
+    p_coll_excitation_cool
         Unnormalized collisional excitation cooling rates.
-    coll_excitation_cool_metadata : pd.DataFrame
+    coll_excitation_cool_metadata
         Metadata for the excitation cooling transitions.
     &quot;&quot;&quot;
     p_coll_excitation_cool = probability_collision_excitation_cool(
         coll_exc_coeff,
         electron_densities,
         delta_E_yg,
-        level_number_density,
-        lower_indices,
     )
     sources = [(&quot;k&quot;, -99, -99)] * len(p_coll_excitation_cool)
-    destinations = (
-        coll_exc_coeff.index.droplevel([&quot;level_number_lower&quot;]).unique().values
-    )
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in p_coll_excitation_cool.index.values
+    ]
     coll_excitation_cool_metadata = pd.DataFrame(
         {
             &quot;transition_line_id&quot;: -99,
@@ -934,6 +1036,355 @@ def collisional_transition_excitation_cool(
 
     return p_coll_excitation_cool, coll_excitation_cool_metadata</div>
 
+
+
+<div class="viewcode-block" id="probability_collision_ionization_internal">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_ionization_internal">[docs]</a>
+def probability_collision_ionization_internal(
+    coll_ion_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_coll_lower_states: pd.Series,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate collisional ionization internal probabilities.
+
+    Parameters
+    ----------
+    coll_ion_coeff
+        Collisional ionization coefficients.
+    electron_densities
+        Electron number densities.
+    energies_coll_lower_states
+        Energies of the lower states in the transitions.
+
+    Returns
+    -------
+    p_coll_ionization_internal
+        Unnormalized collisional ionization internal probabilities.
+    &quot;&quot;&quot;
+    p_coll_ionization_internal = (coll_ion_coeff * electron_densities).multiply(
+        energies_coll_lower_states, axis=0
+    )
+
+    return p_coll_ionization_internal</div>
+
+
+
+<div class="viewcode-block" id="collisional_transition_ionization_internal">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_ionization_internal">[docs]</a>
+def collisional_transition_ionization_internal(
+    coll_ion_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_coll_lower_states: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
+    &quot;&quot;&quot;
+    Build collisional ionization internal probabilities and metadata.
+
+    Parameters
+    ----------
+    coll_ion_coeff
+        Collisional ionization coefficients.
+    electron_densities
+        Electron number densities.
+    energies_coll_lower_states
+        Energies of the lower states in the transitions.
+
+    Returns
+    -------
+    p_coll_ionization_internal
+        Unnormalized collisional ionization internal probabilities.
+    coll_ionzation_internal_metadata
+        Metadata for collisional ionization internal transitions.
+    &quot;&quot;&quot;
+    p_coll_ionization_internal = probability_collision_ionization_internal(
+        coll_ion_coeff,
+        electron_densities,
+        energies_coll_lower_states,
+    )
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_ion_coeff.index.values
+    ]
+    destinations = [(&quot;i&quot;, -99, -99)] * len(p_coll_ionization_internal)
+    coll_ionzation_internal_metadata = pd.DataFrame(
+        {
+            &quot;transition_line_id&quot;: -99,
+            &quot;source&quot;: sources,
+            &quot;destination&quot;: destinations,
+            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_ION_INTERNAL,
+            &quot;transition_line_idx&quot;: -99,
+            &quot;photoionization_key_idx&quot;: -99,
+            &quot;collision_key_idx&quot;: range(
+                len(coll_ion_coeff)
+            ),  # Collapsed along level_number_lower, so can&#39;t be mapped to collision keys
+        },
+        index=p_coll_ionization_internal.index,
+    )
+
+    return p_coll_ionization_internal, coll_ionzation_internal_metadata</div>
+
+
+
+<div class="viewcode-block" id="probability_collision_ionization_emission">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_ionization_emission">[docs]</a>
+def probability_collision_ionization_emission(
+    coll_ion_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_diff_bound_free: pd.Series,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate collisional ionization emission probabilities.
+
+    Parameters
+    ----------
+    coll_ion_coeff
+        Collisional ionization coefficients.
+    electron_densities
+        Electron number densities.
+    energies_diff_bound_free
+        Energy differences of the states involved in ionization.
+
+    Returns
+    -------
+    p_coll_ionization_internal
+        Unnormalized collisional ionization emission probabilities.
+    &quot;&quot;&quot;
+    p_coll_ionization_internal = (coll_ion_coeff * electron_densities).multiply(
+        energies_diff_bound_free.values, axis=0
+    )
+
+    return p_coll_ionization_internal</div>
+
+
+
+<div class="viewcode-block" id="collisional_transition_ionization_emission">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_ionization_emission">[docs]</a>
+def collisional_transition_ionization_emission(
+    coll_ion_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_diff_bound_free: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
+    &quot;&quot;&quot;
+    Build collisional ionization emission probabilities and metadata.
+
+    Parameters
+    ----------
+    coll_ion_coeff
+        Collisional ionization coefficients.
+    electron_densities
+        Electron number densities.
+    energies_diff_bound_free
+        Energy differences of the states involved in ionization.
+
+    Returns
+    -------
+    p_coll_ionization_emission
+        Unnormalized collisional ionization emission probabilities.
+    coll_ionization_emission_metadata
+        Metadata for collisional ionization emission transitions.
+    &quot;&quot;&quot;
+    p_coll_ionization_emission = probability_collision_ionization_emission(
+        coll_ion_coeff,
+        electron_densities,
+        energies_diff_bound_free,
+    )
+    sources = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_ion_coeff.index.values
+    ]
+
+    destinations = [(&quot;i&quot;, -99, -99)] * len(
+        p_coll_ionization_emission
+    )  # Maybe supposed to go to K block?
+    coll_ionization_emission_metadata = pd.DataFrame(
+        {
+            &quot;transition_line_id&quot;: -99,
+            &quot;source&quot;: sources,
+            &quot;destination&quot;: destinations,
+            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_ION_EMISSION,
+            &quot;transition_line_idx&quot;: -99,
+            &quot;photoionization_key_idx&quot;: -99,
+            &quot;collision_key_idx&quot;: range(len(coll_ion_coeff)),
+        },
+        index=p_coll_ionization_emission.index,
+    )
+
+    return p_coll_ionization_emission, coll_ionization_emission_metadata</div>
+
+
+
+<div class="viewcode-block" id="probability_collision_recombination_internal">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_recombination_internal">[docs]</a>
+def probability_collision_recombination_internal(
+    coll_recomb_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_coll_lower_states: pd.Series,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate collisional recombination internal probabilities.
+
+    Parameters
+    ----------
+    coll_recomb_coeff
+        Collisional recombination coefficients.
+    electron_densities
+        Electron number densities.
+    energies_coll_lower_states
+        Energies of the lower states in the transitions.
+
+    Returns
+    -------
+    p_coll_recomb_internal
+        Unnormalized collisional recombination internal probabilities.
+    &quot;&quot;&quot;
+    p_coll_ionization_internal = (
+        coll_recomb_coeff * electron_densities
+    ).multiply(energies_coll_lower_states.values, axis=0)
+
+    return p_coll_ionization_internal</div>
+
+
+
+<div class="viewcode-block" id="collisional_transition_recombination_internal">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_recombination_internal">[docs]</a>
+def collisional_transition_recombination_internal(
+    coll_recomb_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_coll_lower_states: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
+    &quot;&quot;&quot;
+    Build collisional recombination internal probabilities and metadata.
+
+    Parameters
+    ----------
+    coll_recomb_coeff
+        Collisional recombination coefficients.
+    electron_densities
+        Electron number densities.
+    energies_coll_lower_states
+        Energies of the lower states in the transitions.
+
+    Returns
+    -------
+    p_coll_recomb_internal
+        Unnormalized collisional recombination internal probabilities.
+    coll_recomb_internal
+        Metadata for collisional recombination internal transitions.
+    &quot;&quot;&quot;
+    p_coll_recomb_internal = probability_collision_recombination_internal(
+        coll_recomb_coeff,
+        electron_densities,
+        energies_coll_lower_states,
+    )
+    sources = [(&quot;k&quot;, -99, -99)] * len(
+        p_coll_recomb_internal
+    )  # Double check if from k or from i
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_recomb_coeff.index.values
+    ]
+
+    coll_recomb_internal = pd.DataFrame(
+        {
+            &quot;transition_line_id&quot;: -99,
+            &quot;source&quot;: sources,
+            &quot;destination&quot;: destinations,
+            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_RECOMB_INTERNAL,
+            &quot;transition_line_idx&quot;: -99,
+            &quot;photoionization_key_idx&quot;: -99,
+            &quot;collision_key_idx&quot;: range(len(coll_recomb_coeff)),
+        },
+        index=p_coll_recomb_internal.index,
+    )
+
+    return p_coll_recomb_internal, coll_recomb_internal</div>
+
+
+
+<div class="viewcode-block" id="probability_collision_recombination_emission">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_recombination_emission">[docs]</a>
+def probability_collision_recombination_emission(
+    coll_recomb_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_diff_bound_free: pd.Series,
+) -&gt; pd.DataFrame:
+    &quot;&quot;&quot;
+    Calculate collisional recombination emission probabilities.
+
+    Parameters
+    ----------
+    coll_recomb_coeff
+        Collisional recombination coefficients.
+    electron_densities
+        Electron number densities.
+    energies_diff_bound_free
+        Energy differences of the states involved in ionization.
+
+    Returns
+    -------
+    p_coll_recomb_emission
+        Unnormalized collisional recombination emission probabilities.
+    &quot;&quot;&quot;
+    p_coll_ionization_internal = (
+        coll_recomb_coeff * electron_densities
+    ).multiply(energies_diff_bound_free.values, axis=0)
+
+    return p_coll_ionization_internal</div>
+
+
+
+<div class="viewcode-block" id="collisional_transition_recombination_emission">
+<a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_recombination_emission">[docs]</a>
+def collisional_transition_recombination_emission(
+    coll_recomb_coeff: pd.DataFrame,
+    electron_densities: pd.Series,
+    energies_diff_bound_free: pd.Series,
+) -&gt; tuple[pd.DataFrame, pd.DataFrame]:
+    &quot;&quot;&quot;
+    Build collisional recombination emission probabilities and metadata.
+
+    Parameters
+    ----------
+    coll_recomb_coeff
+        Collisional recombination coefficients.
+    electron_densities
+        Electron number densities.
+    energies_diff_bound_free
+        Energy differences of the states involved in ionization.
+
+    Returns
+    -------
+    p_coll_recomb_emission
+        Unnormalized collisional recombination emission probabilities.
+    coll_recomb_emission_metadata
+        Metadata for collisional recombination emission transitions.
+    &quot;&quot;&quot;
+    p_coll_recomb_emission = probability_collision_recombination_emission(
+        coll_recomb_coeff,
+        electron_densities,
+        energies_diff_bound_free,
+    )
+    sources = [(&quot;i&quot;, -99, -99)] * len(p_coll_recomb_emission)
+    destinations = [
+        (int(first), int(second), int(third))
+        for first, second, third in coll_recomb_coeff.index.values
+    ]
+
+    coll_recomb_emission_metadata = pd.DataFrame(
+        {
+            &quot;transition_line_id&quot;: -99,
+            &quot;source&quot;: sources,
+            &quot;destination&quot;: destinations,
+            &quot;transition_type&quot;: MacroAtomTransitionType.COLL_RECOMB_EMISSION,
+            &quot;transition_line_idx&quot;: -99,
+            &quot;photoionization_key_idx&quot;: -99,
+            &quot;collision_key_idx&quot;: range(len(coll_recomb_coeff)),
+        },
+        index=p_coll_recomb_emission.index,
+    )
+
+    return p_coll_recomb_emission, coll_recomb_emission_metadata</div>
+
 </pre></div>
 
            </div>
@@ -944,7 +1395,7 @@ def collisional_transition_excitation_cool(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Mar 2026.
+      <span class="lastupdated">Last updated on 08 Apr 2026.
       </span></p>
   </div>
 

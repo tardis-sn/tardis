@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=ee9374f4"></script>
+      <script src="../../../../_static/documentation_options.js?v=fbc1cb54"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -160,20 +160,31 @@ class MacroAtomError(ValueError):
 <div class="viewcode-block" id="MacroAtomTransitionType">
 <a class="viewcode-back" href="../../../../api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType">[docs]</a>
 class MacroAtomTransitionType(IntEnum):
-    PHOTOIONIZATION = 3
-    RECOMB_INTERNAL = 2
+    # Bound bound transition block
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
+
     BF_EMISSION = -2  # This is recombination emission, aka k-packet to r-packet
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Yes this is taken care of by BF_EMISSION
     TWO_PHOTON = -6
-    COLL_DOWN_TO_K_PACKET = 9
-    COLL_DOWN_INTERNAL = 10
-    COLL_EXC_COOL_TO_MACRO = 11
-    COLL_ION_COOL_TO_MACRO = 12</div>
+    # Photoionization block
+    PHOTOIONIZATION_INTERNAL = 2
+    PHOTOIONIZATION_TO_K_PACKET = 10  # Double check that this it to K
+    PHOTO_RECOMB_INTERNAL = 3
+    PHOTO_RECOMB_EMISSION = -9  # BF emission?
+    # Collisions block
+    COLL_DOWN_TO_K_PACKET = 11
+    COLL_UP_INTERNAL = 4
+    COLL_DOWN_INTERNAL = 5
+    COLL_EXC_COOL_TO_MACRO = 20  # From K
+    COLL_ION_COOL_TO_MACRO = 21  # From K
+    COLL_ION_INTERNAL = 6
+    COLL_ION_EMISSION = 12  # K packet creation?
+    COLL_RECOMB_INTERNAL = 7
+    COLL_RECOMB_EMISSION = -8  # BF emission?</div>
 
 
 
@@ -340,7 +351,7 @@ def macro_atom_interaction_iip(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Mar 2026.
+      <span class="lastupdated">Last updated on 08 Apr 2026.
       </span></p>
   </div>
 

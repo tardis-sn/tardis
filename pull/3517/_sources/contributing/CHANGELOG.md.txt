@@ -1,5 +1,14 @@
 ## Changelog
 
+### release-2026.04.06 (2026/04/06 05:47)
+- [3541](https://github.com/tardis-sn/tardis/pull/3541) Pre-release 2026.04.05 (3541) (@tardis-bot)
+- [3532](https://github.com/tardis-sn/tardis/pull/3532) Match continuum transition probs to ctardis (3532) (@jvshields)
+- [3537](https://github.com/tardis-sn/tardis/pull/3537) Post-release 2026.03.29 (3537) (@tardis-bot)
+### release-2026.03.29 (2026/03/28 22:07)
+- [3536](https://github.com/tardis-sn/tardis/pull/3536) Pre-release 2026.03.29 (3536) (@tardis-bot)
+- [3499](https://github.com/tardis-sn/tardis/pull/3499) Benchmark commits fix (3499) (@atharva-2001)
+- [3439](https://github.com/tardis-sn/tardis/pull/3439) GSoC: Standardize tolerance levels for TestBlackBodySimpleSource (3439) (@abhayrajjais01)
+- [3513](https://github.com/tardis-sn/tardis/pull/3513) Post-release 2026.03.22 (3513) (@tardis-bot)
 ### release-2026.03.22 (2026/03/21 22:05)
 - [3512](https://github.com/tardis-sn/tardis/pull/3512) Pre-release 2026.03.22 (3512) (@tardis-bot)
 - [3436](https://github.com/tardis-sn/tardis/pull/3436) Add iip opacity state and use absorbing markov chain transition probabilities (3436) (@jvshields)

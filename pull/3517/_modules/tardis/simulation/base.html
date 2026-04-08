@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ee9374f4"></script>
+      <script src="../../../_static/documentation_options.js?v=fbc1cb54"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,7 +167,9 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-from tardis.transport.montecarlo.modes.classic.solver import MCTransportSolverClassic
+from tardis.transport.montecarlo.modes.classic.solver import (
+    MCTransportSolverClassic,
+)
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
@@ -616,8 +618,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                     self.plasma.alpha_sp,
                     self.plasma.coll_deexc_coeff,
                     self.plasma.coll_exc_coeff,
+                    self.plasma.coll_ion_coeff,
+                    self.plasma.coll_recomb_coeff,
                     self.plasma.electron_densities,
-                    self.plasma.level_number_density,
                     self.plasma.delta_E_yg,
                 )
                 self.opacity_state.continuum_state.k_packet_idx = self.macro_atom_state.references_index.iloc[
@@ -976,6 +979,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                         atom_data.levels,
                         atom_data.lines,
                         atom_data.photoionization_data,
+                        atom_data.ionization_data,
                         line_interaction_type=config.plasma.line_interaction_type,
                     )
                 else:
@@ -1048,7 +1052,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Mar 2026.
+      <span class="lastupdated">Last updated on 08 Apr 2026.
       </span></p>
   </div>
 

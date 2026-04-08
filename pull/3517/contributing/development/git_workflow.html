@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=ee9374f4"></script>
+      <script src="../../_static/documentation_options.js?v=fbc1cb54"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -224,7 +224,7 @@ the <a class="reference external" href="https://help.github.com/articles/generat
 the same applies to other packages:</p>
 <ol class="arabic">
 <li><p>Log into your <a class="reference external" href="http://github.com">GitHub</a> account.</p></li>
-<li><p>Go to the <a class="reference external" href="http://github.com/tardis-sn/tardis">TARDIS GitHub</a> home page.</p></li>
+<li><p>Go to the <a class="reference external" href="https://github.com/tardis-sn/tardis">TARDIS GitHub</a> home page.</p></li>
 <li><p>Click on the <em>fork</em> button:</p>
 <img alt="../../_images/Bootcamp-Fork.png" src="../../_images/Bootcamp-Fork.png" />
 <p>After a short pause and an animation of Octocat scanning a book on a flatbed
@@ -240,7 +240,7 @@ of <a class="reference external" href="http://tardis.readthedocs.org">TARDIS</a>
 <p>This is done using:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git clone git@github.com:your-user-name/tardis.git
 cd tardis
-git remote add upstream git://github.com/tardis-sn/tardis.git
+git remote add upstream https://github.com/tardis-sn/tardis.git
 </pre></div>
 </div>
 </section>
@@ -273,20 +273,21 @@ fork.</p>
 <p>Now connect to the TARDIS repository so you can merge in changes from the
 trunk:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cd
-git remote add upstream git://github.com/tardis-sn/tardis.git
+git remote add upstream https://github.com/tardis-sn/tardis.git
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">upstream</span></code> is just the arbitrary name we’re using to refer to the main
 <a class="reference external" href="http://tardis.readthedocs.org">TARDIS</a> repository.</p>
-<p>Note that we’ve used <code class="docutils literal notranslate"><span class="pre">git://</span></code> for the URL rather than <code class="docutils literal notranslate"><span class="pre">git&#64;</span></code>. The
-<code class="docutils literal notranslate"><span class="pre">git://</span></code> URL is read-only. This means that we can’t accidentally (or
+<p>Note that we’ve used <code class="docutils literal notranslate"><span class="pre">https://</span></code> for the URL rather than <code class="docutils literal notranslate"><span class="pre">git&#64;</span></code>. The
+<code class="docutils literal notranslate"><span class="pre">https://</span></code> URL is read-only by default (since you have no push credentials
+for the upstream repo). This means that we can’t accidentally (or
 deliberately) write to the upstream repo, and we are only going to use it
 to merge into our own code.</p>
 <p>Just for your own satisfaction, show yourself that you now have a new
 remote connection with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">remote</span> <span class="pre">-v</span> <span class="pre">show</span></code>, which should give you
 something like:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>upstream   git://github.com/tardis-sn/tardis.git (fetch)
-upstream   git://github.com/tardis-sn/tardis.git (push)
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>upstream   https://github.com/tardis-sn/tardis.git (fetch)
+upstream   https://github.com/tardis-sn/tardis.git (push)
 origin     git@github.com:your-user-name/tardis.git (fetch)
 origin     git@github.com:your-user-name/tardis.git (push)
 </pre></div>
@@ -411,7 +412,7 @@ git push
 <ol class="arabic">
 <li><p>Make some changes</p></li>
 <li><p>Once you are a bit further along, test your changes do not lead to
-regressions, and add new tests (see the Astropy <span class="xref std std-ref">testing-guidelines</span> we follow):</p>
+regressions, and add new tests (see the Astropy <a class="reference external" href="https://numpy.org/doc/stable/reference/testing.html#testing-guidelines" title="(in NumPy v2.4)"><span>Testing guidelines</span></a> we follow):</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pytest tardis
 </pre></div>
 </div>
@@ -659,7 +660,7 @@ implement your work.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Mar 2026.
+      <span class="lastupdated">Last updated on 08 Apr 2026.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=ee9374f4"></script>
+      <script src="../../../../_static/documentation_options.js?v=fbc1cb54"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -200,14 +200,17 @@ class OpacityReader:
         &quot;&quot;&quot;
         column_names = [&#39;index&#39;, &#39;log_t&#39;, &#39;log_r&#39;, &#39;opacity&#39;]
         with gzip.open(self.file_path, &#39;rt&#39;) as f:
-               data = pd.read_csv(
-                    f,
-                    sep = r&#39;\s+&#39;,
-                    engine = &#39;python&#39;,
-                    header = None,
-                    skiprows = self.skip_rows
-                )
+            data = pd.read_csv(
+                f,
+                sep=r&quot;\s+&quot;,
+                engine=&quot;python&quot;,
+                header=None,
+                skiprows=self.skip_rows,
+                on_bad_lines=&quot;warn&quot;,
+            )
         data.dropna(axis = 1, how = &#39;all&#39;, inplace = True)
+        if len(data.columns) != len(column_names):
+            return data
         data.columns = column_names
         if self.masking_value is not None:
                 data[&#39;index&#39;]=pd.to_numeric(data[&#39;index&#39;], errors = &#39;coerce&#39;)
@@ -228,7 +231,7 @@ class OpacityReader:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Mar 2026.
+      <span class="lastupdated">Last updated on 08 Apr 2026.
       </span></p>
   </div>
 
