@@ -4,7 +4,6 @@ import pandas as pd
 from tardis.plasma.properties.continuum_processes.rates import (
     F_K,
     K_B,
-    # get_ground_state_multi_index,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
@@ -64,12 +63,7 @@ def continuum_transition_recombination_internal(
         for first, second, third in p_recomb_internal.index.values
     ]
     sources = [("i", -99, -99)] * len(p_recomb_internal.index)
-    # sources = [
-    #     (int(first), int(second), int(third))
-    #     for first, second, third in get_ground_state_multi_index(
-    #         p_recomb_internal.index
-    #     ).values
-    # ]
+
     recombination_internal_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
@@ -144,12 +138,6 @@ def continuum_transition_recombination_emission(
         for first, second, third in p_photo_recomb_emission.index.values
     ]
     sources = [("i", -99, -99)] * len(p_photo_recomb_emission.index)
-    # [
-    #     (int(first), int(second), int(third))
-    #     for first, second, third in get_ground_state_multi_index(
-    #         p_photo_recomb_emission.index
-    #     ).values
-    # ]
 
     photo_recomb_emission_metadata = pd.DataFrame(
         {
@@ -225,12 +213,6 @@ def continuum_transition_photoionization_internal(
         for first, second, third in p_photoion_internal.index.values
     ]
     destinations = [("i", -99, -99)] * len(p_photoion_internal.index)
-    # destinations = [
-    #     (int(first), int(second), int(third))
-    #     for first, second, third in get_ground_state_multi_index(
-    #         p_photoion_internal.index
-    #     ).values
-    # ]
 
     photoion_internal_metadata = pd.DataFrame(
         {
@@ -308,12 +290,6 @@ def continuum_transition_photoionization_to_k_packet(
         for first, second, third in p_photoion_to_k_packet.index.values
     ]
     destinations = [("k", -99, -99)] * len(p_photoion_to_k_packet.index)
-    # destinations = [
-    #     (int(first), int(second), int(third))
-    #     for first, second, third in get_ground_state_multi_index(
-    #         p_photoion_to_k_packet.index
-    #     ).values
-    # ]
 
     photoion_to_k_packet_metadata = pd.DataFrame(
         {
