@@ -13,10 +13,10 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_excitation_internal,
     collisional_transition_excitation_to_k_packet,
     collisional_transition_internal_down,
-    collisional_transition_ionization_emission,
     collisional_transition_ionization_internal,
-    collisional_transition_recombination_emission,
+    collisional_transition_ionization_to_k_packet,
     collisional_transition_recombination_internal,
+    collisional_transition_recombination_to_k_packet,
     continuum_transition_photoionization_internal,
     continuum_transition_photoionization_to_k_packet,
     continuum_transition_recombination_emission,
@@ -29,10 +29,10 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     probability_collision_exc_internal,
     probability_collision_excitation_to_k_packet,
     probability_collision_internal_down,
-    probability_collision_ionization_emission,
     probability_collision_ionization_internal,
-    probability_collision_recombination_emission,
+    probability_collision_ionization_to_k_packet,
     probability_collision_recombination_internal,
+    probability_collision_recombination_to_k_packet,
     probability_photoionization_internal,
     probability_photoionization_to_k_packet,
     probability_recombination_emission,
@@ -1225,7 +1225,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         )
 
         p_coll_emission_ion, coll_ionization_emission_metadata = (
-            collisional_transition_ionization_emission(
+            collisional_transition_ionization_to_k_packet(
                 coll_ion_coeff, electron_densities, self._delta_E_yg_ionization
             )
         )
@@ -1236,7 +1236,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
         p_coll_recomb_emission, coll_recomb_emission_metadata = (
-            collisional_transition_recombination_emission(
+            collisional_transition_recombination_to_k_packet(
                 coll_recomb_coeff,
                 electron_densities,
                 self._delta_E_yg_ionization,
@@ -1628,7 +1628,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_ION_TO_K_PACKET
-        ] = probability_collision_ionization_emission(
+        ] = probability_collision_ionization_to_k_packet(
             coll_ion_coeff.iloc[collisional_ionization_emission_idxs],
             electron_densities,
             self._delta_E_yg_ionization.iloc[
@@ -1648,7 +1648,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_RECOMB_TO_K_PACKET
-        ] = probability_collision_recombination_emission(
+        ] = probability_collision_recombination_to_k_packet(
             coll_recomb_coeff.iloc[collisional_recomb_emission_idxs],
             electron_densities,
             self._delta_E_yg_ionization.iloc[collisional_recomb_emission_idxs],

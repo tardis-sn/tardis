@@ -592,7 +592,6 @@ def probability_collision_internal_down(
     return p_coll_internal_down
 
 
-# Might not be a used transition
 def collisional_transition_internal_down(
     coll_deexc_coeff: pd.DataFrame,
     electron_densities: pd.Series,
@@ -937,7 +936,7 @@ def probability_collision_ionization_to_k_packet(
     return p_coll_ionization_to_k_packet
 
 
-def collisional_transition_ionization_emission(
+def collisional_transition_ionization_to_k_packet(
     coll_ion_coeff: pd.DataFrame,
     electron_densities: pd.Series,
     energies_diff_bound_free: pd.Series,
@@ -1096,14 +1095,14 @@ def probability_collision_recombination_to_k_packet(
     p_coll_recomb_to_k_packet
         Unnormalized collisional recombination emission probabilities.
     """
-    p_coll_ionization_internal = (
+    p_coll_ionization_to_k_packet = (
         coll_recomb_coeff * electron_densities
     ).multiply(energies_diff_bound_free.values, axis=0)
 
-    return p_coll_ionization_internal
+    return p_coll_ionization_to_k_packet
 
 
-def collisional_transition_recombination_emission(
+def collisional_transition_recombination_to_k_packet(
     coll_recomb_coeff: pd.DataFrame,
     electron_densities: pd.Series,
     energies_diff_bound_free: pd.Series,
@@ -1124,7 +1123,7 @@ def collisional_transition_recombination_emission(
     -------
     p_coll_recomb_to_k_packet
         Unnormalized collisional recombination emission probabilities.
-    coll_recomb_emission_metadata
+    coll_recomb_to_k_packet_metadata
         Metadata for collisional recombination emission transitions.
     """
     p_coll_recomb_to_k_packet = probability_collision_recombination_to_k_packet(
@@ -1136,7 +1135,7 @@ def collisional_transition_recombination_emission(
     sources = [("i", -99, -99)] * len(p_coll_recomb_to_k_packet)
     destinations = [("k", -99, -99)] * len(p_coll_recomb_to_k_packet)
 
-    coll_recomb_emission_metadata = pd.DataFrame(
+    coll_recomb_to_k_packet_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": sources,
@@ -1149,7 +1148,7 @@ def collisional_transition_recombination_emission(
         index=p_coll_recomb_to_k_packet.index,
     )
 
-    return p_coll_recomb_to_k_packet, coll_recomb_emission_metadata
+    return p_coll_recomb_to_k_packet, coll_recomb_to_k_packet_metadata
 
 
 def create_free_free_cooling_metadata(
