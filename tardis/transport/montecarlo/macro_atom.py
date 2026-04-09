@@ -31,20 +31,20 @@ class MacroAtomTransitionType(IntEnum):
 
     # Photoionization block
     PHOTOIONIZATION_INTERNAL = 2  # macro to i-packet
-    PHOTOIONIZATION_TO_K_PACKET = (
-        10  # macro to k, ctardis photoion deactivation
-    )
+    # PHOTOIONIZATION_TO_K_PACKET = (
+    #     10  # macro to k, ctardis photoion deactivation
+    # )
     PHOTO_RECOMB_INTERNAL = 3  # i-packet to macro
     PHOTO_RECOMB_EMISSION = -7  # i-packet to BF emission
     # Collisions block
     COLL_DOWN_TO_K_PACKET = 11  # macro to k-packet
     COLL_UP_INTERNAL = 4
     COLL_DOWN_INTERNAL = 5
-    COLL_EXC_TO_K_PACKET = 12  # k-packet to macro
+    # COLL_EXC_TO_K_PACKET = 12  # k-packet to macro
     COLL_ION_INTERNAL = 6  # Macro to i-packet
-    COLL_ION_TO_K_PACKET = (
-        13  # Macro to k-packet, ctardis coll ion deactivation
-    )
+    # COLL_ION_TO_K_PACKET = (
+    #     13  # Macro to k-packet, ctardis coll ion deactivation
+    # )
     COLL_RECOMB_INTERNAL = 7  # i-packet to macro
     COLL_RECOMB_TO_K_PACKET = 14  # i-packet to k_packet creation
     # Cooling block
