@@ -46,13 +46,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-cache]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: github.event_name != 'pull_request_target'
         with:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -73,7 +73,7 @@ jobs:
           atom-data-sparse: true
 
       - name: Setup Mamba
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: benchmark
           init-shell: >-
@@ -148,13 +148,13 @@ jobs:
 
       - name: Benchmarks compare output
         id: asv_pr_vs_master
-        uses: juliangruber/read-file-action@v1.1.7
+        uses: juliangruber/read-file-action@v1.1.8
         with:
           path: asv-compare-output.log
 
       - name: Benchmarks compare only changed output
         id: asv_pr_vs_master_changed
-        uses: juliangruber/read-file-action@v1.1.7
+        uses: juliangruber/read-file-action@v1.1.8
         with:
           path: asv-compare-changed-output.log
 
@@ -235,7 +235,7 @@ jobs:
 
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ github.event.number }}
@@ -243,7 +243,7 @@ jobs:
 
       - name: Post comment
         if: github.event_name == 'pull_request_target'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -280,7 +280,7 @@ jobs:
           URL_PAGES: https://tardis-sn.github.io/tardis-benchmarks/pull/${{ github.event.number }}
 
       - name: Save results artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: asv-benchmark-results-${{ runner.os }}

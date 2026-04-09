@@ -50,11 +50,11 @@ jobs:
       trigger-check-outcome: ${{ steps.trigger_check.outcome }}
       docs-check-outcome: ${{ steps.docs_check.outcome }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: github.event_name != 'pull_request_target'
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -87,11 +87,11 @@ jobs:
     needs: [test-cache, check-for-changes]
     if: needs.check-for-changes.outputs.trigger-check-outcome == 'success' || needs.check-for-changes.outputs.docs-check-outcome == 'success'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: github.event_name != 'pull_request_target'
 
       - name: Checkout pull/${{ github.event.number }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
         if: github.event_name == 'pull_request_target'
@@ -178,7 +178,7 @@ jobs:
           user_email: "tardis.sn.bot@gmail.com"
 
       - name: Find comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ github.event.number }}
@@ -186,7 +186,7 @@ jobs:
         if: always() && github.event_name == 'pull_request_target'
 
       - name: Post comment (success)
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -205,7 +205,7 @@ jobs:
         if: success() && github.event_name == 'pull_request_target'
 
       - name: Post comment (failure)
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
