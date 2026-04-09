@@ -1172,12 +1172,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 self.photoionization_data_level_energies,
             )
         )
-        p_photoionization_to_k, photoionization_to_k_metadata = (
-            continuum_transition_photoionization_to_k_packet(
-                stim_recomb_corrected_photoionization_rate_coeff,
-                self._delta_E_yg_ionization,
-            )
-        )
+        # p_photoionization_to_k, photoionization_to_k_metadata = (
+        #     continuum_transition_photoionization_to_k_packet(
+        #         stim_recomb_corrected_photoionization_rate_coeff,
+        #         self._delta_E_yg_ionization,
+        #     )
+        # )
         p_recombination_internal, recombination_internal_metadata = (
             continuum_transition_recombination_internal(
                 spontaneous_recombination_coeff,
@@ -1211,31 +1211,31 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
         )
 
-        p_coll_excitation_to_k_packet, coll_excitation_to_k_metadata = (
-            collisional_transition_excitation_to_k_packet(
-                coll_exc_coeff,
-                electron_densities,
-                self._delta_E_yg,
-            )
-        )
+        # p_coll_excitation_to_k_packet, coll_excitation_to_k_metadata = (
+        #     collisional_transition_excitation_to_k_packet(
+        #         coll_exc_coeff,
+        #         electron_densities,
+        #         self._delta_E_yg,
+        #     )
+        # )
         p_coll_ionization_internal, coll_ionization_internal_metadata = (
             collisional_transition_ionization_internal(
                 coll_ion_coeff, electron_densities, self._coll_ion_energies
             )
         )
 
-        p_coll_emission_ion, coll_ionization_emission_metadata = (
-            collisional_transition_ionization_to_k_packet(
-                coll_ion_coeff, electron_densities, self._delta_E_yg_ionization
-            )
-        )
+        # p_coll_emission_ion, coll_ionization_emission_metadata = (
+        #     collisional_transition_ionization_to_k_packet(
+        #         coll_ion_coeff, electron_densities, self._delta_E_yg_ionization
+        #     )
+        # )
 
         p_coll_recomb_internal, coll_recomb_internal_metadata = (
             collisional_transition_recombination_internal(
                 coll_recomb_coeff, electron_densities, self._coll_ion_energies
             )
         )
-        p_coll_recomb_emission, coll_recomb_emission_metadata = (
+        p_coll_recomb_to_k_packet, coll_recomb_to_k_packet_metadata = (
             collisional_transition_recombination_to_k_packet(
                 coll_recomb_coeff,
                 electron_densities,
@@ -1249,17 +1249,17 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 p_internal_down,
                 p_internal_up,
                 p_photoionization_internal,
-                p_photoionization_to_k,
+                # p_photoionization_to_k,
                 p_recombination_emission,
                 p_recombination_internal,
                 p_coll_down_to_k_packet,
                 p_coll_internal_down,
                 p_coll_internal_up,
-                p_coll_excitation_to_k_packet,
+                # p_coll_excitation_to_k_packet,
                 p_coll_ionization_internal,
-                p_coll_emission_ion,
+                # p_coll_emission_ion,
                 p_coll_recomb_internal,
-                p_coll_recomb_emission,
+                p_coll_recomb_to_k_packet,
             ],
             ignore_index=True,
         )
@@ -1270,17 +1270,17 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 internal_down_metadata,
                 internal_up_metadata,
                 photoionization_internal_metadata,
-                photoionization_to_k_metadata,
+                # photoionization_to_k_metadata,
                 recombination_emission_metadata,
                 recombination_internal_metadata,
                 coll_down_to_packet_metadata,
                 coll_internal_down_metadata,
                 coll_internal_up_metadata,
-                coll_excitation_to_k_metadata,
+                # coll_excitation_to_k_metadata,
                 coll_ionization_internal_metadata,
-                coll_ionization_emission_metadata,
+                # coll_ionization_emission_metadata,
                 coll_recomb_internal_metadata,
-                coll_recomb_emission_metadata,
+                coll_recomb_to_k_packet_metadata,
             ],
             ignore_index=True,
         )
@@ -1540,15 +1540,15 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
             ].source
         )
-        probabilities_df[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
-        ] = probability_photoionization_to_k_packet(
-            stim_recomb_corrected_photoionization_rate_coeff.loc[
-                photoionization_to_k_sources
-            ],
-            self._delta_E_yg_ionization.iloc[continuum_photoion_to_k_idxs],
-        ).to_numpy()
+        # probabilities_df[
+        #     macro_atom_transition_metadata.transition_type
+        #     == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
+        # ] = probability_photoionization_to_k_packet(
+        #     stim_recomb_corrected_photoionization_rate_coeff.loc[
+        #         photoionization_to_k_sources
+        #     ],
+        #     self._delta_E_yg_ionization.iloc[continuum_photoion_to_k_idxs],
+        # ).to_numpy()
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
@@ -1607,14 +1607,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         # collisional indices are hard here because we sum along an axis
         # if they don't get reordered this should be fine
-        probabilities_df[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_TO_K_PACKET
-        ] = probability_collision_excitation_to_k_packet(
-            coll_exc_coeff,
-            electron_densities,
-            self._delta_E_yg,
-        ).to_numpy()
+        # probabilities_df[
+        #     macro_atom_transition_metadata.transition_type
+        #     == MacroAtomTransitionType.COLL_EXC_TO_K_PACKET
+        # ] = probability_collision_excitation_to_k_packet(
+        #     coll_exc_coeff,
+        #     electron_densities,
+        #     self._delta_E_yg,
+        # ).to_numpy()
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
@@ -1625,16 +1625,16 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self._coll_ion_energies.iloc[collisional_ionization_internal_idxs],
         ).to_numpy()
 
-        probabilities_df[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_ION_TO_K_PACKET
-        ] = probability_collision_ionization_to_k_packet(
-            coll_ion_coeff.iloc[collisional_ionization_emission_idxs],
-            electron_densities,
-            self._delta_E_yg_ionization.iloc[
-                collisional_ionization_emission_idxs
-            ],
-        ).to_numpy()
+        # probabilities_df[
+        #     macro_atom_transition_metadata.transition_type
+        #     == MacroAtomTransitionType.COLL_ION_TO_K_PACKET
+        # ] = probability_collision_ionization_to_k_packet(
+        #     coll_ion_coeff.iloc[collisional_ionization_emission_idxs],
+        #     electron_densities,
+        #     self._delta_E_yg_ionization.iloc[
+        #         collisional_ionization_emission_idxs
+        #     ],
+        # ).to_numpy()
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
