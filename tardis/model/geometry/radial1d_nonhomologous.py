@@ -132,6 +132,14 @@ class NonhomologousRadial1DGeometry:
         )
 
     @property
+    def v_inner_boundary_index(self):
+        return self.r_inner_boundary_index
+
+    @property
+    def v_outer_boundary_index(self):
+        return self.r_outer_boundary_index
+
+    @property
     def r_inner_active(self):
         r_inner_active = self.r_inner[
             self.r_inner_boundary_index : self.r_outer_boundary_index

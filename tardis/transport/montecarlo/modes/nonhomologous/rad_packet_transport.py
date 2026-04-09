@@ -132,7 +132,7 @@ def trace_packet(
         distance = min(distance_trace, distance_boundary, distance_electron)
 
         if distance_trace != 0:
-            if distance == distance_boundary | distance == distance_electron:
+            if (distance == distance_boundary) or (distance == distance_electron):
                 if dvdr >= 0.0:
                     r_packet.next_line_id = cur_line_id
                     r_packet.prev_line_id = cur_line_id - 1

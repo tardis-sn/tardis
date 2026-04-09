@@ -118,9 +118,6 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             no_of_packets, seed_offset=iteration
         )
 
-        # Non-homologous mode: continuum processes disabled
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = False
-
         geometry_state = simulation_state.geometry.to_numba()
         opacity_state_numba = opacity_state.to_numba(
             macro_atom_state,

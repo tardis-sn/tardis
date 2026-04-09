@@ -278,10 +278,10 @@ def set_packet_props_partial_relativity(
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     """
+    v, _ = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, geometry)
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        geometry
     )
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor

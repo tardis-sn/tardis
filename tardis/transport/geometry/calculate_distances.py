@@ -134,26 +134,27 @@ def calculate_distance_line_nonhomologous(
     nu_rest = rpacket.nu
     mu = rpacket.mu
 
-    r_inner = geometry.r_inner
-    r_outer = geometry.r_outer
-    v_inner = geometry.v_inner
-    v_outer = geometry.v_outer
+    #TODO: unit check / handling here?
+    r_inner = geometry.r_inner[rpacket.current_shell_id]
+    r_outer = geometry.r_outer[rpacket.current_shell_id]
+    v_inner = geometry.v_inner[rpacket.current_shell_id]
+    v_outer = geometry.v_outer[rpacket.current_shell_id]
 
     # Define useful variables to simplify coefficients
-    n = (C_SPEED_OF_LIGHT * (1 - nu_line / nu_rest)).to("cm/s")
-    m = ((v_outer - v_inner)/(r_outer - r_inner)).to("1/s")
+    n = C_SPEED_OF_LIGHT * (1 - nu_line / nu_rest)
+    m = (v_outer - v_inner)/(r_outer - r_inner)
     p = 1.0 - mu*mu
-    q = (v_outer - m*r_outer).to("cm/s")
+    q = v_outer - m*r_outer
 
     # Characteristic scales for non-dimensionalization
     r0 = r_outer - r_inner
     v0 = v_outer - v_inner
 
     # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
-    rd = (r/r0).to(1).value
-    nd = (n/v0).to(1).value
+    rd = r/r0
+    nd = n/v0
     md = 1.0
-    qd = (q/v0).to(1).value
+    qd = q/v0
 
     rd2 = rd*rd
     nd2 = nd*nd
@@ -170,19 +171,28 @@ def calculate_distance_line_nonhomologous(
     # n is the relative line velocity
     # If m and n have the same sign, a doppler shift *may* reach the line in this cell
     # If m and n have opposite signs, the velocity in this cell *cannot* shift the packet towards the line
-    beta = (v/C_SPEED_OF_LIGHT).to(1)
-    doppler_factor = (1 - mu * beta)
+    beta = v/C_SPEED_OF_LIGHT
+    doppler_factor = 1.0 - mu * beta
     comov_nu = nu_rest * doppler_factor
 
     if (comov_nu - nu_line > 1e-14*nu_line and m > 0.0) or (comov_nu - nu_line < -1e-14*nu_line and m < 0.0):
         # Obtain roots of the quartic polynomial for x (= d_line + r_i \mu_i)
         x = depressed_quartic(a, b, c, d, e)
-        distance = r0*x[0] - r*mu
+        # Uncertain if x[1] and x[3] have physically interesting cases too, but
+        # if r*mu is negative and larger than r0*(a negative-valued root), then
+        # x[2] is the real-valued negative root to use
+        if not math.isnan(x[0]):
+            distance = r0*x[0] - r*mu
+        else:
+            distance = r0*x[2] - r*mu
     else:
         distance = MISS_DISTANCE
 
     if distance <= 0.0 or math.isnan(distance):
-        raise MonteCarloException("Distance to line is less than 0.0")
+        print(f"Packet ID: {rpacket.index}")
+        x = depressed_quartic(a, b, c, d, e)
+        raise MonteCarloException(f"Distance to line {distance} is less than 0.0")
+
 
     return distance
 
