@@ -84,7 +84,6 @@ def line_transition_internal_up(
         },
         index=p_internal_up.index,
     )
-    # p_internal_up["source"] = sources
 
     return p_internal_up, internal_up_metadata
 
@@ -200,7 +199,6 @@ def line_transition_internal_down(
         },
         index=p_internal_down.index,
     )
-    # p_internal_down["source"] = sources
 
     return p_internal_down, internal_down_metadata
 
@@ -310,7 +308,6 @@ def line_transition_emission_down(
         },
         index=p_emission_down.index,
     )
-    # p_emission_down["source"] = sources
 
     return p_emission_down, emission_down_metadata
 
