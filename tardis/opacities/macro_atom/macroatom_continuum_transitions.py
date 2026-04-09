@@ -145,7 +145,9 @@ def continuum_transition_recombination_emission(
             "source": sources,
             "destination": destinations,
             "transition_type": MacroAtomTransitionType.PHOTO_RECOMB_EMISSION,  # creates BF emission from i-packet
-            "transition_line_idx": -99,
+            "transition_line_idx": range(
+                p_photo_recomb_emission.shape[0]
+            ),  # This maps to a continuum id very downstream at tardis/transport/montecarlo/interaction_events.py:47
             "photoionization_key_idx": range(len(energies_diff_bound_free)),
             "collision_key_idx": -99,
         },
@@ -1221,7 +1223,9 @@ def create_free_bound_cooling_metadata(
                 )
             ],  # k-packet destruction to bf emission
             "transition_type": MacroAtomTransitionType.FB_COOLING,
-            "transition_line_idx": -99,
+            "transition_line_idx": range(
+                fb_cool_probs_arr.shape[1]
+            ),  # This maps to a continuum id very downstream at tardis/transport/montecarlo/interaction_events.py:47
             "photoionization_key_idx": range(fb_cool_probs_arr.shape[1]),
             "collision_key_idx": -99,
             "destination_level_idx": range(fb_cool_probs_arr.shape[1]),

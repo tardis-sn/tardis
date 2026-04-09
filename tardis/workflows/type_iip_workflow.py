@@ -905,7 +905,9 @@ class TypeIIPWorkflow(WorkflowLogging):
             print("Solving opacity")
 
             self.opacity_states = self.solve_opacity()
-
+            self.opacity_states[
+                "opacity_state"
+            ].absorbing_markov_probabilities = self.base_continuum.B
             print("Solving Monte Carlo transport")
             virtual_packet_energies = self.solve_montecarlo(
                 self.opacity_states, self.real_packet_count
@@ -943,6 +945,9 @@ class TypeIIPWorkflow(WorkflowLogging):
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         self.opacity_states = self.solve_opacity()
+        self.opacity_states[
+            "opacity_state"
+        ].absorbing_markov_probabilities = self.base_continuum.B
         virtual_packet_energies = self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,

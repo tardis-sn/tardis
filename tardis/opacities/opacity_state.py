@@ -4,6 +4,7 @@ from numba import float64, int64
 from tardis.opacities.continuum.continuum_state import ContinuumState
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.opacities.tau_sobolev import calculate_sobolev_line_opacity
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
@@ -31,6 +32,7 @@ opacity_state_spec = [
     ("photo_ion_activation_idx", int64[:]),
     ("k_packet_idx", int64),
 ]
+
 
 class OpacityState:
     def __init__(
@@ -131,7 +133,7 @@ class OpacityState:
         self,
         macro_atom_state: MacroAtomState,
         line_interaction_type,
-    ) -> OpacityStateNumba:
+    ) -> OpacityStateNumba | OpacityStateNumbaIIP:
         """
         Initialize the OpacityStateNumba object and copy over the data over from OpacityState class
 
@@ -214,6 +216,32 @@ class OpacityState:
                 self.continuum_state.photo_ion_activation_idx.values
             )
             k_packet_idx = np.int64(self.continuum_state.k_packet_idx)
+            absorbing_markov_probabilities = self.absorbing_markov_probabilities
+            return OpacityStateNumbaIIP(
+                electron_densities,
+                t_electrons,
+                line_list_nu,
+                tau_sobolev,
+                transition_probabilities,
+                line2macro_level_upper,
+                macro_block_references,
+                transition_type,
+                destination_level_id,
+                transition_line_id,
+                bf_threshold_list_nu,
+                p_fb_deactivation,
+                photo_ion_nu_threshold_mins,
+                photo_ion_nu_threshold_maxs,
+                photo_ion_block_references,
+                chi_bf,
+                x_sect,
+                phot_nus,
+                ff_opacity_factor,
+                emissivities,
+                photo_ion_activation_idx,
+                k_packet_idx,
+                absorbing_markov_probabilities,
+            )
         else:
             bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
             p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
