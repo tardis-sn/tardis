@@ -92,6 +92,7 @@ class ConvergenceSolver:
 
         best_lambda = base
         best_residual = None
+        best_x_new = None
 
         for lam in candidates:
             x_new = value + lam * (estimated_value - value)
@@ -99,10 +100,11 @@ class ConvergenceSolver:
             if best_residual is None or res < best_residual:
                 best_residual = res
                 best_lambda = lam
+                best_x_new = x_new
 
         self.damping_factor = best_lambda
 
-        return value + best_lambda * (estimated_value - value)
+        return best_x_new
 
     def get_convergence_status(self, value, estimated_value, no_of_cells):
         """Get the status of convergence for the physical property
