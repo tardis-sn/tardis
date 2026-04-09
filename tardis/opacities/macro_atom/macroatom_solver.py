@@ -1493,13 +1493,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             ],
         ).to_numpy()
 
-        photoionization_to_k_sources = pd.MultiIndex.from_tuples(
-            macro_atom_transition_metadata[
-                macro_atom_transition_metadata.transition_type
-                == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
-            ].source
-        )
-
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTO_RECOMB_EMISSION
