@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ['not', '']
+        continuum: ['not']
         include:
           - label: osx-arm64
             os: macos-latest
