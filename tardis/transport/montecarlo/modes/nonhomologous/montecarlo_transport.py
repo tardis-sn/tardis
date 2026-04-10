@@ -5,7 +5,9 @@ from numba import njit, objmode, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NumbaNonhomologousRadial1DGeometry,
+)
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.montecarlo import njit_dict
 from tardis.transport.montecarlo.configuration.base import (
@@ -37,7 +39,7 @@ from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 @njit(**njit_dict)
 def montecarlo_transport(
     packet_collection: PacketCollection,
-    geometry_state_numba: NumbaRadial1DGeometry,
+    geometry_state_numba: NumbaNonhomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
@@ -61,7 +63,7 @@ def montecarlo_transport(
     packet_collection : PacketCollection
         Collection containing initial packet properties (positions, directions,
         frequencies, energies, and seeds)
-    geometry_state_numba : NumbaRadial1DGeometry
+    geometry_state_numba : NumbaNonhomologousRadial1DGeometry
         Numba-compiled simulation geometry containing shell boundaries
         and velocity information
     time_explosion : float
