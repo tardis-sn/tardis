@@ -81,7 +81,7 @@ This is done using::
 
     git clone git@github.com:your-user-name/tardis.git
     cd tardis
-    git remote add upstream git://github.com/tardis-sn/tardis.git
+    git remote add upstream https://github.com/tardis-sn/tardis.git
 
 In detail
 ^^^^^^^^^
@@ -113,13 +113,14 @@ In detail
    trunk::
 
     cd
-    git remote add upstream git://github.com/tardis-sn/tardis.git
+    git remote add upstream https://github.com/tardis-sn/tardis.git
 
    ``upstream`` is just the arbitrary name we're using to refer to the main
    TARDIS_ repository.
 
-   Note that we've used ``git://`` for the URL rather than ``git@``. The
-   ``git://`` URL is read-only. This means that we can't accidentally (or
+   Note that we've used ``https://`` for the URL rather than ``git@``. The
+   ``https://`` URL is read-only by default (since you have no push credentials
+   for the upstream repo). This means that we can't accidentally (or
    deliberately) write to the upstream repo, and we are only going to use it
    to merge into our own code.
 
@@ -127,8 +128,8 @@ In detail
    remote connection with ``git remote -v show``, which should give you
    something like::
 
-    upstream   git://github.com/tardis-sn/tardis.git (fetch)
-    upstream   git://github.com/tardis-sn/tardis.git (push)
+    upstream   https://github.com/tardis-sn/tardis.git (fetch)
+    upstream   https://github.com/tardis-sn/tardis.git (push)
     origin     git@github.com:your-user-name/tardis.git (fetch)
     origin     git@github.com:your-user-name/tardis.git (push)
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=8fc122bb"></script>
+      <script src="../_static/documentation_options.js?v=5b9d736e"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -172,7 +172,7 @@
 <span id="tardis-opacities-macro-atom-macroatom-continuum-transitions-module"></span><h1>tardis.opacities.macro_atom.macroatom_continuum_transitions module<a class="headerlink" href="#module-tardis.opacities.macro_atom.macroatom_continuum_transitions" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_deexc_to_k_packet">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_deexc_to_k_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_deexc_to_k_packet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_deexc_to_k_packet" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_deexc_to_k_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_deexc_to_k_packet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_deexc_to_k_packet" title="Link to this definition">¶</a></dt>
 <dd><p>Create collisional de-excitation and deactivation transitions to a ‘k’ packet.</p>
 <p>This function wraps the <a class="reference internal" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_deexc_to_k_packet" title="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_deexc_to_k_packet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">probability_collision_deexc_to_k_packet</span></code></a> probability
 calculation and produces a metadata DataFrame describing the resulting
@@ -181,19 +181,19 @@ channel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>coll_deexc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional de-excitation coefficients indexed by transition.</p>
+<dt><strong>coll_deexc_coeff</strong></dt><dd><p>Collisional de-excitation coefficients indexed by transition.</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities per zone.</p>
 </dd>
-<dt><strong>delta_E_yg</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy differences for the transitions.</p>
+<dt><strong>delta_E_yg</strong></dt><dd><p>Energy differences between upper and lower state for the transitions.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>p_coll_down_to_k_packet</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Unnormalized probabilities (rates) for de-excitation/deactivation.</p>
+<dt>p_coll_down_to_k_packet</dt><dd><p>Unnormalized probabilities (rates) for de-excitation/deactivation.</p>
 </dd>
-<dt><strong>coll_down_to_k_packet_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata for the de-excitation transitions; index matches
+<dt>coll_down_to_k_packet_metadata</dt><dd><p>Metadata for the de-excitation transitions; index matches
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">p_coll_down_to_k_packet</span></code>.</p>
 </dd>
 </dl>
@@ -203,7 +203,7 @@ channel.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_cool">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_excitation_cool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_excitation_cool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_cool" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_excitation_cool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_excitation_cool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_cool" title="Link to this definition">¶</a></dt>
 <dd><p>Build collisional excitation cooling transitions and metadata.</p>
 <p>This function computes the collisional excitation cooling rates (an
 unnormalized probability) and packages them together with metadata
@@ -211,24 +211,19 @@ describing the cooling transitions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>coll_exc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional excitation coefficients indexed by transitions.</p>
+<dt><strong>coll_exc_coeff</strong></dt><dd><p>Collisional excitation coefficients indexed by transitions.</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities per zone.</p>
 </dd>
-<dt><strong>delta_E_yg</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy differences for the excitations.</p>
-</dd>
-<dt><strong>level_number_density</strong><span class="classifier">pd.Series</span></dt><dd><p>Number density for the lower levels involved in the transitions.</p>
-</dd>
-<dt><strong>lower_indices</strong><span class="classifier">pd.Index</span></dt><dd><p>Index of lower level identifiers that aligns <code class="xref py py-obj docutils literal notranslate"><span class="pre">level_number_density</span></code> with
-the rows of <code class="xref py py-obj docutils literal notranslate"><span class="pre">coll_exc_coeff</span></code>.</p>
+<dt><strong>delta_E_yg</strong></dt><dd><p>Energy differences between upper and lower state for the excitations.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>p_coll_excitation_cool</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Unnormalized collisional excitation cooling rates.</p>
+<dt>p_coll_excitation_cool</dt><dd><p>Unnormalized collisional excitation cooling rates.</p>
 </dd>
-<dt><strong>coll_excitation_cool_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata for the excitation cooling transitions.</p>
+<dt>coll_excitation_cool_metadata</dt><dd><p>Metadata for the excitation cooling transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -236,25 +231,25 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_to_macro_atom">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_excitation_to_macro_atom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_excitation_to_macro_atom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_to_macro_atom" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_internal">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_excitation_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_excitation_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_internal" title="Link to this definition">¶</a></dt>
 <dd><p>Build collisional internal-up transition probabilities and metadata.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>coll_exc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional excitation coefficients indexed by transitions.</p>
+<dt><strong>coll_exc_coeff</strong></dt><dd><p>Collisional excitation coefficients indexed by transitions.</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities per zone.</p>
 </dd>
-<dt><strong>energies_lowers</strong><span class="classifier">object</span></dt><dd><p>Atomic data object providing <code class="xref py py-obj docutils literal notranslate"><span class="pre">levels</span></code> with energy values.</p>
+<dt><strong>energies_lower</strong></dt><dd><p>Energy values of the lower levels.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>p_coll_exc_to_macro</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Unnormalized collisional excitation to macro transition probabilities.</p>
+<dt>p_coll_up_internal</dt><dd><p>Unnormalized collisional excitation to macro transition probabilities.</p>
 </dd>
-<dt><strong>coll_excite_to_macro_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata for the collisional internal up transitions.</p>
+<dt>coll_up_internal_metadata</dt><dd><p>Metadata for the collisional internal up transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -263,24 +258,128 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_down">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_internal_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_internal_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_down" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_internal_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_internal_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_internal_down" title="Link to this definition">¶</a></dt>
 <dd><p>Build collisional internal-down transition probabilities and metadata.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>coll_deexc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional de-excitation coefficients indexed by transitions.</p>
+<dt><strong>coll_deexc_coeff</strong></dt><dd><p>Collisional de-excitation coefficients indexed by transitions.</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities per zone.</p>
 </dd>
-<dt><strong>energies_lowers</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy values of the lower levels.</p>
+<dt><strong>energies_lower</strong></dt><dd><p>Energy values of the lower levels.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>p_coll_internal_down</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Unnormalized collisional internal down transition probabilities.</p>
+<dt>p_coll_internal_down</dt><dd><p>Unnormalized collisional internal down transition probabilities.</p>
 </dd>
-<dt><strong>coll_internal_down_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata for the collisional internal down transitions.</p>
+<dt>coll_internal_down_metadata</dt><dd><p>Metadata for the collisional internal down transitions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_ionization_emission">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_ionization_emission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_ion_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_diff_bound_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_ionization_emission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_ionization_emission" title="Link to this definition">¶</a></dt>
+<dd><p>Build collisional ionization emission probabilities and metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_ion_coeff</strong></dt><dd><p>Collisional ionization coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities.</p>
+</dd>
+<dt><strong>energies_diff_bound_free</strong></dt><dd><p>Energy differences of the states involved in ionization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_coll_ionization_emission</dt><dd><p>Unnormalized collisional ionization emission probabilities.</p>
+</dd>
+<dt>coll_ionization_emission_metadata</dt><dd><p>Metadata for collisional ionization emission transitions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_ionization_internal">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_ionization_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_ion_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_coll_lower_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_ionization_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_ionization_internal" title="Link to this definition">¶</a></dt>
+<dd><p>Build collisional ionization internal probabilities and metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_ion_coeff</strong></dt><dd><p>Collisional ionization coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities.</p>
+</dd>
+<dt><strong>energies_coll_lower_states</strong></dt><dd><p>Energies of the lower states in the transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_coll_ionization_internal</dt><dd><p>Unnormalized collisional ionization internal probabilities.</p>
+</dd>
+<dt>coll_ionzation_internal_metadata</dt><dd><p>Metadata for collisional ionization internal transitions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_recombination_emission">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_recombination_emission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_recomb_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_diff_bound_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_recombination_emission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_recombination_emission" title="Link to this definition">¶</a></dt>
+<dd><p>Build collisional recombination emission probabilities and metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_recomb_coeff</strong></dt><dd><p>Collisional recombination coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities.</p>
+</dd>
+<dt><strong>energies_diff_bound_free</strong></dt><dd><p>Energy differences of the states involved in ionization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_coll_recomb_emission</dt><dd><p>Unnormalized collisional recombination emission probabilities.</p>
+</dd>
+<dt>coll_recomb_emission_metadata</dt><dd><p>Metadata for collisional recombination emission transitions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_recombination_internal">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">collisional_transition_recombination_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_recomb_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_coll_lower_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#collisional_transition_recombination_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_recombination_internal" title="Link to this definition">¶</a></dt>
+<dd><p>Build collisional recombination internal probabilities and metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_recomb_coeff</strong></dt><dd><p>Collisional recombination coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities.</p>
+</dd>
+<dt><strong>energies_coll_lower_states</strong></dt><dd><p>Energies of the lower states in the transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_coll_recomb_internal</dt><dd><p>Unnormalized collisional recombination internal probabilities.</p>
+</dd>
+<dt>coll_recomb_internal</dt><dd><p>Metadata for collisional recombination internal transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -289,22 +388,24 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_adiabatic_cooling">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_adiabatic_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_adiabatic_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_adiabatic_cooling" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_adiabatic_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_adiabatic_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_adiabatic_cooling" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the adiabatic cooling rate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron densities.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron densities.</p>
 </dd>
-<dt><strong>t_electrons</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron temperatures.</p>
+<dt><strong>t_electrons</strong></dt><dd><p>Electron temperatures.</p>
 </dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>Time since explosion.</p>
+<dt><strong>time_explosion</strong></dt><dd><p>Time since explosion.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>DataFrame containing the adiabatic cooling rates.</p>
+<dt>p_adiabatic_cool</dt><dd><p>Unnormalized adiabatic cooling rates.</p>
+</dd>
+<dt>adiabatic_cool_metadata</dt><dd><p>Metadata DataFrame describing the cooling transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -313,25 +414,25 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_free_free_cooling">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_free_free_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_free_free_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_free_free_cooling" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_free_free_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_free_free_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_free_free_cooling" title="Link to this definition">¶</a></dt>
 <dd><p>Wrap free-free cooling rates with metadata for macro-atom use.
 NOTE: This I believe is a deactivation transition. It is not implemented or hooked up to the solver yet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>ion_number_density</strong><span class="classifier">pd.MultiIndex or pd.DataFrame index</span></dt><dd><p>Index or Series containing ion number densities (levelled by ion).</p>
+<dt><strong>ion_number_density</strong></dt><dd><p>Index or Series containing ion number densities (levelled by ion).</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities per zone.</p>
 </dd>
-<dt><strong>t_electrons</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron temperatures per zone.</p>
+<dt><strong>t_electrons</strong></dt><dd><p>Electron temperatures per zone.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>p_free_free_cool</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Unnormalized free-free cooling rates.</p>
+<dt>p_free_free_cool</dt><dd><p>Unnormalized free-free cooling rates.</p>
 </dd>
-<dt><strong>free_free_cool_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata DataFrame describing the cooling transitions. The index
+<dt>free_free_cool_metadata</dt><dd><p>Metadata DataFrame describing the cooling transitions. The index
 matches <code class="xref py py-obj docutils literal notranslate"><span class="pre">p_free_free_cool</span></code> and includes fields such as
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">transition_type</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">photoionization_key_idx</span></code>.</p>
 </dd>
@@ -341,23 +442,47 @@ matches <code class="xref py py-obj docutils literal notranslate"><span class="p
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_transition_photoionization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stim_recomb_corrected_photoionization_rate_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photoionization_data_level_energies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_transition_photoionization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization_internal">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_transition_photoionization_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stim_recomb_corrected_photoionization_rate_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photoionization_data_level_energies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_transition_photoionization_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization_internal" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate photoionization probability unnormalized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>stim_recomb_corrected_photoionization_rate_coeff</strong><span class="classifier">pd.Series</span></dt><dd><p>Corrected photoionization rate coefficient from level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code> to <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code>.</p>
+<dt><strong>stim_recomb_corrected_photoionization_rate_coeff</strong></dt><dd><p>Corrected photoionization rate coefficient from level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code> to <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code>.</p>
 </dd>
-<dt><strong>photoionization_data_level_energies</strong><span class="classifier">pd.Series</span></dt><dd><p>Energies of the levels involved in photoionization.</p>
+<dt><strong>photoionization_data_level_energies</strong></dt><dd><p>Energies of the states involved in photoionization.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>p_photoionization</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing photoionization probabilities.</p>
+<dt>p_photoion_internal</dt><dd><p>DataFrame containing photoionization probabilities.</p>
 </dd>
-<dt><strong>photoionization_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing metadata for the photoionization transitions.</p>
+<dt>photoion_internal_metadata</dt><dd><p>DataFrame containing metadata for the photoionization transitions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization_to_k_packet">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_transition_photoionization_to_k_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stim_recomb_corrected_photoionization_rate_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_bound_free_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_transition_photoionization_to_k_packet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_photoionization_to_k_packet" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate photoionization probability unnormalized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>stim_recomb_corrected_photoionization_rate_coeff</strong></dt><dd><p>Corrected photoionization rate coefficient from level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code> to <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code>.</p>
+</dd>
+<dt><strong>energies_bound_free_lower</strong></dt><dd><p>Energies of the states involved in photoionization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_photoion_to_k_packet</dt><dd><p>DataFrame containing photoionization probabilities.</p>
+</dd>
+<dt>photoion_to_k_packet_metadata</dt><dd><p>DataFrame containing metadata for the photoionization transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -366,22 +491,22 @@ matches <code class="xref py py-obj docutils literal notranslate"><span class="p
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_recombination_emission">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_transition_recombination_emission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spontaneous_recombination_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photoionization_data_frequencies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_transition_recombination_emission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_recombination_emission" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">continuum_transition_recombination_emission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spontaneous_recombination_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_diff_bound_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#continuum_transition_recombination_emission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.continuum_transition_recombination_emission" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate unnormalized probabilities and metadata for radiative recombination emission transitions (continuum).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>spontaneous_recombination_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Rate coefficient for spontaneous recombination from <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code> to level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code>.</p>
+<dt><strong>spontaneous_recombination_coeff</strong></dt><dd><p>Rate coefficient for spontaneous recombination from <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code> to level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code>.</p>
 </dd>
-<dt><strong>photoionization_data_frequencies</strong><span class="classifier">pd.Series</span></dt><dd><p>Ionization threshold frequencies for the levels.</p>
+<dt><strong>energies_diff_bound_free</strong></dt><dd><p>Energy differences of the states involved in ionization</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>p_recomb_emission</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing unnormalized recombination emission probabilities.</p>
+<dt>p_recomb_emission</dt><dd><p>DataFrame containing unnormalized recombination emission probabilities.</p>
 </dd>
-<dt><strong>recombination_emission_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing metadata for the recombination emission transitions.</p>
+<dt>recombination_emission_metadata</dt><dd><p>DataFrame containing metadata for the recombination emission transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -395,17 +520,17 @@ matches <code class="xref py py-obj docutils literal notranslate"><span class="p
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>spontaneous_recombination_coeff</strong><span class="classifier">pd.Series</span></dt><dd><p>Rate coefficient for spontaneous recombination from <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code> to level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code>.</p>
+<dt><strong>spontaneous_recombination_coeff</strong></dt><dd><p>Rate coefficient for spontaneous recombination from <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code> to level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code>.</p>
 </dd>
-<dt><strong>photoionization_data_level_energies</strong><span class="classifier">pd.Series</span></dt><dd><p>Energies of levels with bound-free transitions.</p>
+<dt><strong>photoionization_data_level_energies</strong></dt><dd><p>Energies of levels with bound-free transitions.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>p_recombination</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing recombination probabilities.</p>
+<dt>p_recombination</dt><dd><p>DataFrame containing recombination probabilities.</p>
 </dd>
-<dt><strong>recombination_metadata</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame containing metadata for the recombination transitions.</p>
+<dt>recombination_metadata</dt><dd><p>DataFrame containing metadata for the recombination transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -414,7 +539,7 @@ matches <code class="xref py py-obj docutils literal notranslate"><span class="p
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_adiabatic_cooling">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_adiabatic_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_adiabatic_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_adiabatic_cooling" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_adiabatic_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_explosion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_adiabatic_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_adiabatic_cooling" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the adiabatic cooling rate (unnormalized).</p>
 <p>This function computes a simple adiabatic cooling term used as an
 unnormalized probability for macro-atom transitions that represent
@@ -422,17 +547,17 @@ adiabatic losses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities (per shell / spatial zone).</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities (per shell / spatial zone).</p>
 </dd>
-<dt><strong>t_electrons</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron temperatures (same index/shape as electron_densities).</p>
+<dt><strong>t_electrons</strong></dt><dd><p>Electron temperatures (same index/shape as electron_densities).</p>
 </dd>
-<dt><strong>time_explosion</strong><span class="classifier">float</span></dt><dd><p>Time since explosion (seconds).</p>
+<dt><strong>time_explosion</strong></dt><dd><p>Time since explosion (seconds).</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame or pd.Series</dt><dd><p>Unnormalized adiabatic cooling rates with the same index as
+<dt>p_adiabatic_cool</dt><dd><p>Unnormalized adiabatic cooling rates with the same index as
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">electron_densities</span></code> / <code class="xref py py-obj docutils literal notranslate"><span class="pre">t_electrons</span></code>.</p>
 </dd>
 </dl>
@@ -442,22 +567,22 @@ adiabatic losses.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_deexc_to_k_packet">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_deexc_to_k_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_deexc_to_k_packet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_deexc_to_k_packet" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_deexc_to_k_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_deexc_to_k_packet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_deexc_to_k_packet" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate collisional de-excitation to k packet probabilities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>coll_deexc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional de-excitation coefficients.</p>
+<dt><strong>coll_deexc_coeff</strong></dt><dd><p>Collisional de-excitation coefficients.</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron densities.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron densities.</p>
 </dd>
-<dt><strong>delta_E_yg</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy differences.</p>
+<dt><strong>delta_E_yg</strong></dt><dd><p>Energy differences between upper and lower state.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>DataFrame containing collisional de-excitation to k packet probabilities.</p>
+<dt>p_coll_down_to_k_packet</dt><dd><p>DataFrame containing collisional de-excitation to k packet probabilities.</p>
 </dd>
 </dl>
 </dd>
@@ -465,23 +590,23 @@ adiabatic losses.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_to_macro">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_exc_to_macro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_exc_to_macro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_to_macro" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_internal">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_exc_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_exc_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_exc_internal" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate collisional internal up probabilities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>coll_exc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional excitation coefficients.</p>
+<dt><strong>coll_exc_coeff</strong></dt><dd><p>Collisional excitation coefficients.</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron densities.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron densities.</p>
 </dd>
-<dt><strong>energy_lowers</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy values of the lower levels.</p>
+<dt><strong>energies_lower</strong></dt><dd><p>Energy values of the lower levels.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>DataFrame containing collisional internal up probabilities.</p>
+<dt>p_coll_exc_internal</dt><dd><p>DataFrame containing collisional internal up probabilities.</p>
 </dd>
 </dl>
 </dd>
@@ -490,27 +615,22 @@ adiabatic losses.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_excitation_cool">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_excitation_cool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_excitation_cool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_excitation_cool" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_excitation_cool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_exc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_E_yg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_excitation_cool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_excitation_cool" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate collisional excitation cooling rates (unnormalized) and aggregate by destination level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>coll_exc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional excitation coefficients indexed by transitions.</p>
+<dt><strong>coll_exc_coeff</strong></dt><dd><p>Collisional excitation coefficients indexed by transitions.</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities per zone.</p>
 </dd>
-<dt><strong>delta_E_yg</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy differences for the excitation transitions (level -&gt; g).</p>
-</dd>
-<dt><strong>level_number_density</strong><span class="classifier">pd.Series</span></dt><dd><p>Number density for the lower levels involved in the transitions.</p>
-</dd>
-<dt><strong>lower_indices</strong><span class="classifier">pd.Index</span></dt><dd><p>Index of lower level identifiers that aligns <code class="xref py py-obj docutils literal notranslate"><span class="pre">level_number_density</span></code> with
-the rows of <code class="xref py py-obj docutils literal notranslate"><span class="pre">coll_exc_coeff</span></code>.</p>
+<dt><strong>delta_E_yg</strong></dt><dd><p>Energy differences between upper and lower state for the transitions.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame or pd.Series</dt><dd><p>Aggregated collisional excitation cooling rates grouped by
+<dt>p_coll_excitation_cool</dt><dd><p>Aggregated collisional excitation cooling rates grouped by
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">destination_level_idx</span></code>.</p>
 </dd>
 </dl>
@@ -520,22 +640,118 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_down">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_internal_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lowers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_internal_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_down" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_internal_down</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_deexc_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_internal_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_internal_down" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate collisional internal de-excitation probabilities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>coll_deexc_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Collisional de-excitation coefficients.</p>
+<dt><strong>coll_deexc_coeff</strong></dt><dd><p>Collisional de-excitation coefficients.</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Electron densities.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron densities.</p>
 </dd>
-<dt><strong>energies_lowers</strong><span class="classifier">pd.Series</span></dt><dd><p>Energy values of the lower levels.</p>
+<dt><strong>energies_lower</strong></dt><dd><p>Energy values of the lower levels.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>DataFrame containing collisional de-excitation probabilities.</p>
+<dt>p_coll_internal_down</dt><dd><p>DataFrame containing collisional de-excitation probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_ionization_emission">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_ionization_emission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_ion_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_diff_bound_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_ionization_emission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_ionization_emission" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate collisional ionization emission probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_ion_coeff</strong></dt><dd><p>Collisional ionization coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities.</p>
+</dd>
+<dt><strong>energies_diff_bound_free</strong></dt><dd><p>Energy differences of the states involved in ionization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_coll_ionization_internal</dt><dd><p>Unnormalized collisional ionization emission probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_ionization_internal">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_ionization_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_ion_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_coll_lower_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_ionization_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_ionization_internal" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate collisional ionization internal probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_ion_coeff</strong></dt><dd><p>Collisional ionization coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities.</p>
+</dd>
+<dt><strong>energies_coll_lower_states</strong></dt><dd><p>Energies of the lower states in the transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_coll_ionization_internal</dt><dd><p>Unnormalized collisional ionization internal probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_recombination_emission">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_recombination_emission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_recomb_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_diff_bound_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_recombination_emission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_recombination_emission" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate collisional recombination emission probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_recomb_coeff</strong></dt><dd><p>Collisional recombination coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities.</p>
+</dd>
+<dt><strong>energies_diff_bound_free</strong></dt><dd><p>Energy differences of the states involved in ionization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_coll_recomb_emission</dt><dd><p>Unnormalized collisional recombination emission probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_recombination_internal">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_collision_recombination_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coll_recomb_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_coll_lower_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_collision_recombination_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_collision_recombination_internal" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate collisional recombination internal probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coll_recomb_coeff</strong></dt><dd><p>Collisional recombination coefficients.</p>
+</dd>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities.</p>
+</dd>
+<dt><strong>energies_coll_lower_states</strong></dt><dd><p>Energies of the lower states in the transitions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_coll_recomb_internal</dt><dd><p>Unnormalized collisional recombination internal probabilities.</p>
 </dd>
 </dl>
 </dd>
@@ -544,7 +760,7 @@ the rows of <code class="xref py py-obj docutils literal notranslate"><span clas
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_free_free_cooling">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_free_free_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_free_free_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_free_free_cooling" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_free_free_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_electrons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_free_free_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_free_free_cooling" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate an unnormalized free-free (bremsstrahlung) cooling probability.</p>
 <p>This routine estimates a free-free cooling rate used as an unnormalized
 probability for macro-atom cooling transitions. The implementation uses
@@ -552,17 +768,17 @@ an approximate scaling with electron temperature and ion charge.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>ion_number_density</strong><span class="classifier">pd.MultiIndex or pd.DataFrame index</span></dt><dd><p>Index or Series containing ion number densities (levelled by ion).</p>
+<dt><strong>ion_number_density</strong></dt><dd><p>Index or Series containing ion number densities (levelled by ion).</p>
 </dd>
-<dt><strong>electron_densities</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron number densities per zone.</p>
+<dt><strong>electron_densities</strong></dt><dd><p>Electron number densities per zone.</p>
 </dd>
-<dt><strong>t_electrons</strong><span class="classifier">pd.DataFrame or pd.Series</span></dt><dd><p>Electron temperatures per zone.</p>
+<dt><strong>t_electrons</strong></dt><dd><p>Electron temperatures per zone.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame or pd.Series</dt><dd><p>Unnormalized free-free cooling rates with the same index as
+<dt>p_free_free_cool</dt><dd><p>Unnormalized free-free cooling rates with the same index as
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">electron_densities</span></code> / <code class="xref py py-obj docutils literal notranslate"><span class="pre">t_electrons</span></code>.</p>
 </dd>
 </dl>
@@ -571,21 +787,21 @@ an approximate scaling with electron temperature and ion charge.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_photoionization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stim_recomb_corrected_photoionization_rate_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photoionization_data_level_energies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_photoionization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization_internal">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_photoionization_internal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stim_recomb_corrected_photoionization_rate_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photoionization_data_level_energies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_photoionization_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization_internal" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate photoionization probability unnormalized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>stim_recomb_corrected_photoionization_rate_coeff</strong><span class="classifier">pd.Series</span></dt><dd><p>Corrected photoionization rate coefficient from level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code> to <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code>.</p>
+<dt><strong>stim_recomb_corrected_photoionization_rate_coeff</strong></dt><dd><p>Corrected photoionization rate coefficient from level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code> to <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code>.</p>
 </dd>
-<dt><strong>photoionization_data_level_energies</strong><span class="classifier">pd.Series</span></dt><dd><p>Energies of the levels involved in photoionization.</p>
+<dt><strong>photoionization_data_level_energies</strong></dt><dd><p>Energies of the states involved in photoionization.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>DataFrame containing photoionization probabilities.</p>
+<dt>p_photoion_internal</dt><dd><p>DataFrame containing photoionization probabilities.</p>
 </dd>
 </dl>
 </dd>
@@ -593,26 +809,43 @@ an approximate scaling with electron temperature and ion charge.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_cooling">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_recombination_cooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spontaneous_recombination_cooling_coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electron_densities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_recombination_cooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_cooling" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_emission">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_recombination_emission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spontaneous_recombination_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">photoionization_data_frequencies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_recombination_emission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_emission" title="Link to this definition">¶</a></dt>
-<dd><p>Calculate unnormalized probabilities of radiative recombination emission transitions.</p>
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization_to_k_packet">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_photoionization_to_k_packet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stim_recomb_corrected_photoionization_rate_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_diff_bound_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_photoionization_to_k_packet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_photoionization_to_k_packet" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate photoionization probability unnormalized.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>spontaneous_recombination_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Rate coefficient for spontaneous recombination from <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code> to level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code>.</p>
+<dt><strong>stim_recomb_corrected_photoionization_rate_coeff</strong></dt><dd><p>Corrected photoionization rate coefficient from level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code> to <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code>.</p>
 </dd>
-<dt><strong>photoionization_data_frequencies</strong><span class="classifier">pd.Series</span></dt><dd><p>Ionization threshold frequencies for the levels.</p>
+<dt><strong>energies_diff_bound_free</strong></dt><dd><p>Energy differences of the states involved in ionization.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>DataFrame containing unnormalized recombination emission probabilities.</p>
+<dt>p_photoion_to_k_packet</dt><dd><p>DataFrame containing photoionization probabilities.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_emission">
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">probability_recombination_emission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spontaneous_recombination_coeff</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies_diff_bound_free</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#probability_recombination_emission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.probability_recombination_emission" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate unnormalized probabilities of radiative recombination emission transitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>spontaneous_recombination_coeff</strong></dt><dd><p>Rate coefficient for spontaneous recombination from <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code> to level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code>.</p>
+</dd>
+<dt><strong>energies_diff_bound_free</strong></dt><dd><p>Energy differences of the states involved in ionization.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>p_recomb_emission</dt><dd><p>DataFrame containing unnormalized recombination emission probabilities.</p>
 </dd>
 </dl>
 </dd>
@@ -626,15 +859,15 @@ an approximate scaling with electron temperature and ion charge.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>spontaneous_recombination_coeff</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Rate coefficient for spontaneous recombination from <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code> to level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code>.</p>
+<dt><strong>spontaneous_recombination_coeff</strong></dt><dd><p>Rate coefficient for spontaneous recombination from <code class="xref py py-obj docutils literal notranslate"><span class="pre">k</span></code> to level <code class="xref py py-obj docutils literal notranslate"><span class="pre">i</span></code>.</p>
 </dd>
-<dt><strong>photoionization_data_level_energies</strong><span class="classifier">pd.Series</span></dt><dd><p>Energies of levels with bound-free transitions.</p>
+<dt><strong>photoionization_data_level_energies</strong></dt><dd><p>Energies of levels with bound-free transitions.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>pd.DataFrame</dt><dd><p>DataFrame containing unnormalized recombination probabilities for internal transitions.</p>
+<dt>p_recomb_internal</dt><dd><p>DataFrame containing unnormalized recombination probabilities for internal transitions.</p>
 </dd>
 </dl>
 </dd>
@@ -655,7 +888,7 @@ an approximate scaling with electron temperature and ion charge.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Apr 2026.
+      <span class="lastupdated">Last updated on 10 Apr 2026.
       </span></p>
   </div>
 
