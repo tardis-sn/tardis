@@ -4,7 +4,7 @@ import numpy as np
 from numba import njit
 
 from tardis import constants as const
-from tardis.model.geometry.radial1d_nonhomologous import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import NumbaNonhomologousRadial1DGeometry
 from tardis.opacities.opacities import chi_electron_calculator
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
@@ -50,7 +50,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 @njit
 def packet_propagation(
     r_packet: RPacket,
-    numba_radial_1d_geometry: NumbaRadial1DGeometry,
+    numba_radial_1d_geometry: NumbaNonhomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
@@ -69,7 +69,7 @@ def packet_propagation(
     ----------
     r_packet : RPacket
         The radiative packet to transport through the ejecta.
-    numba_radial_1d_geometry : NumbaRadial1DGeometry
+    numba_radial_1d_geometry : NumbaNonhomologousRadial1DGeometry
         The spherically symmetric geometry of the supernova ejecta.
     time_explosion : float
         Time since explosion in seconds.
@@ -259,7 +259,7 @@ def packet_propagation(
 @njit
 def set_packet_props_partial_relativity(
     r_packet: RPacket,
-    geometry: NumbaRadial1DGeometry
+    geometry: NumbaNonhomologousRadial1DGeometry
 ) -> None:
     """
     Set packet properties using partial relativistic corrections.
@@ -272,7 +272,7 @@ def set_packet_props_partial_relativity(
     r_packet
         The radiative packet whose properties will be modified.
     geometry
-        NumbaRadial1DGeometry object
+        NumbaNonhomologousRadial1DGeometry object
 
     Returns
     -------

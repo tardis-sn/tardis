@@ -3,7 +3,7 @@
 import numpy as np
 from numba import njit
 
-from tardis.model.geometry.radial1d_nonhomologous import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import NumbaNonhomologousRadial1DGeometry
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor_nonhomologous,
@@ -37,7 +37,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 @njit(**njit_dict_no_parallel)
 def trace_packet(
     r_packet: RPacket,
-    numba_radial_1d_geometry: NumbaRadial1DGeometry,
+    numba_radial_1d_geometry: NumbaNonhomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_line: EstimatorsLine,
@@ -54,7 +54,7 @@ def trace_packet(
     ----------
     r_packet : RPacket
         The radiative packet being transported
-    numba_radial_1d_geometry : NumbaRadial1DGeometry
+    numba_radial_1d_geometry : NumbaNonhomologousRadial1DGeometry
         Radial 1D geometry of the model
     time_explosion : float
         Time since explosion in seconds
@@ -221,7 +221,7 @@ def trace_packet(
 def move_r_packet(
     r_packet: RPacket,
     distance: float,
-    geometry: NumbaRadial1DGeometry,
+    geometry: NumbaNonhomologousRadial1DGeometry,
     estimators_bulk: EstimatorsBulk,
     enable_full_relativity: bool,
 ) -> None:

@@ -188,6 +188,22 @@ class NonhomologousRadial1DGeometry:
         )
 
     @property
+    def dvdr(self):
+        """Velocity gradient in each cell"""
+        return (
+            (self.v_outer_active - self.v_inner_active)
+            / (self.r_outer_active - self.r_inner_active)
+        )
+
+    @property
+    def inverse_dvdr(self):
+        """Inverse velocity gradient in each cell. In homology, this is equivalent to time_explosion."""
+        return (
+            (self.r_outer_active - self.r_inner_active)
+            / (self.v_outer_active - self.v_inner_active)
+        )
+
+    @property
     def no_of_shells(self):
         return len(self.r_inner)
 
@@ -197,18 +213,19 @@ class NonhomologousRadial1DGeometry:
 
     def to_numba(self):
         """
-        Returns a new NumbaRadial1DGeometry object
+        Returns a new NumbaNonhomologousRadial1DGeometry object
 
         Returns
         -------
-        NumbaRadial1DGeometry
+        NumbaNonhomologousRadial1DGeometry
             Numba version of Radial1DGeometry with properties in cgs units
         """
-        return NumbaRadial1DGeometry(
+        return NumbaNonhomologousRadial1DGeometry(
             self.r_inner_active.to(u.cm).value,
             self.r_outer_active.to(u.cm).value,
             self.v_inner_active.to(u.cm / u.s).value,
             self.v_outer_active.to(u.cm / u.s).value,
+            self.dvdr.to(1 / u.s).value,
         )
 
 
@@ -217,13 +234,14 @@ numba_geometry_spec = [
     ("r_outer", float64[:]),
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
+    ("dvdr", float64[:]),
     ("volume", float64[:]),
 ]
 
 
 @jitclass(numba_geometry_spec)
-class NumbaRadial1DGeometry:
-    def __init__(self, r_inner, r_outer, v_inner, v_outer):
+class NumbaNonhomologousRadial1DGeometry:
+    def __init__(self, r_inner, r_outer, v_inner, v_outer, dvdr):
         """
         Radial 1D Geometry for the Numba mode
 
@@ -239,5 +257,6 @@ class NumbaRadial1DGeometry:
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.v_outer = v_outer
+        self.dvdr = dvdr # Could also calculate this here if we don't want to add an argument to this class
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
