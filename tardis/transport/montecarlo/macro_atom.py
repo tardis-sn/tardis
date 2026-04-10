@@ -17,20 +17,31 @@ class MacroAtomError(ValueError):
 
 
 class MacroAtomTransitionType(IntEnum):
-    PHOTOIONIZATION = 3
-    RECOMB_INTERNAL = 2
+    # Bound bound transition block
     INTERNAL_UP = 1
     INTERNAL_DOWN = 0
     BB_EMISSION = -1
+
     BF_EMISSION = -2  # This is recombination emission, aka k-packet to r-packet
     FF_EMISSION = -3
     ADIABATIC_COOLING = -4
     BF_COOLING = -5  # TODO: Maybe merge this with BF_EMISSION - Yes this is taken care of by BF_EMISSION
     TWO_PHOTON = -6
-    COLL_DOWN_TO_K_PACKET = 9
-    COLL_DOWN_INTERNAL = 10
-    COLL_EXC_COOL_TO_MACRO = 11
-    COLL_ION_COOL_TO_MACRO = 12
+    # Photoionization block
+    PHOTOIONIZATION_INTERNAL = 2
+    PHOTOIONIZATION_TO_K_PACKET = 10  # Double check that this it to K
+    PHOTO_RECOMB_INTERNAL = 3
+    PHOTO_RECOMB_EMISSION = -9  # BF emission?
+    # Collisions block
+    COLL_DOWN_TO_K_PACKET = 11
+    COLL_UP_INTERNAL = 4
+    COLL_DOWN_INTERNAL = 5
+    COLL_EXC_COOL_TO_MACRO = 20  # From K
+    COLL_ION_COOL_TO_MACRO = 21  # From K
+    COLL_ION_INTERNAL = 6
+    COLL_ION_EMISSION = 12  # K packet creation?
+    COLL_RECOMB_INTERNAL = 7
+    COLL_RECOMB_EMISSION = -8  # BF emission?
 
 
 @njit(**njit_dict_no_parallel)

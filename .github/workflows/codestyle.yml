@@ -57,19 +57,22 @@ jobs:
 
       - name: Statistics output read
         id: ruff_stats
-        uses: juliangruber/read-file-action@v1.1.7
+        uses: juliangruber/read-file-action@v1.1.8
         with:
           path: ruff_stats.txt
 
+      - name: Truncate ruff output
+        run: head -200 ruff_full.txt > ruff_truncated.txt
+
       - name: Entire output read
-        id: ruff_complete 
-        uses: juliangruber/read-file-action@v1.1.7
+        id: ruff_complete
+        uses: juliangruber/read-file-action@v1.1.8
         with:
-          path: ruff_full.txt
+          path: ruff_truncated.txt
       
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ github.event.number }}
@@ -77,7 +80,7 @@ jobs:
       
       - name: Post comment
         if: github.event_name == 'pull_request_target'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
