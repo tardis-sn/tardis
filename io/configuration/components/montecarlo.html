@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=c241773a"></script>
+      <script src="../../../_static/documentation_options.js?v=28ff7d8b"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -82,8 +82,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../output/index.html">Additional Outputs</a></li>
@@ -287,7 +288,7 @@
 <tr class="row-even"><td><p>default</p></td>
 <td><p>inf angstrom</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
 <li><p>convergence_strategy</p></li>
 </ul>
 </td>
@@ -295,28 +296,18 @@
 <td><p>type</p></td>
 <td><p>damped</p></td>
 </tr>
-<tr class="row-even"><td rowspan="2"><p>oneOf</p></td>
+<tr class="row-even"><td rowspan="3"><p>oneOf</p></td>
 <td colspan="2"><p><a class="reference internal" href="#damped-convergence-strategy"><span class="std std-ref">Damped Convergence Strategy</span></a></p></td>
 </tr>
-<tr class="row-odd"><td colspan="2"><p><a class="reference internal" href="#custom-convergence-strategy"><span class="std std-ref">Custom Convergence Strategy</span></a></p></td>
+<tr class="row-odd"><td colspan="2"><p><span class="xref std std-ref">montecarlo_definitions.yml#/definitions/convergence_strategy/adaptive_damped</span></p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
+<tr class="row-even"><td colspan="2"><p><a class="reference internal" href="#custom-convergence-strategy"><span class="std std-ref">Custom Convergence Strategy</span></a></p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>enable_full_relativity</p></li>
 </ul>
 </td>
 <td colspan="3"><p>Enables a more complete treatment of relativitic effects. This includes angle aberration as well as use of the fully general Doppler formula.</p></td>
-</tr>
-<tr class="row-odd"><td><p>type</p></td>
-<td colspan="2"><p><em>boolean</em></p></td>
-</tr>
-<tr class="row-even"><td><p>default</p></td>
-<td colspan="2"><p>False</p></td>
-</tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
-<li><p>enable_nonhomologous_expansion</p></li>
-</ul>
-</td>
-<td colspan="3"><p>Enables nonhomologous expansion. Treats shells as piece-wise homologous areas for velocity-radius dependence.</p></td>
 </tr>
 <tr class="row-even"><td><p>type</p></td>
 <td colspan="2"><p><em>boolean</em></p></td>
@@ -324,73 +315,85 @@
 <tr class="row-odd"><td><p>default</p></td>
 <td colspan="2"><p>False</p></td>
 </tr>
-<tr class="row-even"><td rowspan="10"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>enable_nonhomologous_expansion</p></li>
+</ul>
+</td>
+<td colspan="3"><p>Enables nonhomologous expansion. Treats shells as piece-wise homologous areas for velocity-radius dependence.</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="10"><ul class="simple">
 <li><p>tracking</p></li>
 </ul>
 </td>
 <td><p>type</p></td>
 <td colspan="2"><p><em>object</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>default</p></td>
+<tr class="row-even"><td><p>default</p></td>
 <td colspan="2"></td>
 </tr>
-<tr class="row-even"><td colspan="3"><p>properties</p></td>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>track_rpacket</p></li>
 </ul>
 </td>
 <td colspan="2"><p>Allows for Tracking the properties of the RPackets in Single Packet Loop</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td><p><em>boolean</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>default</p></td>
+<tr class="row-even"><td><p>default</p></td>
 <td><p>False</p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>initial_array_length</p></li>
 </ul>
 </td>
 <td colspan="2"><p>Configures the initial array length for the RPacketCollection Properties arrays</p></td>
 </tr>
-<tr class="row-odd"><td><p>type</p></td>
+<tr class="row-even"><td><p>type</p></td>
 <td><p><em>number</em></p></td>
 </tr>
-<tr class="row-even"><td><p>default</p></td>
+<tr class="row-odd"><td><p>default</p></td>
 <td><p>10</p></td>
 </tr>
-<tr class="row-odd"><td><ul class="simple">
+<tr class="row-even"><td><ul class="simple">
 <li><p>description</p></li>
 </ul>
 </td>
 <td colspan="2"><p>Sets up tracking for Montecarlo</p></td>
 </tr>
-<tr class="row-even"><td rowspan="3"><ul class="simple">
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
 <li><p>debug_packets</p></li>
 </ul>
 </td>
 <td colspan="3"><p>Decide whether to go into debugging mode. [EXPERIMENTAL FEATURE DO NOT RELY ON IT]</p></td>
 </tr>
-<tr class="row-odd"><td><p>type</p></td>
+<tr class="row-even"><td><p>type</p></td>
 <td colspan="2"><p><em>boolean</em></p></td>
 </tr>
-<tr class="row-even"><td><p>default</p></td>
+<tr class="row-odd"><td><p>default</p></td>
 <td colspan="2"><p>False</p></td>
 </tr>
-<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<tr class="row-even"><td rowspan="3"><ul class="simple">
 <li><p>logger_buffer</p></li>
 </ul>
 </td>
 <td colspan="3"><p>Provides option to not log every line.</p></td>
 </tr>
-<tr class="row-even"><td><p>type</p></td>
+<tr class="row-odd"><td><p>type</p></td>
 <td colspan="2"><p><em>number</em></p></td>
 </tr>
-<tr class="row-odd"><td><p>default</p></td>
+<tr class="row-even"><td><p>default</p></td>
 <td colspan="2"><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p>additionalProperties</p></td>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
 <td colspan="3"><p>False</p></td>
 </tr>
 </tbody>
@@ -806,7 +809,7 @@ to parallelise the code. (See <a class="reference internal" href="../index.html#
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Apr 2026.
+      <span class="lastupdated">Last updated on 10 Apr 2026.
       </span></p>
   </div>
 

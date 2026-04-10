@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=c241773a"></script>
+      <script src="../_static/documentation_options.js?v=28ff7d8b"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -80,8 +80,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
@@ -192,6 +193,31 @@ to the converge property.</p>
 </dd>
 </dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="tardis.simulation.convergence.ConvergenceSolver.adaptive_damped">
+<span class="sig-name descname"><span class="pre">adaptive_damped</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimated_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/simulation/convergence.html#ConvergenceSolver.adaptive_damped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.simulation.convergence.ConvergenceSolver.adaptive_damped" title="Link to this definition">¶</a></dt>
+<dd><p>Adaptive damped convergence solver</p>
+<p>Dynamically updates the damping factor by locally searching around the current value and selecting the step that minimizes the residual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>value</strong><span class="classifier">np.float64</span></dt><dd><p>The current value of the physical property</p>
+</dd>
+<dt><strong>estimated_value</strong><span class="classifier">np.float64</span></dt><dd><p>The estimated value of the physical property</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>np.float64</dt><dd><p>Updated value after applying adaptive damping</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The damping factor is updated in place and constrained in the interval [lambda_min, lambda_max]</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tardis.simulation.convergence.ConvergenceSolver.damped_converge">
 <span class="sig-name descname"><span class="pre">damped_converge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estimated_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/simulation/convergence.html#ConvergenceSolver.damped_converge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.simulation.convergence.ConvergenceSolver.damped_converge" title="Link to this definition">¶</a></dt>
 <dd><p>Damped convergence solver</p>
@@ -253,7 +279,7 @@ to the converge property.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Apr 2026.
+      <span class="lastupdated">Last updated on 10 Apr 2026.
       </span></p>
   </div>
 

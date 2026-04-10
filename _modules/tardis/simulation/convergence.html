@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=c241773a"></script>
+      <script src="../../../_static/documentation_options.js?v=28ff7d8b"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -77,8 +77,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
@@ -164,6 +165,13 @@ class ConvergenceSolver:
 
         if self.convergence_strategy.type in (&quot;damped&quot;):
             self.converge = self.damped_converge
+        elif self.convergence_strategy.type in (&quot;adaptive_damped&quot;):
+            self.lambda_min = 0.1
+            self.lambda_max = 1.0
+            self.lambda_step = 0.05
+            self.residual_old = None 
+            self.damping_factor = 0.5  
+            self.converge = self.adaptive_damped
         elif self.convergence_strategy.type in (&quot;custom&quot;):
             raise NotImplementedError(
                 &quot;Convergence strategy type is custom; &quot;
@@ -194,6 +202,55 @@ class ConvergenceSolver:
             The converged value
         &quot;&quot;&quot;
         return value + self.damping_factor * (estimated_value - value)</div>
+
+    
+<div class="viewcode-block" id="ConvergenceSolver.adaptive_damped">
+<a class="viewcode-back" href="../../../api/tardis.simulation.convergence.html#tardis.simulation.convergence.ConvergenceSolver.adaptive_damped">[docs]</a>
+    def adaptive_damped(self, value, estimated_value):
+        &quot;&quot;&quot;Adaptive damped convergence solver
+
+        Dynamically updates the damping factor by locally searching around the current value and selecting the step that minimizes the residual
+
+        Parameters
+        ----------
+        value : np.float64
+            The current value of the physical property
+        estimated_value : np.float64
+           The estimated value of the physical property
+
+        Returns
+        -------
+        np.float64
+            Updated value after applying adaptive damping
+
+        Notes
+        -----
+        The damping factor is updated in place and constrained in the interval [lambda_min, lambda_max]
+        &quot;&quot;&quot;
+        delta = self.lambda_step 
+        base = self.damping_factor 
+
+        candidates = [base]
+        if base - delta &gt;= self.lambda_min:
+            candidates.append(base - delta)
+        if base + delta &lt;= self.lambda_max:
+            candidates.append(base + delta)
+
+        best_lambda = base
+        best_residual = None
+        best_x_new = None
+
+        for lam in candidates:
+            x_new = value + lam * (estimated_value - value)
+            res = np.mean(np.abs((estimated_value - x_new) / (estimated_value)))
+            if best_residual is None or res &lt; best_residual:
+                best_residual = res
+                best_lambda = lam
+                best_x_new = x_new
+
+        self.damping_factor = best_lambda
+
+        return best_x_new</div>
 
 
 <div class="viewcode-block" id="ConvergenceSolver.get_convergence_status">
@@ -233,7 +290,7 @@ class ConvergenceSolver:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 Apr 2026.
+      <span class="lastupdated">Last updated on 10 Apr 2026.
       </span></p>
   </div>
 
