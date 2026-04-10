@@ -5,7 +5,7 @@
 name: compare-regdata
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - master
     types:
@@ -110,13 +110,13 @@ jobs:
           df -h
 
       - uses: actions/checkout@v6
-        if: github.event_name != 'pull_request_target'
+        if: github.event_name != 'pull_request'
 
       - name: Checkout pull/${{ github.event.number }}
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
       
       - name: Checkout tardisbase repository
         uses: actions/checkout@v6
@@ -199,7 +199,7 @@ jobs:
 
   deploy-comparison:
     needs: tests
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     env:
       DEPLOY_BRANCH: main
@@ -224,7 +224,7 @@ jobs:
 
       - name: Set destination directory
         run: |
-          if [[ $EVENT == pull_request_target ]]; then
+          if [[ $EVENT == pull_request ]]; then
             echo "DEST_DIR=pull/$PR" >> $GITHUB_ENV
           else
             echo "DEST_DIR=commit/$GITHUB_SHA" >> $GITHUB_ENV

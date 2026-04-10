@@ -11,7 +11,7 @@ on:
       called-from-pre-release:
         type: boolean
         default: true
-  pull_request_target:
+  pull_request:
     branches: [master]
     types: [closed]
 
