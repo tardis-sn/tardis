@@ -1,0 +1,7 @@
+tardis.iip\_plasma.properties.plasma\_input module
+==================================================
+
+.. automodule:: tardis.iip_plasma.properties.plasma_input
+   :members:
+   :show-inheritance:
+   :undoc-members:

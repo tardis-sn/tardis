@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.opacities.opacity_state_numba_iip &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=0f97ebef"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.opacities.opacity_state_numba_iip</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.opacities.opacity_state_numba_iip</h1><div class="highlight"><pre>
+<span></span>import numba as nb
+import numpy as np
+from numba.experimental import jitclass
+
+
+<div class="viewcode-block" id="OpacityStateNumbaIIP">
+<a class="viewcode-back" href="../../../api/tardis.opacities.opacity_state_numba_iip.html#tardis.opacities.opacity_state_numba_iip.OpacityStateNumbaIIP">[docs]</a>
+@jitclass
+class OpacityStateNumbaIIP:
+    &quot;&quot;&quot;
+    IIP-specific opacity state that extends the base OpacityStateNumba
+    with absorbing Markov chain probabilities for faster macroatom interactions.
+    &quot;&quot;&quot;
+
+    electron_density: nb.float64[:]  # type: ignore[misc]
+    t_electrons: nb.float64[:]  # type: ignore[misc]
+    line_list_nu: nb.float64[:]  # type: ignore[misc]
+    tau_sobolev: nb.float64[:, :]  # type: ignore[misc]
+    transition_probabilities: nb.float64[:, :]  # type: ignore[misc]
+    line2macro_level_upper: nb.int64[:]  # type: ignore[misc]
+    macro_block_references: nb.int64[:]  # type: ignore[misc]
+    transition_type: nb.int64[:]  # type: ignore[misc]
+    destination_level_id: nb.int64[:]  # type: ignore[misc]
+    transition_line_id: nb.int64[:]  # type: ignore[misc]
+    bf_threshold_list_nu: nb.float64[:]  # type: ignore[misc]
+    p_fb_deactivation: nb.float64[:, :]  # type: ignore[misc]
+    photo_ion_nu_threshold_mins: nb.float64[:]  # type: ignore[misc]
+    photo_ion_nu_threshold_maxs: nb.float64[:]  # type: ignore[misc]
+    photo_ion_block_references: nb.int64[:]  # type: ignore[misc]
+    chi_bf: nb.float64[:, :]  # type: ignore[misc]
+    x_sect: nb.float64[:]  # type: ignore[misc]
+    phot_nus: nb.float64[:]  # type: ignore[misc]
+    ff_opacity_factor: nb.float64[:]  # type: ignore[misc]
+    emissivities: nb.float64[:, :]  # type: ignore[misc]
+    photo_ion_activation_idx: nb.int64[:]  # type: ignore[misc]
+    k_packet_idx: nb.int64  # type: ignore[misc]
+    absorbing_markov_probabilities: nb.float64[:, :, :]  # type: ignore[misc]
+
+    def __init__(
+        self,
+        electron_density: np.ndarray,
+        t_electrons: np.ndarray,
+        line_list_nu: np.ndarray,
+        tau_sobolev: np.ndarray,
+        transition_probabilities: np.ndarray,
+        line2macro_level_upper: np.ndarray,
+        macro_block_references: np.ndarray,
+        transition_type: np.ndarray,
+        destination_level_id: np.ndarray,
+        transition_line_id: np.ndarray,
+        bf_threshold_list_nu: np.ndarray,
+        p_fb_deactivation: np.ndarray,
+        photo_ion_nu_threshold_mins: np.ndarray,
+        photo_ion_nu_threshold_maxs: np.ndarray,
+        photo_ion_block_references: np.ndarray,
+        chi_bf: np.ndarray,
+        x_sect: np.ndarray,
+        phot_nus: np.ndarray,
+        ff_opacity_factor: np.ndarray,
+        emissivities: np.ndarray,
+        photo_ion_activation_idx: np.ndarray,
+        k_packet_idx: int,
+        absorbing_markov_probabilities: np.ndarray,
+    ) -&gt; None:
+        &quot;&quot;&quot;
+        Initialize IIP-specific Numba-compatible opacity state for Monte Carlo transport.
+
+        Parameters
+        ----------
+        electron_density
+            Electron density in each shell [cm^-3].
+        t_electrons
+            Electron temperature in each shell [K].
+        line_list_nu
+            Frequencies of spectral lines [Hz].
+        tau_sobolev
+            Sobolev optical depths for line transitions.
+        transition_probabilities
+            Probabilities for macro atom transitions.
+        line2macro_level_upper
+            Mapping from line indices to macro atom upper levels.
+        macro_block_references
+            Block references for macro atom data.
+        transition_type
+            Type identifiers for transitions.
+        destination_level_id
+            Destination level indices for transitions.
+        transition_line_id
+            Line indices for transitions.
+        bf_threshold_list_nu
+            Bound-free threshold frequencies [Hz].
+        p_fb_deactivation
+            Free-bound deactivation probabilities.
+        photo_ion_nu_threshold_mins
+            Minimum photoionization threshold frequencies [Hz].
+        photo_ion_nu_threshold_maxs
+            Maximum photoionization threshold frequencies [Hz].
+        photo_ion_block_references
+            Block references for photoionization data.
+        chi_bf
+            Bound-free absorption coefficients.
+        x_sect
+            Photoionization cross sections [cm^2].
+        phot_nus
+            Photoionization frequencies [Hz].
+        ff_opacity_factor
+            Free-free opacity factors.
+        emissivities
+            Emission coefficients for bound-free transitions.
+        photo_ion_activation_idx
+            Indices for photoionization activation.
+        k_packet_idx
+            Index for k-packet handling.
+        absorbing_markov_probabilities
+            Matrix B: Absorbing probabilities of the Markov-chain macro atom.
+            Shape: (n_shells, n_states, n_states). For each shell, contains the probability
+            of being absorbed in each destination state when starting from each source state.
+        &quot;&quot;&quot;
+        self.electron_density = electron_density
+        self.t_electrons = t_electrons
+        self.line_list_nu = line_list_nu
+        self.tau_sobolev = tau_sobolev
+        self.bf_threshold_list_nu = bf_threshold_list_nu
+
+        #### Macro Atom transition probabilities
+        self.transition_probabilities = transition_probabilities
+        self.line2macro_level_upper = line2macro_level_upper
+
+        self.macro_block_references = macro_block_references
+        self.transition_type = transition_type
+
+        # Destination level is not needed and/or generated for downbranch
+        self.destination_level_id = destination_level_id
+        self.transition_line_id = transition_line_id
+        self.p_fb_deactivation = p_fb_deactivation
+
+        # Continuum Opacity Data
+        self.photo_ion_nu_threshold_mins = photo_ion_nu_threshold_mins
+        self.photo_ion_nu_threshold_maxs = photo_ion_nu_threshold_maxs
+
+        self.photo_ion_block_references = photo_ion_block_references
+        self.chi_bf = chi_bf
+        self.x_sect = x_sect
+        self.phot_nus = phot_nus
+        self.ff_opacity_factor = ff_opacity_factor
+        self.emissivities = emissivities
+        self.photo_ion_activation_idx = photo_ion_activation_idx
+        self.k_packet_idx = k_packet_idx
+        self.absorbing_markov_probabilities = absorbing_markov_probabilities
+
+    def __getitem__(self, i: slice) -&gt; &quot;OpacityStateNumbaIIP&quot;:
+        &quot;&quot;&quot;Get a shell or slice of shells of the attributes of the opacity state.
+
+        Parameters
+        ----------
+        i : slice
+            Shell slice. Will fail if slice is int since class only supports array types.
+
+        Returns
+        -------
+        OpacityStateNumbaIIP
+            A shallow copy of the current instance with sliced data.
+        &quot;&quot;&quot;
+        return OpacityStateNumbaIIP(
+            self.electron_density[i],
+            self.t_electrons[i],
+            self.line_list_nu,
+            self.tau_sobolev[:, i],
+            self.transition_probabilities[:, i],
+            self.line2macro_level_upper,
+            self.macro_block_references,
+            self.transition_type,
+            self.destination_level_id,
+            self.transition_line_id,
+            self.bf_threshold_list_nu,
+            self.p_fb_deactivation,
+            self.photo_ion_nu_threshold_mins,
+            self.photo_ion_nu_threshold_maxs,
+            self.photo_ion_block_references,
+            self.chi_bf,
+            self.x_sect,
+            self.phot_nus,
+            self.ff_opacity_factor,
+            self.emissivities,
+            self.photo_ion_activation_idx,
+            self.k_packet_idx,
+            self.absorbing_markov_probabilities[i, :, :],
+        )</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 12 Apr 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
