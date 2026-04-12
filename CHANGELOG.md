@@ -1,5 +1,12 @@
 ## Changelog
 
+### release-2026.04.12 (2026/04/11 22:15)
+- [3549](https://github.com/tardis-sn/tardis/pull/3549) Pre-release 2026.04.12 (3549) (@tardis-bot)
+- [3547](https://github.com/tardis-sn/tardis/pull/3547) Adding adaptive damping method for convergence (3547) (@DeekshaMohanty)
+- [3542](https://github.com/tardis-sn/tardis/pull/3542) Codestyle length bugfix (3542) (@atharva-2001)
+- [3426](https://github.com/tardis-sn/tardis/pull/3426) [GSOC] remove pyne from codebase (3426) (@Aaryan-Dadu)
+- [3507](https://github.com/tardis-sn/tardis/pull/3507) [GSoC]docs: replace deprecated git:// with https:// for upstream remote (3507) (@nagadevikona20-max)
+- [3543](https://github.com/tardis-sn/tardis/pull/3543) Post-release 2026.04.06 (3543) (@tardis-bot)
 ### release-2026.04.06 (2026/04/06 05:47)
 - [3541](https://github.com/tardis-sn/tardis/pull/3541) Pre-release 2026.04.05 (3541) (@tardis-bot)
 - [3532](https://github.com/tardis-sn/tardis/pull/3532) Match continuum transition probs to ctardis (3532) (@jvshields)
