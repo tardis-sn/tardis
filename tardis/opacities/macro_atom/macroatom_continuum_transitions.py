@@ -791,7 +791,7 @@ def collisional_transition_excitation_internal(
 #     -------
 #     p_coll_excitation_to_k_packet
 #         Unnormalized collisional excitation cooling rates.
-#     coll_excitation_to_k_metadata
+#     coll_excitation_to_k_packet_metadata
 #         Metadata for the excitation cooling transitions.
 #     """
 #     p_coll_excitation_to_k_packet = (
@@ -808,7 +808,7 @@ def collisional_transition_excitation_internal(
 #         for first, second, third in p_coll_excitation_to_k_packet.index.values
 #     ]
 
-#     coll_excitation_to_k_metadata = pd.DataFrame(
+#     coll_excitation_to_k_packet_metadata = pd.DataFrame(
 #         {
 #             "transition_line_id": -99,
 #             "source": sources,
@@ -821,7 +821,7 @@ def collisional_transition_excitation_internal(
 #         index=p_coll_excitation_to_k_packet.index,
 #     )
 
-#     return p_coll_excitation_to_k_packet, coll_excitation_to_k_metadata
+#     return p_coll_excitation_to_k_packet, coll_excitation_to_k_packet_metadata
 
 
 def probability_collision_ionization_internal(
