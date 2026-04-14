@@ -121,7 +121,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
             If radius or temperature is not set.
         """
         if self.radius is None or self.temperature is None or self.time_explosion is None:
-            raise ValueError("Black body Radius or Temperature isn't set")
+            raise ValueError("Black body Radius or Temperature or Time Explosion isn't set")
         
         packet_collection = super().create_packets(no_of_packets, *args, **kwargs)
 
