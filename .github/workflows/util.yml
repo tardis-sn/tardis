@@ -16,7 +16,7 @@ jobs:
     
     steps:
       - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add GSoC label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.BOT_TOKEN }}
           script: |
@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Welcome first-time contributor
-        uses: actions/first-interaction@v1
+        uses: actions/first-interaction@v3
         with:
           repo-token: ${{ secrets.BOT_TOKEN }}
           pr-message: |
@@ -61,7 +61,7 @@ jobs:
   check-orcid:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -76,7 +76,7 @@ jobs:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
       - name: Find comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -85,7 +85,7 @@ jobs:
 
       - name: Create comment
         if: steps.check_orcid.outcome == 'failure'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}

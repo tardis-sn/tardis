@@ -16,10 +16,10 @@ jobs:
     research-using-tardis:
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v5
+        - uses: actions/checkout@v6
 
         - name: Setup micromamba
-          uses: mamba-org/setup-micromamba@v2
+          uses: mamba-org/setup-micromamba@v3
           with:
             environment-name: fetch-env
             create-args: >-
@@ -31,7 +31,7 @@ jobs:
             jupyter nbconvert --to python  docs/resources/research_done_using_TARDIS/ads.ipynb
             python3 docs/resources/research_done_using_TARDIS/ads.py
         
-        - uses: actions/upload-artifact@v5
+        - uses: actions/upload-artifact@v7
           with:
             name: research_papers
             path: |
@@ -41,9 +41,9 @@ jobs:
       needs: [research-using-tardis]
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v5
+        - uses: actions/checkout@v6
 
-        - uses: actions/download-artifact@v6
+        - uses: actions/download-artifact@v8
           with:
             path: /tmp
 
@@ -55,7 +55,7 @@ jobs:
         - name: Get current date
           run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
   
-        - uses: peter-evans/create-pull-request@v4
+        - uses: peter-evans/create-pull-request@v8
           with:
             token: ${{ secrets.BOT_TOKEN }}
             committer: TARDIS Bot <tardis.sn.bot@gmail.com>
@@ -93,7 +93,7 @@ jobs:
             if: steps.create-pr.outputs.pull-request-operation == 'created'
 
         - name: Enable automerge
-          uses: peter-evans/enable-pull-request-automerge@v2
+          uses: peter-evans/enable-pull-request-automerge@v3
           with:
             token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
             pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
