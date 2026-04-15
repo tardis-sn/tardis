@@ -1324,7 +1324,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         )
 
         # getting all sorts of downstream problems because we trim the (1,0,0) because
-        # it only has internal exit transitions and also can't be reached
+        # it does not have deactivation transitions so gets trimmed by the internal drop
         # but trimming it screws up indexing
         line2macro_level_upper += 1
         macro_block_references = np.hstack([[0], macro_block_references])
