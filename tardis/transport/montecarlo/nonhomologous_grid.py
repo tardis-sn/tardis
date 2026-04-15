@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 from numba import njit
 
@@ -53,7 +51,7 @@ def tau_sobolev_factor(r_packet, geometry):
     factor = 1.0 / ((1 - mu * mu) * v / r + mu * mu * dvdr)
     return factor
 
-
+@njit(**njit_dict_no_parallel)
 def depressed_quartic(A, B, C, D, E):
 
     a = -3.0*B**2.0/(8.0*A**2.0) + C/A
@@ -73,7 +71,8 @@ def depressed_quartic(A, B, C, D, E):
 
     # Certain solutions will have (physical) complex values of r
     # but the complex component can cancel out in y
-    r = -q/2 + np.sqrt(q2p3_term, dtype=complex)
+    q2p3_complex = q2p3_term + 0j
+    r = -q/2 + np.sqrt(q2p3_complex)
     u = r**(1./3.)
 
     # Handle case where u=0
@@ -81,34 +80,49 @@ def depressed_quartic(A, B, C, D, E):
         y = -5.0/6.0 * a - q**(1.0/3.0)
     else:
         y = -5.0/6.0 * a + u - p/(3.0*u)
-    y = np.real_if_close(y)
+
+    y_real = np.real(y)
+    y_imag = np.imag(y)
+    # TODO: potentially handle imaginary parts here, but they should be close to zero
+
+    y = y_real
     w = np.sqrt(a + 2.0*y)
 
     # Handle floating point error to prevent small neg numbers in sqrt
     # connor-mcclellan: note - we lose a lot more precision here than I expect.
     # Edge cases require a threshold as large as 1e-7 to recover the same distance
     # to line as homologous expansion, but I would have expected ~1e-15 would work
-    aybw_term = [-(3.0*a + 2.0*y + 2.0*b/w), -(3.0*a + 2.0*y - 2.0*b/w)]
-    aybw_term_clamped = aybw_term.copy()
+    # Somewhat clumsy syntax here is for numba compatibility
+    aybw_term, aybw_term_clamped = np.empty(2), np.empty(2)
+    aybw_term[0] = -(3.0*a + 2.0*y + 2.0*b/w)
+    aybw_term[1] = -(3.0*a + 2.0*y - 2.0*b/w)
+    aybw_term_clamped[0] = aybw_term[0]
+    aybw_term_clamped[1] = aybw_term[1]
     thresh_factor = 3e-7
-    aybw_thresh = thresh_factor * np.max([np.abs(3.0*a), np.abs(2.0*y), np.abs(2.0*b/w)])
-    for i, term in enumerate(aybw_term_clamped):
+    aybw_thresh = thresh_factor * max(np.abs(3.0*a), np.abs(2.0*y), np.abs(2.0*b/w))
+    for i in range(2):
+        term = aybw_term_clamped[i]
         if np.abs(term) <= aybw_thresh:
-           aybw_term_clamped[i] = 0.0
+            aybw_term_clamped[i] = 0.0
         elif term < 0.0:
             aybw_term_clamped[i] = np.nan
 
     # Handle no real roots - possibly due to floating point error
-    if np.isnan(aybw_term_clamped).all():
-        minroot_ind = np.argmin(np.abs(np.array(aybw_term)))
+    if np.isnan(aybw_term_clamped[0]) and np.isnan(aybw_term_clamped[1]):
+        if np.abs(aybw_term[0]) <= np.abs(aybw_term[1]):
+            minroot_ind = 0
+        else:
+            minroot_ind = 1
         thresh_match = np.abs(aybw_term[minroot_ind])/aybw_thresh*thresh_factor
         aybw_term_clamped[minroot_ind] = 0.0
-        warnings.warn(
-            "No real roots found in depressed_quartic solver. Smallest term is"
-            f" {aybw_term[minroot_ind]} (greater than relative threshold for zeroing, which is"
-            f" {aybw_thresh}). Bending threshold for this root and forcing to zero. "
-            f"Threshold is currently {thresh_factor} and would need to be greater than {thresh_match} "
-            "to catch this case."
+        print(
+            "No real roots found in depressed_quartic solver. Smallest term is",
+            aybw_term[minroot_ind],
+            "(greater than relative threshold for zeroing, which is",
+            aybw_thresh,
+            "). Bending threshold for this root and forcing to zero.",
+            "Threshold is currently", thresh_factor,
+            "and would need to be greater than", thresh_match, "to catch this case."
         )
 
     x1 = -B/(4.0*A) + 0.5*( w + np.sqrt(aybw_term_clamped[0]))

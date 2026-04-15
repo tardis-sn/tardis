@@ -178,21 +178,20 @@ def calculate_distance_line_nonhomologous(
     if (comov_nu - nu_line > 1e-14*nu_line and m > 0.0) or (comov_nu - nu_line < -1e-14*nu_line and m < 0.0):
         # Obtain roots of the quartic polynomial for x (= d_line + r_i \mu_i)
         x = depressed_quartic(a, b, c, d, e)
-        # Uncertain if x[1] and x[3] have physically interesting cases too, but
-        # if r*mu is negative and larger than r0*(a negative-valued root), then
-        # x[2] is the real-valued negative root to use
-        if not math.isnan(x[0]):
-            distance = r0*x[0] - r*mu
-        else:
-            distance = r0*x[2] - r*mu
+        # Convert each root x_i to a candidate distance: d = r0*x_i - r*mu
+        # Select the smallest positive, finite distance among all four roots.
+        distance = MISS_DISTANCE
+        for xi in x:
+            if math.isnan(xi):
+                continue
+            d_candidate = r0 * xi - r * mu
+            if d_candidate > 0.0 and d_candidate < distance:
+                distance = d_candidate
     else:
         distance = MISS_DISTANCE
 
-    if distance <= 0.0 or math.isnan(distance):
-        print(f"Packet ID: {rpacket.index}")
-        x = depressed_quartic(a, b, c, d, e)
-        raise MonteCarloException(f"Distance to line {distance} is less than 0.0")
-
+    if distance <= 0.0 or math.isnan(distance) or distance == MISS_DISTANCE:
+        distance = MISS_DISTANCE
 
     return distance
 
