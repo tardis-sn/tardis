@@ -131,7 +131,7 @@ def macro_atom_interaction_iip(
     emission_process : int,
         Type of process emission defined by MacroAtomTransitionType in this file.
     """
-    # step to absorbing state level
+    # Do a single jump to the absorbing state, which we deactivate from
     absorbing_state_probability = 0.0
     probability_event = np.random.random()
 
