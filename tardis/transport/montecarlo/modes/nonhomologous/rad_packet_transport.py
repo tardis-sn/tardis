@@ -3,7 +3,9 @@
 import numpy as np
 from numba import njit
 
-from tardis.model.geometry.radial1d_nonhomologous import NumbaNonhomologousRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NumbaNonhomologousRadial1DGeometry,
+)
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
     get_doppler_factor_nonhomologous,
@@ -107,7 +109,7 @@ def trace_packet(
         nu_line = opacity_state.line_list_nu[cur_line_id]
 
         # Getting the tau for the next line
-        tau_factor = tau_sobolev_factor(r_packet, numba_radial_1d_geometry)
+        tau_factor = tau_sobolev_factor(r_packet, numba_radial_1d_geometry) / time_explosion
         tau_trace_line = tau_factor * opacity_state.tau_sobolev[cur_line_id, r_packet.current_shell_id]
 
         # Adding it to the tau_trace_line_combined
