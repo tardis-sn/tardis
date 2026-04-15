@@ -4,6 +4,9 @@ import pandas as pd
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data import AtomData
 from tardis.opacities.macro_atom import util
+from tardis.opacities.macro_atom.absorbing_markov_chain import (
+    create_absorbing_probs,
+)
 from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
     initialize_transition_probabilities,
@@ -944,6 +947,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 line2macro_level_upper,
                 macro_block_references,
                 references_index,
+                normalized_deactivating_probs,
+                deactivating_metadata,
+                absorbing_probability_matrix,
             ) = self._solve_first_macroatom_iteration(
                 mean_intensities_blue_wing,
                 beta_sobolevs,
@@ -964,7 +970,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 ff_cool_rate,
             )
         else:
-            normalized_probabilities = self._solve_next_macroatom_iteration(
+            (
+                normalized_probabilities,
+                deactivating_metadata,
+                normalized_deactivating_probs,
+                absorbing_probability_matrix,
+            ) = self._solve_next_macroatom_iteration(
                 mean_intensities_blue_wing,
                 beta_sobolevs,
                 stimulated_emission_factors,
@@ -996,6 +1007,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             line2macro_level_upper,
             macro_block_references,
             references_index,
+            normalized_deactivating_probs,
+            deactivating_metadata,
+            absorbing_probability_matrix,
         )
 
     def set_static_properties(
@@ -1054,7 +1068,16 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         fb_cool_rate: pd.Series,
         fb_cool_probs_arr: np.ndarray,
         ff_cool_rate: pd.Series,
-    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+    ) -> tuple[
+        pd.DataFrame,
+        pd.DataFrame,
+        pd.Series,
+        pd.Series,
+        pd.Series,
+        pd.DataFrame,
+        pd.DataFrame,
+        np.ndarray,
+    ]:
         """
         Handle the first iteration of the solve method for continuum macro atom.
 
@@ -1270,22 +1293,44 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 ff_cool_rate,
             )
         )
+        self.create_source_and_destination_idx_columns(
+            macro_atom_transition_metadata
+        )
+
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df, macro_atom_transition_metadata
         )
         # normalized_probabilities = probabilities_df  # Useful for debugging
 
+        (
+            absorbing_probability_matrix,
+            deactivating_probs,
+            deactivating_metadata,
+        ) = create_absorbing_probs(
+            normalized_probabilities, macro_atom_transition_metadata
+        )
+        normalized_deactivating_probs = self.normalize_transition_probabilities(
+            deactivating_probs, deactivating_metadata
+        )
+
         line2macro_level_upper, reference_index = (
             self.create_line2macro_level_upper_and_reference_idx(
-                macro_atom_transition_metadata, self._lines_level_upper
+                deactivating_metadata, self._lines_level_upper
             )
         )
-        self.create_source_and_destination_idx_columns(
-            macro_atom_transition_metadata
-        )
+
         macro_block_references = self.create_macro_block_references(
-            macro_atom_transition_metadata
+            deactivating_metadata
         )
+
+        # getting all sorts of downstream problems because we trim the (1,0,0) because
+        # it only has internal exit transitions and also can't be reached
+        # but trimming it screws up indexing
+        line2macro_level_upper += 1
+        macro_block_references = np.hstack([[0], macro_block_references])
+        reference_index = reference_index + 1
+        reference_index.loc[1, 0, 0] = 0
+        reference_index.sort_index(inplace=True)
 
         self.computed_metadata = (
             macro_atom_transition_metadata,
@@ -1300,6 +1345,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             line2macro_level_upper,
             macro_block_references,
             reference_index,
+            normalized_deactivating_probs,
+            deactivating_metadata,
+            absorbing_probability_matrix,
         )
 
     def _solve_next_macroatom_iteration(
@@ -1321,7 +1369,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         fb_cool_rate: np.ndarray,
         fb_cool_probs_arr: np.ndarray,
         ff_cool_rate: np.ndarray,
-    ) -> pd.DataFrame:
+    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, np.ndarray]:
         """
         Handle subsequent iterations of the solve method for continuum macro atom.
 
@@ -1592,7 +1640,23 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         normalized_probabilities = self.normalize_transition_probabilities(
             probabilities_df, macro_atom_transition_metadata
         )
-        return normalized_probabilities
+        (
+            absorbing_probability_matrix,
+            deactivating_probs,
+            deactivating_metadata,
+        ) = create_absorbing_probs(
+            normalized_probabilities, macro_atom_transition_metadata
+        )
+        normalized_deactivating_probs = self.normalize_transition_probabilities(
+            deactivating_probs, deactivating_metadata
+        )
+
+        return (
+            normalized_probabilities,
+            deactivating_metadata,
+            normalized_deactivating_probs,
+            absorbing_probability_matrix,
+        )
 
     def reindex_sort_and_clean_probabilities_and_metadata(
         self,

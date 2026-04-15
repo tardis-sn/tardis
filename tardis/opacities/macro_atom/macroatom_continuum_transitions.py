@@ -1211,17 +1211,15 @@ def create_free_bound_cooling_metadata(
     pd.DataFrame
         Metadata DataFrame describing the free-bound cooling transitions for each bound level.
     """
+    destinations = [
+        (1, 0, i) for i in range(fb_cool_probs_arr.shape[1])
+    ]  # hard coded for hydrogen
+
     free_bound_cooling_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
             "source": [("k", -99, -99)],
-            "destination": [
-                (
-                    -99,
-                    -99,
-                    -99,
-                )
-            ],  # k-packet destruction to bf emission
+            "destination": destinations,  # k-packet destruction to bf emission
             "transition_type": MacroAtomTransitionType.FB_COOLING,
             "transition_line_idx": range(
                 fb_cool_probs_arr.shape[1]

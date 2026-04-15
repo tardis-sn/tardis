@@ -1,5 +1,5 @@
 from typing import Self
-
+import numpy as np
 import pandas as pd
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
@@ -110,6 +110,9 @@ class MacroAtomState:
         line2macro_level_upper: pd.Series,
         macro_block_references: pd.Series | None = None,
         references_index: pd.Series | None = None,
+        normalized_deactivating_probs: pd.DataFrame | None = None,
+        deactivating_metadata: pd.DataFrame | None = None,
+        absorbing_probability_matrix: np.ndarray | None = None,
     ) -> None:
         """
         Initialize a MacroAtomState object.
@@ -130,6 +133,9 @@ class MacroAtomState:
         self.line2macro_level_upper = line2macro_level_upper
         self.macro_block_references = macro_block_references
         self.references_index = references_index
+        self.normalized_deactivating_probs = normalized_deactivating_probs
+        self.deactivating_metadata = deactivating_metadata
+        self.absorbing_probability_matrix = absorbing_probability_matrix
 
     def to_legacy_format(self) -> LegacyMacroAtomState:
         """

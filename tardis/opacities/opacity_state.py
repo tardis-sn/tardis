@@ -160,31 +160,26 @@ class OpacityState:
             transition_type = np.zeros(array_size, dtype=np.int64)
             destination_level_id = np.zeros(array_size, dtype=np.int64)
             transition_line_id = np.zeros(array_size, dtype=np.int64)
-        else:
+
+        elif (
+            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
+        ):  # continuum settings
             transition_probabilities = np.ascontiguousarray(
-                macro_atom_state.transition_probabilities.values.copy(),
+                macro_atom_state.normalized_deactivating_probs.values.copy(),
                 dtype=np.float64,
             )
             line2macro_level_upper = (
                 macro_atom_state.line2macro_level_upper.values
             )
-            # TODO: Fix setting of block references for non-continuum mode
-
             macro_block_references = np.asarray(
                 macro_atom_state.macro_block_references
             )
-
             transition_type = (
-                macro_atom_state.transition_metadata.transition_type.values
+                macro_atom_state.deactivating_metadata.transition_type.values
             )
+            destination_level_id = macro_atom_state.deactivating_metadata.destination_level_idx.values
+            transition_line_id = macro_atom_state.deactivating_metadata.transition_line_idx.values
 
-            # Destination level is not needed and/or generated for downbranch
-            destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.values
-            transition_line_id = (
-                macro_atom_state.transition_metadata.transition_line_idx.values
-            )
-
-        if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
             bf_threshold_list_nu = (
                 self.continuum_state.bf_threshold_list_nu.values
             )
@@ -216,7 +211,9 @@ class OpacityState:
                 self.continuum_state.photo_ion_activation_idx.values
             )
             k_packet_idx = np.int64(self.continuum_state.k_packet_idx)
-            absorbing_markov_probabilities = self.absorbing_markov_probabilities
+            absorbing_markov_probabilities = (
+                macro_atom_state.absorbing_probability_matrix
+            )
             return OpacityStateNumbaIIP(
                 electron_densities,
                 t_electrons,
@@ -243,6 +240,29 @@ class OpacityState:
                 absorbing_markov_probabilities,
             )
         else:
+            # Not continuum
+            transition_probabilities = np.ascontiguousarray(
+                macro_atom_state.transition_probabilities.values.copy(),
+                dtype=np.float64,
+            )
+            line2macro_level_upper = (
+                macro_atom_state.line2macro_level_upper.values
+            )
+            # TODO: Fix setting of block references for non-continuum mode
+
+            macro_block_references = np.asarray(
+                macro_atom_state.macro_block_references
+            )
+
+            transition_type = (
+                macro_atom_state.transition_metadata.transition_type.values
+            )
+
+            # Destination level is not needed and/or generated for downbranch
+            destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.values
+            transition_line_id = (
+                macro_atom_state.transition_metadata.transition_line_idx.values
+            )
             bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
             p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
             photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
