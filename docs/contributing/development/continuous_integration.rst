@@ -98,22 +98,6 @@ The pipeline includes both preparatory setup (environment installation and regre
 .. note :: GPU Tests can be triggered by applying the `full-tests` label to the pull request.
 
 
-Authors pipeline
-================
-
-This pipeline runs a notebook located in ``tardis-zenodo`` repository and
-pushes a new version of ``.zenodo.json`` to the root of ``tardis``
-repository if new committers are found (or author order changes). The
-rendered notebook is uploaded to the pipeline results as an artifact.
-
-.. warning :: Fails if some author name is incomplete (due to an incomplete
-          GitHub profile) or duplicated (committed with more than one 
-          email address). In both cases update ``.mailmap`` to fix it.
-
-In the near future we want to auto-update the citation guidelines in the
-``README.rst`` and the documentation.
-
-
 Release pipeline
 ================
 
