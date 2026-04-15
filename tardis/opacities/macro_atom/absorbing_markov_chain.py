@@ -1,10 +1,50 @@
+"""Calculate absorption probabilities using absorbing Markov chain theory.
+
+This module implements the mathematical framework of absorbing Markov chains
+to compute probabilities of photon absorption in each cell and the expected
+number of steps before absorption from each source state.
+
+References:
+    Absorbing Markov chain theory: https://en.wikipedia.org/wiki/Absorbing_Markov_chain
+"""
+
 import numpy as np
 import pandas as pd
 
 
 def create_absorbing_probs(
     transition_probabilities: pd.DataFrame, metadata: pd.DataFrame
-):
+) -> tuple[np.ndarray, pd.DataFrame, pd.DataFrame]:
+    """Calculate absorbing Markov chain probabilities and deactivation data.
+
+    Computes the absorption probability matrices for each cell and extracts
+    deactivation probabilities by solving the absorbing Markov chain system.
+    The fundamental matrix is computed to determine absorption probabilities
+    and expected number of steps to absorption from each state.
+
+    Parameters
+    ----------
+    transition_probabilities : pd.DataFrame
+        DataFrame with transition probabilities between states for each cell.
+        Rows represent transitions, columns represent cells.
+    metadata : pd.DataFrame
+        Metadata about transitions including source_level_idx,
+        destination_level_idx, and transition_type. Values >= 0 for
+        transition_type indicate internal transitions; negative values
+        indicate deactivation, or reemitting from an absorbing state.
+
+    Returns
+    -------
+    tuple[np.ndarray, pd.DataFrame, pd.DataFrame]
+        - absorbing_probability_matrix : np.ndarray
+            Array of shape (num_cells, num_states, num_states) containing
+            absorption probabilities from each state for each cell.
+        - deactivating_probs : pd.DataFrame
+            DataFrame of deactivation transition probabilities from
+            absorption states.
+        - deactivating_metadata : pd.DataFrame
+            Metadata for deactivation transitions.
+    """
     num_cells = transition_probabilities.shape[1]
     probs = transition_probabilities.copy()
 

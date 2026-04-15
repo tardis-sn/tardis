@@ -1134,6 +1134,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Series with unique source levels as index and their first occurrence index in the metadata as values.
         references_index
             Series with unique source levels as index and their assigned indices as values.
+        normalized_deactivating_probs
+            Dataframe containing emission probabilities from a chosen absorbing state
+        deactivating_metadata
+            Dataframe containing metadata for deactivation channels from a chosen absobing state.
+        absorbing_probability_matrix
+            Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
         """
         # Assemble bound-bound transitions first.
         p_internal_up, internal_up_metadata = line_transition_internal_up(
