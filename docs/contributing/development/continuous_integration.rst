@@ -134,7 +134,7 @@ Zenodo job
 3. Set up the Python environment stored in ``tardis-sn/tardis_zenodo``.
 4. Store the secret key for the Zenodo API in an environment variable.
 5. Run the notebook to generate a new ``.zenodo.json`` file. Re-run if there are 
-errors and ignore any errors.
+   errors and ignore any errors.
 6. Upload the ``.zenodo.json`` as an artifact.
 
 pip tests job
@@ -142,8 +142,8 @@ pip tests job
 
 Runs the TARDIS test suite using pip to install TARDIS.
 
-Pull Request job
-^^^^^^^^^^^^^^^^^
+Pre-release pull request job
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Relies on Zenodo and pip test steps completing.
 
@@ -170,7 +170,7 @@ Creates a new release on GitHub after the pre-release PR is merged.
 8. Fetch the new DOI from Zenodo using the Zenodo API, and create a badge.
 9. Generate the changelog using ``git-cliff``.
 10. Update the release description with the changelog and the Zenodo badge. 
-Include the environment lock files in the release assets.
+    Include the environment lock files in the release assets.
 
 Post-release
 ----------------
@@ -203,8 +203,8 @@ Credits job
 6. Upload README.rst and credits.rst as artifacts.
 7. Dispatch the updates to the TARDIS website.
 
-Pull Request job
-^^^^^^^^^^^^^^^^^
+Post-release pull request job
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 1. Checks out the TARDIS repository.
 2. Downloads the artifacts from the previous steps.
 3. Copy the ``CHANGELOG.md``, ``CITATION.cff``, ``README.rst`` and ``credits.rst`` files to the repository.
