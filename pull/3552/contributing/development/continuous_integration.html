@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=94a3926b"></script>
+      <script src="../../_static/documentation_options.js?v=084ed5e5"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -266,21 +266,6 @@ The pipeline includes both preparatory setup (environment installation and regre
 <p>GPU Tests can be triggered by applying the <code class="xref py py-obj docutils literal notranslate"><span class="pre">full-tests</span></code> label to the pull request.</p>
 </div>
 </section>
-<section id="authors-pipeline">
-<h3>Authors pipeline<a class="headerlink" href="#authors-pipeline" title="Link to this heading">¶</a></h3>
-<p>This pipeline runs a notebook located in <code class="docutils literal notranslate"><span class="pre">tardis-zenodo</span></code> repository and
-pushes a new version of <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> to the root of <code class="docutils literal notranslate"><span class="pre">tardis</span></code>
-repository if new committers are found (or author order changes). The
-rendered notebook is uploaded to the pipeline results as an artifact.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Fails if some author name is incomplete (due to an incomplete
-GitHub profile) or duplicated (committed with more than one
-email address). In both cases update <code class="docutils literal notranslate"><span class="pre">.mailmap</span></code> to fix it.</p>
-</div>
-<p>In the near future we want to auto-update the citation guidelines in the
-<code class="docutils literal notranslate"><span class="pre">README.rst</span></code> and the documentation.</p>
-</section>
 <section id="release-pipeline">
 <h3>Release pipeline<a class="headerlink" href="#release-pipeline" title="Link to this heading">¶</a></h3>
 <p>Publishes a new release of TARDIS every Sunday at 00:00 UTC.</p>
@@ -412,7 +397,7 @@ bridge has failed.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Apr 2026.
+      <span class="lastupdated">Last updated on 20 Apr 2026.
       </span></p>
   </div>
 
