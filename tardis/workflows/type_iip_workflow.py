@@ -519,11 +519,11 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         Parameters
         ----------
-        initial : np.ndarray
+        initial_guess : np.ndarray
             Initial guess for the electron number density fraction and
             link_t_rad_t_electron for each shell, in the form
             [n_e_frac_1, link_1, n_e_frac_2, link_2,...]
-        n_e_max : np.ndarray
+        max_electron_number_density : np.ndarray
             Maximum possible electron number density for each shell.
 
         Returns
@@ -790,14 +790,14 @@ class TypeIIPWorkflow(WorkflowLogging):
         ----------
         ion_number_density : pd.DataFrame
             Ion number density DataFrame from the plasma solver
-        electron_densities : pd.DataFrame
-            Electron density DataFrame from the plasma solver
-        t_electrons : pd.DataFrame
-            Electron temperature DataFrame from the plasma solver
+        electron_densities : np.ndarray
+            Electron density array from the plasma solver
+        t_electrons : np.ndarray
+            Electron temperature array from the plasma solver
 
         Returns
         -------
-        pd.DataFrame
+        np.ndarray
             Free-free heating normalization factor
         """
         ionic_charge_squared = np.square(
@@ -898,12 +898,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         no_of_virtual_packets : int, optional
             Number of virtual packets to simulate per interaction, by default 0
 
-        Returns
-        -------
-        MonteCarloTransportState
-            The new transport state after simulation
-        ndarray
-            Array of unnormalized virtual packet energies in each frequency bin
         """
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
