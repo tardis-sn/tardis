@@ -13,7 +13,7 @@ jobs:
       pull-requests: write
       issues: write
       contents: read
-    
+
     steps:
       - name: Create or update comment
         uses: peter-evans/create-or-update-comment@v5
@@ -50,8 +50,8 @@ jobs:
       - name: Welcome first-time contributor
         uses: actions/first-interaction@v3
         with:
-          repo-token: ${{ secrets.BOT_TOKEN }}
-          pr-message: |
+          repo_token: ${{ secrets.BOT_TOKEN }}
+          pr_message: |
             👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
 
             **If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and our [PR checklist](https://tardis-sn.github.io/summer_of_code/pr_checklist/).**
@@ -65,7 +65,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      
+
       - name: Check if author email exists in orcid.csv
         id: check_orcid
         continue-on-error: true
