@@ -1,5 +1,8 @@
 ## Changelog
 
+### release-2026.04.19 (2026/04/14 09:35)
+- [3548](https://github.com/tardis-sn/tardis/pull/3548) Update Workflows to latest action versions (3548) (@atharva-2001)
+- [3550](https://github.com/tardis-sn/tardis/pull/3550) Post-release 2026.04.12 (3550) (@tardis-bot)
 ### release-2026.04.12 (2026/04/11 22:15)
 - [3549](https://github.com/tardis-sn/tardis/pull/3549) Pre-release 2026.04.12 (3549) (@tardis-bot)
 - [3547](https://github.com/tardis-sn/tardis/pull/3547) Adding adaptive damping method for convergence (3547) (@DeekshaMohanty)
