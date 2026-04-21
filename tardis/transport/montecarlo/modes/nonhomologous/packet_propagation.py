@@ -4,7 +4,9 @@ import numpy as np
 from numba import njit
 
 from tardis import constants as const
-from tardis.model.geometry.radial1d_nonhomologous import NumbaNonhomologousRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NumbaNonhomologousRadial1DGeometry,
+)
 from tardis.opacities.opacities import chi_electron_calculator
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
@@ -31,7 +33,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import
     move_r_packet,
     trace_packet,
 )
-from tardis.transport.montecarlo.nonhomologous_grid import piecewise_linear_dvdr
+from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
+    trace_vpacket_volley,
+)
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
@@ -39,9 +43,6 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
     RPacket,
-)
-from tardis.transport.montecarlo.packets.virtual_packet import (
-    trace_vpacket_volley,
 )
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
@@ -51,7 +52,6 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 def packet_propagation(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaNonhomologousRadial1DGeometry,
-    time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
@@ -71,8 +71,6 @@ def packet_propagation(
         The radiative packet to transport through the ejecta.
     numba_radial_1d_geometry : NumbaNonhomologousRadial1DGeometry
         The spherically symmetric geometry of the supernova ejecta.
-    time_explosion : float
-        Time since explosion in seconds.
     opacity_state : OpacityStateNumba
         Current opacity state containing line opacities.
     estimators_bulk : EstimatorsBulk
@@ -106,8 +104,7 @@ def packet_propagation(
     #)
     # Substitute for r_packet.initialize_line_id until that method is generalized to work with non-homology:
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
-    v, _ = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, numba_radial_1d_geometry)
-    doppler_factor = get_doppler_factor_nonhomologous(v, r_packet.mu)
+    doppler_factor = get_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, numba_radial_1d_geometry)
     comov_nu = r_packet.nu * doppler_factor
     next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
         inverse_line_list_nu, comov_nu
@@ -121,7 +118,6 @@ def packet_propagation(
         r_packet,
         vpacket_collection,
         numba_radial_1d_geometry,
-        time_explosion,
         opacity_state,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -135,8 +131,7 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
-        v, _ = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, numba_radial_1d_geometry)
-        doppler_factor = get_doppler_factor_nonhomologous(v, r_packet.mu)
+        doppler_factor = get_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, numba_radial_1d_geometry)
 
         comov_nu = r_packet.nu * doppler_factor
         opacity_electron = chi_electron_calculator(
@@ -149,7 +144,6 @@ def packet_propagation(
         distance, interaction_type, delta_shell = trace_packet(
             r_packet,
             numba_radial_1d_geometry,
-            time_explosion,
             opacity_state,
             estimators_line,
             opacity_electron,
@@ -190,7 +184,7 @@ def packet_propagation(
 
             line_scatter_event(
                 r_packet,
-                time_explosion,
+                numba_radial_1d_geometry,
                 line_interaction_type,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
@@ -200,7 +194,6 @@ def packet_propagation(
                 r_packet,
                 vpacket_collection,
                 numba_radial_1d_geometry,
-                time_explosion,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -218,7 +211,7 @@ def packet_propagation(
             rpacket_tracker.track_escattering_interaction_before(r_packet)
             thomson_scatter(
                 r_packet,
-                time_explosion,
+                numba_radial_1d_geometry,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_escattering_interaction_after(r_packet)
@@ -227,7 +220,6 @@ def packet_propagation(
                 r_packet,
                 vpacket_collection,
                 numba_radial_1d_geometry,
-                time_explosion,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -278,11 +270,7 @@ def set_packet_props_partial_relativity(
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     """
-    v, _ = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, geometry)
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        v,
-        r_packet.mu,
-    )
+    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, geometry)
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
 

@@ -24,10 +24,14 @@ def get_doppler_factor(r, mu, time_explosion, enable_full_relativity):
 
 
 @njit(**njit_dict_no_parallel)
-def get_doppler_factor_nonhomologous(v, mu):
+def get_doppler_factor_nonhomologous(r, mu, geometry, enable_full_relativity=False):
     inv_c = 1 / C_SPEED_OF_LIGHT
+    v = geometry.velocity_gradient * r
     beta = v * inv_c
-    return get_doppler_factor_partial_relativity(mu, beta)
+    if not enable_full_relativity:
+        return get_doppler_factor_partial_relativity(mu, beta)
+    else:
+        raise NotImplementedError("Full relativity not implemented for non-homologous mode.")
 
 
 @njit(**njit_dict_no_parallel)
@@ -61,7 +65,7 @@ def get_inverse_doppler_factor(r, mu, time_explosion, enable_full_relativity):
 
 
 @njit(**njit_dict_no_parallel)
-def get_inverse_doppler_factor_nonhomologous(v, mu):
+def get_inverse_doppler_factor_nonhomologous(r, mu, geometry, enable_full_relativity=False):
     """
     Calculate doppler factor for frame transformation
 
@@ -72,8 +76,12 @@ def get_inverse_doppler_factor_nonhomologous(v, mu):
     geometry : NumbaRadial1DGeometry
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
+    v = geometry.velocity_gradient * r
     beta = v * inv_c
-    return get_inverse_doppler_factor_partial_relativity(mu, beta)
+    if not enable_full_relativity:
+        return get_inverse_doppler_factor_partial_relativity(mu, beta)
+    else:
+        raise NotImplementedError("Full relativity not implemented for non-homologous mode.")
 
 
 @njit(**njit_dict_no_parallel)
