@@ -40,7 +40,6 @@ from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 def montecarlo_transport(
     packet_collection: PacketCollection,
     geometry_state_numba: NumbaNonhomologousRadial1DGeometry,
-    time_explosion: float,
     opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
     spectrum_frequency_grid: np.ndarray,
@@ -66,8 +65,6 @@ def montecarlo_transport(
     geometry_state_numba : NumbaNonhomologousRadial1DGeometry
         Numba-compiled simulation geometry containing shell boundaries
         and velocity information
-    time_explosion : float
-        Time since explosion in seconds, used for relativistic calculations
     opacity_state_numba : OpacityStateNumba
         Numba-compiled opacity state containing line opacities and atomic data
         required for interactions
@@ -167,7 +164,6 @@ def montecarlo_transport(
         loop = packet_propagation(
             r_packet,
             geometry_state_numba,
-            time_explosion,
             opacity_state_numba,
             estimators_bulk_thread,
             estimators_line_thread,

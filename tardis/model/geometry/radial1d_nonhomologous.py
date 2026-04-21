@@ -188,19 +188,19 @@ class NonhomologousRadial1DGeometry:
         )
 
     @property
-    def dvdr(self):
+    def velocity_gradient(self):
+        """Velocity gradient in each cell"""
+        return (
+            (self.v_outer - self.v_inner)
+            / (self.r_outer - self.r_inner)
+        )
+
+    @property
+    def velocity_gradient_active(self):
         """Velocity gradient in each cell"""
         return (
             (self.v_outer_active - self.v_inner_active)
             / (self.r_outer_active - self.r_inner_active)
-        )
-
-    @property
-    def inverse_dvdr(self):
-        """Inverse velocity gradient in each cell. In homology, this is equivalent to time_explosion."""
-        return (
-            (self.r_outer_active - self.r_inner_active)
-            / (self.v_outer_active - self.v_inner_active)
         )
 
     @property
@@ -225,7 +225,6 @@ class NonhomologousRadial1DGeometry:
             self.r_outer_active.to(u.cm).value,
             self.v_inner_active.to(u.cm / u.s).value,
             self.v_outer_active.to(u.cm / u.s).value,
-            self.dvdr.to(1 / u.s).value,
         )
 
 
@@ -234,14 +233,14 @@ numba_geometry_spec = [
     ("r_outer", float64[:]),
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
-    ("dvdr", float64[:]),
+    ("velocity_gradient", float64[:]),
     ("volume", float64[:]),
 ]
 
 
 @jitclass(numba_geometry_spec)
 class NumbaNonhomologousRadial1DGeometry:
-    def __init__(self, r_inner, r_outer, v_inner, v_outer, dvdr):
+    def __init__(self, r_inner, r_outer, v_inner, v_outer):
         """
         Radial 1D Geometry for the Numba mode
 
@@ -251,12 +250,13 @@ class NumbaNonhomologousRadial1DGeometry:
         r_outer : numpy.ndarray
         v_inner : numpy.ndarray
         v_outer : numpy.ndarray
+        velocity_gradient : numpy.ndarray
         volume : numpy.ndarray
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.v_outer = v_outer
-        self.dvdr = dvdr # Could also calculate this here if we don't want to add an argument to this class
+        self.velocity_gradient = (self.v_outer - self.v_inner) / (self.r_outer - self.r_inner)
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 

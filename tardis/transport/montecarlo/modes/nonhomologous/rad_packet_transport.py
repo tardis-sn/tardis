@@ -27,7 +27,6 @@ from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
 )
 from tardis.transport.montecarlo.nonhomologous_grid import (
     piecewise_linear_dvdr,
-    tau_sobolev_factor,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
@@ -40,7 +39,6 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 def trace_packet(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaNonhomologousRadial1DGeometry,
-    time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_line: EstimatorsLine,
     opacity_electron: float,
@@ -58,8 +56,6 @@ def trace_packet(
         The radiative packet being transported
     numba_radial_1d_geometry : NumbaNonhomologousRadial1DGeometry
         Radial 1D geometry of the model
-    time_explosion : float
-        Time since explosion in seconds
     opacity_state : OpacityStateNumba
         Opacity state containing line list and tau sobolev
     estimators_line : EstimatorsLine
@@ -109,8 +105,7 @@ def trace_packet(
         nu_line = opacity_state.line_list_nu[cur_line_id]
 
         # Getting the tau for the next line
-        tau_factor = tau_sobolev_factor(r_packet, numba_radial_1d_geometry) / time_explosion
-        tau_trace_line = tau_factor * opacity_state.tau_sobolev[cur_line_id, r_packet.current_shell_id]
+        tau_trace_line = opacity_state.tau_sobolev[cur_line_id, r_packet.current_shell_id]
 
         # Adding it to the tau_trace_line_combined
         tau_trace_line_combined += tau_trace_line
@@ -236,17 +231,14 @@ def move_r_packet(
         Radiative packet object
     distance : float
         Distance to move in cm
-    time_explosion : float
-        Time since explosion in seconds
+    geometry : NumbaNonhomologousRadial1DGeometry
+        Radius, velocity, and velocity gradient per cell.
     estimators_bulk : EstimatorsBulk
         Cell-level bulk radiation field estimators
     enable_full_relativity : bool
         Flag to enable full relativistic calculations
     """
-    v, _ = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, geometry)
-    doppler_factor = get_doppler_factor_nonhomologous(
-        v, r_packet.mu,
-    )
+    doppler_factor = get_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, geometry)
 
     r = r_packet.r
     if distance > 0.0:
