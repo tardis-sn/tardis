@@ -8,19 +8,15 @@ from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_ionization_internal,
     collisional_transition_recombination_internal,
     collisional_transition_recombination_to_k_packet,
-    continuum_adiabatic_cooling,
-    continuum_free_free_cooling,
     continuum_transition_photoionization_internal,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
-    probability_adiabatic_cooling,
     probability_collision_deexc_to_k_packet,
     probability_collision_exc_internal,
     probability_collision_internal_down,
     probability_collision_ionization_internal,
     probability_collision_recombination_internal,
     probability_collision_recombination_to_k_packet,
-    probability_free_free_cooling,
     probability_photoionization_internal,
     probability_recombination_emission,
     probability_recombination_internal,
@@ -205,76 +201,6 @@ class TestPhotoionizationTransitions:
 
         # Check metadata structure
         assert len(metadata) == len(probabilities)
-
-
-class TestCoolingTransitions:
-    """Test cooling-related transition functions."""
-
-    @pytest.fixture
-    def sample_cooling_data(self):
-        """Create sample data for cooling tests."""
-        # Electron densities and temperatures
-        electron_densities = pd.Series([1e10, 2e10, 3e10], index=[0, 1, 2])
-        t_electrons = pd.Series([5000, 6000, 7000], index=[0, 1, 2])
-        time_explosion = 1e6  # seconds
-
-        # Ion number density with MultiIndex (for free-free cooling)
-        ion_index = pd.MultiIndex.from_tuples(
-            [(1, 0), (1, 1), (2, 0), (2, 1)],
-            names=["atomic_number", "ion_number"],
-        )
-        ion_densities = pd.DataFrame(
-            [
-                [1e8, 2e8, 3e8],
-                [5e7, 1e8, 1.5e8],
-                [1e7, 2e7, 3e7],
-                [5e6, 1e7, 1.5e7],
-            ],
-            index=ion_index,
-            columns=[0, 1, 2],
-        )
-
-        return electron_densities, t_electrons, time_explosion, ion_densities
-
-    def test_probability_adiabatic_cooling(self, sample_cooling_data):
-        """Test adiabatic cooling probability calculation (currently not implemented)."""
-        electron_densities, t_electrons, time_explosion, _ = sample_cooling_data
-
-        # Function currently raises NotImplementedError
-        with pytest.raises(NotImplementedError):
-            probability_adiabatic_cooling(
-                electron_densities, t_electrons, time_explosion
-            )
-
-    def test_continuum_adiabatic_cooling(self, sample_cooling_data):
-        """Test adiabatic cooling with metadata (currently not implemented)."""
-        electron_densities, t_electrons, time_explosion, _ = sample_cooling_data
-
-        # Function currently raises NotImplementedError due to probability function
-        with pytest.raises(NotImplementedError):
-            continuum_adiabatic_cooling(
-                electron_densities, t_electrons, time_explosion
-            )
-
-    def test_probability_free_free_cooling(self, sample_cooling_data):
-        """Test free-free cooling probability calculation (currently not implemented)."""
-        electron_densities, t_electrons, _, ion_densities = sample_cooling_data
-
-        # Function currently raises NotImplementedError
-        with pytest.raises(NotImplementedError):
-            probability_free_free_cooling(
-                ion_densities, electron_densities, t_electrons
-            )
-
-    def test_continuum_free_free_cooling(self, sample_cooling_data):
-        """Test free-free cooling with metadata (currently not implemented)."""
-        electron_densities, t_electrons, _, ion_densities = sample_cooling_data
-
-        # Function currently raises NotImplementedError due to probability function
-        with pytest.raises(NotImplementedError):
-            continuum_free_free_cooling(
-                ion_densities, electron_densities, t_electrons
-            )
 
 
 class TestCollisionalTransitions:
