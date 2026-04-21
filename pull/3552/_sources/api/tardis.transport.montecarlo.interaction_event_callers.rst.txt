@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.interaction\_event\_callers module
-==============================================================
-
-.. automodule:: tardis.transport.montecarlo.interaction_event_callers
-   :members:
-   :show-inheritance:
-   :undoc-members:
