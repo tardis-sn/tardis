@@ -124,7 +124,7 @@ Zenodo job
 pip tests job
 ^^^^^^^^^^^^^^
 
-Runs the TARDIS test suite using pip to install TARDIS.
+Runs the TARDIS test suite after installing TARDIS using pip from master(using git) instead of editable install. This flags cases when a new modules was introduced recently without an ``__init__.py`` file or data files not included in ``[tool.setuptools.package-data]`` inside ``pyproject.toml``. 
 
 Pre-release pull request job
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
