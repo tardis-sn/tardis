@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=2c58e5ba"></script>
+      <script src="../../_static/documentation_options.js?v=2e9d4c8d"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -124,6 +124,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#github-actions">GitHub Actions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cache-keys-in-tardis-ci">Cache Keys in TARDIS CI</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#common-steps">Common Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pre-release">Pre-release</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#release">Release</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#post-release">Post-release</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="update_regression_data.html">Update the Regression Data</a></li>
@@ -264,25 +267,93 @@ The pipeline includes both preparatory setup (environment installation and regre
 <p>GPU Tests can be triggered by applying the <code class="xref py py-obj docutils literal notranslate"><span class="pre">full-tests</span></code> label to the pull request.</p>
 </div>
 </section>
-<section id="authors-pipeline">
-<h3>Authors pipeline<a class="headerlink" href="#authors-pipeline" title="Link to this heading">¶</a></h3>
-<p>This pipeline runs a notebook located in <code class="docutils literal notranslate"><span class="pre">tardis-zenodo</span></code> repository and
-pushes a new version of <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> to the root of <code class="docutils literal notranslate"><span class="pre">tardis</span></code>
-repository if new committers are found (or author order changes). The
-rendered notebook is uploaded to the pipeline results as an artifact.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Fails if some author name is incomplete (due to an incomplete
-GitHub profile) or duplicated (committed with more than one
-email address). In both cases update <code class="docutils literal notranslate"><span class="pre">.mailmap</span></code> to fix it.</p>
-</div>
-<p>In the near future we want to auto-update the citation guidelines in the
-<code class="docutils literal notranslate"><span class="pre">README.rst</span></code> and the documentation.</p>
-</section>
 <section id="release-pipeline">
 <h3>Release pipeline<a class="headerlink" href="#release-pipeline" title="Link to this heading">¶</a></h3>
 <p>Publishes a new release of TARDIS every Sunday at 00:00 UTC.</p>
 </section>
+</section>
+<section id="pre-release">
+<h2>Pre-release<a class="headerlink" href="#pre-release" title="Link to this heading">¶</a></h2>
+<p>The pre-release action clones the <code class="docutils literal notranslate"><span class="pre">tardis-sn/tardis_zenodo</span></code> repository, runs the notebook to
+generate a new <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> file, and pushes it to the root of the tardis repository.
+This file is used to create a new version of TARDIS on Zenodo with all committers as authors.
+A pull request is created and automatically merged if all required checks pass.</p>
+<ol class="arabic simple">
+<li><p>Checkout the <code class="docutils literal notranslate"><span class="pre">tardis-sn/tardis_zenodo</span></code> repository.</p></li>
+<li><p>Wait for the Zenodo webhook to be available (3 min sleep).</p></li>
+<li><p>Set up the Python environment stored in <code class="docutils literal notranslate"><span class="pre">tardis-sn/tardis_zenodo</span></code>.</p></li>
+<li><p>Store the secret key for the Zenodo API in an environment variable.</p></li>
+<li><p>Run the notebook to generate a new <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> file. Re-run if there are
+errors and ignore any errors.</p></li>
+<li><p>Upload the <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> as an artifact.</p></li>
+</ol>
+<p>Runs the TARDIS test suite after installing TARDIS using pip from master(using git) instead of editable install. This flags cases when a new modules was introduced recently without an <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> file or data files not included in <code class="docutils literal notranslate"><span class="pre">[tool.setuptools.package-data]</span></code> inside <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p>
+<p>Relies on Zenodo and pip test steps completing.</p>
+<ol class="arabic simple">
+<li><p>Checks out the TARDIS repository.</p></li>
+<li><p>Downloads the artifacts from the previous steps.</p></li>
+<li><p>Checks for <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> and uses it if it was generated.</p></li>
+<li><p>Get the current date.</p></li>
+<li><p>Create a bot pull request on the tardis-bot fork using a branch named <code class="docutils literal notranslate"><span class="pre">pre-release-&lt;date&gt;</span></code> with the new <code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code> file.</p></li>
+<li><p>Wait for the PR to be created (1 min sleep).</p></li>
+<li><p>Automatically approve the PR using tokens from the infrastructure and core coordinator members.</p></li>
+<li><p>Enable auto-merge.</p></li>
+</ol>
+</section>
+<section id="release">
+<h2>Release<a class="headerlink" href="#release" title="Link to this heading">¶</a></h2>
+<p>Creates a new release on GitHub after the pre-release PR is merged.</p>
+<ol class="arabic simple">
+<li><p>Check out the TARDIS repository with 0 fetch depth.</p></li>
+<li><p>Set up Python.</p></li>
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> and <code class="docutils literal notranslate"><span class="pre">git-cliff</span></code>.</p></li>
+<li><p>Get the current TARDIS version using <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> via a helper script.</p></li>
+<li><p>Get the next TARDIS version using <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code>.</p></li>
+<li><p>Create a GitHub release that uses the new version as the tag.</p></li>
+<li><p>Wait for Zenodo to update the new release of TARDIS (2 min sleep).</p></li>
+<li><p>Fetch the new DOI from Zenodo using the Zenodo API, and create a badge.</p></li>
+<li><p>Generate the changelog using <code class="docutils literal notranslate"><span class="pre">git-cliff</span></code>.</p></li>
+<li><p>Update the release description with the changelog and the Zenodo badge.
+Include the environment lock files in the release assets.</p></li>
+</ol>
+</section>
+<section id="post-release">
+<h2>Post-release<a class="headerlink" href="#post-release" title="Link to this heading">¶</a></h2>
+<p>The post-release action updates the changelog, citation and credits in the main
+repository.</p>
+<ol class="arabic simple">
+<li><p>Check out the TARDIS repository with 0 fetch depth.</p></li>
+<li><p>Get the current release tag</p></li>
+<li><p>Generate a changelog with <code class="docutils literal notranslate"><span class="pre">git-cliff</span></code></p></li>
+<li><p>Upload a CHANGELOG.md file as an artifact.</p></li>
+</ol>
+<ol class="arabic simple">
+<li><p>Check out the TARDIS repository.</p></li>
+<li><p>Wait for the Zenodo webhook to be available (3 min sleep).</p></li>
+<li><p>Set up Python.</p></li>
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">doi2cff</span></code>.</p></li>
+<li><p>Convert the latest TARDIS release DOI to a CITATION.cff file. Try 10 times with a 60 second sleep between attempts.</p></li>
+<li><p>Upload the CITATION.cff file as an artifact.</p></li>
+</ol>
+<ol class="arabic simple">
+<li><p>Check out the TARDIS repository.</p></li>
+<li><p>Wait for the Zenodo webhook to be available (3 min sleep).</p></li>
+<li><p>Set up Python.</p></li>
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">requests</span></code>.</p></li>
+<li><p>Run a helper script to update <code class="docutils literal notranslate"><span class="pre">README.rst</span></code> and <code class="docutils literal notranslate"><span class="pre">docs/resources/credits.rst</span></code>.</p></li>
+<li><p>Upload README.rst and credits.rst as artifacts.</p></li>
+<li><p>Dispatch the updates to the TARDIS website.</p></li>
+</ol>
+<ol class="arabic simple">
+<li><p>Checks out the TARDIS repository.</p></li>
+<li><p>Downloads the artifacts from the previous steps.</p></li>
+<li><p>Copy the <code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code>, <code class="docutils literal notranslate"><span class="pre">CITATION.cff</span></code>, <code class="docutils literal notranslate"><span class="pre">README.rst</span></code> and <code class="docutils literal notranslate"><span class="pre">credits.rst</span></code> files to the repository.</p></li>
+<li><p>Get the current date.</p></li>
+<li><p>Create a pull request.</p></li>
+<li><p>Wait for the PR to be created (30 second sleep).</p></li>
+<li><p>Automatically approve the PR using tokens from the infrastructure and core coordinator members.</p></li>
+<li><p>Enable auto-merge.</p></li>
+</ol>
 <section id="tardis-carsus-compatibility-check">
 <h3>TARDIS Carsus Compatibility Check<a class="headerlink" href="#tardis-carsus-compatibility-check" title="Link to this heading">¶</a></h3>
 <p>The TARDIS Carsus Compatibility Check or the “Bridge” compares reference data
@@ -327,7 +398,7 @@ bridge has failed.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 20 Apr 2026.
+      <span class="lastupdated">Last updated on 21 Apr 2026.
       </span></p>
   </div>
 
