@@ -1184,7 +1184,7 @@ def create_free_free_cooling_metadata(
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": -99,
-            "destination_level_idx": -99.0,
+            "destination_level_idx": -99,
         },
         index=([transition_starting_index]),
     )
@@ -1214,6 +1214,9 @@ def create_free_bound_cooling_metadata(
     destinations = [
         (1, 0, i) for i in range(fb_cool_probs_arr.shape[1])
     ]  # hard coded for hydrogen
+    # TODO: Fix by grabbing the destinations from something fed in which can identify the free-bound cooling associated atoms.
+    # However note that I don't think it matters because this is a deactivation transition, so destination is largely irrelevant.
+    # transition_line_idx however will need to make sure order is preserved.
 
     free_bound_cooling_metadata = pd.DataFrame(
         {

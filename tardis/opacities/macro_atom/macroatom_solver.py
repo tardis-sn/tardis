@@ -1414,15 +1414,15 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_exc_cool_rate
             Collisional excitation cooling rates per cell.
         coll_exc_cool_arr
-            Array of collisional excitation cooling rates by transition.
+            Array of collisional excitation cooling rates by transition and cell.
         coll_ion_cool_rate
             Collisional ionization cooling rates per cell.
         coll_ion_cool_arr
-            Array of collisional ionization cooling rates by transition.
+            Array of collisional ionization cooling rates by transition and cell.
         fb_cool_rate
             Free-bound cooling rates per cell.
         fb_cool_probs_arr
-            Array of free-bound cooling probabilities by bound level.
+            Array of free-bound cooling probabilities by free bound transition and cell.
         ff_cool_rate
             Free-free (bremsstrahlung) cooling rates per cell.
 
