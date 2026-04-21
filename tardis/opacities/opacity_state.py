@@ -149,6 +149,20 @@ class OpacityState:
         # NOTE: Disabled line scattering is handled by the opacitystate solver
         tau_sobolev = np.ascontiguousarray(self.tau_sobolev, dtype=np.float64)
 
+        # initialize the continuum attributes needed for the opacity state
+        bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
+        p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
+        photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
+        photo_ion_nu_threshold_maxs = np.zeros(0, dtype=np.float64)
+        photo_ion_block_references = np.zeros(0, dtype=np.int64)
+        chi_bf = np.zeros((0, 0), dtype=np.float64)
+        x_sect = np.zeros(0, dtype=np.float64)
+        phot_nus = np.zeros(0, dtype=np.float64)
+        ff_opacity_factor = np.zeros(0, dtype=np.float64)
+        emissivities = np.zeros((0, 0), dtype=np.float64)
+        photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
+        k_packet_idx = np.int64(-1)
+
         if line_interaction_type == "scatter":
             # to adhere to data types, we must have an array of minimum size 1
             array_size = 1
@@ -263,18 +277,6 @@ class OpacityState:
             transition_line_id = (
                 macro_atom_state.transition_metadata.transition_line_idx.values
             )
-            bf_threshold_list_nu = np.zeros(0, dtype=np.float64)
-            p_fb_deactivation = np.zeros((0, 0), dtype=np.float64)
-            photo_ion_nu_threshold_mins = np.zeros(0, dtype=np.float64)
-            photo_ion_nu_threshold_maxs = np.zeros(0, dtype=np.float64)
-            photo_ion_block_references = np.zeros(0, dtype=np.int64)
-            chi_bf = np.zeros((0, 0), dtype=np.float64)
-            x_sect = np.zeros(0, dtype=np.float64)
-            phot_nus = np.zeros(0, dtype=np.float64)
-            ff_opacity_factor = np.zeros(0, dtype=np.float64)
-            emissivities = np.zeros((0, 0), dtype=np.float64)
-            photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
-            k_packet_idx = np.int64(-1)
 
         return OpacityStateNumba(
             electron_densities,
