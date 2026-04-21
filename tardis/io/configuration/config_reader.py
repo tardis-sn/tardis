@@ -407,7 +407,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
         ----------
         montecarlo_section : dict
         """
-        if montecarlo_section["convergence_strategy"]["type"] == "damped":
+        if montecarlo_section["convergence_strategy"]["type"] in ["damped", "adaptive_damped"]:
             montecarlo_section[
                 "convergence_strategy"
             ] = Configuration.parse_convergence_section(
@@ -419,7 +419,7 @@ class Configuration(ConfigurationNameSpace, ConfigWriterMixin):
                 "you need to implement your specific convergence treatment"
             )
         else:
-            raise ValueError('convergence_strategy is not "damped" or "custom"')
+            raise ValueError('convergence_strategy is not "damped", "adaptive_damped" or "custom"')
 
     @staticmethod
     def parse_convergence_section(convergence_section_dict):

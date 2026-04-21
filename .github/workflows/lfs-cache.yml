@@ -52,7 +52,7 @@ jobs:
     if: github.repository_owner == 'tardis-sn'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.regression-data-repo }}
           path: tardis-regression-data
@@ -70,7 +70,7 @@ jobs:
         working-directory: tardis-regression-data
 
       - name: Test cache availability
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         id: test-lfs-cache-regression-data
         with:
           path: tardis-regression-data/.git/lfs
@@ -106,7 +106,7 @@ jobs:
         working-directory: tardis-regression-data
   
       - name: Save LFS cache if not found
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: ${{ steps.test-lfs-cache-regression-data.outputs.cache-hit != 'true' && !contains(github.ref, 'merge') }}
         with:
           path: tardis-regression-data/.git/lfs

@@ -89,10 +89,11 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.atom_data.continuum_data = ContinuumData(
             self.atom_data, selected_continuum_species=[(1, 0)]
         )
-        # hacky thing from CTARDIS
+        # hacky thing from CTARDIS. Something to do with the Lyman continuum.
         self.atom_data.continuum_data.photoionization_data.loc[
             (1, 0, 0), "x_sect"
         ] *= 0.0
+        # CTARDIS plasma expects the columns to be temperatures
         self.atom_data.yg_data.columns = list(
             self.atom_data.collision_data_temperatures
         )
@@ -251,14 +252,29 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.convergence_solvers["dilution_factor"] = ConvergenceSolver(
             self.convergence_strategy.w
         )
-        self.convergence_solvers["t_inner"] = ConvergenceSolver(
-            self.convergence_strategy.t_inner
-        )
 
     @staticmethod
     def initialize_radiation_field(
-        geometry_state, number_density, initial_t_inner, ws
+        geometry_state, number_density, initial_t_inner, dilution_factor
     ):
+        """Set up the radiation field properties for a IIP
+
+        Parameters
+        ----------
+        geometry_state : HomologousRadial1DGeometry
+            The geometry state of the simulation
+        number_density : pd.DataFrame
+            Elemental number density
+        initial_t_inner : float
+            Initial inner boundary temperature
+        dilution_factor : np.ndarray
+            Initial dilution factor
+
+        Returns
+        -------
+        np.ndarray, np.ndarray
+            Radiative temperature, dilution factor arrays for the radiation field
+        """
         r_inner = geometry_state.r_inner_active.value
         r_outer = geometry_state.r_outer_active.value
         r_middle = (
@@ -267,14 +283,13 @@ class TypeIIPWorkflow(WorkflowLogging):
         delta_r = r_outer - r_inner
         t_inner = initial_t_inner
 
-        v_inner = geometry_state.v_inner_active.value
-        doppler_factor = 1.0 - v_inner / const.c.cgs.value
-
         sigma_T = const.sigma_T.cgs.value
 
         N_H = number_density.loc[1].values
 
         # alternative tau calculation from ctardis
+        # v_inner = geometry_state.v_inner_active.value
+        # doppler_factor = 1.0 - v_inner / const.c.cgs.value
         # tau_e_shell = sigma_T * delta_r * N_H
 
         # tau = tau_e_shell - (1 - doppler_factor) * tau_e_shell ** (
@@ -299,13 +314,13 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         a = (1.0 - tau_geom) / (np.log(tau_flat) - np.log(tau_geom))
         b = 1.0 - np.log(tau_flat) * a
-        ws[flat_mask] = 1.0
+        dilution_factor[flat_mask] = 1.0
         lin_mask = np.logical_and(
             np.logical_not(flat_mask), np.logical_not(geometric_mask)
         )
-        ws[lin_mask] = a * np.log(tau_middle[lin_mask]) + b
+        dilution_factor[lin_mask] = a * np.log(tau_middle[lin_mask]) + b
 
-        return t_rads, ws
+        return t_rads, dilution_factor
 
     def get_convergence_estimates(self):
         """Compute convergence estimates from the transport state
@@ -344,20 +359,9 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.luminosity_nu_end,
         )
 
-        luminosity_ratios = (
-            (emitted_luminosity / self.luminosity_requested).to(1).value
-        )
-
-        estimated_t_inner = (
-            self.simulation_state.t_inner
-            * luminosity_ratios
-            ** self.convergence_strategy.t_inner_update_exponent
-        )
-
         logger.info(
             f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
             f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
-            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
         )
 
         self.log_plasma_state(
@@ -366,13 +370,12 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.simulation_state.t_inner,
             estimated_t_radiative,
             estimated_dilution_factor,
-            estimated_t_inner,
+            self.simulation_state.t_inner,
         )
         # ctardis does not update t_inner
         return {
             "t_radiative": estimated_t_radiative,
             "dilution_factor": estimated_dilution_factor,
-            "t_inner": self.simulation_state.t_inner,
         }, estimated_radfield_properties
 
     def check_convergence(
@@ -396,9 +399,8 @@ class TypeIIPWorkflow(WorkflowLogging):
         for key, solver in self.convergence_solvers.items():
             current_value = getattr(self.simulation_state, key)
             estimated_value = estimated_values[key]
-            no_of_shells = (
-                self.simulation_state.no_of_shells if key != "t_inner" else 1
-            )
+            no_of_shells = self.simulation_state.no_of_shells
+
             convergence_statuses.append(
                 solver.get_convergence_status(
                     current_value, estimated_value, no_of_shells
@@ -428,31 +430,33 @@ class TypeIIPWorkflow(WorkflowLogging):
         ----------
         estimated_values : dict
             Estimated from the previous iterations
+
+        Returns
+        -------
+        dict
+            Updated values for the simulation state
         """
         next_values = {}
 
-        for key, solver in self.convergence_solvers.items():
-            if (
-                key == "t_inner"
-                and (self.completed_iterations + 1)
-                % self.convergence_strategy.lock_t_inner_cycles
-                != 0
-            ):
-                next_values[key] = getattr(self.simulation_state, key)
-            else:
-                next_values[key] = solver.converge(
-                    getattr(self.simulation_state, key), estimated_values[key]
-                )
+        for estimate_name, solver in self.convergence_solvers.items():
+            next_values[estimate_name] = solver.converge(
+                getattr(self.simulation_state, estimate_name),
+                estimated_values[estimate_name],
+            )
 
         self.simulation_state.t_radiative = next_values["t_radiative"]
         self.simulation_state.dilution_factor = next_values["dilution_factor"]
-        self.simulation_state.blackbody_packet_source.temperature = next_values[
-            "t_inner"
-        ]
 
         return next_values
 
-    def update_continuum_estimators(self):
+    def update_estimators(self):
+        """Update the estimators for the radiation field
+
+        Returns
+        -------
+        dict, pd.DataFrame
+            Continuum interaction estimators and J_blues DataFrame for the radiation field
+        """
         continuum_estimators = {}
 
         continuum_estimators["photo_ion_estimator"] = (
@@ -493,13 +497,10 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         Parameters
         ----------
-        estimated_radfield_properties : EstimatedRadiationFieldProperties
-            The radiation field properties to use for updating the plasma
-
-        Raises
-        ------
-        ValueError
-            If the plasma solver radiative rates type is unknown
+        continuum_estimators : dict
+            Continuum interaction estimators
+        j_blues_df : pd.DataFrame
+            J_blues DataFrame for the radiation field
         """
         self.plasma_solver.update_radiationfield(
             self.simulation_state.t_radiative.value,
@@ -511,17 +512,37 @@ class TypeIIPWorkflow(WorkflowLogging):
             **continuum_estimators,
         )
 
-    def thermal_balance_iteration(self, initial, n_e_max, nfev):
-        nfev += 1
-        n_e_frac = initial[::2]
-        link_t_rad_t_electron = initial[1::2]
+    def thermal_balance_iteration(
+        self, initial_guess, max_electron_number_density
+    ):
+        """Compute the thermal balance of the plasma
 
-        print(f"Nfev: {nfev} \n")
-        print("link:", link_t_rad_t_electron)
+        Parameters
+        ----------
+        initial_guess : np.ndarray
+            Initial guess for the electron number density fraction and
+            link_t_rad_t_electron for each shell, in the form
+            [n_e_frac_1, link_1, n_e_frac_2, link_2,...]
+        max_electron_number_density : np.ndarray
+            Maximum possible electron number density for each shell.
+
+        Returns
+        -------
+        np.ndarray
+            Final guess for the electron number density fraction and
+            link_t_rad_t_electron for each shell, in the form
+            [n_e_frac_1, link_1, n_e_frac_2, link_2,...]
+        """
+        electron_density_fraction = initial_guess[::2]
+        link_t_rad_t_electron = initial_guess[1::2]
+
+        logger.info("Link: %s", link_t_rad_t_electron)
 
         pl = self.plasma_solver
 
-        electron_densities = n_e_max * n_e_frac
+        electron_densities = (
+            max_electron_number_density * electron_density_fraction
+        )
 
         self.plasma_solver.update(
             previous_ion_number_density=pl.ion_number_density.copy(),
@@ -532,12 +553,16 @@ class TypeIIPWorkflow(WorkflowLogging):
             previous_t_electrons=pl.t_rad * link_t_rad_t_electron,
         )
 
-        output = np.zeros(2 * len(self.plasma_solver.fractional_heating))
-        frac_e_change = (
+        solution = np.zeros(2 * len(self.plasma_solver.fractional_heating))
+        normalized_electron_fraction_change = (
             pl.electron_densities - electron_densities
         ) / electron_densities
-        n_e_frac_new = 1 - pl.electron_densities / n_e_max
-        n_e_frac_change = (n_e_frac_new - (1.0 - n_e_frac)) / (1.0 - n_e_frac)
+        electron_density_fraction_new = (
+            1 - pl.electron_densities / max_electron_number_density
+        )
+        electron_density_fraction_change = (
+            electron_density_fraction_new - (1.0 - electron_density_fraction)
+        ) / (1.0 - electron_density_fraction)
 
         if (
             np.logical_not(
@@ -545,18 +570,33 @@ class TypeIIPWorkflow(WorkflowLogging):
             ).sum()
             > 0
         ):
-            print("Heating not finite\n")
-        if np.logical_not(np.isfinite(frac_e_change)).sum() > 0:
-            print("frac e change not finite\n")
+            logger.warning("Heating not finite\n")
+        if (
+            np.logical_not(
+                np.isfinite(normalized_electron_fraction_change)
+            ).sum()
+            > 0
+        ):
+            logger.warning("Fractional electron change not finite\n")
 
-        output[::2] = frac_e_change
-        output[1::2] = self.plasma_solver.fractional_heating
-        print("Frac e change:", frac_e_change)
-        print("n_e_frac_change", n_e_frac_change)
-        print("Heating:", self.plasma_solver.fractional_heating)
-        return output
+        solution[::2] = normalized_electron_fraction_change
+        solution[1::2] = self.plasma_solver.fractional_heating
+        logger.info(
+            "Normalized electron fraction change: %s",
+            normalized_electron_fraction_change,
+        )
+        logger.info(
+            "Electron density fraction change: %s",
+            electron_density_fraction_change,
+        )
+        logger.info("Heating: %s", self.plasma_solver.fractional_heating)
+        return solution
 
     def solve_thermal_balance(self):
+        """Solve the heating and cooling balance of the plasma iteratively,
+        setting the electron number density and link_t_rad_t_electron
+        to values that satisfy thermal balance
+        """
         link_t_rad_t_electron_start = self.plasma_solver.link_t_rad_t_electron
         if np.array_equal(
             link_t_rad_t_electron_start,
@@ -566,10 +606,12 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.simulation_state.radiation_field_state.dilution_factor
                 ** 0.25
             )
-            print("Setting initial guess for link from ws:")
-            print(link_t_rad_t_electron_start)
+            logger.info(
+                "Setting initial guess for link between T_rad and T_e from dilution factor:"
+            )
+            logger.info(link_t_rad_t_electron_start)
 
-        n_e_max = (
+        max_electron_number_density = (
             (
                 self.plasma_solver.number_density.multiply(
                     self.plasma_solver.number_density.index.values, axis=0
@@ -578,31 +620,29 @@ class TypeIIPWorkflow(WorkflowLogging):
             .sum()
             .values
         )
-        n_e_frac_start = (
-            self.plasma_solver.electron_densities / n_e_max
+        initial_electron_fraction = (
+            self.plasma_solver.electron_densities / max_electron_number_density
         ).values
 
-        print("n_e_frac:", n_e_frac_start)
+        logger.info("Initial electron fraction: %s", initial_electron_fraction)
 
-        initial = np.zeros(2 * len(link_t_rad_t_electron_start))
-        initial[::2] = n_e_frac_start
-        initial[1::2] = link_t_rad_t_electron_start
+        initial_guess = np.zeros(2 * len(link_t_rad_t_electron_start))
+        initial_guess[::2] = initial_electron_fraction
+        initial_guess[1::2] = link_t_rad_t_electron_start
         no_shells = self.simulation_state.geometry.no_of_shells_active
-
-        nfev = 0
 
         jac_sparsity = block_diag([np.ones((2, 2))] * no_shells)
         t_floor = 1500.0 * u.K
-        link_floor = t_floor / self.simulation_state.t_radiative.min()
-        print("Floor Link:", link_floor)
+        minimum_t_rad_link = t_floor / self.simulation_state.t_radiative.min()
+        logger.info("Minimum T_rad link: %s", minimum_t_rad_link)
 
-        lbound = [0.0, link_floor] * no_shells
-        ubound = [1.0, 1.5] * no_shells
+        lower_bound = [0.0, minimum_t_rad_link] * no_shells
+        upper_bound = [1.0, 1.5] * no_shells
         self.plasma_solver.plasma_converged = False
         thermal_lsq_result = lsq(
             self.thermal_balance_iteration,
-            initial,
-            bounds=(lbound, ubound),
+            initial_guess,
+            bounds=(lower_bound, upper_bound),
             jac_sparsity=jac_sparsity,
             xtol=1e-14,
             ftol=1e-12,
@@ -611,28 +651,36 @@ class TypeIIPWorkflow(WorkflowLogging):
             max_nfev=100,
             method="trf",
             gtol=1e-14,
-            args=(
-                n_e_max,
-                nfev,
-            ),
+            args=(max_electron_number_density,),
         )
         self.plasma_solver.plasma_converged = True
         # final thermal_balance_iteration to set values in plasma
-        self.thermal_balance_iteration(thermal_lsq_result.x, n_e_max, nfev)
+        self.thermal_balance_iteration(
+            thermal_lsq_result.x, max_electron_number_density
+        )
 
         ion_ratio = (
-            self.plasma_solver.ion_number_density.loc[(1, 1)]
+            self.plasma_solver.ion_number_density.loc[(1, 0)]
             / self.plasma_solver.ion_number_density.loc[(1, 1)]
         ).values
-        print("Ion Ratio:", ion_ratio, ion_ratio**-1)
-        print("Plasma Ion Ratio", self.plasma_solver.ion_ratio)
+        logger.info("Ion Ratio: %s %s", ion_ratio, ion_ratio**-1)
+        logger.info("Plasma Ion Ratio: %s", self.plasma_solver.ion_ratio)
         ion_ratio_conv = (
             np.fabs(self.plasma_solver.ion_ratio - ion_ratio**-1)
             / ion_ratio**-1
         )
-        print("Ion Ratio Conv:", ion_ratio_conv)
+        logger.info("Ion Ratio Convergence: %s", ion_ratio_conv)
 
     def solve_continuum_state(self, continuum_estimators):
+        """Update the BaseContinuum object with the latest continuum estimators.
+        Update the continuum data in the atom data with the new level number
+        densities from the plasma solver.
+
+        Parameters
+        ----------
+        continuum_estimators : dict
+            Continuum interaction estimators
+        """
         self.base_continuum = BaseContinuum(
             plasma_array=self.plasma_solver,
             atom_data=self.atom_data,
@@ -652,6 +700,23 @@ class TypeIIPWorkflow(WorkflowLogging):
     def normalize_continuum_estimators(
         self, continuum_estimators, j_blues, j_estimators
     ):
+        """Compute and apply normalization factors for the continuum estimators
+        and J_blues.
+
+        Parameters
+        ----------
+        continuum_estimators : dict
+            Continuum interaction estimators
+        j_blues : pd.DataFrame
+            J_blues DataFrame for the radiation field
+        j_estimators : np.ndarray
+            J array for the radiation field
+
+        Returns
+        -------
+        dict, pd.DataFrame
+            Normalized continuum interaction estimators and J_blues DataFrame
+        """
         photo_ion_norm_factor = (
             1.0
             / (
@@ -660,19 +725,19 @@ class TypeIIPWorkflow(WorkflowLogging):
                 * const.h.cgs.value
             ).value
         )
-        damp = self.get_radiation_field_damping_factor(j_estimators)
+        damping_factor = self.get_radiation_field_damping_factor(j_estimators)
 
         continuum_estimators["photo_ion_estimator"] *= (
-            photo_ion_norm_factor * damp
+            photo_ion_norm_factor * damping_factor
         )
         continuum_estimators["stim_recomb_estimator"] *= (
-            photo_ion_norm_factor * damp
+            photo_ion_norm_factor * damping_factor
         )
         continuum_estimators["bf_heating_estimator"] *= (
-            photo_ion_norm_factor * const.h.cgs.value * damp
+            photo_ion_norm_factor * const.h.cgs.value * damping_factor
         )
         continuum_estimators["stim_recomb_cooling_estimator"] *= (
-            photo_ion_norm_factor * const.h.cgs.value * damp
+            photo_ion_norm_factor * const.h.cgs.value * damping_factor
         )
 
         ff_norm_factor = self.get_ff_heating_norm_factor(
@@ -680,12 +745,26 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.plasma_solver.electron_densities.values,
             self.plasma_solver.t_electrons,
         )
-        ff_norm_factor *= photo_ion_norm_factor * const.h.cgs.value * damp
+        ff_norm_factor *= (
+            photo_ion_norm_factor * const.h.cgs.value * damping_factor
+        )
         continuum_estimators["ff_heating_estimator"] *= ff_norm_factor
-        j_blues *= damp
+        j_blues *= damping_factor
         return continuum_estimators, j_blues
 
     def get_radiation_field_damping_factor(self, j_estimators):
+        """Compute the radiation field damping factor
+
+        Parameters
+        ----------
+        j_estimators : np.ndarray
+            J array for the radiation field
+
+        Returns
+        -------
+        np.ndarray
+            Damping factor
+        """
         J = (
             self.simulation_state.dilution_factor
             * self.simulation_state.t_radiative.value**4
@@ -705,6 +784,22 @@ class TypeIIPWorkflow(WorkflowLogging):
     def get_ff_heating_norm_factor(
         ion_number_density, electron_densities, t_electrons
     ):
+        """Compute the free-free heating normalization factor
+
+        Parameters
+        ----------
+        ion_number_density : pd.DataFrame
+            Ion number density DataFrame from the plasma solver
+        electron_densities : np.ndarray
+            Electron density array from the plasma solver
+        t_electrons : np.ndarray
+            Electron temperature array from the plasma solver
+
+        Returns
+        -------
+        np.ndarray
+            Free-free heating normalization factor
+        """
         ionic_charge_squared = np.square(
             ion_number_density.index.get_level_values(1).values
         )
@@ -816,12 +911,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         no_of_virtual_packets : int, optional
             Number of virtual packets to simulate per interaction, by default 0
 
-        Returns
-        -------
-        MonteCarloTransportState
-            The new transport state after simulation
-        ndarray
-            Array of unnormalized virtual packet energies in each frequency bin
         """
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
@@ -836,7 +925,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             iteration=self.completed_iterations,
         )
 
-        virtual_packet_energies = self.transport_solver.run(
+        self.transport_solver.run(
             self.transport_state,
             show_progress_bars=self.show_progress_bars,
         )
@@ -845,49 +934,12 @@ class TypeIIPWorkflow(WorkflowLogging):
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        return virtual_packet_energies
-
     def initialize_spectrum_solver(
         self,
-        opacity_states,
-        virtual_packet_energies=None,
     ):
-        """Set up the spectrum solver
-
-        Parameters
-        ----------
-        virtual_packet_energies : ndarray, optional
-            Array of virtual packet energies binned by frequency, by default None
-        """
-        # Set up spectrum solver
+        """Set up the spectrum solver"""
+        # probably needs to expand again in the future to handle formal integral
         self.spectrum_solver.transport_state = self.transport_state
-
-        if virtual_packet_energies is not None:
-            self.spectrum_solver._montecarlo_virtual_luminosity.value[:] = (
-                virtual_packet_energies
-            )
-
-        if self.integrated_spectrum_settings is not None:
-            # Set up spectrum solver integrator
-            self.spectrum_solver.integrator_settings = (
-                self.integrated_spectrum_settings
-            )
-            integrator_settings = self.spectrum_solver.integrator_settings
-            formal_integrator = FormalIntegralSolver(
-                integrator_settings.points,
-                integrator_settings.interpolate_shells,
-                getattr(integrator_settings, "method", None),
-            )
-            self.spectrum_solver.setup_optional_spectra(
-                self.transport_state,
-                virtual_packet_luminosity=None,
-                integrator=formal_integrator,
-                simulation_state=self.simulation_state,
-                transport=self.transport_solver,
-                plasma=self.plasma_solver,
-                opacity_state=opacity_states["opacity_state"],
-                macro_atom_state=opacity_states["macro_atom_state"],
-            )
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
@@ -902,29 +954,22 @@ class TypeIIPWorkflow(WorkflowLogging):
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
 
-            print("Solving opacity")
-
             self.opacity_states = self.solve_opacity()
-            print("Solving Monte Carlo transport")
-            virtual_packet_energies = self.solve_montecarlo(
-                self.opacity_states, self.real_packet_count
-            )
+
+            self.solve_montecarlo(self.opacity_states, self.real_packet_count)
 
             (
                 estimated_values,
                 estimated_radfield_properties,
             ) = self.get_convergence_estimates()
 
-            print("Updating simulation")
             self.solve_simulation_state(estimated_values)
 
-            continuum_estimators, j_blues = self.update_continuum_estimators()
+            continuum_estimators, j_blues = self.update_estimators()
 
-            print("Solving plasma")
             self.solve_plasma(continuum_estimators, j_blues)
 
             # After first MC step
-            print("Solving thermal balance")
             self.solve_thermal_balance()
 
             self.solve_continuum_state(continuum_estimators)
@@ -942,13 +987,10 @@ class TypeIIPWorkflow(WorkflowLogging):
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
         self.opacity_states = self.solve_opacity()
-        virtual_packet_energies = self.solve_montecarlo(
+        self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
         )
 
-        self.initialize_spectrum_solver(
-            self.opacity_states,
-            virtual_packet_energies,
-        )
+        self.initialize_spectrum_solver()

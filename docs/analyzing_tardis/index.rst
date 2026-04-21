@@ -1,5 +1,5 @@
 ************************************
-Analyszing TARDIS Simulation Outputs
+Analyzing TARDIS Simulation Outputs
 ************************************
 
 This section provides practical solutions for common analysis tasks. These guides assume you have completed simulations and want to extract scientific insights from the results.

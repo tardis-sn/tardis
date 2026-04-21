@@ -63,7 +63,7 @@ We strongly recommend installing TARDIS using this method by following the steps
 
         $ git clone git@github.com:tardis-sn/tardis.git
         $ cd tardis
-        $ git remote add upstream git@github.com:tardis-sn/tardis.git
+        $ git remote add upstream https://github.com/tardis-sn/tardis.git
         $ git fetch upstream
         $ git checkout upstream/master
         $ pip install -e ".[tardisbase,viz]" # or pip install -e ".[viz]" if tardisbase is already installed in editable mode
