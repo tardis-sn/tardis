@@ -6,17 +6,33 @@ from tqdm.auto import tqdm
 
 from tardis.util.environment import Environment
 
-# Global progress bar instances - initialized at import time for thread safety
-# Use tqdm.auto which automatically detects environment
-iterations_pbar = tqdm(
-    desc="Iterations:",
-    bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-)
-packet_pbar = tqdm(
-    desc="Packets:   ",
-    postfix="0",
-    bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
-)
+# Global progress bar instances - created on first use to avoid
+# rendering at import time in CLI environments (see #3287)
+iterations_pbar = None
+packet_pbar = None
+
+
+def _get_iterations_pbar():
+    """Return the iterations progress bar, creating it if needed."""
+    global iterations_pbar
+    if iterations_pbar is None:
+        iterations_pbar = tqdm(
+            desc="Iterations:",
+            bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+        )
+    return iterations_pbar
+
+
+def _get_packet_pbar():
+    """Return the packet progress bar, creating it if needed."""
+    global packet_pbar
+    if packet_pbar is None:
+        packet_pbar = tqdm(
+            desc="Packets:   ",
+            postfix="0",
+            bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
+        )
+    return packet_pbar
 
 def update_packets_pbar(i: int, no_of_packets: int) -> None:
     """
@@ -32,11 +48,11 @@ def update_packets_pbar(i: int, no_of_packets: int) -> None:
     no_of_packets : int
         Total number of packets in one iteration.
     """
-    # Initialize packet progress bar if needed
-    if packet_pbar.total is None:
-        fix_bar_layout(packet_pbar, no_of_packets=no_of_packets)
+    pbar = _get_packet_pbar()
+    if pbar.total is None:
+        fix_bar_layout(pbar, no_of_packets=no_of_packets)
 
-    packet_pbar.update(i)
+    pbar.update(i)
 
 
 def reset_packet_pbar(no_of_packets: int) -> None:
@@ -48,7 +64,7 @@ def reset_packet_pbar(no_of_packets: int) -> None:
     no_of_packets : int
         Total number of packets in the iteration.
     """
-    packet_pbar.reset(total=no_of_packets)
+    _get_packet_pbar().reset(total=no_of_packets)
 
 
 def refresh_packet_pbar() -> None:
@@ -58,7 +74,7 @@ def refresh_packet_pbar() -> None:
     This function refreshes the visual display of the packet progress bar
     to ensure accurate rendering after each iteration completes.
     """
-    packet_pbar.refresh()
+    _get_packet_pbar().refresh()
 
 
 def update_iterations_pbar(i: int) -> None:
@@ -70,7 +86,7 @@ def update_iterations_pbar(i: int) -> None:
     i : int
         Amount by which the progress bar needs to be updated.
     """
-    iterations_pbar.update(i)
+    _get_iterations_pbar().update(i)
 
 
 def initialize_iterations_pbar(total_iterations: int) -> None:
@@ -82,8 +98,20 @@ def initialize_iterations_pbar(total_iterations: int) -> None:
     total_iterations : int
         Total number of iterations.
     """
-    if iterations_pbar.total is None:
-        fix_bar_layout(iterations_pbar, total_iterations=total_iterations)
+    pbar = _get_iterations_pbar()
+    if pbar.total is None:
+        fix_bar_layout(pbar, total_iterations=total_iterations)
+
+
+def close_progress_bars() -> None:
+    """Close and reset both progress bars if they have been created."""
+    global iterations_pbar, packet_pbar
+    if packet_pbar is not None:
+        packet_pbar.close()
+        packet_pbar = None
+    if iterations_pbar is not None:
+        iterations_pbar.close()
+        iterations_pbar = None
 
 
 def fix_bar_layout(bar, no_of_packets=None, total_iterations=None):

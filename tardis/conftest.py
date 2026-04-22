@@ -12,10 +12,7 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.tests.fixtures.atom_data import *
-from tardis.transport.montecarlo.progress_bars import (
-    iterations_pbar,
-    packet_pbar,
-)
+from tardis.transport.montecarlo.progress_bars import close_progress_bars
 from tardis.tests.test_util import monkeysession
 
 try:
@@ -337,7 +334,4 @@ def workflow_simple(config_verysimple, atomic_data_fname):
 
 
 def pytest_sessionfinish(session, exitstatus):
-    if packet_pbar is not None:
-        packet_pbar.close()
-    if iterations_pbar is not None:
-        iterations_pbar.close()
+    close_progress_bars()

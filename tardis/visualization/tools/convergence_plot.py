@@ -15,15 +15,6 @@ import plotly.graph_objects as go
 
 import tardis.visualization.plot_util as pu
 
-plotly.offline.init_notebook_mode(connected=True)
-# mathjax needs to be loaded for latex labels to render correctly
-# see https://github.com/tardis-sn/tardis/issues/2446
-display(
-    HTML(
-        '<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'
-    )
-)
-
 
 class ConvergencePlots:
     """
@@ -287,6 +278,14 @@ class ConvergencePlots:
         self.create_t_inner_luminosities_plot()
 
         if display_plot:
+            plotly.offline.init_notebook_mode(connected=True)
+            # mathjax needs to be loaded for latex labels to render correctly
+            # see https://github.com/tardis-sn/tardis/issues/2446
+            display(
+                HTML(
+                    '<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_SVG"></script>'
+                )
+            )
             self.display_handle = display(
                 widgets.VBox(
                     [self.plasma_plot, self.t_inner_luminosities_plot],
