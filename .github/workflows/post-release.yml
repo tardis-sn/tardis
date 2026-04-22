@@ -13,7 +13,7 @@ jobs:
   changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: tardis-sn/tardis
           fetch-depth: 0
@@ -37,7 +37,7 @@ jobs:
         env:
           OUTPUT: CHANGELOG.md
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: changelog
           path: CHANGELOG.md
@@ -45,13 +45,13 @@ jobs:
   citation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Wait for Zenodo webhook
         run: sleep 180
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.x"
 
@@ -70,7 +70,7 @@ jobs:
             attempt=$((attempt + 1))
           done
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: citation
           path: CITATION.cff
@@ -78,13 +78,13 @@ jobs:
   credits:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Wait for Zenodo webhook
         run: sleep 180
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -94,7 +94,7 @@ jobs:
       - name: Update README.rst
         run: python .ci-helpers/update_credits.py
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: credits
           path: |
@@ -114,9 +114,9 @@ jobs:
     needs: [changelog, citation, credits]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           path: /tmp
 
@@ -129,7 +129,7 @@ jobs:
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
 
-      - uses: peter-evans/create-pull-request@v4
+      - uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.BOT_TOKEN }}
           committer: TARDIS Bot <tardis.sn.bot@gmail.com>
@@ -171,7 +171,7 @@ jobs:
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 
       - name: Enable automerge
-        uses: peter-evans/enable-pull-request-automerge@v2
+        uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}

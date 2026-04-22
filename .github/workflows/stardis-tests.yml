@@ -35,7 +35,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     if: ${{ !github.event.pull_request.draft }}
     steps:     
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: tardis-sn/stardis
 
@@ -50,7 +50,7 @@ jobs:
         id: cache-environment-key
         shell: bash
         
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: mamba-org/setup-micromamba@v3
         with:
           environment-file: conda-${{ matrix.label }}.lock
           cache-environment-key: ${{ steps.cache-environment-key.outputs.file_hash }}

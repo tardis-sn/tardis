@@ -46,13 +46,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-cache]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: github.event_name != 'pull_request_target'
         with:
           fetch-depth: 0
 
       - name: Checkout PR and master branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -62,13 +62,18 @@ jobs:
         run: git fetch origin master:master
         if: github.event_name == 'pull_request_target'
 
+      - name: Get PR head commit message
+        if: github.event_name == 'pull_request_target'
+        id: pr_commit_msg
+        run: echo "message=$(git log -1 --format=%s)" >> $GITHUB_OUTPUT
+
       - name: Setup LFS
         uses: ./.github/actions/setup_lfs
         with:
           atom-data-sparse: true
 
       - name: Setup Mamba
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: benchmark
           init-shell: >-
@@ -116,6 +121,13 @@ jobs:
           external_repository: tardis-sn/tardis-benchmarks
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
+          full_commit_message: |
+            deploy: master - ${{ github.event.head_commit.message }}
+
+            This is an automated benchmark deploy.
+            Triggered by: push to master
+            Commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Run benchmarks for base and head commits of PR
         if: github.event_name == 'pull_request_target'
@@ -136,13 +148,13 @@ jobs:
 
       - name: Benchmarks compare output
         id: asv_pr_vs_master
-        uses: juliangruber/read-file-action@v1.1.7
+        uses: juliangruber/read-file-action@v1.1.8
         with:
           path: asv-compare-output.log
 
       - name: Benchmarks compare only changed output
         id: asv_pr_vs_master_changed
-        uses: juliangruber/read-file-action@v1.1.7
+        uses: juliangruber/read-file-action@v1.1.8
         with:
           path: asv-compare-changed-output.log
 
@@ -210,10 +222,20 @@ jobs:
           external_repository: tardis-sn/tardis-benchmarks
           user_name: "TARDIS Bot"
           user_email: "tardis.sn.bot@gmail.com"
-      
+          full_commit_message: |
+            deploy: PR #${{ github.event.number }} - ${{ github.event.pull_request.title }}
+
+            This is an automated benchmark deploy.
+            Triggered by: pull_request_target (#${{ github.event.number }})
+            PR: https://github.com/${{ github.repository }}/pull/${{ github.event.number }}
+            PR head commit: https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }}
+            PR head commit message: ${{ steps.pr_commit_msg.outputs.message }}
+            Base (master) commit: https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.base.sha }}
+            Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
       - name: Find Comment
         if: always() && github.event_name == 'pull_request_target'
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ github.event.number }}
@@ -221,7 +243,7 @@ jobs:
 
       - name: Post comment
         if: github.event_name == 'pull_request_target'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.number }}
@@ -258,7 +280,7 @@ jobs:
           URL_PAGES: https://tardis-sn.github.io/tardis-benchmarks/pull/${{ github.event.number }}
 
       - name: Save results artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: asv-benchmark-results-${{ runner.os }}

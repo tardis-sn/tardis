@@ -17,7 +17,7 @@ jobs:
   zenodo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: tardis-sn/tardis_zenodo
           token: ${{ secrets.BOT_TOKEN }}
@@ -43,7 +43,7 @@ jobs:
         run: jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000 --allow-errors
         if: failure()
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: zenodo_json
           path: .zenodo.json
@@ -62,9 +62,9 @@ jobs:
     outputs:
       pr-operation: ${{ steps.create-pr.outputs.pull-request-operation }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           path: /tmp
 
@@ -79,7 +79,7 @@ jobs:
       - name: Get current date
         run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
 
-      - uses: peter-evans/create-pull-request@v6
+      - uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.BOT_TOKEN }}
           committer: TARDIS Bot <tardis.sn.bot@gmail.com>
@@ -130,7 +130,7 @@ jobs:
         if: steps.create-pr.outputs.pull-request-operation == 'created'
 
       - name: Enable automerge
-        uses: peter-evans/enable-pull-request-automerge@v2
+        uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.INFRASTRUCTURE_COORDINATOR_TOKEN }}
           pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}

@@ -8,6 +8,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
+### TODO: Remove all continuum attrs from this class
 @jitclass
 class OpacityStateNumba:
     electron_density: nb.float64[:]  # type: ignore[misc]
@@ -20,6 +21,7 @@ class OpacityStateNumba:
     transition_type: nb.int64[:]  # type: ignore[misc]
     destination_level_id: nb.int64[:]  # type: ignore[misc]
     transition_line_id: nb.int64[:]  # type: ignore[misc]
+    # Everything below this should be removed when we fully split the iip mode
     bf_threshold_list_nu: nb.float64[:]  # type: ignore[misc]
     p_fb_deactivation: nb.float64[:, :]  # type: ignore[misc]
     photo_ion_nu_threshold_mins: nb.float64[:]  # type: ignore[misc]
@@ -32,6 +34,7 @@ class OpacityStateNumba:
     emissivities: nb.float64[:, :]  # type: ignore[misc]
     photo_ion_activation_idx: nb.int64[:]  # type: ignore[misc]
     k_packet_idx: nb.int64  # type: ignore[misc]
+    absorbing_markov_probabilities: nb.float64[:, :, :]  # type: ignore[misc]
 
     def __init__(
         self,
@@ -107,6 +110,11 @@ class OpacityStateNumba:
             Indices for photoionization activation.
         k_packet_idx : int
             Index for k-packet handling.
+        absorbing_markov_probabilities
+            Matrix B: Absorbing probabilities of the Markov-chain macro atom.
+            Shape: (n_shells, n_states, n_states). For each shell, contains the probability
+            of being absorbed in each destination state when starting from each source state.
+            Only for IIp. Here as a placeholder for numba compilation problems.
         """
         self.electron_density = electron_density
         self.t_electrons = t_electrons
@@ -138,6 +146,9 @@ class OpacityStateNumba:
         self.emissivities = emissivities
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
+        self.absorbing_markov_probabilities = np.ones(
+            (0, 0, 0)
+        )  # Double check that this is what we want to do. Fixes numba tests.
 
     def __getitem__(self, i: slice) -> "OpacityStateNumba":
         """Get a shell or slice of shells of the attributes of the opacity state.
