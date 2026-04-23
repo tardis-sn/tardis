@@ -3,17 +3,14 @@
 from collections import defaultdict
 from copy import deepcopy
 
+import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 import pytest
 from astropy import units as u
 
 from tardis import run_tardis
-from tardis.visualization.tools.convergence_plot import (
-    ConvergencePlots
-)
-from collections import defaultdict
-import plotly.graph_objects as go
-from astropy import units as u
+from tardis.visualization.tools.convergence_plot import ConvergencePlots
 import tardis.visualization.plot_util as pu
 
 
@@ -233,3 +230,57 @@ def test_convergence_plot_command_line(
             atom_data=atomic_data,
             show_convergence_plots=True,
         )
+
+
+@pytest.fixture(scope="module")
+def convergence_plots_for_export():
+    """
+    ConvergencePlots populated with synthetic data whose types match what
+    base.py actually stores: t_inner/Emitted/Absorbed/Requested are plain
+    floats (.value stripped before fetch_data), velocity/t_rad are Quantity
+    arrays, w is a plain ndarray.
+    """
+    cp = ConvergencePlots(iterations=3)
+    cp.build(display_plot=False)
+
+    velocity = np.array([11000.0, 12000.0, 13000.0]) * u.km / u.s
+    t_rad = np.array([10000.0, 9500.0, 9000.0]) * u.K
+    w = np.array([0.5, 0.4, 0.3])
+
+    cp.fetch_data(name="velocity", value=velocity, item_type="iterable")
+    cp.fetch_data(name="t_rad", value=t_rad, item_type="iterable")
+    cp.fetch_data(name="w", value=w, item_type="iterable")
+
+    for i in range(3):
+        cp.fetch_data(name="t_inner", value=10000.0 + i * 100.0, item_type="value")
+        cp.fetch_data(name="Emitted", value=1.0e43 + i * 1.0e41, item_type="value")
+        cp.fetch_data(name="Absorbed", value=0.9e43 + i * 1.0e41, item_type="value")
+        cp.fetch_data(name="Requested", value=1.05e43, item_type="value")
+
+    return cp
+
+
+def test_export_csv_tinner_history(convergence_plots_for_export, regression_data, tmp_path):
+    """t_inner convergence history CSV matches regression data."""
+    convergence_plots_for_export._export_csv(str(tmp_path), "test")
+    result = pd.read_csv(tmp_path / "test_tinner.csv")
+    expected = regression_data.sync_dataframe(result, key="tinner")
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_export_csv_plasma_last(convergence_plots_for_export, regression_data, tmp_path):
+    """Last-iteration plasma state CSV matches regression data."""
+    convergence_plots_for_export._export_csv(str(tmp_path), "test")
+    result = pd.read_csv(tmp_path / "test_plasma_last.csv")
+    expected = regression_data.sync_dataframe(result, key="plasma")
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_export_images_creates_files(convergence_plots_for_export, tmp_path):
+    """Image export creates non-empty output files (requires kaleido)."""
+    pytest.importorskip("kaleido")
+    convergence_plots_for_export._export_images(str(tmp_path), "test", "png")
+    assert (tmp_path / "test_plasma.png").exists()
+    assert (tmp_path / "test_tinner.png").exists()
+    assert (tmp_path / "test_plasma.png").stat().st_size > 0
+    assert (tmp_path / "test_tinner.png").stat().st_size > 0
