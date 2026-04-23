@@ -1,0 +1,19 @@
+tardis.transport.montecarlo.modes package
+=========================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.transport.montecarlo.modes.classic
+   tardis.transport.montecarlo.modes.iip
+
+Module contents
+---------------
+
+.. automodule:: tardis.transport.montecarlo.modes
+   :members:
+   :show-inheritance:
+   :undoc-members:
