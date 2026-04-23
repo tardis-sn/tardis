@@ -12,6 +12,7 @@ from tardis.plasma.properties.ion_population import IonNumberDensity
 from tardis.plasma.properties.nlte_rate_equation_solver import (
     calculate_jacobian_matrix,
     calculate_rate_matrix,
+    calculate_first_guess,
 )
 
 
@@ -409,3 +410,80 @@ def test_critical_case_dilution_factor_0_lu(
         rtol=1e-2,
         atol=1e-10,
     )
+
+def test_calculate_first_guess_with_previous_values():
+    rate_matrix_index = pd.MultiIndex.from_tuples(
+        [(1, 1, "nlte_ion"), (1, 2, "nlte_ion"), ("n_e", "", "")],
+        names=["atomic_number", "ion_number", "level_number"]
+    )
+    atomic_numbers = [1]
+    number_density = pd.Series([1.0], index=[1])
+    electron_density = 1.0
+    
+    prev_ion_dens = pd.Series(
+        [0.4, 0.6], 
+        index=pd.MultiIndex.from_tuples([(1, 1), (1, 2)], names=["atomic_number", "ion_number"])
+    )
+    prev_ne = 0.6
+    
+    guess = calculate_first_guess(
+        rate_matrix_index,
+        atomic_numbers,
+        number_density,
+        electron_density,
+        previous_ion_number_density=prev_ion_dens,
+        previous_electron_densities=prev_ne
+    )
+    
+    expected = np.array([0.4, 0.6, 0.6])
+    np.testing.assert_allclose(guess, expected)
+
+def test_calculate_first_guess_without_previous_values():
+    rate_matrix_index = pd.MultiIndex.from_tuples(
+        [(1, 1, "nlte_ion"), (1, 2, "nlte_ion"), ("n_e", "n_e", "n_e")],
+        names=["atomic_number", "ion_number", "level_number"]
+    )
+    atomic_numbers = [1]
+    number_density = pd.Series([1.0], index=[1])
+    electron_density = 1.0
+    
+    guess = calculate_first_guess(
+        rate_matrix_index,
+        atomic_numbers,
+        number_density,
+        electron_density,
+        previous_ion_number_density=None,
+        previous_electron_densities=None
+    )
+    
+    expected = np.array([1.0, 0.0, 1.0])
+    np.testing.assert_allclose(guess, expected)
+
+def test_calculate_first_guess_partial_previous_values():
+    rate_matrix_index = pd.MultiIndex.from_tuples(
+        [(1, 1, "nlte_ion"), (1, 2, "nlte_ion"), ("n_e", "n_e", "n_e")],
+        names=["atomic_number", "ion_number", "level_number"]
+    )
+    atomic_numbers = [1]
+    number_density = pd.Series([1.0], index=[1])
+    electron_density = 1.0
+    
+    # Only (1, 1) is present in previous values
+    prev_ion_dens = pd.Series(
+        [0.4], 
+        index=pd.MultiIndex.from_tuples([(1, 1)], names=["atomic_number", "ion_number"])
+    )
+    prev_ne = 0.6
+    
+    guess = calculate_first_guess(
+        rate_matrix_index,
+        atomic_numbers,
+        number_density,
+        electron_density,
+        previous_ion_number_density=prev_ion_dens,
+        previous_electron_densities=prev_ne
+    )
+    
+    # (1, 1) -> 0.4, (1, 2) -> 0.0 (default), n_e -> 0.6
+    expected = np.array([0.4, 0.0, 0.6])
+    np.testing.assert_allclose(guess, expected)
