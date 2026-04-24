@@ -4,6 +4,7 @@ on:
   pull_request_target:
     branches:
       - master
+      - fix-workflow
 
 jobs:
   git-lfs-pull-label:
@@ -50,13 +51,15 @@ jobs:
       - name: Welcome first-time contributor
         uses: actions/first-interaction@v3
         with:
-          repo_token: ${{ secrets.BOT_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           pr_message: |
             👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
 
             **If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and our [PR checklist](https://tardis-sn.github.io/summer_of_code/pr_checklist/).**
 
             Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.
+          issue_message: |
+            👋 Welcome @${{ github.event.issue.user.login }}! Thank you for opening your first issue in this repository!
 
   check-orcid:
     runs-on: ubuntu-latest
