@@ -4,7 +4,7 @@ on:
   pull_request_target:
     branches:
       - master
-      - fix-workflow
+      - fix-workflow-trial
 
 jobs:
   git-lfs-pull-label:
