@@ -1,0 +1,560 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-53HJHD1BWS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-53HJHD1BWS');
+    </script>
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tardis.iip_plasma.properties.nlte &mdash; tardis</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+    <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=3d10022a"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href="../../../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            tardis
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/high_energy/run_high_energy_workflow.html">TARDIS High Energy Workflow Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/visualization/tutorial_montecarlo_packet_visualization.html">Montecarlo Packet Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/read_external_models/index.html">How-to read external models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/grid/how_to_TardisGridTutorial.html">How to Run TARDIS Model Grids</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/custom_source/how_to_custom_source.html">How to Run TARDIS with a Custom Packet Source</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_to_hdf.html">How to Store Simulations to HDF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/visualization_reference.html">Visualization Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../resources/zreferences.html">Bibliography and Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to TARDIS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/development/index.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/tools/index.html">Developer Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/in_progress/index.html">Features In-Progress</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">tardis</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tardis.iip_plasma.properties.nlte</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tardis.iip_plasma.properties.nlte</h1><div class="highlight"><pre>
+<span></span>import logging
+import os
+
+import numpy as np
+import pandas as pd
+
+from tardis.iip_plasma.properties import PhiSahaNebular
+from tardis.iip_plasma.properties.base import (
+    PreviousIterationProperty,
+    ProcessingPlasmaProperty,
+)
+
+__all__ = [
+    &quot;HeliumNLTE&quot;,
+    &quot;HeliumNumericalNLTE&quot;,
+    &quot;PreviousBetaSobolev&quot;,
+    &quot;PreviousElectronDensities&quot;,
+    &quot;PreviousElectronTemperature&quot;,
+    &quot;PreviousIonNumberDensity&quot;,
+]
+
+logger = logging.getLogger(__name__)
+
+
+<div class="viewcode-block" id="PreviousElectronDensities">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousElectronDensities">[docs]</a>
+class PreviousElectronDensities(PreviousIterationProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    previous_electron_densities : The values for the electron densities converged upon in the previous iteration.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;previous_electron_densities&quot;,)
+
+<div class="viewcode-block" id="PreviousElectronDensities.set_initial_value">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousElectronDensities.set_initial_value">[docs]</a>
+    def set_initial_value(self, kwargs):
+        # initial_value = np.ones(len(kwargs[&#39;abundance&#39;].columns))*1000000.0
+        # TODO: Revert
+        initial_value = None
+        self._set_initial_value(initial_value)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="PreviousBetaSobolev">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousBetaSobolev">[docs]</a>
+class PreviousBetaSobolev(PreviousIterationProperty):
+    &quot;&quot;&quot;
+    Attributes
+    ----------
+    previous_beta_sobolev : The beta sobolev values converged upon in the previous iteration.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;previous_beta_sobolev&quot;,)
+
+<div class="viewcode-block" id="PreviousBetaSobolev.set_initial_value">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousBetaSobolev.set_initial_value">[docs]</a>
+    def set_initial_value(self, kwargs):
+        try:
+            lines = len(kwargs[&quot;atomic_data&quot;].lines)
+        except:
+            lines = len(kwargs[&quot;atomic_data&quot;]._lines)
+        initial_value = np.ones((lines, len(kwargs[&quot;abundance&quot;].columns)))
+        self._set_initial_value(initial_value)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="PreviousIonNumberDensity">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousIonNumberDensity">[docs]</a>
+class PreviousIonNumberDensity(PreviousIterationProperty):
+    outputs = (&quot;previous_ion_number_density&quot;,)
+
+<div class="viewcode-block" id="PreviousIonNumberDensity.set_initial_value">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousIonNumberDensity.set_initial_value">[docs]</a>
+    def set_initial_value(self, kwargs):
+        initial_value = None
+        self._set_initial_value(initial_value)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="PreviousElectronTemperature">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousElectronTemperature">[docs]</a>
+class PreviousElectronTemperature(PreviousIterationProperty):
+    outputs = (&quot;previous_t_electrons&quot;,)
+
+<div class="viewcode-block" id="PreviousElectronTemperature.set_initial_value">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.PreviousElectronTemperature.set_initial_value">[docs]</a>
+    def set_initial_value(self, kwargs):
+        initial_value = None
+        self._set_initial_value(initial_value)</div>
+</div>
+
+
+
+<div class="viewcode-block" id="HeliumNLTE">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.HeliumNLTE">[docs]</a>
+class HeliumNLTE(ProcessingPlasmaProperty):
+    outputs = (&quot;helium_population&quot;,)
+
+<div class="viewcode-block" id="HeliumNLTE.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.HeliumNLTE.calculate">[docs]</a>
+    def calculate(
+        self,
+        level_boltzmann_factor,
+        electron_densities,
+        ionization_data,
+        beta_rad,
+        g,
+        g_electron,
+        w,
+        t_rad,
+        t_electrons,
+        delta,
+        zeta_data,
+        number_density,
+        partition_function,
+    ):
+        &quot;&quot;&quot;
+        Updates all of the helium level populations according to the helium NLTE recomb approximation.
+        &quot;&quot;&quot;
+        helium_population = level_boltzmann_factor.loc[2].copy()
+        # He I excited states
+        he_one_population = self.calculate_helium_one(
+            g_electron,
+            beta_rad,
+            ionization_data,
+            level_boltzmann_factor,
+            electron_densities,
+            g,
+            w,
+        )
+        helium_population.loc[0].update(he_one_population)
+        # He I metastable states
+        helium_population.loc[0, 1] *= 1 / w
+        helium_population.loc[0, 2] *= 1 / w
+        # He I ground state
+        helium_population.loc[0, 0] = 0.0
+        # He II excited states
+        he_two_population = level_boltzmann_factor.loc[2, 1].mul(
+            g.loc[2, 1].loc[0] ** (-1)
+        )
+        helium_population.loc[1].update(he_two_population)
+        # He II ground state
+        helium_population.loc[1, 0] = 1.0
+        # He III states
+        helium_population.loc[2, 0] = self.calculate_helium_three(
+            t_rad,
+            w,
+            zeta_data,
+            t_electrons,
+            delta,
+            g_electron,
+            beta_rad,
+            ionization_data,
+            electron_densities,
+            g,
+        )
+        unnormalised = helium_population.sum()
+        normalised = helium_population.mul(number_density.loc[2] / unnormalised)
+        helium_population.update(normalised)
+        return helium_population</div>
+
+
+<div class="viewcode-block" id="HeliumNLTE.calculate_helium_one">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.HeliumNLTE.calculate_helium_one">[docs]</a>
+    @staticmethod
+    def calculate_helium_one(
+        g_electron,
+        beta_rad,
+        ionization_data,
+        level_boltzmann_factor,
+        electron_densities,
+        g,
+        w,
+    ):
+        &quot;&quot;&quot;
+        Calculates the He I level population values, in equilibrium with the He II ground state.
+        &quot;&quot;&quot;
+        return (
+            level_boltzmann_factor.loc[2, 0].mul(g.loc[2, 0], axis=0)
+            * (1.0 / (2 * g.loc[2, 1, 0]))
+            * (1 / g_electron)
+            * (1 / (w**2))
+            * np.exp(ionization_data.ionization_energy.loc[2, 1] * beta_rad)
+            * electron_densities
+        )</div>
+
+
+<div class="viewcode-block" id="HeliumNLTE.calculate_helium_three">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.HeliumNLTE.calculate_helium_three">[docs]</a>
+    @staticmethod
+    def calculate_helium_three(
+        t_rad,
+        w,
+        zeta_data,
+        t_electrons,
+        delta,
+        g_electron,
+        beta_rad,
+        ionization_data,
+        electron_densities,
+        g,
+    ):
+        &quot;&quot;&quot;
+        Calculates the He III level population values.
+        &quot;&quot;&quot;
+        zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
+        he_three_population = (
+            (2 / electron_densities)
+            * (float(g.loc[2, 2, 0]) / g.loc[2, 1, 0])
+            * g_electron
+            * np.exp(-ionization_data.ionization_energy.loc[2, 2] * beta_rad)
+            * w
+            * (delta.loc[2, 2] * zeta + w * (1.0 - zeta))
+            * (t_electrons / t_rad) ** 0.5
+        )</div>
+</div>
+
+
+
+<div class="viewcode-block" id="HeliumNumericalNLTE">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.HeliumNumericalNLTE">[docs]</a>
+class HeliumNumericalNLTE(ProcessingPlasmaProperty):
+    &quot;&quot;&quot;
+    IMPORTANT: This particular property requires a specific numerical NLTE
+    solver and a specific atomic dataset (neither of which are distributed
+    with Tardis) to work.
+    &quot;&quot;&quot;
+
+    outputs = (&quot;helium_population&quot;,)
+
+<div class="viewcode-block" id="HeliumNumericalNLTE.calculate">
+<a class="viewcode-back" href="../../../../api/tardis.iip_plasma.properties.nlte.html#tardis.iip_plasma.properties.nlte.HeliumNumericalNLTE.calculate">[docs]</a>
+    def calculate(
+        self,
+        ion_number_density,
+        electron_densities,
+        t_electrons,
+        w,
+        lines,
+        j_blues,
+        levels,
+        level_boltzmann_factor,
+        t_rad,
+        zeta_data,
+        g_electron,
+        delta,
+        partition_function,
+        ionization_data,
+        beta_rad,
+        g,
+    ):
+        logger.info(&quot;Performing numerical NLTE He calculations.&quot;)
+        if len(j_blues) == 0:
+            return None
+        heating_rate_data = np.loadtxt(
+            self.plasma_parent.heating_rate_data_file, unpack=True
+        )
+        # Outputting data required by SH module
+        for zone, _ in enumerate(electron_densities):
+            with open(
+                f&quot;He_NLTE_Files/shellconditions_{zone}.txt&quot;, &quot;w&quot;
+            ) as output_file:
+                output_file.write(ion_number_density.loc[2].sum()[zone])
+                output_file.write(electron_densities[zone])
+                output_file.write(t_electrons[zone])
+                output_file.write(heating_rate_data[zone])
+                output_file.write(w[zone])
+                output_file.write(self.plasma_parent.time_explosion)
+                output_file.write(t_rad[zone])
+                output_file.write(self.plasma_parent.v_inner[zone])
+                output_file.write(self.plasma_parent.v_outer[zone])
+
+        for zone, _ in enumerate(electron_densities):
+            with open(
+                f&quot;He_NLTE_Files/abundances_{zone}.txt&quot;, &quot;w&quot;
+            ) as output_file:
+                for element in range(1, 31):
+                    try:
+                        number_density = (
+                            ion_number_density[zone].loc[element].sum()
+                        )
+                    except:
+                        number_density = 0.0
+                    output_file.write(number_density)
+
+            helium_lines = lines[lines[&quot;atomic_number&quot;] == 2]
+            helium_lines = helium_lines[helium_lines[&quot;ion_number&quot;] == 0]
+        for zone, _ in enumerate(electron_densities):
+            with open(
+                f&quot;He_NLTE_Files/discradfield_{zone}.txt&quot;, &quot;w&quot;
+            ) as output_file:
+                j_blues = pd.DataFrame(j_blues, index=lines.index)
+                helium_j_blues = j_blues[zone].loc[helium_lines.index]
+                for value in helium_lines.index:
+                    if helium_lines.level_number_lower.loc[value] &lt; 35:
+                        output_file.write(
+                            int(helium_lines.level_number_lower.loc[value] + 1),
+                            int(helium_lines.level_number_upper.loc[value] + 1),
+                            j_blues[zone].loc[value],
+                        )
+        # Running numerical simulations
+        for zone, _ in enumerate(electron_densities):
+            os.rename(
+                f&quot;He_NLTE_Files/abundances{zone}.txt&quot;,
+                &quot;He_NLTE_Files/abundances_current.txt&quot;,
+            )
+            os.rename(
+                f&quot;He_NLTE_Files/shellconditions{zone}.txt&quot;,
+                &quot;He_NLTE_Files/shellconditions_current.txt&quot;,
+            )
+            os.rename(
+                f&quot;He_NLTE_Files/discradfield{zone}.txt&quot;,
+                &quot;He_NLTE_Files/discradfield_current.txt&quot;,
+            )
+            os.system(&quot;nlte-solver-module/bin/nlte_solvertest &gt;/dev/null&quot;)
+            os.rename(
+                &quot;He_NLTE_Files/abundances_current.txt&quot;,
+                f&quot;He_NLTE_Files/abundances{zone}.txt&quot;,
+            )
+            os.rename(
+                &quot;He_NLTE_Files/shellconditions_current.txt&quot;,
+                f&quot;He_NLTE_Files/shellconditions{zone}.txt&quot;,
+            )
+            os.rename(
+                &quot;He_NLTE_Files/discradfield_current.txt&quot;,
+                f&quot;He_NLTE_Files/discradfield{zone}.txt&quot;,
+            )
+            os.rename(&quot;debug_occs.dat&quot;, f&quot;He_NLTE_Files/occs{zone}.txt&quot;)
+        # Reading in populations from files
+        helium_population = level_boltzmann_factor.loc[2].copy()
+        for zone, _ in enumerate(electron_densities):
+            with open(f&quot;He_NLTE_Files/discradfield{zone}.txt&quot;) as read_file:
+                for level in range(35):
+                    level_population = read_file.readline()
+                    level_population = float(level_population)
+                    helium_population[zone].loc[0][level] = level_population
+                helium_population[zone].loc[1].loc[0] = float(
+                    read_file.readline()
+                )
+        # Performing He LTE level populations (upper two energy levels,
+        # He II excited states, He III)
+        he_one_population = HeliumNLTE.calculate_helium_one(
+            g_electron,
+            beta_rad,
+            partition_function,
+            ionization_data,
+            level_boltzmann_factor,
+            electron_densities,
+            g,
+            w,
+            t_rad,
+            t_electrons,
+        )
+        helium_population.loc[0].loc[35].update(he_one_population.loc[35])
+        helium_population.loc[0].loc[36].update(he_one_population.loc[36])
+
+        he_two_population = (
+            level_boltzmann_factor.loc[2]
+            .loc[1]
+            .loc[1:]
+            .mul((g.loc[2, 1, 0] ** (-1)) * helium_population.loc[s1, 0])
+        )
+        helium_population.loc[1].loc[1:].update(he_two_population)
+
+        helium_population.loc[2].loc[0] = HeliumNLTE.calculate_helium_three(
+            t_rad,
+            w,
+            zeta_data,
+            t_electrons,
+            delta,
+            g_electron,
+            beta_rad,
+            partition_function,
+            ionization_data,
+            electron_densities,
+        )
+        unnormalised = helium_population.sum()
+        normalised = helium_population.mul(
+            ion_number_density.loc[2].sum() / unnormalised
+        )
+        helium_population.update(normalised)
+        return helium_population</div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
+      <span class="lastupdated">Last updated on 26 Apr 2026.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
