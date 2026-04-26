@@ -1,5 +1,10 @@
 ## Changelog
 
+### release-2026.04.26 (2026/04/25 22:11)
+- [3560](https://github.com/tardis-sn/tardis/pull/3560) Pre-release 2026.04.26 (3560) (@tardis-bot)
+- [3422](https://github.com/tardis-sn/tardis/pull/3422) IIP workflow cleanup (3422) (@andrewfullard)
+- [3552](https://github.com/tardis-sn/tardis/pull/3552) Document steps of the TARDIS release pipeline (3552) (@andrewfullard)
+- [3555](https://github.com/tardis-sn/tardis/pull/3555) Post-release 2026.04.19 (3555) (@tardis-bot)
 ### release-2026.04.19 (2026/04/14 09:35)
 - [3548](https://github.com/tardis-sn/tardis/pull/3548) Update Workflows to latest action versions (3548) (@atharva-2001)
 - [3550](https://github.com/tardis-sn/tardis/pull/3550) Post-release 2026.04.12 (3550) (@tardis-bot)
