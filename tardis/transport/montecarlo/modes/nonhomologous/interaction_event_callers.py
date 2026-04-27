@@ -152,12 +152,12 @@ def continuum_event(
     continuum : tardis.transport.montecarlo.numba_interface.Continuum
     """
     old_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
     )
 
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
     )
     comov_energy = r_packet.energy * old_doppler_factor
     comov_nu = (
@@ -203,12 +203,12 @@ def line_scatter_event(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     old_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
     )
     r_packet.mu = get_random_mu()
 
     inverse_new_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
     )
 
     comov_energy = r_packet.energy * old_doppler_factor

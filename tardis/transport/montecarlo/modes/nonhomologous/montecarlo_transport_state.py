@@ -13,6 +13,7 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
         "j_estimator",
         "j_blue_estimator",
         "packet_luminosity",
+        "time_of_simulation",
         "emitted_packet_mask",
         "last_interaction_type",
         "last_interaction_in_nu",
@@ -90,6 +91,10 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
     @property
     def j_blue_estimator(self):
         return self.estimators_line.mean_intensity_blueward
+
+    @property
+    def time_of_simulation(self):
+        return self.packet_collection.time_of_simulation * u.s
 
     @property
     def packet_luminosity(self):

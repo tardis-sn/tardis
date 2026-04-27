@@ -102,7 +102,13 @@ def trace_vpacket_within_shell(
     chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
-    doppler_factor = get_doppler_factor_nonhomologous(v_packet.r, v_packet.mu, numba_radial_1d_geometry)
+    doppler_factor = get_doppler_factor_nonhomologous(
+        v_packet.r,
+        v_packet.mu,
+        numba_radial_1d_geometry,
+        v_packet.current_shell_id,
+        enable_full_relativity,
+    )
 
     comov_nu = v_packet.nu * doppler_factor
 
@@ -274,25 +280,40 @@ def trace_vpacket_volley(
         mu_min = 0.0
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
-    r_packet_doppler_factor = get_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, numba_radial_1d_geometry)
+    r_packet_doppler_factor = get_doppler_factor_nonhomologous(
+        r_packet.r,
+        r_packet.mu,
+        numba_radial_1d_geometry,
+        r_packet.current_shell_id,
+        enable_full_relativity,
+    )
     for i in range(no_of_vpackets):
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
         if v_packet_on_inner_boundary:  # The weights are described in K&S 2014
             if not enable_full_relativity:
                 weight = 2 * v_packet_mu / no_of_vpackets
-            else:
-                weight = (
-                    2
-                    * (v_packet_mu + beta_inner)
-                    / (2 * beta_inner + 1)
-                    / no_of_vpackets
-                )
+            # connor-mcclellan: for some reason this is still accessed and
+            # causes crashes even when relativity is turned off - beta_inner
+            # undefined
+            #else:
+            #    weight = (
+            #        2
+            #        * (v_packet_mu + beta_inner)
+            #        / (2 * beta_inner + 1)
+            #        / no_of_vpackets
+            #    )
 
         else:
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
-        v_packet_doppler_factor = get_doppler_factor_nonhomologous(r_packet.r, v_packet_mu, numba_radial_1d_geometry)
+        v_packet_doppler_factor = get_doppler_factor_nonhomologous(
+            r_packet.r,
+            v_packet_mu,
+            numba_radial_1d_geometry,
+            r_packet.current_shell_id,
+            enable_full_relativity,
+        )
 
         # transform between r_packet mu and v_packet_mu
 

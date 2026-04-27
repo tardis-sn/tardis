@@ -14,7 +14,6 @@ from tardis.model.geometry.radial1d_nonhomologous import (
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
-from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
@@ -23,6 +22,9 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 )
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
+)
+from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
+    OpacitySolver,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.plasma_assembly_base import (
     PlasmaSolverFactory,
@@ -73,6 +75,20 @@ class NonhomologousTARDISWorkflow(WorkflowLogging):
                 atom_data=atom_data,
             )
 
+        # Replace homologous geometry in the simulation state with nonhomologous geometry object
+        geometry = self.simulation_state.geometry
+        t_exp = self.simulation_state.time_explosion
+        self.simulation_state.geometry = NonhomologousRadial1DGeometry(
+            r_inner=geometry.v_inner * t_exp,
+            r_outer=geometry.v_outer * t_exp,
+            v_inner=geometry.v_inner,
+            v_outer=geometry.v_outer,
+            r_inner_boundary=None,
+            r_outer_boundary=None,
+            v_inner_boundary=geometry.v_inner_boundary,
+            v_outer_boundary=geometry.v_outer_boundary,
+        )
+
         plasma_solver_factory = PlasmaSolverFactory(
             atom_data,
             configuration,
@@ -102,7 +118,7 @@ class NonhomologousTARDISWorkflow(WorkflowLogging):
         # Modified version of the OpacitySolver class additionally passes the velocity gradient
         # per cell, which is used in the calculation of tau sobolev in the plasma
         self.opacity_solver = OpacitySolver(
-            self.transport_state.geometry_state.velocity_gradient,
+            self.simulation_state.geometry.velocity_gradient,
             line_interaction_type,
             configuration.plasma.disable_line_scattering,
         )

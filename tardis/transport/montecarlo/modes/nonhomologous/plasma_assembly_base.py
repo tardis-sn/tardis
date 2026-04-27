@@ -586,6 +586,7 @@ class PlasmaSolverFactory:
         )
 
         plasma_assemble_kwargs = dict(
+            time_explosion=-99.0, # BasePlasma dependency - pass dummy value
             dilute_planckian_radiation_field=dilute_planckian_radiation_field,
             number_density=number_densities,
             link_t_rad_t_electron=self.link_t_rad_t_electron,

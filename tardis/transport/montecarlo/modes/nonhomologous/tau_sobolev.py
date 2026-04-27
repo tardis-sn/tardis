@@ -55,7 +55,7 @@ def calculate_sobolev_line_opacity(
     tau_sobolevs = (
         (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
         * SOBOLEV_COEFFICIENT
-        * velocity_gradient.to(1 / u.s).value
+        / velocity_gradient.to(1 / u.s).value
         * stimulated_emission_factor
         * level_number_density.reindex(lines.droplevel(-1).index).values
     )

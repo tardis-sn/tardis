@@ -76,7 +76,11 @@ def bound_free_emission(
     continuum_id : int
     """
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r,
+        r_packet.mu,
+        geometry,
+        r_packet.current_shell_id,
+        enable_full_relativity,
     )
 
     comov_nu = sample_nu_free_bound(
@@ -163,7 +167,7 @@ def free_free_emission(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
     )
     comov_nu = sample_nu_free_free(opacity_state, r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
@@ -171,9 +175,10 @@ def free_free_emission(
     r_packet.next_line_id = current_line_id
 
     if enable_full_relativity:
-        r_packet.mu = angle_aberration_CMF_to_LF(
-            r_packet, geometry, r_packet.mu
-        )
+        raise NotImplementedError("Full relativity not implemented in non-homologous mode.")
+        #r_packet.mu = angle_aberration_CMF_to_LF(
+        #    r_packet, geometry, r_packet.mu
+        #)
 
 
 @njit(**njit_dict_no_parallel)
@@ -191,23 +196,36 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
     geometry : 
     """
     old_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r,
+        r_packet.mu,
+        geometry,
+        r_packet.current_shell_id,
+        enable_full_relativity,
     )
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r,
+        r_packet.mu,
+        geometry,
+        r_packet.current_shell_id,
+        enable_full_relativity,
     )
 
     r_packet.nu = comov_nu * inverse_new_doppler_factor
     r_packet.energy = comov_energy * inverse_new_doppler_factor
     if enable_full_relativity:
-        r_packet.mu = angle_aberration_CMF_to_LF(
-            r_packet, geometry, r_packet.mu
-        )
+        raise NotImplementedError("Full relativity not implemented in non-homologous mode.")
+        #r_packet.mu = angle_aberration_CMF_to_LF(
+        #    r_packet, geometry, r_packet.mu
+        #)
     temp_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r,
+        r_packet.mu,
+        geometry,
+        r_packet.current_shell_id,
+        enable_full_relativity,
     )
 
 
@@ -238,7 +256,11 @@ def line_emission(
     if emission_line_id != r_packet.next_line_id:
         pass
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, enable_full_relativity
+        r_packet.r,
+        r_packet.mu,
+        geometry,
+        r_packet.current_shell_id,
+        enable_full_relativity,
     )
     r_packet.nu = (
         opacity_state.line_list_nu[emission_line_id] * inverse_doppler_factor
@@ -246,9 +268,10 @@ def line_emission(
     r_packet.next_line_id = emission_line_id + 1
 
     if enable_full_relativity:
-        r_packet.mu = angle_aberration_CMF_to_LF(
-            r_packet, geometry, r_packet.mu
-        )
+        raise NotImplementedError("Full relativity not implemented in non-homologous mode.")
+        #r_packet.mu = angle_aberration_CMF_to_LF(
+        #    r_packet, geometry, r_packet.mu
+        #)
 
 
 @njit(**njit_dict_no_parallel)
