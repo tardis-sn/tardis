@@ -49,6 +49,7 @@ class RPacket:
     nu: nb.float64  # type: ignore[misc]
     energy: nb.float64  # type: ignore[misc]
     next_line_id: nb.int64  # type: ignore[misc]
+    prev_line_id: nb.int64  # type: ignore[misc]
     current_shell_id: nb.int64  # type: ignore[misc]
     status: nb.int64  # type: ignore[misc]
     seed: nb.int64  # type: ignore[misc]
@@ -91,6 +92,7 @@ class RPacket:
         self.seed = seed
         self.index = index
 
+    # TODO:nonhomology - will need to generalize the line search, doppler factor
     def initialize_line_id(
         self, opacity_state, time_explosion, enable_full_relativity
     ):
