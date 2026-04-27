@@ -238,7 +238,13 @@ def move_r_packet(
     enable_full_relativity : bool
         Flag to enable full relativistic calculations
     """
-    doppler_factor = get_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, geometry)
+    doppler_factor = get_doppler_factor_nonhomologous(
+        r_packet.r,
+        r_packet.mu,
+        geometry,
+        r_packet.current_shell_id,
+        enable_full_relativity,
+    )
 
     r = r_packet.r
     if distance > 0.0:

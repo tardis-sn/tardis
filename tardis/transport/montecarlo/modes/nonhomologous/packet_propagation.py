@@ -22,10 +22,10 @@ from tardis.transport.montecarlo.estimators.estimators_bulk import (
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
 )
-from tardis.transport.montecarlo.interaction_event_callers import (
+from tardis.transport.montecarlo.modes.nonhomologous.interaction_event_callers import (
     line_scatter_event,
 )
-from tardis.transport.montecarlo.interaction_events import (
+from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
@@ -104,7 +104,13 @@ def packet_propagation(
     #)
     # Substitute for r_packet.initialize_line_id until that method is generalized to work with non-homology:
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
-    doppler_factor = get_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, numba_radial_1d_geometry)
+    doppler_factor = get_doppler_factor_nonhomologous(
+        r_packet.r,
+        r_packet.mu,
+        numba_radial_1d_geometry,
+        r_packet.current_shell_id,
+        montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+    )
     comov_nu = r_packet.nu * doppler_factor
     next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
         inverse_line_list_nu, comov_nu
@@ -131,7 +137,13 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
-        doppler_factor = get_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, numba_radial_1d_geometry)
+        doppler_factor = get_doppler_factor_nonhomologous(
+            r_packet.r,
+            r_packet.mu,
+            numba_radial_1d_geometry,
+            r_packet.current_shell_id,
+            montecarlo_configuration.ENABLE_FULL_RELATIVITY,
+        )
 
         comov_nu = r_packet.nu * doppler_factor
         opacity_electron = chi_electron_calculator(
@@ -270,7 +282,9 @@ def set_packet_props_partial_relativity(
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     """
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(r_packet.r, r_packet.mu, geometry)
+    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, False
+    )
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
 
