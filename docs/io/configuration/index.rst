@@ -23,3 +23,4 @@ Configuration Documentation
   components/index
   example
   config_validator
+  continuum_reader/tutorial_run_cor
