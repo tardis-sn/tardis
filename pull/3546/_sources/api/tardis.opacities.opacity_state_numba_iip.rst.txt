@@ -1,7 +1,0 @@
-tardis.opacities.opacity\_state\_numba\_iip module
-==================================================
-
-.. automodule:: tardis.opacities.opacity_state_numba_iip
-   :members:
-   :show-inheritance:
-   :undoc-members:
