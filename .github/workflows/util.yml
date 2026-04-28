@@ -58,7 +58,7 @@ jobs:
 
             Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.
           issue_message: |
-            👋 Welcome @${{ github.event.issue.user.login }}! Thank you for opening your first issue in this repository!
+            👋 Welcome! Thank you for opening your first issue in this repository!
 
   check-orcid:
     runs-on: ubuntu-latest
