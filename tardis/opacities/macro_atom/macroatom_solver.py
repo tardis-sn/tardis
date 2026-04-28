@@ -4,33 +4,34 @@ import pandas as pd
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data import AtomData
 from tardis.opacities.macro_atom import util
+from tardis.opacities.macro_atom.absorbing_markov_chain import (
+    create_absorbing_probs,
+)
 from tardis.opacities.macro_atom.base import (
     get_macro_atom_data,
     initialize_transition_probabilities,
 )
 from tardis.opacities.macro_atom.macroatom_continuum_transitions import (
     collisional_transition_deexc_to_k_packet,
-    collisional_transition_excitation_cool,
     collisional_transition_excitation_internal,
     collisional_transition_internal_down,
-    collisional_transition_ionization_emission,
     collisional_transition_ionization_internal,
-    collisional_transition_recombination_emission,
     collisional_transition_recombination_internal,
+    collisional_transition_recombination_to_k_packet,
     continuum_transition_photoionization_internal,
-    continuum_transition_photoionization_to_k_packet,
     continuum_transition_recombination_emission,
     continuum_transition_recombination_internal,
+    create_coll_excitation_cooling_metadata,
+    create_coll_ionization_cooling_metadata,
+    create_free_bound_cooling_metadata,
+    create_free_free_cooling_metadata,
     probability_collision_deexc_to_k_packet,
     probability_collision_exc_internal,
-    probability_collision_excitation_cool,
     probability_collision_internal_down,
-    probability_collision_ionization_emission,
     probability_collision_ionization_internal,
-    probability_collision_recombination_emission,
     probability_collision_recombination_internal,
+    probability_collision_recombination_to_k_packet,
     probability_photoionization_internal,
-    probability_photoionization_to_k_packet,
     probability_recombination_emission,
     probability_recombination_internal,
 )
@@ -234,7 +235,14 @@ class BoundBoundMacroAtomSolver:
 
         self._precompute_static_data()
 
-    def _precompute_static_data(self):
+    def _precompute_static_data(self) -> None:
+        """
+        Precompute static atomic data arrays.
+
+        This method extracts and reshapes line and level data that will be used
+        repeatedly during solve iterations. Precomputing these avoids redundant
+        operations on each iteration.
+        """
         self._oscillator_strength_ul = self.lines.f_ul.to_numpy().reshape(-1, 1)
         self._oscillator_strength_lu = self.lines.f_lu.to_numpy().reshape(-1, 1)
         self._nus = self.lines.nu.to_numpy().reshape(-1, 1)
@@ -426,7 +434,7 @@ class BoundBoundMacroAtomSolver:
             )
         # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS. This also removes the source column from the probabilities DataFrame.
         normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
+            probabilities_df, macro_atom_transition_metadata
         )
 
         normalized_probabilities, macro_atom_transition_metadata = (
@@ -573,21 +581,18 @@ class BoundBoundMacroAtomSolver:
             self._energies_lower[line_trans_internal_up_ids],
         ).to_numpy()
 
-        probabilities_df["source"] = (
-            macro_atom_transition_metadata.source.values
-        )
         normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
+            probabilities_df, macro_atom_transition_metadata
         )
 
         return normalized_probabilities
 
     def create_source_and_destination_idx_columns(
         self,
-        macro_atom_transition_metadata,
-    ):
+        macro_atom_transition_metadata: pd.DataFrame,
+    ) -> None:
         """
-        This function creates numerical indices for source and destination levels
+        Create numerical indices for source and destination levels
         by mapping unique source levels to sequential integers. The destination
         indices use -99 for destinations that are not sources (emission-only levels).
 
@@ -616,19 +621,22 @@ class BoundBoundMacroAtomSolver:
             macro_atom_transition_metadata.source.map(source_to_index)
         ).astype(np.int64)
 
-    def create_macro_block_references(self, macro_atom_transition_metadata):
+    def create_macro_block_references(
+        self, macro_atom_transition_metadata: pd.DataFrame
+    ) -> pd.Series:
         """
         Create macro block references from the macro atom transition metadata.
+
         This method creates a mapping from unique source levels to their first occurrence index in the metadata.
 
         Parameters
         ----------
-        macro_atom_transition_metadata : pandas.DataFrame
+        macro_atom_transition_metadata
             DataFrame containing metadata for macro atom transitions.
 
         Returns
         -------
-        pandas.Series
+        pd.Series
             Series with unique source levels as index and their first occurrence index in the metadata as values.
         """
         unique_source_multi_index = pd.MultiIndex.from_tuples(
@@ -668,6 +676,7 @@ class BoundBoundMacroAtomSolver:
     ) -> tuple[pd.Series, pd.Series]:
         """
         Create a mapping from line transitions to macro atom level indices for upper levels.
+
         This method creates a mapping that connects line transition upper levels to their
         corresponding macro atom level indices. It first extracts unique source levels
         from the macro atom transition metadata and assigns sequential indices to them,
@@ -675,17 +684,15 @@ class BoundBoundMacroAtomSolver:
 
         Parameters
         ----------
-        macro_atom_transition_metadata : pd.DataFrame
-            DataFrame containing macro atom transition metadata
-        lines_level_upper : pd.MultiIndex
-            MultiIndex containing line upper level information
+        macro_atom_transition_metadata
+            DataFrame containing macro atom transition metadata.
+        lines_level_upper
+            MultiIndex containing line upper level information.
 
         Returns
         -------
-        pd.Series
-            Series mapping line transitions to macro atom level indices
-        pd.Series
-            Series with unique source levels as index and their assigned indices as values
+        tuple[pd.Series, pd.Series]
+            Line to macro level upper mapping and unique source indices reference.
         """
         unique_source_index = pd.MultiIndex.from_tuples(
             macro_atom_transition_metadata.source.unique(),
@@ -701,15 +708,18 @@ class BoundBoundMacroAtomSolver:
     @staticmethod
     def normalize_transition_probabilities(
         probabilities_df: pd.DataFrame,
+        macro_atom_transition_metadata: pd.DataFrame,
     ) -> pd.DataFrame:
         """
         Normalize transition probabilities by their source levels.
 
         Parameters
         ----------
-        probabilities_df : pd.DataFrame
-            DataFrame containing transition probabilities with a 'source' column
-            for grouping.
+        probabilities_df :
+            DataFrame containing transition probabilities.
+        macro_atom_transition_metadata:
+            Dataframe containing all metadata for the transitions.
+            Needed to obtain sources to normalize by.
 
         Returns
         -------
@@ -719,6 +729,8 @@ class BoundBoundMacroAtomSolver:
             probabilities are zero (typically ground levels in macroatom).
         """
         # Normalize the probabilities by source. This used to be optional but is never not done in TARDIS.
+        probabilities_df["source"] = macro_atom_transition_metadata["source"]
+
         normalized_probabilities = probabilities_df.div(
             probabilities_df.groupby("source").transform("sum"),
         )
@@ -863,6 +875,13 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
         delta_E_yg: pd.Series,
+        coll_exc_cool_rate: pd.Series,
+        coll_exc_cool_arr: np.ndarray,
+        coll_ion_cool_rate: pd.Series,
+        coll_ion_cool_arr: np.ndarray,
+        fb_cool_rate: pd.Series,
+        fb_cool_probs_arr: np.ndarray,
+        ff_cool_rate: pd.Series,
     ) -> MacroAtomState:
         """
         Solve the Macro Atom State including continuum transitions.
@@ -896,6 +915,20 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Electron number densities for each cell.
         delta_E_yg
             Energy differences for transitions.
+        coll_exc_cool_rate
+            Collisional excitation cooling rates per cell.
+        coll_exc_cool_arr
+            Array of collisional excitation cooling rates by transition.
+        coll_ion_cool_rate
+            Collisional ionization cooling rates per cell.
+        coll_ion_cool_arr
+            Array of collisional ionization cooling rates by transition.
+        fb_cool_rate
+            Free-bound cooling rates per cell.
+        fb_cool_probs_arr
+            Array of free-bound cooling probabilities by bound level.
+        ff_cool_rate
+            Free-free (bremsstrahlung) cooling rates per cell.
 
         Returns
         -------
@@ -914,6 +947,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 line2macro_level_upper,
                 macro_block_references,
                 references_index,
+                normalized_deactivating_probs,
+                deactivating_metadata,
+                absorbing_probability_matrix,
             ) = self._solve_first_macroatom_iteration(
                 mean_intensities_blue_wing,
                 beta_sobolevs,
@@ -925,9 +961,21 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_ion_coeff,
                 coll_recomb_coeff,
                 electron_densities,
+                coll_exc_cool_rate,
+                coll_exc_cool_arr,
+                coll_ion_cool_rate,
+                coll_ion_cool_arr,
+                fb_cool_rate,
+                fb_cool_probs_arr,
+                ff_cool_rate,
             )
         else:
-            normalized_probabilities = self._solve_next_macroatom_iteration(
+            (
+                normalized_probabilities,
+                deactivating_metadata,
+                normalized_deactivating_probs,
+                absorbing_probability_matrix,
+            ) = self._solve_next_macroatom_iteration(
                 mean_intensities_blue_wing,
                 beta_sobolevs,
                 stimulated_emission_factors,
@@ -938,6 +986,13 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 coll_ion_coeff,
                 coll_recomb_coeff,
                 electron_densities,
+                coll_exc_cool_rate,
+                coll_exc_cool_arr,
+                coll_ion_cool_rate,
+                coll_ion_cool_arr,
+                fb_cool_rate,
+                fb_cool_probs_arr,
+                ff_cool_rate,
             )
             (
                 macro_atom_transition_metadata,
@@ -952,6 +1007,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             line2macro_level_upper,
             macro_block_references,
             references_index,
+            normalized_deactivating_probs,
+            deactivating_metadata,
+            absorbing_probability_matrix,
         )
 
     def set_static_properties(
@@ -1003,7 +1061,23 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
-    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+        coll_exc_cool_rate: pd.Series,
+        coll_exc_cool_arr: np.ndarray,
+        coll_ion_cool_rate: pd.Series,
+        coll_ion_cool_arr: np.ndarray,
+        fb_cool_rate: pd.Series,
+        fb_cool_probs_arr: np.ndarray,
+        ff_cool_rate: pd.Series,
+    ) -> tuple[
+        pd.DataFrame,
+        pd.DataFrame,
+        pd.Series,
+        pd.Series,
+        pd.Series,
+        pd.DataFrame,
+        pd.DataFrame,
+        np.ndarray,
+    ]:
         """
         Handle the first iteration of the solve method for continuum macro atom.
 
@@ -1033,6 +1107,20 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Collisional recombination coefficients.
         electron_densities
             Electron number densities for each cell.
+        coll_exc_cool_rate
+            Collisional excitation cooling rates per cell.
+        coll_exc_cool_arr
+            Array of collisional excitation cooling rates by transition.
+        coll_ion_cool_rate
+            Collisional ionization cooling rates per cell.
+        coll_ion_cool_arr
+            Array of collisional ionization cooling rates by transition.
+        fb_cool_rate
+            Free-bound cooling rates per cell.
+        fb_cool_probs_arr
+            Array of free-bound cooling probabilities by bound level.
+        ff_cool_rate
+            Free-free (bremsstrahlung) cooling rates per cell.
 
         Returns
         -------
@@ -1046,6 +1134,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Series with unique source levels as index and their first occurrence index in the metadata as values.
         references_index
             Series with unique source levels as index and their assigned indices as values.
+        normalized_deactivating_probs
+            Dataframe containing emission probabilities from a chosen absorbing state
+        deactivating_metadata
+            Dataframe containing metadata for deactivation channels from a chosen absobing state.
+        absorbing_probability_matrix
+            Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
         """
         # Assemble bound-bound transitions first.
         p_internal_up, internal_up_metadata = line_transition_internal_up(
@@ -1101,12 +1195,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 self.photoionization_data_level_energies,
             )
         )
-        p_photoionization_to_k, photoionization_to_k_metadata = (
-            continuum_transition_photoionization_to_k_packet(
-                stim_recomb_corrected_photoionization_rate_coeff,
-                self._delta_E_yg_ionization,
-            )
-        )
         p_recombination_internal, recombination_internal_metadata = (
             continuum_transition_recombination_internal(
                 spontaneous_recombination_coeff,
@@ -1139,33 +1227,18 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 self._coll_energies_lower,
             )
         )
-
-        p_coll_excitation_cool, coll_excitation_cool_metadata = (
-            collisional_transition_excitation_cool(
-                coll_exc_coeff,
-                electron_densities,
-                self._delta_E_yg,
-            )
-        )
         p_coll_ionization_internal, coll_ionization_internal_metadata = (
             collisional_transition_ionization_internal(
                 coll_ion_coeff, electron_densities, self._coll_ion_energies
             )
         )
-
-        p_coll_emission_ion, coll_ionization_emission_metadata = (
-            collisional_transition_ionization_emission(
-                coll_ion_coeff, electron_densities, self._delta_E_yg_ionization
-            )
-        )
-
         p_coll_recomb_internal, coll_recomb_internal_metadata = (
             collisional_transition_recombination_internal(
                 coll_recomb_coeff, electron_densities, self._coll_ion_energies
             )
         )
-        p_coll_recomb_emission, coll_recomb_emission_metadata = (
-            collisional_transition_recombination_emission(
+        p_coll_recomb_to_k_packet, coll_recomb_to_k_packet_metadata = (
+            collisional_transition_recombination_to_k_packet(
                 coll_recomb_coeff,
                 electron_densities,
                 self._delta_E_yg_ionization,
@@ -1178,17 +1251,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 p_internal_down,
                 p_internal_up,
                 p_photoionization_internal,
-                p_photoionization_to_k,
                 p_recombination_emission,
                 p_recombination_internal,
                 p_coll_down_to_k_packet,
                 p_coll_internal_down,
                 p_coll_internal_up,
-                p_coll_excitation_cool,
                 p_coll_ionization_internal,
-                p_coll_emission_ion,
                 p_coll_recomb_internal,
-                p_coll_recomb_emission,
+                p_coll_recomb_to_k_packet,
             ],
             ignore_index=True,
         )
@@ -1199,17 +1269,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 internal_down_metadata,
                 internal_up_metadata,
                 photoionization_internal_metadata,
-                photoionization_to_k_metadata,
                 recombination_emission_metadata,
                 recombination_internal_metadata,
                 coll_down_to_packet_metadata,
                 coll_internal_down_metadata,
                 coll_internal_up_metadata,
-                coll_excitation_cool_metadata,
                 coll_ionization_internal_metadata,
-                coll_ionization_emission_metadata,
                 coll_recomb_internal_metadata,
-                coll_recomb_emission_metadata,
+                coll_recomb_to_k_packet_metadata,
             ],
             ignore_index=True,
         )
@@ -1219,23 +1286,57 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 probabilities_df, macro_atom_transition_metadata
             )
         )
-        probabilities_df["source"] = macro_atom_transition_metadata["source"]
-        normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
-        )
-        # normalized_probabilities = probabilities_df  # Useful for debugging
-
-        line2macro_level_upper, reference_index = (
-            self.create_line2macro_level_upper_and_reference_idx(
-                macro_atom_transition_metadata, self._lines_level_upper
+        probabilities_df, macro_atom_transition_metadata = (
+            self.normalize_cooling_block_by_rate_fractions(
+                probabilities_df,
+                macro_atom_transition_metadata,
+                coll_exc_cool_rate,
+                coll_exc_cool_arr,
+                coll_ion_cool_rate,
+                coll_ion_cool_arr,
+                fb_cool_rate,
+                fb_cool_probs_arr,
+                ff_cool_rate,
             )
         )
         self.create_source_and_destination_idx_columns(
             macro_atom_transition_metadata
         )
-        macro_block_references = self.create_macro_block_references(
-            macro_atom_transition_metadata
+
+        normalized_probabilities = self.normalize_transition_probabilities(
+            probabilities_df, macro_atom_transition_metadata
         )
+        # normalized_probabilities = probabilities_df  # Useful for debugging
+
+        (
+            absorbing_probability_matrix,
+            deactivating_probs,
+            deactivating_metadata,
+        ) = create_absorbing_probs(
+            normalized_probabilities, macro_atom_transition_metadata
+        )
+        normalized_deactivating_probs = self.normalize_transition_probabilities(
+            deactivating_probs, deactivating_metadata
+        )
+
+        line2macro_level_upper, reference_index = (
+            self.create_line2macro_level_upper_and_reference_idx(
+                deactivating_metadata, self._lines_level_upper
+            )
+        )
+
+        macro_block_references = self.create_macro_block_references(
+            deactivating_metadata
+        )
+
+        # getting all sorts of downstream problems because we trim the (1,0,0) because
+        # it does not have deactivation transitions so gets trimmed by the internal drop
+        # but trimming it screws up indexing
+        line2macro_level_upper += 1
+        macro_block_references = np.hstack([[0], macro_block_references])
+        reference_index = reference_index + 1
+        reference_index.loc[1, 0, 0] = 0
+        reference_index.sort_index(inplace=True)
 
         self.computed_metadata = (
             macro_atom_transition_metadata,
@@ -1250,6 +1351,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             line2macro_level_upper,
             macro_block_references,
             reference_index,
+            normalized_deactivating_probs,
+            deactivating_metadata,
+            absorbing_probability_matrix,
         )
 
     def _solve_next_macroatom_iteration(
@@ -1264,13 +1368,21 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         coll_ion_coeff: pd.DataFrame,
         coll_recomb_coeff: pd.DataFrame,
         electron_densities: pd.Series,
-    ) -> pd.DataFrame:
+        coll_exc_cool_rate: np.ndarray,
+        coll_exc_cool_arr: np.ndarray,
+        coll_ion_cool_rate: np.ndarray,
+        coll_ion_cool_arr: np.ndarray,
+        fb_cool_rate: np.ndarray,
+        fb_cool_probs_arr: np.ndarray,
+        ff_cool_rate: np.ndarray,
+    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, np.ndarray]:
         """
-        Handle subsequent iterations of the solve method.
+        Handle subsequent iterations of the solve method for continuum macro atom.
 
         Uses precomputed metadata and only recalculates the probabilities. This method
         is optimized for speed by reusing the transition metadata, block references,
-        and line mappings computed in the first iteration.
+        and line mappings computed in the first iteration. Updates transition probabilities
+        for both bound-bound and continuum transitions.
 
         Parameters
         ----------
@@ -1278,14 +1390,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Mean intensity of the radiation field of each line in the blue wing for each shell.
             For more detail see Lucy 2003, https://doi.org/10.1051/0004-6361:20030357.
             Referenced as 'J^b_{lu}' internally, or 'J^b_{ji}' in the original paper.
-            This parameter may have updated values compared to the first iteration.
+            May contain updated values compared to the first iteration.
         beta_sobolevs
-            Escape probabilities for the Sobolev approximation. These probabilities
-            represent the fraction of photons that escape the line formation region
-            without being reabsorbed. Values may be updated from the first iteration.
+            Escape probabilities for the Sobolev approximation. Values may be updated from
+            the first iteration.
         stimulated_emission_factors
-            Factors accounting for stimulated emission in the transitions. These
-            modify the transition probabilities based on the radiation field strength.
+            Factors accounting for stimulated emission in the transitions.
             May contain updated values from the radiation field calculation.
         stim_recomb_corrected_photoionization_rate_coeff
             Corrected photoionization rate coefficients for continuum transitions.
@@ -1301,10 +1411,24 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Collisional recombination coefficients.
         electron_densities
             Electron number densities for each cell.
+        coll_exc_cool_rate
+            Collisional excitation cooling rates per cell.
+        coll_exc_cool_arr
+            Array of collisional excitation cooling rates by transition and cell.
+        coll_ion_cool_rate
+            Collisional ionization cooling rates per cell.
+        coll_ion_cool_arr
+            Array of collisional ionization cooling rates by transition and cell.
+        fb_cool_rate
+            Free-bound cooling rates per cell.
+        fb_cool_probs_arr
+            Array of free-bound cooling probabilities by free bound transition and cell.
+        ff_cool_rate
+            Free-free (bremsstrahlung) cooling rates per cell.
 
         Returns
         -------
-        pd.DataFrame
+        DataFrame
             DataFrame containing normalized transition probabilities where each source
             group sums to 1.0. The structure matches the first iteration output but
             with updated probability values.
@@ -1333,10 +1457,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL
         ].photoionization_key_idx.to_numpy()
-        continuum_photoion_to_k_idxs = macro_atom_transition_metadata[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
-        ].photoionization_key_idx.to_numpy()
 
         # collisional indices
         collisional_down_k_idxs = macro_atom_transition_metadata[
@@ -1355,17 +1475,13 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_ION_INTERNAL
         ].collision_key_idx.to_numpy()
-        collisional_ionization_emission_idxs = macro_atom_transition_metadata[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_ION_EMISSION
-        ].collision_key_idx.to_numpy()
         collisional_recomb_internal_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_RECOMB_INTERNAL
         ].collision_key_idx.to_numpy()
         collisional_recomb_emission_idxs = macro_atom_transition_metadata[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_RECOMB_EMISSION
+            == MacroAtomTransitionType.COLL_RECOMB_TO_K_PACKET
         ].collision_key_idx.to_numpy()
 
         probabilities_df = pd.DataFrame(
@@ -1431,22 +1547,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             ],
         ).to_numpy()
 
-        photoionization_to_k_sources = pd.MultiIndex.from_tuples(
-            macro_atom_transition_metadata[
-                macro_atom_transition_metadata.transition_type
-                == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
-            ].source
-        )
-        probabilities_df[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET
-        ] = probability_photoionization_to_k_packet(
-            stim_recomb_corrected_photoionization_rate_coeff.loc[
-                photoionization_to_k_sources
-            ],
-            self._delta_E_yg_ionization.iloc[continuum_photoion_to_k_idxs],
-        ).to_numpy()
-
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.PHOTO_RECOMB_EMISSION
@@ -1473,7 +1573,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             ],
         ).to_numpy()
 
-        # verify these below are right
         coll_down_to_k_probs = probability_collision_deexc_to_k_packet(
             coll_deexc_coeff,
             electron_densities,
@@ -1502,17 +1601,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             self._coll_energies_lower.iloc[collisional_up_internal_idxs],
         ).to_numpy()
 
-        # collisional indices are hard here because we sum along an axis
-        # if they don't get reordered this should be fine
-        probabilities_df[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO
-        ] = probability_collision_excitation_cool(
-            coll_exc_coeff,
-            electron_densities,
-            self._delta_E_yg,
-        ).to_numpy()
-
         probabilities_df[
             macro_atom_transition_metadata.transition_type
             == MacroAtomTransitionType.COLL_ION_INTERNAL
@@ -1520,17 +1608,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             coll_ion_coeff.iloc[collisional_ionization_internal_idxs],
             electron_densities,
             self._coll_ion_energies.iloc[collisional_ionization_internal_idxs],
-        ).to_numpy()
-
-        probabilities_df[
-            macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_ION_EMISSION
-        ] = probability_collision_ionization_emission(
-            coll_ion_coeff.iloc[collisional_ionization_emission_idxs],
-            electron_densities,
-            self._delta_E_yg_ionization.iloc[
-                collisional_ionization_emission_idxs
-            ],
         ).to_numpy()
 
         probabilities_df[
@@ -1544,21 +1621,48 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         probabilities_df[
             macro_atom_transition_metadata.transition_type
-            == MacroAtomTransitionType.COLL_RECOMB_EMISSION
-        ] = probability_collision_recombination_emission(
+            == MacroAtomTransitionType.COLL_RECOMB_TO_K_PACKET
+        ] = probability_collision_recombination_to_k_packet(
             coll_recomb_coeff.iloc[collisional_recomb_emission_idxs],
             electron_densities,
             self._delta_E_yg_ionization.iloc[collisional_recomb_emission_idxs],
         ).to_numpy()
 
-        probabilities_df["source"] = (
-            macro_atom_transition_metadata.source.values
-        )  # Normalize by source in the next line, so need source column.
+        probabilities_df, macro_atom_transition_metadata = (
+            self.normalize_cooling_block_by_rate_fractions(
+                probabilities_df,
+                macro_atom_transition_metadata,
+                coll_exc_cool_rate,
+                coll_exc_cool_arr,
+                coll_ion_cool_rate,
+                coll_ion_cool_arr,
+                fb_cool_rate,
+                fb_cool_probs_arr,
+                ff_cool_rate,
+            )
+        )
+
         # normalized_probabilities = probabilities_df  # Useful for debugging
         normalized_probabilities = self.normalize_transition_probabilities(
-            probabilities_df
+            probabilities_df, macro_atom_transition_metadata
         )
-        return normalized_probabilities
+        (
+            absorbing_probability_matrix,
+            deactivating_probs,
+            deactivating_metadata,
+        ) = create_absorbing_probs(
+            normalized_probabilities, macro_atom_transition_metadata
+        )
+        normalized_deactivating_probs = self.normalize_transition_probabilities(
+            deactivating_probs, deactivating_metadata
+        )
+
+        return (
+            normalized_probabilities,
+            deactivating_metadata,
+            normalized_deactivating_probs,
+            absorbing_probability_matrix,
+        )
 
     def reindex_sort_and_clean_probabilities_and_metadata(
         self,
@@ -1601,4 +1705,129 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata.index
         ]  # Reorder to match the metadata
 
+        return probabilities, macro_atom_transition_metadata
+
+    def normalize_cooling_block_by_rate_fractions(
+        self,
+        probabilities: pd.DataFrame,
+        macro_atom_transition_metadata: pd.DataFrame,
+        coll_exc_cool_rate: np.ndarray,
+        coll_exc_cool_arr: np.ndarray,
+        coll_ion_cool_rate: np.ndarray,
+        coll_ion_cool_arr: np.ndarray,
+        fb_cool_rate: np.ndarray,
+        fb_cool_probs_arr: np.ndarray,
+        ff_cool_rate: np.ndarray,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Create and normalize k-packet source block with cooling transitions.
+
+        This method handles cooling transitions (free-free, free-bound, collisional) which are not
+        regular macroatom transitions. They must be added to and normalized separately because
+        we cannot complete the normalization until all cooling pathways exist.
+        The method incorporates cooling rates to establish the proper relative probabilities
+        for deactivation pathways.
+
+        Parameters
+        ----------
+        probabilities
+            DataFrame containing transition probabilities.
+        macro_atom_transition_metadata
+            DataFrame containing all metadata for the transitions.
+        coll_exc_cool_rate
+            Collisional excitation cooling rates per cell.
+        coll_exc_cool_arr
+            Array of collisional excitation cooling rates by transition.
+        coll_ion_cool_rate
+            Collisional ionization cooling rates per cell.
+        coll_ion_cool_arr
+            Array of collisional ionization cooling rates by transition.
+        fb_cool_rate
+            Free-bound cooling rates per cell.
+        fb_cool_probs_arr
+            Array of free-bound cooling probabilities by bound level.
+        ff_cool_rate
+            Free-free (bremsstrahlung) cooling rates per cell.
+
+        Returns
+        -------
+        probabilities
+            Probabilities with the cooling block normalized by rate, and free-free deactivation
+            added if it did not exist yet.
+        macro_atom_transition_metadata
+            Updated metadata with cooling transitions appended if they did not exist.
+        """
+        # Check if cooling block exists
+        if ~(
+            macro_atom_transition_metadata.transition_type
+            == MacroAtomTransitionType.FB_COOLING
+        ).any():
+            metadata_size = len(macro_atom_transition_metadata)
+            ff_cool_metadata = create_free_free_cooling_metadata(metadata_size)
+            fb_cool_metadata = create_free_bound_cooling_metadata(
+                metadata_size + len(ff_cool_metadata), fb_cool_probs_arr
+            )
+            coll_exc_cool_metadata = create_coll_excitation_cooling_metadata(
+                metadata_size + len(ff_cool_metadata) + len(fb_cool_metadata),
+                coll_exc_cool_arr,
+                macro_atom_transition_metadata[
+                    macro_atom_transition_metadata.transition_type
+                    == MacroAtomTransitionType.INTERNAL_UP
+                ].destination,
+            )
+            coll_ion_cool_metadata = create_coll_ionization_cooling_metadata(
+                metadata_size
+                + len(ff_cool_metadata)
+                + len(fb_cool_metadata)
+                + len(coll_exc_cool_metadata),
+                coll_ion_cool_arr,
+            )
+            macro_atom_transition_metadata = pd.concat(
+                [
+                    macro_atom_transition_metadata,
+                    ff_cool_metadata,
+                    fb_cool_metadata,
+                    coll_exc_cool_metadata,
+                    coll_ion_cool_metadata,
+                ]
+            )
+            ff_df = pd.DataFrame(ff_cool_rate).T
+            ff_df.index = [metadata_size]
+
+            fb_df = pd.DataFrame(fb_cool_rate * fb_cool_probs_arr.T)
+            fb_df.index = fb_df.index + metadata_size + len(ff_df)
+
+            coll_exc_df = pd.DataFrame(coll_exc_cool_rate * coll_exc_cool_arr.T)
+            coll_exc_df.index = (
+                coll_exc_df.index + metadata_size + len(ff_df) + len(fb_df)
+            )
+            coll_ion_df = pd.DataFrame(coll_ion_cool_rate * coll_ion_cool_arr.T)
+            coll_ion_df.index = (
+                coll_ion_df.index
+                + metadata_size
+                + len(ff_df)
+                + len(fb_df)
+                + len(coll_exc_df)
+            )
+
+            probabilities = pd.concat(
+                [probabilities, ff_df, fb_df, coll_exc_df, coll_ion_df]
+            )
+        else:
+            probabilities[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.FF_COOLING
+            ] = ff_cool_rate
+            probabilities[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.FB_COOLING
+            ] = fb_cool_rate * fb_cool_probs_arr.T
+            probabilities[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.COLL_EXC_COOL
+            ] = coll_exc_cool_rate * coll_exc_cool_arr.T
+            probabilities[
+                macro_atom_transition_metadata.transition_type
+                == MacroAtomTransitionType.COLL_ION_COOL
+            ] = coll_ion_cool_rate * coll_ion_cool_arr.T
         return probabilities, macro_atom_transition_metadata

@@ -857,6 +857,13 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
                 self.plasma_solver.delta_E_yg,
+                self.base_continuum.cooling_rates.collisional_excitation.cooling_probability,
+                self.base_continuum.cooling_rates.collisional_excitation.probabilities_array,
+                self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
+                self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
+                self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,
+                self.base_continuum.cooling_rates.radiative_recombination.probabilities_array,
+                self.base_continuum.cooling_rates.free_free_probability,
             )
 
         else:
@@ -877,6 +884,12 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
                 self.plasma_solver.delta_E_yg,
+                self.base_continuum.cooling_rates.collisional_excitation.cooling_probability,
+                self.base_continuum.cooling_rates.collisional_excitation.probabilities_array,
+                self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
+                self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
+                self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,
+                self.base_continuum.cooling_rates.free_free_probability,
             )
 
         return {
