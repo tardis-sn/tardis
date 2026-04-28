@@ -219,6 +219,22 @@ def test_override_plot_parameters(convergence_plots):
     )
 
 
+def test_build_with_display(monkeypatch):
+    """Test build() with display_plot=True exercises the display path without errors."""
+    monkeypatch.setattr(
+        "tardis.util.environment.Environment.allows_widget_display",
+        lambda: False,
+    )
+    monkeypatch.setattr(
+        "tardis.visualization.tools.convergence_plot.display",
+        lambda *args, **kwargs: None,
+    )
+    cp = ConvergencePlots(iterations=3)
+    cp.build(display_plot=True)
+    assert isinstance(cp.plasma_plot, go.FigureWidget)
+    assert isinstance(cp.t_inner_luminosities_plot, go.FigureWidget)
+
+
 def test_convergence_plot_command_line(
     config_verysimple, atomic_dataset, monkeysession
 ):
