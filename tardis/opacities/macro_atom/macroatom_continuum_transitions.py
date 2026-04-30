@@ -716,9 +716,7 @@ def collisional_transition_recombination_internal(
         energies_coll_lower_states,
     )
 
-    sources = [("i", -99, -99)] * len(
-        p_coll_recomb_internal
-    )  # Double check if from k or from i
+    sources = [("i", -99, -99)] * len(p_coll_recomb_internal)
     destinations = [
         (int(first), int(second), int(third))
         for first, second, third in coll_recomb_coeff.index.values

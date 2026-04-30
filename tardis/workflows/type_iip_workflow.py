@@ -158,7 +158,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.base_continuum = BaseContinuum(
             plasma_array=self.plasma_solver,
             atom_data=self.atom_data,
-            ws=self.simulation_state.dilution_factor,
+            ws=dilution_factor,
             radiative_transition_probabilities=self.plasma_solver.transition_probabilities,
             estimators=None,
         )

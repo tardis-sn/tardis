@@ -1208,7 +1208,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         )
 
         # Then assemble the collisional transitions
-        p_coll_down_to_k_packet, coll_down_to_packet_metadata = (
+        p_coll_down_to_k_packet, coll_down_to_k_packet_metadata = (
             collisional_transition_deexc_to_k_packet(
                 coll_deexc_coeff,
                 electron_densities,
@@ -1271,7 +1271,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 photoionization_internal_metadata,
                 recombination_emission_metadata,
                 recombination_internal_metadata,
-                coll_down_to_packet_metadata,
+                coll_down_to_k_packet_metadata,
                 coll_internal_down_metadata,
                 coll_internal_up_metadata,
                 coll_ionization_internal_metadata,

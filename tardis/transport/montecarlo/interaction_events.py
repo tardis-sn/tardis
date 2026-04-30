@@ -103,6 +103,7 @@ def bf_cooling(r_packet, time_explosion, opacity_state, enable_full_relativity):
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
+    # I don't think we need to do this - BF cooling already picks one
     fb_cooling_prob = opacity_state.p_fb_deactivation[
         :, r_packet.current_shell_id
     ]

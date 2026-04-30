@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from tardis import constants as const
+from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 CONST_C_CGS: float = const.c.cgs.value
@@ -123,12 +124,16 @@ def probability_internal_up(
     pd.DataFrame
         DataFrame containing the calculated internal upward transition probabilities.
     """
-    p_internal_up = beta_sobolevs * (
-        line_f_lus
-        / (CONST_H_CGS * line_nus)
-        * stimulated_emission_factors
-        * mean_intensities_blue_wing
-        * energies_lower
+    p_internal_up = (
+        beta_sobolevs
+        * (
+            line_f_lus
+            / (CONST_H_CGS * line_nus)
+            * stimulated_emission_factors
+            * mean_intensities_blue_wing
+            * energies_lower
+        )
+        * cconst.c_einstein
     )
     return p_internal_up
 
@@ -232,8 +237,10 @@ def probability_internal_down(
     pd.DataFrame
         DataFrame containing the calculated internal downward transition probabilities.
     """
-    p_internal_down = beta_sobolevs * (
-        2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower
+    p_internal_down = (
+        beta_sobolevs
+        * (2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower)
+        * cconst.c_einstein
     )
     return p_internal_down
 
@@ -344,11 +351,15 @@ def probability_emission_down(
     pd.DataFrame
         DataFrame containing the calculated emission down transition probabilities.
     """
-    p_emission_down = beta_sobolevs * (
-        2
-        * line_nus**2
-        * line_f_uls
-        / CONST_C_CGS**2
-        * (energies_upper - energies_lower)
+    p_emission_down = (
+        beta_sobolevs
+        * (
+            2
+            * line_nus**2
+            * line_f_uls
+            / CONST_C_CGS**2
+            * (energies_upper - energies_lower)
+        )
+        * cconst.c_einstein
     )
     return p_emission_down
