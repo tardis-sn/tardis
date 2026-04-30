@@ -31,7 +31,7 @@ def create_absorbing_probs(
         Metadata about transitions including source_level_idx,
         destination_level_idx, and transition_type. Values >= 0 for
         transition_type indicate internal transitions transitions that are not accompanied
-        by reemision of the r-packet, and an end to the interaction handler chain.
+        by reemission of the r-packet, and an end to the interaction handler chain.
         Negative values indicate deactivation, or reemitting from an absorbing state.
 
     Returns

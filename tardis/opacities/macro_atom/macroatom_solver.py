@@ -1137,7 +1137,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         normalized_deactivating_probs
             Dataframe containing emission probabilities from a chosen absorbing state
         deactivating_metadata
-            Dataframe containing metadata for deactivation channels from a chosen absobing state.
+            Dataframe containing metadata for deactivation channels from a chosen absorbing state.
         absorbing_probability_matrix
             Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
         """

@@ -889,6 +889,7 @@ class TypeIIPWorkflow(WorkflowLogging):
                 self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
                 self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
                 self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,
+                self.base_continuum.cooling_rates.radiative_recombination.probabilities_array,
                 self.base_continuum.cooling_rates.free_free_probability,
             )
 
