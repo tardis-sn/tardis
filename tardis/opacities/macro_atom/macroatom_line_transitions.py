@@ -2,11 +2,13 @@ import numpy as np
 import pandas as pd
 
 from tardis import constants as const
-from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 CONST_C_CGS: float = const.c.cgs.value
 CONST_H_CGS: float = const.h.cgs.value
+CONST_C_EINSTEIN: float = (
+    4.0 * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)
+).value
 
 
 def line_transition_internal_up(
@@ -133,7 +135,7 @@ def probability_internal_up(
             * mean_intensities_blue_wing
             * energies_lower
         )
-        * cconst.c_einstein
+        * CONST_C_EINSTEIN
     )
     return p_internal_up
 
@@ -240,7 +242,7 @@ def probability_internal_down(
     p_internal_down = (
         beta_sobolevs
         * (2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower)
-        * cconst.c_einstein
+        * CONST_C_EINSTEIN
     )
     return p_internal_down
 
@@ -360,6 +362,6 @@ def probability_emission_down(
             / CONST_C_CGS**2
             * (energies_upper - energies_lower)
         )
-        * cconst.c_einstein
+        * CONST_C_EINSTEIN
     )
     return p_emission_down
