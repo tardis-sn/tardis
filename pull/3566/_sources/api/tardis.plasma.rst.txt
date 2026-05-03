@@ -1,0 +1,32 @@
+tardis.plasma package
+=====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.plasma.assembly
+   tardis.plasma.electron_energy_distribution
+   tardis.plasma.equilibrium
+   tardis.plasma.properties
+   tardis.plasma.radiation_field
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.plasma.base
+   tardis.plasma.exceptions
+   tardis.plasma.standard_plasmas
+
+Module contents
+---------------
+
+.. automodule:: tardis.plasma
+   :members:
+   :show-inheritance:
+   :undoc-members:
