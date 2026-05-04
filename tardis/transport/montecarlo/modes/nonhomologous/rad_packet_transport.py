@@ -147,22 +147,10 @@ def trace_packet(
         # This means we are still looking for line interaction and have not
         # been kicked out of the path by boundary or electron interaction
 
-        # TODO:nonhomology - replace this function with a generalized version
-        # Will need to pass geometry instead of t_explosion to get correct doppler factor
-        #update_estimators_line(
-        #    estimators_line,
-        #    r_packet,
-        #    cur_line_id,
-        #    distance_trace,
-        #    time_explosion,
-        #    enable_full_relativity,
-        #)
-        # connor-mcclellan: here I reproduce the steps of the update_estimators_line -> calc_packet_energy call
-        # stack, modifying the expressions to not use homologous expansion
-        # This likely belongs somewhere else and can be moved in a future restructure, but for now
-        # I'll keep in within the nonhomologous mode
-        #
-        # First step: getting the packet's new energy to use for the estimator update
+        # connor-mcclellan: some hardcoded overrides here until update_estimators_line
+        # is updated and generalized to support nonhomologous geometry
+
+        # Get the packet's new energy to use for the estimator update
         # Replaces the call to `calc_packet_energy` within `update_estimators_line`
         new_r = np.sqrt(
             r_packet.r * r_packet.r + distance_trace * distance_trace + 2.0 * r_packet.r * distance_trace * r_packet.mu
@@ -172,7 +160,7 @@ def trace_packet(
         new_doppler_factor = (1.0 - new_v/C_SPEED_OF_LIGHT * new_mu)
         energy = r_packet.energy * new_doppler_factor
 
-        # Second step: update the estimators
+        # Update the estimators
         # Replaces the call to `update_estimators_line`
         estimators_line.mean_intensity_blueward[
             cur_line_id, r_packet.current_shell_id

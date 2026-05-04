@@ -96,13 +96,8 @@ def packet_propagation(
         raise NotImplementedError("Full relativity not supported for non-homology.")
     else:
         set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
-    #TODO:nonhomology - the line search will need to be rewritten since the velocity is no longer monotonic
-    #r_packet.initialize_line_id(
-    #    opacity_state,
-    #    time_explosion,
-    #    montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-    #)
-    # Substitute for r_packet.initialize_line_id until that method is generalized to work with non-homology:
+    # Manually perform the function of r_packet.initialize_line_id for now until
+    # nonhomology is supported
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
     doppler_factor = get_doppler_factor_nonhomologous(
         r_packet.r,
