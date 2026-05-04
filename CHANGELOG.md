@@ -1,5 +1,9 @@
 ## Changelog
 
+### release-2026.05.03 (2026/05/02 22:21)
+- [3565](https://github.com/tardis-sn/tardis/pull/3565) Pre-release 2026.05.03 (3565) (@tardis-bot)
+- [3546](https://github.com/tardis-sn/tardis/pull/3546) Fix for issue #3545 How To Plasma Graph Notebook shows no plasma graphs (3546) (@RishmitaR)
+- [3561](https://github.com/tardis-sn/tardis/pull/3561) Post-release 2026.04.26 (3561) (@tardis-bot)
 ### release-2026.04.26 (2026/04/25 22:11)
 - [3560](https://github.com/tardis-sn/tardis/pull/3560) Pre-release 2026.04.26 (3560) (@tardis-bot)
 - [3422](https://github.com/tardis-sn/tardis/pull/3422) IIP workflow cleanup (3422) (@andrewfullard)
