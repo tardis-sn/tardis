@@ -828,65 +828,41 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.plasma_solver.j_blues,
             index=self.plasma_solver.lines.index,
         )
-        if self.completed_iterations == 0:
-            # inputs = ContinuumInputData(
-            #     self.plasma_solver.atomic_data,
-            #     self.plasma_solver,
-            #     self.simulation_state.radiation_field_state.dilution_factor,
-            #     self.plasma_solver.transition_probabilities,
-            #     None,
-            # )
+        # inputs = ContinuumInputData(
+        #     self.plasma_solver.atomic_data,
+        #     self.plasma_solver,
+        #     self.simulation_state.radiation_field_state.dilution_factor,
+        #     self.plasma_solver.transition_probabilities,
+        #     None,
+        # )
 
-            # photoion_rates_solver = RadiativeIonization(inputs)
-            # recomb_rates_solver = RadiativeRecombination(inputs)
+        # photoion_rates_solver = RadiativeIonization(inputs)
+        # recomb_rates_solver = RadiativeRecombination(inputs)
 
-            # photoion_rate = photoion_rates_solver._calculate_rate_coefficient()
-            # recombination_rate = (
-            #     recomb_rates_solver._calculate_rate_coefficient()
-            # )
-            macro_atom_state = self.macro_atom_solver.solve(
-                j_blues_df,
-                opacity_state.beta_sobolev,
-                self.plasma_solver.stimulated_emission_factor,
-                self.base_continuum.radiative_ionization.rate_coefficient,
-                self.base_continuum.radiative_recombination.rate_coefficient,
-                self.plasma_solver.coll_deexc_coeff,
-                self.plasma_solver.coll_exc_coeff,
-                self.plasma_solver.coll_ion_coeff,
-                self.plasma_solver.coll_recomb_coeff,
-                self.plasma_solver.electron_densities,
-                self.plasma_solver.delta_E_yg,
-                self.base_continuum.cooling_rates.collisional_excitation.cooling_probability,
-                self.base_continuum.cooling_rates.collisional_excitation.probabilities_array,
-                self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
-                self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
-                self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,
-                self.base_continuum.cooling_rates.radiative_recombination.probabilities_array,
-                self.base_continuum.cooling_rates.free_free_probability,
-            )
-
-        else:
-            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
-            macro_atom_state = self.macro_atom_solver.solve(
-                j_blues_df,
-                opacity_state.beta_sobolev,
-                self.plasma_solver.stimulated_emission_factor,
-                self.base_continuum.radiative_ionization.rate_coefficient,
-                self.base_continuum.radiative_recombination.rate_coefficient,
-                self.plasma_solver.coll_deexc_coeff,
-                self.plasma_solver.coll_exc_coeff,
-                self.plasma_solver.coll_ion_coeff,
-                self.plasma_solver.coll_recomb_coeff,
-                self.plasma_solver.electron_densities,
-                self.plasma_solver.delta_E_yg,
-                self.base_continuum.cooling_rates.collisional_excitation.cooling_probability,
-                self.base_continuum.cooling_rates.collisional_excitation.probabilities_array,
-                self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
-                self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
-                self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,
-                self.base_continuum.cooling_rates.radiative_recombination.probabilities_array,
-                self.base_continuum.cooling_rates.free_free_probability,
-            )
+        # photoion_rate = photoion_rates_solver._calculate_rate_coefficient()
+        # recombination_rate = (
+        #     recomb_rates_solver._calculate_rate_coefficient()
+        # )
+        macro_atom_state = self.macro_atom_solver.solve(
+            j_blues_df,
+            opacity_state.beta_sobolev,
+            self.plasma_solver.stimulated_emission_factor,
+            self.base_continuum.radiative_ionization.rate_coefficient,
+            self.base_continuum.radiative_recombination.rate_coefficient,
+            self.plasma_solver.coll_deexc_coeff,
+            self.plasma_solver.coll_exc_coeff,
+            self.plasma_solver.coll_ion_coeff,
+            self.plasma_solver.coll_recomb_coeff,
+            self.plasma_solver.electron_densities,
+            self.plasma_solver.delta_E_yg,
+            self.base_continuum.cooling_rates.collisional_excitation.cooling_probability,
+            self.base_continuum.cooling_rates.collisional_excitation.probabilities_array,
+            self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
+            self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
+            self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,
+            self.base_continuum.cooling_rates.radiative_recombination.probabilities_array,
+            self.base_continuum.cooling_rates.free_free_probability,
+        )
 
         return {
             "opacity_state": opacity_state,
@@ -974,7 +950,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
-
+            raise ValueError
             if self.converged and self.convergence_strategy.stop_if_converged:
                 break
 
