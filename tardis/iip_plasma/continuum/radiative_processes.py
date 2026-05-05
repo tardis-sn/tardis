@@ -73,6 +73,12 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
                 rate_coefficient = self._calculate_rate_coefficient_combination(
                     rate_coefficient, rate_coefficient_dilute_bb
                 )
+                if (rate_coefficient < 0.0).any().any():
+                    raise (
+                        PlasmaException(
+                            "Negative values in corrected photoion rate coeff after replacing bad statistics"
+                        )
+                    )
         return rate_coefficient
 
     def _calculate_rate_coefficient_dilute_blackbody(self):

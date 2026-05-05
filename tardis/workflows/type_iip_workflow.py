@@ -449,7 +449,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         return next_values
 
-    def update_estimators(self):
+    def update_estimators(self, estimated_radfield_properties):
         """Update the estimators for the radiation field
 
         Returns
@@ -480,7 +480,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         )
 
         j_blues_df = pd.DataFrame(
-            self.transport_state.estimators_line.mean_intensity_blueward,
+            estimated_radfield_properties.j_blues,
             index=self.plasma_solver.lines.index,
         )
 
@@ -824,33 +824,32 @@ class TypeIIPWorkflow(WorkflowLogging):
                 State of the macro atom
         """
         opacity_state = self.opacity_solver.solve(self.plasma_solver)
-
+        j_blues_df = pd.DataFrame(
+            self.plasma_solver.j_blues,
+            index=self.plasma_solver.lines.index,
+        )
         if self.completed_iterations == 0:
-            inputs = ContinuumInputData(
-                self.plasma_solver.atomic_data,
-                self.plasma_solver,
-                self.simulation_state.radiation_field_state.dilution_factor,
-                self.plasma_solver.transition_probabilities,
-                None,
-            )
+            # inputs = ContinuumInputData(
+            #     self.plasma_solver.atomic_data,
+            #     self.plasma_solver,
+            #     self.simulation_state.radiation_field_state.dilution_factor,
+            #     self.plasma_solver.transition_probabilities,
+            #     None,
+            # )
 
-            photoion_rates_solver = RadiativeIonization(inputs)
-            recomb_rates_solver = RadiativeRecombination(inputs)
+            # photoion_rates_solver = RadiativeIonization(inputs)
+            # recomb_rates_solver = RadiativeRecombination(inputs)
 
-            photoion_rate = photoion_rates_solver._calculate_rate_coefficient()
-            recombination_rate = (
-                recomb_rates_solver._calculate_rate_coefficient()
-            )
-            j_blues_df = pd.DataFrame(
-                self.plasma_solver.j_blues,
-                index=self.plasma_solver.lines.index,
-            )
+            # photoion_rate = photoion_rates_solver._calculate_rate_coefficient()
+            # recombination_rate = (
+            #     recomb_rates_solver._calculate_rate_coefficient()
+            # )
             macro_atom_state = self.macro_atom_solver.solve(
                 j_blues_df,
                 opacity_state.beta_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
-                photoion_rate,
-                recombination_rate,
+                self.base_continuum.radiative_ionization.rate_coefficient,
+                self.base_continuum.radiative_recombination.rate_coefficient,
                 self.plasma_solver.coll_deexc_coeff,
                 self.plasma_solver.coll_exc_coeff,
                 self.plasma_solver.coll_ion_coeff,
@@ -868,16 +867,12 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         else:
             montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
-            j_blues_df = pd.DataFrame(
-                self.transport_state.estimators_line.mean_intensity_blueward,
-                index=self.plasma_solver.lines.index,
-            )
             macro_atom_state = self.macro_atom_solver.solve(
                 j_blues_df,
                 opacity_state.beta_sobolev,
                 self.plasma_solver.stimulated_emission_factor,
-                self.plasma_solver.gamma_corr,
-                self.plasma_solver.alpha_sp,
+                self.base_continuum.radiative_ionization.rate_coefficient,
+                self.base_continuum.radiative_recombination.rate_coefficient,
                 self.plasma_solver.coll_deexc_coeff,
                 self.plasma_solver.coll_exc_coeff,
                 self.plasma_solver.coll_ion_coeff,
@@ -966,7 +961,9 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.solve_simulation_state(estimated_values)
 
-            continuum_estimators, j_blues = self.update_estimators()
+            continuum_estimators, j_blues = self.update_estimators(
+                estimated_radfield_properties
+            )
 
             self.solve_plasma(continuum_estimators, j_blues)
 

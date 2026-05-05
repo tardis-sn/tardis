@@ -847,7 +847,6 @@ def create_free_free_cooling_metadata(
             "transition_line_idx": -99,
             "photoionization_key_idx": -99,
             "collision_key_idx": -99,
-            "destination_level_idx": -99,
         },
         index=([transition_starting_index]),
     )
@@ -892,7 +891,6 @@ def create_free_bound_cooling_metadata(
             ),  # This maps to a continuum id very downstream at tardis/transport/montecarlo/interaction_events.py:47
             "photoionization_key_idx": range(fb_cool_probs_arr.shape[1]),
             "collision_key_idx": -99,
-            "destination_level_idx": range(fb_cool_probs_arr.shape[1]),
         },
         index=range(
             transition_starting_index,
@@ -936,7 +934,6 @@ def create_coll_excitation_cooling_metadata(
             "transition_line_idx": -99,
             "photoionization_key_idx": range(coll_exc_cool_probs_arr.shape[1]),
             "collision_key_idx": -99,
-            "destination_level_idx": range(coll_exc_cool_probs_arr.shape[1]),
         },
         index=range(
             transition_starting_index,
@@ -981,7 +978,6 @@ def create_coll_ionization_cooling_metadata(
             "transition_line_idx": -99,
             "photoionization_key_idx": range(coll_ion_cool_probs_arr.shape[1]),
             "collision_key_idx": -99,
-            "destination_level_idx": range(coll_ion_cool_probs_arr.shape[1]),
         },
         index=range(
             transition_starting_index,
