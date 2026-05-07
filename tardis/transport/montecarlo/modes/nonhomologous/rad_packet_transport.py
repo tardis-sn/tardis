@@ -84,7 +84,7 @@ def trace_packet(
     tau_trace_line_combined = 0.0
 
     dvdr = numba_radial_1d_geometry.velocity_gradient[r_packet.current_shell_id]
-    v = v_inner + dvdr*(r_packet.r - r_inner)
+    v = v_inner + dvdr * (r_packet.r - r_inner)
 
     # defining start for line interaction
     # If redshifting, use next line and line list in order
