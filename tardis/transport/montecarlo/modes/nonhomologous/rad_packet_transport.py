@@ -25,9 +25,6 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bulk,
 )
-from tardis.transport.montecarlo.nonhomologous_grid import (
-    piecewise_linear_dvdr,
-)
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
@@ -74,6 +71,8 @@ def trace_packet(
     """
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
+    v_inner = numba_radial_1d_geometry.v_inner[r_packet.current_shell_id]
+    v_outer = numba_radial_1d_geometry.v_outer[r_packet.current_shell_id]
 
     (
         distance_boundary,
@@ -84,7 +83,8 @@ def trace_packet(
     tau_event = -np.log(np.random.random())
     tau_trace_line_combined = 0.0
 
-    v, dvdr = piecewise_linear_dvdr(r_packet.r, r_packet.current_shell_id, numba_radial_1d_geometry)
+    dvdr = numba_radial_1d_geometry.velocity_gradient[r_packet.current_shell_id]
+    v = v_inner + dvdr*(r_packet.r - r_inner)
 
     # defining start for line interaction
     # If redshifting, use next line and line list in order
@@ -137,7 +137,7 @@ def trace_packet(
                     r_packet.next_line_id = cur_line_id + 1
                     r_packet.prev_line_id = cur_line_id
             if distance == distance_boundary:
-                interaction_type = InteractionType.BOUNDARY  # BOUNDARY
+                interaction_type = InteractionType.BOUNDARY
                 break
             if distance == distance_electron:
                 interaction_type = InteractionType.ESCATTERING
@@ -156,7 +156,8 @@ def trace_packet(
             r_packet.r * r_packet.r + distance_trace * distance_trace + 2.0 * r_packet.r * distance_trace * r_packet.mu
         )
         new_mu = (r_packet.mu * r_packet.r + distance_trace) / new_r
-        new_v, _ = piecewise_linear_dvdr(new_r, r_packet.current_shell_id, numba_radial_1d_geometry)
+        dvdr = numba_radial_1d_geometry.velocity_gradient[r_packet.current_shell_id]
+        new_v = v_inner + dvdr*(new_r - r_inner)
         new_doppler_factor = (1.0 - new_v/C_SPEED_OF_LIGHT * new_mu)
         energy = r_packet.energy * new_doppler_factor
 

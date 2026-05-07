@@ -1,8 +1,6 @@
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
-import pandas as pd
-import pandas.testing as pdt
 import pytest
 from numpy.testing import assert_almost_equal
 
@@ -65,7 +63,7 @@ def test_depressed_quartic(A, B, C, D, E, expected_roots):
 
 
 def test_nonhomologous_calculate_beta_sobolevs(
-    nb_simulation_verysimple, tardis_regression_path
+    nb_simulation_verysimple, regression_data
 ):
     """
     Analogous to
@@ -83,12 +81,7 @@ def test_nonhomologous_calculate_beta_sobolevs(
     )
 
     actual = calculate_beta_sobolev(tau_sobolevs)
-    # Compare with existing regression data for beta sobolev - load the regression
-    # data path manually
-    expected = np.load(
-        tardis_regression_path
-        / "tardis/opacities/tests/test_tau_sobolev/test_calculate_beta_sobolevs.npy"
-    )
+    expected = regression_data.sync_ndarray(actual)
     npt.assert_allclose(actual, expected)
 
 
@@ -268,7 +261,7 @@ def test_nonhomologous_line_emission(
 
 
 def test_nonhomologous_calculate_sobolev_line_opacity(
-    nb_simulation_verysimple, verysimple_numba_nonhomologous_geometry, tardis_regression_path
+    nb_simulation_verysimple, verysimple_numba_nonhomologous_geometry, regression_data
 ):
     """
     Analogous to
@@ -285,14 +278,8 @@ def test_nonhomologous_calculate_sobolev_line_opacity(
         velocity_gradient,
         legacy_plasma.stimulated_emission_factor,
     )
-    # Compare with existing regression data for beta sobolev - load the regression
-    # data path manually
-    expected = pd.read_hdf(
-        tardis_regression_path
-        / "tardis/opacities/tests/test_tau_sobolev/test_calculate_sobolev_line_opacity.h5",
-        key="data",
-    )
-    pdt.assert_frame_equal(actual, expected)
+    expected = regression_data.sync_dataframe(actual.values)
+    npt.assert_allclose(actual.values, expected)
 
 
 @pytest.mark.parametrize(

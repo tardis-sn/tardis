@@ -13,7 +13,6 @@ from tardis.transport.montecarlo.configuration.constants import (
 )
 from tardis.transport.montecarlo.nonhomologous_grid import (
     depressed_quartic,
-    piecewise_linear_dvdr,
 )
 from tardis.transport.montecarlo.utils import MonteCarloException
 
@@ -129,20 +128,21 @@ def calculate_distance_line_nonhomologous(
     -------
     distance (cm)
     """
-    r = rpacket.r
-    v, _ = piecewise_linear_dvdr(rpacket.r, rpacket.current_shell_id, geometry)
-    nu_rest = rpacket.nu
-    mu = rpacket.mu
-
     #TODO: unit check / handling here?
     r_inner = geometry.r_inner[rpacket.current_shell_id]
     r_outer = geometry.r_outer[rpacket.current_shell_id]
     v_inner = geometry.v_inner[rpacket.current_shell_id]
     v_outer = geometry.v_outer[rpacket.current_shell_id]
 
+    r = rpacket.r
+    dvdr = geometry.velocity_gradient[rpacket.current_shell_id]
+    v = v_inner + dvdr*(r - r_inner)
+    nu_rest = rpacket.nu
+    mu = rpacket.mu
+
     # Define useful variables to simplify coefficients
     n = C_SPEED_OF_LIGHT * (1 - nu_line / nu_rest)
-    m = (v_outer - v_inner)/(r_outer - r_inner)
+    m = dvdr
     p = 1.0 - mu*mu
     q = v_outer - m*r_outer
 
