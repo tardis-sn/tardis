@@ -1,6 +1,7 @@
 import astropy.units as u
 import numpy as np
 import numpy.testing as npt
+import pandas.testing as pdt
 import pytest
 from numpy.testing import assert_almost_equal
 
