@@ -1,5 +1,9 @@
 ## Changelog
 
+### release-2026.05.10 (2026/05/09 22:20)
+- [3569](https://github.com/tardis-sn/tardis/pull/3569) Pre-release 2026.05.10 (3569) (@tardis-bot)
+- [3559](https://github.com/tardis-sn/tardis/pull/3559) [GSOC] fix first-time committer workflow (3559) (@Aaryan-Dadu)
+- [3566](https://github.com/tardis-sn/tardis/pull/3566) Post-release 2026.05.03 (3566) (@tardis-bot)
 ### release-2026.05.03 (2026/05/02 22:21)
 - [3565](https://github.com/tardis-sn/tardis/pull/3565) Pre-release 2026.05.03 (3565) (@tardis-bot)
 - [3546](https://github.com/tardis-sn/tardis/pull/3546) Fix for issue #3545 How To Plasma Graph Notebook shows no plasma graphs (3546) (@RishmitaR)
