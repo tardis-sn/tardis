@@ -10,17 +10,6 @@ class NonhomologousRadial1DGeometry:
     """
     Holds information about model geometry for non-homologous radial 1D models.
 
-    Parameters
-    ----------
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
-    r_inner_boundary : astropy.units.quantity.Quantity
-    r_outer_boundary : astropy.units.quantity.Quantity
-    v_inner_boundary : astropy.units.quantity.Quantity
-    v_outer_boundary : astropy.units.quantity.Quantity
-
     Attributes
     ----------
     volume : astropy.units.quantity.Quantity
@@ -29,14 +18,14 @@ class NonhomologousRadial1DGeometry:
 
     def __init__(
         self,
-        r_inner,
-        r_outer,
-        v_inner,
-        v_outer,
-        r_inner_boundary,
-        r_outer_boundary,
-        v_inner_boundary,
-        v_outer_boundary,
+        r_inner: u.Quantity,
+        r_outer: u.Quantity,
+        v_inner: u.Quantity,
+        v_outer: u.Quantity,
+        r_inner_boundary: u.Quantity,
+        r_outer_boundary: u.Quantity,
+        v_inner_boundary: u.Quantity,
+        v_outer_boundary: u.Quantity,
     ):
 
         assert np.allclose(r_inner[1:], r_outer[:-1])
@@ -203,6 +192,29 @@ class NonhomologousRadial1DGeometry:
             / (self.r_outer_active - self.r_inner_active)
         )
 
+    def get_velocity(self, r, shell_id):
+        """
+        Calculate the velocity at a given radius within a shell, assuming
+        a piece-wise linear velocity with radius.
+
+        Parameters
+        ----------
+        r : astropy.units.quantity.Quantity
+            Radius at which to calculate the velocity
+        shell_id : int
+            Shell index
+
+        Returns
+        -------
+        astropy.units.quantity.Quantity
+            Velocity at radius r within shell shell_id
+
+        Examples
+        --------
+            geometry.get_velocity(rpacket.r, rpacket.current_shell_id)
+        """
+        return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (r - self.r_inner[shell_id])
+
     @property
     def no_of_shells(self):
         return len(self.r_inner)
@@ -259,4 +271,23 @@ class NumbaNonhomologousRadial1DGeometry:
         self.v_outer = v_outer
         self.velocity_gradient = (self.v_outer - self.v_inner) / (self.r_outer - self.r_inner)
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+    def get_velocity(self, r, shell_id):
+        """
+        Calculate the velocity at a given radius within a shell, assuming
+        a piece-wise linear velocity with radius.
+
+        Parameters
+        ----------
+        r : float
+            Radius at which to calculate the velocity
+        shell_id : int
+            Shell index
+
+        Returns
+        -------
+        float
+            Velocity at radius r within shell shell_id
+        """
+        return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (r - self.r_inner[shell_id])
 

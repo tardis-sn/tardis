@@ -227,11 +227,10 @@ def move_r_packet(
     enable_full_relativity : bool
         Flag to enable full relativistic calculations
     """
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        geometry,
-        r_packet.current_shell_id,
         enable_full_relativity,
     )
 

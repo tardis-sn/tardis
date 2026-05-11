@@ -195,21 +195,18 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
     geometry : 
     """
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     old_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        geometry,
-        r_packet.current_shell_id,
         enable_full_relativity,
     )
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        geometry,
-        r_packet.current_shell_id,
         enable_full_relativity,
     )
 
@@ -221,10 +218,8 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
         #    r_packet, geometry, r_packet.mu
         #)
     temp_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        geometry,
-        r_packet.current_shell_id,
         enable_full_relativity,
     )
 
@@ -255,11 +250,10 @@ def line_emission(
     """
     if emission_line_id != r_packet.next_line_id:
         pass
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        geometry,
-        r_packet.current_shell_id,
         enable_full_relativity,
     )
     r_packet.nu = (

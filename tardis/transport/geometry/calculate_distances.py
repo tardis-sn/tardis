@@ -2,6 +2,9 @@ import math
 
 from numba import njit
 
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NumbaNonhomologousRadial1DGeometry,
+)
 from tardis.transport.montecarlo import (
     njit_dict_no_parallel,
 )
@@ -14,6 +17,7 @@ from tardis.transport.montecarlo.configuration.constants import (
 from tardis.transport.montecarlo.nonhomologous_grid import (
     depressed_quartic,
 )
+from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 from tardis.transport.montecarlo.utils import MonteCarloException
 
 
@@ -110,19 +114,12 @@ def calculate_distance_line(
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_line_nonhomologous(
-    rpacket,
-    geometry,
-    nu_line
+    rpacket : RPacket,
+    geometry : NumbaNonhomologousRadial1DGeometry,
+    nu_line : float
 ):
     """
     Calculate distance until RPacket is in resonance with the next line
-
-    Parameters
-    ----------
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : NumbaRadial1DGeometry
-    nu_line : float
-        line to check the distance to
 
     Returns
     -------
@@ -181,16 +178,13 @@ def calculate_distance_line_nonhomologous(
         # Convert each root x_i to a candidate distance: d = r0*x_i - r*mu
         # Select the smallest positive, finite distance among all four roots.
         distance = MISS_DISTANCE
-        for xi in x:
-            if math.isnan(xi):
+        for x_root in x:
+            if math.isnan(x_root):
                 continue
-            d_candidate = r0 * xi - r * mu
+            d_candidate = r0 * x_root - r * mu
             if d_candidate > 0.0 and d_candidate < distance:
                 distance = d_candidate
     else:
-        distance = MISS_DISTANCE
-
-    if distance <= 0.0 or math.isnan(distance) or distance == MISS_DISTANCE:
         distance = MISS_DISTANCE
 
     return distance

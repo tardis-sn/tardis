@@ -102,11 +102,10 @@ def trace_vpacket_within_shell(
     chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
+    v = numba_radial_1d_geometry.get_velocity(v_packet.r, v_packet.current_shell_id)
     doppler_factor = get_doppler_factor_nonhomologous(
-        v_packet.r,
+        v,
         v_packet.mu,
-        numba_radial_1d_geometry,
-        v_packet.current_shell_id,
         enable_full_relativity,
     )
 
@@ -280,11 +279,10 @@ def trace_vpacket_volley(
         mu_min = 0.0
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
+    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     r_packet_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        numba_radial_1d_geometry,
-        r_packet.current_shell_id,
         enable_full_relativity,
     )
     for i in range(no_of_vpackets):
@@ -308,10 +306,8 @@ def trace_vpacket_volley(
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
         v_packet_doppler_factor = get_doppler_factor_nonhomologous(
-            r_packet.r,
+            v,
             v_packet_mu,
-            numba_radial_1d_geometry,
-            r_packet.current_shell_id,
             enable_full_relativity,
         )
 

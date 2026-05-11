@@ -24,9 +24,8 @@ def get_doppler_factor(r, mu, time_explosion, enable_full_relativity):
 
 
 @njit(**njit_dict_no_parallel)
-def get_doppler_factor_nonhomologous(r, mu, geometry, shell_id, enable_full_relativity):
+def get_doppler_factor_nonhomologous(v, mu, enable_full_relativity):
     inv_c = 1 / C_SPEED_OF_LIGHT
-    v = geometry.velocity_gradient[shell_id] * r
     beta = v * inv_c
     if not enable_full_relativity:
         return get_doppler_factor_partial_relativity(mu, beta)
@@ -65,20 +64,17 @@ def get_inverse_doppler_factor(r, mu, time_explosion, enable_full_relativity):
 
 
 @njit(**njit_dict_no_parallel)
-def get_inverse_doppler_factor_nonhomologous(r, mu, geometry, shell_id, enable_full_relativity):
+def get_inverse_doppler_factor_nonhomologous(v, mu, enable_full_relativity):
     """
     Calculate doppler factor for frame transformation
 
     Parameters
     ----------
-    r : float
+    v : float
     mu : float
-    geometry : NumbaRadial1DGeometry
-    shell_id : int
     enable_full_relativity : bool
     """
     inv_c = 1 / C_SPEED_OF_LIGHT
-    v = geometry.velocity_gradient[shell_id] * r
     beta = v * inv_c
     if not enable_full_relativity:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)

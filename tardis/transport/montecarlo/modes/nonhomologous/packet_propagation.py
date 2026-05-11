@@ -99,11 +99,10 @@ def packet_propagation(
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
+    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        numba_radial_1d_geometry,
-        r_packet.current_shell_id,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
     )
     comov_nu = r_packet.nu * doppler_factor
@@ -132,11 +131,10 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
+        v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
         doppler_factor = get_doppler_factor_nonhomologous(
-            r_packet.r,
+            v,
             r_packet.mu,
-            numba_radial_1d_geometry,
-            r_packet.current_shell_id,
             montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         )
 
@@ -277,8 +275,9 @@ def set_packet_props_partial_relativity(
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     """
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, False
+        v, r_packet.mu, False
     )
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
