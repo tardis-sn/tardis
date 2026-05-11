@@ -75,11 +75,10 @@ def bound_free_emission(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     continuum_id : int
     """
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        geometry,
-        r_packet.current_shell_id,
         enable_full_relativity,
     )
 
@@ -166,8 +165,9 @@ def free_free_emission(
     geometry : NumbaNonhomologousRadial1DGeometry
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
+        v, r_packet.mu, enable_full_relativity
     )
     comov_nu = sample_nu_free_free(opacity_state, r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
