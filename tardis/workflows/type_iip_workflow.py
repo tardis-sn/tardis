@@ -10,11 +10,6 @@ from scipy.sparse import block_diag
 from tardis import constants as const
 from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
-from tardis.iip_plasma.continuum.input_data import ContinuumInputData
-from tardis.iip_plasma.continuum.radiative_processes import (
-    RadiativeIonization,
-    RadiativeRecombination,
-)
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
@@ -85,7 +80,12 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
 
-        self.atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+        self.atom_data.prepare_atom_data(
+            self.simulation_state.abundance.index,
+            "macroatom",
+            [(1, 0)],
+            [(1, 0)],
+        )
         self.atom_data.continuum_data = ContinuumData(
             self.atom_data, selected_continuum_species=[(1, 0)]
         )
@@ -479,18 +479,31 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.transport_state.estimators_continuum.ff_heating_estimator
         )
 
-        j_blues_df = pd.DataFrame(
-            estimated_radfield_properties.j_blues,
+        damped_j_blues = (
+            self.transport_solver.radfield_prop_solver.estimate_jblues(
+                self.transport_state.estimators_line.mean_intensity_blueward,
+                self.simulation_state.radiation_field_state,
+                self.transport_state.time_explosion,
+                self.transport_state.time_of_simulation,
+                self.transport_state.geometry_state.volume,
+                self.transport_state.opacity_state.line_list_nu,
+            )
+        )
+
+        damped_j_blues_df = pd.DataFrame(
+            damped_j_blues,
             index=self.plasma_solver.lines.index,
         )
 
-        continuum_estimators, j_blues_df = self.normalize_continuum_estimators(
-            continuum_estimators,
-            j_blues_df,
-            self.transport_state.estimators_bulk.mean_intensity_total,
+        continuum_estimators, damped_normalized_j_blues_df = (
+            self.normalize_continuum_estimators(
+                continuum_estimators,
+                damped_j_blues_df,
+                self.transport_state.estimators_bulk.mean_intensity_total,
+            )
         )
 
-        return continuum_estimators, j_blues_df
+        return continuum_estimators, damped_normalized_j_blues_df
 
     def solve_plasma(self, continuum_estimators, j_blues_df):
         """Update the plasma solution with the new radiation field estimates
@@ -937,20 +950,21 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.solve_simulation_state(estimated_values)
 
-            continuum_estimators, j_blues = self.update_estimators(
-                estimated_radfield_properties
+            normalized_continuum_estimators, damped_normalized_j_blues = (
+                self.update_estimators(estimated_radfield_properties)
             )
 
-            self.solve_plasma(continuum_estimators, j_blues)
+            self.solve_plasma(
+                normalized_continuum_estimators, damped_normalized_j_blues
+            )
 
             # After first MC step
             self.solve_thermal_balance()
 
-            self.solve_continuum_state(continuum_estimators)
+            self.solve_continuum_state(normalized_continuum_estimators)
 
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
-            raise ValueError
             if self.converged and self.convergence_strategy.stop_if_converged:
                 break
 

@@ -126,6 +126,12 @@ class MCRadiationFieldPropertiesSolver:
             line_list_nu
         )
         zero_j_blues = j_blues == 0.0
+        # This is what ctardis does instead of checking 0 values
+        # line_list_wavs = (line_list_nu * u.Hz).to(u.AA, u.spectral())
+        # detailed_mask = np.logical_and(
+        #     line_list_wavs > 2500.0 * u.AA, line_list_wavs < 10000.0 * u.AA
+        # )
+        # j_blues[~detailed_mask] = planck_j_blues[~detailed_mask]
         j_blues[zero_j_blues] = self.w_epsilon * planck_j_blues[zero_j_blues]
 
         return j_blues
