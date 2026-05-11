@@ -279,7 +279,7 @@ def test_nonhomologous_calculate_sobolev_line_opacity(
         velocity_gradient,
         legacy_plasma.stimulated_emission_factor,
     )
-    expected = regression_data.sync_dataframe(actual.values)
+    expected = regression_data.sync_dataframe(actual)
     pdt.assert_frame_equal(actual, expected)
 
 
