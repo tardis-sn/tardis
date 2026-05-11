@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=a1bbf4eb"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=c9dd903d"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -240,11 +240,10 @@ def packet_propagation(
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
+    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r,
+        v,
         r_packet.mu,
-        numba_radial_1d_geometry,
-        r_packet.current_shell_id,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
     )
     comov_nu = r_packet.nu * doppler_factor
@@ -273,11 +272,10 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
+        v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
         doppler_factor = get_doppler_factor_nonhomologous(
-            r_packet.r,
+            v,
             r_packet.mu,
-            numba_radial_1d_geometry,
-            r_packet.current_shell_id,
             montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         )
 
@@ -421,8 +419,9 @@ def set_packet_props_partial_relativity(
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     &quot;&quot;&quot;
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, False
+        v, r_packet.mu, False
     )
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor</div>
@@ -461,7 +460,7 @@ def set_packet_props_full_relativity(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 May 2026.
+      <span class="lastupdated">Last updated on 11 May 2026.
       </span></p>
   </div>
 

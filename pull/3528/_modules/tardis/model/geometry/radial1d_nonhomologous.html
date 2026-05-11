@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=a1bbf4eb"></script>
+      <script src="../../../../_static/documentation_options.js?v=c9dd903d"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -151,17 +151,6 @@ class NonhomologousRadial1DGeometry:
     &quot;&quot;&quot;
     Holds information about model geometry for non-homologous radial 1D models.
 
-    Parameters
-    ----------
-    r_inner : astropy.units.quantity.Quantity
-    r_outer : astropy.units.quantity.Quantity
-    v_inner : astropy.units.quantity.Quantity
-    v_outer : astropy.units.quantity.Quantity
-    r_inner_boundary : astropy.units.quantity.Quantity
-    r_outer_boundary : astropy.units.quantity.Quantity
-    v_inner_boundary : astropy.units.quantity.Quantity
-    v_outer_boundary : astropy.units.quantity.Quantity
-
     Attributes
     ----------
     volume : astropy.units.quantity.Quantity
@@ -170,14 +159,14 @@ class NonhomologousRadial1DGeometry:
 
     def __init__(
         self,
-        r_inner,
-        r_outer,
-        v_inner,
-        v_outer,
-        r_inner_boundary,
-        r_outer_boundary,
-        v_inner_boundary,
-        v_outer_boundary,
+        r_inner: u.Quantity,
+        r_outer: u.Quantity,
+        v_inner: u.Quantity,
+        v_outer: u.Quantity,
+        r_inner_boundary: u.Quantity,
+        r_outer_boundary: u.Quantity,
+        v_inner_boundary: u.Quantity,
+        v_outer_boundary: u.Quantity,
     ):
 
         assert np.allclose(r_inner[1:], r_outer[:-1])
@@ -344,6 +333,32 @@ class NonhomologousRadial1DGeometry:
             / (self.r_outer_active - self.r_inner_active)
         )
 
+<div class="viewcode-block" id="NonhomologousRadial1DGeometry.get_velocity">
+<a class="viewcode-back" href="../../../../api/tardis.model.geometry.radial1d_nonhomologous.html#tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry.get_velocity">[docs]</a>
+    def get_velocity(self, r, shell_id):
+        &quot;&quot;&quot;
+        Calculate the velocity at a given radius within a shell, assuming
+        a piece-wise linear velocity with radius.
+
+        Parameters
+        ----------
+        r : astropy.units.quantity.Quantity
+            Radius at which to calculate the velocity
+        shell_id : int
+            Shell index
+
+        Returns
+        -------
+        astropy.units.quantity.Quantity
+            Velocity at radius r within shell shell_id
+
+        Examples
+        --------
+            geometry.get_velocity(rpacket.r, rpacket.current_shell_id)
+        &quot;&quot;&quot;
+        return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (r - self.r_inner[shell_id])</div>
+
+
     @property
     def no_of_shells(self):
         return len(self.r_inner)
@@ -405,7 +420,26 @@ class NumbaNonhomologousRadial1DGeometry:
         self.v_inner = v_inner
         self.v_outer = v_outer
         self.velocity_gradient = (self.v_outer - self.v_inner) / (self.r_outer - self.r_inner)
-        self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)</div>
+        self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+    def get_velocity(self, r, shell_id):
+        &quot;&quot;&quot;
+        Calculate the velocity at a given radius within a shell, assuming
+        a piece-wise linear velocity with radius.
+
+        Parameters
+        ----------
+        r : float
+            Radius at which to calculate the velocity
+        shell_id : int
+            Shell index
+
+        Returns
+        -------
+        float
+            Velocity at radius r within shell shell_id
+        &quot;&quot;&quot;
+        return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (r - self.r_inner[shell_id])</div>
 
 
 </pre></div>
@@ -418,7 +452,7 @@ class NumbaNonhomologousRadial1DGeometry:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 May 2026.
+      <span class="lastupdated">Last updated on 11 May 2026.
       </span></p>
   </div>
 

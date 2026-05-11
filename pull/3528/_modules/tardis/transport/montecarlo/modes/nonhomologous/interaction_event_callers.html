@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=a1bbf4eb"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=c9dd903d"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -298,13 +298,14 @@ def continuum_event(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     continuum : tardis.transport.montecarlo.numba_interface.Continuum
     &quot;&quot;&quot;
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     old_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
+        v, r_packet.mu, enable_full_relativity
     )
 
     r_packet.mu = get_random_mu()
     inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
+        v, r_packet.mu, enable_full_relativity
     )
     comov_energy = r_packet.energy * old_doppler_factor
     comov_nu = (
@@ -352,13 +353,14 @@ def line_scatter_event(
     line_interaction_type : enum
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     &quot;&quot;&quot;
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     old_doppler_factor = get_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
+        v, r_packet.mu, enable_full_relativity
     )
     r_packet.mu = get_random_mu()
 
     inverse_new_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        r_packet.r, r_packet.mu, geometry, r_packet.current_shell_id, enable_full_relativity
+        v, r_packet.mu, enable_full_relativity
     )
 
     comov_energy = r_packet.energy * old_doppler_factor
@@ -396,7 +398,7 @@ def line_scatter_event(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 07 May 2026.
+      <span class="lastupdated">Last updated on 11 May 2026.
       </span></p>
   </div>
 
