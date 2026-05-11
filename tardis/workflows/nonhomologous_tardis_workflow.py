@@ -51,8 +51,8 @@ class NonhomologousTARDISWorkflow(SimpleTARDISWorkflow):
             r_outer=geometry.v_outer * t_exp,
             v_inner=geometry.v_inner,
             v_outer=geometry.v_outer,
-            r_inner_boundary=None,
-            r_outer_boundary=None,
+            r_inner_boundary=geometry.v_inner_boundary * t_exp,
+            r_outer_boundary=geometry.v_outer_boundary * t_exp,
             v_inner_boundary=geometry.v_inner_boundary,
             v_outer_boundary=geometry.v_outer_boundary,
         )

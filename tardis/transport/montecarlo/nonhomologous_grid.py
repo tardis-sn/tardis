@@ -7,7 +7,7 @@ from tardis.transport.montecarlo import (
 
 
 @njit(**njit_dict_no_parallel)
-def depressed_quartic(A: float, B: float, C: float, D: float, E: float, threshold_fac=6.0e-7):
+def depressed_quartic(A: float, B: float, C: float, D: float, E: float, threshold_fac=6.0e-7, verbose=False):
 
     a = -3.0*B**2.0/(8.0*A**2.0) + C/A
     b = B**3.0/(8.0*A**3.0) - B*C/(2.0*A**2.0) + D/A
@@ -66,15 +66,16 @@ def depressed_quartic(A: float, B: float, C: float, D: float, E: float, threshol
             minroot_ind = 1
         thresh_match = np.abs(aybw_term[minroot_ind])/aybw_thresh*threshold_fac
         aybw_term_clamped[minroot_ind] = 0.0
-        print(
-            "No real roots found in depressed_quartic solver. Smallest term is",
-            aybw_term[minroot_ind],
-            "(greater than relative threshold for zeroing, which is",
-            aybw_thresh,
-            "). Bending threshold for this root and forcing to zero.",
-            "Threshold is currently", threshold_fac,
-            "and would need to be greater than", thresh_match, "to catch this case."
-        )
+        if verbose:
+            print(
+                "No real roots found in depressed_quartic solver. Smallest term is",
+                aybw_term[minroot_ind],
+                "(greater than relative threshold for zeroing, which is",
+                aybw_thresh,
+                "). Bending threshold for this root and forcing to zero.",
+                "Threshold is currently", threshold_fac,
+                "and would need to be greater than", thresh_match, "to catch this case."
+            )
 
     x1 = -B/(4.0*A) + 0.5*( w + np.sqrt(aybw_term_clamped[0]))
     x2 = -B/(4.0*A) + 0.5*( w - np.sqrt(aybw_term_clamped[0]))

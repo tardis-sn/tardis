@@ -280,7 +280,7 @@ def test_nonhomologous_calculate_sobolev_line_opacity(
         legacy_plasma.stimulated_emission_factor,
     )
     expected = regression_data.sync_dataframe(actual.values)
-    npt.assert_allclose(actual.values, expected)
+    pdt.assert_frame_equal(actual, expected)
 
 
 @pytest.mark.parametrize(

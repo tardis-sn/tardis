@@ -133,7 +133,7 @@ def calculate_distance_line_nonhomologous(
 
     r = rpacket.r
     dvdr = geometry.velocity_gradient[rpacket.current_shell_id]
-    v = v_inner + dvdr*(r - r_inner)
+    v = geometry.get_velocity(r, rpacket.current_shell_id)
     nu_rest = rpacket.nu
     mu = rpacket.mu
 
@@ -146,22 +146,26 @@ def calculate_distance_line_nonhomologous(
     # Characteristic scales for non-dimensionalization
     r0 = r_outer - r_inner
     v0 = v_outer - v_inner
+    if v0 == 0.0:
+        # Velocity gradient is zero - packet cannot shift into a line in this shell
+        return MISS_DISTANCE
 
     # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
     rd = r/r0
     nd = n/v0
-    md = 1.0
+    md = 1.0 # m/(v0/r0) # dimensionless m will always be 1
     qd = q/v0
 
+    md2 = md*md
     rd2 = rd*rd
     nd2 = nd*nd
     qd2 = qd*qd
 
     # Define coefficients of the quartic polynomial
-    a = 1.0
-    b = -2.0 * nd
-    c = nd2 + rd2 * p - qd2
-    d = -2.0 * nd * rd2 * p
+    a = md2
+    b = -2.0 * nd * md
+    c = nd2 + md * rd2 * p - qd2
+    d = -2.0 * nd * md * rd2 * p
     e = nd2 * rd2 * p
 
     # m is the velocity gradient

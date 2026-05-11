@@ -84,7 +84,6 @@ def trace_packet(
     tau_trace_line_combined = 0.0
 
     dvdr = numba_radial_1d_geometry.velocity_gradient[r_packet.current_shell_id]
-    v = v_inner + dvdr * (r_packet.r - r_inner)
 
     # defining start for line interaction
     # If redshifting, use next line and line list in order
@@ -98,8 +97,6 @@ def trace_packet(
 
     distance_electron = tau_event / opacity_electron
     cur_line_id = start_line_id  # initializing varibale for Numba
-    # - do not remove
-    last_line_id = len(opacity_state.line_list_nu) - 1
     for cur_line_id in range(start_line_id, loop_lim, loop_direction):
         # Going through the lines
         nu_line = opacity_state.line_list_nu[cur_line_id]
@@ -112,8 +109,6 @@ def trace_packet(
 
         # Calculating the distance until the current photons co-moving nu
         # redshifts to the line frequency
-        is_last_line = cur_line_id == last_line_id
-
         distance_trace = calculate_distance_line_nonhomologous(
             r_packet,
             numba_radial_1d_geometry,
@@ -172,12 +167,8 @@ def trace_packet(
 
         if tau_trace_combined > tau_event and not disable_line_scattering:
             interaction_type = InteractionType.LINE  # Line
-            if dvdr >= 0.0:
-                r_packet.next_line_id = cur_line_id
-                r_packet.prev_line_id = cur_line_id - 1
-            else:
-                r_packet.next_line_id = cur_line_id + 1
-                r_packet.prev_line_id = cur_line_id
+            r_packet.next_line_id = cur_line_id
+            r_packet.prev_line_id = cur_line_id - 1
             distance = distance_trace
             break
 
@@ -190,9 +181,16 @@ def trace_packet(
     else:  # Executed when no break occurs in the for loop
         # We are beyond the line list now and the only next thing is to see
         # if we are interacting with the boundary or electron scattering
-        if cur_line_id == (len(opacity_state.line_list_nu) - 1):
-            # Treatment for last line
-            cur_line_id += 1
+        if dvdr >= 0.0:
+            if cur_line_id == (len(opacity_state.line_list_nu) - 1):
+                cur_line_id += 1
+            r_packet.next_line_id = cur_line_id
+            r_packet.prev_line_id = cur_line_id - 1
+        else:
+            if cur_line_id == 0:
+                cur_line_id -= 1
+            r_packet.next_line_id = cur_line_id + 1
+            r_packet.prev_line_id = cur_line_id
         if distance_electron < distance_boundary:
             distance = distance_electron
             interaction_type = InteractionType.ESCATTERING

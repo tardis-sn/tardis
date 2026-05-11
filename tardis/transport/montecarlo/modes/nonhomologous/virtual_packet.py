@@ -31,6 +31,7 @@ class VPacket:
     nu: nb.float64  # type: ignore[misc]
     energy: nb.float64  # type: ignore[misc]
     next_line_id: nb.int64  # type: ignore[misc]
+    prev_line_id: nb.int64  # type: ignore[misc]
     current_shell_id: nb.int64  # type: ignore[misc]
     status: nb.int64  # type: ignore[misc]
     index: nb.int64  # type: ignore[misc]
@@ -62,6 +63,8 @@ class VPacket:
             Current shell index.
         next_line_id : int
             Next line interaction index.
+        prev_line_id : int
+            Previous line interaction index.
         index : int, optional
             Packet index, by default 0.
         """
@@ -71,6 +74,7 @@ class VPacket:
         self.energy = energy
         self.current_shell_id = current_shell_id
         self.next_line_id = next_line_id
+        self.prev_line_id = self.next_line_id - 1
         self.status = PacketStatus.IN_PROCESS
         self.index = index
 
@@ -83,7 +87,8 @@ def trace_vpacket_within_shell(
     enable_full_relativity,
 ):
     """
-    Trace VPacket within one shell (relatively simple operation)
+    Trace VPacket within one shell, accumulating optical depth from continuum
+    and line interactions until the shell boundary is reached.
     """
     r_inner = numba_radial_1d_geometry.r_inner[v_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[v_packet.current_shell_id]
@@ -91,11 +96,8 @@ def trace_vpacket_within_shell(
     distance_boundary, delta_shell = calculate_distance_boundary(
         v_packet.r, v_packet.mu, r_inner, r_outer
     )
-    # defining start for line interaction
-    start_line_id = v_packet.next_line_id
 
     # e scattering initialization
-
     cur_electron_density = opacity_state.electron_density[
         v_packet.current_shell_id
     ]
@@ -132,20 +134,25 @@ def trace_vpacket_within_shell(
     tau_continuum = chi_continuum * distance_boundary
     tau_trace_combined = tau_continuum
 
-    cur_line_id = start_line_id
+    # defining start for line interaction
+    # If redshifting, use next line and line list in order
+    # If blueshifting, use previous line and reverse line list
+    dvdr = numba_radial_1d_geometry.velocity_gradient[v_packet.current_shell_id]
+    if dvdr >= 0.0:
+        start_line_id = v_packet.next_line_id
+        loop_lim, loop_direction = len(opacity_state.line_list_nu), 1
+    else:
+        start_line_id = v_packet.prev_line_id
+        loop_lim, loop_direction = -1, -1
 
-    for cur_line_id in range(start_line_id, len(opacity_state.line_list_nu)):
-        # if tau_trace_combined > 10: ### FIXME ?????
-        #    break
+    cur_line_id = start_line_id  # initialize variable for Numba - do not remove
 
+    for cur_line_id in range(start_line_id, loop_lim, loop_direction):
         nu_line = opacity_state.line_list_nu[cur_line_id]
-        # TODO: Check if this is what the C code does
 
         tau_trace_line = opacity_state.tau_sobolev[
             cur_line_id, v_packet.current_shell_id
         ]
-
-        is_last_line = cur_line_id == len(opacity_state.line_list_nu) - 1
 
         distance_trace_line = calculate_distance_line_nonhomologous(
             v_packet,
@@ -159,9 +166,22 @@ def trace_vpacket_within_shell(
         tau_trace_combined += tau_trace_line
 
     else:
-        if cur_line_id == (len(opacity_state.line_list_nu) - 1):
-            cur_line_id += 1
-    v_packet.next_line_id = cur_line_id
+        # All lines in search direction were reached
+        # Advance cur_line_id past the end of the list so that next_line_id/prev_line_id
+        # correctly indicate no remaining lines in this direction
+        if dvdr >= 0.0:
+            if cur_line_id == (len(opacity_state.line_list_nu) - 1):
+                cur_line_id += 1
+        else:
+            if cur_line_id == 0:
+                cur_line_id -= 1
+
+    if dvdr >= 0.0:
+        v_packet.next_line_id = cur_line_id
+        v_packet.prev_line_id = cur_line_id - 1
+    else:
+        v_packet.next_line_id = cur_line_id + 1
+        v_packet.prev_line_id = cur_line_id
 
     return tau_trace_combined, distance_boundary, delta_shell
 

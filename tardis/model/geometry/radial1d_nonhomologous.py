@@ -72,7 +72,7 @@ class NonhomologousRadial1DGeometry:
 
         if self.r_outer_boundary > self.r_outer[-1]:
             warnings.warn(
-                "Requesting inner boundary below inner shell. Extrapolating the inner cell"
+                "Requesting outer boundary above outer shell. Extrapolating the outer cell"
             )
 
         # set default velocity boundaries if not provided in arguments
