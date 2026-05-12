@@ -220,9 +220,9 @@ def test_override_plot_parameters(convergence_plots):
 
 
 def test_convergence_plot_command_line(
-    config_verysimple, atomic_dataset, monkeysession
+    config_verysimple, atomic_dataset, monkeypatch
 ):
-    monkeysession.setattr(
+    monkeypatch.setattr(
         "tardis.util.environment.Environment.allows_widget_display",
         lambda: False,
     )
