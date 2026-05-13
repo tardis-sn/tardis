@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import tardis.transport.montecarlo.modes.classic.rad_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
-import tardis.transport.montecarlo.r_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
 from tardis.transport.frame_transformations import (
@@ -13,10 +13,10 @@ from tardis.transport.frame_transformations import (
     angle_aberration_LF_to_CMF,
     get_doppler_factor,
 )
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
+from tardis.transport.montecarlo.estimators import init_estimators_bulk
+from tardis.transport.montecarlo.packets.trackers.tracker_full import (
+    TrackerFull,
 )
-from tardis.transport.montecarlo.packets.trackers.tracker_full import TrackerFull
 
 C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
@@ -91,6 +91,7 @@ The tests written further (till next block comment is encountered) have been
 categorized as important tests, these tests correspond to methods which are
 relatively old and stable code.
 """
+
 
 def test_get_random_mu_different_output():
     """
@@ -365,8 +366,10 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     doppler_factor = get_doppler_factor(
         packet.r, packet.mu, time_explosion, full_relativity
     )
-    numba_estimator = RadiationFieldMCEstimators(
-        packet_params["j"], packet_params["nu_bar"], 0, 0
+
+    numba_estimator = init_estimators_bulk(
+        mean_intensity_total=packet_params["j"],
+        mean_frequency=packet_params["nu_bar"],
     )
     r_packet_transport.move_r_packet(
         packet, distance, time_explosion, numba_estimator, full_relativity
@@ -454,7 +457,6 @@ methods related to continuum interactions.
 """
 
 
-@pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ["mu", "r", "inv_t_exp", "full_relativity"],
     [
@@ -473,7 +475,9 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     inverse_doppler_factor = radiative_packet.get_inverse_doppler_factor(
         r, mu, 1 / inv_t_exp
     )
-    radiative_packet.angle_aberration_CMF_to_LF(packet, 1 / inv_t_exp, packet.mu)
+    radiative_packet.angle_aberration_CMF_to_LF(
+        packet, 1 / inv_t_exp, packet.mu
+    )
 
     doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
     mc.ENABLE_FULL_RELATIVITY = False
@@ -481,7 +485,6 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
 
 
-@pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ["mu", "r", "inv_t_exp"],
     [
@@ -502,7 +505,6 @@ def test_angle_transformation_invariance(mu, r, inv_t_exp):
     assert_almost_equal(mu_obtained, mu)
 
 
-@pytest.mark.continuumtest
 @pytest.mark.parametrize("full_relativity", [1, 0])
 @pytest.mark.parametrize(
     ["mu", "r", "t_exp", "nu", "nu_line"],
@@ -520,11 +522,10 @@ def test_compute_distance2line_relativistic(
 ):
     packet = radiative_packet.RPacket(r=r, nu=nu, mu=mu, energy=0.9)
     # packet.nu_line = nu_line
-    numba_estimator = RadiationFieldMCEstimators(
-        transport.j_estimator,
-        transport.nu_bar_estimator,
-        transport.j_blue_estimator,
-        transport.Edotlu_estimator,
+
+    numba_estimator = init_estimators_bulk(
+        mean_intensity_total=transport.j_estimator,
+        mean_frequency=transport.nu_bar_estimator,
     )
     mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
 

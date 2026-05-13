@@ -83,9 +83,7 @@ class HomologousRadial1DGeometry:
 
     @property
     def v_middle_active(self):
-        return self.v_middle[
-            self.v_inner_boundary_index : self.v_outer_boundary_index
-        ]
+        return (self.v_inner_active + self.v_outer_active) / 2.0
 
     @property
     def v_inner_boundary_index(self):

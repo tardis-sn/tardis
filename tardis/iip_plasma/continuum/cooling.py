@@ -24,7 +24,7 @@ class CoolingRates(ContinuumProcess):
 
     def _set_cooling_rates(self, **kwargs):
         total_cooling_rates_dict = {}
-        for name, cooling_process in kwargs.iteritems():
+        for name, cooling_process in kwargs.items():
             cooling_rate_of_process = cooling_process.cooling_rate
             total_cooling_rate_of_process = self._get_total_cooling_rate(
                 cooling_process
@@ -75,7 +75,7 @@ class CoolingRates(ContinuumProcess):
         for (
             name,
             total_cooling_rate_of_process,
-        ) in total_cooling_rates_dict.iteritems():
+        ) in total_cooling_rates_dict.items():
             cooling_probability_of_process = (
                 total_cooling_rate_of_process / self.total_cooling_rate
             )

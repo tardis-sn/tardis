@@ -75,9 +75,7 @@ class ContinuumProcess:
     @data_type_selection
     def _get_ionization_energy(self, multi_index_full):
         ion_number_index = self._get_ion_multi_index(multi_index_full)
-        return self.input.ionization_energies.loc[
-            ion_number_index, "ionization_energy"
-        ]
+        return self.input.ionization_energies.loc[ion_number_index]
 
     def _get_continuum_edge_idx(self, multi_index):
         return self.input.continuum_data.loc[multi_index, "continuum_edge_idx"]
@@ -85,15 +83,14 @@ class ContinuumProcess:
     @staticmethod
     def _normalize_transition_probabilities(dataframe, no_ref_columns=0):
         normalization_fct = lambda x: (x / x.sum())
-        normalized_dataframe = (
+        normalized_dataframe_orig = (
             dataframe.iloc[:, no_ref_columns:]
             .groupby(level=0)
             .transform(normalization_fct)
         )
         normalized_dataframe = pd.concat(
-            [dataframe.iloc[:, :no_ref_columns], normalized_dataframe],
+            [dataframe.iloc[:, :no_ref_columns], normalized_dataframe_orig],
             axis=1,
-            join_axes=[normalized_dataframe.index],
         )
         normalized_dataframe = normalized_dataframe.fillna(0.0)
         return normalized_dataframe

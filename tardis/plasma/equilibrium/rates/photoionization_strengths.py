@@ -438,7 +438,7 @@ class EstimatedPhotoionizationCoeffSolver:
 
     def solve(
         self,
-        radfield_mc_estimators,
+        estimators_continuum,
         time_simulation,
         volume,
     ):
@@ -447,8 +447,8 @@ class EstimatedPhotoionizationCoeffSolver:
 
         Parameters
         ----------
-        radfield_mc_estimators : RadiationFieldMCEstimators
-            The Monte Carlo estimators for the radiation field.
+        estimators_continuum : EstimatorsContinuum
+            The Monte Carlo estimators for the continuum radiation field.
         time_simulation : float
             The simulation time.
         volume : float
@@ -469,13 +469,13 @@ class EstimatedPhotoionizationCoeffSolver:
         photoionization_normalization = (time_simulation * volume * H) ** -1
 
         photoionization_rate_coeff = bound_free_estimator_array2frame(
-            radfield_mc_estimators.photo_ion_estimator,
+            estimators_continuum.photo_ion_estimator,
             self.level2continuum_edge_idx,
         )
         photoionization_rate_coeff *= photoionization_normalization
 
         stimulated_recombination_rate_coeff = bound_free_estimator_array2frame(
-            radfield_mc_estimators.stim_recomb_estimator,
+            estimators_continuum.stim_recomb_estimator,
             self.level2continuum_edge_idx,
         )
         stimulated_recombination_rate_coeff *= photoionization_normalization

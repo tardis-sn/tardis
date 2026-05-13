@@ -1,0 +1,72 @@
+# Example YAML configuration for TARDIS
+tardis_config_version: v1.0
+
+supernova:
+  luminosity_requested: 5e42 erg/s
+  time_explosion: 16.0 day
+
+atom_data: christians_atomdata_converted_04Dec25.h5
+
+model:
+  structure:
+    type: specific
+    velocity:
+      start: 8000 km/s
+      stop: 10000 km/s
+      num: 10
+    density:
+      type : power_law
+      time_0: 16.0 day
+      rho_0: 1e-14 g/cm^3
+      v_0: 8000 km/s
+      exponent: -7
+
+  abundances:
+    type: uniform
+    H: 1.0
+
+  
+plasma:
+  disable_electron_scattering: no
+  ionization: nebular # should be nlte
+  excitation: dilute-lte
+  radiative_rates_type:  detailed # Doesn't do anything currently but needed for validation
+  line_interaction_type: macroatom
+  initial_t_inner: 8000 K
+  nlte_ionization_species: [H I]
+  nlte_excitation_species: [H I]
+  # nlte_species[(1, 0)]
+  # nlte_solver: root
+  continuum_interaction:
+      species:
+          - H I
+          # - H II
+      enable_adiabatic_cooling: False
+  link_t_rad_t_electron: 1.0
+
+
+montecarlo:
+  seed: 23111963
+  no_of_packets: 2.0e+5
+  iterations: 4
+  nthreads: 8
+
+  last_no_of_packets: 5.0e+5
+
+  convergence_strategy:
+    type: damped
+    damping_constant: 1.0
+    threshold: 0.05
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 0.5
+    stop_if_converged: True
+
+  tracking:
+    track_rpacket: False
+
+spectrum:
+  start: 500 angstrom
+  stop: 20000 angstrom
+  num: 10000

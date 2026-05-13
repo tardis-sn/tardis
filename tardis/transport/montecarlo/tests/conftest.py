@@ -4,22 +4,18 @@ import numpy as np
 import pytest
 from numba import njit
 
-from tardis.opacities.opacity_state import opacity_state_initialize
 from tardis.opacities.opacity_state_numba import (
     opacity_state_numba_initialize,
 )
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
-from tardis.transport.montecarlo.estimators.radfield_mc_estimators import (
-    RadiationFieldMCEstimators,
-)
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
 
 
 @pytest.fixture(scope="function")
-def montecarlo_main_loop_config(
+def montecarlo_transport_config(
     config_montecarlo_1e5_verysimple,
 ):
     # Setup model config from verysimple
@@ -59,23 +55,6 @@ def verysimple_numba_radial_1d_geometry(nb_simulation_verysimple):
 def verysimple_time_explosion(nb_simulation_verysimple):
     model = nb_simulation_verysimple.simulation_state
     return model.time_explosion.cgs.value
-
-
-@pytest.fixture(scope="package")
-def verysimple_estimators(nb_simulation_verysimple):
-    transport = nb_simulation_verysimple.transport
-
-    return RadiationFieldMCEstimators(
-        transport.j_estimator,
-        transport.nu_bar_estimator,
-        transport.j_blue_estimator,
-        transport.Edotlu_estimator,
-        transport.photo_ion_estimator,
-        transport.stim_recomb_estimator,
-        transport.bf_heating_estimator,
-        transport.stim_recomb_cooling_estimator,
-        transport.photo_ion_estimator_statistics,
-    )
 
 
 @pytest.fixture(scope="package")

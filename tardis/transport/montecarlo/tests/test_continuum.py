@@ -6,8 +6,7 @@ import pytest
 from tardis.simulation import Simulation
 
 
-@pytest.mark.skip("Continuum tests skipping until replaced.")
-@pytest.mark.continuum
+@pytest.mark.skip(reason="Work in progress")
 def test_montecarlo_continuum(
     continuum_config,
     regression_data,

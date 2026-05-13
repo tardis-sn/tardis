@@ -13,10 +13,10 @@ jobs:
       pull-requests: write
       issues: write
       contents: read
-    
+
     steps:
       - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
@@ -25,31 +25,49 @@ jobs:
             Warning - LFS bandwidth usage
             ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
 
+  add-gsoc-label:
+    if: contains(github.event.pull_request.title, 'GSoC')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add GSoC label
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.BOT_TOKEN }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ['GSoC :sun_with_face:']
+            });
+
   check-first-time-committer:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
     permissions:
       pull-requests: write
-    
-    steps:
-      - name: Add welcome comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
-            Before asking for reviews, please make sure all checks have passed.
 
-  
+    steps:
+      - name: Welcome first-time contributor
+        uses: actions/first-interaction@v3
+        with:
+          repo_token: ${{ secrets.BOT_TOKEN }}
+          pr_message: |
+            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
+
+            **If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and our [PR checklist](https://tardis-sn.github.io/summer_of_code/pr_checklist/).**
+
+            Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.
+          issue_message: |
+            👋 Welcome! Thank you for opening your first issue in this repository!
+
   check-orcid:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      
+
       - name: Check if author email exists in orcid.csv
         id: check_orcid
         continue-on-error: true
@@ -60,7 +78,7 @@ jobs:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
 
       - name: Find comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -69,7 +87,7 @@ jobs:
 
       - name: Create comment
         if: steps.check_orcid.outcome == 'failure'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           token: ${{ secrets.BOT_TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}

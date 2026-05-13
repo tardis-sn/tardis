@@ -63,7 +63,7 @@ class BaseContinuum:
         self._diagonalize_ma()
 
     def _set_physical_processes(self, requested_processes):
-        for name, process in BaseContinuum.direct_processes.iteritems():
+        for name, process in BaseContinuum.direct_processes.items():
             if name in requested_processes:
                 setattr(self, name, process(self.input))
 
@@ -71,7 +71,7 @@ class BaseContinuum:
         for (
             name_of_inverse_process,
             process,
-        ) in BaseContinuum.process2inverse_process.iteritems():
+        ) in BaseContinuum.process2inverse_process.items():
             if hasattr(self, name_of_inverse_process):
                 inverse_process = getattr(self, name_of_inverse_process)
                 setattr(
@@ -83,7 +83,7 @@ class BaseContinuum:
     def _set_cooling_rates(self):
         cooling_processes = {
             name: process
-            for name, process in self.__dict__.iteritems()
+            for name, process in self.__dict__.items()
             if hasattr(process, "cooling") and process.cooling is True
         }
         self.cooling_rates = CoolingRates(self.input, **cooling_processes)
@@ -91,7 +91,7 @@ class BaseContinuum:
     def _set_transition_probabilities(self):
         macro_atom_processes = {
             name: process
-            for name, process in self.__dict__.iteritems()
+            for name, process in self.__dict__.items()
             if hasattr(process, "macro_atom_transitions")
             and process.macro_atom_transitions is not None
         }
@@ -131,7 +131,7 @@ class BaseContinuum:
         self.no_cont_lvls = no_cont_lvls
         no_lvls_tot = no_lvls + no_cont_lvls + 1
         x_ind, y_ind = self._get_ref_indices()
-        index = zip(x_ind.flatten(), y_ind.flatten())
+        index = pd.MultiIndex.from_arrays([x_ind.flatten(), y_ind.flatten()])
         ref_idx_2_pos = pd.Series(
             np.arange(no_lvls, dtype=np.int64),
             index=self.input.ref_idx_lvls_cont_species,
@@ -165,7 +165,8 @@ class BaseContinuum:
 
             # Setup internal MA jump matrix
             int_jump_matrix = (
-                int_jump_prob.loc[index, shell]
+                int_jump_prob.reindex(index)
+                .loc[index, shell]
                 .fillna(0)
                 .values.reshape((no_lvls, no_lvls))
             )

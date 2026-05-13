@@ -1,5 +1,8 @@
 from tardis.iip_plasma.properties import *
 from tardis.iip_plasma.properties.continuum import *
+from tardis.iip_plasma.properties.continuum import (
+    IIpWorkflowContinuumConnectors,
+)
 from tardis.iip_plasma.properties.estimators import *
 
 
@@ -81,6 +84,7 @@ continuum_interaction_properties = PlasmaPropertyCollection(
         PhotoIonRateCoeff,
         CollIonRateCoeff,
         CollRecombRateCoeff,
+        IIpWorkflowContinuumConnectors,
     ]
 )
 nlte_ionizaton_properties = PlasmaPropertyCollection(

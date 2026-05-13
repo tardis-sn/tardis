@@ -6,6 +6,7 @@ import pandas as pd
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
 from astropy import units as u
+
 from tardis import constants as const
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
@@ -68,10 +69,10 @@ class SourceFunctionSolver:
         transition_probabilities = opacity_state_numba.transition_probabilities
 
         j_blue_estimator = (
-            transport_state.radfield_mc_estimators.j_blue_estimator
+            transport_state.estimators_line.mean_intensity_blueward
         )
         e_dot_lu_estimator = (
-            transport_state.radfield_mc_estimators.Edotlu_estimator
+            transport_state.estimators_line.energy_deposition_line_rate
         )
         time_of_simulation = (
             transport_state.packet_collection.time_of_simulation * u.s

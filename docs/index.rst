@@ -83,6 +83,7 @@ Mission Statement
     :hidden:
 
     how_to/index
+    how_to_adaptive_damping
     workflows
     analyzing_tardis/index
     io/configuration/tutorial_read_configuration

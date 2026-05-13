@@ -34,9 +34,7 @@ def test_compare_models(model_config_fnames, atomic_dataset):
     tardis_config = Configuration.from_yaml(csvy_config_file)
     tardis_config_old = Configuration.from_yaml(old_config_file)
     tardis_config_old.model.abundances.model_isotope_time_0 = 0 * u.s
-    csvy_simulation_state = SimulationState.from_csvy(
-        tardis_config, atom_data=atomic_dataset
-    )
+    csvy_simulation_state = SimulationState.from_csvy(tardis_config)
     config_simulation_state = SimulationState.from_config(
         tardis_config_old, atom_data=atomic_dataset
     )
@@ -92,13 +90,11 @@ def test_dimensionality_after_update_v_inner_boundary(
     in the context of csvy models specifically"""
     csvy_config_file = example_csvy_file_dir / "radiative_csvy.yml"
     config = Configuration.from_yaml(csvy_config_file)
-    csvy_model = SimulationState.from_csvy(config, atom_data=atomic_dataset)
+    csvy_model = SimulationState.from_csvy(config)
 
     new_config = config
     new_config.model.v_inner_boundary = csvy_model.velocity[1]
-    new_csvy_model = SimulationState.from_csvy(
-        new_config, atom_data=atomic_dataset
-    )
+    new_csvy_model = SimulationState.from_csvy(new_config)
 
     assert new_csvy_model.no_of_raw_shells == csvy_model.no_of_raw_shells
     assert new_csvy_model.no_of_shells == csvy_model.no_of_shells - 1
@@ -116,9 +112,7 @@ def csvy_model_test_abundances(example_csvy_file_dir, atomic_dataset):
     """Returns SimulationState to use to test abundances dataframes"""
     csvypath = example_csvy_file_dir / "csvy_model_to_test_abundances.yml"
     config = Configuration.from_yaml(csvypath)
-    csvy_model_test_abundances = SimulationState.from_csvy(
-        config, atom_data=atomic_dataset
-    )
+    csvy_model_test_abundances = SimulationState.from_csvy(config)
     return csvy_model_test_abundances
 
 

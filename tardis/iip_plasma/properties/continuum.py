@@ -6,7 +6,16 @@ from astropy import constants as const
 from scipy.integrate import simpson, trapezoid
 from scipy.interpolate import PchipInterpolator
 
-from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.iip_plasma.continuum.util import get_ion_multi_index
+from tardis.iip_plasma.properties.base import Input, ProcessingPlasmaProperty
+from tardis.plasma.properties.continuum_processes.fast_array_util import (
+    cumulative_integrate_array_by_blocks,
+)
+from tardis.plasma.properties.continuum_processes.rates import (
+    cooling_rate_series2dataframe,
+    get_ground_state_multi_index,
+)
 from tardis.util.base import intensity_black_body
 
 logger = logging.getLogger(__name__)
@@ -1276,3 +1285,196 @@ class Logger(ProcessingPlasmaProperty):
             "b0": self.b0,
         }
         return logdata
+
+
+class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
+    outputs = (
+        "nu_i",
+        "level2continuum_idx",
+        "p_fb_deactivation",
+        "chi_bf",
+        "ff_cooling_factor",
+        "fb_emission_cdf",
+        "photo_ion_idx",
+        "k_packet_idx",
+        "gamma_corr",
+        "delta_E_yg",
+        "continuum_interaction_species",
+    )
+    latex_name = ("",)
+    latex_formula = ("",)
+
+    def calculate(
+        self,
+        atomic_data,
+        alpha_sp,
+        electron_densities,
+        ion_number_density,
+        lte_ion_number_density,
+        t_electrons,
+        level_number_density,
+        lte_level_number_density,
+        gamma,
+    ):
+        photoionization_data = atomic_data.photoionization_data
+        nu_i = photoionization_data.groupby(level=[0, 1, 2]).first().nu
+        level2continuum_idx = pd.Series(
+            np.arange(len(nu_i)),
+            nu_i.sort_values(ascending=False, kind=SORTING_ALGORITHM).index,
+            name="continuum_idx",
+        )
+
+        # p_fb_deactivation is one to double check
+        next_ion_stage_index = get_ion_multi_index(alpha_sp.index)
+        n_k = ion_number_density.loc[next_ion_stage_index]
+        cool_rate_fb = (
+            alpha_sp.multiply(electron_densities, axis=1) * n_k.values
+        )
+        cool_rate_fb_tot = cooling_rate_series2dataframe(
+            cool_rate_fb.sum(axis=0), "bf"
+        )
+        p_fb_deactivation = cool_rate_fb / cool_rate_fb_tot.values
+        continuum_idx = level2continuum_idx.loc[p_fb_deactivation.index].values
+        p_fb_deactivation = p_fb_deactivation.set_index(
+            continuum_idx
+        ).sort_index(ascending=True, kind=SORTING_ALGORITHM)
+        p_fb_deactivation.index.name = "continuum_idx"
+
+        # NOW CALCULATE CHI_BF
+        nu = photoionization_data["nu"]
+        # BOLTZMANN FACTOR IS CALCULATED IN MANY PLACES
+        boltzmann_factor = np.exp(
+            -nu.values[np.newaxis].T
+            / t_electrons
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+
+        level_number_density = level_number_density.loc[
+            photoionization_data.index
+        ]
+        lte_level_number_density = lte_level_number_density.loc[
+            photoionization_data.index
+        ]
+        level_number_density_ratio = lte_level_number_density.divide(
+            level_number_density
+        )
+
+        ion_index = get_ion_multi_index(
+            photoionization_data.index, next_higher=True
+        )
+
+        ion_number_density = ion_number_density.loc[ion_index]
+        lte_ion_number_density = lte_ion_number_density.loc[ion_index]
+        ion_number_density_ratio = ion_number_density.divide(
+            lte_ion_number_density
+        )
+
+        level_number_density_ratio = level_number_density_ratio.multiply(
+            ion_number_density_ratio.values
+        )
+
+        chi_bf = (
+            level_number_density
+            * (1.0 - level_number_density_ratio * boltzmann_factor)
+        ).multiply(photoionization_data["x_sect"].values, axis=0)
+        num_neg_elements = (chi_bf < 0).sum().sum()
+        if num_neg_elements:
+            # raise ValueError("Negative values in bound-free opacity.")
+            logger.warning("Negative values in bound-free opacity.")
+
+        # NOW FF_COOLING_FACTOR
+        ion_charge = ion_number_density.index.get_level_values(1).values
+        ff_cooling_factor = (
+            electron_densities
+            * ion_number_density.multiply(ion_charge**2, axis=0).sum()
+        ).values
+
+        # NOW FB_EMISSION_CDF
+
+        # alpha_sp_E will be missing a lot of prefactors since we are only
+        # interested in relative values here
+        alpha_sp_E = nu.values**3 * photoionization_data["x_sect"].values
+        alpha_sp_E = alpha_sp_E[:, np.newaxis]
+        alpha_sp_E = alpha_sp_E * boltzmann_factor
+
+        photo_ion_block_references = np.pad(
+            nu.groupby(level=[0, 1, 2], sort=False).count().values.cumsum(),
+            [1, 0],
+        )
+        alpha_sp_E = cumulative_integrate_array_by_blocks(
+            alpha_sp_E, nu.values, photo_ion_block_references
+        )
+        fb_emission_cdf = pd.DataFrame(
+            alpha_sp_E, index=photoionization_data.index
+        )
+
+        # NOW PHOTO_ION_IDX
+        photo_ion_index = photoionization_data.index.unique()
+        source_idx = atomic_data.macro_atom_references.loc[
+            photo_ion_index
+        ].references_idx
+        destination_idx = atomic_data.macro_atom_references.loc[
+            get_ground_state_multi_index(photo_ion_index)
+        ].references_idx
+        photo_ion_idx = pd.DataFrame(
+            {
+                "source_level_idx": source_idx.values,
+                "destination_level_idx": destination_idx.values,
+            },
+            index=photo_ion_index,
+        )
+
+        # NOW K_PACKET_IDX
+        k_packet_idx = (
+            atomic_data.macro_atom_references.references_idx.max() + 1
+        )
+
+        # NOW GAMMA_CORR
+        gamma_corr = gamma
+
+        # NOW DELTA_E_YG
+        energies = atomic_data.levels.energy
+        yg_data = atomic_data.yg_data
+        index = yg_data.index
+        lu_index = index.droplevel("level_number_lower")
+        ll_index = index.droplevel("level_number_upper")
+        delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values
+        delta_E_yg = pd.Series(delta_E, index=index)
+
+        # ALSO MISSING A CONTINUUM_INTERACTION_SPECIES MULTINDEX
+        continuum_interaction_species = index.droplevel([2, 3]).unique()
+        # continuum_interaction_species = pd.Index(
+        #     {}
+        # )  # This is bad and will turn off continuum interactions in the montecarlo
+        # part, but need to figure out how to get a first iteration gamma before removing
+        return (
+            nu_i,
+            level2continuum_idx,
+            p_fb_deactivation,
+            chi_bf,
+            ff_cooling_factor,
+            fb_emission_cdf,
+            photo_ion_idx,
+            k_packet_idx,
+            gamma_corr,
+            delta_E_yg,
+            continuum_interaction_species,
+        )
+
+
+# phi_ik is SahaFactor
+# trying phi which is PhiSahaNebular
+# could be phi_lte instead
+# could also be phi_lucy which seems most used in christian's code
+# trying that one
+
+# nus = photo_ion_cross_sections["nu"].values
+# j_nus = w * intensity_black_body(nus, t_rad)
+# x_sect = photo_ion_cross_sections["x_sect"]
+# nu = photo_ion_cross_sections["nu"]
+# nu_i = photo_ion_cross_sections["nu"].groupby(level=[0, 1, 2]).first()
+# alpha_sp_E = (4.0 * np.pi * x_sect) * j_nus
+# alpha_sp_E = alpha_sp_E.multiply(1.0 - nu_i / nu)
+# boltzmann_factor = np.exp(
+#     -nu.values / t_electron * (const.h.cgs.value / const.k_B.cgs.value)
+# )

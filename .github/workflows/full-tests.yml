@@ -45,7 +45,7 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
@@ -53,7 +53,7 @@ jobs:
         uses: tardis-sn/tardis-actions/setup-lfs@main
 
       - name: Setup Environment
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-file: conda-linux-64.lock
           environment-name: tardis

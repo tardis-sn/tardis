@@ -50,16 +50,21 @@ class MonteCarloTransportState(HDFWriterMixin):
     def __init__(
         self,
         packet_collection,
-        radfield_mc_estimators,
         geometry_state,
         opacity_state,
         time_explosion,
+        n_levels_bf_species_by_n_cells_tuple,
         tracker_full_df=None,
         tracker_last_interaction_df=None,
         vpacket_tracker=None,
     ):
         self.packet_collection = packet_collection
-        self.radfield_mc_estimators = radfield_mc_estimators
+        self.n_levels_bf_species_by_n_cells_tuple = (
+            n_levels_bf_species_by_n_cells_tuple
+        )
+        self.estimators_bulk = None
+        self.estimators_line = None
+        self.estimators_continuum = None
         self.enable_full_relativity = False
         self.enable_continuum_processes = False
         self.time_explosion = time_explosion
@@ -79,15 +84,15 @@ class MonteCarloTransportState(HDFWriterMixin):
 
     @property
     def nu_bar_estimator(self):
-        return self.radfield_mc_estimators.nu_bar_estimator
+        return self.estimators_bulk.mean_frequency
 
     @property
     def j_estimator(self):
-        return self.radfield_mc_estimators.j_estimator
+        return self.estimators_bulk.mean_intensity_total
 
     @property
     def j_blue_estimator(self):
-        return self.radfield_mc_estimators.j_blue_estimator
+        return self.estimators_line.mean_intensity_blueward
 
     @property
     def time_of_simulation(self):

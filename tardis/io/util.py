@@ -5,7 +5,7 @@ import hashlib
 import logging
 import shutil
 from collections import OrderedDict
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -160,7 +160,9 @@ class YAMLLoader(yaml.Loader):
 
 
 YAMLLoader.add_constructor("!quantity", YAMLLoader.construct_quantity)
-YAMLLoader.add_implicit_resolver("!quantity", MockRegexPattern(quantity_from_str), None)
+YAMLLoader.add_implicit_resolver(
+    "!quantity", MockRegexPattern(quantity_from_str), None
+)
 YAMLLoader.add_implicit_resolver(
     "tag:yaml.org,2002:float", MockRegexPattern(float), None
 )
@@ -270,7 +272,7 @@ def check_equality(item1: Any, item2: Any) -> bool:
         return True
 
 
-@lru_cache(maxsize=None)
+@cache
 def download_from_url(
     url: str,
     dst: str,
@@ -310,7 +312,8 @@ def download_from_url(
     elif checksum != new_checksum and retries > 0:
         retries -= 1
         logger.warning(
-            "Incorrect checksum, retrying... (%d attempts remaining)", retries + 1
+            "Incorrect checksum, retrying... (%d attempts remaining)",
+            retries + 1,
         )
         download_from_url(url, dst, checksum, src, retries)
 

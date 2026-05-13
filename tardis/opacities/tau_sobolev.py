@@ -73,6 +73,20 @@ def calculate_sobolev_line_opacity(
     )
 
 
+@jit(nopython=True, parallel=True)
+def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
+    for i in prange(len(tau_sobolevs)):
+        if tau_sobolevs[i] > 1e3:
+            beta_sobolevs[i] = tau_sobolevs[i] ** -1
+        elif tau_sobolevs[i] < 1e-4:
+            beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
+        else:
+            beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
+                tau_sobolevs[i]
+            )
+    return beta_sobolevs
+
+
 def calculate_beta_sobolev(tau_sobolevs):
     """Calculate the beta Sobolev values based on the provided tau_sobolevs.
     Values from the previous iteration can be provided.
@@ -87,20 +101,6 @@ def calculate_beta_sobolev(tau_sobolevs):
     pd.DataFrame
         The latest Beta Sobolev opacities.
     """
-
-    @jit(nopython=True, parallel=True)
-    def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
-        for i in prange(len(tau_sobolevs)):
-            if tau_sobolevs[i] > 1e3:
-                beta_sobolevs[i] = tau_sobolevs[i] ** -1
-            elif tau_sobolevs[i] < 1e-4:
-                beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
-            else:
-                beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
-                    tau_sobolevs[i]
-                )
-        return beta_sobolevs
-
     beta_sobolev = pd.DataFrame(
         0.0, index=tau_sobolevs.index, columns=tau_sobolevs.columns
     )

@@ -1,13 +1,11 @@
-import pytest
-from pathlib import Path
 import numpy as np
 import pandas as pd
+import pytest
 from astropy import units as u
 
-from tardis.io.configuration.config_reader import Configuration
-from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
+from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
 
 
 @pytest.fixture(scope="module")
@@ -75,9 +73,14 @@ def test_standard_tardis_workflow_against_run_tardis(
     ref_data = pd.read_hdf(ref_file)
     if attr_type == "plasma_estimates":
         if attr in ["nu_bar_estimator", "j_estimator"]:
+            # Map old attribute names to new ones
+            attr_map = {
+                "nu_bar_estimator": "mean_frequency",
+                "j_estimator": "mean_intensity_total",
+            }
             attr_data = getattr(
-                standard_workflow_one_loop.transport_state.radfield_mc_estimators,
-                attr,
+                standard_workflow_one_loop.transport_state.estimators_bulk,
+                attr_map[attr],
             )
         elif attr in ["output_nus", "output_energies"]:
             attr_data = getattr(

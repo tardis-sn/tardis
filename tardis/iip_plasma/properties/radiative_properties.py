@@ -292,7 +292,7 @@ class TransitionProbabilities(ConvergedPlasmaProperty):
             lines_idx,
             self.block_references,
             transition_probabilities,
-            self.continuum_treatment,
+            not self.continuum_treatment,  # follows CTARDIS setup where continuum treatment is NOT normalized
         )
         return transition_probabilities
 
