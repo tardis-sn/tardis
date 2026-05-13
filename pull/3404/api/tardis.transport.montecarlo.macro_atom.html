@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=034b8d78"></script>
+      <script src="../_static/documentation_options.js?v=ab882342"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -80,8 +80,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
@@ -202,22 +203,47 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_INTERNAL">
-<span class="sig-name descname"><span class="pre">COLL_DOWN_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_INTERNAL" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">COLL_DOWN_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_INTERNAL" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET">
-<span class="sig-name descname"><span class="pre">COLL_DOWN_TO_K_PACKET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">COLL_DOWN_TO_K_PACKET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_DOWN_TO_K_PACKET" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO">
-<span class="sig-name descname"><span class="pre">COLL_EXC_COOL_TO_MACRO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">COLL_EXC_COOL_TO_MACRO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_EXC_COOL_TO_MACRO" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_COOL_TO_MACRO">
-<span class="sig-name descname"><span class="pre">COLL_ION_COOL_TO_MACRO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_COOL_TO_MACRO" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">COLL_ION_COOL_TO_MACRO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">21</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_COOL_TO_MACRO" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_EMISSION">
+<span class="sig-name descname"><span class="pre">COLL_ION_EMISSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_EMISSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_INTERNAL">
+<span class="sig-name descname"><span class="pre">COLL_ION_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_ION_INTERNAL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_RECOMB_EMISSION">
+<span class="sig-name descname"><span class="pre">COLL_RECOMB_EMISSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-8</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_RECOMB_EMISSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_RECOMB_INTERNAL">
+<span class="sig-name descname"><span class="pre">COLL_RECOMB_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_RECOMB_INTERNAL" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_UP_INTERNAL">
+<span class="sig-name descname"><span class="pre">COLL_UP_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.COLL_UP_INTERNAL" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -236,13 +262,23 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION">
-<span class="sig-name descname"><span class="pre">PHOTOIONIZATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL">
+<span class="sig-name descname"><span class="pre">PHOTOIONIZATION_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION_INTERNAL" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.RECOMB_INTERNAL">
-<span class="sig-name descname"><span class="pre">RECOMB_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.RECOMB_INTERNAL" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET">
+<span class="sig-name descname"><span class="pre">PHOTOIONIZATION_TO_K_PACKET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTOIONIZATION_TO_K_PACKET" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTO_RECOMB_EMISSION">
+<span class="sig-name descname"><span class="pre">PHOTO_RECOMB_EMISSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-9</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTO_RECOMB_EMISSION" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL">
+<span class="sig-name descname"><span class="pre">PHOTO_RECOMB_INTERNAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.PHOTO_RECOMB_INTERNAL" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -254,18 +290,41 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.macro_atom_interaction">
-<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.macro_atom.</span></span><span class="sig-name descname"><span class="pre">macro_atom_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activation_level_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_shell_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/macro_atom.html#macro_atom_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.macro_atom_interaction" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.macro_atom.</span></span><span class="sig-name descname"><span class="pre">macro_atom_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activation_level_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_shell_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.opacities.opacity_state_numba.html#tardis.opacities.opacity_state_numba.OpacityStateNumba" title="tardis.opacities.opacity_state_numba.OpacityStateNumba"><span class="pre">OpacityStateNumba</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/macro_atom.html#macro_atom_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.macro_atom_interaction" title="Link to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>activation_level_id</strong><span class="classifier">int</span></dt><dd><p>Activation level idx of the macro atom.</p>
+<dt><strong>activation_level_id</strong></dt><dd><p>Activation level idx of the macro atom.</p>
 </dd>
-<dt><strong>current_shell_id</strong><span class="classifier">int</span></dt><dd></dd>
-<dt><strong>opacity_state</strong><span class="classifier">tardis.transport.montecarlo.numba_interface.opacity_state.OpacityState</span></dt><dd></dd>
+<dt><strong>current_shell_id</strong></dt><dd></dd>
+<dt><strong>opacity_state</strong></dt><dd></dd>
 </dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.transport.montecarlo.macro_atom.macro_atom_interaction_iip">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.montecarlo.macro_atom.</span></span><span class="sig-name descname"><span class="pre">macro_atom_interaction_iip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activation_level_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_shell_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="tardis.opacities.opacity_state_numba_iip.html#tardis.opacities.opacity_state_numba_iip.OpacityStateNumbaIIP" title="tardis.opacities.opacity_state_numba_iip.OpacityStateNumbaIIP"><span class="pre">OpacityStateNumbaIIP</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/montecarlo/macro_atom.html#macro_atom_interaction_iip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.montecarlo.macro_atom.macro_atom_interaction_iip" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>activation_level_idx</strong></dt><dd><p>Activation level idx of the macro atom.</p>
+</dd>
+<dt><strong>current_shell_id</strong></dt><dd></dd>
+<dt><strong>opacity_state</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>emission_line_id</strong><span class="classifier">int</span></dt><dd><p>Line or continuum ID for emitting process</p>
+</dd>
+<dt><strong>emission_process</strong><span class="classifier">int,</span></dt><dd><p>Type of process emission defined by MacroAtomTransitionType in this file.</p>
+</dd>
+</dl>
+</dd>
 </dl>
 </dd></dl>
 
@@ -283,7 +342,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 Mar 2026.
+      <span class="lastupdated">Last updated on 13 May 2026.
       </span></p>
   </div>
 
