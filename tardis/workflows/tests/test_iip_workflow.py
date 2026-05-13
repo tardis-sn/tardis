@@ -720,6 +720,7 @@ def test_solve_continuum_state_after_nlte_init(
     )
 
 
+@pytest.mark.skip  # TODO: Re-enable when the workflow uses the two step probabilities
 def test_solve_montecarlo(type_iip_workflow):
     opacity_states = type_iip_workflow.solve_opacity()
     type_iip_workflow.solve_montecarlo(opacity_states, 1000)

@@ -27,6 +27,15 @@ def test_convergence_solver_init_damped(strategy):
     assert solver.converge == solver.damped_converge
 
 
+def test_convergence_solver_init_adaptive(strategy):
+    strategy.type = "adaptive_damped"
+    solver = ConvergenceSolver(strategy)
+    assert solver.damping_factor == 0.5
+    assert solver.lambda_min == 0.1
+    assert solver.lambda_max == 1.0
+    assert solver.converge == solver.adaptive_damped
+
+
 def test_convergence_solver_init_custom(strategy):
     strategy.type = "custom"
     with pytest.raises(NotImplementedError):
@@ -45,6 +54,27 @@ def test_damped_converge(strategy):
     estimated_value = np.float64(20.0)
     converged_value = solver.damped_converge(value, estimated_value)
     npt.assert_almost_equal(converged_value, 15.0)
+
+
+def test_adaptive_damped_basic(strategy):
+    strategy.type = "adaptive_damped"
+    solver = ConvergenceSolver(strategy)
+    value = np.float64(10.0)
+    estimated_value = np.float64(20.0)
+    new_value = solver.adaptive_damped(value, estimated_value)
+    assert new_value > value
+    assert new_value <= estimated_value
+
+
+def test_adaptive_damped_updates(strategy):
+    strategy.type = "adaptive_damped"
+    solver = ConvergenceSolver(strategy)
+    value = np.float64(10.0)
+    estimated_value = np.float64(20.0)
+    solver.adaptive_damped(value, estimated_value)
+
+    # check that lambda remains within the bounds
+    assert solver.lambda_min <= solver.damping_factor <= solver.lambda_max
 
 
 def test_get_convergence_status(strategy):

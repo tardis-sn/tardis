@@ -2,6 +2,8 @@ import numpy as np
 from numba import njit
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
@@ -19,44 +21,44 @@ from tardis.transport.montecarlo.interaction_events import (
 from tardis.transport.montecarlo.macro_atom import (
     MacroAtomTransitionType,
     macro_atom_interaction,
+    macro_atom_interaction_iip,
 )
+from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 from tardis.transport.montecarlo.utils import get_random_mu
 
 
 @njit(**njit_dict_no_parallel)
 def macro_atom_event(
-    destination_level_idx,
-    r_packet,
-    time_explosion,
-    opacity_state,
-    enable_full_relativity,
+    destination_level_idx: int,
+    r_packet: RPacket,
+    time_explosion: float,
+    opacity_state: OpacityStateNumba | OpacityStateNumbaIIP,
+    enable_full_relativity: bool,
 ):
     """
     Macroatom event handler - run the macroatom and handle the result
 
     Parameters
     ----------
-    destination_level_idx : int
-    r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    time_explosion : float
-    opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
+    destination_level_idx
+    r_packet
+    time_explosion
+    opacity_state
     """
-    transition_id, transition_type = macro_atom_interaction(
-        destination_level_idx, r_packet.current_shell_id, opacity_state
-    )
+    if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
+        transition_id, transition_type = macro_atom_interaction_iip(
+            destination_level_idx, r_packet.current_shell_id, opacity_state
+        )
+    else:
+        transition_id, transition_type = macro_atom_interaction(
+            destination_level_idx, r_packet.current_shell_id, opacity_state
+        )
 
-    if (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.FF_EMISSION
-    ):
+    if transition_type == MacroAtomTransitionType.FF_EMISSION:
         free_free_emission(
             r_packet, time_explosion, opacity_state, enable_full_relativity
         )
-
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.BF_EMISSION
-    ):
+    elif transition_type == MacroAtomTransitionType.BF_EMISSION:
         bound_free_emission(
             r_packet,
             time_explosion,
@@ -64,18 +66,8 @@ def macro_atom_event(
             transition_id,
             enable_full_relativity,
         )
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.BF_COOLING
-    ):
-        bf_cooling(
-            r_packet, time_explosion, opacity_state, enable_full_relativity
-        )
 
-    elif (
-        montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
-        and transition_type == MacroAtomTransitionType.ADIABATIC_COOLING
-    ):
+    elif transition_type == MacroAtomTransitionType.ADIABATIC_COOLING:
         adiabatic_cooling(r_packet)  # Not sure this does anything yet
 
     elif transition_type == MacroAtomTransitionType.BB_EMISSION:
@@ -164,7 +156,6 @@ def continuum_event(
         r_packet.nu * old_doppler_factor
     )  # make sure frequency should be updated
     r_packet.energy = comov_energy * inverse_doppler_factor
-    r_packet.nu = comov_nu * inverse_doppler_factor
 
     destination_level_idx = determine_continuum_macro_activation_idx(
         opacity_state,
@@ -224,7 +215,9 @@ def line_scatter_event(
         )
     else:  # includes both macro atom and downbranch - encoded in the transition probabilities
         comov_nu = r_packet.nu * old_doppler_factor  # Is this necessary?
-        r_packet.nu = comov_nu * inverse_new_doppler_factor
+        r_packet.nu = (
+            comov_nu * inverse_new_doppler_factor
+        )  # NOTE - this should get overwritten by macro_atom_event, but makes tests fail potentially from different rng
         activation_level_id = opacity_state.line2macro_level_upper[
             r_packet.next_line_id
         ]
