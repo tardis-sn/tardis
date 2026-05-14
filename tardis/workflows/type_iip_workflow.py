@@ -842,21 +842,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.plasma_solver.j_blues,
             index=self.plasma_solver.lines.index,
         )
-        # inputs = ContinuumInputData(
-        #     self.plasma_solver.atomic_data,
-        #     self.plasma_solver,
-        #     self.simulation_state.radiation_field_state.dilution_factor,
-        #     self.plasma_solver.transition_probabilities,
-        #     None,
-        # )
 
-        # photoion_rates_solver = RadiativeIonization(inputs)
-        # recomb_rates_solver = RadiativeRecombination(inputs)
-
-        # photoion_rate = photoion_rates_solver._calculate_rate_coefficient()
-        # recombination_rate = (
-        #     recomb_rates_solver._calculate_rate_coefficient()
-        # )
         macro_atom_state = self.macro_atom_solver.solve(
             j_blues_df,
             opacity_state.beta_sobolev,
