@@ -449,7 +449,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         return next_values
 
-    def update_estimators(self, estimated_radfield_properties):
+    def update_estimators(self):
         """Update the estimators for the radiation field
 
         Returns
@@ -951,9 +951,9 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.solve_simulation_state(estimated_values)
 
             normalized_continuum_estimators, damped_normalized_j_blues = (
-                self.update_estimators(estimated_radfield_properties)
+                self.update_estimators()
             )
-
+            self.damped_normalized_j_blues = damped_normalized_j_blues
             self.solve_plasma(
                 normalized_continuum_estimators, damped_normalized_j_blues
             )

@@ -1297,7 +1297,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         "fb_emission_cdf",
         "photo_ion_idx",
         "k_packet_idx",
-        "gamma_corr",
         "delta_E_yg",
         "continuum_interaction_species",
     )
@@ -1429,9 +1428,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             atomic_data.macro_atom_references.references_idx.max() + 1
         )
 
-        # NOW GAMMA_CORR
-        gamma_corr = gamma
-
         # NOW DELTA_E_YG
         energies = atomic_data.levels.energy
         yg_data = atomic_data.yg_data
@@ -1456,7 +1452,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             fb_emission_cdf,
             photo_ion_idx,
             k_packet_idx,
-            gamma_corr,
             delta_E_yg,
             continuum_interaction_species,
         )
