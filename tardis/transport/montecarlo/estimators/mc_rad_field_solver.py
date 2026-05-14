@@ -42,6 +42,7 @@ class MCRadiationFieldPropertiesSolver:
         time_of_simulation: Quantity,
         volume: np.ndarray,
         line_list_nu: np.ndarray,
+        detailed_optical_window: bool = False,
     ) -> EstimatedRadiationFieldProperties:
         """
         Calculate an updated radiation field from the :math:
@@ -63,6 +64,9 @@ class MCRadiationFieldPropertiesSolver:
             Volume of each cell
         line_list_nu
             Frequency list for lines
+        detailed_optical_window:
+            Whether to only fill in the rad field estimated j_blues
+            between 2500 and 10,000 AA, which follows ctardis.
 
         Returns
         -------
@@ -78,6 +82,7 @@ class MCRadiationFieldPropertiesSolver:
             time_of_simulation,
             volume,
             line_list_nu,
+            detailed_optical_window,
         )
 
         return EstimatedRadiationFieldProperties(
@@ -115,6 +120,7 @@ class MCRadiationFieldPropertiesSolver:
         time_of_simulation: Quantity,
         volume: np.ndarray,
         line_list_nu: np.ndarray,
+        detailed_optical_window: bool = False,
     ) -> np.ndarray:
         j_blues_norm_factor = (
             const.c.cgs
@@ -126,12 +132,13 @@ class MCRadiationFieldPropertiesSolver:
             line_list_nu
         )
         zero_j_blues = j_blues == 0.0
-        # This is what ctardis does instead of checking 0 values
-        line_list_wavs = (line_list_nu * u.Hz).to(u.AA, u.spectral())
-        detailed_mask = np.logical_and(
-            line_list_wavs > 2500.0 * u.AA, line_list_wavs < 10000.0 * u.AA
-        )
-        j_blues[~detailed_mask] = planck_j_blues[~detailed_mask]
+        if detailed_optical_window:
+            # Ctardis restricts the radfield estimated jblues to 2500-10000 AA
+            line_list_wavs = (line_list_nu * u.Hz).to(u.AA, u.spectral())
+            optical_mask = np.logical_and(
+                line_list_wavs > 2500.0 * u.AA, line_list_wavs < 10000.0 * u.AA
+            )
+            j_blues[~optical_mask] = planck_j_blues[~optical_mask]
         j_blues[zero_j_blues] = self.w_epsilon * planck_j_blues[zero_j_blues]
 
         return j_blues
