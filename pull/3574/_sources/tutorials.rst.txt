@@ -1,0 +1,8 @@
+Tutorials
+*********
+
+The following pages contain the TARDIS tutorials:
+
+* :doc:`io/optional/tutorial_logging_configuration`
+* :doc:`io/optional/tutorial_callback_example`
+* :doc:`io/configuration/tutorial_read_configuration`
