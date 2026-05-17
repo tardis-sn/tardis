@@ -114,14 +114,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_20102529
+.. |CITATION| replace:: kerzendorf_2026_20248691
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.102529-blue
-                 :target: https://doi.org/10.5281/zenodo.102529
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.48691-blue
+                 :target: https://doi.org/10.5281/zenodo.48691
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_20102529,
+    @software{kerzendorf_2026_20248691,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -245,13 +245,13 @@ The following BibTeX entries are needed for the references:
                       Gajanan Nalbalwar, Rudraksh and
                       Sharma, Sampark and
                       Venkat, Shashank},
-      title        = {tardis-sn/tardis: TARDIS v2026.05.10},
+      title        = {tardis-sn/tardis: TARDIS v2026.05.17},
       month        = may,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.05.10},
-      doi          = {10.5281/zenodo.20102529},
-      url          = {https://doi.org/10.5281/zenodo.20102529},
+      version      = {release-2026.05.17},
+      doi          = {10.5281/zenodo.20248691},
+      url          = {https://doi.org/10.5281/zenodo.20248691},
     }
 
 
