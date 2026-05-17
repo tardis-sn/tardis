@@ -1,5 +1,7 @@
 ## Changelog
 
+### release-2026.05.17 (2026/05/09 22:56)
+- [3570](https://github.com/tardis-sn/tardis/pull/3570) Post-release 2026.05.10 (3570) (@tardis-bot)
 ### release-2026.05.10 (2026/05/09 22:20)
 - [3569](https://github.com/tardis-sn/tardis/pull/3569) Pre-release 2026.05.10 (3569) (@tardis-bot)
 - [3559](https://github.com/tardis-sn/tardis/pull/3559) [GSOC] fix first-time committer workflow (3559) (@Aaryan-Dadu)
