@@ -549,7 +549,9 @@ class TestContinuumMacroAtomSolver:
         """
         actual = continuum_macro_atom_state.absorbing_probability_matrix
         expected = regression_data.sync_ndarray(actual)
-        np.testing.assert_allclose(actual, expected)
+        # rtol is for Mac test compatibility, regression data was generated on Mac
+        # for these tests.
+        np.testing.assert_allclose(actual, expected, rtol=3e-5, atol=0)
 
     def test_deactivating_metadata_structure(self, continuum_macro_atom_state):
         """Test that deactivating_metadata has the correct structure."""
