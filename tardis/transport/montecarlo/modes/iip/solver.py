@@ -126,9 +126,9 @@ class MCTransportSolverIIP(HDFWriterMixin):
             macro_atom_state,
             self.line_interaction_type,
         )
-        opacity_state_numba = opacity_state_numba[
-            simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
-        ]
+        # opacity_state_numba = opacity_state_numba[
+        #     simulation_state.geometry.v_inner_boundary_index : simulation_state.geometry.v_outer_boundary_index
+        # ]
 
         transport_state = MonteCarloTransportState(
             packet_collection,

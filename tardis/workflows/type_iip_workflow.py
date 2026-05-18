@@ -10,11 +10,6 @@ from scipy.sparse import block_diag
 from tardis import constants as const
 from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
-from tardis.iip_plasma.continuum.input_data import ContinuumInputData
-from tardis.iip_plasma.continuum.radiative_processes import (
-    RadiativeIonization,
-    RadiativeRecombination,
-)
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
@@ -85,7 +80,12 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
 
-        self.atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+        self.atom_data.prepare_atom_data(
+            self.simulation_state.abundance.index,
+            "macroatom",
+            [(1, 0)],
+            [(1, 0)],
+        )
         self.atom_data.continuum_data = ContinuumData(
             self.atom_data, selected_continuum_species=[(1, 0)]
         )
@@ -158,7 +158,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.base_continuum = BaseContinuum(
             plasma_array=self.plasma_solver,
             atom_data=self.atom_data,
-            ws=self.simulation_state.dilution_factor,
+            ws=dilution_factor,
             radiative_transition_probabilities=self.plasma_solver.transition_probabilities,
             estimators=None,
         )
@@ -479,18 +479,32 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.transport_state.estimators_continuum.ff_heating_estimator
         )
 
-        j_blues_df = pd.DataFrame(
-            self.transport_state.estimators_line.mean_intensity_blueward,
+        damped_j_blues = (
+            self.transport_solver.radfield_prop_solver.estimate_jblues(
+                self.transport_state.estimators_line.mean_intensity_blueward,
+                self.simulation_state.radiation_field_state,
+                self.transport_state.time_explosion,
+                self.transport_state.time_of_simulation,
+                self.transport_state.geometry_state.volume,
+                self.transport_state.opacity_state.line_list_nu,
+                detailed_optical_window=True,
+            )
+        )
+
+        damped_j_blues_df = pd.DataFrame(
+            damped_j_blues,
             index=self.plasma_solver.lines.index,
         )
 
-        continuum_estimators, j_blues_df = self.normalize_continuum_estimators(
-            continuum_estimators,
-            j_blues_df,
-            self.transport_state.estimators_bulk.mean_intensity_total,
+        continuum_estimators, damped_normalized_j_blues_df = (
+            self.normalize_continuum_estimators(
+                continuum_estimators,
+                damped_j_blues_df,
+                self.transport_state.estimators_bulk.mean_intensity_total,
+            )
         )
 
-        return continuum_estimators, j_blues_df
+        return continuum_estimators, damped_normalized_j_blues_df
 
     def solve_plasma(self, continuum_estimators, j_blues_df):
         """Update the plasma solution with the new radiation field estimates
@@ -824,60 +838,31 @@ class TypeIIPWorkflow(WorkflowLogging):
                 State of the macro atom
         """
         opacity_state = self.opacity_solver.solve(self.plasma_solver)
+        j_blues_df = pd.DataFrame(
+            self.plasma_solver.j_blues,
+            index=self.plasma_solver.lines.index,
+        )
 
-        if self.completed_iterations == 0:
-            inputs = ContinuumInputData(
-                self.plasma_solver.atomic_data,
-                self.plasma_solver,
-                self.simulation_state.radiation_field_state.dilution_factor,
-                self.plasma_solver.transition_probabilities,
-                None,
-            )
-
-            photoion_rates_solver = RadiativeIonization(inputs)
-            recomb_rates_solver = RadiativeRecombination(inputs)
-
-            photoion_rate = photoion_rates_solver._calculate_rate_coefficient()
-            recombination_rate = (
-                recomb_rates_solver._calculate_rate_coefficient()
-            )
-            j_blues_df = pd.DataFrame(
-                self.plasma_solver.j_blues,
-                index=self.plasma_solver.lines.index,
-            )
-            macro_atom_state = self.macro_atom_solver.solve(
-                j_blues_df,
-                opacity_state.beta_sobolev,
-                self.plasma_solver.stimulated_emission_factor,
-                photoion_rate,
-                recombination_rate,
-                self.plasma_solver.coll_deexc_coeff,
-                self.plasma_solver.coll_exc_coeff,
-                self.plasma_solver.coll_ion_coeff,
-                self.plasma_solver.coll_recomb_coeff,
-                self.plasma_solver.electron_densities,
-                self.plasma_solver.delta_E_yg,
-            )
-
-        else:
-            montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
-            j_blues_df = pd.DataFrame(
-                self.transport_state.estimators_line.mean_intensity_blueward,
-                index=self.plasma_solver.lines.index,
-            )
-            macro_atom_state = self.macro_atom_solver.solve(
-                j_blues_df,
-                opacity_state.beta_sobolev,
-                self.plasma_solver.stimulated_emission_factor,
-                self.plasma_solver.gamma_corr,
-                self.plasma_solver.alpha_sp,
-                self.plasma_solver.coll_deexc_coeff,
-                self.plasma_solver.coll_exc_coeff,
-                self.plasma_solver.coll_ion_coeff,
-                self.plasma_solver.coll_recomb_coeff,
-                self.plasma_solver.electron_densities,
-                self.plasma_solver.delta_E_yg,
-            )
+        macro_atom_state = self.macro_atom_solver.solve(
+            j_blues_df,
+            opacity_state.beta_sobolev,
+            self.plasma_solver.stimulated_emission_factor,
+            self.base_continuum.radiative_ionization.rate_coefficient,
+            self.base_continuum.radiative_recombination.rate_coefficient,
+            self.plasma_solver.coll_deexc_coeff,
+            self.plasma_solver.coll_exc_coeff,
+            self.plasma_solver.coll_ion_coeff,
+            self.plasma_solver.coll_recomb_coeff,
+            self.plasma_solver.electron_densities,
+            self.plasma_solver.delta_E_yg,
+            self.base_continuum.cooling_rates.collisional_excitation.cooling_probability,
+            self.base_continuum.cooling_rates.collisional_excitation.probabilities_array,
+            self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
+            self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
+            self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,
+            self.base_continuum.cooling_rates.radiative_recombination.probabilities_array,
+            self.base_continuum.cooling_rates.free_free_probability,
+        )
 
         return {
             "opacity_state": opacity_state,
@@ -952,18 +937,21 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.solve_simulation_state(estimated_values)
 
-            continuum_estimators, j_blues = self.update_estimators()
-
-            self.solve_plasma(continuum_estimators, j_blues)
+            normalized_continuum_estimators, damped_normalized_j_blues = (
+                self.update_estimators()
+            )
+            self.damped_normalized_j_blues = damped_normalized_j_blues
+            self.solve_plasma(
+                normalized_continuum_estimators, damped_normalized_j_blues
+            )
 
             # After first MC step
             self.solve_thermal_balance()
 
-            self.solve_continuum_state(continuum_estimators)
+            self.solve_continuum_state(normalized_continuum_estimators)
 
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
-
             if self.converged and self.convergence_strategy.stop_if_converged:
                 break
 

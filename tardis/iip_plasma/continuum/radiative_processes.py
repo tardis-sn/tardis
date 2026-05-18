@@ -73,6 +73,10 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
                 rate_coefficient = self._calculate_rate_coefficient_combination(
                     rate_coefficient, rate_coefficient_dilute_bb
                 )
+                if (rate_coefficient < 0.0).any().any():
+                    logger.warning(
+                        "Negative values in corrected photoion rate coeff after replacing bad statistics"
+                    )
         return rate_coefficient
 
     def _calculate_rate_coefficient_dilute_blackbody(self):
@@ -131,10 +135,7 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
             self.photo_ion_estimator
             - lte_nonlte_level_pop_ratio * self.stim_recomb_estimator
         )
-        if (corrected_photoion_coeff < 0).any().any():
-            raise PlasmaException(
-                "Negative values in _calculate_rate_coefficient_from_estimator. Try raising the number of montecarlo packets."
-            )
+
         corrected_photoion_coeff = pd.DataFrame(
             corrected_photoion_coeff,
             index=index,

@@ -54,11 +54,18 @@ def macro_atom_event(
             destination_level_idx, r_packet.current_shell_id, opacity_state
         )
 
-    if transition_type == MacroAtomTransitionType.FF_EMISSION:
+    if (
+        transition_type == MacroAtomTransitionType.FF_EMISSION
+        or transition_type == MacroAtomTransitionType.FF_COOLING
+    ):
         free_free_emission(
             r_packet, time_explosion, opacity_state, enable_full_relativity
         )
-    elif transition_type == MacroAtomTransitionType.BF_EMISSION:
+    elif (
+        transition_type == MacroAtomTransitionType.BF_EMISSION
+        or transition_type == MacroAtomTransitionType.FB_COOLING
+        or transition_type == MacroAtomTransitionType.PHOTO_RECOMB_EMISSION
+    ):
         bound_free_emission(
             r_packet,
             time_explosion,
