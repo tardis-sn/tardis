@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=4311eb6d"></script>
+      <script src="../../../../_static/documentation_options.js?v=36827210"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -139,6 +139,7 @@
   <h1>Source code for tardis.opacities.macro_atom.macroatom_state</h1><div class="highlight"><pre>
 <span></span>from typing import Self
 
+import numpy as np
 import pandas as pd
 
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
@@ -257,26 +258,38 @@ class MacroAtomState:
         line2macro_level_upper: pd.Series,
         macro_block_references: pd.Series | None = None,
         references_index: pd.Series | None = None,
+        normalized_deactivating_probs: pd.DataFrame | None = None,
+        deactivating_metadata: pd.DataFrame | None = None,
+        absorbing_probability_matrix: np.ndarray | None = None,
     ) -&gt; None:
         &quot;&quot;&quot;
         Initialize a MacroAtomState object.
 
         Parameters
         ----------
-        transition_probabilities : pd.DataFrame
+        transition_probabilities
             Transition probabilities for the macro atom, indexed by source and destination levels.
-        transition_metadata : pd.DataFrame
+        transition_metadata
             Metadata for the macro atom, including atomic number, ion number, level numbers for the transition, destination, and source.
-        line2macro_level_upper : pd.Series
+        line2macro_level_upper
             Mapping from lines to the upper levels of the macro atom transitions.
-        macro_block_references : pd.Series, optional
+        macro_block_references
             Index references to the Macro Atom blocks. Default is None.
+        normalized_deactivating_probs
+            Dataframe containing emission probabilities from a chosen absorbing state
+        deactivating_metadata
+            Dataframe containing metadata for deactivation channels from a chosen absobing state.
+        absorbing_probability_matrix
+            Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
         &quot;&quot;&quot;
         self.transition_probabilities = transition_probabilities
         self.transition_metadata = transition_metadata
         self.line2macro_level_upper = line2macro_level_upper
         self.macro_block_references = macro_block_references
         self.references_index = references_index
+        self.normalized_deactivating_probs = normalized_deactivating_probs
+        self.deactivating_metadata = deactivating_metadata
+        self.absorbing_probability_matrix = absorbing_probability_matrix
 
 <div class="viewcode-block" id="MacroAtomState.to_legacy_format">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.to_legacy_format">[docs]</a>
@@ -408,7 +421,7 @@ class MacroAtomState:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 May 2026.
+      <span class="lastupdated">Last updated on 18 May 2026.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=4311eb6d"></script>
+      <script src="../../../../_static/documentation_options.js?v=36827210"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -757,6 +757,8 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
         coll_excitation_coeff.set_index(lines_filtered.index, inplace=True)
 
         # Calculate rates based on PB04
+        # Josh: This mess breaks. It seems like we&#39;re just recreating
+        # delta_E_yg which I make in the continuum connectors
         ind = yg.index
         ll_index = pd.MultiIndex.from_arrays(
             [
@@ -1544,7 +1546,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         &quot;fb_emission_cdf&quot;,
         &quot;photo_ion_idx&quot;,
         &quot;k_packet_idx&quot;,
-        &quot;gamma_corr&quot;,
         &quot;delta_E_yg&quot;,
         &quot;continuum_interaction_species&quot;,
     )
@@ -1610,9 +1611,9 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             photoionization_data.index, next_higher=True
         )
 
-        ion_number_density = ion_number_density.loc[ion_index]
+        bf_ion_number_density = ion_number_density.loc[ion_index]
         lte_ion_number_density = lte_ion_number_density.loc[ion_index]
-        ion_number_density_ratio = ion_number_density.divide(
+        ion_number_density_ratio = bf_ion_number_density.divide(
             lte_ion_number_density
         )
 
@@ -1676,9 +1677,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             atomic_data.macro_atom_references.references_idx.max() + 1
         )
 
-        # NOW GAMMA_CORR
-        gamma_corr = gamma
-
         # NOW DELTA_E_YG
         energies = atomic_data.levels.energy
         yg_data = atomic_data.yg_data
@@ -1703,7 +1701,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             fb_emission_cdf,
             photo_ion_idx,
             k_packet_idx,
-            gamma_corr,
             delta_E_yg,
             continuum_interaction_species,
         )
@@ -1735,7 +1732,7 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 May 2026.
+      <span class="lastupdated">Last updated on 18 May 2026.
       </span></p>
   </div>
 

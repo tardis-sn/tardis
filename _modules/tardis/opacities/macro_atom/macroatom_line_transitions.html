@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=4311eb6d"></script>
+      <script src="../../../../_static/documentation_options.js?v=36827210"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -145,6 +145,9 @@ from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
 CONST_C_CGS: float = const.c.cgs.value
 CONST_H_CGS: float = const.h.cgs.value
+CONST_C_EINSTEIN: float = (
+    4.0 * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)
+).value
 
 
 <div class="viewcode-block" id="line_transition_internal_up">
@@ -225,7 +228,6 @@ def line_transition_internal_up(
         },
         index=p_internal_up.index,
     )
-    p_internal_up[&quot;source&quot;] = sources
 
     return p_internal_up, internal_up_metadata</div>
 
@@ -268,12 +270,16 @@ def probability_internal_up(
     pd.DataFrame
         DataFrame containing the calculated internal upward transition probabilities.
     &quot;&quot;&quot;
-    p_internal_up = beta_sobolevs * (
-        line_f_lus
-        / (CONST_H_CGS * line_nus)
-        * stimulated_emission_factors
-        * mean_intensities_blue_wing
-        * energies_lower
+    p_internal_up = (
+        beta_sobolevs
+        * (
+            line_f_lus
+            / (CONST_H_CGS * line_nus)
+            * stimulated_emission_factors
+            * mean_intensities_blue_wing
+            * energies_lower
+        )
+        * CONST_C_EINSTEIN
     )
     return p_internal_up</div>
 
@@ -347,7 +353,6 @@ def line_transition_internal_down(
         },
         index=p_internal_down.index,
     )
-    p_internal_down[&quot;source&quot;] = sources
 
     return p_internal_down, internal_down_metadata</div>
 
@@ -384,8 +389,10 @@ def probability_internal_down(
     pd.DataFrame
         DataFrame containing the calculated internal downward transition probabilities.
     &quot;&quot;&quot;
-    p_internal_down = beta_sobolevs * (
-        2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower
+    p_internal_down = (
+        beta_sobolevs
+        * (2 * line_nus**2 * line_f_uls / CONST_C_CGS**2 * energies_lower)
+        * CONST_C_EINSTEIN
     )
     return p_internal_down</div>
 
@@ -463,7 +470,6 @@ def line_transition_emission_down(
         },
         index=p_emission_down.index,
     )
-    p_emission_down[&quot;source&quot;] = sources
 
     return p_emission_down, emission_down_metadata</div>
 
@@ -503,12 +509,16 @@ def probability_emission_down(
     pd.DataFrame
         DataFrame containing the calculated emission down transition probabilities.
     &quot;&quot;&quot;
-    p_emission_down = beta_sobolevs * (
-        2
-        * line_nus**2
-        * line_f_uls
-        / CONST_C_CGS**2
-        * (energies_upper - energies_lower)
+    p_emission_down = (
+        beta_sobolevs
+        * (
+            2
+            * line_nus**2
+            * line_f_uls
+            / CONST_C_CGS**2
+            * (energies_upper - energies_lower)
+        )
+        * CONST_C_EINSTEIN
     )
     return p_emission_down</div>
 
@@ -522,7 +532,7 @@ def probability_emission_down(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 17 May 2026.
+      <span class="lastupdated">Last updated on 18 May 2026.
       </span></p>
   </div>
 
