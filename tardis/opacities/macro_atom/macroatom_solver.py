@@ -844,15 +844,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         else:
             self.photoionization_data = photoionization_data
 
-        # selected_continuum_transitions = [
-        #     (1, 0),
-        #     (1, 1),
-        # ]  # Temporary hack to test the continuum macro atom implementation.
-        # included_species = photoionization_data.index.droplevel(
-        #     "level_number"
-        # ).isin(selected_continuum_transitions)
-        # self.photoionization_data = photoionization_data[included_species]
-
         # Here we probably want to check and throw an error if the photoionization data contains atoms not in the lines and levels dataframes.
         self.photoionization_data_level_energies = levels.loc[
             self.photoionization_data.index.unique()
