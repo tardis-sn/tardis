@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=36827210"></script>
+      <script src="../_static/documentation_options.js?v=56fe002e"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -180,6 +180,7 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.geometry.calculate_distances.html#tardis.transport.geometry.calculate_distances.calculate_distance_electron"><code class="docutils literal notranslate"><span class="pre">calculate_distance_electron()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.geometry.calculate_distances.html#tardis.transport.geometry.calculate_distances.calculate_distance_line"><code class="docutils literal notranslate"><span class="pre">calculate_distance_line()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.transport.geometry.calculate_distances.html#tardis.transport.geometry.calculate_distances.calculate_distance_line_full_relativity"><code class="docutils literal notranslate"><span class="pre">calculate_distance_line_full_relativity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.geometry.calculate_distances.html#tardis.transport.geometry.calculate_distances.calculate_distance_line_nonhomologous"><code class="docutils literal notranslate"><span class="pre">calculate_distance_line_nonhomologous()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -251,9 +252,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.nonhomologous_grid.html">tardis.transport.montecarlo.nonhomologous_grid module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.nonhomologous_grid.html#tardis.transport.montecarlo.nonhomologous_grid.quartic_roots"><code class="docutils literal notranslate"><span class="pre">quartic_roots()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.nonhomologous_grid.html#tardis.transport.montecarlo.nonhomologous_grid.tau_sobolev_factor"><code class="docutils literal notranslate"><span class="pre">tau_sobolev_factor()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.nonhomologous_grid.html#tardis.transport.montecarlo.nonhomologous_grid.velocity_dvdr"><code class="docutils literal notranslate"><span class="pre">velocity_dvdr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="tardis.transport.montecarlo.nonhomologous_grid.html#tardis.transport.montecarlo.nonhomologous_grid.depressed_quartic"><code class="docutils literal notranslate"><span class="pre">depressed_quartic()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.transport.montecarlo.progress_bars.html">tardis.transport.montecarlo.progress_bars module</a><ul>
@@ -289,9 +288,11 @@
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.calc_packet_energy_full_relativity"><code class="docutils literal notranslate"><span class="pre">calc_packet_energy_full_relativity()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_doppler_factor"><code class="docutils literal notranslate"><span class="pre">get_doppler_factor()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_doppler_factor_full_relativity"><code class="docutils literal notranslate"><span class="pre">get_doppler_factor_full_relativity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_doppler_factor_nonhomologous"><code class="docutils literal notranslate"><span class="pre">get_doppler_factor_nonhomologous()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_doppler_factor_partial_relativity"><code class="docutils literal notranslate"><span class="pre">get_doppler_factor_partial_relativity()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor"><code class="docutils literal notranslate"><span class="pre">get_inverse_doppler_factor()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor_full_relativity"><code class="docutils literal notranslate"><span class="pre">get_inverse_doppler_factor_full_relativity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor_nonhomologous"><code class="docutils literal notranslate"><span class="pre">get_inverse_doppler_factor_nonhomologous()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor_partial_relativity"><code class="docutils literal notranslate"><span class="pre">get_inverse_doppler_factor_partial_relativity()</span></code></a></li>
 </ul>
 </li>

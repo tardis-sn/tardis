@@ -15,6 +15,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   tardis.workflows.nonhomologous_tardis_workflow
    tardis.workflows.simple_tardis_workflow
    tardis.workflows.standard_tardis_workflow
    tardis.workflows.type_iip_workflow

@@ -9,6 +9,7 @@ Subpackages
 
    tardis.transport.montecarlo.modes.classic
    tardis.transport.montecarlo.modes.iip
+   tardis.transport.montecarlo.modes.nonhomologous
 
 Module contents
 ---------------

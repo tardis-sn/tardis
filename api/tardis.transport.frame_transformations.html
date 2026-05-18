@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=36827210"></script>
+      <script src="../_static/documentation_options.js?v=56fe002e"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -206,6 +206,11 @@ return (mu - beta) / (1.0 - beta * mu);</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="tardis.transport.frame_transformations.get_doppler_factor_nonhomologous">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.frame_transformations.</span></span><span class="sig-name descname"><span class="pre">get_doppler_factor_nonhomologous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_full_relativity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/frame_transformations.html#get_doppler_factor_nonhomologous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.frame_transformations.get_doppler_factor_nonhomologous" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.frame_transformations.get_doppler_factor_partial_relativity">
 <span class="sig-prename descclassname"><span class="pre">tardis.transport.frame_transformations.</span></span><span class="sig-name descname"><span class="pre">get_doppler_factor_partial_relativity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/frame_transformations.html#get_doppler_factor_partial_relativity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.frame_transformations.get_doppler_factor_partial_relativity" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -229,6 +234,21 @@ return (mu - beta) / (1.0 - beta * mu);</p>
 <dt class="sig sig-object py" id="tardis.transport.frame_transformations.get_inverse_doppler_factor_full_relativity">
 <span class="sig-prename descclassname"><span class="pre">tardis.transport.frame_transformations.</span></span><span class="sig-name descname"><span class="pre">get_inverse_doppler_factor_full_relativity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/frame_transformations.html#get_inverse_doppler_factor_full_relativity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.frame_transformations.get_inverse_doppler_factor_full_relativity" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.transport.frame_transformations.get_inverse_doppler_factor_nonhomologous">
+<span class="sig-prename descclassname"><span class="pre">tardis.transport.frame_transformations.</span></span><span class="sig-name descname"><span class="pre">get_inverse_doppler_factor_nonhomologous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_full_relativity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/transport/frame_transformations.html#get_inverse_doppler_factor_nonhomologous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.transport.frame_transformations.get_inverse_doppler_factor_nonhomologous" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate doppler factor for frame transformation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>v</strong><span class="classifier">float</span></dt><dd></dd>
+<dt><strong>mu</strong><span class="classifier">float</span></dt><dd></dd>
+<dt><strong>enable_full_relativity</strong><span class="classifier">bool</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.transport.frame_transformations.get_inverse_doppler_factor_partial_relativity">

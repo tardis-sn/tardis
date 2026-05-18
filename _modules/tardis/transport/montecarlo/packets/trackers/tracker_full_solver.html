@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=36827210"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=56fe002e"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -151,7 +151,7 @@ from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
 
 
 <div class="viewcode-block" id="TrackerFullState">
-<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_solver.html#tardis.transport.montecarlo.packets.trackers.tracker_full_solver.TrackerFullState">[docs]</a>
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_solver.html#tardis.transport.montecarlo.packets.trackers.TrackerFullState">[docs]</a>
 @dataclass
 class TrackerFullState:
     &quot;&quot;&quot;
@@ -166,7 +166,7 @@ class TrackerFullState:
 
 
 <div class="viewcode-block" id="TrackerFullSolver">
-<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_solver.html#tardis.transport.montecarlo.packets.trackers.tracker_full_solver.TrackerFullSolver">[docs]</a>
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_solver.html#tardis.transport.montecarlo.packets.trackers.TrackerFullSolver">[docs]</a>
 class TrackerFullSolver:
     &quot;&quot;&quot;
     Solver for TrackerFull. Holds configuration and generates tracker states.
@@ -181,7 +181,7 @@ class TrackerFullSolver:
         self.extend_factor = extend_factor
 
 <div class="viewcode-block" id="TrackerFullSolver.create_tracker_state">
-<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_solver.html#tardis.transport.montecarlo.packets.trackers.tracker_full_solver.TrackerFullSolver.create_tracker_state">[docs]</a>
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_solver.html#tardis.transport.montecarlo.packets.trackers.TrackerFullSolver.create_tracker_state">[docs]</a>
     def create_tracker_state(self, num_packets: int) -&gt; TrackerFullState:
         trackers = generate_tracker_full_list(
             num_packets, self.initial_length, self.extend_factor
@@ -190,7 +190,7 @@ class TrackerFullSolver:
 
 
 <div class="viewcode-block" id="TrackerFullSolver.process_tracker_state">
-<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_solver.html#tardis.transport.montecarlo.packets.trackers.tracker_full_solver.TrackerFullSolver.process_tracker_state">[docs]</a>
+<a class="viewcode-back" href="../../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_full_solver.html#tardis.transport.montecarlo.packets.trackers.TrackerFullSolver.process_tracker_state">[docs]</a>
     def process_tracker_state(
         self, tracker_state: TrackerFullState
     ) -&gt; None:
