@@ -545,6 +545,8 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
         coll_excitation_coeff.set_index(lines_filtered.index, inplace=True)
 
         # Calculate rates based on PB04
+        # Josh: This mess breaks. It seems like we're just recreating
+        # delta_E_yg which I make in the continuum connectors
         ind = yg.index
         ll_index = pd.MultiIndex.from_arrays(
             [
