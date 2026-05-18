@@ -192,7 +192,7 @@ class NonhomologousRadial1DGeometry:
             / (self.r_outer_active - self.r_inner_active)
         )
 
-    def get_velocity(self, r, shell_id):
+    def get_velocity(self, r: u.Quantity, shell_id: int):
         """
         Calculate the velocity at a given radius within a shell, assuming
         a piece-wise linear velocity with radius.
@@ -272,7 +272,7 @@ class NumbaNonhomologousRadial1DGeometry:
         self.velocity_gradient = (self.v_outer - self.v_inner) / (self.r_outer - self.r_inner)
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
-    def get_velocity(self, r, shell_id):
+    def get_velocity(self, r: float, shell_id: int):
         """
         Calculate the velocity at a given radius within a shell, assuming
         a piece-wise linear velocity with radius.
