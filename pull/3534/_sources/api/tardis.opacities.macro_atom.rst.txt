@@ -15,6 +15,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   tardis.opacities.macro_atom.absorbing_markov_chain
    tardis.opacities.macro_atom.base
    tardis.opacities.macro_atom.macroatom_continuum_transitions
    tardis.opacities.macro_atom.macroatom_line_transitions

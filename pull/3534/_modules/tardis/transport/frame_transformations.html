@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=787c3e3d"></script>
+      <script src="../../../_static/documentation_options.js?v=9071ff6e"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -77,8 +77,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../io/output/index.html">Additional Outputs</a></li>
@@ -146,6 +147,10 @@ from tardis.transport.montecarlo import (
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
 
 
+# TODO: In a future PR collapse to just one function
+#       get_dopper_factor(v, mu, enable_full_relativity)
+#       and calculate v elsewhere either with v = r / t_explosion
+#       or v, _ = piecewise_linear_dvdr(r, geometry)
 <div class="viewcode-block" id="get_doppler_factor">
 <a class="viewcode-back" href="../../../api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_doppler_factor">[docs]</a>
 @njit(**njit_dict_no_parallel)
@@ -157,6 +162,19 @@ def get_doppler_factor(r, mu, time_explosion, enable_full_relativity):
         return get_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_doppler_factor_full_relativity(mu, beta)</div>
+
+
+
+<div class="viewcode-block" id="get_doppler_factor_nonhomologous">
+<a class="viewcode-back" href="../../../api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_doppler_factor_nonhomologous">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def get_doppler_factor_nonhomologous(v, mu, enable_full_relativity):
+    inv_c = 1 / C_SPEED_OF_LIGHT
+    beta = v * inv_c
+    if not enable_full_relativity:
+        return get_doppler_factor_partial_relativity(mu, beta)
+    else:
+        raise NotImplementedError(&quot;Full relativity not implemented for non-homologous mode.&quot;)</div>
 
 
 
@@ -196,6 +214,28 @@ def get_inverse_doppler_factor(r, mu, time_explosion, enable_full_relativity):
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
     else:
         return get_inverse_doppler_factor_full_relativity(mu, beta)</div>
+
+
+
+<div class="viewcode-block" id="get_inverse_doppler_factor_nonhomologous">
+<a class="viewcode-back" href="../../../api/tardis.transport.frame_transformations.html#tardis.transport.frame_transformations.get_inverse_doppler_factor_nonhomologous">[docs]</a>
+@njit(**njit_dict_no_parallel)
+def get_inverse_doppler_factor_nonhomologous(v, mu, enable_full_relativity):
+    &quot;&quot;&quot;
+    Calculate doppler factor for frame transformation
+
+    Parameters
+    ----------
+    v : float
+    mu : float
+    enable_full_relativity : bool
+    &quot;&quot;&quot;
+    inv_c = 1 / C_SPEED_OF_LIGHT
+    beta = v * inv_c
+    if not enable_full_relativity:
+        return get_inverse_doppler_factor_partial_relativity(mu, beta)
+    else:
+        raise NotImplementedError(&quot;Full relativity not implemented for non-homologous mode.&quot;)</div>
 
 
 
@@ -275,7 +315,7 @@ def angle_aberration_LF_to_CMF(r_packet, time_explosion, mu):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Mar 2026.
+      <span class="lastupdated">Last updated on 19 May 2026.
       </span></p>
   </div>
 

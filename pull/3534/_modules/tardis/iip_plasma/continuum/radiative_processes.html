@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=787c3e3d"></script>
+      <script src="../../../../_static/documentation_options.js?v=9071ff6e"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -77,8 +77,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../io/output/index.html">Additional Outputs</a></li>
@@ -213,6 +214,10 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
                 rate_coefficient = self._calculate_rate_coefficient_combination(
                     rate_coefficient, rate_coefficient_dilute_bb
                 )
+                if (rate_coefficient &lt; 0.0).any().any():
+                    logger.warning(
+                        &quot;Negative values in corrected photoion rate coeff after replacing bad statistics&quot;
+                    )
         return rate_coefficient
 
     def _calculate_rate_coefficient_dilute_blackbody(self):
@@ -271,10 +276,7 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
             self.photo_ion_estimator
             - lte_nonlte_level_pop_ratio * self.stim_recomb_estimator
         )
-        if (corrected_photoion_coeff &lt; 0).any().any():
-            raise PlasmaException(
-                &quot;Negative values in _calculate_rate_coefficient_from_estimator. Try raising the number of montecarlo packets.&quot;
-            )
+
         corrected_photoion_coeff = pd.DataFrame(
             corrected_photoion_coeff,
             index=index,
@@ -654,7 +656,7 @@ class FreeFree(PhysicalContinuumProcess):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Mar 2026.
+      <span class="lastupdated">Last updated on 19 May 2026.
       </span></p>
   </div>
 

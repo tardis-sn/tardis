@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=787c3e3d"></script>
+      <script src="../_static/documentation_options.js?v=9071ff6e"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -77,8 +77,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_physical_quantities.html">How to Access Physical Quantities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../how_to/code_comparison/index.html">How to do Code Comparison using TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_adaptive_damping.html">How to use Adaptive Damping for Convergence in TARDIS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../workflows.html">Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyszing TARDIS Simulation Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analyzing_tardis/index.html">Analyzing TARDIS Simulation Outputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/configuration/tutorial_read_configuration.html">Reading a Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/optional/index.html">Optional Inputs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../io/output/index.html">Additional Outputs</a></li>
@@ -199,6 +200,7 @@
 <li><a href="tardis/io/model/artis/readers.html">tardis.io.model.artis.readers</a></li>
 <li><a href="tardis/io/model/csvy/data.html">tardis.io.model.csvy.data</a></li>
 <li><a href="tardis/io/model/csvy/readers.html">tardis.io.model.csvy.readers</a></li>
+<li><a href="tardis/io/model/parse_composition_configuration.html">tardis.io.model.parse_composition_configuration</a></li>
 <li><a href="tardis/io/model/parse_density_configuration.html">tardis.io.model.parse_density_configuration</a></li>
 <li><a href="tardis/io/model/parse_packet_source_configuration.html">tardis.io.model.parse_packet_source_configuration</a></li>
 <li><a href="tardis/io/model/parse_radiation_field_configuration.html">tardis.io.model.parse_radiation_field_configuration</a></li>
@@ -216,10 +218,12 @@
 <li><a href="tardis/io/util.html">tardis.io.util</a></li>
 <li><a href="tardis/model/base.html">tardis.model.base</a></li>
 <li><a href="tardis/model/geometry/radial1d.html">tardis.model.geometry.radial1d</a></li>
+<li><a href="tardis/model/geometry/radial1d_nonhomologous.html">tardis.model.geometry.radial1d_nonhomologous</a></li>
 <li><a href="tardis/model/matter/composition.html">tardis.model.matter.composition</a></li>
 <li><a href="tardis/model/matter/decay.html">tardis.model.matter.decay</a></li>
 <li><a href="tardis/opacities/continuum/bound_free.html">tardis.opacities.continuum.bound_free</a></li>
 <li><a href="tardis/opacities/continuum/continuum_state.html">tardis.opacities.continuum.continuum_state</a></li>
+<li><a href="tardis/opacities/macro_atom/absorbing_markov_chain.html">tardis.opacities.macro_atom.absorbing_markov_chain</a></li>
 <li><a href="tardis/opacities/macro_atom/continuum_processes/collisional_ion_trans_prob.html">tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob</a></li>
 <li><a href="tardis/opacities/macro_atom/macroatom_continuum_transitions.html">tardis.opacities.macro_atom.macroatom_continuum_transitions</a></li>
 <li><a href="tardis/opacities/macro_atom/macroatom_line_transitions.html">tardis.opacities.macro_atom.macroatom_line_transitions</a></li>
@@ -307,6 +311,18 @@
 <li><a href="tardis/transport/montecarlo/modes/iip/packet_propagation.html">tardis.transport.montecarlo.modes.iip.packet_propagation</a></li>
 <li><a href="tardis/transport/montecarlo/modes/iip/rad_packet_transport.html">tardis.transport.montecarlo.modes.iip.rad_packet_transport</a></li>
 <li><a href="tardis/transport/montecarlo/modes/iip/solver.html">tardis.transport.montecarlo.modes.iip.solver</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/interaction_event_callers.html">tardis.transport.montecarlo.modes.nonhomologous.interaction_event_callers</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/interaction_events.html">tardis.transport.montecarlo.modes.nonhomologous.interaction_events</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/mc_rad_field_solver.html">tardis.transport.montecarlo.modes.nonhomologous.mc_rad_field_solver</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/montecarlo_transport.html">tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/montecarlo_transport_state.html">tardis.transport.montecarlo.modes.nonhomologous.montecarlo_transport_state</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/opacity_solver.html">tardis.transport.montecarlo.modes.nonhomologous.opacity_solver</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/packet_propagation.html">tardis.transport.montecarlo.modes.nonhomologous.packet_propagation</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/plasma_assembly_base.html">tardis.transport.montecarlo.modes.nonhomologous.plasma_assembly_base</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/rad_packet_transport.html">tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/solver.html">tardis.transport.montecarlo.modes.nonhomologous.solver</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/tau_sobolev.html">tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev</a></li>
+<li><a href="tardis/transport/montecarlo/modes/nonhomologous/virtual_packet.html">tardis.transport.montecarlo.modes.nonhomologous.virtual_packet</a></li>
 <li><a href="tardis/transport/montecarlo/montecarlo_transport_state.html">tardis.transport.montecarlo.montecarlo_transport_state</a></li>
 <li><a href="tardis/transport/montecarlo/nonhomologous_grid.html">tardis.transport.montecarlo.nonhomologous_grid</a></li>
 <li><a href="tardis/transport/montecarlo/packet_source/base.html">tardis.transport.montecarlo.packet_source.base</a></li>
@@ -351,7 +367,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 31 Mar 2026.
+      <span class="lastupdated">Last updated on 19 May 2026.
       </span></p>
   </div>
 
