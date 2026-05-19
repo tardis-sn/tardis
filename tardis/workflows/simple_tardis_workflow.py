@@ -107,6 +107,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 atom_data.levels,
                 atom_data.lines,
                 atom_data.photoionization_data,
+                atom_data.ionization_data,
+                selected_continuum_transitions=self.plasma_solver.continuum_interaction_species,
                 line_interaction_type=line_interaction_type,
             )
         else:
@@ -414,8 +416,9 @@ class SimpleTARDISWorkflow(WorkflowLogging):
                 self.plasma_solver.alpha_sp,
                 self.plasma_solver.coll_deexc_coeff,
                 self.plasma_solver.coll_exc_coeff,
+                self.plasma_solver.coll_ion_coeff,
+                self.plasma_solver.coll_recomb_coeff,
                 self.plasma_solver.electron_densities,
-                self.plasma_solver.level_number_density,
                 self.plasma_solver.delta_E_yg,
             )
             opacity_state.continuum_state.k_packet_idx = macro_atom_state.references_index.iloc[

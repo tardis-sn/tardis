@@ -120,13 +120,13 @@
       "name": "Barbosa, Talytha"
     },
     {
-      "name": "Yu, Jenny"
+      "name": "Sondhi, Dhruv"
     },
     {
       "name": "O'Brien, Jack"
     },
     {
-      "name": "Sondhi, Dhruv"
+      "name": "Yu, Jenny"
     },
     {
       "name": "Shields, Josh",
@@ -137,13 +137,10 @@
       "name": "Patel, Maryam"
     },
     {
-      "name": "Rathi, Shikha"
-    },
-    {
       "name": "Varanasi, Kaushik"
     },
     {
-      "name": "Chitchyan, Sona"
+      "name": "Rathi, Shikha"
     },
     {
       "name": "Gillanders, James",
@@ -151,20 +148,19 @@
       "affiliation": "University of Oxford"
     },
     {
+      "name": "Chitchyan, Sona"
+    },
+    {
       "name": "Singh, Shreyas"
-    },
-    {
-      "name": "Savel, Arjun"
-    },
-    {
-      "name": "Gupta, Sumit"
     },
     {
       "name": "Marie Lynn, Haille"
     },
     {
-      "name": "Shah, Swayam",
-      "orcid": "0009-0005-8092-547X"
+      "name": "Gupta, Sumit"
+    },
+    {
+      "name": "Savel, Arjun"
     },
     {
       "name": "Reinecke, Martin"
@@ -173,13 +169,17 @@
       "name": "Eweis, Youssef"
     },
     {
+      "name": "Shah, Swayam",
+      "orcid": "0009-0005-8092-547X"
+    },
+    {
       "name": "Holas, Alexander"
     },
     {
-      "name": "Visser, Erin"
+      "name": "Bylund, Tomas"
     },
     {
-      "name": "Bylund, Tomas"
+      "name": "Visser, Erin"
     },
     {
       "name": "Bentil, Laud"
@@ -204,22 +204,22 @@
       "orcid": "0000-0002-2328-8030"
     },
     {
+      "name": "Srivastava, Sarthak"
+    },
+    {
       "name": "Bartnik, Matthew"
     },
     {
       "name": "Kumar, Ansh"
     },
     {
-      "name": "Srivastava, Sarthak"
-    },
-    {
-      "name": "Magee, Mark"
+      "name": "Alam, Arib"
     },
     {
       "name": "Varma Buddaraju, Rohith"
     },
     {
-      "name": "Alam, Arib"
+      "name": "Magee, Mark"
     },
     {
       "name": "Kambham, Satwik"
@@ -231,31 +231,20 @@
       "name": "Livneh, Ran"
     },
     {
-      "name": "Mishra, Sashank",
-      "orcid": "0000-0001-8302-1584"
-    },
-    {
       "name": "Bhakar, Jayant"
-    },
-    {
-      "name": "Rajagopalan, Srinath"
-    },
-    {
-      "name": "Roldan, Israel"
     },
     {
       "name": "Powers, Cecelia"
     },
     {
-      "name": "Reichenbach, John"
+      "name": "Mishra, Sashank",
+      "orcid": "0000-0001-8302-1584"
     },
     {
-      "name": "Nitish, P"
+      "name": "Roldan, Israel"
     },
     {
-      "name": "McClellan, Connor",
-      "orcid": "0000-0002-6040-8281",
-      "affiliation": "University of Virginia"
+      "name": "Rajagopalan, Srinath"
     },
     {
       "name": "Actions, GitHub"
@@ -264,43 +253,55 @@
       "name": "Jain, Rinkle"
     },
     {
-      "name": "Singh, Sourav"
+      "name": "McClellan, Connor",
+      "orcid": "0000-0002-6040-8281",
+      "affiliation": "University of Virginia"
     },
     {
-      "name": "Brar, Antreev"
+      "name": "Nitish, P"
     },
     {
-      "name": "Chaumal, Aarya"
+      "name": "Reichenbach, John"
     },
     {
       "name": "Gupta, Harshul"
     },
     {
-      "name": "Talegaonkar, Chinmay"
+      "name": "Chaumal, Aarya"
+    },
+    {
+      "name": "Brar, Antreev"
+    },
+    {
+      "name": "Singh, Sourav"
+    },
+    {
+      "name": "Dadu, Aaryan",
+      "orcid": "0009-0005-3670-8777"
     },
     {
       "name": "Matsumura, Yuki"
     },
     {
-      "name": "Patidar, Abhishek"
-    },
-    {
       "name": "Kowalski, Nathan"
-    },
-    {
-      "name": "Gangbhoj, Riddhi"
     },
     {
       "name": "Sofiatti, Caroline"
     },
     {
-      "name": "Perkins, Haille"
+      "name": "Gangbhoj, Riddhi"
+    },
+    {
+      "name": "Patidar, Abhishek"
     },
     {
       "name": "Selsing, Jonatan"
     },
     {
-      "name": "Diddige, Harshitha"
+      "name": "Talegaonkar, Chinmay"
+    },
+    {
+      "name": "Perkins, Haille"
     },
     {
       "name": "Wahi, Ujjwal"
@@ -315,22 +316,29 @@
       "name": "L. Lim, P."
     },
     {
-      "name": "Bhandari, Jhalak"
-    },
-    {
       "name": "Chen, Nutan"
     },
     {
-      "name": "Patra, Nilesh"
-    },
-    {
-      "name": "Vieira, Nicholas"
+      "name": "Nagadevi, Kona",
+      "orcid": "0009-0005-2784-6895"
     },
     {
       "name": "Buchner, Johannes"
     },
     {
+      "name": "Bhandari, Jhalak"
+    },
+    {
+      "name": "Vieira, Nicholas"
+    },
+    {
       "name": "Yap, Kevin"
+    },
+    {
+      "name": "Martinez, Laureano"
+    },
+    {
+      "name": "Patra, Nilesh"
     },
     {
       "name": "Truong, Le"
@@ -348,47 +356,49 @@
       "name": "Sarafina, Nance"
     },
     {
+      "name": "Gupta, Suyash"
+    },
+    {
       "name": "Lemoine, Thom"
-    },
-    {
-      "name": "Kumar, Aman"
-    },
-    {
-      "name": "Prasad, Shilpi"
-    },
-    {
-      "name": "Venkat, Shashank"
-    },
-    {
-      "name": "Nayak U, Ashwin"
     },
     {
       "name": "Kumar, Atul"
     },
     {
-      "name": "Dasgupta, Debajyoti"
-    },
-    {
-      "name": "Dadu, Aaryan",
-      "orcid": "0009-0005-3670-8777"
-    },
-    {
-      "name": "Watson, Clyde"
-    },
-    {
-      "name": "Martinez, Laureano"
-    },
-    {
-      "name": "PATIDAR, ABHISHEK"
+      "name": "Nayak U, Ashwin"
     },
     {
       "name": "Volodin, Dmitry"
     },
     {
-      "name": "Gupta, Suyash"
+      "name": "Dasgupta, Debajyoti"
+    },
+    {
+      "name": "Jaiswal, Abhayraj",
+      "orcid": "0009-0003-8477-2963"
+    },
+    {
+      "name": "Watson, Clyde"
+    },
+    {
+      "name": "Kumar, Aman"
+    },
+    {
+      "name": "PATIDAR, ABHISHEK"
+    },
+    {
+      "name": "Prasad, Shilpi"
+    },
+    {
+      "name": "Diddige, Harshitha"
     },
     {
       "name": "Patel, Pratik"
+    },
+    {
+      "name": "Rao, Rishmita",
+      "orcid": "0009-0003-3964-2107",
+      "affiliation": "Texas A&M University"
     },
     {
       "name": "Prasad, Rohit"
@@ -398,6 +408,10 @@
     },
     {
       "name": "Sharma, Sampark"
+    },
+    {
+      "name": "Venkat, Shashank"
     }
-  ]
+  ],
+  "license": "bsd-3-clause"
 }

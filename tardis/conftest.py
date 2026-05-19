@@ -3,20 +3,21 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from astropy.version import version as astropy_version
 from astropy import units as u
+from astropy.version import version as astropy_version
 
 from tardis import run_tardis
+from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
-from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.tests.fixtures.atom_data import *
+from tardis.tests.test_util import monkeysession
 from tardis.transport.montecarlo.progress_bars import (
     iterations_pbar,
     packet_pbar,
 )
-from tardis.tests.test_util import monkeysession
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 try:
     import tardisbase
@@ -320,6 +321,7 @@ def simulation_rpacket_tracking(config_rpacket_tracking, atomic_dataset):
     )
     return sim
 
+
 @pytest.fixture(scope="class")
 def workflow_simple(config_verysimple, atomic_data_fname):
     config = deepcopy(config_verysimple)
@@ -330,8 +332,10 @@ def workflow_simple(config_verysimple, atomic_data_fname):
     config.spectrum.virtual.virtual_packet_logging = True
     config.montecarlo.no_of_virtual_packets = 1
     config.spectrum.num = 2000
-    
-    workflow = StandardTARDISWorkflow(config, enable_virtual_packet_logging=True)
+
+    workflow = StandardTARDISWorkflow(
+        config, enable_virtual_packet_logging=True
+    )
     workflow.run()
     return workflow
 
@@ -341,3 +345,33 @@ def pytest_sessionfinish(session, exitstatus):
         packet_pbar.close()
     if iterations_pbar is not None:
         iterations_pbar.close()
+
+
+@pytest.fixture
+def iip_atom_data(tardis_regression_path):
+    # identical atomic data to that used by C Vogl
+    atom_data = AtomData.from_hdf(
+        tardis_regression_path
+        / "atom_data"
+        / "christians_atomdata_converted_04Dec25.h5"
+    )
+
+    # need to set up macroatom and continuum data for ctardis plasma
+    atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
+
+    atom_data.continuum_data = ContinuumData(
+        atom_data, selected_continuum_species=[(1, 0)]
+    )
+
+    # matching prep in workflow
+    atom_data.continuum_data.photoionization_data.loc[(1, 0, 0), "x_sect"] *= (
+        0.0
+    )
+
+    atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
+
+    atom_data.nlte_data._init_indices()
+
+    atom_data.has_collision_data = False
+
+    return atom_data

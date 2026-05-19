@@ -103,6 +103,9 @@ def bf_cooling(r_packet, time_explosion, opacity_state, enable_full_relativity):
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
+    # Josh: I don't think we need to do this - BF cooling already picks one
+    # The interaction handler already sends you to an individual level, but here we
+    # ignore that and choose the level again.
     fb_cooling_prob = opacity_state.p_fb_deactivation[
         :, r_packet.current_shell_id
     ]

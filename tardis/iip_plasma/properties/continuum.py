@@ -545,6 +545,8 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
         coll_excitation_coeff.set_index(lines_filtered.index, inplace=True)
 
         # Calculate rates based on PB04
+        # Josh: This mess breaks. It seems like we're just recreating
+        # delta_E_yg which I make in the continuum connectors
         ind = yg.index
         ll_index = pd.MultiIndex.from_arrays(
             [
@@ -1297,7 +1299,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         "fb_emission_cdf",
         "photo_ion_idx",
         "k_packet_idx",
-        "gamma_corr",
         "delta_E_yg",
         "continuum_interaction_species",
     )
@@ -1363,9 +1364,9 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             photoionization_data.index, next_higher=True
         )
 
-        ion_number_density = ion_number_density.loc[ion_index]
+        bf_ion_number_density = ion_number_density.loc[ion_index]
         lte_ion_number_density = lte_ion_number_density.loc[ion_index]
-        ion_number_density_ratio = ion_number_density.divide(
+        ion_number_density_ratio = bf_ion_number_density.divide(
             lte_ion_number_density
         )
 
@@ -1429,9 +1430,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             atomic_data.macro_atom_references.references_idx.max() + 1
         )
 
-        # NOW GAMMA_CORR
-        gamma_corr = gamma
-
         # NOW DELTA_E_YG
         energies = atomic_data.levels.energy
         yg_data = atomic_data.yg_data
@@ -1456,7 +1454,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
             fb_emission_cdf,
             photo_ion_idx,
             k_packet_idx,
-            gamma_corr,
             delta_E_yg,
             continuum_interaction_species,
         )

@@ -4,6 +4,9 @@ import numpy as np
 import pytest
 from numba import njit
 
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NumbaNonhomologousRadial1DGeometry,
+)
 from tardis.opacities.opacity_state_numba import (
     opacity_state_numba_initialize,
 )
@@ -49,6 +52,17 @@ def verysimple_opacity_state(nb_simulation_verysimple):
 @pytest.fixture(scope="package")
 def verysimple_numba_radial_1d_geometry(nb_simulation_verysimple):
     return nb_simulation_verysimple.simulation_state.geometry.to_numba()
+
+
+@pytest.fixture(scope="package")
+def verysimple_numba_nonhomologous_geometry(nb_simulation_verysimple):
+    geometry = nb_simulation_verysimple.simulation_state.geometry
+    return NumbaNonhomologousRadial1DGeometry(
+        geometry.r_inner_active.to("cm").value,
+        geometry.r_outer_active.to("cm").value,
+        geometry.v_inner_active.to("cm/s").value,
+        geometry.v_outer_active.to("cm/s").value,
+    )
 
 
 @pytest.fixture(scope="package")
