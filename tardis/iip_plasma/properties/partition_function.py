@@ -478,7 +478,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     initial = (
                         self.plasma_parent.level_number_density[i]
                         .loc[species]
-                        .values
+                        .to_numpy()
+                        .copy()
                     )
                     initial /= initial.sum()
                     initial = np.hstack([initial, np.array(next_ion_density)])

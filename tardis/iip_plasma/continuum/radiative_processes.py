@@ -483,6 +483,7 @@ class FreeFree(PhysicalContinuumProcess):
             )
             .sum()
             .values
+            .copy()
         )
         chi_ff_factor *= chi_ff_helper
         return chi_ff_factor
