@@ -772,7 +772,7 @@ def calculate_jacobian_matrix(
     """
     # TODO: for future use, can be vectorized.
     index = 0
-    jacobian_matrix = rate_matrix.copy().values
+    jacobian_matrix = rate_matrix.to_numpy(copy=True)
     jacobian_matrix[:-1, -1] = populations[1:]
     for atomic_number in atomic_numbers:
         for i in range(index, index + atomic_number):
