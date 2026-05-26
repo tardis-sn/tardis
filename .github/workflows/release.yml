@@ -27,12 +27,12 @@ jobs:
       (startsWith(github.head_ref, 'pre-release-20') && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.x"
 
@@ -48,7 +48,7 @@ jobs:
           echo "NEW_TAG=$(python .ci-helpers/get_next_version.py)" >> $GITHUB_ENV
 
       - name: Initialize release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: TARDIS v${{ env.NEW_TAG }}
           tag_name: release-${{ env.NEW_TAG }}
@@ -89,7 +89,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Update release with changelog and DOI
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: release-${{ env.NEW_TAG }}
           token: ${{ secrets.BOT_TOKEN }}

@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
@@ -23,36 +22,6 @@ def _max_rel_diff(actual, expected):
 @pytest.fixture
 def iip_regression_path(tardis_regression_path):
     return tardis_regression_path / "tardis" / "workflows" / "tests"
-
-
-@pytest.fixture
-def iip_atom_data(tardis_regression_path):
-    # identical atomic data to that used by C Vogl
-    atom_data = AtomData.from_hdf(
-        tardis_regression_path
-        / "atom_data"
-        / "christians_atomdata_converted_04Dec25.h5"
-    )
-
-    # need to set up macroatom and continuum data for ctardis plasma
-    atom_data.prepare_atom_data([1], "macroatom", [(1, 0)], [(1, 0)])
-
-    atom_data.continuum_data = ContinuumData(
-        atom_data, selected_continuum_species=[(1, 0)]
-    )
-
-    # matching prep in workflow
-    atom_data.continuum_data.photoionization_data.loc[(1, 0, 0), "x_sect"] *= (
-        0.0
-    )
-
-    atom_data.yg_data.columns = list(atom_data.collision_data_temperatures)
-
-    atom_data.nlte_data._init_indices()
-
-    atom_data.has_collision_data = False
-
-    return atom_data
 
 
 @pytest.fixture
@@ -720,7 +689,19 @@ def test_solve_continuum_state_after_nlte_init(
     )
 
 
-@pytest.mark.skip  # TODO: Re-enable when the workflow uses the two step probabilities
-def test_solve_montecarlo(type_iip_workflow):
+def test_solve_montecarlo(type_iip_workflow, regression_data):
     opacity_states = type_iip_workflow.solve_opacity()
     type_iip_workflow.solve_montecarlo(opacity_states, 1000)
+
+    type_iip_workflow.initialize_spectrum_solver()
+    real_packets = type_iip_workflow.spectrum_solver.spectrum_real_packets
+    expected_lum_dens = regression_data.sync_ndarray(
+        real_packets.luminosity_density_lambda.value
+    )
+
+    np.testing.assert_allclose(
+        real_packets.luminosity_density_lambda.value,
+        expected_lum_dens,
+        atol=0,
+        rtol=1e-12,
+    )
