@@ -1427,9 +1427,7 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         )
 
         # NOW K_PACKET_IDX
-        k_packet_idx = (
-            atomic_data.macro_atom_references.references_idx.max() + 1
-        )
+        k_packet_idx = atomic_data.macro_atom_references.references_idx.max()
 
         # NOW DELTA_E_YG
         # TODO: RENAME THIS - it's not really delta E yg. It's just the energy diff

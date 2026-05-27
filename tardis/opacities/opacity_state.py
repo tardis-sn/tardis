@@ -189,10 +189,12 @@ class OpacityState:
                 macro_atom_state.macro_block_references
             )
             transition_type = (
-                macro_atom_state.deactivating_metadata.transition_type.values
+                macro_atom_state.transition_metadata.transition_type.values
             )
-            destination_level_id = macro_atom_state.deactivating_metadata.destination_level_idx.values
-            transition_line_id = macro_atom_state.deactivating_metadata.transition_line_idx.values
+            destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.values
+            transition_line_id = (
+                macro_atom_state.transition_metadata.transition_line_idx.values
+            )
 
             bf_threshold_list_nu = (
                 self.continuum_state.bf_threshold_list_nu.values
@@ -222,9 +224,13 @@ class OpacityState:
             ).astype(np.float64)
             emissivities = self.continuum_state.emissivities.values
             photo_ion_activation_idx = (
-                self.continuum_state.photo_ion_activation_idx.values
+                macro_atom_state.photo_ion_block_idx
+                * np.ones(30, dtype=np.int64)
             )
-            k_packet_idx = np.int64(self.continuum_state.k_packet_idx)
+            # (
+            #     self.continuum_state.photo_ion_activation_idx.values
+            # )
+            k_packet_idx = np.int64(macro_atom_state.k_packet_idx)
             absorbing_markov_probabilities = (
                 macro_atom_state.absorbing_probability_matrix
             )

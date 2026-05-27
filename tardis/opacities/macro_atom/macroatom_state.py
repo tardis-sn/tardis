@@ -114,6 +114,8 @@ class MacroAtomState:
         normalized_deactivating_probs: pd.DataFrame | None = None,
         deactivating_metadata: pd.DataFrame | None = None,
         absorbing_probability_matrix: np.ndarray | None = None,
+        photo_ion_block_idx: int = -99,
+        k_packet_idx: int = -99,
     ) -> None:
         """
         Initialize a MacroAtomState object.
@@ -134,6 +136,8 @@ class MacroAtomState:
             Dataframe containing metadata for deactivation channels from a chosen absobing state.
         absorbing_probability_matrix
             Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
+        k_packet_idx:
+            Int describing the index location of the k_packet block
         """
         self.transition_probabilities = transition_probabilities
         self.transition_metadata = transition_metadata
@@ -143,6 +147,8 @@ class MacroAtomState:
         self.normalized_deactivating_probs = normalized_deactivating_probs
         self.deactivating_metadata = deactivating_metadata
         self.absorbing_probability_matrix = absorbing_probability_matrix
+        self.photo_ion_block_idx = photo_ion_block_idx
+        self.k_packet_idx = k_packet_idx
 
     def to_legacy_format(self) -> LegacyMacroAtomState:
         """

@@ -90,8 +90,9 @@ def create_absorbing_probs(
         absorbing_probability_matrix[cell] = np.dot(
             fundamental_matrix_N, prob_deactivation_matrix
         )
-    deactivating_probs = probs[~internal_mask].drop(columns="source_dest")
-    deactivating_metadata = metadata[~internal_mask]
+    deactivating_probs = probs.copy().drop(columns="source_dest")
+    deactivating_probs[internal_mask] *= 0
+    deactivating_metadata = metadata
 
     return (
         absorbing_probability_matrix,

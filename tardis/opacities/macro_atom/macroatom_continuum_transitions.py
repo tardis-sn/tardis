@@ -904,7 +904,7 @@ def create_free_bound_cooling_metadata(
 def create_coll_excitation_cooling_metadata(
     transition_starting_index: int,
     coll_exc_cool_probs_arr: np.ndarray,
-    internal_up_destinations: pd.Series,
+    coll_exc_cool_destinations: pd.MultiIndex,
 ) -> pd.DataFrame:
     """
     Create metadata for free-bound (radiative recombination) cooling transitions.
@@ -922,9 +922,7 @@ def create_coll_excitation_cooling_metadata(
     pd.DataFrame
         Metadata DataFrame describing the collisional excitation cooling transitions for each bound level.
     """
-    destinations = internal_up_destinations.unique()[
-        ::-1
-    ]  # Maybe a cleaner way to do this
+    destinations = coll_exc_cool_destinations  # Maybe a cleaner way to do this
     coll_exc_cooling_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,
