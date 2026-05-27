@@ -43,8 +43,6 @@ def create_absorbing_probs(
         - deactivating_probs : pd.DataFrame
             DataFrame of deactivation transition probabilities from
             absorption states.
-        - deactivating_metadata : pd.DataFrame
-            Metadata for deactivation transitions.
     """
     num_cells = transition_probabilities.shape[1]
     probs = transition_probabilities.copy()
@@ -92,10 +90,8 @@ def create_absorbing_probs(
         )
     deactivating_probs = probs.copy().drop(columns="source_dest")
     deactivating_probs[internal_mask] *= 0
-    deactivating_metadata = metadata
 
     return (
         absorbing_probability_matrix,
         deactivating_probs,
-        deactivating_metadata,
     )

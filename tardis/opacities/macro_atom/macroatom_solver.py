@@ -940,7 +940,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 macro_block_references,
                 references_index,
                 normalized_deactivating_probs,
-                deactivating_metadata,
                 absorbing_probability_matrix,
             ) = self._solve_first_macroatom_iteration(
                 mean_intensities_blue_wing,
@@ -965,7 +964,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         else:
             (
                 normalized_probabilities,
-                deactivating_metadata,
                 normalized_deactivating_probs,
                 absorbing_probability_matrix,
             ) = self._solve_next_macroatom_iteration(
@@ -1009,7 +1007,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_block_references,
             references_index,
             normalized_deactivating_probs,
-            deactivating_metadata,
             absorbing_probability_matrix,
             photo_ion_block_idx,
             k_packet_idx,
@@ -1140,8 +1137,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Series with unique source levels as index and their assigned indices as values.
         normalized_deactivating_probs
             Dataframe containing emission probabilities from a chosen absorbing state
-        deactivating_metadata
-            Dataframe containing metadata for deactivation channels from a chosen absorbing state.
         absorbing_probability_matrix
             Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
         """
@@ -1316,12 +1311,11 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         (
             absorbing_probability_matrix,
             deactivating_probs,
-            deactivating_metadata,
         ) = create_absorbing_probs(
             normalized_probabilities, macro_atom_transition_metadata
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
-            deactivating_probs, deactivating_metadata
+            deactivating_probs, macro_atom_transition_metadata
         )
 
         line2macro_level_upper, reference_index = (
@@ -1348,7 +1342,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_block_references,
             reference_index,
             normalized_deactivating_probs,
-            deactivating_metadata,
             absorbing_probability_matrix,
         )
 
@@ -1647,17 +1640,16 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         (
             absorbing_probability_matrix,
             deactivating_probs,
-            deactivating_metadata,
         ) = create_absorbing_probs(
             normalized_probabilities, macro_atom_transition_metadata
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
-            deactivating_probs, deactivating_metadata
+            deactivating_probs, macro_atom_transition_metadata
         )
 
         return (
             normalized_probabilities,
-            deactivating_metadata,
+            macro_atom_transition_metadata,
             normalized_deactivating_probs,
             absorbing_probability_matrix,
         )
