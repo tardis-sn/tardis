@@ -10,11 +10,13 @@ References:
 
 import numpy as np
 import pandas as pd
+import scipy
+from numba import njit
 
 
 def create_absorbing_probs(
     transition_probabilities: pd.DataFrame, metadata: pd.DataFrame
-) -> tuple[np.ndarray, pd.DataFrame, pd.DataFrame]:
+) -> tuple[np.ndarray, pd.DataFrame]:
     """Calculate absorbing Markov chain probabilities and deactivation data.
 
     Computes the absorption probability matrices for each cell and extracts
@@ -45,50 +47,48 @@ def create_absorbing_probs(
             absorption states.
     """
     num_cells = transition_probabilities.shape[1]
-    probs = transition_probabilities.copy()
-
-    source_dest_pairs = list(
-        zip(
-            metadata.source_level_idx.values,
-            metadata.destination_level_idx.values,
-        )
-    )
-    probs["source_dest"] = source_dest_pairs
 
     num_states = len(metadata.source.unique())
-    source_dest_index = pd.MultiIndex.from_product(
-        [range(num_states), range(num_states)]
-    )
     internal_mask = metadata.transition_type >= 0
-    internal_jump_probs = probs[internal_mask]
+    internal_jump_probs = transition_probabilities[internal_mask]
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
     expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
 
+    rows = metadata[internal_mask].source_level_idx.values
+    cols = metadata[internal_mask].destination_level_idx.values
     for cell in range(num_cells):
+        print(f"starting cell {cell}")
         # In each cell, solve for absorbing markov chain probability
         # Follows math https://en.wikipedia.org/wiki/Absorbing_Markov_chain
-        internal_jump_matrix = (
-            internal_jump_probs.groupby("source_dest")
-            .sum()
-            .reindex(source_dest_index)
-            .loc[source_dest_index, cell]
-            .fillna(0)
-            .values.reshape((num_states, num_states))
-        )
-        inv_matrix_fundamental_N = (
-            np.identity(internal_jump_matrix.shape[0]) - internal_jump_matrix
-        )
-        fundamental_matrix_N = np.linalg.inv(inv_matrix_fundamental_N)
+        vals = internal_jump_probs[cell].values
 
-        expected_steps = fundamental_matrix_N.sum(axis=1)
+        internal_jump_matrix = scipy.sparse.coo_matrix(
+            (vals, (rows, cols)), shape=(num_states, num_states)
+        )
+
+        identity_minus_Q = (
+            scipy.sparse.identity(internal_jump_matrix.shape[0])
+            - internal_jump_matrix
+        )
+        csc_N = identity_minus_Q.tocsc()
+
+        expected_steps = np.asarray(
+            scipy.sparse.linalg.spsolve(csc_N, np.ones(num_states))
+        ).flatten()
         expected_steps_in_cells_from_states[cell] = expected_steps
 
-        prob_deactivation_matrix = np.diag(1 - internal_jump_matrix.sum(axis=1))
-        absorbing_probability_matrix[cell] = np.dot(
-            fundamental_matrix_N, prob_deactivation_matrix
+        deactivation_row = np.asarray(
+            internal_jump_matrix.sum(axis=1)
+        ).flatten()
+        # Solve (I - Q) * X = diag(1 - deactivation_row) directly
+        # instead of computing inv(I - Q) explicitly
+        rhs = np.diag(1 - deactivation_row)
+        absorbing_probability_matrix[cell] = scipy.sparse.linalg.spsolve(
+            csc_N, rhs
         )
-    deactivating_probs = probs.copy().drop(columns="source_dest")
+
+    deactivating_probs = transition_probabilities.copy()
     deactivating_probs[internal_mask] *= 0
 
     return (
