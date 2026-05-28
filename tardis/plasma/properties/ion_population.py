@@ -559,7 +559,7 @@ class SahaFactor(ProcessingPlasmaProperty):
         partition_function_index = get_ion_multi_index(
             boltzmann_factor.index, next_higher=False
         )
-        phi_saha = thermal_phi_lte.loc[phi_saha_index].values
+        phi_saha = thermal_phi_lte.loc[phi_saha_index].to_numpy(copy=True)
         # Replace zero values in phi_saha to avoid zero division in Saha factor
         phi_saha[phi_saha == 0.0] = sys.float_info.min
         partition_function = thermal_lte_partition_function.loc[
