@@ -8,7 +8,6 @@ import pytest
 
 from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
-from tardis.io.model import parse_geometry_configuration
 from tardis.model.base import SimulationState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
