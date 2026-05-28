@@ -152,9 +152,9 @@ The following BibTeX entries are needed for the references:
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Barbosa, Talytha and
-                      Sondhi, Dhruv and
                       Yu, Jenny and
                       O'Brien, Jack and
+                      Sondhi, Dhruv and
                       Shields, Josh and
                       Patel, Maryam and
                       Rathi, Shikha and
@@ -169,15 +169,18 @@ The following BibTeX entries are needed for the references:
                       Eweis, Youssef and
                       Shah, Swayam and
                       Holas, Alexander and
-                      Bylund, Tomas and
                       Visser, Erin and
+                      Bylund, Tomas and
                       Bentil, Laud and
                       Black, William and
                       Groneck, Ryan and
                       Lu, Jing and
                       Kumar, Asish and
                       Dutta, Anirban and
+                      Kumar, Asish and
+                      Groneck, Ryan and
                       Eguren, Jordi and
+                      Kumar, Ansh and
                       Kumar, Ansh and
                       Srivastava, Sarthak and
                       Bartnik, Matthew and
@@ -189,6 +192,8 @@ The following BibTeX entries are needed for the references:
                       Daksh, Ayushi and
                       Mishra, Sashank and
                       Bhakar, Jayant and
+                      Bhakar, Jayant and
+                      Roldan, Israel and
                       Powers, Cecelia and
                       Roldan, Israel and
                       Rajagopalan, Srinath and
@@ -199,17 +204,27 @@ The following BibTeX entries are needed for the references:
                       Jain, Rinkle and
                       Dadu, Aaryan and
                       Brar, Antreev and
+                      Nitish, P and
+                      McClellan, Connor and
+                      Actions, GitHub and
+                      Jain, Rinkle and
+                      Singh, Sourav and
+                      Brar, Antreev and
                       Chaumal, Aarya and
                       Singh, Sourav and
                       Gupta, Harshul and
-                      Kowalski, Nathan and
-                      Gangbhoj, Riddhi and
-                      Sofiatti, Caroline and
                       Talegaonkar, Chinmay and
                       Perkins, Haille and
                       Selsing, Jonatan and
                       Matsumura, Yuki and
+                      Matsumura, Yuki and
                       Patidar, Abhishek and
+                      Kowalski, Nathan and
+                      Gangbhoj, Riddhi and
+                      Sofiatti, Caroline and
+                      Perkins, Haille and
+                      Selsing, Jonatan and
+                      Diddige, Harshitha and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
                       Patel, Pratik and
@@ -218,7 +233,10 @@ The following BibTeX entries are needed for the references:
                       Nagadevi, Kona and
                       Buchner, Johannes and
                       Bhandari, Jhalak and
+                      Chen, Nutan and
                       Patra, Nilesh and
+                      Vieira, Nicholas and
+                      Buchner, Johannes and
                       Yap, Kevin and
                       Truong, Le and
                       Chen, Nutan and
@@ -226,8 +244,6 @@ The following BibTeX entries are needed for the references:
                       Sandler, Morgan and
                       Zaheer, Musabbiha and
                       Sarafina, Nance and
-                      Vieira, Nicholas and
-                      Gupta, Suyash and
                       Lemoine, Thom and
                       Kumar, Atul and
                       Saraf, Shreyans and

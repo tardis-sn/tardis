@@ -112,6 +112,8 @@ The following BibTeX entries are needed for the references:
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Barbosa, Talytha and
+                      Yu, Jenny and
+                      O'Brien, Jack and
                       Sondhi, Dhruv and
                       Yu, Jenny and
                       O'Brien, Jack and
@@ -129,8 +131,8 @@ The following BibTeX entries are needed for the references:
                       Eweis, Youssef and
                       Shah, Swayam and
                       Holas, Alexander and
-                      Bylund, Tomas and
                       Visser, Erin and
+                      Bylund, Tomas and
                       Bentil, Laud and
                       Black, William and
                       Groneck, Ryan and
@@ -178,7 +180,10 @@ The following BibTeX entries are needed for the references:
                       Nagadevi, Kona and
                       Buchner, Johannes and
                       Bhandari, Jhalak and
+                      Chen, Nutan and
                       Patra, Nilesh and
+                      Vieira, Nicholas and
+                      Buchner, Johannes and
                       Yap, Kevin and
                       Truong, Le and
                       Chen, Nutan and
@@ -186,8 +191,6 @@ The following BibTeX entries are needed for the references:
                       Sandler, Morgan and
                       Zaheer, Musabbiha and
                       Sarafina, Nance and
-                      Vieira, Nicholas and
-                      Gupta, Suyash and
                       Lemoine, Thom and
                       Kumar, Atul and
                       Saraf, Shreyans and

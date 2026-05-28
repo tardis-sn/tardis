@@ -4,6 +4,8 @@ from numba import njit
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
+from tardis.opacities.opacity_state_numba import OpacityStateNumba
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.frame_transformations import (
     get_doppler_factor,
     get_inverse_doppler_factor,
