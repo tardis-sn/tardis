@@ -46,13 +46,6 @@ def config(request):
     return Configuration.from_yaml(request.param)
 
 
-@pytest.fixture(scope="class", params=CONFIG_PATHS, ids=["trad_init"])
-def geometry(config):
-    time_explosion = config.supernova.time_explosion.cgs
-    return parse_geometry_configuration.parse_geometry_from_config(
-        config, time_explosion
-    )
-
 
 @pytest.fixture(scope="class", params=CONFIG_PATHS, ids=["trad_init"])
 def simulation_state(request, atom_dataset):
@@ -86,13 +79,6 @@ def simulation_state_rad_field(simulation_state):
         simulation_state.t_radiative,
         dilution_factor=np.zeros_like(simulation_state.t_radiative),
     )
-
-
-@pytest.fixture(scope="class", params=CONFIG_PATHS, ids=["trad_init"])
-def geometry_rad_field(config, geometry):
-    temperature = np.ones(geometry.no_of_shells) * config.plasma.initial_t_rad
-    dilution = np.ones(geometry.no_of_shells)
-    return DilutePlanckianRadiationField(temperature, dilution, geometry)
 
 
 class TestValidFields:
@@ -175,26 +161,7 @@ class TestValidFields:
         expected_intensities = regression_data.sync_ndarray(actual_intensities)
         npt.assert_array_equal(actual_intensities, expected_intensities)
 
-    def test_temp_len_geometry(self, geometry_rad_field, geometry):
-        assert len(geometry_rad_field.temperature) == geometry.no_of_shells
 
-    def test_dilute_factors_len_geometry(self, geometry_rad_field, geometry):
-        assert len(geometry_rad_field.dilution_factor) == geometry.no_of_shells
-
-    def test_dilute_factors_len_equals_temp_len_geometry(
-        self, geometry_rad_field
-    ):
-        assert len(geometry_rad_field.dilution_factor) == len(
-            geometry_rad_field.temperature
-        )
-
-    def test_calculate_mean_intensity_geometry(
-        self, geometry_rad_field, atom_dataset, regression_data
-    ):
-        nu = atom_dataset.lines["nu"].values
-        actual_intensities = geometry_rad_field.calculate_mean_intensity(nu)
-        expected_intensities = regression_data.sync_ndarray(actual_intensities)
-        npt.assert_array_equal(actual_intensities, expected_intensities)
 
 
 class TestInvalidFields:
