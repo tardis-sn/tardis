@@ -568,7 +568,7 @@ def calculate_first_guess(
     for atomic_number in atomic_numbers:
         first_guess.at[(atomic_number, 1)] = number_density.loc[atomic_number]
     # TODO: After the first iteration, the new guess can be the old solution.
-    first_guess = first_guess.values
+    first_guess = first_guess.to_numpy(copy=True)
     first_guess[-1] = electron_density
     return first_guess
 

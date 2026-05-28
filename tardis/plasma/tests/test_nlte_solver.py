@@ -320,7 +320,7 @@ def test_critical_case_dilution_factor_1_lu(
         nlte_raw_plasma_dilution_factor_1_lu.number_density,
     )[0]
 
-    ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte = ion_number_density_lte.to_numpy(copy=True)
     ion_number_density_lte[
         ion_number_density_lte < 1e-10
     ] = 0.0  # getting rid of small numbers.
@@ -363,7 +363,7 @@ def test_critical_case_dilution_factor_0_root(
         nlte_raw_plasma_dilution_factor_0_root.number_density,
     )[0]
 
-    ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte = ion_number_density_lte.to_numpy(copy=True)
     npt.assert_allclose(
         ion_number_density_lte, ion_number_density_nlte, rtol=1e-2, atol=1e-10
     )
@@ -399,7 +399,7 @@ def test_critical_case_dilution_factor_0_lu(
         nlte_raw_plasma_dilution_factor_0_lu.number_density,
     )[0]
 
-    ion_number_density_lte = ion_number_density_lte.values
+    ion_number_density_lte = ion_number_density_lte.to_numpy(copy=True)
     ion_number_density_lte[
         ion_number_density_lte < 1e-10
     ] = 0.0  # getting rid of small numbers.
