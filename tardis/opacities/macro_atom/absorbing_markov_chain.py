@@ -11,7 +11,6 @@ References:
 import numpy as np
 import pandas as pd
 import scipy
-from numba import njit
 
 
 def create_absorbing_probs(
@@ -53,7 +52,10 @@ def create_absorbing_probs(
     internal_jump_probs = transition_probabilities[internal_mask]
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
-    expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
+    # Josh: The expected steps calculation is another linear algebra solve. We don't need
+    # it for the MC calculation, so I'm removing it, but leaving it commented in case it is
+    # useful for diagnostic purposes in the future.
+    # expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
 
     rows = metadata[internal_mask].source_level_idx.values
     cols = metadata[internal_mask].destination_level_idx.values
@@ -73,10 +75,10 @@ def create_absorbing_probs(
         )
         csc_N = identity_minus_Q.tocsc()
 
-        expected_steps = np.asarray(
-            scipy.sparse.linalg.spsolve(csc_N, np.ones(num_states))
-        ).flatten()
-        expected_steps_in_cells_from_states[cell] = expected_steps
+        # expected_steps = np.asarray(
+        #     scipy.sparse.linalg.spsolve(csc_N, np.ones(num_states))
+        # ).flatten()
+        # expected_steps_in_cells_from_states[cell] = expected_steps
 
         deactivation_row = np.asarray(
             internal_jump_matrix.sum(axis=1)

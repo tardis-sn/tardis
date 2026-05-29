@@ -1076,7 +1076,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         pd.Series,
         pd.Series,
         pd.DataFrame,
-        pd.DataFrame,
         np.ndarray,
     ]:
         """
@@ -1318,7 +1317,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             deactivating_probs, macro_atom_transition_metadata
         )
 
-        line2macro_level_upper, reference_index = (
+        line2macro_level_upper, references_index = (
             self.create_line2macro_level_upper_and_reference_idx(
                 macro_atom_transition_metadata, self._lines_level_upper
             )
@@ -1332,7 +1331,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata,
             line2macro_level_upper,
             macro_block_references,
-            reference_index,
+            references_index,
         )
 
         return (
@@ -1340,7 +1339,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             macro_atom_transition_metadata,
             line2macro_level_upper,
             macro_block_references,
-            reference_index,
+            references_index,
             normalized_deactivating_probs,
             absorbing_probability_matrix,
         )
@@ -1365,7 +1364,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         fb_cool_rate: np.ndarray,
         fb_cool_probs_arr: np.ndarray,
         ff_cool_rate: np.ndarray,
-    ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray]:
         """
         Handle subsequent iterations of the solve method for continuum macro atom.
 
@@ -1649,7 +1648,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
 
         return (
             normalized_probabilities,
-            macro_atom_transition_metadata,
             normalized_deactivating_probs,
             absorbing_probability_matrix,
         )
