@@ -1,4 +1,5 @@
 import astropy.units as u
+import pandas as pd
 import pandas.testing as pdt
 import pytest
 
@@ -15,6 +16,20 @@ def einstein_coefficients_df():
     lines_df = atom_data.lines
     radiative_transitions = lines_df.loc[(1,0, slice(None), slice(None)), :]
     return radiative_transitions
+
+@pytest.fixture(
+    scope="function",
+    params=["invalid_index", "invalid_column", "invalid_lower_higher"]
+)
+def invalid_coefficients(request, regression_data):
+    invalid_index_file = (
+        regression_data.regression_data_path
+        / "testdata"
+        / "plasma_tests"
+        / "radiative_rates_test_xfails.h5"
+    )
+    invalid_df = pd.read_hdf(invalid_index_file, request.param)
+    return invalid_df
 
 
 @pytest.fixture(scope="class")
@@ -37,3 +52,8 @@ def test_radiative_rate_solver_solve(einstein_coefficients_df, mock_radiation_fi
         actual_radiative_rates, key="radiative_rates"
     )
     pdt.assert_frame_equal(actual_radiative_rates,expected_radiative_rates,atol=0,rtol=1e-15)
+
+@pytest.mark.xfail(strict=True, raises=AssertionError)
+def test_invalid_coefficients(invalid_coefficients):
+    solver = RadiativeRatesSolver(invalid_coefficients)
+    
