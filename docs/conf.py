@@ -36,6 +36,9 @@ from importlib import import_module
 import toml
 from pathlib import Path
 
+# Add custom extensions directory to path
+sys.path.insert(0, str(Path(__file__).parent / "_ext"))
+
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
 except ImportError:
@@ -76,8 +79,8 @@ exclude_patterns.append("resources/research_done_using_TARDIS/ads.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
-rst_epilog = """
-"""
+with open(Path(__file__).parent / "_templates/rst_epilog.rst") as f:
+    rst_epilog = f.read()
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -94,6 +97,11 @@ extensions = [
     "nbsphinx",
     "numpydoc",
     "recommonmark",
+    # Custom TARDIS extensions
+    "version_admonitions",
+    "version_badges",
+    "page_generators",
+    "redirects",
 ]
 
 bibtex_bibfiles = ["tardis.bib"]
@@ -137,49 +145,8 @@ nbsphinx_execute_arguments = [
     "--rc figure.dpi=96",
 ]
 
-nbsphinx_prolog = r"""
-{% set docname = 'docs/' + env.doc2path(env.docname, base=None) %}
-.. raw:: html
-    
-    <style>
-        /* strip stderr */
-        div.nboutput.container div.output_area.stderr {
-            background: #fdd;
-            display: none;
-        }
-
-        .launch-btn {
-            background-color: #2980B9;
-            border: none;
-            border-radius: 4px;
-            color: #fcfcfc;
-            font-family: inherit;
-            text-decoration: none;
-            padding: 3px 8px;
-            letter-spacing: 0.03em;
-            display: inline-block;
-            line-height: 1.5em;
-        }
-
-        .launch-btn:hover {
-            background-color: #1b6391;
-            color: #fcfcfc;
-        }
-
-        .launch-btn:visited {
-            color: #fcfcfc;
-        }
-
-        .note-p {
-            margin-bottom: 0.4em;
-            line-height: 2em;
-        }
-    </style>
-    
-    <div class="admonition note">
-    <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath={{ docname|e }}" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
-    </div>
-"""
+with open(Path(__file__).parent / "_templates/nbsphinx_prolog.rst.j2") as f:
+    nbsphinx_prolog = f.read()
 
 if os.getenv("DISABLE_NBSPHINX") == "1":
     nbsphinx_execute = "never"
@@ -264,6 +231,11 @@ htmlhelp_basename = project + "doc"
 # Prefixes that are ignored for sorting the Python module index
 modindex_common_prefix = ["tardis."]
 
+# Custom CSS files
+html_css_files = [
+    "css/tardis_version.css",
+]
+
 
 # -- Google Analytics Using Extension -------------------------------------------------
 
@@ -323,6 +295,7 @@ nbsite_pyodide_conf = {
 html_js_files = [
     DEFAULT_EMBED_REQUIREJS_URL,
     "https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js",
+    "js/version_badges.js",
 ]
 
 # -- Turn on nitpicky mode for sphinx (to warn about references not found) ----
@@ -352,95 +325,14 @@ html_js_files = [
 #     nitpick_ignore.append((dtype, six.u(target)))
 
 
-# -- Creating redirects ------------------------------------------------------
+# -- Custom Sphinx Extensions ------------------------------------------------
+# Custom extensions are now located in the _ext/ directory:
+# - version_badges.py: Version badge system for navigation
+# - page_generators.py: Auto-generate tutorial and workflow index pages  
+# - redirects.py: Create redirect files for moved pages
 
-# One entry per redirect. List of tuples: (old_fpath, new_fpath)
-# Paths are relative to source dir i.e. "docs/" & must include file extension
-# Only source files that convert to html like .rst, .ipynb, etc. are allowed
-
+# List of redirects: (old_path, new_path)
+# Paths are relative to source dir and must include file extension
 redirects = [
     ("using/gui/index.rst", "using/visualization/index.rst"),
 ]
-
-
-# -- Sphinx hook-ins ---------------------------------------------------------
-
-from shutil import copyfile
-
-
-def generate_tutorials_page(app):
-    """Create tutorials.rst"""
-    notebooks = ""
-    io_path = Path("io")
-
-    for notebook in io_path.rglob("*.ipynb"):
-        if "tutorial_" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.parent}/{notebook.stem}`"
-
-    title = "Tutorials\n*********\n"
-    description = "The following pages contain the TARDIS tutorials:"
-
-    with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
-        f.write(f"{title}\n{description}\n{notebooks}")
-
-def generate_worflows_page(app):
-    "Create workflows.rst"
-    notebooks = ""
-    workflows_path = Path("workflows")
-
-    for notebook in workflows_path.rglob("*.ipynb"):
-        if "workflow" in notebook.name and "checkpoint" not in notebook.name:
-            notebooks += f"\n* :doc:`{notebook.parent}/{notebook.stem}`"
-
-    title = "Workflows\n*********\n"
-    description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
-
-    with open("workflows.rst", mode="wt", encoding="utf-8") as f:
-        f.write(f"{title}\n{description}\n{notebooks}")
-
-def autodoc_skip_member(app, what, name, obj, skip, options):
-    """Exclude specific functions/methods from the documentation"""
-    exclusions = ("yaml_constructors", "yaml_implicit_resolvers")
-    exclude = name in exclusions
-    return skip or exclude
-
-
-def to_html_ext(path):
-    """Convert extension in the file path to .html"""
-    return Path(path).with_suffix(".html")
-
-
-def create_redirect_files(app, docname):
-    """Create redirect html files at old paths specified in `redirects` list."""
-    template_html_path = Path(app.srcdir) / "_templates/redirect_file.html"
-
-    if app.builder.name == "html":
-        for (old_fpath, new_fpath) in redirects:
-            # Create a page redirection html file for old_fpath
-            old_html_fpath = to_html_ext(Path(app.outdir) / old_fpath)
-            old_html_fpath.parent.mkdir(parents=True, exist_ok=True)
-            copyfile(template_html_path, old_html_fpath)
-
-            # Replace url placeholders i.e. "#" in this file with the new url
-            try:
-                # Try using pathlib's relative_to for paths that share a common parent
-                new_url = Path(to_html_ext(new_fpath)).relative_to(
-                    Path(old_fpath).parent
-                )
-            except ValueError:
-                # Fall back to os.path.relpath for arbitrary relative paths
-                new_url = os.path.relpath(
-                    to_html_ext(new_fpath), str(Path(old_fpath).parent)
-                )
-            # urls in a html file are relative to the dir containing it
-            with open(old_html_fpath) as f:
-                new_content = f.read().replace("#", str(new_url))
-            with open(old_html_fpath, "w") as f:
-                f.write(new_content)
-
-
-def setup(app):
-    app.connect("builder-inited", generate_tutorials_page)
-    app.connect("builder-inited", generate_worflows_page)
-    app.connect("autodoc-skip-member", autodoc_skip_member)
-    app.connect("build-finished", create_redirect_files)

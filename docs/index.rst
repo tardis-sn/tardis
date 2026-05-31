@@ -86,9 +86,17 @@ Mission Statement
     how_to_adaptive_damping
     workflows
     analyzing_tardis/index
+    io/model/index
     io/configuration/tutorial_read_configuration
     io/optional/index
     io/output/index
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Concepts
+    :hidden:
+
+    concepts/modular_architecture
 
 .. toctree::
     :maxdepth: 2
