@@ -1,6 +1,8 @@
 import logging
 from typing import Optional
 
+from numba.typed import List
+
 import astropy.units as u
 import numpy as np
 import pandas as pd
@@ -318,6 +320,11 @@ def run_gamma_ray_loop(
     logger.info("Total CMF energy is %s", total_cmf_energy)
     logger.info("Total RF energy is %s", total_rf_energy)
 
+    # nopython mode of numba requires typed lists
+    # https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-reflection-for-list-and-set-types
+    packets_typed_list = List()
+    [packets_typed_list.append(p) for p in packets]
+
     (
         energy_out,
         energy_out_cosi,
@@ -325,7 +332,7 @@ def run_gamma_ray_loop(
         energy_deposited_gamma,
         total_energy,
     ) = gamma_packet_loop(
-        packets,
+        packets_typed_list,
         grey_opacity,
         photoabsorption_opacity,
         pair_creation_opacity,

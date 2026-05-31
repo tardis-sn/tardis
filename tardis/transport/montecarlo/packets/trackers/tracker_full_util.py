@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from numba import njit
+from numba.typed import List
 from pandas.api.types import CategoricalDtype
 
 from tardis.transport.montecarlo.packets.radiative_packet import (
@@ -124,6 +125,12 @@ def trackers_full_to_df(trackers_full_list) -> pd.DataFrame:
         indexed by packet_id and event_id. Line interaction columns have default
         values (-1 for IDs, NaN for physical quantities) for non-interaction events.
     """
+
+    # nopython mode of numba requires typed lists
+    # https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-reflection-for-list-and-set-types
+    trackers_typed_list = List()
+    [trackers_typed_list.append(tracker) for tracker in trackers_full_list]
+
     # Use the fast array extraction function
     (
         packet_id,
@@ -141,7 +148,7 @@ def trackers_full_to_df(trackers_full_list) -> pd.DataFrame:
         after_energy,
         line_absorb_id,
         line_emit_id,
-    ) = trackers_full_list_to_arrays(trackers_full_list)
+    ) = trackers_full_list_to_arrays(trackers_typed_list)
 
     # Create categorical data types
     interaction_type_dtype = CategoricalDtype(

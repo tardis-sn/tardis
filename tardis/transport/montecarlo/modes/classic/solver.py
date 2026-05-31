@@ -2,6 +2,7 @@ import logging
 
 from astropy import units as u
 from numba import cuda, set_num_threads
+from numba.typed import List
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
@@ -211,6 +212,11 @@ class MCTransportSolverClassic(HDFWriterMixin):
         if show_progress_bars:
             reset_packet_pbar(number_of_rpackets)
 
+        # nopython mode of numba requires typed lists
+        # https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-reflection-for-list-and-set-types
+        trackers_list_typed = List()
+        [trackers_list_typed.append(tracker) for tracker in trackers_list]
+
         # Classic mode: returns 4 values (no continuum estimators)
         (
             v_packets_energy_hist,
@@ -224,7 +230,7 @@ class MCTransportSolverClassic(HDFWriterMixin):
             transport_state.opacity_state,
             self.montecarlo_configuration,
             self.spectrum_frequency_grid.value,
-            trackers_list,
+            trackers_list_typed,
             number_of_vpackets,
             show_progress_bars=show_progress_bars,
         )

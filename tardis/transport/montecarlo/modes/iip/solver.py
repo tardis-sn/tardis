@@ -2,6 +2,7 @@ import logging
 
 from astropy import units as u
 from numba import cuda, set_num_threads
+from numba.typed import List
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
@@ -184,6 +185,11 @@ class MCTransportSolverIIP(HDFWriterMixin):
                 number_of_rpackets
             )
 
+        # nopython mode of numba requires typed lists
+        # https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-reflection-for-list-and-set-types
+        trackers_typed_list = List()
+        [trackers_typed_list.append(trackers) for trackers in trackers_list]
+
         # Reset packet progress bar for this iteration
         if show_progress_bars:
             reset_packet_pbar(number_of_rpackets)
@@ -200,7 +206,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
             transport_state.opacity_state,
             self.montecarlo_configuration,
             transport_state.n_levels_bf_species_by_n_cells_tuple,
-            trackers_list,
+            trackers_typed_list,
             show_progress_bars=show_progress_bars,
         )
 
