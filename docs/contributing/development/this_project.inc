@@ -1,4 +1,2 @@
-.. _`TARDIS`: http://tardis.readthedocs.org
+.. _`TARDIS`: https://tardis-sn.github.io/
 .. _`TARDIS Github`: https://github.com/tardis-sn/tardis
-
-.. _`tardis-sn-dev mailing list`: https://groups.google.com/forum/#!forum/tardis-sn-dev

@@ -8,8 +8,7 @@ In TARDIS, we focus primarily on unit tests. These tests check the outputs of in
 
 Unit tests run quickly and are executed after every suggested change to TARDIS, allowing for immediate feedback and maintaining code quality.
 
-All of them are based on the excellent ``astropy-setup-helpers`` package and
-`pytest <https://docs.pytest.org/en/latest/>`_.
+All of them are based on `pytest <https://docs.pytest.org/en/latest/>`_.
 
 Running the Unit Tests
 ======================
