@@ -130,7 +130,7 @@ Code should be written with a bit of foresight to handle errors that can occur d
             )
         # Rest of the code ...
 
-Here, the ``packets_mode`` parameter can only be string "virtual" or "real". Thus, in case of an invalid value passed, it raises a specific exception (``ValueError``) and informs the user of what the error is and how it can be resolved. Aside from raising exception an exception, this method safely returns without executing code with an invalid parameter value which would have caused unwanted behaviour.
+Here, the ``packets_mode`` parameter can only be string "virtual" or "real". Thus, in case of an invalid value passed, it raises a specific exception (``ValueError``) and informs the user of what the error is and how it can be resolved. Aside from raising an exception, this method safely returns without executing code with an invalid parameter value which would have caused unwanted behaviour.
 
 An important caveat to the above is that as research software, we expect the user
 to correctly input parameters and respond to failures. Thus, we do not want to raise exceptions for every possible edge case, as this would make the code unnecessarily verbose and difficult to read. 
@@ -153,12 +153,12 @@ Example:
 .. code-block:: python
 
     @pytest.mark.parametrize(
-    ["compton_opacity", "photoabsorption_opacity", "total_opacity", "expected"],
-    [
-        (1, 0, 1, GXPacketStatus.COMPTON_SCATTER),
-        (0, 1, 1, GXPacketStatus.PHOTOABSORPTION),
-        (0, 0, 1, GXPacketStatus.PAIR_CREATION),
-    ],
+        ["compton_opacity", "photoabsorption_opacity", "total_opacity", "expected"],
+        [
+            (1, 0, 1, GXPacketStatus.COMPTON_SCATTER),
+            (0, 1, 1, GXPacketStatus.PHOTOABSORPTION),
+            (0, 0, 1, GXPacketStatus.PAIR_CREATION),
+        ],
     )
     def test_scatter_type(
         compton_opacity, photoabsorption_opacity, total_opacity, expected
@@ -224,6 +224,6 @@ Example:
 Note that ``regression_data`` is loaded as a fixture. The ``sync_dataframe`` method is used to synchronize the actual dataframe with the expected dataframe from the regression data, ensuring that they have the same structure and index before comparison. The `assert_frame_equal` function from `pandas.testing` is then used to compare the two dataframes and assert that they are equal.
 
 The ``sync_dataframe`` method allows the regression data to be updated or read
-depending on the pytest arguments used. ``pytest tardis --tardis-regression-data=/path/to/tardis-regression-data --generate-reference`` will update the regression data with the actual dataframe, while ``pytest tardis --tardis-regression-data=/path/to/tardis-regression-data`` will read the expected dataframe from the regression data for comparison. for more information on how to update the regression data, please refer to the `Update the Regression Data <https://tardis-sn.github.io/tardis/contributing/development/update_regression_data.html>`_ section of the documentation.
+depending on the pytest arguments used. ``pytest tardis --tardis-regression-data=/path/to/tardis-regression-data --generate-reference`` will update the regression data with the actual dataframe, while ``pytest tardis --tardis-regression-data=/path/to/tardis-regression-data`` will read the expected dataframe from the regression data for comparison. For more information on how to update the regression data, please refer to the `Update the Regression Data <https://tardis-sn.github.io/tardis/contributing/development/update_regression_data.html>`_ section of the documentation.
 
 .. important:: Updating the regression data should be done with caution and only when necessary, as it can potentially mask underlying issues in the code. Always ensure that the changes you are making to the regression data are intentional and justified, and that they do not introduce any unintended consequences or bugs into the code. It is safest to add new regression data rather than update existing regression data.

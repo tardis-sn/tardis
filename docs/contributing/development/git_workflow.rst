@@ -3,7 +3,7 @@
 General Workflow to add a new feature
 =====================================
 
-In TARDIS, we aim to stick to test driven development. This uses the testing
+In TARDIS, we aim to stick to test-driven development. This uses the testing
 framework extensively, starting with a test that shows this feature lacking via
 the implementation of the feature until the merging of the code to the main
 repository.
@@ -171,8 +171,8 @@ given in the following sections.
 * Name your branch for the purpose of the changes, for example
   ``bugfix-for-issue-14`` or ``refactor-database-code``.
 
-* If you can avoid it, don't merge the trunk or any other branches into
-  your feature branch while you are working.
+* Avoid merging the trunk or other branches into your feature branch unless you
+  need to bring it up to date with ``upstream/master`` (see :ref:`merge-master`).
 
 * Ask on the TARDIS development Slack if you get stuck.
 
