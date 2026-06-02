@@ -26,6 +26,9 @@ tests, you can run this with:
 You can also run tests using VS Code test tooling where available. The
 ``pytest`` command line remains the standard.
 
+If you do not have local regression data available yet, this unit-test run is
+the recommended minimum local validation before opening a PR.
+
 Running Regression Data Tests
 ============================
 
@@ -57,11 +60,6 @@ Finally, the tests can be run using the following command
 
     > pytest tardis --tardis-regression-data=/path/to/tardis-regression-data/
 
-.. note::
-    Regression data updates are managed via pull requests in the
-    ``tardis-regression-data`` repository. See :ref:`development-playbook`
-    for update policy and review expectations.
-
 Or, to run tests for a particular file or directory
 
 .. code-block:: shell
@@ -71,6 +69,9 @@ Or, to run tests for a particular file or directory
 
 .. note::
     In some cases you might have to update the regression data. The steps to update the regression data are outlined in the :ref:`update regression-data`.
+
+For regression-data expectations, see
+:ref:`development-playbook`.
 
 .. note::
     The `tests workflow <https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml>`_ runs on 

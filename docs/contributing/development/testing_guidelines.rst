@@ -93,7 +93,5 @@ Regression data files belong in the dedicated
 ``tardis-regression-data`` repository. Do not commit regression data
 to the main TARDIS repository.
 
-.. important:: Updating the regression data should be done with caution and only when necessary, as it can potentially mask underlying issues in the code. Always ensure that the changes you are making to the regression data are intentional and justified, and that they do not introduce any unintended consequences or bugs into the code. It is safest to add new regression data rather than update existing regression data.
-
-For maintainer-oriented review and CI expectations, see
-:ref:`development-playbook`.
+For guidance on when to update regression data and how those
+changes are reviewed, see :ref:`development-playbook`.
