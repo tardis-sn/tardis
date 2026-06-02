@@ -1,5 +1,7 @@
 ## Changelog
 
+### release-2026.05.31 (2026/05/26 10:11)
+- [3584](https://github.com/tardis-sn/tardis/pull/3584) Post-release 2026.05.26 (3584) (@tardis-bot)
 ### release-2026.05.26 (2026/05/26 09:35)
 - [3583](https://github.com/tardis-sn/tardis/pull/3583) Pre-release 2026.05.24 (3583) (@tardis-bot)
 - [3433](https://github.com/tardis-sn/tardis/pull/3433) fix test_convergence_plot_command_line (3433) (@Aaryan-Dadu)
