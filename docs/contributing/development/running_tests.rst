@@ -10,6 +10,9 @@ Unit tests run quickly and are executed after every suggested change to TARDIS, 
 
 All of them are based on `pytest <https://docs.pytest.org/en/latest/>`_.
 
+For policy-level expectations on what to run for different change types, see
+:ref:`development-playbook`.
+
 Running the Unit Tests
 ======================
 
@@ -19,6 +22,9 @@ tests, you can run this with:
 .. code-block:: shell
 
     > pytest tardis
+
+You can also run tests using VS Code test tooling where available. The
+``pytest`` command line remains the standard.
 
 Running Regression Data Tests
 ============================
@@ -50,6 +56,11 @@ Finally, the tests can be run using the following command
 .. code-block:: shell
 
     > pytest tardis --tardis-regression-data=/path/to/tardis-regression-data/
+
+.. note::
+    Regression data updates are managed via pull requests in the
+    ``tardis-regression-data`` repository. See :ref:`development-playbook`
+    for update policy and review expectations.
 
 Or, to run tests for a particular file or directory
 

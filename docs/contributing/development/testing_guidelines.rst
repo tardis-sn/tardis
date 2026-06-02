@@ -89,4 +89,11 @@ Note that ``regression_data`` is loaded as a fixture. The ``sync_dataframe`` met
 The ``sync_dataframe`` method allows the regression data to be updated or read
 depending on the pytest arguments used. ``pytest tardis --tardis-regression-data=/path/to/tardis-regression-data --generate-reference`` will update the regression data with the actual dataframe, while ``pytest tardis --tardis-regression-data=/path/to/tardis-regression-data`` will read the expected dataframe from the regression data for comparison. for more information on how to update the regression data, please refer to the `Update the Regression Data <https://tardis-sn.github.io/tardis/contributing/development/update_regression_data.html>`_ section of the documentation.
 
+Regression data files belong in the dedicated
+``tardis-regression-data`` repository. Do not commit regression data
+to the main TARDIS repository.
+
 .. important:: Updating the regression data should be done with caution and only when necessary, as it can potentially mask underlying issues in the code. Always ensure that the changes you are making to the regression data are intentional and justified, and that they do not introduce any unintended consequences or bugs into the code. It is safest to add new regression data rather than update existing regression data.
+
+For maintainer-oriented review and CI expectations, see
+:ref:`development-playbook`.

@@ -22,6 +22,27 @@ Currently, we use GitHub Actions to run all of our pipelines. Making changes to 
 pipeline is as easy as making a pull request. To create a new GitHub Action workflow, 
 just create a new YAML file in ``.github/workflows``.
 
+PR Check Expectations
+=====================
+
+In current maintainer practice, test jobs are treated as blocking.
+Documentation and codestyle are strongly preferred to pass. Coverage and
+benchmark failures are generally advisory unless a reviewer marks them as
+blocking for a specific change.
+
+Highlighted required checks include:
+
+* ``tests / tests not continuum ubuntu-latest pip tests disabled``
+* ``tests / tests not continuum macos-latest pip tests disabled``
+* ``docs / build-docs``
+
+When a failure appears transient (for example cache or network instability), a
+rerun can be appropriate. Otherwise, investigate and fix root cause before
+merging.
+
+For broader merge-readiness guidance and contributor-role expectations, see
+:ref:`development-playbook`.
+
 TARDIS Pipelines
 ================
 
