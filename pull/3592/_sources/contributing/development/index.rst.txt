@@ -13,6 +13,7 @@ to the Astropy team for designing it.
 .. toctree::
     :maxdepth: 2
 
+    development_playbook
     issues
     git_workflow
     code_quality

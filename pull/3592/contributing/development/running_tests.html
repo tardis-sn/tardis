@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=49c339ba"></script>
+      <script src="../../_static/documentation_options.js?v=1761e255"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -111,6 +111,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contribution Guidelines</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Workflow</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="development_playbook.html">TARDIS Development Playbook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html">Reporting Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="git_workflow.html">General Workflow to add a new feature</a></li>
 <li class="toctree-l2"><a class="reference internal" href="git_workflow.html#preparation-and-working-with-git">Preparation and Working with Git</a></li>
@@ -160,6 +161,8 @@
 <p>In TARDIS, we focus primarily on unit tests. These tests check the outputs of individual functions, ensuring that each component behaves as expected.</p>
 <p>Unit tests run quickly and are executed after every suggested change to TARDIS, allowing for immediate feedback and maintaining code quality.</p>
 <p>All of them are based on <a class="reference external" href="https://docs.pytest.org/en/latest/">pytest</a>.</p>
+<p>For policy-level expectations on what to run for different change types, see
+<a class="reference internal" href="development_playbook.html#development-playbook"><span class="std std-ref">TARDIS Development Playbook</span></a>.</p>
 <section id="running-the-unit-tests">
 <h2>Running the Unit Tests<a class="headerlink" href="#running-the-unit-tests" title="Link to this heading">¶</a></h2>
 <p>This is very straightforward to run on your own machine. For very simple unit
@@ -167,6 +170,10 @@ tests, you can run this with:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt;<span class="w"> </span>pytest<span class="w"> </span>tardis
 </pre></div>
 </div>
+<p>You can also run tests using VS Code test tooling where available. The
+<code class="docutils literal notranslate"><span class="pre">pytest</span></code> command line remains the standard.</p>
+<p>If you do not have local regression data available yet, this unit-test run is
+the recommended minimum local validation before opening a PR.</p>
 </section>
 <section id="running-regression-data-tests">
 <h2>Running Regression Data Tests<a class="headerlink" href="#running-regression-data-tests" title="Link to this heading">¶</a></h2>
@@ -200,6 +207,8 @@ Finally, the tests can be run using the following command</p>
 <p class="admonition-title">Note</p>
 <p>In some cases you might have to update the regression data. The steps to update the regression data are outlined in the <a class="reference internal" href="update_regression_data.html#update-regression-data"><span class="std std-ref">Update the Regression Data</span></a>.</p>
 </div>
+<p>For regression-data expectations, see
+<a class="reference internal" href="development_playbook.html#development-playbook"><span class="std std-ref">TARDIS Development Playbook</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <a class="reference external" href="https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml">tests workflow</a> runs on
