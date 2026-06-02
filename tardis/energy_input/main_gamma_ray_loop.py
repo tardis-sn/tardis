@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from numba.typed import List
+from numba import typed
 
 import astropy.units as u
 import numpy as np
@@ -322,8 +322,9 @@ def run_gamma_ray_loop(
 
     # nopython mode of numba requires typed lists
     # https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-reflection-for-list-and-set-types
-    packets_typed_list = List()
-    [packets_typed_list.append(p) for p in packets]
+    packets_typed_list = typed.List()
+    for p in packets:
+        packets_typed_list.append(p)
 
     (
         energy_out,

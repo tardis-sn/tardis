@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-from numba import njit
-from numba.typed import List
+from numba import njit, typed
 from pandas.api.types import CategoricalDtype
 
 from tardis.transport.montecarlo.packets.radiative_packet import (
@@ -128,8 +127,9 @@ def trackers_full_to_df(trackers_full_list) -> pd.DataFrame:
 
     # nopython mode of numba requires typed lists
     # https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-reflection-for-list-and-set-types
-    trackers_typed_list = List()
-    [trackers_typed_list.append(tracker) for tracker in trackers_full_list]
+    trackers_typed_list = typed.List()
+    for tracker in trackers_full_list:
+        trackers_typed_list.append(tracker)
 
     # Use the fast array extraction function
     (

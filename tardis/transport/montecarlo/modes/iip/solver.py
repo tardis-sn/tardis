@@ -1,8 +1,7 @@
 import logging
 
 from astropy import units as u
-from numba import cuda, set_num_threads
-from numba.typed import List
+from numba import cuda, set_num_threads, typed
 
 import tardis.transport.montecarlo.configuration.constants as constants
 from tardis import constants as const
@@ -187,8 +186,9 @@ class MCTransportSolverIIP(HDFWriterMixin):
 
         # nopython mode of numba requires typed lists
         # https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-reflection-for-list-and-set-types
-        trackers_typed_list = List()
-        [trackers_typed_list.append(trackers) for trackers in trackers_list]
+        trackers_typed_list = typed.List()
+        for trackers in trackers_list:
+            trackers_typed_list.append(trackers)
 
         # Reset packet progress bar for this iteration
         if show_progress_bars:
