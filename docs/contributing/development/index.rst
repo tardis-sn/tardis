@@ -15,11 +15,11 @@ to the Astropy team for designing it.
 
     issues
     git_workflow
-    documentation_guidelines
-    running_tests
-    benchmarks
     code_quality
-    developer_faq
+    testing_guidelines
+    running_tests
+    documentation_guidelines   
+    benchmarks
 
 TARDIS core team Instructions
 =============================
