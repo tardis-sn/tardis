@@ -74,14 +74,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_20396341
+.. |CITATION| replace:: kerzendorf_2026_20470290
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.396341-blue
-                 :target: https://doi.org/10.5281/zenodo.396341
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.470290-blue
+                 :target: https://doi.org/10.5281/zenodo.470290
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_20396341,
+    @software{kerzendorf_2026_20470290,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -112,8 +112,6 @@ The following BibTeX entries are needed for the references:
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Barbosa, Talytha and
-                      Yu, Jenny and
-                      O'Brien, Jack and
                       Sondhi, Dhruv and
                       Yu, Jenny and
                       O'Brien, Jack and
@@ -131,8 +129,8 @@ The following BibTeX entries are needed for the references:
                       Eweis, Youssef and
                       Shah, Swayam and
                       Holas, Alexander and
-                      Visser, Erin and
                       Bylund, Tomas and
+                      Visser, Erin and
                       Bentil, Laud and
                       Black, William and
                       Groneck, Ryan and
@@ -180,10 +178,7 @@ The following BibTeX entries are needed for the references:
                       Nagadevi, Kona and
                       Buchner, Johannes and
                       Bhandari, Jhalak and
-                      Chen, Nutan and
                       Patra, Nilesh and
-                      Vieira, Nicholas and
-                      Buchner, Johannes and
                       Yap, Kevin and
                       Truong, Le and
                       Chen, Nutan and
@@ -191,6 +186,8 @@ The following BibTeX entries are needed for the references:
                       Sandler, Morgan and
                       Zaheer, Musabbiha and
                       Sarafina, Nance and
+                      Vieira, Nicholas and
+                      Gupta, Suyash and
                       Lemoine, Thom and
                       Kumar, Atul and
                       Saraf, Shreyans and
@@ -209,11 +206,11 @@ The following BibTeX entries are needed for the references:
                       Sharma, Sampark and
                       Venkat, Shashank and
                       Prasad, Shilpi},
-      title        = {tardis-sn/tardis: TARDIS v2026.05.26},
+      title        = {tardis-sn/tardis: TARDIS v2026.05.31},
       month        = may,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.05.26},
-      doi          = {10.5281/zenodo.20396341},
-      url          = {https://doi.org/10.5281/zenodo.20396341},
+      version      = {release-2026.05.31},
+      doi          = {10.5281/zenodo.20470290},
+      url          = {https://doi.org/10.5281/zenodo.20470290},
     }
