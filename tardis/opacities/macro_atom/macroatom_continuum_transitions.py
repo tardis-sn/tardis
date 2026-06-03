@@ -916,13 +916,17 @@ def create_coll_excitation_cooling_metadata(
     coll_exc_cool_probs_arr
         Array containing collisional excitation cooling probabilities.
         Shape is (n_zones, n_levels).
+    coll_exc_cool_destinations:
+        A pandas multi-index that specifies what state each cooling transition
+        in the cooling probabilities array points to (e.g., this transition
+        points (1,0,5), or 5 times excited neutral hydrogen.)
 
     Returns
     -------
     pd.DataFrame
         Metadata DataFrame describing the collisional excitation cooling transitions for each bound level.
     """
-    destinations = coll_exc_cool_destinations  # Maybe a cleaner way to do this
+    destinations = coll_exc_cool_destinations
     coll_exc_cooling_metadata = pd.DataFrame(
         {
             "transition_line_id": -99,

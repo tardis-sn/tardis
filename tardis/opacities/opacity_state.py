@@ -225,11 +225,10 @@ class OpacityState:
             emissivities = self.continuum_state.emissivities.values
             photo_ion_activation_idx = (
                 macro_atom_state.photo_ion_block_idx
-                * np.ones(30, dtype=np.int64)
+                * np.ones(
+                    30, dtype=np.int64
+                )  # TODO: Fix this more with flexible input. This will only work for Hydrogen
             )
-            # (
-            #     self.continuum_state.photo_ion_activation_idx.values
-            # )
             k_packet_idx = np.int64(macro_atom_state.k_packet_idx)
             absorbing_markov_probabilities = (
                 macro_atom_state.absorbing_probability_matrix

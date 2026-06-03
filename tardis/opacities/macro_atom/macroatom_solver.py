@@ -911,6 +911,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Collisional excitation cooling rates per cell.
         coll_exc_cool_arr
             Array of collisional excitation cooling rates by transition.
+        coll_exc_cool_destinations
+            Multi-index object describing destinations for the cooling transitions.
         coll_ion_cool_rate
             Collisional ionization cooling rates per cell.
         coll_ion_cool_arr
@@ -1111,6 +1113,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Collisional excitation cooling rates per cell.
         coll_exc_cool_arr
             Array of collisional excitation cooling rates by transition.
+        coll_exc_cool_destinations
+            Multi-index object describing destinations for the cooling transitions.
         coll_ion_cool_rate
             Collisional ionization cooling rates per cell.
         coll_ion_cool_arr
@@ -1404,6 +1408,8 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Collisional excitation cooling rates per cell.
         coll_exc_cool_arr
             Array of collisional excitation cooling rates by transition and cell.
+        coll_exc_cool_destinations
+            Multi-index object describing destinations for the cooling transitions.
         coll_ion_cool_rate
             Collisional ionization cooling rates per cell.
         coll_ion_cool_arr

@@ -123,7 +123,6 @@ class MCTransportSolverIIP(HDFWriterMixin):
 
         else:
             n_levels_bf_species_by_n_cells_tuple = (0, 0)
-        # need n_levels of cont species
 
         packet_collection = self.packet_source.create_packets(
             no_of_packets, seed_offset=iteration
