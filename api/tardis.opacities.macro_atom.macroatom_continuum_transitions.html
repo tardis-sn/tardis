@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=f7325d66"></script>
+      <script src="../_static/documentation_options.js?v=3e4d06fd"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -432,7 +432,7 @@ channel.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.macroatom_continuum_transitions.create_coll_excitation_cooling_metadata">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">create_coll_excitation_cooling_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_starting_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_exc_cool_probs_arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal_up_destinations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#create_coll_excitation_cooling_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.create_coll_excitation_cooling_metadata" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.macroatom_continuum_transitions.</span></span><span class="sig-name descname"><span class="pre">create_coll_excitation_cooling_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_starting_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_exc_cool_probs_arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coll_exc_cool_destinations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiIndex</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/macroatom_continuum_transitions.html#create_coll_excitation_cooling_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.macroatom_continuum_transitions.create_coll_excitation_cooling_metadata" title="Link to this definition">¶</a></dt>
 <dd><p>Create metadata for free-bound (radiative recombination) cooling transitions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -441,6 +441,10 @@ channel.</p>
 </dd>
 <dt><strong>coll_exc_cool_probs_arr</strong></dt><dd><p>Array containing collisional excitation cooling probabilities.
 Shape is (n_zones, n_levels).</p>
+</dd>
+<dt><strong>coll_exc_cool_destinations:</strong></dt><dd><p>A pandas multi-index that specifies what state each cooling transition
+in the cooling probabilities array points to (e.g., this transition
+points (1,0,5), or 5 times excited neutral hydrogen.)</p>
 </dd>
 </dl>
 </dd>

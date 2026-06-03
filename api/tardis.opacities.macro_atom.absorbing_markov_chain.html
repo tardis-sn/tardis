@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=f7325d66"></script>
+      <script src="../_static/documentation_options.js?v=3e4d06fd"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -181,12 +181,16 @@ number of steps before absorption from each source state.</p>
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">create_absorbing_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#create_absorbing_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">create_absorbing_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#create_absorbing_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate absorbing Markov chain probabilities and deactivation data.</p>
 <p>Computes the absorption probability matrices for each cell and extracts
 deactivation probabilities by solving the absorbing Markov chain system.
 The fundamental matrix is computed to determine absorption probabilities
 and expected number of steps to absorption from each state.</p>
+<p>WARNING: This is currently slower than it needs to be for many element sims.
+You should be able to slice out and process a subset of the probabilities
+based on some source state filtering. We have a draft PR open for this
+but it has not been finished.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -203,7 +207,7 @@ Negative values indicate deactivation, or reemitting from an absorbing state.</p
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><dl class="simple">
-<dt>tuple[np.ndarray, pd.DataFrame, pd.DataFrame]</dt><dd><ul class="simple">
+<dt>tuple[np.ndarray, pd.DataFrame]</dt><dd><ul class="simple">
 <li><dl class="simple">
 <dt>absorbing_probability_matrix<span class="classifier">np.ndarray</span></dt><dd><p>Array of shape (num_cells, num_states, num_states) containing
 absorption probabilities from each state for each cell.</p>
@@ -213,11 +217,6 @@ absorption probabilities from each state for each cell.</p>
 <li><dl class="simple">
 <dt>deactivating_probs<span class="classifier">pd.DataFrame</span></dt><dd><p>DataFrame of deactivation transition probabilities from
 absorption states.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>deactivating_metadata<span class="classifier">pd.DataFrame</span></dt><dd><p>Metadata for deactivation transitions.</p>
 </dd>
 </dl>
 </li>

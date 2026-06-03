@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=f7325d66"></script>
+      <script src="../../../_static/documentation_options.js?v=3e4d06fd"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -338,10 +338,12 @@ class OpacityState:
                 macro_atom_state.macro_block_references
             )
             transition_type = (
-                macro_atom_state.deactivating_metadata.transition_type.values
+                macro_atom_state.transition_metadata.transition_type.values
             )
-            destination_level_id = macro_atom_state.deactivating_metadata.destination_level_idx.values
-            transition_line_id = macro_atom_state.deactivating_metadata.transition_line_idx.values
+            destination_level_id = macro_atom_state.transition_metadata.destination_level_idx.values
+            transition_line_id = (
+                macro_atom_state.transition_metadata.transition_line_idx.values
+            )
 
             bf_threshold_list_nu = (
                 self.continuum_state.bf_threshold_list_nu.values
@@ -371,9 +373,12 @@ class OpacityState:
             ).astype(np.float64)
             emissivities = self.continuum_state.emissivities.values
             photo_ion_activation_idx = (
-                self.continuum_state.photo_ion_activation_idx.values
+                macro_atom_state.photo_ion_block_idx
+                * np.ones(
+                    30, dtype=np.int64
+                )  # TODO: Fix this more with flexible input. This will only work for Hydrogen
             )
-            k_packet_idx = np.int64(self.continuum_state.k_packet_idx)
+            k_packet_idx = np.int64(macro_atom_state.k_packet_idx)
             absorbing_markov_probabilities = (
                 macro_atom_state.absorbing_probability_matrix
             )

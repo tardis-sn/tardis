@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=f7325d66"></script>
+      <script src="../../../../_static/documentation_options.js?v=3e4d06fd"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -149,19 +149,25 @@ References:
 
 import numpy as np
 import pandas as pd
+import scipy
 
 
 <div class="viewcode-block" id="create_absorbing_probs">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs">[docs]</a>
 def create_absorbing_probs(
     transition_probabilities: pd.DataFrame, metadata: pd.DataFrame
-) -&gt; tuple[np.ndarray, pd.DataFrame, pd.DataFrame]:
+) -&gt; tuple[np.ndarray, pd.DataFrame]:
     &quot;&quot;&quot;Calculate absorbing Markov chain probabilities and deactivation data.
 
     Computes the absorption probability matrices for each cell and extracts
     deactivation probabilities by solving the absorbing Markov chain system.
     The fundamental matrix is computed to determine absorption probabilities
     and expected number of steps to absorption from each state.
+
+    WARNING: This is currently slower than it needs to be for many element sims.
+    You should be able to slice out and process a subset of the probabilities
+    based on some source state filtering. We have a draft PR open for this
+    but it has not been finished.
 
     Parameters
     ----------
@@ -177,67 +183,64 @@ def create_absorbing_probs(
 
     Returns
     -------
-    tuple[np.ndarray, pd.DataFrame, pd.DataFrame]
+    tuple[np.ndarray, pd.DataFrame]
         - absorbing_probability_matrix : np.ndarray
             Array of shape (num_cells, num_states, num_states) containing
             absorption probabilities from each state for each cell.
         - deactivating_probs : pd.DataFrame
             DataFrame of deactivation transition probabilities from
             absorption states.
-        - deactivating_metadata : pd.DataFrame
-            Metadata for deactivation transitions.
     &quot;&quot;&quot;
     num_cells = transition_probabilities.shape[1]
-    probs = transition_probabilities.copy()
-
-    source_dest_pairs = list(
-        zip(
-            metadata.source_level_idx.values,
-            metadata.destination_level_idx.values,
-        )
-    )
-    probs[&quot;source_dest&quot;] = source_dest_pairs
 
     num_states = len(metadata.source.unique())
-    source_dest_index = pd.MultiIndex.from_product(
-        [range(num_states), range(num_states)]
-    )
     internal_mask = metadata.transition_type &gt;= 0
-    internal_jump_probs = probs[internal_mask]
+    internal_jump_probs = transition_probabilities[internal_mask]
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
-    expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
+    # Josh: The expected steps calculation is another linear algebra solve. We don&#39;t need
+    # it for the MC calculation, so I&#39;m removing it, but leaving it commented in case it is
+    # useful for diagnostic purposes in the future.
+    # expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
 
+    rows = metadata[internal_mask].source_level_idx.values
+    cols = metadata[internal_mask].destination_level_idx.values
     for cell in range(num_cells):
         # In each cell, solve for absorbing markov chain probability
         # Follows math https://en.wikipedia.org/wiki/Absorbing_Markov_chain
-        internal_jump_matrix = (
-            internal_jump_probs.groupby(&quot;source_dest&quot;)
-            .sum()
-            .reindex(source_dest_index)
-            .loc[source_dest_index, cell]
-            .fillna(0)
-            .values.reshape((num_states, num_states))
-        )
-        inv_matrix_fundamental_N = (
-            np.identity(internal_jump_matrix.shape[0]) - internal_jump_matrix
-        )
-        fundamental_matrix_N = np.linalg.inv(inv_matrix_fundamental_N)
+        vals = internal_jump_probs[cell].values
 
-        expected_steps = fundamental_matrix_N.sum(axis=1)
-        expected_steps_in_cells_from_states[cell] = expected_steps
-
-        prob_deactivation_matrix = np.diag(1 - internal_jump_matrix.sum(axis=1))
-        absorbing_probability_matrix[cell] = np.dot(
-            fundamental_matrix_N, prob_deactivation_matrix
+        internal_jump_matrix = scipy.sparse.coo_matrix(
+            (vals, (rows, cols)), shape=(num_states, num_states)
         )
-    deactivating_probs = probs[~internal_mask].drop(columns=&quot;source_dest&quot;)
-    deactivating_metadata = metadata[~internal_mask]
+
+        identity_minus_Q = (
+            scipy.sparse.identity(internal_jump_matrix.shape[0])
+            - internal_jump_matrix
+        )
+        csc_N = identity_minus_Q.tocsc()
+
+        # expected_steps = np.asarray(
+        #     scipy.sparse.linalg.spsolve(csc_N, np.ones(num_states))
+        # ).flatten()
+        # expected_steps_in_cells_from_states[cell] = expected_steps
+
+        deactivation_row = np.asarray(
+            internal_jump_matrix.sum(axis=1)
+        ).flatten()
+        # Solve (I - Q) * X = diag(1 - deactivation_row) directly
+        # instead of computing inv(I - Q) explicitly
+        rhs = np.diag(1 - deactivation_row)
+        absorbing_probability_matrix[cell] = scipy.sparse.linalg.spsolve(
+            csc_N, rhs
+        )
+
+    deactivating_probs = transition_probabilities.copy()
+    deactivating_probs[internal_mask] *= 0
 
     return (
         absorbing_probability_matrix,
         deactivating_probs,
-        deactivating_metadata,
     )</div>
 
 </pre></div>
