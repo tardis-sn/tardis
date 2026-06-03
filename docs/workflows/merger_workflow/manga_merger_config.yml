@@ -1,0 +1,32 @@
+atom_data: ./kurucz_cd23_cmfgen_H_He.h5
+csvy_model: manga_merger.csvy
+montecarlo:
+  convergence_strategy:
+    damping_constant: 1.0
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 0.0
+    threshold: 0.05
+    type: damped
+  enable_full_relativity: false
+  iterations: 20
+  last_no_of_packets: 10000.0
+  no_of_packets: 1000.0
+  no_of_virtual_packets: 10
+  nthreads: 22
+  seed: 23111963
+plasma:
+  disable_electron_scattering: false
+  excitation: lte
+  ionization: lte
+  line_interaction_type: macroatom
+  radiative_rates_type: dilute-blackbody
+spectrum:
+  num: 10000
+  start: 500 angstrom
+  stop: 20000 angstrom
+supernova:
+  luminosity_requested: 7.44 log_lsun
+  time_explosion: 400 day
+tardis_config_version: v1.0
