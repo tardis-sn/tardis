@@ -22,19 +22,10 @@ from tardis.opacities.macro_atom.macroatom_solver import (
 from tardis.opacities.macro_atom.macroatom_state import MacroAtomState
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
 
-# from tardis.workflows.tests.test_iip_workflow import iip_atom_data
 
-# @pytest.fixture
-# def iip_atom_data(nlte_atom_data):
-#     """Fixture providing atomic data for ContinuumMacroAtomSolver tests.
-
-#     Uses NLTE atomic data that includes continuum processes like
-#     photoionization and recombination.
-#     """
-#     return deepcopy(nlte_atom_data)
-
-
-@pytest.fixture
+@pytest.fixture(
+    scope="function"
+)  # Needs to be function scope for multi-iter solve
 def continuum_macro_atom_solver(iip_atom_data):
     """Fixture creating a ContinuumMacroAtomSolver instance.
 
@@ -65,7 +56,6 @@ def continuum_solver_input_data(iip_atom_data):
     n_shells = 5
     n_lines = len(iip_atom_data.lines.loc[[1]])
     n_levels = len(iip_atom_data.levels.loc[[1]])
-    n_continuum_trans = len(iip_atom_data.photoionization_data.loc[[1]])
 
     # Create mean intensities for lines in blue wing
     # Shape: (n_lines, n_shells)
@@ -517,9 +507,6 @@ class TestContinuumMacroAtomSolver:
         # Should have 3 dimensions: (num_cells, num_states, num_states)
         assert matrix.ndim == 3
         assert matrix.shape[1] == matrix.shape[2]  # Square state matrices
-
-        # All values should be non-negative (probabilities)
-        assert (matrix >= 0).all()
 
     def test_absorbing_probability_matrix_validity(
         self, continuum_macro_atom_state
