@@ -14,8 +14,10 @@ import scipy
 
 
 def create_absorbing_probs(
-    transition_probabilities: pd.DataFrame, metadata: pd.DataFrame
-) -> tuple[np.ndarray, pd.DataFrame]:
+    transition_probabilities: pd.DataFrame,
+    metadata: pd.DataFrame,
+    selected_species=None,
+) -> tuple[np.ndarray, pd.DataFrame, dict]:
     """Calculate absorbing Markov chain probabilities and deactivation data.
 
     Computes the absorption probability matrices for each cell and extracts
@@ -44,12 +46,63 @@ def create_absorbing_probs(
         - deactivating_probs : pd.DataFrame
             DataFrame of deactivation transition probabilities from
             absorption states.
+        - source_idx_to_absorbing_matrix_idx_map : dict
+            Dictionary describing what each level of the absorbing probability matrix
+            maps to.
     """
     num_cells = transition_probabilities.shape[1]
 
-    num_states = len(metadata.source.unique())
     internal_mask = metadata.transition_type >= 0
-    internal_jump_probs = transition_probabilities[internal_mask]
+
+    selected_species = [(1, 0)]  # TODO: FIX TO PASS CORRECTLY FROM CONFIG
+    if selected_species:
+        selected_species = (
+            list(selected_species)
+            + [
+                ("i", -99),
+                # ("k", -99),
+            ]
+        )  # We also want the i and k blocks to be include in our selection, or we won't process through the thermal pool
+
+        selected_species_mask = np.zeros_like(
+            metadata.source.values, dtype=bool
+        )
+
+        sliced_source_metadata_col = metadata.source.apply(lambda x: x[:2])
+        sliced_dest_metadata_col = metadata.destination.apply(lambda x: x[:2])
+        # build a mask to grab all transitions that include a selected species and k and i block
+        # JOSH: Will need to revisit with i-block handling, maybe
+
+        # This creates the map we need to point to the correct abs markov spot
+
+        for species in selected_species:
+            species_source_mask = sliced_source_metadata_col == species
+            selected_species_mask = np.logical_or(
+                selected_species_mask, species_source_mask
+            )
+            species_dest_mask = sliced_dest_metadata_col == species
+            selected_species_mask = np.logical_or(
+                selected_species_mask, species_dest_mask
+            )
+
+        internal_selected_mask = np.logical_and(
+            selected_species_mask, internal_mask
+        )  # we want the internal jumps of the selected species
+
+        source_idx_to_absorbing_matrix_idx_map = {
+            np.int64(source_level_idx): np.int64(abs_block_idx)
+            for abs_block_idx, source_level_idx in enumerate(
+                metadata[internal_selected_mask].source_level_idx.unique()
+            )
+        }  # This will tell you which block of the matrix you should enter, and which exit you go to because the matrix is symmetric
+
+    else:
+        internal_selected_mask = internal_mask
+        source_idx_to_absorbing_matrix_idx_map = {}
+
+    num_states = len(metadata[internal_selected_mask].source.unique())
+
+    internal_jump_probs = transition_probabilities[internal_selected_mask]
 
     absorbing_probability_matrix = np.zeros((num_cells, num_states, num_states))
     # Josh: The expected steps calculation is another linear algebra solve. We don't need
@@ -57,8 +110,12 @@ def create_absorbing_probs(
     # useful for diagnostic purposes in the future.
     # expected_steps_in_cells_from_states = np.zeros((num_cells, num_states))
 
-    rows = metadata[internal_mask].source_level_idx.values
-    cols = metadata[internal_mask].destination_level_idx.values
+    rows = metadata[internal_selected_mask].source_level_idx.values
+    cols = metadata[internal_selected_mask].destination_level_idx.values
+
+    matrix_rows = [source_idx_to_absorbing_matrix_idx_map[x] for x in rows]
+    matrix_cols = [source_idx_to_absorbing_matrix_idx_map[x] for x in cols]
+
     for cell in range(num_cells):
         print(f"starting cell {cell}")
         # In each cell, solve for absorbing markov chain probability
@@ -66,7 +123,7 @@ def create_absorbing_probs(
         vals = internal_jump_probs[cell].values
 
         internal_jump_matrix = scipy.sparse.coo_matrix(
-            (vals, (rows, cols)), shape=(num_states, num_states)
+            (vals, (matrix_rows, matrix_cols)), shape=(num_states, num_states)
         )
 
         identity_minus_Q = (
@@ -91,9 +148,10 @@ def create_absorbing_probs(
         )
 
     deactivating_probs = transition_probabilities.copy()
-    deactivating_probs[internal_mask] *= 0
+    deactivating_probs[internal_selected_mask] *= 0
 
     return (
         absorbing_probability_matrix,
         deactivating_probs,
+        source_idx_to_absorbing_matrix_idx_map,
     )
