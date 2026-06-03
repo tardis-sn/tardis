@@ -6,6 +6,7 @@ from astropy import units as u
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.readers.base import read_density_file
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import NonhomologousRadial1DGeometry
 from tardis.util.base import quantity_linspace
 
 
@@ -107,7 +108,7 @@ def parse_geometry_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
     time_explosion: u.Quantity,
-) -> HomologousRadial1DGeometry:
+) -> HomologousRadial1DGeometry | NonhomologousRadial1DGeometry:
     """Parse the geometry data from a CSVY model.
 
     Parameters
@@ -162,6 +163,24 @@ def parse_geometry_from_csvy(
         velocity = csvy_model_data["velocity"].values * velocity_unit
         velocity = velocity.to("cm/s")
 
+    if csvy_model_data is not None and "radius" in csvy_model_data.columns:
+        radius_field_index = [
+            field["name"] for field in csvy_model_config.datatype.fields
+        ].index("radius")
+        radius_unit = u.Unit(
+            csvy_model_config.datatype.fields[radius_field_index]["unit"]
+        )
+        radius = (csvy_model_data["radius"].values * radius_unit).to("cm")
+        return NonhomologousRadial1DGeometry(
+            r_inner=radius[:-1],
+            r_outer=radius[1:],
+            v_inner=velocity[:-1],
+            v_outer=velocity[1:],
+            r_inner_boundary=radius[0],
+            r_outer_boundary=radius[-1],
+            v_inner_boundary=v_inner_boundary if v_inner_boundary is not None else velocity[0],
+            v_outer_boundary=v_outer_boundary if v_outer_boundary is not None else velocity[-1],
+        )
     geometry = HomologousRadial1DGeometry(
         velocity[:-1],  # v_inner
         velocity[1:],  # v_outer

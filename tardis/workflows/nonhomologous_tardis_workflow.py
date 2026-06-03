@@ -43,19 +43,19 @@ class NonhomologousTARDISWorkflow(SimpleTARDISWorkflow):
         super().__init__(configuration, csvy)
         atom_data = parse_atom_data(configuration)
 
-        # Replace the default geometry of the SimpleTARDISWorkflow
         geometry = self.simulation_state.geometry
-        t_exp = self.simulation_state.time_explosion
-        self.simulation_state.geometry = NonhomologousRadial1DGeometry(
-            r_inner=geometry.v_inner * t_exp,
-            r_outer=geometry.v_outer * t_exp,
-            v_inner=geometry.v_inner,
-            v_outer=geometry.v_outer,
-            r_inner_boundary=geometry.v_inner_boundary * t_exp,
-            r_outer_boundary=geometry.v_outer_boundary * t_exp,
-            v_inner_boundary=geometry.v_inner_boundary,
-            v_outer_boundary=geometry.v_outer_boundary,
-        )
+        if not isinstance(geometry, NonhomologousRadial1DGeometry):
+            t_exp = self.simulation_state.time_explosion
+            self.simulation_state.geometry = NonhomologousRadial1DGeometry(
+                r_inner=geometry.v_inner * t_exp,
+                r_outer=geometry.v_outer * t_exp,
+                v_inner=geometry.v_inner,
+                v_outer=geometry.v_outer,
+                r_inner_boundary=geometry.v_inner_boundary * t_exp,
+                r_outer_boundary=geometry.v_outer_boundary * t_exp,
+                v_inner_boundary=geometry.v_inner_boundary,
+                v_outer_boundary=geometry.v_outer_boundary,
+            )
 
         plasma_solver_factory = PlasmaSolverFactory(
             atom_data,
