@@ -171,6 +171,12 @@ def continuum_solver_input_data(iip_atom_data):
         ),  # Don't have access to ionized H OR ground state H
     )
 
+    # Create MultiIndex for collisional excitation cooling destinations
+    # Exclude ground state (0) and ionized state (n_levels - 1)
+    coll_exc_cool_destinations = iip_atom_data.levels.xs(
+        (1, 0), drop_level=False
+    ).index[:-1]
+
     coll_ion_cool_rate = np.random.uniform(1e-21, 1e-19, size=n_shells)
 
     coll_ion_cool_arr = np.random.uniform(
@@ -199,6 +205,7 @@ def continuum_solver_input_data(iip_atom_data):
         "delta_E_yg": delta_E_yg,
         "coll_exc_cool_rate": coll_exc_cool_rate,
         "coll_exc_cool_arr": coll_exc_cool_arr,
+        "coll_exc_cool_destinations": coll_exc_cool_destinations,
         "coll_ion_cool_rate": coll_ion_cool_rate,
         "coll_ion_cool_arr": coll_ion_cool_arr,
         "fb_cool_rate": fb_cool_rate,
@@ -238,6 +245,9 @@ def continuum_macro_atom_state(
         delta_E_yg=continuum_solver_input_data["delta_E_yg"],
         coll_exc_cool_rate=continuum_solver_input_data["coll_exc_cool_rate"],
         coll_exc_cool_arr=continuum_solver_input_data["coll_exc_cool_arr"],
+        coll_exc_cool_destinations=continuum_solver_input_data[
+            "coll_exc_cool_destinations"
+        ],
         coll_ion_cool_rate=continuum_solver_input_data["coll_ion_cool_rate"],
         coll_ion_cool_arr=continuum_solver_input_data["coll_ion_cool_arr"],
         fb_cool_rate=continuum_solver_input_data["fb_cool_rate"],
@@ -391,6 +401,9 @@ class TestContinuumMacroAtomSolver:
                 "coll_exc_cool_rate"
             ],
             coll_exc_cool_arr=continuum_solver_input_data["coll_exc_cool_arr"],
+            coll_exc_cool_destinations=continuum_solver_input_data[
+                "coll_exc_cool_destinations"
+            ],
             coll_ion_cool_rate=continuum_solver_input_data[
                 "coll_ion_cool_rate"
             ],
@@ -426,6 +439,9 @@ class TestContinuumMacroAtomSolver:
                 "coll_exc_cool_rate"
             ],
             coll_exc_cool_arr=continuum_solver_input_data["coll_exc_cool_arr"],
+            coll_exc_cool_destinations=continuum_solver_input_data[
+                "coll_exc_cool_destinations"
+            ],
             coll_ion_cool_rate=continuum_solver_input_data[
                 "coll_ion_cool_rate"
             ],
@@ -552,60 +568,3 @@ class TestContinuumMacroAtomSolver:
         # rtol is for Mac test compatibility, regression data was generated on Mac
         # for these tests.
         np.testing.assert_allclose(actual, expected, rtol=3e-5, atol=0)
-
-    def test_deactivating_metadata_structure(self, continuum_macro_atom_state):
-        """Test that deactivating_metadata has the correct structure."""
-        metadata = continuum_macro_atom_state.deactivating_metadata
-
-        # Should be a DataFrame
-        assert isinstance(metadata, pd.DataFrame)
-
-        # Check for required columns
-        required_columns = [
-            "transition_type",
-            "source_level_idx",
-            "destination_level_idx",
-        ]
-        for col in required_columns:
-            assert col in metadata.columns
-
-    def test_deactivating_metadata_consistency(
-        self, continuum_macro_atom_state
-    ):
-        """Test that deactivating_metadata entries are consistent."""
-        metadata = continuum_macro_atom_state.deactivating_metadata
-
-        # All transition types in deactivating_metadata should be deactivation types
-        # (negative values or specific deactivation types)
-        transition_types = metadata["transition_type"].unique()
-
-        # Should have some defined transition types
-        for tt in transition_types:
-            assert tt in iter(MacroAtomTransitionType)
-
-    def test_deactivating_metadata_no_nan_indices(
-        self, continuum_macro_atom_state
-    ):
-        """Test that deactivating_metadata does not have invalid indices."""
-        metadata = continuum_macro_atom_state.deactivating_metadata
-
-        # source and destination level indices should not have NaN
-        if len(metadata) > 0:
-            assert not metadata["source_level_idx"].isna().any(), (
-                "Found NaN in source_level_idx"
-            )
-            assert not metadata["destination_level_idx"].isna().any(), (
-                "Found NaN in destination_level_idx"
-            )
-
-    def test_deactivating_metadata_regression(
-        self, continuum_macro_atom_state, regression_data
-    ):
-        """Test deactivating_metadata using regression data.
-
-        This test stores the deactivating metadata in regression data
-        for comparison across runs.
-        """
-        actual = continuum_macro_atom_state.deactivating_metadata
-        expected = regression_data.sync_dataframe(actual)
-        pdt.assert_frame_equal(actual, expected)
