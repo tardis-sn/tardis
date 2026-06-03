@@ -518,7 +518,7 @@ class LineInfoWidget:
 
         Returns
         -------
-        plotly.graph_objects.FigureWidget
+        panel.pane.Bokeh
         """
         # Create Bokeh figure with box select
         p = figure(

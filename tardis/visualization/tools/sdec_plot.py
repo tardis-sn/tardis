@@ -891,8 +891,8 @@ class SDECPlotter:
             self.plot_wavelength.value,
             lower_level,
             upper_level,
-            color="#4C4C4C",
-            label="No interaction",
+            color=self._predefined_traces["emission"]["noint"]["fillcolor"],
+            label=self._predefined_traces["emission"]["noint"]["name"]
         )
 
         lower_level = upper_level
@@ -905,8 +905,8 @@ class SDECPlotter:
             self.plot_wavelength.value,
             lower_level,
             upper_level,
-            color="#8F8F8F",
-            label="Electron Scatter Only",
+            color=self._predefined_traces["emission"]["escatter"]["fillcolor"],
+            label=self._predefined_traces["emission"]["escatter"]["name"]
         )
 
         # If the 'other' column exists then plot it as silver
@@ -921,8 +921,8 @@ class SDECPlotter:
                 self.plot_wavelength.value,
                 lower_level,
                 upper_level,
-                color="#C2C2C2",
-                label="Other elements",
+                color=self._predefined_traces["emission"]["other"]["fillcolor"],
+                label=self._predefined_traces["emission"]["other"]["name"]
             )
 
         # Contribution from each element
@@ -1209,16 +1209,31 @@ class SDECPlotter:
         lower_level = np.zeros(self.emission_luminosities_df.shape[0])
         upper_level = lower_level + self.emission_luminosities_df[("noint", "")].to_numpy()
 
-        self.fig.varea(x=self.plot_wavelength.value, y1=lower_level, y2=upper_level, fill_color="#4C4C4C", legend_label="No interaction")
+        self.fig.varea(
+            x=self.plot_wavelength.value,
+            y1=lower_level, y2=upper_level,
+            fill_color=self._predefined_traces["emission"]["noint"]["fillcolor"],
+            legend_label=self._predefined_traces["emission"]["noint"]["name"]
+        )
 
         lower_level = upper_level
         upper_level = lower_level + self.emission_luminosities_df[("escatter", "")].to_numpy()
-        self.fig.varea(x=self.plot_wavelength.value, y1=lower_level, y2=upper_level, fill_color="#8F8F8F", legend_label="Electron Scatter Only")
+        self.fig.varea(
+            x=self.plot_wavelength.value,
+            y1=lower_level, y2=upper_level,
+            fill_color=self._predefined_traces["emission"]["escatter"]["fillcolor"],
+            legend_label=self._predefined_traces["emission"]["escatter"]["name"]
+        )
 
         if "other" in self.emission_luminosities_df.keys():
             lower_level = upper_level
             upper_level = lower_level + self.emission_luminosities_df[("other", "")].to_numpy()
-            self.fig.varea(x=self.plot_wavelength.value, y1=lower_level, y2=upper_level, fill_color="#C2C2C2", legend_label="Other elements")
+            self.fig.varea(
+                x=self.plot_wavelength.value,
+                y1=lower_level, y2=upper_level,
+                fill_color=self._predefined_traces["emission"]["other"]["fillcolor"],
+                legend_label=self._predefined_traces["emission"]["other"]["name"]
+            )
 
         for species_counter, identifier in enumerate(self.species):
             try:
