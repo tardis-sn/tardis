@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=d4d06c70"></script>
+      <script src="../_static/documentation_options.js?v=f7325d66"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -241,6 +241,49 @@ model, and allows to plot it in matplotlib and plotly.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_bk">
+<span class="sig-name descname"><span class="pre">generate_plot_bk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'virtual'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_wvl_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_spectrum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_modeled_spectrum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmapname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blackbody_photosphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.generate_plot_bk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_bk" title="Link to this definition">¶</a></dt>
+<dd><p>Generate Spectral element DEComposition (SDEC) Plot using Bokeh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>packets_mode</strong><span class="classifier">{‘virtual’, ‘real’}, optional</span></dt><dd><p>Mode of packets to be considered, either real or virtual. Default
+value is ‘virtual’</p>
+</dd>
+<dt><strong>packet_wvl_range</strong><span class="classifier">astropy.Quantity or None, optional</span></dt><dd><p>Wavelength range to restrict the analysis of escaped packets.</p>
+</dd>
+<dt><strong>distance</strong><span class="classifier">astropy.Quantity or None, optional</span></dt><dd><p>Distance used to calculate flux instead of luminosity in the plot.</p>
+</dd>
+<dt><strong>observed_spectrum</strong><span class="classifier">tuple or list of astropy.Quantity, optional</span></dt><dd><p>Option to plot an observed spectrum in the SDEC plot.</p>
+</dd>
+<dt><strong>show_modeled_spectrum</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to show modeled spectrum in SDEC Plot.</p>
+</dd>
+<dt><strong>fig</strong><span class="classifier">bokeh.plotting.figure or None, optional</span></dt><dd><p>Figure object on which to create plot.</p>
+</dd>
+<dt><strong>graph_width</strong><span class="classifier">int, optional</span></dt><dd><p>Width of the bokeh figure.</p>
+</dd>
+<dt><strong>graph_height</strong><span class="classifier">int, optional</span></dt><dd><p>Height of the bokeh figure.</p>
+</dd>
+<dt><strong>cmapname</strong><span class="classifier">str, optional</span></dt><dd><p>Name of matplotlib colormap to be used for showing elements.</p>
+</dd>
+<dt><strong>nelements: int</strong></dt><dd><p>Number of elements to include in plot.</p>
+</dd>
+<dt><strong>species_list: list of strings or None</strong></dt><dd><p>list of strings containing the names of species that should be included.</p>
+</dd>
+<dt><strong>blackbody_photosphere: bool</strong></dt><dd><p>Whether to include the blackbody photosphere in the plot.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>bokeh.plotting.figure</dt><dd><p>Figure object on which SDEC Plot is created</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_mpl">
 <span class="sig-name descname"><span class="pre">generate_plot_mpl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">packets_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'virtual'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packet_wvl_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_spectrum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_modeled_spectrum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(12,</span> <span class="pre">7)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmapname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'jet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nelements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blackbody_photosphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/tools/sdec_plot.html#SDECPlotter.generate_plot_mpl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_mpl" title="Link to this definition">¶</a></dt>
 <dd><p>Generate Spectral element DEComposition (SDEC) Plot using matplotlib.</p>
@@ -394,7 +437,7 @@ e.g. [‘Si II’, ‘Ca II’, ‘C’, ‘Fe I-V’]</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 02 Jun 2026.
+      <span class="lastupdated">Last updated on 03 Jun 2026.
       </span></p>
   </div>
 
