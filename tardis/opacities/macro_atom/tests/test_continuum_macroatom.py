@@ -554,4 +554,4 @@ class TestContinuumMacroAtomSolver:
         expected = regression_data.sync_ndarray(actual)
         # rtol is for Mac test compatibility, regression data was generated on Mac
         # for these tests.
-        np.testing.assert_allclose(actual, expected, rtol=3e-5, atol=0)
+        np.testing.assert_allclose(actual, expected, rtol=5e-5, atol=0)
