@@ -441,6 +441,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         opacity_states: dict,
         no_of_real_packets: int,
         no_of_virtual_packets: int = 0,
+        enable_rpacket_tracking: bool = False,
     ) -> np.ndarray:
         """Solve the MonteCarlo process
 
@@ -452,6 +453,8 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             Number of real packets to simulate.
         no_of_virtual_packets
             Number of virtual packets to simulate per interaction.
+        enable_rpacket_tracking
+            Whether to save packet data to the full tracker for this MC step
 
         Returns
         -------
@@ -474,6 +477,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         virtual_packet_energies = self.transport_solver.run(
             self.transport_state,
             show_progress_bars=self.show_progress_bars,
+            enable_rpacket_tracking=enable_rpacket_tracking,
         )
 
         output_energy = self.transport_state.packet_collection.output_energies
@@ -541,7 +545,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                self.opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count, enable_rpacket_tracking=False,
             )
 
             (
@@ -570,6 +574,7 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
+            enable_rpacket_tracking=self.transport_solver.enable_rpacket_tracking,
         )
 
         self.initialize_spectrum_solver(

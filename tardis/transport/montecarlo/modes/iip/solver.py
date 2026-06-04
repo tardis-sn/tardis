@@ -161,6 +161,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         self,
         transport_state,
         show_progress_bars=True,
+        enable_rpacket_tracking=False,
     ):
         """
         Run the Monte Carlo calculation using IIP mode (continuum always enabled).
@@ -171,6 +172,8 @@ class MCTransportSolverIIP(HDFWriterMixin):
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
+        enable_rpacket_tracking : bool
+            Write packet data to tracker.
 
         Returns
         -------
@@ -183,7 +186,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         number_of_vpackets = self.montecarlo_configuration.NUMBER_OF_VPACKETS
         number_of_rpackets = len(transport_state.packet_collection.initial_nus)
 
-        if self.enable_rpacket_tracking:
+        if enable_rpacket_tracking:
             trackers_list = generate_tracker_full_list(
                 number_of_rpackets,
                 self.montecarlo_configuration.INITIAL_TRACKING_ARRAY_LENGTH,
@@ -230,7 +233,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
         # Need to change the implementation of rpacket_trackers_to_dataframe
         # Such that it also takes of the case of
         # RPacketLastInteractionTracker
-        if self.enable_rpacket_tracking:
+        if enable_rpacket_tracking:
             self.transport_state.tracker_full_df = trackers_full_to_df(
                 trackers_list
             )
