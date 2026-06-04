@@ -484,7 +484,7 @@ class FreeFree(PhysicalContinuumProcess):
             .sum()
             .values
         )
-        chi_ff_factor *= chi_ff_helper
+        chi_ff_factor = chi_ff_factor * chi_ff_helper
         return chi_ff_factor
 
     def _get_ionic_charge(self):
