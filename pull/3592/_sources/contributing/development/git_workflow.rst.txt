@@ -359,9 +359,9 @@ Making sure your Pull Request stays up-to-date
 More often then not it will take a few days until a Pull Request is
 merged as the community gives feedback and/or you add new fixes. Often during this
 time, other pull requests are merged and the master branch evolves further.
-To make sure that your changes are still working on the new master, you can
-either rebase your branch on the new master or merge the new master into your branch. 
-Because we squash and merge our pull requests, merging master is okay.
+To make sure that your changes are still working on the new master, you can 
+merge the new master into your branch. Because we squash and merge our pull 
+requests, merging master is okay.
 
 
 .. _merge-master:
