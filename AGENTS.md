@@ -18,18 +18,26 @@ Use existing project docs.
 - Docs authoring/build workflow: [docs/contributing/development/documentation_guidelines.rst](docs/contributing/development/documentation_guidelines.rst)
 - CI and required checks: [docs/contributing/development/continuous_integration.rst](docs/contributing/development/continuous_integration.rst)
 
+## Environment
+
+- numpy 2.x
+- astropy 7.x
+- pandas 3.x
+- numba 0.65
+
 ## Coding Conventions
 
 - Follow Ruff and formatting settings in [pyproject.toml](pyproject.toml).
-- Keep physics-facing names readable where scientifically standard; do not rename solely for style if it hurts domain clarity. Prefer descriptive variable names over Greek letters.
+- Keep physics-facing names readable where scientifically standard; do not rename solely for style. Prefer descriptive variable names over Greek letters.
 - Add or update NumPy-style docstrings for behavior changes.
-- Reuse existing fixtures and test patterns from nearby tests before adding new abstractions.
 - Use type hinting for all definitions.
 - Use the TARDIS constants package for all physical constants. This inherits from a specific version of astropy.
+- Numba should be used to accelerate computation where possible.
 
 ## Testing and Regression Policy
 
 - Write tests before solutions.
+- Reuse existing fixtures and test patterns from nearby tests before adding new abstractions.
 - For small logic changes, run targeted tests first, then broader `pytest tardis` where feasible.
 - Treat regression-data changes as high scrutiny changes.
 - Prefer adding regression cases instead of overwriting existing references unless behavior changes are intentional and justified.
@@ -37,14 +45,13 @@ Use existing project docs.
 
 ## Docs and Notebook Expectations
 
-- New user-facing behavior should usually have docs updates in `docs/`.
+- New user-facing behavior should have docs updates in `docs/`.
 - For notebooks committed to docs, clear outputs before commit.
-- If docs build warnings/errors appear, fix them before merge unless maintainers explicitly defer.
 
 ## Agent Behavior Defaults
 
 - Make minimal, scoped edits; avoid opportunistic refactors unrelated to the task.
-- When behavior changes, update tests and docs in the same branch when practical.
+- When behavior changes, update tests and docs.
 - Prefer concrete evidence in summaries: what changed, why, and which tests/docs were run.
 - If local tooling differs from docs, follow docs as policy and note local limitations in your final report.
 - Do not program defensively. Users of TARDIS are experts and are expected to provide correct inputs.
