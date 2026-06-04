@@ -1,4 +1,3 @@
-import itertools
 from pathlib import Path
 
 import astropy.units as u
@@ -6,20 +5,14 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model.base import SimulationState
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 
-DILUTION_FACTORS_CONSTANT = [np.array([1, 1, 1])]
-TEMPERATURE_CONSTANT = [[10000, 10000, 10000] * u.K]
 
-valid_dilution_factors = [
-    np.array([1, 1, 1]),
-    np.array([0.8, 0.6, 0.4]),
-    np.array([0, 0, 0]),
-]
-valid_temps = [[10000, 10000, 10000] * u.K, [8000, 6000, 4000] * u.K]
+UNIFORM_10KK = [10000, 10000, 10000] * u.K
+UNIFORM_ONE_DILUTION_FACTOR = np.array([1, 1, 1])
+N_SHELLS = 3
 
 negative_temps = [-10, -10, -10] * u.K
 zero_temps = [0, 0, 0] * u.K
@@ -30,44 +23,33 @@ CONFIG_PATHS = [
 ]
 
 
-@pytest.fixture(scope="class")
-def atom_dataset(tardis_regression_path):
-    atomic_data_fname = (
-        tardis_regression_path
-        / "atom_data"
-        / "kurucz_cd23_chianti_H_He_latest.h5"
-    )
-    return AtomData.from_hdf(atomic_data_fname)
-
-
 @pytest.fixture(scope="class", params=CONFIG_PATHS, ids=["trad_init"])
 def config(request):
     return Configuration.from_yaml(request.param)
 
 
-
 @pytest.fixture(scope="class", params=CONFIG_PATHS, ids=["trad_init"])
-def simulation_state(request, atom_dataset):
+def simulation_state(request, atomic_dataset):
     config = Configuration.from_yaml(request.param)
-    return SimulationState.from_config(config, atom_data=atom_dataset)
+    return SimulationState.from_config(config, atom_data=atomic_dataset)
 
 
 @pytest.fixture(
     scope="class",
-    params=list(
-        itertools.product(TEMPERATURE_CONSTANT, valid_dilution_factors)
-    ),
+    params=[
+        pytest.param(UNIFORM_10KK, UNIFORM_ONE_DILUTION_FACTOR, id="T_10kK_dilution_1"),
+        pytest.param(
+            UNIFORM_10KK,
+            np.array([0.8, 0.6, 0.4]),
+            id="T_10kK_dilution_0.8_0.6_0.4",
+        ),
+        pytest.param(UNIFORM_10KK, np.array([0, 0, 0]), id="T_10kK_dilution_0"),
+        pytest.param(
+            [8000, 6000, 4000] * u.K, UNIFORM_ONE_DILUTION_FACTOR, id="T_8k_6k_4kK"
+        ),
+    ],
 )
-def valid_dilute_factors_rad_field(request):
-    temperature, dilution = request.param
-    return DilutePlanckianRadiationField(temperature, dilution)
-
-
-@pytest.fixture(
-    scope="class",
-    params=list(itertools.product(valid_temps, DILUTION_FACTORS_CONSTANT)),
-)
-def valid_temperature_rad_field(request):
+def valid_rad_field(request):
     temperature, dilution = request.param
     return DilutePlanckianRadiationField(temperature, dilution)
 
@@ -81,79 +63,35 @@ def simulation_state_rad_field(simulation_state):
 
 
 class TestValidFields:
-    def test_temp_len_dilute_focus(self, valid_dilute_factors_rad_field):
-        assert len(valid_dilute_factors_rad_field.temperature) == 3
-
-    def test_dilute_factors_len_dilute_focus(
-        self, valid_dilute_factors_rad_field
-    ):
-        assert len(valid_dilute_factors_rad_field.dilution_factor) == 3
-
-    def test_dilute_factors_len_equals_temp_len_dilute_focus(
-        self, valid_dilute_factors_rad_field
-    ):
-        assert len(valid_dilute_factors_rad_field.dilution_factor) == len(
-            valid_dilute_factors_rad_field.temperature
+    def test_temperature_and_dilution_lengths(self, valid_rad_field):
+        assert len(valid_rad_field.temperature) == N_SHELLS
+        assert len(valid_rad_field.dilution_factor) == N_SHELLS
+        assert len(valid_rad_field.dilution_factor) == len(
+            valid_rad_field.temperature
         )
 
-    def test_calculate_mean_intensity_dilute_focus(
-        self, valid_dilute_factors_rad_field, atom_dataset, regression_data
+    def test_calculate_mean_intensity(
+        self, valid_rad_field, atomic_dataset, regression_data
     ):
-        nu = atom_dataset.lines["nu"].values
-        actual_intensities = (
-            valid_dilute_factors_rad_field.calculate_mean_intensity(nu)
-        )
+        nu = atomic_dataset.lines["nu"].values
+        actual_intensities = valid_rad_field.calculate_mean_intensity(nu)
         expected_intensities = regression_data.sync_ndarray(actual_intensities)
         npt.assert_array_equal(actual_intensities, expected_intensities)
 
-    def test_temp_len_temp_focus(self, valid_temperature_rad_field):
-        assert len(valid_temperature_rad_field.temperature) == 3
-
-    def test_dilute_factors_len_temp_focus(self, valid_temperature_rad_field):
-        assert len(valid_temperature_rad_field.dilution_factor) == 3
-
-    def test_dilute_factors_len_equals_temp_len_temp_focus(
-        self, valid_temperature_rad_field
+    def test_temperature_and_dilution_lengths_from_simulation_state(
+        self, simulation_state_rad_field, simulation_state
     ):
-        assert len(valid_temperature_rad_field.dilution_factor) == len(
-            valid_temperature_rad_field.temperature
-        )
-
-    def test_calculate_mean_intensity_temp_focus(
-        self, valid_temperature_rad_field, atom_dataset, regression_data
-    ):
-        nu = atom_dataset.lines["nu"].values
-        actual_intensities = (
-            valid_temperature_rad_field.calculate_mean_intensity(nu)
-        )
-        expected_intensities = regression_data.sync_ndarray(actual_intensities)
-        npt.assert_array_equal(actual_intensities, expected_intensities)
-
-    def test_temp_len_sim_state(
-        self, simulation_state_rad_field, regression_data
-    ):
-        actual_len = np.array([len(simulation_state_rad_field.temperature)])
-        expected_len = regression_data.sync_ndarray(actual_len)
-        npt.assert_array_equal(actual_len, expected_len)
-
-    def test_dilute_factors_len_sim_state(
-        self, simulation_state_rad_field, regression_data
-    ):
-        actual_len = np.array([len(simulation_state_rad_field.dilution_factor)])
-        expected_len = regression_data.sync_ndarray(actual_len)
-        npt.assert_array_equal(actual_len, expected_len)
-
-    def test_dilute_factors_len_equals_temp_len_sim_state(
-        self, simulation_state_rad_field
-    ):
+        n_shells = len(simulation_state.t_radiative)
+        assert len(simulation_state_rad_field.temperature) == n_shells
+        assert len(simulation_state_rad_field.dilution_factor) == n_shells
         assert len(simulation_state_rad_field.dilution_factor) == len(
             simulation_state_rad_field.temperature
         )
 
-    def test_calculate_mean_intensity_sim_state(
-        self, simulation_state_rad_field, atom_dataset, regression_data
+    def test_calculate_mean_intensity_from_simulation_state(
+        self, simulation_state_rad_field, atomic_dataset, regression_data
     ):
-        nu = atom_dataset.lines["nu"].values
+        nu = atomic_dataset.lines["nu"].values
         actual_intensities = np.array(
             simulation_state_rad_field.calculate_mean_intensity(nu)
         )
@@ -166,28 +104,22 @@ class TestValidFields:
 class TestInvalidFields:
     def test_negative_temperature(self):
         with pytest.raises(AssertionError):
-            DilutePlanckianRadiationField(
-                negative_temps, DILUTION_FACTORS_CONSTANT[0]
-            )
+            DilutePlanckianRadiationField(negative_temps, UNIFORM_ONE_DILUTION_FACTOR)
 
     def test_dilution_factors_negative(self):
         with pytest.raises(AssertionError):
             DilutePlanckianRadiationField(
-                TEMPERATURE_CONSTANT[0], np.array([-1, -1, -1])
+                UNIFORM_10KK, np.array([-1, -1, -1])
             )
 
     def test_zero_temperature(self):
         with pytest.raises(AssertionError):
-            DilutePlanckianRadiationField(
-                zero_temps, DILUTION_FACTORS_CONSTANT[0]
-            )
+            DilutePlanckianRadiationField(zero_temps, UNIFORM_ONE_DILUTION_FACTOR)
 
     def test_no_units(self):
         with pytest.raises(u.UnitConversionError):
-            DilutePlanckianRadiationField(
-                no_unit_temps, DILUTION_FACTORS_CONSTANT[0]
-            )
+            DilutePlanckianRadiationField(no_unit_temps, UNIFORM_ONE_DILUTION_FACTOR)
 
     def test_dilution_factors_no_numpy(self):
         with pytest.raises(TypeError):
-            DilutePlanckianRadiationField(TEMPERATURE_CONSTANT[0], [1, 1, 1])
+            DilutePlanckianRadiationField(UNIFORM_10KK, [1, 1, 1])
