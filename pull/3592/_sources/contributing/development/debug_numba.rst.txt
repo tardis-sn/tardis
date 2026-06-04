@@ -1,9 +1,9 @@
-**************************
-Debugging numba_montecarlo
-**************************
+****************************
+Debugging Numba-powered code
+****************************
 
 This page summarizes practical debugging workflows for TARDIS's Numba-powered
-Monte Carlo path. It is based on Numba's current debugging guidance:
+code. It is based on Numba's current debugging guidance:
 
 - https://numba.readthedocs.io/en/stable/developer/debugging.html
 - https://numba.readthedocs.io/en/stable/user/troubleshoot.html#debugging-jit-compiled-code-with-gdb
@@ -83,7 +83,30 @@ Notebook tips for live inspection:
 - print/plot intermediate estimators instead of only final spectra,
 - if state becomes unclear, restart kernel and re-run sequentially.
 
-2) Debug compiled CPU code with GDB
+2) Diagnose and fix type errors
+===============================
+
+Many Numba failures are typing failures (for example ``TypingError`` and
+"cannot unify" messages).
+
+They can often be resolved by simply disabled JIT and allowing pure Python
+errors to reveal the underlying type issues.
+
+Detailed workflow for harder problems:
+
+- isolate the failing call in a cell that executes only the problematic
+	function where possible,
+- read the failing operation and operand types directly from the exception,
+- force stable dtypes at entry and exit points (for example with ``numpy.asarray(...,
+	dtype=...)``),
+- avoid mixed return types across branched code paths,
+- replace empty or mixed Python lists with typed containers or fixed-dtype
+	arrays.
+
+When needed, temporarily split a large jitted function into smaller helpers so
+the failing expression is easier to localize.
+
+1) Debug compiled CPU code with GDB
 ===================================
 
 For issues that only appear with JIT enabled, run with debug-oriented Numba
@@ -115,7 +138,7 @@ For notebook users: once you suspect a native-level issue, reproduce it in a
 small script or one-liner command and attach GDB there. This is typically more
 reliable than trying to drive ``gdb`` from inside an active notebook session.
 
-3) Memcheck for suspected native memory errors
+4) Memcheck for suspected native memory errors
 ==============================================
 
 If you suspect out-of-bounds access or use-after-free behavior in compiled
