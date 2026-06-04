@@ -159,7 +159,7 @@ class MCTransportSolverNonhomologous(HDFWriterMixin):
             Transport state containing all the data needed for the Monte Carlo simulation
         show_progress_bars : bool
             Show progress bars
-        enable_rpacket_tracking : bool or None
+        enable_rpacket_tracking : bool
             Write packet data to tracker.
 
         Returns
