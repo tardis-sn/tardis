@@ -165,7 +165,7 @@ def continuum_solver_input_data(iip_atom_data):
     # Exclude ground state (0)
     coll_exc_cool_destinations = iip_atom_data.levels.xs(
         (1, 0), drop_level=False
-    ).index[1:]
+    ).index[:-1]
 
     coll_ion_cool_rate = np.random.uniform(1e-21, 1e-19, size=n_shells)
 
