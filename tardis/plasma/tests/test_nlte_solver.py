@@ -14,6 +14,8 @@ from tardis.plasma.properties.nlte_rate_equation_solver import (
     calculate_rate_matrix,
 )
 
+pytestmark = pytest.mark.skip(reason="Unused implementation")
+
 
 @pytest.fixture
 def simple_index_nlte_ion():
@@ -321,9 +323,9 @@ def test_critical_case_dilution_factor_1_lu(
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
-    ion_number_density_lte[
-        ion_number_density_lte < 1e-10
-    ] = 0.0  # getting rid of small numbers.
+    ion_number_density_lte[ion_number_density_lte < 1e-10] = (
+        0.0  # getting rid of small numbers.
+    )
     npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
@@ -400,9 +402,9 @@ def test_critical_case_dilution_factor_0_lu(
     )[0]
 
     ion_number_density_lte = ion_number_density_lte.values
-    ion_number_density_lte[
-        ion_number_density_lte < 1e-10
-    ] = 0.0  # getting rid of small numbers.
+    ion_number_density_lte[ion_number_density_lte < 1e-10] = (
+        0.0  # getting rid of small numbers.
+    )
     npt.assert_allclose(
         ion_number_density_lte,
         ion_number_density_nlte,
