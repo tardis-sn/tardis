@@ -37,15 +37,17 @@ def simulation_state(request, atomic_dataset):
 @pytest.fixture(
     scope="class",
     params=[
-        pytest.param(UNIFORM_10KK, UNIFORM_ONE_DILUTION_FACTOR, id="T_10kK_dilution_1"),
         pytest.param(
-            UNIFORM_10KK,
-            np.array([0.8, 0.6, 0.4]),
+            (UNIFORM_10KK, UNIFORM_ONE_DILUTION_FACTOR), id="T_10kK_dilution_1"
+        ),
+        pytest.param(
+            (UNIFORM_10KK, np.array([0.8, 0.6, 0.4])),
             id="T_10kK_dilution_0.8_0.6_0.4",
         ),
-        pytest.param(UNIFORM_10KK, np.array([0, 0, 0]), id="T_10kK_dilution_0"),
+        pytest.param((UNIFORM_10KK, np.array([0, 0, 0])), id="T_10kK_dilution_0"),
         pytest.param(
-            [8000, 6000, 4000] * u.K, UNIFORM_ONE_DILUTION_FACTOR, id="T_8k_6k_4kK"
+            ([8000, 6000, 4000] * u.K, UNIFORM_ONE_DILUTION_FACTOR),
+            id="T_8k_6k_4kK",
         ),
     ],
 )
