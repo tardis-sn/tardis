@@ -1377,7 +1377,7 @@ class CustomAbundanceWidget:
 
             return pn.Column(
                     self.tbs_scale,
-                    self.fig,
+                    pn.panel(self.fig, sizing_mode="stretch_width"),
                     box_head,
                     main_tab,
                     box_output,
