@@ -454,6 +454,8 @@ class CustomAbundanceWidget:
         self.checks = [
             pn.widgets.Checkbox(
                 width=30,
+                sizing_mode="stretch_height",
+                margin=(25, 0, 0, 0)
             )
             for element in self.data.elements
         ]
@@ -1296,7 +1298,7 @@ class CustomAbundanceWidget:
             self.box_editor = pn.Row(
                     pn.Column(*self.input_items),
                     pn.Column(
-                        *self.checks, margin=(0, 0, 0, 10)
+                        *self.checks
                     ),
             )
 
