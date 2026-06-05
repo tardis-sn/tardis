@@ -117,6 +117,10 @@ class HDFWriterMixin:
                 value = value.cgs.value
             if np.isscalar(value):
                 scalars[key] = value
+            elif isinstance(value, pd.MultiIndex):
+                value.to_frame(index=False).to_hdf(
+                    buf, key=str(Path(path) / key), format=format
+                )
             elif hasattr(value, "shape"):
                 if value.ndim == 1:
                     # This try,except block is only for model.plasma.levels

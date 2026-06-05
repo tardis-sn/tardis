@@ -5,7 +5,7 @@ from astropy import units as u
 from tardis.transport.montecarlo.packet_source.base import BasePacketSource
 
 
-class TestablePacketSource(BasePacketSource):
+class ConcretePacketSource(BasePacketSource):
     """Concrete implementation of BasePacketSource for testing."""
 
     def __init__(self, **kwargs):
@@ -30,7 +30,7 @@ class TestBasePacketSource:
     @pytest.fixture
     def base_packet_source(self):
         """Create a testable packet source instance."""
-        return TestablePacketSource(base_seed=1963)
+        return ConcretePacketSource(base_seed=1963)
 
     def test_initialization(self, base_packet_source):
         """Test basic initialization of packet source."""
@@ -64,7 +64,7 @@ class TestBasePacketSource:
 
     def test_create_packets_no_base_seed(self):
         """Test that packet creation fails without base_seed."""
-        source = TestablePacketSource(base_seed=None)
+        source = ConcretePacketSource(base_seed=None)
         with pytest.raises(ValueError, match="base_seed must be set"):
             source.create_packets(10)
 
