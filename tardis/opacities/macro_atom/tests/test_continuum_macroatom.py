@@ -162,7 +162,7 @@ def continuum_solver_input_data(iip_atom_data):
     )
 
     # Create MultiIndex for collisional excitation cooling destinations
-    # Exclude ground state (0)
+    # Exclude ground state (0) and ionized state (n_levels - 1)
     coll_exc_cool_destinations = iip_atom_data.levels.xs(
         (1, 0), drop_level=False
     ).index[:-1]
