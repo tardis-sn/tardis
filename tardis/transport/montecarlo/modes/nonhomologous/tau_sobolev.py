@@ -21,7 +21,7 @@ SOBOLEV_COEFFICIENT = (
 def calculate_sobolev_line_opacity(
     lines,
     level_number_density,
-    time_explosion,
+    velocity_gradient,
     stimulated_emission_factor,
 ):
     """
@@ -33,8 +33,8 @@ def calculate_sobolev_line_opacity(
         DataFrame containing information about spectral lines.
     level_number_density : pandas.DataFrame
         DataFrame with level number densities.
-    time_explosion : astropy.units.Quantity
-        Time since explosion.
+    velocity_gradient : np.ndarray
+        Local dv/dr per cell.
     stimulated_emission_factor : float
         Factor for stimulated emission.
 
@@ -55,7 +55,7 @@ def calculate_sobolev_line_opacity(
     tau_sobolevs = (
         (lines.wavelength_cm * lines.f_lu).values[np.newaxis].T
         * SOBOLEV_COEFFICIENT
-        * time_explosion.to(u.s).value
+        / velocity_gradient.to(1 / u.s).value
         * stimulated_emission_factor
         * level_number_density.reindex(lines.droplevel(-1).index).values
     )
@@ -89,10 +89,13 @@ def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
 
 def calculate_beta_sobolev(tau_sobolevs):
     """Calculate the beta Sobolev values based on the provided tau_sobolevs.
+    Values from the previous iteration can be provided.
+
     Parameters
     ----------
     tau_sobolevs : pd.DataFrame
         Tau Sobolev opacities.
+
     Returns
     -------
     pd.DataFrame
@@ -130,7 +133,7 @@ class TauSobolev(ProcessingPlasmaProperty):
         self,
         lines,
         level_number_density,
-        time_explosion,
+        velocity_gradient,
         stimulated_emission_factor,
     ):
         """
@@ -144,8 +147,8 @@ class TauSobolev(ProcessingPlasmaProperty):
             DataFrame containing information about spectral lines.
         level_number_density : pandas.DataFrame
             DataFrame with level number densities.
-        time_explosion : astropy.units.Quantity
-            Time since explosion.
+        velocity_gradient : np.ndarray
+            Local dv/dr per cell.
         stimulated_emission_factor : float
             Factor for stimulated emission.
 
@@ -162,7 +165,7 @@ class TauSobolev(ProcessingPlasmaProperty):
         return calculate_sobolev_line_opacity(
             lines,
             level_number_density,
-            time_explosion,
+            velocity_gradient,
             stimulated_emission_factor,
         )
 

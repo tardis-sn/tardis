@@ -25,6 +25,11 @@ def create_absorbing_probs(
     The fundamental matrix is computed to determine absorption probabilities
     and expected number of steps to absorption from each state.
 
+    WARNING: This is currently slower than it needs to be for many element sims.
+    You should be able to slice out and process a subset of the probabilities
+    based on some source state filtering. We have a draft PR open for this
+    but it has not been finished.
+
     Parameters
     ----------
     transition_probabilities : pd.DataFrame
@@ -39,7 +44,7 @@ def create_absorbing_probs(
 
     Returns
     -------
-    tuple[np.ndarray, pd.DataFrame, pd.DataFrame]
+    tuple[np.ndarray, pd.DataFrame]
         - absorbing_probability_matrix : np.ndarray
             Array of shape (num_cells, num_states, num_states) containing
             absorption probabilities from each state for each cell.
@@ -116,6 +121,8 @@ def create_absorbing_probs(
     matrix_rows = [source_idx_to_absorbing_matrix_idx_map[x] for x in rows]
     matrix_cols = [source_idx_to_absorbing_matrix_idx_map[x] for x in cols]
 
+    rows = metadata[internal_mask].source_level_idx.values
+    cols = metadata[internal_mask].destination_level_idx.values
     for cell in range(num_cells):
         print(f"starting cell {cell}")
         # In each cell, solve for absorbing markov chain probability

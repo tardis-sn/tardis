@@ -1,5 +1,14 @@
 ## Changelog
 
+### release-2026.05.31 (2026/05/26 10:11)
+- [3584](https://github.com/tardis-sn/tardis/pull/3584) Post-release 2026.05.26 (3584) (@tardis-bot)
+### release-2026.05.26 (2026/05/26 09:35)
+- [3583](https://github.com/tardis-sn/tardis/pull/3583) Pre-release 2026.05.24 (3583) (@tardis-bot)
+- [3433](https://github.com/tardis-sn/tardis/pull/3433) fix test_convergence_plot_command_line (3433) (@Aaryan-Dadu)
+- [3404](https://github.com/tardis-sn/tardis/pull/3404) [GSOC] Fixed overlapping in SDEC Plot (3404) (@SS-9098)
+- [3528](https://github.com/tardis-sn/tardis/pull/3528) Non-homologous transport mode (3528) (@connor-mcclellan)
+- [3554](https://github.com/tardis-sn/tardis/pull/3554) Add absorbing markov chain processing and Hydrogen complete workflow (3554) (@jvshields)
+- [3574](https://github.com/tardis-sn/tardis/pull/3574) Post-release 2026.05.17 (3574) (@tardis-bot)
 ### release-2026.05.17 (2026/05/09 22:56)
 - [3570](https://github.com/tardis-sn/tardis/pull/3570) Post-release 2026.05.10 (3570) (@tardis-bot)
 ### release-2026.05.10 (2026/05/09 22:20)

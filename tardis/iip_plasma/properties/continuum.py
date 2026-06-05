@@ -1433,7 +1433,6 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         # TODO: RENAME THIS - it's not really delta E yg. It's just the energy diff
         # levels where we have a continuum rate.
         energies = atomic_data.levels.energy
-        # yg_data = atomic_data.yg_data
         index = coll_deexc_coeff.index
         lu_index = index.droplevel("level_number_lower")
         ll_index = index.droplevel("level_number_upper")

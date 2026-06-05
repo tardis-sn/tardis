@@ -185,6 +185,9 @@ class TestPlasma:
 
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
+            # TODO: recreate the atomic data from Carsus and Pandas 3.x to avoid this
+            if attr == "lines":
+                expected.columns.name = "N."
             if attr == "selected_atoms":
                 npt.assert_allclose(actual.values, expected.values)
             elif actual.ndim == 1:
