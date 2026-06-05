@@ -115,7 +115,9 @@ def get_hex_color_strings(length, name="jet"):
     return [mcolors.rgb2hex(cmap(i)[:3]) for i in range(cmap.N)]
 
 
-def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=False):
+def extract_and_process_packet_data(
+    simulation, packets_mode, include_shell_id=False
+):
     """
     Extract and process packet data from the simulation object.
 
@@ -142,7 +144,7 @@ def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=F
         Dictionary containing raw packet data, the full DataFrame `packets_df`,
         and a filtered `packets_df_line_interaction` with line interaction info.
     """
-    if hasattr(simulation, "transport_state"): # for workflows
+    if hasattr(simulation, "transport_state"):  # for workflows
         transport_state = simulation.transport_state
         lines = simulation.plasma_solver.atomic_data.lines
     else:
@@ -177,18 +179,28 @@ def extract_and_process_packet_data(simulation, packets_mode, include_shell_id=F
         )
 
         packet_data = {
-            "last_interaction_type": df_last_emitted["last_interaction_type"].values,
-            "last_line_interaction_in_id": df_last_emitted["line_absorb_id"].values,
-            "last_line_interaction_out_id": df_last_emitted["line_emit_id"].values,
+            "last_interaction_type": df_last_emitted[
+                "last_interaction_type"
+            ].values,
+            "last_line_interaction_in_id": df_last_emitted[
+                "line_absorb_id"
+            ].values,
+            "last_line_interaction_out_id": df_last_emitted[
+                "line_emit_id"
+            ].values,
             "last_line_interaction_in_nu": df_last_emitted["before_nu"].values,
             "last_interaction_in_r": df_last_emitted["radius"].values,
             "nus": packet_nus,
-            "energies": transport_state.packet_collection.output_energies[packet_indices],
+            "energies": transport_state.packet_collection.output_energies[
+                packet_indices
+            ],
             "lambdas": packet_nus.to("angstrom", u.spectral()),
         }
 
         if include_shell_id:
-            packet_data["last_line_interaction_shell_id"] = df_last_emitted["shell_id"].values
+            packet_data["last_line_interaction_shell_id"] = df_last_emitted[
+                "shell_id"
+            ].values
 
     packet_data["packets_df"] = pd.DataFrame(packet_data)
     process_line_interactions(packet_data, lines_df)
@@ -215,9 +227,9 @@ def process_line_interactions(packet_data, lines_df):
 
     if packets_df is not None:
         # Create dataframe of packets that experience line interaction
-        line_mask = (packets_df["last_interaction_type"] != "NO_INTERACTION") & (
-            packets_df["last_line_interaction_in_id"] > -1
-        )
+        line_mask = (
+            packets_df["last_interaction_type"] != "NO_INTERACTION"
+        ) & (packets_df["last_line_interaction_in_id"] > -1)
         packet_data["packets_df_line_interaction"] = packets_df.loc[
             line_mask
         ].copy()
@@ -241,22 +253,24 @@ def process_line_interactions(packet_data, lines_df):
         # Add columns for the species ID of last interaction
         packet_data["packets_df_line_interaction"][
             "last_line_interaction_species"
-        ] = list(zip(
-            lines_df["atomic_number"]
-            .iloc[
-                packet_data["packets_df_line_interaction"][
-                    "last_line_interaction_out_id"
+        ] = list(
+            zip(
+                lines_df["atomic_number"]
+                .iloc[
+                    packet_data["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
                 ]
-            ]
-            .to_numpy(),
-            lines_df["ion_number"]
-            .iloc[
-                packet_data["packets_df_line_interaction"][
-                    "last_line_interaction_out_id"
+                .to_numpy(),
+                lines_df["ion_number"]
+                .iloc[
+                    packet_data["packets_df_line_interaction"][
+                        "last_line_interaction_out_id"
+                    ]
                 ]
-            ]
-            .to_numpy()
-        ))
+                .to_numpy(),
+            )
+        )
 
 
 def extract_and_process_packet_data_hdf(hdf, packets_mode):
@@ -604,7 +618,7 @@ def create_wavelength_mask(
     if packet_wvl_range is None:
         return np.ones(df.shape[0], dtype=bool)
 
-    packet_nu_range = packet_wvl_range.to("Hz", u.spectral())
+    packet_nu_range = packet_wvl_range.to("Hz", u.spectral()).value
 
     return (df[column_name] < packet_nu_range[0]) & (
         df[column_name] > packet_nu_range[1]
