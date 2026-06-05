@@ -20,6 +20,7 @@ Use existing project docs.
 
 ## Environment
 
+- Uses conda, likely named `tardis`
 - numpy 2.x
 - astropy 7.x
 - pandas 3.x
