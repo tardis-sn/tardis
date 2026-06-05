@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packet Propagation &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3e4d06fd"></script>
+      <script src="../../_static/documentation_options.js?v=92493caf"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -185,7 +185,7 @@ safely applied, no general relativistic effects which would force photons on
 curved trajectories are included.</p>
 </div>
 <p>In spherical geometry, this propagation process may be illustrated by the
-following sketch (taken from <span id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>):</p>
+following sketch (taken from <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>):</p>
 <a class="reference internal image-reference" href="../../_images/spherical_symmetry.png"><img alt="../../_images/spherical_symmetry.png" src="../../_images/spherical_symmetry.png" style="width: 500px;" />
 </a>
 <p>The packet starts the propagation at <span class="math notranslate nohighlight">\(r_i\)</span> along the direction
@@ -348,7 +348,7 @@ optical depth <span class="math notranslate nohighlight">\(\tau_\mathrm{Sobolev}
 <section id="distance-to-next-event">
 <h3>Distance to Next Event<a class="headerlink" href="#distance-to-next-event" title="Link to this heading">¶</a></h3>
 <p>With these assumptions, the accumulation of optical depth along a packet’s trajectory currently proceeds according
-to the following scheme (which was originally introduced by <span id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):
+to the following scheme (which was originally introduced by <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):
 given the current lab-frame frequency of the packet, the distance to the next
 Sobolev point (i.e. to the next line resonance) is calculated as discussed above.
 Until this location, the packet continuously accumulates optical depth due to the possibility of
@@ -358,8 +358,8 @@ procedure is repeated, now with respect to the next transition in the
 frequency-ordered list of all possible atomic line transitions. The point at
 which the accumulated optical depth reaches the randomly generated interaction optical depth
 <span class="math notranslate nohighlight">\(\tau_\mathrm{interaction}\)</span> determines the type of interaction the packet performs and at which location in
-the spatial mesh, as shown with the example cases in the sketch below (taken from <span id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>, adapted from
-<span id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):</p>
+the spatial mesh, as shown with the example cases in the sketch below (taken from <span class="bibtex-citation" id="id4">[<a class="reference internal" href="../../resources/zreferences.html#id15" title="U. M. Noebauer. A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows. Dissertation, Technische Universität München, München, 2014. URL: http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8.">Noebauer14</a>]</span>, adapted from
+<span class="bibtex-citation" id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>):</p>
 <a class="reference internal image-reference" href="../../_images/optical_depth_summation.png"><img alt="../../_images/optical_depth_summation.png" src="../../_images/optical_depth_summation.png" style="width: 500px;" />
 </a>
 <p>Three possible cases are highlighted in the above diagram, with the dotted lines showing the (randomly assigned)
@@ -486,7 +486,7 @@ radiation field emitted by the photosphere in the following way:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 03 Jun 2026.
+      <span class="lastupdated">Last updated on 05 Jun 2026.
       </span></p>
   </div>
 
