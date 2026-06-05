@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from numba import njit
+from numba.typed import List
 from pandas.api.types import CategoricalDtype
 
 from tardis.transport.montecarlo.packets.radiative_packet import (
@@ -339,7 +340,7 @@ def generate_tracker_full_list(
     list
         A list containing RPacketTracker for each RPacket.
     """
-    rpacket_trackers = []
+    rpacket_trackers = List()
     for i in range(no_of_packets):
         rpacket_trackers.append(
             TrackerFull(length, extend_factor)

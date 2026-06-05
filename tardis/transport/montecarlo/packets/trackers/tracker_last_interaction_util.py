@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from numba import njit
+from numba.typed import List
 from pandas.api.types import CategoricalDtype
 
 from tardis.transport.montecarlo.packets.radiative_packet import (
@@ -23,8 +24,7 @@ def generate_tracker_last_interaction_list(no_of_packets):
     -------
     A list containing RPacketLastInteractionTracker for each RPacket
     """
-    # Create individual trackers - the List will be created externally
-    trackers = []
+    trackers = List()
     for i in range(no_of_packets):
         trackers.append(TrackerLastInteraction())
     return trackers
