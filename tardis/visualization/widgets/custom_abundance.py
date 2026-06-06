@@ -567,20 +567,20 @@ class CustomAbundanceWidget:
         )
         self.tbs_scale.param.watch(self.tbs_scale_eventhandler, "value")
 
-        self.rbs_single_apply = pn.widgets.RadioBoxGroup(
+        self.rbs_single_apply = pn.widgets.CheckBoxGroup(
             options=["Only selected shell"],
             margin=(10, 0, 0, 0),
+            value=["Only selected shell"],
         )
-        self.rbs_single_apply.param.watch(
+        self._watcher_single_apply= self.rbs_single_apply.param.watch(
             self.rbs_single_apply_eventhandler, "value"
         )
-        self.rbs_multi_apply = pn.widgets.RadioBoxGroup(
+        self.rbs_multi_apply = pn.widgets.CheckBoxGroup(
             options=["A range of shells: "],
-            value=None,
             width=130,
             margin=(10, 0, 10, 0),
         )
-        self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, "value")
+        self._watcher_multi_apply= self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, "value")
 
     def update_input_item_value(self, index, value):
         """Update the value of the widget in the list of abundance inputs.
@@ -891,7 +891,7 @@ class CustomAbundanceWidget:
                 obj.obj.value
             )
 
-            if self.rbs_multi_apply.value is None:
+            if self.rbs_multi_apply.value is []:
                 self.update_abundance_plot(item_index)
             else:
                 self.apply_to_multiple_shells(item_index)
@@ -982,7 +982,7 @@ class CustomAbundanceWidget:
         self.read_abundance()
 
         for i in range(self.no_of_elements):
-            if self.rbs_multi_apply.value is None:
+            if self.rbs_multi_apply.value is []:
                 # Only normalize selected shell
                 self.update_abundance_plot(i)
             else:
@@ -1048,7 +1048,7 @@ class CustomAbundanceWidget:
 
         # Add new Input control and Checkbox control.
         item = pn.widgets.FloatInput(start=0, end=1, step=0.01)
-        check = pn.widgets.Checkbox(inline=True, width=30)
+        check = pn.widgets.Checkbox(width=30)
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
         item.param.watch(self.input_item_eventhandler, "value")
@@ -1166,7 +1166,7 @@ class CustomAbundanceWidget:
         self.abundance_note.visible = False
 
         self.rbs_multi_apply.param.unwatch(self._watcher_multi_apply)
-        self.rbs_multi_apply.value = None
+        self.rbs_multi_apply.value = []
         self._watcher_multi_apply = self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, "value")
 
         self.dpd_shell_no.disabled = False
@@ -1189,7 +1189,7 @@ class CustomAbundanceWidget:
         self.shell_no = self.irs_shell_range.value[0]
 
         self.rbs_single_apply.param.unwatch(self._watcher_single_apply)
-        self.rbs_single_apply.value = None
+        self.rbs_single_apply.value = []
         self._watcher_single_apply = self.rbs_single_apply.param.watch(
             self.rbs_single_apply_eventhandler, "value"
         )
