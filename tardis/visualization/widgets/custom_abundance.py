@@ -526,14 +526,14 @@ class CustomAbundanceWidget:
         self.input_v_start = pn.widgets.FloatInput(
             start=0,
             step=1,
-            name="Add shell(s) with velocity range (km/s): ",
-            width=320,
+            width=110,
+            align='end',
         )
         self.input_v_end = pn.widgets.FloatInput(
             start=0,
             step=1,
-            name="to",
-            width=110
+            width=110,
+            align='end',
         )
         self.input_v_start.param.watch(self.input_v_eventhandler, "value")
         self.input_v_end.param.watch(self.input_v_eventhandler, "value")
@@ -545,6 +545,7 @@ class CustomAbundanceWidget:
 
         self.btn_output = pn.widgets.Button(
             name="Output CSVY File",
+            align="end",
         )
         self.btn_output.on_click(self.on_btn_output)
 
@@ -558,6 +559,7 @@ class CustomAbundanceWidget:
 
         self.ckb_overwrite = pn.widgets.Checkbox(
             name="overwrite",
+            align="center",
         )
 
         self.tbs_scale = pn.widgets.RadioButtonGroup(
@@ -1303,11 +1305,20 @@ class CustomAbundanceWidget:
             )
 
             box_add_shell = pn.Row(
-                    self.input_v_start,
-                    self.input_v_end,
+                    pn.Row(
+                        pn.pane.Str("Add shell(s) with velocity range (km/s): ", align='center'),
+                        self.input_v_start,
+                        align='end',
+                    ),
+                    pn.Row(
+                        pn.pane.Str("to", align='center'),
+                        self.input_v_end,
+                        align='end',
+                    ),
                     self.btn_add_shell,
                     self.overwrite_warning,
                 margin=(0, 0, 0, 50),
+                align='end',
             )
 
             box_head = pn.Row(
