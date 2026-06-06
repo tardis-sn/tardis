@@ -476,7 +476,7 @@ class CustomAbundanceWidget:
 
         self.btn_norm = pn.widgets.Button(
             name="Normalize",
-            icon="cog",
+            icon="settings",
             width=100,
             margin=(0, 0, 0, 50),
         )
@@ -497,7 +497,7 @@ class CustomAbundanceWidget:
         )
         self.input_symb.param.watch(self.input_symb_eventhandler, "value")
         self.btn_add_element = pn.widgets.Button(
-            icon="plus-square",
+            icon="square-plus",
             name="Add",
             disabled=True,
             width=60,
@@ -516,7 +516,7 @@ class CustomAbundanceWidget:
         self.irs_shell_range.param.watch(self.irs_shell_range_eventhandler, "value")
 
         self.btn_add_shell = pn.widgets.Button(
-            icon="plus-square",
+            icon="square-plus",
             name="Add",
             disabled=True,
             width=80,
@@ -1330,6 +1330,7 @@ class CustomAbundanceWidget:
             self.abundance_note = pn.pane.HTML(
                 "(The following abundances are for the innermost "
                 "shell in selected range.)",
+                visible=False,
             )
 
             box_norm = pn.Row(self.btn_norm, self.norm_warning)
