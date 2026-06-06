@@ -513,7 +513,7 @@ class CustomAbundanceWidget:
             disabled=True,
             margin=(5, 0, 0, 0),
         )
-        self.irs_shell_range.param.watch(self.irs_shell_range_eventhandler, "value")
+        self.irs_shell_range.param.watch(self.irs_shell_range_eventhandler, "value_throttled")
 
         self.btn_add_shell = pn.widgets.Button(
             icon="square-plus",
@@ -1808,7 +1808,7 @@ class DensityEditor:
         hint2 = pn.pane.HTML(
             "<font size='3'>2) Edit densities for all shells:</font>"
         )
-        d_box = pn.Column(
+        d_box = pn.Row(
             self.input_d, pn.pane.Str("g/cm^3"),
             margin=(0, 0, 20, 0),
         )
