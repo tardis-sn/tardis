@@ -22,7 +22,6 @@ from tardis.transport.montecarlo.modes.nonhomologous.solver import (
 )
 from tardis.util.environment import Environment
 from tardis.visualization import ConvergencePlots
-from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 # logging support
@@ -39,7 +38,7 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
         show_convergence_plots: bool = False,
     ):
         """
-        Inherits from SimpleTARDISWorkflow and overrides the components that
+        Inherits from StandardTARDISWorkflow and overrides the components that
         differ for non-homologous expansion: the geometry, plasma solver,
         opacity solver, and transport solver.
 
@@ -120,34 +119,6 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
         )
 
 
-    def initialize_convergence_plots(self):
-        if not Environment.allows_widget_display():
-            raise RuntimeError(
-                "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
-                "to False."
-            )
-
-        convergence_plots = ConvergencePlots(
-            iterations=self.total_iterations, **self.convergence_plots_kwargs
-        )
-
-        if "export_convergence_plots" in self.convergence_plots_kwargs:
-            if not isinstance(
-                self.convergence_plots_kwargs["export_convergence_plots"],
-                bool,
-            ):
-                raise TypeError(
-                    "Expected bool in export_convergence_plots argument"
-                )
-            export_convergence_plots = self.convergence_plots_kwargs[
-                "export_convergence_plots"
-            ]
-        else:
-            export_convergence_plots = False
-
-        return convergence_plots, export_convergence_plots
-
-
     def get_convergence_estimates(self) -> tuple[dict, object]:
         """Compute convergence estimates from the transport state
 
@@ -184,7 +155,6 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
-
 
         luminosity_ratios = (
             (emitted_luminosity / self.luminosity_requested).to(1).value
@@ -228,19 +198,3 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
             "dilution_factor": estimated_dilution_factor,
             "t_inner": estimated_t_inner,
         }, estimated_radfield_properties
-
-
-    def update_convergence_plot_data(self, plot_data_dict):
-        """Updates convergence plotting data
-
-        Parameters
-        ----------
-        plot_data_dict : dict
-            Dictionary of data to update of the form {"name": [value, item_type]}
-        """
-        for name, (value, item_type) in plot_data_dict.items():
-            self.convergence_plots.fetch_data(
-                name=name,
-                value=value,
-                item_type=item_type,
-            )
