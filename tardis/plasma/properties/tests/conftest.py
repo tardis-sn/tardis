@@ -26,6 +26,11 @@ def beta_rad(t_rad):
     beta_rad_module = BetaRadiation(None)
     return beta_rad_module.calculate(t_rad)
 
+@pytest.fixture
+def g_electron(beta_rad):
+    g_electron_module = GElectron(None)
+    return g_electron_module.calculate(beta_rad)
+
 # ATOMIC PROPERTIES
 
 @pytest.fixture

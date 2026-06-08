@@ -23,6 +23,19 @@ def test_beta_rad(t_rad, beta_rad):
     )
 
 
+def test_g_electron(beta_rad, g_electron):
+    np.testing.assert_allclose(
+        g_electron,
+        (
+            (2 * np.pi * const.m_e.cgs.value / beta_rad)
+            / (const.h.cgs.value**2)
+        )
+        ** 1.5,
+        atol=0,
+        rtol=1e-15,
+    )
+
+
 def test_ionization_data_calculate_atomic_property(
     atomic_dataset, selected_atoms, regression_data
 ):
