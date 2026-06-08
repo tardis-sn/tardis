@@ -380,7 +380,7 @@ class CustomAbundanceWidget:
         If False, disable the callback when abundance input is changed.
     """
 
-    error_view = pn.pane.Alert()
+    error_view = pn.pane.Alert(visible=False)
 
     def __init__(self, widget_data):
         """Initialize CustomAbundanceWidget with data and generate
@@ -1809,7 +1809,7 @@ class DensityEditor:
             "<font size='3'>2) Edit densities for all shells:</font>"
         )
         d_box = pn.Row(
-            self.input_d, pn.pane.Str("g/cm^3"),
+            self.input_d, pn.pane.Str("g/cm^3", align="end"),
             margin=(0, 0, 20, 0),
         )
         widget = pn.Column(
