@@ -13,13 +13,18 @@ levels_property = Levels(plasma_parent=BasePlasma)
 
 
 def test_beta_rad(t_rad, beta_rad):
-    assert np.allclose(beta_rad, 1 / (const.k_B.cgs.value * t_rad))
+    np.testing.assert_allclose(
+        beta_rad,
+        1 / (const.k_B.cgs.value * t_rad),
+        atol=0,
+        rtol=1e-15,
+    )
 
 
 def test_ionization_data_calculate_atomic_property(atomic_dataset, regression_data):
     selected_atoms = [1, 2]
     actual_ionization_data = ionization_data_property.calculate(
-        atomic_dataset.ionization_data, selected_atoms
+        atomic_dataset, selected_atoms
     )
     expected_ionization_data = regression_data.sync_dataframe(
         actual_ionization_data, key="ionization_data"
@@ -46,10 +51,13 @@ def test_ionization_data_incomplete_atomic_data():
 
 def test_levels_calculate(atomic_dataset, regression_data):
     selected_atoms = [1, 2]
-    actual_levels_calculate = levels_property.calculate(
-        atomic_dataset.levels, selected_atoms
+    levels_index, _, _, _ = levels_property.calculate(
+        atomic_dataset, selected_atoms
     )
+    actual_levels_calculate = atomic_dataset.levels.loc[levels_index]
     expected_levels_calculate = regression_data.sync_dataframe(
         actual_levels_calculate, key="filtered_levels"
     )
-    pdt.assert_frame_equal(actual_levels_calculate, expected_levels_calculate)
+    pdt.assert_frame_equal(
+        actual_levels_calculate, expected_levels_calculate, atol=0, rtol=1e-15
+    )
