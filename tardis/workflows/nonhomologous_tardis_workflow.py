@@ -20,14 +20,24 @@ from tardis.transport.montecarlo.modes.nonhomologous.plasma_assembly_base import
 from tardis.transport.montecarlo.modes.nonhomologous.solver import (
     MCTransportSolverNonhomologous,
 )
+from tardis.util.environment import Environment
+from tardis.visualization import ConvergencePlots
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
+from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 # logging support
 logger = logging.getLogger(__name__)
 
 
-class NonhomologousTARDISWorkflow(SimpleTARDISWorkflow):
-    def __init__(self, configuration: Configuration, csvy: bool = False):
+class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
+    def __init__(
+        self,
+        configuration: Configuration,
+        csvy: bool = False,
+        log_level: str | None = None,
+        specific_log_level: bool | None = None,
+        show_convergence_plots: bool = False,
+    ):
         """
         Inherits from SimpleTARDISWorkflow and overrides the components that
         differ for non-homologous expansion: the geometry, plasma solver,
@@ -39,8 +49,20 @@ class NonhomologousTARDISWorkflow(SimpleTARDISWorkflow):
             Configuration object for the simulation.
         csvy
             Set true if the configuration uses CSVY.
+        log_level
+            Sets the logging Level for the logger
+        specific_log_level
+            Allows for logging on the specified logging levels
+        show_convergence_plots
+            Whether to display convergence plots while iterating
         """
-        super().__init__(configuration, csvy)
+        super().__init__(
+            configuration,
+            csvy=csvy,
+            log_level=log_level,
+            specific_log_level=specific_log_level,
+            show_convergence_plots=show_convergence_plots,
+        )
         atom_data = parse_atom_data(configuration)
 
         # Replace the default geometry of the SimpleTARDISWorkflow
@@ -97,6 +119,35 @@ class NonhomologousTARDISWorkflow(SimpleTARDISWorkflow):
             enable_virtual_packet_logging=self.enable_virtual_packet_logging,
         )
 
+
+    def initialize_convergence_plots(self):
+        if not Environment.allows_widget_display():
+            raise RuntimeError(
+                "Convergence Plots cannot be displayed in command-line. Set show_convergence_plots "
+                "to False."
+            )
+
+        convergence_plots = ConvergencePlots(
+            iterations=self.total_iterations, **self.convergence_plots_kwargs
+        )
+
+        if "export_convergence_plots" in self.convergence_plots_kwargs:
+            if not isinstance(
+                self.convergence_plots_kwargs["export_convergence_plots"],
+                bool,
+            ):
+                raise TypeError(
+                    "Expected bool in export_convergence_plots argument"
+                )
+            export_convergence_plots = self.convergence_plots_kwargs[
+                "export_convergence_plots"
+            ]
+        else:
+            export_convergence_plots = False
+
+        return convergence_plots, export_convergence_plots
+
+
     def get_convergence_estimates(self) -> tuple[dict, object]:
         """Compute convergence estimates from the transport state
 
@@ -127,6 +178,13 @@ class NonhomologousTARDISWorkflow(SimpleTARDISWorkflow):
             self.luminosity_nu_start,
             self.luminosity_nu_end,
         )
+        absorbed_luminosity = calculate_filtered_luminosity(
+            self.transport_state.reabsorbed_packet_nu,
+            self.transport_state.reabsorbed_packet_luminosity,
+            self.luminosity_nu_start,
+            self.luminosity_nu_end,
+        )
+
 
         luminosity_ratios = (
             (emitted_luminosity / self.luminosity_requested).to(1).value
@@ -138,8 +196,51 @@ class NonhomologousTARDISWorkflow(SimpleTARDISWorkflow):
             ** self.convergence_strategy.t_inner_update_exponent
         )
 
+        if self.convergence_plots is not None:
+            plot_data = {
+                "t_inner": [self.simulation_state.t_inner.value, "value"],
+                "t_rad": [self.simulation_state.t_radiative, "iterable"],
+                "w": [self.simulation_state.dilution_factor, "iterable"],
+                "velocity": [self.simulation_state.velocity, "iterable"],
+                "Emitted": [emitted_luminosity.value, "value"],
+                "Absorbed": [absorbed_luminosity.value, "value"],
+                "Requested": [self.luminosity_requested.value, "value"],
+            }
+            self.update_convergence_plot_data(plot_data)
+
+        logger.info(
+            f"\n\tLuminosity emitted   = {emitted_luminosity:.3e}\n"
+            f"\tLuminosity absorbed  = {absorbed_luminosity:.3e}\n"
+            f"\tLuminosity requested = {self.luminosity_requested:.3e}\n"
+        )
+
+        self.log_plasma_state(
+            self.simulation_state.t_radiative,
+            self.simulation_state.dilution_factor,
+            self.simulation_state.t_inner,
+            estimated_t_radiative,
+            estimated_dilution_factor,
+            estimated_t_inner,
+        )
+
         return {
             "t_radiative": estimated_t_radiative,
             "dilution_factor": estimated_dilution_factor,
             "t_inner": estimated_t_inner,
         }, estimated_radfield_properties
+
+
+    def update_convergence_plot_data(self, plot_data_dict):
+        """Updates convergence plotting data
+
+        Parameters
+        ----------
+        plot_data_dict : dict
+            Dictionary of data to update of the form {"name": [value, item_type]}
+        """
+        for name, (value, item_type) in plot_data_dict.items():
+            self.convergence_plots.fetch_data(
+                name=name,
+                value=value,
+                item_type=item_type,
+            )
