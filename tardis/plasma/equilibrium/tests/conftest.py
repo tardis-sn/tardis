@@ -61,11 +61,6 @@ def radiative_transitions(new_chianti_atomic_dataset_si, request):
     return new_chianti_atomic_dataset_si.lines.loc[request.param, :]
 
 
-@pytest.fixture
-def radiative_rate_solver(radiative_transitions):
-    return RadiativeRatesSolver(radiative_transitions)
-
-
 @pytest.fixture(params=[(14, 1, slice(None), slice(None))])
 def collisional_rate_solver(
     new_chianti_atomic_dataset_si, radiative_transitions, request
@@ -83,6 +78,11 @@ def collisional_rate_solver(
         col_strengths,
         "chianti",
     )
+
+
+@pytest.fixture
+def radiative_rate_solver(radiative_transitions):
+    return RadiativeRatesSolver(radiative_transitions)
 
 
 @pytest.fixture

@@ -101,15 +101,16 @@ def calculate_beta_sobolev(tau_sobolevs):
     pd.DataFrame
         The latest Beta Sobolev opacities.
     """
-    beta_sobolev = pd.DataFrame(
-        0.0, index=tau_sobolevs.index, columns=tau_sobolevs.columns
-    )
+    tau_values_1d = tau_sobolevs.to_numpy().ravel()
+    beta_values_1d = np.zeros(tau_values_1d.shape[0], dtype=np.float64)
 
-    numba_calculate_beta_sobolev(
-        tau_sobolevs.values.ravel(), beta_sobolev.values.ravel()
-    )
+    numba_calculate_beta_sobolev(tau_values_1d, beta_values_1d)
 
-    return beta_sobolev
+    return pd.DataFrame(
+        beta_values_1d.reshape(tau_sobolevs.shape),
+        index=tau_sobolevs.index,
+        columns=tau_sobolevs.columns,
+    )
 
 
 class TauSobolev(ProcessingPlasmaProperty):

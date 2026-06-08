@@ -6,7 +6,7 @@ import panel as pn
 from astropy import units as u
 
 from bokeh.plotting import figure
-from bokeh.models import ColumnDataSource
+from bokeh.models import BoxSelectTool, ColumnDataSource
 from tardis.analysis import LastLineInteraction
 from tardis.util.base import (
     species_string_to_tuple,
@@ -17,6 +17,7 @@ from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 from tardis.util.environment import Environment
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
@@ -52,6 +53,7 @@ class LineInfoWidget:
         spectrum_luminosity_density_lambda,
         virt_spectrum_wavelength,
         virt_spectrum_luminosity_density_lambda,
+        sdec_figure=None
     ):
         """
         Initialize the LineInfoWidget with line interaction and spectrum data.
@@ -68,11 +70,13 @@ class LineInfoWidget:
         spectrum_luminosity_density_lambda : astropy.Quantity
             Luminosity density lambda values of a real spectrum, having unit
             of (erg/s)/Angstrom
-        virt_spectrum_wavelength : astropy.Quantity
+        virt_spectrum_wavelength : astropy.Quantity, optional
             Wavelength values of a virtual spectrum, having unit of Angstrom
-        virt_spectrum_luminosity_density_lambda : astropy.Quantity
+        virt_spectrum_luminosity_density_lambda : astropy.Quantity, optional
             Luminosity density lambda values of a virtual spectrum, having unit
             of (erg/s)/Angstrom
+        sdec_figure : bokeh.plotting.figure or None
+            Bokeh figure to use instead of base plot_spectrum() when sdec plot is needed.
         """
         self.lines_data = lines_data
         self.line_interaction_analysis = line_interaction_analysis
@@ -95,12 +99,19 @@ class LineInfoWidget:
             label_value=0,
         )
 
-        self.figure_widget = self.plot_spectrum(
-            spectrum_wavelength,
-            spectrum_luminosity_density_lambda,
-            virt_spectrum_wavelength,
-            virt_spectrum_luminosity_density_lambda,
-        )
+        if sdec_figure is not None:
+            self.figure_widget = self._setup_selection(
+                p=sdec_figure,
+                wavelength=spectrum_wavelength,
+                luminosity_density_lambda=spectrum_luminosity_density_lambda
+            )
+        else:
+            self.figure_widget = self.plot_spectrum(
+                spectrum_wavelength,
+                spectrum_luminosity_density_lambda,
+                virt_spectrum_wavelength,
+                virt_spectrum_luminosity_density_lambda,
+            )
 
         self.filter_mode_buttons = pn.widgets.RadioButtonGroup(
             options=list(self.FILTER_MODES_DESC),
@@ -114,7 +125,7 @@ class LineInfoWidget:
         self._current_wavelength_range = None  # Track current selection
 
     @classmethod
-    def from_simulation(cls, sim):
+    def from_simulation(cls, sim, show_sdec=False, sdec_kwargs={}):
         """
         Create an instance of LineInfoWidget from a TARDIS simulation object.
 
@@ -122,12 +133,22 @@ class LineInfoWidget:
         ----------
         sim : tardis.simulation.Simulation
             TARDIS Simulation object produced by running a simulation
+        show_sdec : bool, optional
+            Whether to show SDEC Plot in place of the base spectrum plot. Default is False.
+        sdec_kwargs : dict, optional
+            Keyword arguments supported by SDECPlotter.generate_plot_bk().
 
         Returns
         -------
         LineInfoWidget object
         """
         spectrum_solver = sim.spectrum_solver
+
+        sdec_figure = None
+        if show_sdec:
+            plotter = SDECPlotter.from_simulation(sim)
+            sdec_figure = plotter.generate_plot_bk(**sdec_kwargs)
+
         return cls(
             lines_data=sim.plasma.lines.reset_index().set_index("line_id"),
             line_interaction_analysis={
@@ -144,6 +165,7 @@ class LineInfoWidget:
             virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
+            sdec_figure=sdec_figure
         )
 
     def get_species_interactions(
@@ -421,6 +443,56 @@ class LineInfoWidget:
             (arr[-1] - arr[0]) * 3 / 4 + arr[1],
         ]
 
+    def _setup_selection(self, p, wavelength, luminosity_density_lambda):
+        """
+        Shared logic for setting up plot selection callbacks and shapes.
+        """
+
+        # Create invisible scatter for selection (needed for box select to work)
+        source = ColumnDataSource(
+            dict(x=wavelength.value, y=luminosity_density_lambda.value)
+        )
+        scatter_renderer = p.scatter("x", "y", source=source, alpha=0, size=1)
+
+        # Restrict selection to the scatter points and activate box select
+        box_select_tools = p.select(type=BoxSelectTool)
+        if box_select_tools:
+            for tool in box_select_tools:
+                tool.renderers = [scatter_renderer]
+            p.toolbar.active_drag = box_select_tools[0]
+
+        # Create selection overlay source (initially empty)
+        selection_source = ColumnDataSource(
+            dict(left=[], right=[], top=[], bottom=[])
+        )
+        p.quad(
+            left="left",
+            right="right",
+            top="top",
+            bottom="bottom",
+            source=selection_source,
+            alpha=0.3,
+            color="lightblue",
+        )
+
+        # Store references for callback
+        self._bokeh_plot = p
+        self._selection_source = selection_source
+
+        # Approximate y_range bounds
+        y_max = np.max(np.abs(luminosity_density_lambda.value)) * 1.5 if len(luminosity_density_lambda.value) > 0 else 1
+        y_min = -y_max if p.title and "SDEC" in str(p.title.text) else 0.0
+        self._y_range = [y_min, y_max]
+
+        self._wavelength_data = (
+            wavelength  # Store wavelength data for callback access
+        )
+
+        # Connect selection callback
+        source.selected.on_change("indices", self._selection_callback)
+
+        return pn.pane.Bokeh(p)
+
     def plot_spectrum(
         self,
         wavelength,
@@ -429,7 +501,7 @@ class LineInfoWidget:
         virt_luminosity_density_lambda,
     ):
         """
-        Produce a plotly figure widget by plotting the spectrum of model.
+        Produce a bokeh figure widget by plotting the spectrum of model.
 
         Parameters
         ----------
@@ -446,7 +518,7 @@ class LineInfoWidget:
 
         Returns
         -------
-        plotly.graph_objects.FigureWidget
+        panel.pane.Bokeh
         """
         # Create Bokeh figure with box select
         p = figure(
@@ -471,41 +543,7 @@ class LineInfoWidget:
             color="red",
         )
 
-        # Create invisible scatter for selection (needed for box select to work)
-        source = ColumnDataSource(
-            dict(x=wavelength.value, y=luminosity_density_lambda.value)
-        )
-        p.scatter("x", "y", source=source, alpha=0, size=1)
-
-        # Create selection overlay source (initially empty)
-        selection_source = ColumnDataSource(
-            dict(left=[], right=[], top=[], bottom=[])
-        )
-        p.quad(
-            left="left",
-            right="right",
-            top="top",
-            bottom="bottom",
-            source=selection_source,
-            alpha=0.3,
-            color="lightblue",
-        )
-
-        # Store references for callback
-        self._bokeh_plot = p
-        self._selection_source = selection_source
-        self._y_range = [
-            luminosity_density_lambda.value.min(),
-            luminosity_density_lambda.value.max(),
-        ]
-        self._wavelength_data = (
-            wavelength  # Store wavelength data for callback access
-        )
-
-        # Connect selection callback
-        source.selected.on_change("indices", self._selection_callback)
-
-        return pn.pane.Bokeh(p)
+        return self._setup_selection(p, wavelength, luminosity_density_lambda)
 
     def _selection_callback(self, _attr, _old, new):
         """
