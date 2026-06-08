@@ -4,7 +4,7 @@ from typing import Optional
 import astropy.units as u
 import numpy as np
 import pandas as pd
-from numba.typed import List
+from numba.typed import List as TypedList
 
 from tardis.transport.montecarlo.packet_source.high_energy import (
     GammaRayPacketSource,
@@ -260,7 +260,7 @@ def run_gamma_ray_loop(
 
     logger.info("Creating packet list")
     # This for loop is expensive. Need to rewrite GX packet to handle arrays
-    packets = List()
+    packets = TypedList()
     for i in range(number_of_packets):
         packets.append(
             GXPacket(

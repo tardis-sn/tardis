@@ -3,7 +3,7 @@
 import numpy as np
 from numba import njit, objmode, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
-from numba.typed import List
+from numba.typed import List as TypedList
 
 from tardis.model.geometry.radial1d_nonhomologous import (
     NumbaNonhomologousRadial1DGeometry,
@@ -43,7 +43,7 @@ def montecarlo_transport(
     opacity_state_numba: OpacityStateNumba,
     montecarlo_configuration: MonteCarloConfiguration,
     spectrum_frequency_grid: np.ndarray,
-    trackers: List,
+    trackers: TypedList,
     number_of_vpackets: int,
     show_progress_bars: bool,
 ) -> tuple[
@@ -95,7 +95,7 @@ def montecarlo_transport(
     delta_nu = spectrum_frequency_grid[1] - spectrum_frequency_grid[0]
 
     # Pre-allocate a list of vpacket collections for later storage
-    vpacket_collections = List()
+    vpacket_collections = TypedList()
     for i in range(no_of_packets):
         vpacket_collections.append(
             VPacketCollection(
