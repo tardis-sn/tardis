@@ -6,10 +6,12 @@ import pytest
 from tardis import constants as const
 from tardis.plasma.base import BasePlasma
 from tardis.plasma.exceptions import IncompleteAtomicData
-from tardis.plasma.properties.atomic import IonizationData, Levels
+from tardis.plasma.properties.atomic import IonizationData, Levels, Lines
 from tardis.plasma.properties.partition_function import PartitionFunction
 
+
 ionization_data_property = IonizationData(plasma_parent=BasePlasma)
+lines_property = Lines(plasma_parent=BasePlasma)
 levels_property = Levels(plasma_parent=BasePlasma)
 partition_function_property = PartitionFunction(plasma_parent=BasePlasma)
 
@@ -34,6 +36,7 @@ def test_g_electron(beta_rad, g_electron):
         atol=0,
         rtol=1e-15,
     )
+
 
 
 def test_selected_atoms(number_density, selected_atoms):
@@ -69,15 +72,35 @@ def test_ionization_data_incomplete_atomic_data(selected_atoms):
     )
 
 def test_levels_calculate(atomic_dataset, selected_atoms, regression_data):
-    levels_index, _, _, _ = levels_property.calculate(
+    levels_index, excitation_energy, metastability, g = levels_property.calculate(
         atomic_dataset, selected_atoms
     )
-    actual_levels_calculate = atomic_dataset.levels.loc[levels_index]
-    expected_levels_calculate = regression_data.sync_dataframe(
-        actual_levels_calculate, key="calculated_levels"
+
+    actual_levels = pd.DataFrame(
+        {
+            "excitation_energy": excitation_energy,
+            "metastability": metastability,
+            "g": g,
+        },
+        index=levels_index,
+    )
+    expected_levels = regression_data.sync_dataframe(
+        actual_levels, key="calculated_levels"
     )
     pdt.assert_frame_equal(
-        actual_levels_calculate, expected_levels_calculate, atol=0, rtol=1e-15
+        actual_levels, expected_levels, atol=0, rtol=1e-15
+    )
+
+
+def test_lines_calculate(atomic_dataset, selected_atoms, regression_data):
+    actual_lines, _, _, _ = lines_property.calculate(
+        atomic_dataset, selected_atoms
+    )
+    expected_lines = regression_data.sync_dataframe(
+        actual_lines, key="calculated_lines"
+    )
+    pdt.assert_frame_equal(
+        actual_lines, expected_lines, atol=0, rtol=1e-15
     )
 
 def test_partition_function_calculate(level_boltzmann_factor_lte, regression_data):

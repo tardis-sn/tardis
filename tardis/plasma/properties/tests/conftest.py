@@ -16,6 +16,21 @@ def number_of_cells():
     return 20
 
 @pytest.fixture
+def abundance(number_of_cells):
+    return pd.DataFrame(
+        data=[[0.8] * number_of_cells, [0.2] * number_of_cells],
+        index=pd.Index([1, 2], name="atomic_number"),
+        columns=range(number_of_cells),
+        dtype=np.float64,
+    )
+
+
+@pytest.fixture
+def density(number_of_cells):
+    return np.ones(number_of_cells) * 1e-14
+
+
+@pytest.fixture
 def t_rad(number_of_cells):
     return np.ones(number_of_cells) * 10000
 
@@ -32,10 +47,13 @@ def g_electron(beta_rad):
     return g_electron_module.calculate(beta_rad)
 
 @pytest.fixture
-def number_density(number_of_cells):
-    return pd.DataFrame(
-        data=1.0, index=[1, 2], columns=range(number_of_cells), dtype=np.float64
-    )
+def atomic_mass(atomic_dataset, abundance):
+    return atomic_dataset.atom_data.loc[abundance.index].mass
+
+@pytest.fixture
+def number_density(atomic_mass, abundance, density):
+    number_densities = abundance * density
+    return number_densities.div(atomic_mass.loc[abundance.index], axis=0)
 
 @pytest.fixture
 def selected_atoms(number_density):
