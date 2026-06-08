@@ -884,7 +884,7 @@ class CustomAbundanceWidget:
         """
         if self._trigger:
             item_index = obj.obj.index
-            is_locked = self.checks[item_index]
+            is_locked = self.checks[item_index].value
 
             if is_locked:
                 self.bound_locked_sum_to_1(item_index)
