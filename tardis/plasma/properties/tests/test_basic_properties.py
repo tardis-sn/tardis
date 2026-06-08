@@ -56,7 +56,7 @@ def test_levels_calculate(atomic_dataset, regression_data):
     )
     actual_levels_calculate = atomic_dataset.levels.loc[levels_index]
     expected_levels_calculate = regression_data.sync_dataframe(
-        actual_levels_calculate, key="filtered_levels"
+        actual_levels_calculate, key="calculated_levels"
     )
     pdt.assert_frame_equal(
         actual_levels_calculate, expected_levels_calculate, atol=0, rtol=1e-15
