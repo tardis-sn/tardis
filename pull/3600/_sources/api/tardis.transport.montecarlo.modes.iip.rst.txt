@@ -1,0 +1,21 @@
+tardis.transport.montecarlo.modes.iip package
+=============================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.transport.montecarlo.modes.iip.montecarlo_transport
+   tardis.transport.montecarlo.modes.iip.packet_propagation
+   tardis.transport.montecarlo.modes.iip.rad_packet_transport
+   tardis.transport.montecarlo.modes.iip.solver
+
+Module contents
+---------------
+
+.. automodule:: tardis.transport.montecarlo.modes.iip
+   :members:
+   :show-inheritance:
+   :undoc-members:
