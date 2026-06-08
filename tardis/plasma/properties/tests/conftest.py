@@ -8,6 +8,9 @@ from astropy import units as u
 import tardis
 from tardis.plasma.properties import *
 from tardis.io.atom_data import AtomData
+from tardis.plasma.radiation_field.planck_rad_field import (
+    DilutePlanckianRadiationField,
+)
 
 # INPUTS
 
@@ -34,7 +37,20 @@ def density(number_of_cells):
 def t_rad(number_of_cells):
     return np.ones(number_of_cells) * 10000
 
+@pytest.fixture
+def w(number_of_cells):
+    return np.ones(number_of_cells) * 1.0
+
+@pytest.fixture
+def dilute_planckian_radiation_field(t_rad, w):
+    return DilutePlanckianRadiationField(t_rad * u.K, w)
+
 # GENERAL PROPERTIES
+
+@pytest.fixture
+def t_rad_calculated(dilute_planckian_radiation_field):
+    t_rad_module = TRadiative(None)
+    return t_rad_module.calculate(dilute_planckian_radiation_field)
 
 @pytest.fixture
 def beta_rad(t_rad):
@@ -47,13 +63,9 @@ def g_electron(beta_rad):
     return g_electron_module.calculate(beta_rad)
 
 @pytest.fixture
-def atomic_mass(atomic_dataset, abundance):
-    return atomic_dataset.atom_data.loc[abundance.index].mass
-
-@pytest.fixture
-def number_density(atomic_mass, abundance, density):
-    number_densities = abundance * density
-    return number_densities.div(atomic_mass.loc[abundance.index], axis=0)
+def number_density(atomic_dataset, abundance, density):
+    atomic_mass = atomic_dataset.atom_data.reindex(abundance.index)["mass"]
+    return abundance.mul(density, axis=1).div(atomic_mass, axis=0)
 
 @pytest.fixture
 def selected_atoms(number_density):

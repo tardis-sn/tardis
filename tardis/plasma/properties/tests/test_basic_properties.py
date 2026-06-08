@@ -38,6 +38,14 @@ def test_g_electron(beta_rad, g_electron):
     )
 
 
+def test_t_rad(dilute_planckian_radiation_field, t_rad_calculated):
+    np.testing.assert_allclose(
+        t_rad_calculated,
+        dilute_planckian_radiation_field.temperature.cgs.value,
+        atol=0,
+        rtol=1e-15,
+    )
+
 
 def test_selected_atoms(number_density, selected_atoms):
     pdt.assert_index_equal(selected_atoms, number_density.index)
