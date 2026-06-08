@@ -29,20 +29,24 @@ def beta_rad(t_rad):
 # ATOMIC PROPERTIES
 
 @pytest.fixture
-def levels(atomic_data, selected_atoms):
+def selected_atoms():
+    return [1, 2]
+
+@pytest.fixture
+def levels(atomic_dataset, selected_atoms):
     levels_module = Levels(None)
-    return levels_module.calculate(atomic_data, selected_atoms)[0]
+    return levels_module.calculate(atomic_dataset, selected_atoms)[0]
 
 
 @pytest.fixture
-def excitation_energy(atomic_data, selected_atoms):
+def excitation_energy(atomic_dataset, selected_atoms):
     levels_module = Levels(None)
-    return levels_module.calculate(atomic_data, selected_atoms)[1]
+    return levels_module.calculate(atomic_dataset, selected_atoms)[1]
 
 @pytest.fixture
-def g(atomic_data, selected_atoms):
+def g(atomic_dataset, selected_atoms):
     levels_module = Levels(None)
-    return levels_module.calculate(atomic_data, selected_atoms)[3]
+    return levels_module.calculate(atomic_dataset, selected_atoms)[3]
 
 # PARTITION FUNCTION PROPERTIES
 

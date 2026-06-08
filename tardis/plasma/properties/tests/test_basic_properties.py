@@ -7,9 +7,11 @@ from tardis import constants as const
 from tardis.plasma.base import BasePlasma
 from tardis.plasma.exceptions import IncompleteAtomicData
 from tardis.plasma.properties.atomic import IonizationData, Levels
+from tardis.plasma.properties.partition_function import PartitionFunction
 
 ionization_data_property = IonizationData(plasma_parent=BasePlasma)
 levels_property = Levels(plasma_parent=BasePlasma)
+partition_function_property = PartitionFunction(plasma_parent=BasePlasma)
 
 
 def test_beta_rad(t_rad, beta_rad):
@@ -21,8 +23,9 @@ def test_beta_rad(t_rad, beta_rad):
     )
 
 
-def test_ionization_data_calculate_atomic_property(atomic_dataset, regression_data):
-    selected_atoms = [1, 2]
+def test_ionization_data_calculate_atomic_property(
+    atomic_dataset, selected_atoms, regression_data
+):
     actual_ionization_data = ionization_data_property.calculate(
         atomic_dataset, selected_atoms
     )
@@ -35,8 +38,7 @@ def test_ionization_data_calculate_atomic_property(atomic_dataset, regression_da
 
 
 @pytest.mark.xfail(raises=IncompleteAtomicData)
-def test_ionization_data_incomplete_atomic_data():
-    selected_atoms = [1, 2]
+def test_ionization_data_incomplete_atomic_data(selected_atoms):
     index = pd.MultiIndex.from_tuples(
         [(1, 1), (2, 1)],
         names=["atomic_number", "ion_number"],
@@ -49,8 +51,7 @@ def test_ionization_data_incomplete_atomic_data():
         ionization_data, selected_atoms
     )
 
-def test_levels_calculate(atomic_dataset, regression_data):
-    selected_atoms = [1, 2]
+def test_levels_calculate(atomic_dataset, selected_atoms, regression_data):
     levels_index, _, _, _ = levels_property.calculate(
         atomic_dataset, selected_atoms
     )
@@ -60,4 +61,15 @@ def test_levels_calculate(atomic_dataset, regression_data):
     )
     pdt.assert_frame_equal(
         actual_levels_calculate, expected_levels_calculate, atol=0, rtol=1e-15
+    )
+
+def test_partition_function_calculate(level_boltzmann_factor_lte, regression_data):
+    actual_partition_function_calculate = partition_function_property.calculate(
+        level_boltzmann_factor_lte
+    )
+    expected_partition_function_calculate = regression_data.sync_dataframe(
+        actual_partition_function_calculate, key="calculated_partition_function"
+    )
+    pdt.assert_frame_equal(
+        actual_partition_function_calculate, expected_partition_function_calculate, atol=0, rtol=1e-15
     )
