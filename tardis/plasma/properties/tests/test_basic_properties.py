@@ -36,6 +36,10 @@ def test_g_electron(beta_rad, g_electron):
     )
 
 
+def test_selected_atoms(number_density, selected_atoms):
+    pdt.assert_index_equal(selected_atoms, number_density.index)
+
+
 def test_ionization_data_calculate_atomic_property(
     atomic_dataset, selected_atoms, regression_data
 ):

@@ -31,11 +31,18 @@ def g_electron(beta_rad):
     g_electron_module = GElectron(None)
     return g_electron_module.calculate(beta_rad)
 
-# ATOMIC PROPERTIES
+@pytest.fixture
+def number_density(number_of_cells):
+    return pd.DataFrame(
+        data=1.0, index=[1, 2], columns=range(number_of_cells), dtype=np.float64
+    )
 
 @pytest.fixture
-def selected_atoms():
-    return [1, 2]
+def selected_atoms(number_density):
+    selected_atoms_module = SelectedAtoms(None)
+    return selected_atoms_module.calculate(number_density)
+
+# ATOMIC PROPERTIES
 
 @pytest.fixture
 def levels(atomic_dataset, selected_atoms):
