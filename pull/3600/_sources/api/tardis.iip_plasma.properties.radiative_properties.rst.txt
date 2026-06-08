@@ -1,7 +1,0 @@
-tardis.iip\_plasma.properties.radiative\_properties module
-==========================================================
-
-.. automodule:: tardis.iip_plasma.properties.radiative_properties
-   :members:
-   :show-inheritance:
-   :undoc-members:
