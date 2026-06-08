@@ -1605,13 +1605,6 @@ class DensityEditor:
         )
         self.input_d_time_0.param.watch(self.input_d_time_0_eventhandler, "value")
 
-        self.input_d_time_0 = pn.widgets.FloatInput(
-            value=self.data.density_t_0.value,
-            name="Density time_0 (day): ",
-            margin=(0, 0, 20, 0),
-        )
-        self.input_d_time_0.param.watch(self.input_d_time_0_eventhandler, "value")
-
         self.dpd_dtype = pn.widgets.Select(
             options=["-", "uniform", "exponential", "power_law"],
             name="Density type: ",
@@ -1700,17 +1693,6 @@ class DensityEditor:
             )
 
             self.update_density_plot()
-
-    def input_d_time_0_eventhandler(self, obj):
-        """Update density time 0 data when the widget gets new input.
-
-        Parameters
-        ----------
-        obj : param.parameterized.Event
-            A dictionary holding the information about the change.
-        """
-        new_value = obj.new
-        self.data.density_t_0 = new_value * self.data.density_t_0.unit
 
     def input_d_time_0_eventhandler(self, obj):
         """Update density time 0 data when the widget gets new input.
