@@ -746,7 +746,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         v_start = self.input_v_start.value
@@ -851,7 +851,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         scale_mode = obj.new
@@ -879,7 +879,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         if self._trigger:
@@ -908,7 +908,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         item_index = obj.obj.index
@@ -943,7 +943,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         self.shell_no -= 1
@@ -953,7 +953,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         self.shell_no += 1
@@ -964,7 +964,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         locked_mask = np.array(self.checked_list)
@@ -997,7 +997,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         element_symbol_string = obj.new.capitalize()
@@ -1032,7 +1032,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         element_symbol_string = self.input_symb.value.capitalize()
@@ -1117,7 +1117,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         v_start = self.input_v_start.value
@@ -1139,7 +1139,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         path = self.input_path.value
@@ -1162,7 +1162,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         self.abundance_note.visible = False
@@ -1183,7 +1183,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         self.abundance_note.visible = True
@@ -1207,7 +1207,7 @@ class CustomAbundanceWidget:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         self.update_bar_diagonal()
@@ -1290,7 +1290,7 @@ class CustomAbundanceWidget:
 
         Returns
         -------
-        ipywidgets.widgets.widget_box.VBox
+        panel.layout.base.Column
             A box that contains all the widgets in the GUI.
         """
         if not Environment.allows_widget_display():
@@ -1690,7 +1690,7 @@ class DensityEditor:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         if self._trigger:
@@ -1706,7 +1706,7 @@ class DensityEditor:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         new_value = obj.new
@@ -1717,7 +1717,7 @@ class DensityEditor:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
         """
         new_value = obj.new
@@ -1729,14 +1729,8 @@ class DensityEditor:
 
         Parameters
         ----------
-        obj : traitlets.utils.bunch.Bunch
+        obj : param.parameterized.Event
             A dictionary holding the information about the change.
-
-        Returns
-        -------
-        ipywidgets.widgets.widget_box.VBox
-            A box widget that contains the input boxes of certain density
-            type parameters.
         """
         self.dtype_out.clear()
         if obj.new == "uniform":
@@ -1752,7 +1746,7 @@ class DensityEditor:
 
         Parameters
         ----------
-        obj : ipywidgets.widgets.widget_button.Button
+        obj : panel.widgets.Button
             The clicked button instance.
         """
         dtype = self.dpd_dtype.value
@@ -1799,7 +1793,7 @@ class DensityEditor:
 
         Returns
         -------
-        ipywidgets.widgets.widget_box.VBox
+        panel.layout.base.Column
             A box that contains all the widgets in the GUI.
         """
         hint1 = pn.pane.HTML(
