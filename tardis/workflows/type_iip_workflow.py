@@ -843,6 +843,10 @@ class TypeIIPWorkflow(WorkflowLogging):
             index=self.plasma_solver.lines.index,
         )
 
+        coll_exc_cool_destinations = self.atom_data.macro_atom_references.iloc[
+            self.base_continuum.cooling_rates.collisional_excitation.references
+        ].index
+
         macro_atom_state = self.macro_atom_solver.solve(
             j_blues_df,
             opacity_state.beta_sobolev,
@@ -857,6 +861,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.plasma_solver.delta_E_yg,
             self.base_continuum.cooling_rates.collisional_excitation.cooling_probability,
             self.base_continuum.cooling_rates.collisional_excitation.probabilities_array,
+            coll_exc_cool_destinations,
             self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
             self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
             self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,

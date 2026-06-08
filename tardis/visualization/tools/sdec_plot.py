@@ -892,8 +892,8 @@ class SDECPlotter:
             self.plot_wavelength.value,
             lower_level,
             upper_level,
-            color="#4C4C4C",
-            label="No interaction",
+            color=self._predefined_traces["emission"]["noint"]["fillcolor"],
+            label=self._predefined_traces["emission"]["noint"]["name"]
         )
 
         lower_level = upper_level
@@ -906,8 +906,8 @@ class SDECPlotter:
             self.plot_wavelength.value,
             lower_level,
             upper_level,
-            color="#8F8F8F",
-            label="Electron Scatter Only",
+            color=self._predefined_traces["emission"]["escatter"]["fillcolor"],
+            label=self._predefined_traces["emission"]["escatter"]["name"]
         )
 
         # If the 'other' column exists then plot it as silver
@@ -922,8 +922,8 @@ class SDECPlotter:
                 self.plot_wavelength.value,
                 lower_level,
                 upper_level,
-                color="#C2C2C2",
-                label="Other elements",
+                color=self._predefined_traces["emission"]["other"]["fillcolor"],
+                label=self._predefined_traces["emission"]["other"]["name"]
             )
 
         # Contribution from each element
@@ -1076,6 +1076,210 @@ class SDECPlotter:
                 color = self.cmap(i / len(self.species))
             color_list.append(color)
         self._color_list = color_list
+
+    def generate_plot_bk(
+        self,
+        packets_mode="virtual",
+        packet_wvl_range=None,
+        distance=None,
+        observed_spectrum=None,
+        show_modeled_spectrum=True,
+        fig=None,
+        graph_width=800,
+        graph_height=400,
+        cmapname="jet",
+        nelements=None,
+        species_list=None,
+        blackbody_photosphere=True,
+    ):
+        """
+        Generate Spectral element DEComposition (SDEC) Plot using Bokeh.
+
+        Parameters
+        ----------
+        packets_mode : {'virtual', 'real'}, optional
+            Mode of packets to be considered, either real or virtual. Default
+            value is 'virtual'
+        packet_wvl_range : astropy.Quantity or None, optional
+            Wavelength range to restrict the analysis of escaped packets.
+        distance : astropy.Quantity or None, optional
+            Distance used to calculate flux instead of luminosity in the plot.
+        observed_spectrum : tuple or list of astropy.Quantity, optional
+            Option to plot an observed spectrum in the SDEC plot.
+        show_modeled_spectrum : bool, optional
+            Whether to show modeled spectrum in SDEC Plot.
+        fig : bokeh.plotting.figure or None, optional
+            Figure object on which to create plot.
+        graph_width : int, optional
+            Width of the bokeh figure.
+        graph_height : int, optional
+            Height of the bokeh figure.
+        cmapname : str, optional
+            Name of matplotlib colormap to be used for showing elements.
+        nelements: int
+            Number of elements to include in plot.
+        species_list: list of strings or None
+            list of strings containing the names of species that should be included.
+        blackbody_photosphere: bool
+            Whether to include the blackbody photosphere in the plot.
+
+        Returns
+        -------
+        bokeh.plotting.figure
+            Figure object on which SDEC Plot is created
+        """
+        if species_list is not None and nelements is not None:
+            logger.info("Both nelements and species_list were requested. Species_list takes priority; nelements is ignored")
+
+        self._parse_species_list(species_list=species_list)
+
+        self._calculate_plotting_data(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+            nelements=nelements,
+        )
+
+        if fig is None:
+            from bokeh.plotting import figure
+            self.fig = figure(
+                width=graph_width,
+                height=graph_height,
+                title="SDEC Plot",
+                tools="box_select,reset,pan,wheel_zoom,save",
+                y_axis_type="linear"
+            )
+        else:
+            self.fig = fig
+
+        self._make_colorbar_labels()
+        self.cmap = plt.get_cmap(cmapname, len(self._species_name))
+        self._make_colorbar_colors()
+
+        self._plot_emission_bk()
+        self._plot_absorption_bk()
+
+        if show_modeled_spectrum:
+            self.fig.line(
+                x=self.plot_wavelength.value,
+                y=self.modeled_spectrum_luminosity.value,
+                line_color="blue",
+                line_dash="dashed",
+                line_width=1,
+                legend_label=f"{packets_mode.capitalize()} Spectrum"
+            )
+
+        if observed_spectrum:
+            if distance is None:
+                raise ValueError("Distance must be specified if an observed_spectrum is given.")
+            observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
+            observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
+            self.fig.line(
+                x=observed_spectrum_wavelength.value,
+                y=observed_spectrum_flux.value,
+                line_color="black",
+                line_width=1.2,
+                legend_label="Observed Spectrum"
+            )
+
+        if blackbody_photosphere:
+            self.fig.line(
+                x=self.plot_wavelength.value,
+                y=self.photosphere_luminosity.value,
+                line_color="red",
+                line_dash="dashed",
+                line_width=1.5,
+                legend_label="Blackbody Photosphere"
+            )
+
+        self._show_colorbar_bk()
+
+        xlabel = f"Wavelength [{u.AA}]"
+        if distance is not None:
+            ylabel = f"F_lambda [{u.Unit('erg/(s cm**2 AA)')}]"
+        else:
+            ylabel = f"L_lambda [{u.Unit('erg/(s AA)')}]"
+
+        self.fig.xaxis.axis_label = xlabel
+        self.fig.yaxis.axis_label = ylabel
+
+        return self.fig
+
+    def _plot_emission_bk(self):
+        """Plot emission part of the SDEC Plot using Bokeh."""
+        lower_level = np.zeros(self.emission_luminosities_df.shape[0])
+        upper_level = lower_level + self.emission_luminosities_df[("noint", "")].to_numpy()
+
+        self.fig.varea(
+            x=self.plot_wavelength.value,
+            y1=lower_level, y2=upper_level,
+            fill_color=self._predefined_traces["emission"]["noint"]["fillcolor"],
+            legend_label=self._predefined_traces["emission"]["noint"]["name"]
+        )
+
+        lower_level = upper_level
+        upper_level = lower_level + self.emission_luminosities_df[("escatter", "")].to_numpy()
+        self.fig.varea(
+            x=self.plot_wavelength.value,
+            y1=lower_level, y2=upper_level,
+            fill_color=self._predefined_traces["emission"]["escatter"]["fillcolor"],
+            legend_label=self._predefined_traces["emission"]["escatter"]["name"]
+        )
+
+        if "other" in self.emission_luminosities_df.keys():
+            lower_level = upper_level
+            upper_level = lower_level + self.emission_luminosities_df[("other", "")].to_numpy()
+            self.fig.varea(
+                x=self.plot_wavelength.value,
+                y1=lower_level, y2=upper_level,
+                fill_color=self._predefined_traces["emission"]["other"]["fillcolor"],
+                legend_label=self._predefined_traces["emission"]["other"]["name"]
+            )
+
+        for species_counter, identifier in enumerate(self.species):
+            try:
+                lower_level = upper_level
+                upper_level = lower_level + self.emission_luminosities_df[tuple(identifier)].to_numpy()
+                hex_color = clr.to_hex(self._color_list[species_counter])
+                self.fig.varea(x=self.plot_wavelength.value, y1=lower_level, y2=upper_level, fill_color=hex_color)
+            except KeyError:
+                self._log_missing_species(identifier, "emitted")
+
+    def _plot_absorption_bk(self):
+        """Plot absorption part of the SDEC Plot using Bokeh."""
+        lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
+
+        if "other" in self.absorption_luminosities_df.keys():
+            upper_level = lower_level
+            lower_level = upper_level - self.absorption_luminosities_df[("other", "")].to_numpy()
+            self.fig.varea(x=self.plot_wavelength.value, y1=upper_level, y2=lower_level, fill_color="silver")
+
+        for species_counter, identifier in enumerate(self.species):
+            try:
+                upper_level = lower_level
+                lower_level = upper_level - self.absorption_luminosities_df[tuple(identifier)].to_numpy()
+                hex_color = clr.to_hex(self._color_list[species_counter])
+                self.fig.varea(x=self.plot_wavelength.value, y1=upper_level, y2=lower_level, fill_color=hex_color)
+            except KeyError:
+                self._log_missing_species(identifier, "absorbed")
+
+    def _show_colorbar_bk(self):
+        """Show Bokeh colorbar with labels of elements mapped to colors."""
+        from bokeh.models import LinearColorMapper, ColorBar, FixedTicker, CustomJSTickFormatter
+        if len(self._species_name) == 0:
+            return
+
+        colors = [clr.to_hex(self.cmap(i / len(self._species_name))) for i in range(len(self._species_name))]
+        mapper = LinearColorMapper(palette=colors, low=0, high=len(self._species_name))
+
+        ticker = FixedTicker(ticks=np.arange(0, len(self._species_name)) + 0.5)
+        tick_dict = {float(t): str(l) for t, l in zip(np.arange(0, len(self._species_name)) + 0.5, self._species_name)}
+
+        formatter_js = "const labels = " + str(tick_dict) + "; return labels[tick] || '';"
+        formatter = CustomJSTickFormatter(code=formatter_js)
+
+        color_bar = ColorBar(color_mapper=mapper, ticker=ticker, formatter=formatter, title="Elements")
+        self.fig.add_layout(color_bar, 'right')
 
     def generate_plot_ply(
         self,

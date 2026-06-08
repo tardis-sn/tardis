@@ -64,5 +64,5 @@ def integrate_array_by_blocks(f, x, block_references):
         for j in prange(len(integrated)):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
-            integrated[j, i] = np.trapz(f[start:stop, i], x[start:stop])
+            integrated[j, i] = np.trapezoid(f[start:stop, i], x[start:stop])
     return integrated
