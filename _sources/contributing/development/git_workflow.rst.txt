@@ -3,7 +3,7 @@
 General Workflow to add a new feature
 =====================================
 
-In TARDIS, we aim to stick to a test driven development. This uses the testing
+In TARDIS, we aim to stick to test-driven development. This uses the testing
 framework extensively, starting with a test that shows this feature lacking via
 the implementation of the feature until the merging of the code to the main
 repository.
@@ -29,7 +29,7 @@ Preparation and Working with Git
 ================================
 
 In this document, we refer to the TARDIS ``master`` branch as the *trunk*. The first step is to setup up a python environment. We recommend using
-Anaconda for this purpose; refer to our :doc:`Installation guide <../../installation>` which covers this topic.
+Miniconda for this purpose.
 
 .. _forking:
 
@@ -171,13 +171,10 @@ given in the following sections.
 * Name your branch for the purpose of the changes, for example
   ``bugfix-for-issue-14`` or ``refactor-database-code``.
 
-* If you can possibly avoid it, don't merge the trunk or any other branches into
-  your feature branch while you are working.
+* Avoid merging the trunk or other branches into your feature branch unless you
+  need to bring it up to date with ``upstream/master`` (see :ref:`merge-master`).
 
-* If you do find yourself merging from the trunk, consider
-  :ref:`rebase-on-trunk`
-
-* Ask on the `tardis-sn-dev mailing list`_ if you get stuck.
+* Ask on the TARDIS development Slack if you get stuck.
 
 * Once your code is nearing completion, run the test suite to ensure
   you have not accidentally caused regressions, and add new tests to ensure
@@ -192,7 +189,6 @@ This way of working helps to keep work well-organized, with readable history.
 This in turn makes it easier for project maintainers (that might be you) to
 see what you've done and why you did it.
 
-See `linux git workflow`_ and `ipython git workflow`_ for some explanation.
 
 Deleting your master branch
 ---------------------------
@@ -363,87 +359,26 @@ Making sure your Pull Request stays up-to-date
 More often then not it will take a few days until a Pull Request is
 merged as the community gives feedback and/or you add new fixes. Often during this
 time, other pull requests are merged and the master branch evolves further.
-To make sure that your changes are still working on the new master, you want to
-*rebase* your branch on top of the evolved master.
+To make sure that your changes are still working on the new master, you can 
+merge the new master into your branch. Because we squash and merge our pull 
+requests, merging master is okay.
 
 
-.. _rebase-on-trunk:
+.. _merge-master:
 
-Rebasing on trunk
-^^^^^^^^^^^^^^^^^
+Merging master into your branch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Let's say you thought of some work you'd like to do. You
 :ref:`update-mirror-trunk` and :ref:`make-feature-branch` called
-``cool-feature``. At this stage trunk is at some commit, let's call it E. Now,
-you make some new commits on your ``cool-feature`` branch --- let's call them A,
-B, C. Maybe your changes take a while, or you come back to them after a while.
-In the meantime, trunk has progressed from commit E to commit (say) G::
+``cool-feature``. You do some work, and then you want to merge the new master into your branch to make sure your branch is up-to-date with the latest changes. You can do this with::
+   
+   git checkout cool-feature
+   git merge upstream/master 
 
-          A---B---C cool-feature
-         /
-    D---E---F---G trunk
+You may find merge conflicts. Investigate them with your IDE's conflict resolution tools. In VS Code, this is done by clicking on the conflicted file and then clicking on the "Accept Incoming Change" or "Accept Current Change" buttons. After resolving all conflicts, you can commit the merge with::
 
-At this stage you consider merging trunk into your feature branch, and you
-remember that this here page sternly advises you not to do that, because the
-history will get messy. Most of the time you can just ask for a review, and
-not worry that trunk has got a little ahead. But sometimes, the changes in
-trunk might affect your changes, and you need to harmonize them. In this
-situation you may prefer to do a rebase.
-
-Rebase takes your changes (A, B, C) and replays them as if they had been made
-to the current state of ``trunk``. In other words, in this case, it takes the
-changes represented by A, B, C and replays them on top of G. After the rebase,
-your history will look like this::
-
-                  A'--B'--C' cool-feature
-                 /
-    D---E---F---G trunk
-
-See `rebase without tears`_ for more detail.
-
-To do a rebase on trunk::
-
-    # Update the mirror of trunk
-    git fetch upstream
-
-    # Go to the feature branch
-    git checkout cool-feature
-
-    # Make a backup in case you mess up
-    git branch tmp cool-feature
-
-    # Rebase cool-feature onto trunk
-    git rebase --onto upstream/master upstream/master cool-feature
-
-In this situation, where you are already on branch ``cool-feature``, the last
-command can be written more succinctly as::
-
-    git rebase upstream/master
-
-When all looks good you can delete your backup branch::
-
-   git branch -D tmp
-
-If it doesn't look good you may need to have a look at
-:ref:`recovering-from-mess-up`.
-
-If you have made changes to files that have also changed in trunk, this may
-generate merge conflicts that you need to resolve - see the `git rebase`_ man
-page for some instructions at the end of the "Description" section. There is
-some related help on merging in the git user manual --- see `resolving a
-merge`_.
-
-If your feature branch is already on GitHub and you rebase, you will have to
-force push the branch; a normal push would give an error. If the branch you
-rebased is called ``cool-feature`` and your GitHub fork is available as the
-remote called ``origin``, you use this command to force-push::
-
-   git push -f origin cool-feature
-
-Note that this will overwrite the branch on GitHub, i.e. this is one of the few
-ways you can actually lose commits with git. Also note that it is never allowed
-to force push to the main Astropy repo (typically called ``upstream``), because
-this would re-write commit history and thus cause problems for all others.
+   git commit -m 'Merge master into cool-feature'
 
 .. _recovering-from-mess-up:
 
@@ -482,7 +417,7 @@ Reviewing and helping others with Pull Requests
 -----------------------------------------------
 
 GitHub offers an extensive array of tools to comment on Pull Requests (line-based, normal forum-like discussion, etc.). This system is described here in
-detail `<https://help.github.com/articles/using-pull-requests>`_.
+detail `<https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`_.
 
 However, it is sometimes easier to just add a few changes yourself to quickly
 show what you would suggest to be changed. So it is possible to make a
