@@ -38,6 +38,15 @@ def test_g_electron(beta_rad, g_electron):
     )
 
 
+def test_t_electrons(t_rad, link_t_rad_t_electron, t_electrons):
+    np.testing.assert_allclose(
+        t_electrons,
+        t_rad * link_t_rad_t_electron,
+        atol=0,
+        rtol=1e-15,
+    )
+
+
 def test_t_rad(dilute_planckian_radiation_field, t_rad_calculated):
     np.testing.assert_allclose(
         t_rad_calculated,

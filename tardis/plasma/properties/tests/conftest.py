@@ -63,6 +63,15 @@ def g_electron(beta_rad):
     return g_electron_module.calculate(beta_rad)
 
 @pytest.fixture
+def link_t_rad_t_electron():
+    return 0.9
+
+@pytest.fixture
+def t_electrons(t_rad, link_t_rad_t_electron):
+    electron_temperature_module = ElectronTemperature(None)
+    return electron_temperature_module.calculate(t_rad, link_t_rad_t_electron)
+
+@pytest.fixture
 def number_density(atomic_dataset, abundance, density):
     atomic_mass = atomic_dataset.atom_data.reindex(abundance.index)["mass"]
     return abundance.mul(density, axis=1).div(atomic_mass, axis=0)
