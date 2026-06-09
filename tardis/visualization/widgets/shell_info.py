@@ -1,12 +1,12 @@
 import pandas as pd
 import panel as pn
+import param
 
 from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
 )
 from tardis.util.environment import Environment
-from tardis.visualization.widgets.util import create_table_widget
 
 
 class BaseShellInfo:
@@ -219,7 +219,7 @@ class HDFShellInfo(BaseShellInfo):
             )
 
 
-class ShellInfoWidget:
+class ShellInfoWidget(param.Parameterized):
     """The Shell Info Widget to explore abundances in different shells.
 
     It consists of four interlinked table widgets - shells table; element count,
@@ -227,6 +227,29 @@ class ShellInfoWidget:
     all the way from elements, to ions, to levels by clicking on the rows of
     tables.
     """
+
+    shell_idx = param.List(default=[], doc="Index of current selected row in shells table")
+    atomic_idx = param.List(default=[], doc="Index of current selected row in element count table")
+    ion_idx = param.List(default=[], doc="Index of current selected row in ion count table")
+
+    @staticmethod
+    def create_table_widget(data, table_options=None):
+        """
+        The helper function in widgets/util.py is configured to mimic qgrid functionality
+        which is not needed in this approach
+        """
+        _df = data.copy()
+
+        # Create the table
+        table = pn.widgets.Tabulator(
+            _df,
+            selectable=True,  # Single row selection (radio button style)
+            show_index=True,
+            sizing_mode='stretch_width',
+            height=min(400, max(200, len(_df) * 30 + 50)),
+            disabled=True,  # Make cells non-editable
+        )
+        return table
 
     def __init__(self, shell_info_data):
         """Initialize the object with the shell information of a simulation
@@ -238,133 +261,77 @@ class ShellInfoWidget:
             Shell information object constructed from Simulation object or HDF
             file
         """
+        super().__init__()
         self.data = shell_info_data
 
         # Creating the shells data table widget
-        self.shells_table = create_table_widget(
+        self.shells_table = self.create_table_widget(
             self.data.shells_data()
         )
 
         # Creating the element count table widget
-        self.element_count_table = create_table_widget(
-            self.data.element_count(self.shells_table.df.index[0])
+        self.element_count_table = self.create_table_widget(
+            self.data.element_count(self.shells_table.value.index[0])
         )
 
         # Creating the ion count table widget
-        self.ion_count_table = create_table_widget(
+        self.ion_count_table = self.create_table_widget(
             self.data.ion_count(
-                self.element_count_table.df.index[0],
-                self.shells_table.df.index[0],
+                self.element_count_table.value.index[0],
+                self.shells_table.value.index[0],
             )
         )
 
         # Creating the level count table widget
-        self.level_count_table = create_table_widget(
+        self.level_count_table = self.create_table_widget(
             self.data.level_count(
-                self.ion_count_table.df.index[0],
-                self.element_count_table.df.index[0],
-                self.shells_table.df.index[0],
+                self.ion_count_table.value.index[0],
+                self.element_count_table.value.index[0],
+                self.shells_table.value.index[0],
             )
         )
 
-    def update_element_count_table(self, event, panel_widget):
+        # The indexes will update when user clicks on the rows of tables
+        self.shells_table.link(self, selection="shell_idx")
+        self.element_count_table.link(self, selection="atomic_idx")
+        self.ion_count_table.link(self, selection="ion_idx")
+
+    @param.depends("shell_idx", watch=True)
+    def update_element_count_table(self):
         """Event listener to update the data in element count table widget based
         on interaction (row selected event) in shells table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        panel_widget : PanelTableWidget
-            PanelTableWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (PanelTableWidget object).
         """
-        # Get shell number from row selected in shells_table
-        shell_num = event["new"][0] + 1
+        # Update element count table data based on selected shell number (shell_idx)
+        self.element_count_table.value = self.data.element_count(self.shell_idx[0]+1)
 
-        # Update data in element_count_table
-        self.element_count_table.df = self.data.element_count(shell_num)
+        self.element_count_table.selection = [0]  # Reset ion_num selection when shell_idx changes
 
-        # Get atomic_num of 0th row of element_count_table
-        atomic_num0 = self.element_count_table.df.index[0]
-
-        # Also update next table (ion counts) by triggering its event listener
-        # Listener won't trigger if last row selected in element_count_table was also 0th
-        if self.element_count_table.get_selected_rows() == [0]:
-            self.element_count_table.change_selection([])  # Unselect rows
-        # Select 0th row in count table which will trigger update_ion_count_table
-        self.element_count_table.change_selection([atomic_num0])
-
-    def update_ion_count_table(self, event, panel_widget):
+    @param.depends("atomic_idx", "shell_idx", watch=True)
+    def update_ion_count_table(self):
         """Event listener to update the data in ion count table widget based
         on interaction (row selected event) in element count table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        panel_widget : PanelTableWidget
-            PanelTableWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (PanelTableWidget object).
         """
-        # Don't execute function if no row was selected
-        if not event["new"]:
-            return
+        # Get the selected shell number and atomic number based on selected rows in shells table and element count table
+        shell_num = self.shell_idx[0]+1
+        atomic_num = self.element_count_table.value.index[self.atomic_idx[0]]
 
-        # Get shell no. & atomic_num from rows selected in previous tables
-        shell_num = self.shells_table.get_selected_rows()[0] + 1
-        atomic_num = self.element_count_table.df.index[event["new"][0]]
+        # Update ion count table data based on selected shell number and atomic number
+        self.ion_count_table.value = self.data.ion_count(atomic_num, shell_num)
 
-        # Update data in ion_count_table
-        self.ion_count_table.df = self.data.ion_count(atomic_num, shell_num)
+        self.ion_count_table.selection = [0]  # Reset ion count table selection when atomic_idx changes
 
-        # Also update next table (level counts) by triggering its event listener
-        ion0 = self.ion_count_table.df.index[0]
-        if self.ion_count_table.get_selected_rows() == [0]:
-            self.ion_count_table.change_selection([])
-        self.ion_count_table.change_selection([ion0])
-
-    def update_level_count_table(self, event, panel_widget):
+    @param.depends("ion_idx", "atomic_idx", "shell_idx", watch=True)
+    def update_level_count_table(self):
         """Event listener to update the data in level count table widget based
         on interaction (row selected event) in ion count table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        panel_widget : PanelTableWidget
-            PanelTableWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (PanelTableWidget object).
         """
-        # Don't execute function if no row was selected
-        if not event["new"]:
-            return
+        # Get the selected shell number, atomic number and ion number based on selected rows in their tables
+        shell_num = self.shell_idx[0]+1
+        atomic_num = self.element_count_table.value.index[self.atomic_idx[0]]
+        ion_num = self.ion_count_table.value.index[self.ion_idx[0]]
 
-        # Get shell no., atomic_num, ion from selected rows in previous tables
-        shell_num = self.shells_table.get_selected_rows()[0] + 1
-        atomic_num = self.element_count_table.df.index[
-            self.element_count_table.get_selected_rows()[0]
-        ]
-        ion = self.ion_count_table.df.index[event["new"][0]]
-
-        # Update data in level_count_table
-        self.level_count_table.df = self.data.level_count(
-            ion, atomic_num, shell_num
+        self.level_count_table.value = self.data.level_count(
+            ion_num, atomic_num, shell_num
         )
 
     def display(self):
@@ -379,28 +346,15 @@ class ShellInfoWidget:
         if not Environment.allows_widget_display():
             print("Please use a notebook to display the widget")
         else:
-            # Panel tables handle their own sizing automatically
-
-            # Attach event listeners to table widgets
-            self.shells_table.on(
-                "selection_changed", self.update_element_count_table
-            )
-            self.element_count_table.on(
-                "selection_changed", self.update_ion_count_table
-            )
-            self.ion_count_table.on(
-                "selection_changed", self.update_level_count_table
-            )
 
             # Create Panel layout for the tables
             shell_info_tables_container = pn.Row(
-                self.shells_table.table,
-                self.element_count_table.table,
-                self.ion_count_table.table,
-                self.level_count_table.table,
+                self.shells_table,
+                self.element_count_table,
+                self.ion_count_table,
+                self.level_count_table,
                 sizing_mode='stretch_width'
             )
-            self.shells_table.change_selection([1])
 
             # Notes text explaining how to interpret tables widgets' data
             text = pn.pane.HTML(
