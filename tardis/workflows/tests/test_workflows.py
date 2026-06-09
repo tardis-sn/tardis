@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 from astropy import units as u
+from astropy.tests.helper import assert_quantity_allclose
 
+from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.simple_tardis_workflow import SimpleTARDISWorkflow
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 from tardis.workflows.v_inner_solver import InnerVelocitySolverWorkflow
@@ -35,6 +37,17 @@ def v_inner_workflow(v_inner_config):
 @pytest.fixture(scope="module")
 def simple_workflow_one_loop(config_verysimple_for_simulation_one_loop):
     workflow = SimpleTARDISWorkflow(config_verysimple_for_simulation_one_loop)
+    workflow.run()
+    return workflow
+
+
+@pytest.fixture(scope="module")
+def simple_workflow_verysimple(atomic_data_fname, example_configuration_dir):
+    config = Configuration.from_yaml(
+        str(example_configuration_dir / "tardis_configv1_verysimple.yml")
+    )
+    config["atom_data"] = atomic_data_fname
+    workflow = SimpleTARDISWorkflow(config)
     workflow.run()
     return workflow
 
@@ -130,6 +143,52 @@ def test_simple_tardis_workflow_against_standard_workflow(
         attr_standard_workflow = attr_standard_workflow.value
     assert np.allclose(
         attr_simple_workflow, attr_standard_workflow, atol=0, rtol=1e-14
+    )
+
+
+def test_simple_tardis_workflow_against_test_tardis_full_regression(
+    simple_workflow_verysimple, regression_data
+):
+    ref_file = (
+        regression_data.regression_data_path
+        / "tardis"
+        / "tests"
+        / "test_tardis_full"
+        / "test_transport_simple"
+        / "TestTransportSimple.h5"
+    )
+
+    j_blue_estimators = simple_workflow_verysimple.transport_state.estimators_line.mean_intensity_blueward
+    expected_j_blue_estimators = pd.read_hdf(
+        ref_file, "simulation/transport/transport_state/j_blue_estimator"
+    )
+    np.testing.assert_allclose(
+        j_blue_estimators,
+        expected_j_blue_estimators.values,
+    )
+
+    spectrum_real_packets_luminosity = (
+        simple_workflow_verysimple.spectrum_solver.spectrum_real_packets.luminosity
+    )
+    expected_spectrum_real_packets_luminosity = pd.read_hdf(
+        ref_file,
+        "simulation/spectrum_solver/spectrum_real_packets/luminosity",
+    )
+    assert_quantity_allclose(
+        spectrum_real_packets_luminosity,
+        u.Quantity(expected_spectrum_real_packets_luminosity, "erg /s"),
+    )
+
+    spectrum_virtual_packets_luminosity = (
+        simple_workflow_verysimple.spectrum_solver.spectrum_virtual_packets.luminosity
+    )
+    expected_spectrum_virtual_packets_luminosity = pd.read_hdf(
+        ref_file,
+        "simulation/spectrum_solver/spectrum_virtual_packets/luminosity",
+    )
+    assert_quantity_allclose(
+        spectrum_virtual_packets_luminosity,
+        u.Quantity(expected_spectrum_virtual_packets_luminosity, "erg /s"),
     )
 
 
