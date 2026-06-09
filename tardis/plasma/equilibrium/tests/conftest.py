@@ -81,6 +81,11 @@ def collisional_rate_solver(
 
 
 @pytest.fixture
+def radiative_rate_solver(radiative_transitions):
+    return RadiativeRatesSolver(radiative_transitions)
+
+
+@pytest.fixture
 def rate_solver_list(radiative_rate_solver, collisional_rate_solver):
     return [
         (radiative_rate_solver, "radiative"),

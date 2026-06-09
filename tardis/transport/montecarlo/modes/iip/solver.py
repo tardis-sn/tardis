@@ -1,5 +1,6 @@
 import logging
 
+import pandas as pd
 from astropy import units as u
 from numba import cuda, set_num_threads
 
@@ -107,10 +108,19 @@ class MCTransportSolverIIP(HDFWriterMixin):
         iteration=0,
     ):
         if not plasma.continuum_interaction_species.empty:
-            if plasma.gamma is not None:
-                n_levels_bf_species_by_n_cells_tuple = plasma.gamma.shape
-            else:
-                n_levels_bf_species_by_n_cells_tuple = plasma.phi_lucy.shape
+            # Combine phi_lucy data for all nlte_species to get total shape
+            if plasma.nlte_species:
+                all_species_phi_lucy = pd.concat(
+                    [
+                        plasma.phi_lucy.loc[species]
+                        for species in plasma.nlte_species
+                    ],
+                    axis=0,
+                )
+                n_levels_bf_species_by_n_cells_tuple = (
+                    all_species_phi_lucy.shape
+                )
+
         else:
             n_levels_bf_species_by_n_cells_tuple = (0, 0)
 
