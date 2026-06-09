@@ -55,6 +55,10 @@ def hydrogen_atomic_data_fname(tardis_regression_path):
 
     return atomic_data_fname
 
+@pytest.fixture(params=[(14, 1, slice(None), slice(None))])
+def radiative_transitions(new_chianti_atomic_dataset_si, request):
+    return new_chianti_atomic_dataset_si.lines.loc[request.param, :]
+
 
 @pytest.fixture
 def radiative_rate_solver(radiative_transitions):
