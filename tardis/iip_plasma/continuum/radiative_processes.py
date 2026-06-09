@@ -478,13 +478,13 @@ class FreeFree(PhysicalContinuumProcess):
         # Likely to be Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
         # see also FF_OPAC_CONST in tardis/opacities/opacities.py
         chi_ff_factor = (
-            self.ion_number_density.multiply(
+            self.ion_number_density.copy().multiply(
                 ionic_charge_squared * ff_gaunt_factor, axis=0
             )
             .sum()
             .values
         )
-        chi_ff_factor *= chi_ff_helper
+        chi_ff_factor = chi_ff_factor * chi_ff_helper
         return chi_ff_factor
 
     def _get_ionic_charge(self):
