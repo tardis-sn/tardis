@@ -8,8 +8,10 @@ In TARDIS, we focus primarily on unit tests. These tests check the outputs of in
 
 Unit tests run quickly and are executed after every suggested change to TARDIS, allowing for immediate feedback and maintaining code quality.
 
-All of them are based on the excellent ``astropy-setup-helpers`` package and
-`pytest <https://docs.pytest.org/en/latest/>`_.
+All of them are based on `pytest <https://docs.pytest.org/en/latest/>`_.
+
+For policy-level expectations on what to run for different change types, see
+:ref:`development-playbook`.
 
 Running the Unit Tests
 ======================
@@ -20,6 +22,12 @@ tests, you can run this with:
 .. code-block:: shell
 
     > pytest tardis
+
+You can also run tests using VS Code test tooling where available. The
+``pytest`` command line remains the standard.
+
+If you do not have local regression data available yet, this unit-test run is
+the recommended minimum local validation before opening a PR.
 
 Running Regression Data Tests
 ============================
@@ -61,6 +69,9 @@ Or, to run tests for a particular file or directory
 
 .. note::
     In some cases you might have to update the regression data. The steps to update the regression data are outlined in the :ref:`update regression-data`.
+
+For regression-data expectations, see
+:ref:`development-playbook`.
 
 .. note::
     The `tests workflow <https://github.com/tardis-sn/tardis/blob/master/.github/workflows/tests.yml>`_ runs on 
