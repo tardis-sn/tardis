@@ -290,6 +290,53 @@ def test_nonhomologous_move_r_packet_full_relativity_characterization(
 
 
 @pytest.mark.parametrize(
+    "move_r_packet",
+    [classic_move_r_packet, iip_move_r_packet],
+)
+def test_homologous_move_r_packet_zero_distance_characterization(
+    move_r_packet,
+    r_packet: RPacket,
+) -> None:
+    packet = r_packet
+    estimators = init_estimators_bulk(3)
+
+    move_r_packet(
+        packet,
+        0.0,
+        5.2e7,
+        estimators,
+        False,
+    )
+
+    npt.assert_allclose(packet.r, 7.5e14)
+    npt.assert_allclose(packet.mu, 0.3)
+    npt.assert_allclose(estimators.mean_intensity_total, np.zeros(3))
+    npt.assert_allclose(estimators.mean_frequency, np.zeros(3))
+
+
+def test_nonhomologous_move_r_packet_zero_distance_characterization(
+    r_packet: RPacket,
+) -> None:
+    geometry = _make_nonhomologous_geometry()
+    packet = r_packet
+    packet.current_shell_id = 0
+    estimators = init_estimators_bulk(2)
+
+    nonhomologous_move_r_packet(
+        packet,
+        0.0,
+        geometry,
+        estimators,
+        False,
+    )
+
+    npt.assert_allclose(packet.r, 7.5e14)
+    npt.assert_allclose(packet.mu, 0.3)
+    npt.assert_allclose(estimators.mean_intensity_total, np.zeros(2))
+    npt.assert_allclose(estimators.mean_frequency, np.zeros(2))
+
+
+@pytest.mark.parametrize(
     "move_boundary",
     [classic_move_boundary, iip_move_boundary, nonhomologous_move_boundary],
 )
@@ -421,6 +468,33 @@ def test_classic_trace_packet_characterization(
     npt.assert_allclose(estimators.energy_deposition_line_rate, expected_edot)
 
 
+def test_classic_trace_packet_no_line_fallthrough_characterization() -> None:
+    packet = _make_rpacket(next_line_id=2)
+    geometry = _make_radial_geometry(2.0e16)
+    opacity_state = _make_opacity_state(
+        [3.999e14, 3.998e14], np.zeros((2, 2))
+    )
+    estimators = _make_line_estimators()
+    _seed_numba_random(1963)
+
+    distance, interaction_type, delta_shell = classic_trace_packet(
+        packet,
+        geometry,
+        5.2e7,
+        opacity_state,
+        estimators,
+        1.0e-12,
+        False,
+        False,
+    )
+
+    npt.assert_allclose(distance, 4.4139581936031586e10)
+    assert interaction_type == InteractionType.ESCATTERING
+    assert delta_shell == 1
+    assert packet.next_line_id == 2
+    npt.assert_allclose(estimators.mean_intensity_blueward, np.zeros((2, 2)))
+
+
 @pytest.mark.parametrize(
     (
         "chi_continuum",
@@ -535,6 +609,34 @@ def test_iip_trace_packet_characterization(
     npt.assert_allclose(estimators.energy_deposition_line_rate, expected_edot)
 
 
+def test_iip_trace_packet_no_line_fallthrough_characterization() -> None:
+    packet = _make_rpacket(next_line_id=2)
+    geometry = _make_radial_geometry(2.0e16)
+    opacity_state = _make_iip_opacity_state(
+        [3.999e14, 3.998e14], np.zeros((2, 2))
+    )
+    estimators = _make_line_estimators()
+    _seed_numba_random(1963)
+
+    distance, interaction_type, delta_shell = iip_trace_packet(
+        packet,
+        geometry,
+        5.2e7,
+        opacity_state,
+        estimators,
+        1.0e-12,
+        1.0,
+        False,
+        False,
+    )
+
+    npt.assert_allclose(distance, 4.4139581936031586e10)
+    assert interaction_type == InteractionType.ESCATTERING
+    assert delta_shell == 1
+    assert packet.next_line_id == 2
+    npt.assert_allclose(estimators.mean_intensity_blueward, np.zeros((2, 2)))
+
+
 @pytest.mark.parametrize(
     (
         "geometry",
@@ -645,3 +747,30 @@ def test_nonhomologous_trace_packet_characterization(
     assert packet.prev_line_id == expected_prev_line_id
     npt.assert_allclose(estimators.mean_intensity_blueward, expected_j_blue)
     npt.assert_allclose(estimators.energy_deposition_line_rate, expected_edot)
+
+
+def test_nonhomologous_trace_packet_no_line_fallthrough_characterization() -> None:
+    packet = _make_rpacket(next_line_id=2, prev_line_id=1)
+    geometry = _make_nonhomologous_geometry(r_outer_first_shell=2.0e16)
+    opacity_state = _make_opacity_state(
+        [3.999e14, 3.998e14], np.zeros((2, 2))
+    )
+    estimators = _make_line_estimators()
+    _seed_numba_random(1963)
+
+    distance, interaction_type, delta_shell = nonhomologous_trace_packet(
+        packet,
+        geometry,
+        opacity_state,
+        estimators,
+        1.0e-12,
+        False,
+        False,
+    )
+
+    npt.assert_allclose(distance, 4.4139581936031586e10)
+    assert interaction_type == InteractionType.ESCATTERING
+    assert delta_shell == 1
+    assert packet.next_line_id == 2
+    assert packet.prev_line_id == 1
+    npt.assert_allclose(estimators.mean_intensity_blueward, np.zeros((2, 2)))
