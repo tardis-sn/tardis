@@ -943,6 +943,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 references_index,
                 normalized_deactivating_probs,
                 absorbing_probability_matrix,
+                source_idx_to_absorbing_matrix_idx_map,
             ) = self._solve_first_macroatom_iteration(
                 mean_intensities_blue_wing,
                 beta_sobolevs,
@@ -968,6 +969,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
                 normalized_probabilities,
                 normalized_deactivating_probs,
                 absorbing_probability_matrix,
+                source_idx_to_absorbing_matrix_idx_map,
             ) = self._solve_next_macroatom_iteration(
                 mean_intensities_blue_wing,
                 beta_sobolevs,
@@ -1012,6 +1014,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             photo_ion_block_idx,
             k_packet_idx,
+            source_idx_to_absorbing_matrix_idx_map,
         )
 
     def set_static_properties(
@@ -1079,6 +1082,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         pd.Series,
         pd.DataFrame,
         np.ndarray,
+        dict,
     ]:
         """
         Handle the first iteration of the solve method for continuum macro atom.
@@ -1310,10 +1314,18 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             probabilities_df, macro_atom_transition_metadata
         )
         # normalized_probabilities = probabilities_df  # Useful for debugging
-
+        # TODO: HERE
+        # I want to only ask for some subset of things to create absorbing probs for.
+        # This will work by just slicing out a subset of things to process.
+        # I will also need to go into the iip interaction handler and make it
+        # check if the source is processed, and if so go into the matrix. If not,
+        # just skip over that part and do the second for loop.
+        # Also will need a while transition type is > -1, do that.
+        # That should all work fine.
         (
             absorbing_probability_matrix,
             deactivating_probs,
+            source_idx_to_absorbing_matrix_idx_map,
         ) = create_absorbing_probs(
             normalized_probabilities, macro_atom_transition_metadata
         )
@@ -1346,6 +1358,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             references_index,
             normalized_deactivating_probs,
             absorbing_probability_matrix,
+            source_idx_to_absorbing_matrix_idx_map,
         )
 
     def _solve_next_macroatom_iteration(
@@ -1368,7 +1381,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         fb_cool_rate: np.ndarray,
         fb_cool_probs_arr: np.ndarray,
         ff_cool_rate: np.ndarray,
-    ) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, pd.DataFrame, np.ndarray, dict]:
         """
         Handle subsequent iterations of the solve method for continuum macro atom.
 
@@ -1645,6 +1658,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         (
             absorbing_probability_matrix,
             deactivating_probs,
+            source_idx_to_absorbing_matrix_idx_map,
         ) = create_absorbing_probs(
             normalized_probabilities, macro_atom_transition_metadata
         )
@@ -1656,6 +1670,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             normalized_probabilities,
             normalized_deactivating_probs,
             absorbing_probability_matrix,
+            source_idx_to_absorbing_matrix_idx_map,
         )
 
     def reindex_sort_and_clean_probabilities_and_metadata(

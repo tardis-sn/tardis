@@ -33,6 +33,9 @@ class OpacityStateNumbaIIP:
     photo_ion_activation_idx: nb.int64[:]  # type: ignore[misc]
     k_packet_idx: nb.int64  # type: ignore[misc]
     absorbing_markov_probabilities: nb.float64[:, :, :]  # type: ignore[misc]
+    # source_idx_to_absorbing_matrix_idx_map: dict  # type: ignore[misc]
+    abs_matrix_source_indices: nb.int64[:]  # type: ignore[misc]
+    abs_matrix_indices: nb.int64[:]  # type: ignore[misc]
 
     def __init__(
         self,
@@ -59,6 +62,8 @@ class OpacityStateNumbaIIP:
         photo_ion_activation_idx: np.ndarray,
         k_packet_idx: int,
         absorbing_markov_probabilities: np.ndarray,
+        abs_matrix_source_indices: np.ndarray,
+        absorbing_matrix_indices: np.ndarray,
     ) -> None:
         """
         Initialize IIP-specific Numba-compatible opacity state for Monte Carlo transport.
@@ -145,6 +150,8 @@ class OpacityStateNumbaIIP:
         self.photo_ion_activation_idx = photo_ion_activation_idx
         self.k_packet_idx = k_packet_idx
         self.absorbing_markov_probabilities = absorbing_markov_probabilities
+        self.abs_matrix_source_indices = abs_matrix_source_indices
+        self.abs_matrix_indices = absorbing_matrix_indices
 
     def __getitem__(self, i: slice) -> "OpacityStateNumbaIIP":
         """Get a shell or slice of shells of the attributes of the opacity state.
@@ -171,7 +178,7 @@ class OpacityStateNumbaIIP:
             self.destination_level_id,
             self.transition_line_id,
             self.bf_threshold_list_nu,
-            self.p_fb_deactivation,
+            self.p_fb_deactivation,  # JOSH: I think this is a per shell quantity and will need to be trimmed
             self.photo_ion_nu_threshold_mins,
             self.photo_ion_nu_threshold_maxs,
             self.photo_ion_block_references,
@@ -179,8 +186,10 @@ class OpacityStateNumbaIIP:
             self.x_sect,
             self.phot_nus,
             self.ff_opacity_factor,
-            self.emissivities,
+            self.emissivities,  # JOSH: I think this is a per shell quantity and will need to be trimmed
             self.photo_ion_activation_idx,
             self.k_packet_idx,
             self.absorbing_markov_probabilities[i, :, :],
+            self.abs_matrix_source_indices,
+            self.abs_matrix_indices,
         )
