@@ -221,7 +221,7 @@ class StandardTARDISWorkflow(
             self.opacity_states = self.solve_opacity()
 
             virtual_packet_energies = self.solve_montecarlo(
-                self.opacity_states, self.real_packet_count
+                self.opacity_states, self.real_packet_count, enable_rpacket_tracking=False,
             )
 
             (
@@ -253,6 +253,7 @@ class StandardTARDISWorkflow(
             self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
+            enable_rpacket_tracking=self.transport_solver.enable_rpacket_tracking,
         )
         self.store_plasma_state(
             self.completed_iterations,

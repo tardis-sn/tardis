@@ -875,7 +875,11 @@ class TypeIIPWorkflow(WorkflowLogging):
         }
 
     def solve_montecarlo(
-        self, opacity_states, no_of_real_packets, no_of_virtual_packets=0
+        self,
+        opacity_states,
+        no_of_real_packets,
+        no_of_virtual_packets=0,
+        enable_rpacket_tracking: bool = False,
     ):
         """Solve the MonteCarlo process
 
@@ -887,7 +891,8 @@ class TypeIIPWorkflow(WorkflowLogging):
             Number of real packets to simulate
         no_of_virtual_packets : int, optional
             Number of virtual packets to simulate per interaction, by default 0
-
+        enable_rpacket_tracking
+            Whether to save packet data to the full tracker for this MC step
         """
         opacity_state = opacity_states["opacity_state"]
         macro_atom_state = opacity_states["macro_atom_state"]
@@ -905,6 +910,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.transport_solver.run(
             self.transport_state,
             show_progress_bars=self.show_progress_bars,
+            enable_rpacket_tracking=enable_rpacket_tracking,
         )
 
         output_energy = self.transport_state.packet_collection.output_energies
@@ -933,7 +939,11 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.opacity_states = self.solve_opacity()
 
-            self.solve_montecarlo(self.opacity_states, self.real_packet_count)
+            self.solve_montecarlo(
+                self.opacity_states,
+                self.real_packet_count,
+                enable_rpacket_tracking=False,
+            )
 
             (
                 estimated_values,
@@ -971,6 +981,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.opacity_states,
             self.final_iteration_packet_count,
             self.virtual_packet_count,
+            enable_rpacket_tracking=self.transport_solver.enable_rpacket_tracking,
         )
 
         self.initialize_spectrum_solver()
