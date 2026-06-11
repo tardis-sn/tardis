@@ -1,5 +1,3 @@
-from typing import Union
-
 import numpy as np
 from astropy import units as u
 
@@ -48,14 +46,14 @@ class DilutePlanckianRadiationField:
         else:
             assert np.all(temperature > 0 * u.K)
             assert np.all(dilution_factor >= 0)
-        self.temperature = temperature
-        self.dilution_factor = dilution_factor
+        self.temperature = temperature.copy()
+        self.dilution_factor = np.array(dilution_factor, copy=True)
 
     @property
     def temperature_kelvin(self):
         return self.temperature.to(u.K).value
 
-    def calculate_mean_intensity(self, nu: Union[u.Quantity, np.ndarray]):
+    def calculate_mean_intensity(self, nu: u.Quantity | np.ndarray):
         """
         Calculate the intensity of the radiation field at a given frequency.
 
@@ -114,7 +112,7 @@ class PlanckianRadiationField:
     def temperature_kelvin(self):
         return self.temperature.to(u.K).value
 
-    def calculate_mean_intensity(self, nu: Union[u.Quantity, np.ndarray]):
+    def calculate_mean_intensity(self, nu: u.Quantity | np.ndarray):
         """
         Calculate the intensity of the radiation field at a given frequency.
 
