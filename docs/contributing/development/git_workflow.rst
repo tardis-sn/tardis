@@ -29,7 +29,7 @@ Preparation and Working with Git
 ================================
 
 In this document, we refer to the TARDIS ``master`` branch as the *trunk*. The first step is to setup up a python environment. We recommend using
-Miniconda for this purpose.
+Miniforge for this purpose, see https://github.com/conda-forge/miniforge.
 
 .. _forking:
 
