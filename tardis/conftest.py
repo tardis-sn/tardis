@@ -1,4 +1,5 @@
 import os
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 
@@ -176,12 +177,25 @@ def assert_synced_allclose(
     npt.assert_allclose(actual_array, expected, **kwargs)
 
 
-@pytest.fixture
-def set_seed_fixture():
-    def set_seed(value):
-        np.random.seed(value)
+@njit
+def set_numba_seed(value: int) -> None:
+    np.random.seed(value)
 
-    return njit(set_seed)
+
+@pytest.fixture
+def set_seed_fixture() -> Callable[[int], None]:
+    # Numba maintains RNG state separately from Python's NumPy RNG; seeding
+    # inside njitted code keeps random characterization tests reproducible.
+    return set_numba_seed
+
+
+@pytest.fixture
+def python_numba_disabled() -> None:
+    if os.environ.get("NUMBA_DISABLE_JIT") != "1":
+        pytest.skip(
+            "This characterization path monkeypatches numba-dispatched code "
+            "and only runs with NUMBA_DISABLE_JIT=1."
+        )
 
 
 @pytest.fixture(scope="session")

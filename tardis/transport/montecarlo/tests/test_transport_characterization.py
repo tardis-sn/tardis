@@ -34,6 +34,23 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     PacketStatus,
 )
 
+NO_LINE_OPACITY = {
+    "tau_sobolev": np.zeros((2, 2)),
+    "line_list_nu": [3.95e14, 3.90e14],
+}
+LINE_OPACITY = {
+    "tau_sobolev": np.ones((2, 2)) * 100.0,
+    "line_list_nu": [3.999e14, 3.998e14],
+}
+NONHOMOLOGOUS_LINE_OPACITY = {
+    "tau_sobolev": np.ones((2, 2)) * 100.0,
+    "line_list_nu": [3.80e14, 3.70e14],
+}
+FALLTHROUGH_OPACITY = {
+    "tau_sobolev": np.zeros((2, 2)),
+    "line_list_nu": [3.999e14, 3.998e14],
+}
+
 
 @pytest.mark.parametrize(
     "move_r_packet",
@@ -212,34 +229,28 @@ def test_move_packet_across_shell_boundary_characterization(
     [
         (
             1.0e-20,
-            {"tau_sobolev": np.zeros((2, 2)), "line_list_nu": [3.95e14, 3.90e14]},
+            NO_LINE_OPACITY,
             False,
             8.0e14,
             InteractionType.BOUNDARY,
         ),
         (
             1.0e-12,
-            {"tau_sobolev": np.zeros((2, 2)), "line_list_nu": [3.95e14, 3.90e14]},
+            NO_LINE_OPACITY,
             False,
             8.0e14,
             InteractionType.ESCATTERING,
         ),
         (
             1.0e-20,
-            {
-                "tau_sobolev": np.ones((2, 2)) * 100.0,
-                "line_list_nu": [3.999e14, 3.998e14],
-            },
+            LINE_OPACITY,
             False,
             2.0e16,
             InteractionType.LINE,
         ),
         (
             1.0e-20,
-            {
-                "tau_sobolev": np.ones((2, 2)) * 100.0,
-                "line_list_nu": [3.999e14, 3.998e14],
-            },
+            LINE_OPACITY,
             True,
             2.0e16,
             InteractionType.ESCATTERING,
@@ -290,7 +301,7 @@ def test_classic_trace_packet_characterization(
 @pytest.mark.parametrize("radial_geometry", [2.0e16], indirect=True)
 @pytest.mark.parametrize(
     "opacity_state_args",
-    [{"line_list_nu": [3.999e14, 3.998e14], "tau_sobolev": np.zeros((2, 2))}],
+    [FALLTHROUGH_OPACITY],
     indirect=True,
 )
 def test_classic_trace_packet_no_line_fallthrough_characterization(
@@ -301,6 +312,7 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
     set_seed_fixture,
     regression_data,
 ) -> None:
+    # Start beyond the available line list to lock in the no-line fallthrough.
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = classic_trace_packet(
@@ -335,7 +347,7 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
         (
             1.0e-20,
             0.5,
-            {"tau_sobolev": np.zeros((2, 2)), "line_list_nu": [3.95e14, 3.90e14]},
+            NO_LINE_OPACITY,
             False,
             8.0e14,
             InteractionType.BOUNDARY,
@@ -343,7 +355,7 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
         (
             1.0e-12,
             1.0,
-            {"tau_sobolev": np.zeros((2, 2)), "line_list_nu": [3.95e14, 3.90e14]},
+            NO_LINE_OPACITY,
             False,
             8.0e14,
             InteractionType.ESCATTERING,
@@ -351,7 +363,7 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
         (
             1.0e-12,
             0.0,
-            {"tau_sobolev": np.zeros((2, 2)), "line_list_nu": [3.95e14, 3.90e14]},
+            NO_LINE_OPACITY,
             False,
             8.0e14,
             InteractionType.CONTINUUM_PROCESS,
@@ -359,10 +371,7 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
         (
             1.0e-20,
             0.5,
-            {
-                "tau_sobolev": np.ones((2, 2)) * 100.0,
-                "line_list_nu": [3.999e14, 3.998e14],
-            },
+            LINE_OPACITY,
             False,
             2.0e16,
             InteractionType.LINE,
@@ -370,10 +379,7 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
         (
             1.0e-20,
             0.5,
-            {
-                "tau_sobolev": np.ones((2, 2)) * 100.0,
-                "line_list_nu": [3.999e14, 3.998e14],
-            },
+            LINE_OPACITY,
             True,
             2.0e16,
             InteractionType.ESCATTERING,
@@ -426,7 +432,7 @@ def test_iip_trace_packet_characterization(
 @pytest.mark.parametrize("radial_geometry", [2.0e16], indirect=True)
 @pytest.mark.parametrize(
     "opacity_state_args",
-    [{"line_list_nu": [3.999e14, 3.998e14], "tau_sobolev": np.zeros((2, 2))}],
+    [FALLTHROUGH_OPACITY],
     indirect=True,
 )
 def test_iip_trace_packet_no_line_fallthrough_characterization(
@@ -437,6 +443,7 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
     set_seed_fixture,
     regression_data,
 ) -> None:
+    # Start beyond the available line list to lock in the no-line fallthrough.
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = iip_trace_packet(
@@ -473,7 +480,7 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
         (
             {},
             1.0e-20,
-            {"tau_sobolev": np.zeros((2, 2)), "line_list_nu": [3.95e14, 3.90e14]},
+            NO_LINE_OPACITY,
             {"next_line_id": 0, "prev_line_id": 0},
             InteractionType.BOUNDARY,
             0,
@@ -482,7 +489,7 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
         (
             {},
             1.0e-12,
-            {"tau_sobolev": np.zeros((2, 2)), "line_list_nu": [3.95e14, 3.90e14]},
+            NO_LINE_OPACITY,
             {"next_line_id": 0, "prev_line_id": 0},
             InteractionType.ESCATTERING,
             0,
@@ -491,10 +498,7 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
         (
             {"r_outer_first_shell": 2.0e16},
             1.0e-20,
-            {
-                "tau_sobolev": np.ones((2, 2)) * 100.0,
-                "line_list_nu": [3.80e14, 3.70e14],
-            },
+            NONHOMOLOGOUS_LINE_OPACITY,
             {"next_line_id": 0, "prev_line_id": 0},
             InteractionType.LINE,
             0,
@@ -503,7 +507,7 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
         (
             {"negative_velocity_gradient": True},
             1.0e-20,
-            {"tau_sobolev": np.zeros((2, 2)), "line_list_nu": [3.95e14, 3.90e14]},
+            NO_LINE_OPACITY,
             {"next_line_id": 1, "prev_line_id": 1},
             InteractionType.BOUNDARY,
             2,
@@ -564,7 +568,7 @@ def test_nonhomologous_trace_packet_characterization(
 )
 @pytest.mark.parametrize(
     "opacity_state_args",
-    [{"line_list_nu": [3.999e14, 3.998e14], "tau_sobolev": np.zeros((2, 2))}],
+    [FALLTHROUGH_OPACITY],
     indirect=True,
 )
 def test_nonhomologous_trace_packet_no_line_fallthrough_characterization(
@@ -575,6 +579,7 @@ def test_nonhomologous_trace_packet_no_line_fallthrough_characterization(
     set_seed_fixture,
     regression_data,
 ) -> None:
+    # Start beyond the available line list to lock in the no-line fallthrough.
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = nonhomologous_trace_packet(

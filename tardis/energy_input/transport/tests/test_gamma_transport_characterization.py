@@ -332,15 +332,6 @@ def test_gamma_process_packet_path_compton_characterization(
     )
 
 
-@pytest.fixture
-def python_gamma_loop() -> None:
-    if os.environ.get("NUMBA_DISABLE_JIT") != "1":
-        pytest.skip(
-            "gamma_packet_loop branch characterization uses monkeypatching "
-            "and only runs with NUMBA_DISABLE_JIT=1"
-        )
-
-
 def test_gamma_packet_loop_negative_time_index_characterization(
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
@@ -365,6 +356,8 @@ def test_gamma_packet_loop_escape_binning_characterization(
     set_seed_fixture,
     regression_data,
 ) -> None:
+    # Put the packet just inside the outer boundary so the loop exercises
+    # escape binning rather than an interaction branch.
     if os.environ.get("NUMBA_DISABLE_JIT") == "1" and grey_opacity >= 0.0:
         pytest.xfail(
             "Current Python execution path leaves doppler_factor undefined "
@@ -410,6 +403,8 @@ def test_gamma_packet_loop_tardis_opacity_characterization(
     set_seed_fixture,
     regression_data,
 ) -> None:
+    # Put the packet just inside the outer boundary so the TARDIS opacity path
+    # reaches escape binning deterministically.
     packet = gamma_packet
     packet.location = np.array([1.9e14, 0.0, 0.0])
     packet.direction = np.array([1.0, 0.0, 0.0])
@@ -466,7 +461,7 @@ def test_gamma_packet_loop_invalid_opacity_type_characterization(
 
 def test_gamma_packet_loop_time_boundary_end_characterization(
     monkeypatch,
-    python_gamma_loop,
+    python_numba_disabled,
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     regression_data,
@@ -474,6 +469,7 @@ def test_gamma_packet_loop_time_boundary_end_characterization(
     packet = gamma_packet
     packet.time_index = 1
 
+    # Force the time-boundary branch without depending on sampled distances.
     monkeypatch.setattr(
         gamma_loop_module,
         "distance_trace",
@@ -500,13 +496,14 @@ def test_gamma_packet_loop_time_boundary_end_characterization(
 
 def test_gamma_packet_loop_inner_boundary_end_characterization(
     monkeypatch,
-    python_gamma_loop,
+    python_numba_disabled,
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     regression_data,
 ) -> None:
     packet = gamma_packet
 
+    # Force the inner-boundary branch without depending on sampled distances.
     monkeypatch.setattr(
         gamma_loop_module,
         "distance_trace",
@@ -535,13 +532,15 @@ def test_gamma_packet_loop_inner_boundary_end_characterization(
 
 def test_gamma_packet_loop_interaction_deposition_characterization(
     monkeypatch,
-    python_gamma_loop,
+    python_numba_disabled,
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     regression_data,
 ) -> None:
     packet = gamma_packet
 
+    # Force an immediate photoabsorption interaction to characterize deposition
+    # bookkeeping in the loop.
     monkeypatch.setattr(
         gamma_loop_module,
         "distance_trace",
@@ -574,27 +573,37 @@ def test_gamma_packet_loop_interaction_deposition_characterization(
 
 def test_gamma_packet_loop_scattered_escape_characterization(
     monkeypatch,
-    python_gamma_loop,
+    python_numba_disabled,
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     regression_data,
 ) -> None:
     packet = gamma_packet
-    distances = [
+    distances_to_return = [
+        # First loop step: interaction distance wins.
         (1.0, 20.0, 10.0, 0),
+        # Second loop step: boundary distance wins and moves out one shell.
         (20.0, 1.0, 10.0, 1),
     ]
 
-    def fake_distance_trace(*args):
-        assert distances
-        return distances.pop(0)
+    def distance_trace_interacts_then_escapes(
+        *args: object,
+    ) -> tuple[float, float, float, int]:
+        assert distances_to_return
+        return distances_to_return.pop(0)
 
-    def fake_process_packet_path(packet):
+    def process_packet_path_as_pair_creation(
+        packet: GXPacket,
+    ) -> tuple[GXPacket, float]:
         packet.status = GXPacketStatus.PAIR_CREATION
         return packet, 0.0
 
+    # Force an interaction followed by boundary escape to characterize the
+    # status reset after a scattering-like path.
     monkeypatch.setattr(
-        gamma_loop_module, "distance_trace", fake_distance_trace
+        gamma_loop_module,
+        "distance_trace",
+        distance_trace_interacts_then_escapes,
     )
     monkeypatch.setattr(
         gamma_loop_module,
@@ -602,7 +611,9 @@ def test_gamma_packet_loop_scattered_escape_characterization(
         lambda *args: GXPacketStatus.PAIR_CREATION,
     )
     monkeypatch.setattr(
-        gamma_loop_module, "process_packet_path", fake_process_packet_path
+        gamma_loop_module,
+        "process_packet_path",
+        process_packet_path_as_pair_creation,
     )
 
     with pytest.raises(UnboundLocalError):

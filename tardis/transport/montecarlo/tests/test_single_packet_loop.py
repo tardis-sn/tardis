@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -52,12 +50,33 @@ class _RecordingTracker:
         pass
 
 
-@pytest.fixture
-def python_packet_propagation() -> None:
-    if os.environ.get("NUMBA_DISABLE_JIT") != "1":
-        pytest.skip(
-            "packet_propagation dispatch characterization uses monkeypatching "
-            "and only runs with NUMBA_DISABLE_JIT=1"
+class _CommonPacketPropagationPatcher:
+    def __init__(self, monkeypatch) -> None:
+        self.monkeypatch = monkeypatch
+        self.interaction_queue = []
+
+    def trace_packet(self, *args, **kwargs):
+        assert self.interaction_queue
+        return self.interaction_queue.pop(0)
+
+    def __call__(self, module, interactions) -> None:
+        self.interaction_queue = list(interactions)
+        self.monkeypatch.setattr(module, "trace_packet", self.trace_packet)
+        self.monkeypatch.setattr(
+            module, "trace_vpacket_volley", lambda *args: None, raising=False
+        )
+        self.monkeypatch.setattr(
+            module, "chi_electron_calculator", lambda *args: 1.0e-20
+        )
+        self.monkeypatch.setattr(
+            module,
+            "line_scatter_event",
+            lambda packet, *args, **kwargs: setattr(packet, "next_line_id", 1),
+        )
+        self.monkeypatch.setattr(
+            module,
+            "thomson_scatter",
+            lambda packet, *args, **kwargs: setattr(packet, "mu", -packet.mu),
         )
 
 
@@ -68,32 +87,7 @@ def recording_tracker() -> _RecordingTracker:
 
 @pytest.fixture
 def patch_common_classic_hooks(monkeypatch):
-    def patch(module, interactions) -> None:
-        interaction_queue = list(interactions)
-
-        def fake_trace_packet(*args, **kwargs):
-            assert interaction_queue
-            return interaction_queue.pop(0)
-
-        monkeypatch.setattr(module, "trace_packet", fake_trace_packet)
-        monkeypatch.setattr(
-            module, "trace_vpacket_volley", lambda *args: None, raising=False
-        )
-        monkeypatch.setattr(
-            module, "chi_electron_calculator", lambda *args: 1.0e-20
-        )
-        monkeypatch.setattr(
-            module,
-            "line_scatter_event",
-            lambda packet, *args, **kwargs: setattr(packet, "next_line_id", 1),
-        )
-        monkeypatch.setattr(
-            module,
-            "thomson_scatter",
-            lambda packet, *args, **kwargs: setattr(packet, "mu", -packet.mu),
-        )
-
-    return patch
+    return _CommonPacketPropagationPatcher(monkeypatch)
 
 
 @pytest.mark.parametrize(
@@ -105,7 +99,7 @@ def patch_common_classic_hooks(monkeypatch):
     ],
 )
 def test_classic_packet_propagation_dispatch_characterization(
-    python_packet_propagation,
+    python_numba_disabled,
     patch_common_classic_hooks,
     characterization_packet: RPacket,
     radial_geometry,
@@ -119,6 +113,8 @@ def test_classic_packet_propagation_dispatch_characterization(
     expected_interaction: InteractionType,
     regression_data,
 ) -> None:
+    # Force the propagation loop through one selected interaction, then an
+    # outer boundary, so this characterizes dispatch bookkeeping directly.
     interactions = [(1.0e12, first_interaction, 1)]
     if first_interaction != InteractionType.BOUNDARY:
         interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
@@ -166,7 +162,7 @@ def test_classic_packet_propagation_dispatch_characterization(
     ],
 )
 def test_iip_packet_propagation_dispatch_characterization(
-    python_packet_propagation,
+    python_numba_disabled,
     monkeypatch,
     patch_common_classic_hooks,
     characterization_packet: RPacket,
@@ -180,12 +176,15 @@ def test_iip_packet_propagation_dispatch_characterization(
     first_interaction: InteractionType,
     regression_data,
 ) -> None:
+    # Force IIP dispatch paths independently of continuum opacity details.
     interactions = [
         (1.0e12, first_interaction, 1),
         (1.0e12, InteractionType.BOUNDARY, 1),
         (1.0e12, InteractionType.BOUNDARY, 1),
     ]
     patch_common_classic_hooks(iip_propagation, interactions)
+    # Continuum handling has extra collaborators; patch them only enough to
+    # make the dispatch branch observable.
     monkeypatch.setattr(
         iip_propagation,
         "chi_continuum_calculator",
@@ -246,7 +245,7 @@ def test_iip_packet_propagation_dispatch_characterization(
     ],
 )
 def test_nonhomologous_packet_propagation_dispatch_characterization(
-    python_packet_propagation,
+    python_numba_disabled,
     patch_common_classic_hooks,
     characterization_packet: RPacket,
     nonhomologous_geometry,
@@ -259,6 +258,8 @@ def test_nonhomologous_packet_propagation_dispatch_characterization(
     first_interaction: InteractionType,
     regression_data,
 ) -> None:
+    # Force the nonhomologous loop through one selected interaction, then an
+    # outer boundary, so this characterizes dispatch bookkeeping directly.
     interactions = [(1.0e12, first_interaction, 1)]
     if first_interaction != InteractionType.BOUNDARY:
         interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
