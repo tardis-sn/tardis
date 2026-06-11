@@ -7,6 +7,7 @@ import numpy.testing as npt
 import pytest
 from astropy import units as u
 from astropy.version import version as astropy_version
+from numba import njit
 
 from tardis import run_tardis
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
@@ -173,6 +174,14 @@ def assert_synced_allclose(
     )
     expected = regression_data.sync_ndarray(actual_array)
     npt.assert_allclose(actual_array, expected, **kwargs)
+
+
+@pytest.fixture
+def set_seed_fixture():
+    def set_seed(value):
+        np.random.seed(value)
+
+    return njit(set_seed)
 
 
 @pytest.fixture(scope="session")

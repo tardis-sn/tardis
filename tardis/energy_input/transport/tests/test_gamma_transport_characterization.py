@@ -2,7 +2,6 @@ import os
 
 import numpy as np
 import pytest
-from numba import njit
 
 import tardis.energy_input.transport.gamma_packet_loop as gamma_loop_module
 from tardis.conftest import assert_synced_allclose
@@ -27,26 +26,20 @@ from tardis.energy_input.transport.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV, H_CGS_KEV
 
 
-@njit
-def _seed_numba_random(seed: int) -> None:
-    np.random.seed(seed)
-
-
 @pytest.fixture
-def gamma_packet() -> GXPacket:
-    _seed_numba_random(1963)
-    return GXPacket(
-        location=np.array([1.0e14, 0.0, 0.0]),
-        direction=np.array([1.0, 0.0, 0.0]),
-        energy_rf=1.0e42,
-        energy_cmf=1.0e42,
-        nu_rf=1000.0 / H_CGS_KEV,
-        nu_cmf=1000.0 / H_CGS_KEV,
-        status=GXPacketStatus.IN_PROCESS,
-        shell=0,
-        time_start=1.2e5,
-        time_index=0,
-    )
+def gamma_packet(basic_gamma_ray: GXPacket, set_seed_fixture) -> GXPacket:
+    set_seed_fixture(1963)
+    basic_gamma_ray.location = np.array([1.0e14, 0.0, 0.0])
+    basic_gamma_ray.direction = np.array([1.0, 0.0, 0.0])
+    basic_gamma_ray.energy_rf = 1.0e42
+    basic_gamma_ray.energy_cmf = 1.0e42
+    basic_gamma_ray.nu_rf = 1000.0 / H_CGS_KEV
+    basic_gamma_ray.nu_cmf = 1000.0 / H_CGS_KEV
+    basic_gamma_ray.status = GXPacketStatus.IN_PROCESS
+    basic_gamma_ray.shell = 0
+    basic_gamma_ray.time_start = 1.2e5
+    basic_gamma_ray.time_index = 0
+    return basic_gamma_ray
 
 
 @pytest.fixture
@@ -225,8 +218,10 @@ def test_gamma_scatter_type_characterization(
     assert actual == expected
 
 
-def test_gamma_compton_angle_characterization(regression_data) -> None:
-    _seed_numba_random(1963)
+def test_gamma_compton_angle_characterization(
+    set_seed_fixture, regression_data
+) -> None:
+    set_seed_fixture(1963)
 
     angle, lost_energy, new_energy = get_compton_angle(1000.0)
 
@@ -235,16 +230,20 @@ def test_gamma_compton_angle_characterization(regression_data) -> None:
     )
 
 
-def test_gamma_compton_fraction_characterization(regression_data) -> None:
-    _seed_numba_random(1963)
+def test_gamma_compton_fraction_characterization(
+    set_seed_fixture, regression_data
+) -> None:
+    set_seed_fixture(1963)
 
     angle, fraction = get_compton_fraction(1000.0)
 
     assert_synced_allclose(regression_data, np.array([angle, fraction]))
 
 
-def test_gamma_compton_fraction_artis_characterization(regression_data) -> None:
-    _seed_numba_random(1963)
+def test_gamma_compton_fraction_artis_characterization(
+    set_seed_fixture, regression_data
+) -> None:
+    set_seed_fixture(1963)
 
     angle, fraction = get_compton_fraction_artis(1000.0)
 
@@ -253,9 +252,10 @@ def test_gamma_compton_fraction_artis_characterization(regression_data) -> None:
 
 def test_gamma_compton_scatter_characterization(
     gamma_packet: GXPacket,
+    set_seed_fixture,
     regression_data,
 ) -> None:
-    _seed_numba_random(1963)
+    set_seed_fixture(1963)
 
     actual = compton_scatter(gamma_packet, 0.5)
 
@@ -264,12 +264,13 @@ def test_gamma_compton_scatter_characterization(
 
 def test_gamma_pair_creation_survives_characterization(
     gamma_packet: GXPacket,
+    set_seed_fixture,
     regression_data,
 ) -> None:
     packet = gamma_packet
     packet.nu_cmf = 2.0 * ELECTRON_MASS_ENERGY_KEV / H_CGS_KEV
     packet.nu_rf = packet.nu_cmf
-    _seed_numba_random(2)
+    set_seed_fixture(2)
 
     actual = pair_creation_packet(packet)
 
@@ -299,11 +300,12 @@ def test_gamma_process_packet_path_photoabsorption_characterization(
 
 def test_gamma_process_packet_path_pair_creation_characterization(
     gamma_packet: GXPacket,
+    set_seed_fixture,
     regression_data,
 ) -> None:
     packet = gamma_packet
     packet.status = GXPacketStatus.PAIR_CREATION
-    _seed_numba_random(1963)
+    set_seed_fixture(1963)
 
     actual, ejecta_energy_gained = process_packet_path(packet)
 
@@ -315,11 +317,12 @@ def test_gamma_process_packet_path_pair_creation_characterization(
 
 def test_gamma_process_packet_path_compton_characterization(
     gamma_packet: GXPacket,
+    set_seed_fixture,
     regression_data,
 ) -> None:
     packet = gamma_packet
     packet.status = GXPacketStatus.COMPTON_SCATTER
-    _seed_numba_random(1963)
+    set_seed_fixture(1963)
 
     actual, ejecta_energy_gained = process_packet_path(packet)
 
@@ -329,7 +332,8 @@ def test_gamma_process_packet_path_compton_characterization(
     )
 
 
-def _skip_unless_python_gamma_loop() -> None:
+@pytest.fixture
+def python_gamma_loop() -> None:
     if os.environ.get("NUMBA_DISABLE_JIT") != "1":
         pytest.skip(
             "gamma_packet_loop branch characterization uses monkeypatching "
@@ -358,17 +362,19 @@ def test_gamma_packet_loop_escape_binning_characterization(
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     grey_opacity: float,
+    set_seed_fixture,
     regression_data,
 ) -> None:
     if os.environ.get("NUMBA_DISABLE_JIT") == "1" and grey_opacity >= 0.0:
         pytest.xfail(
-            "Current Python execution path leaves doppler_factor undefined for grey opacity."
+            "Current Python execution path leaves doppler_factor undefined "
+            "for grey opacity."
         )
 
     packet = gamma_packet
     packet.location = np.array([1.9e14, 0.0, 0.0])
     packet.direction = np.array([1.0, 0.0, 0.0])
-    _seed_numba_random(1963)
+    set_seed_fixture(1963)
 
     (
         energy_out,
@@ -401,12 +407,13 @@ def test_gamma_packet_loop_escape_binning_characterization(
 def test_gamma_packet_loop_tardis_opacity_characterization(
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
+    set_seed_fixture,
     regression_data,
 ) -> None:
     packet = gamma_packet
     packet.location = np.array([1.9e14, 0.0, 0.0])
     packet.direction = np.array([1.0, 0.0, 0.0])
-    _seed_numba_random(1963)
+    set_seed_fixture(1963)
 
     (
         energy_out,
@@ -459,11 +466,11 @@ def test_gamma_packet_loop_invalid_opacity_type_characterization(
 
 def test_gamma_packet_loop_time_boundary_end_characterization(
     monkeypatch,
+    python_gamma_loop,
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     regression_data,
 ) -> None:
-    _skip_unless_python_gamma_loop()
     packet = gamma_packet
     packet.time_index = 1
 
@@ -493,11 +500,11 @@ def test_gamma_packet_loop_time_boundary_end_characterization(
 
 def test_gamma_packet_loop_inner_boundary_end_characterization(
     monkeypatch,
+    python_gamma_loop,
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     regression_data,
 ) -> None:
-    _skip_unless_python_gamma_loop()
     packet = gamma_packet
 
     monkeypatch.setattr(
@@ -528,11 +535,11 @@ def test_gamma_packet_loop_inner_boundary_end_characterization(
 
 def test_gamma_packet_loop_interaction_deposition_characterization(
     monkeypatch,
+    python_gamma_loop,
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     regression_data,
 ) -> None:
-    _skip_unless_python_gamma_loop()
     packet = gamma_packet
 
     monkeypatch.setattr(
@@ -567,11 +574,11 @@ def test_gamma_packet_loop_interaction_deposition_characterization(
 
 def test_gamma_packet_loop_scattered_escape_characterization(
     monkeypatch,
+    python_gamma_loop,
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     regression_data,
 ) -> None:
-    _skip_unless_python_gamma_loop()
     packet = gamma_packet
     distances = [
         (1.0, 20.0, 10.0, 0),

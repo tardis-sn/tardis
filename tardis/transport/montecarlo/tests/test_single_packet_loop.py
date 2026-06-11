@@ -4,41 +4,21 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
-import tardis.transport.montecarlo.modes.classic.packet_propagation as classic_propagation
 import tardis.transport.montecarlo.modes.iip.packet_propagation as iip_propagation
-import tardis.transport.montecarlo.modes.nonhomologous.packet_propagation as nonhomologous_propagation
 from tardis.conftest import assert_synced_allclose
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.model.geometry.radial1d_nonhomologous import (
-    NumbaNonhomologousRadial1DGeometry,
-)
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
-from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.transport.montecarlo import RPacket
-from tardis.transport.montecarlo.configuration.base import (
-    MonteCarloConfiguration,
-)
-from tardis.transport.montecarlo.estimators.estimators_bulk import (
-    init_estimators_bulk,
-)
-from tardis.transport.montecarlo.estimators.estimators_continuum import (
-    init_estimators_continuum,
-)
-from tardis.transport.montecarlo.estimators.estimators_line import (
-    EstimatorsLine,
+from tardis.transport.montecarlo.modes.classic import (
+    packet_propagation as classic_propagation,
 )
 from tardis.transport.montecarlo.modes.classic.packet_propagation import (
     packet_propagation,
 )
-from tardis.transport.montecarlo.packets.packet_collections import (
-    VPacketCollection,
+from tardis.transport.montecarlo.modes.nonhomologous import (
+    packet_propagation as nonhomologous_propagation,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
-)
-from tardis.transport.montecarlo.tests.test_transport_characterization import (
-    _opacity_state_args,
 )
 
 
@@ -72,7 +52,8 @@ class _RecordingTracker:
         pass
 
 
-def _skip_unless_python_propagation() -> None:
+@pytest.fixture
+def python_packet_propagation() -> None:
     if os.environ.get("NUMBA_DISABLE_JIT") != "1":
         pytest.skip(
             "packet_propagation dispatch characterization uses monkeypatching "
@@ -81,131 +62,38 @@ def _skip_unless_python_propagation() -> None:
 
 
 @pytest.fixture
-def montecarlo_configuration() -> MonteCarloConfiguration:
-    config = MonteCarloConfiguration()
-    config.LINE_INTERACTION_TYPE = 0
-    config.SURVIVAL_PROBABILITY = 0.0
-    config.VPACKET_TAU_RUSSIAN = 10.0
-    return config
-
-
-@pytest.fixture
-def characterization_packet() -> RPacket:
-    packet = RPacket(
-        r=7.5e14,
-        mu=0.3,
-        nu=4.0e14,
-        energy=0.9,
-        seed=1963,
-        index=0,
-    )
-    packet.current_shell_id = 0
-    packet.next_line_id = 0
-    packet.prev_line_id = 0
-    return packet
-
-
-@pytest.fixture
-def radial_geometry() -> NumbaRadial1DGeometry:
-    return NumbaRadial1DGeometry(
-        np.array([7.0e14, 8.0e14]),
-        np.array([8.0e14, 3.0e16]),
-        np.array([-1.0, -1.0]),
-        np.array([-1.0, -1.0]),
-    )
-
-
-@pytest.fixture
-def nonhomologous_geometry() -> NumbaNonhomologousRadial1DGeometry:
-    return NumbaNonhomologousRadial1DGeometry(
-        np.array([7.0e14, 8.0e14]),
-        np.array([8.0e14, 3.0e16]),
-        np.array([1.0e9, 1.5e9]),
-        np.array([1.5e9, 2.0e9]),
-    )
-
-
-@pytest.fixture
-def classic_opacity_state() -> OpacityStateNumba:
-    return OpacityStateNumba(
-        *_opacity_state_args(np.array([3.999e14, 3.998e14]), np.zeros((2, 2)))
-    )
-
-
-@pytest.fixture
-def iip_opacity_state() -> OpacityStateNumbaIIP:
-    return OpacityStateNumbaIIP(
-        *_opacity_state_args(np.array([3.999e14, 3.998e14]), np.zeros((2, 2))),
-        np.ones((2, 1, 1)),
-    )
-
-
-@pytest.fixture
-def bulk_estimators():
-    return init_estimators_bulk(2)
-
-
-@pytest.fixture
-def line_estimators() -> EstimatorsLine:
-    return EstimatorsLine(np.zeros((2, 2)), np.zeros((2, 2)))
-
-
-@pytest.fixture
-def continuum_estimators():
-    return init_estimators_continuum((1, 2), 2)
-
-
-@pytest.fixture
 def recording_tracker() -> _RecordingTracker:
     return _RecordingTracker()
 
 
 @pytest.fixture
-def vpacket_collection() -> VPacketCollection:
-    return VPacketCollection(
-        source_rpacket_index=0,
-        spectrum_frequency_grid=np.array([1.0e14, 2.0e14]),
-        number_of_vpackets=0,
-        v_packet_spawn_start_frequency=0.0,
-        v_packet_spawn_end_frequency=np.inf,
-        temporary_v_packet_bins=0,
-    )
+def patch_common_classic_hooks(monkeypatch):
+    def patch(module, interactions) -> None:
+        interaction_queue = list(interactions)
 
+        def fake_trace_packet(*args, **kwargs):
+            assert interaction_queue
+            return interaction_queue.pop(0)
 
-def _patch_common_classic_hooks(monkeypatch, module, interactions) -> None:
-    interaction_queue = list(interactions)
+        monkeypatch.setattr(module, "trace_packet", fake_trace_packet)
+        monkeypatch.setattr(
+            module, "trace_vpacket_volley", lambda *args: None, raising=False
+        )
+        monkeypatch.setattr(
+            module, "chi_electron_calculator", lambda *args: 1.0e-20
+        )
+        monkeypatch.setattr(
+            module,
+            "line_scatter_event",
+            lambda packet, *args, **kwargs: setattr(packet, "next_line_id", 1),
+        )
+        monkeypatch.setattr(
+            module,
+            "thomson_scatter",
+            lambda packet, *args, **kwargs: setattr(packet, "mu", -packet.mu),
+        )
 
-    def fake_trace_packet(*args, **kwargs):
-        assert interaction_queue
-        return interaction_queue.pop(0)
-
-    monkeypatch.setattr(module, "trace_packet", fake_trace_packet)
-    monkeypatch.setattr(
-        module, "trace_vpacket_volley", lambda *args: None, raising=False
-    )
-    monkeypatch.setattr(
-        module, "chi_electron_calculator", lambda *args: 1.0e-20
-    )
-    monkeypatch.setattr(
-        module,
-        "line_scatter_event",
-        lambda packet, *args, **kwargs: setattr(packet, "next_line_id", 1),
-    )
-    monkeypatch.setattr(
-        module,
-        "thomson_scatter",
-        lambda packet, *args, **kwargs: setattr(packet, "mu", -packet.mu),
-    )
-
-
-def _assert_dispatch_result(
-    packet: RPacket,
-    tracker: _RecordingTracker,
-    expected_interaction: InteractionType,
-) -> None:
-    assert packet.status == PacketStatus.EMITTED
-    assert expected_interaction in tracker.events
-    assert tracker.events[-1] == InteractionType.BOUNDARY
+    return patch
 
 
 @pytest.mark.parametrize(
@@ -217,25 +105,25 @@ def _assert_dispatch_result(
     ],
 )
 def test_classic_packet_propagation_dispatch_characterization(
-    monkeypatch,
+    python_packet_propagation,
+    patch_common_classic_hooks,
     characterization_packet: RPacket,
     radial_geometry,
     classic_opacity_state,
     bulk_estimators,
     line_estimators,
-    vpacket_collection: VPacketCollection,
+    vpacket_collection,
     recording_tracker: _RecordingTracker,
-    montecarlo_configuration: MonteCarloConfiguration,
+    montecarlo_configuration,
     first_interaction: InteractionType,
     expected_interaction: InteractionType,
     regression_data,
 ) -> None:
-    _skip_unless_python_propagation()
     interactions = [(1.0e12, first_interaction, 1)]
     if first_interaction != InteractionType.BOUNDARY:
         interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
     interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
-    _patch_common_classic_hooks(monkeypatch, classic_propagation, interactions)
+    patch_common_classic_hooks(classic_propagation, interactions)
 
     classic_propagation.packet_propagation(
         characterization_packet,
@@ -249,11 +137,9 @@ def test_classic_packet_propagation_dispatch_characterization(
         montecarlo_configuration,
     )
 
-    _assert_dispatch_result(
-        characterization_packet,
-        recording_tracker,
-        expected_interaction,
-    )
+    assert characterization_packet.status == PacketStatus.EMITTED
+    assert expected_interaction in recording_tracker.events
+    assert recording_tracker.events[-1] == InteractionType.BOUNDARY
     assert_synced_allclose(
         regression_data,
         np.array(
@@ -280,7 +166,9 @@ def test_classic_packet_propagation_dispatch_characterization(
     ],
 )
 def test_iip_packet_propagation_dispatch_characterization(
+    python_packet_propagation,
     monkeypatch,
+    patch_common_classic_hooks,
     characterization_packet: RPacket,
     radial_geometry,
     iip_opacity_state,
@@ -288,17 +176,16 @@ def test_iip_packet_propagation_dispatch_characterization(
     line_estimators,
     continuum_estimators,
     recording_tracker: _RecordingTracker,
-    montecarlo_configuration: MonteCarloConfiguration,
+    montecarlo_configuration,
     first_interaction: InteractionType,
     regression_data,
 ) -> None:
-    _skip_unless_python_propagation()
     interactions = [
         (1.0e12, first_interaction, 1),
         (1.0e12, InteractionType.BOUNDARY, 1),
         (1.0e12, InteractionType.BOUNDARY, 1),
     ]
-    _patch_common_classic_hooks(monkeypatch, iip_propagation, interactions)
+    patch_common_classic_hooks(iip_propagation, interactions)
     monkeypatch.setattr(
         iip_propagation,
         "chi_continuum_calculator",
@@ -329,11 +216,9 @@ def test_iip_packet_propagation_dispatch_characterization(
         montecarlo_configuration,
     )
 
-    _assert_dispatch_result(
-        characterization_packet,
-        recording_tracker,
-        first_interaction,
-    )
+    assert characterization_packet.status == PacketStatus.EMITTED
+    assert first_interaction in recording_tracker.events
+    assert recording_tracker.events[-1] == InteractionType.BOUNDARY
     assert_synced_allclose(
         regression_data,
         np.array(
@@ -361,26 +246,24 @@ def test_iip_packet_propagation_dispatch_characterization(
     ],
 )
 def test_nonhomologous_packet_propagation_dispatch_characterization(
-    monkeypatch,
+    python_packet_propagation,
+    patch_common_classic_hooks,
     characterization_packet: RPacket,
     nonhomologous_geometry,
     classic_opacity_state,
     bulk_estimators,
     line_estimators,
-    vpacket_collection: VPacketCollection,
+    vpacket_collection,
     recording_tracker: _RecordingTracker,
-    montecarlo_configuration: MonteCarloConfiguration,
+    montecarlo_configuration,
     first_interaction: InteractionType,
     regression_data,
 ) -> None:
-    _skip_unless_python_propagation()
     interactions = [(1.0e12, first_interaction, 1)]
     if first_interaction != InteractionType.BOUNDARY:
         interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
     interactions.append((1.0e12, InteractionType.BOUNDARY, 1))
-    _patch_common_classic_hooks(
-        monkeypatch, nonhomologous_propagation, interactions
-    )
+    patch_common_classic_hooks(nonhomologous_propagation, interactions)
 
     nonhomologous_propagation.packet_propagation(
         characterization_packet,
@@ -393,11 +276,9 @@ def test_nonhomologous_packet_propagation_dispatch_characterization(
         montecarlo_configuration,
     )
 
-    _assert_dispatch_result(
-        characterization_packet,
-        recording_tracker,
-        first_interaction,
-    )
+    assert characterization_packet.status == PacketStatus.EMITTED
+    assert first_interaction in recording_tracker.events
+    assert recording_tracker.events[-1] == InteractionType.BOUNDARY
     assert_synced_allclose(
         regression_data,
         np.array(
@@ -444,7 +325,8 @@ def test_verysimple_single_packet_loop(
         i,
     )
     # packet_propagation requires: r_packet, geometry, time_explosion, opacity_state,
-    # estimators_bulk, estimators_line, vpacket_collection, rpacket_tracker, montecarlo_configuration
+    # estimators_bulk, estimators_line, vpacket_collection, rpacket_tracker,
+    # montecarlo_configuration
     # This test needs to be updated with all required parameters
     packet_propagation(
         r_packet,
