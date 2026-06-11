@@ -185,9 +185,12 @@ def test_gamma_move_packet_characterization(
 ) -> None:
     moved_packet = move_packet(gamma_packet, 2.5e13)
 
-    assert_synced_allclose(regression_data, moved_packet.location)
-    assert_synced_allclose(regression_data, moved_packet.nu_cmf)
-    assert_synced_allclose(regression_data, moved_packet.energy_cmf)
+    assert_synced_allclose(
+        regression_data,
+        moved_packet.location,
+        moved_packet.nu_cmf,
+        moved_packet.energy_cmf,
+    )
 
 
 @pytest.mark.parametrize(
@@ -271,10 +274,14 @@ def test_gamma_pair_creation_survives_characterization(
     actual = pair_creation_packet(packet)
 
     assert actual.status == GXPacketStatus.IN_PROCESS
-    assert_synced_allclose(regression_data, actual.nu_cmf)
-    assert_synced_allclose(regression_data, actual.nu_rf)
-    assert_synced_allclose(regression_data, actual.energy_rf, rtol=1.0e-6)
-    assert_synced_allclose(regression_data, actual.direction)
+    assert_synced_allclose(
+        regression_data,
+        actual.nu_cmf,
+        actual.nu_rf,
+        actual.energy_rf,
+        actual.direction,
+        rtol=1.0e-6,
+    )
 
 
 def test_gamma_process_packet_path_photoabsorption_characterization(
@@ -301,9 +308,9 @@ def test_gamma_process_packet_path_pair_creation_characterization(
     actual, ejecta_energy_gained = process_packet_path(packet)
 
     assert actual.status == GXPacketStatus.PAIR_CREATION
-    assert_synced_allclose(regression_data, actual.nu_cmf)
-    assert_synced_allclose(regression_data, actual.energy_rf)
-    assert_synced_allclose(regression_data, ejecta_energy_gained)
+    assert_synced_allclose(
+        regression_data, actual.nu_cmf, actual.energy_rf, ejecta_energy_gained
+    )
 
 
 def test_gamma_process_packet_path_compton_characterization(
@@ -317,9 +324,9 @@ def test_gamma_process_packet_path_compton_characterization(
     actual, ejecta_energy_gained = process_packet_path(packet)
 
     assert actual.status == GXPacketStatus.PHOTOABSORPTION
-    assert_synced_allclose(regression_data, actual.nu_cmf)
-    assert_synced_allclose(regression_data, actual.energy_rf)
-    assert_synced_allclose(regression_data, ejecta_energy_gained)
+    assert_synced_allclose(
+        regression_data, actual.nu_cmf, actual.energy_rf, ejecta_energy_gained
+    )
 
 
 def _skip_unless_python_gamma_loop() -> None:
@@ -380,12 +387,15 @@ def test_gamma_packet_loop_escape_binning_characterization(
     assert packet.status == GXPacketStatus.ESCAPED
     assert packet.shell == 1
     assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
-    assert_synced_allclose(regression_data, energy_out[1, 0])
-    assert_synced_allclose(regression_data, energy_out_cosi[1, 0])
-    assert_synced_allclose(regression_data, packets_info_array[0, 5])
-    assert_synced_allclose(regression_data, packets_info_array[0, 6])
-    assert_synced_allclose(regression_data, energy_deposited_gamma)
-    assert_synced_allclose(regression_data, total_energy)
+    assert_synced_allclose(
+        regression_data,
+        energy_out[1, 0],
+        energy_out_cosi[1, 0],
+        packets_info_array[0, 5],
+        packets_info_array[0, 6],
+        energy_deposited_gamma,
+        total_energy,
+    )
 
 
 def test_gamma_packet_loop_tardis_opacity_characterization(
@@ -414,10 +424,13 @@ def test_gamma_packet_loop_tardis_opacity_characterization(
 
     assert packet.status == GXPacketStatus.ESCAPED
     assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
-    assert_synced_allclose(regression_data, energy_out[1, 0])
-    assert_synced_allclose(regression_data, energy_out_cosi[1, 0])
-    assert_synced_allclose(regression_data, energy_deposited_gamma)
-    assert_synced_allclose(regression_data, total_energy)
+    assert_synced_allclose(
+        regression_data,
+        energy_out[1, 0],
+        energy_out_cosi[1, 0],
+        energy_deposited_gamma,
+        total_energy,
+    )
 
 
 @pytest.mark.parametrize(
@@ -472,9 +485,10 @@ def test_gamma_packet_loop_time_boundary_end_characterization(
     assert packet.status == GXPacketStatus.END
     assert packet.shell == 0
     assert_synced_allclose(
-        regression_data, gamma_loop_arrays["energy_deposited_gamma"]
+        regression_data,
+        gamma_loop_arrays["energy_deposited_gamma"],
+        gamma_loop_arrays["total_energy"],
     )
-    assert_synced_allclose(regression_data, gamma_loop_arrays["total_energy"])
 
 
 def test_gamma_packet_loop_inner_boundary_end_characterization(
@@ -503,12 +517,13 @@ def test_gamma_packet_loop_inner_boundary_end_characterization(
 
     assert packet.status == GXPacketStatus.END
     assert packet.shell == -1
-    assert_synced_allclose(regression_data, packet.energy_rf)
-    assert_synced_allclose(regression_data, packet.energy_cmf)
     assert_synced_allclose(
-        regression_data, gamma_loop_arrays["energy_deposited_gamma"]
+        regression_data,
+        packet.energy_rf,
+        packet.energy_cmf,
+        gamma_loop_arrays["energy_deposited_gamma"],
+        gamma_loop_arrays["total_energy"],
     )
-    assert_synced_allclose(regression_data, gamma_loop_arrays["total_energy"])
 
 
 def test_gamma_packet_loop_interaction_deposition_characterization(
@@ -542,9 +557,12 @@ def test_gamma_packet_loop_interaction_deposition_characterization(
     )
 
     assert packet.status == GXPacketStatus.PHOTOABSORPTION
-    assert_synced_allclose(regression_data, energy_deposited_gamma)
-    assert_synced_allclose(regression_data, total_energy)
-    assert_synced_allclose(regression_data, packets_info_array)
+    assert_synced_allclose(
+        regression_data,
+        energy_deposited_gamma,
+        total_energy,
+        packets_info_array,
+    )
 
 
 def test_gamma_packet_loop_scattered_escape_characterization(
@@ -591,6 +609,7 @@ def test_gamma_packet_loop_scattered_escape_characterization(
 
     assert packet.status == GXPacketStatus.IN_PROCESS
     assert_synced_allclose(
-        regression_data, gamma_loop_arrays["energy_deposited_gamma"]
+        regression_data,
+        gamma_loop_arrays["energy_deposited_gamma"],
+        gamma_loop_arrays["total_energy"],
     )
-    assert_synced_allclose(regression_data, gamma_loop_arrays["total_energy"])

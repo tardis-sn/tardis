@@ -199,10 +199,12 @@ def test_homologous_move_r_packet_characterization(
         enable_full_relativity,
     )
 
-    assert_synced_allclose(regression_data, packet.r)
-    assert_synced_allclose(regression_data, packet.mu)
-    assert_synced_allclose(regression_data, estimators.mean_intensity_total)
-    assert_synced_allclose(regression_data, estimators.mean_frequency)
+    assert_synced_allclose(
+        regression_data,
+        np.array([packet.r, packet.mu]),
+        estimators.mean_intensity_total,
+        estimators.mean_frequency,
+    )
 
 
 def test_nonhomologous_move_r_packet_characterization(
@@ -227,10 +229,12 @@ def test_nonhomologous_move_r_packet_characterization(
         False,
     )
 
-    assert_synced_allclose(regression_data, packet.r)
-    assert_synced_allclose(regression_data, packet.mu)
-    assert_synced_allclose(regression_data, estimators.mean_intensity_total)
-    assert_synced_allclose(regression_data, estimators.mean_frequency)
+    assert_synced_allclose(
+        regression_data,
+        np.array([packet.r, packet.mu]),
+        estimators.mean_intensity_total,
+        estimators.mean_frequency,
+    )
 
 
 def test_nonhomologous_move_r_packet_full_relativity_characterization(
@@ -279,10 +283,12 @@ def test_homologous_move_r_packet_zero_distance_characterization(
         False,
     )
 
-    assert_synced_allclose(regression_data, packet.r)
-    assert_synced_allclose(regression_data, packet.mu)
-    assert_synced_allclose(regression_data, estimators.mean_intensity_total)
-    assert_synced_allclose(regression_data, estimators.mean_frequency)
+    assert_synced_allclose(
+        regression_data,
+        np.array([packet.r, packet.mu]),
+        estimators.mean_intensity_total,
+        estimators.mean_frequency,
+    )
 
 
 def test_nonhomologous_move_r_packet_zero_distance_characterization(
@@ -302,10 +308,12 @@ def test_nonhomologous_move_r_packet_zero_distance_characterization(
         False,
     )
 
-    assert_synced_allclose(regression_data, packet.r)
-    assert_synced_allclose(regression_data, packet.mu)
-    assert_synced_allclose(regression_data, estimators.mean_intensity_total)
-    assert_synced_allclose(regression_data, estimators.mean_frequency)
+    assert_synced_allclose(
+        regression_data,
+        np.array([packet.r, packet.mu]),
+        estimators.mean_intensity_total,
+        estimators.mean_frequency,
+    )
 
 
 @pytest.mark.parametrize(
@@ -415,13 +423,14 @@ def test_classic_trace_packet_characterization(
         disable_line_scattering,
     )
 
-    assert_synced_allclose(regression_data, distance)
     assert interaction_type == expected_interaction_type
     assert delta_shell == 1
     assert packet.next_line_id == (1 if disable_line_scattering else 0)
-    assert_synced_allclose(regression_data, estimators.mean_intensity_blueward)
     assert_synced_allclose(
-        regression_data, estimators.energy_deposition_line_rate
+        regression_data,
+        distance,
+        estimators.mean_intensity_blueward,
+        estimators.energy_deposition_line_rate,
     )
 
 
@@ -445,11 +454,12 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
         False,
     )
 
-    assert_synced_allclose(regression_data, distance)
     assert interaction_type == InteractionType.ESCATTERING
     assert delta_shell == 1
     assert packet.next_line_id == 2
-    assert_synced_allclose(regression_data, estimators.mean_intensity_blueward)
+    assert_synced_allclose(
+        regression_data, distance, estimators.mean_intensity_blueward
+    )
 
 
 @pytest.mark.parametrize(
@@ -538,13 +548,14 @@ def test_iip_trace_packet_characterization(
         disable_line_scattering,
     )
 
-    assert_synced_allclose(regression_data, distance)
     assert interaction_type == expected_interaction_type
     assert delta_shell == 1
     assert packet.next_line_id == (1 if disable_line_scattering else 0)
-    assert_synced_allclose(regression_data, estimators.mean_intensity_blueward)
     assert_synced_allclose(
-        regression_data, estimators.energy_deposition_line_rate
+        regression_data,
+        distance,
+        estimators.mean_intensity_blueward,
+        estimators.energy_deposition_line_rate,
     )
 
 
@@ -571,11 +582,12 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
         False,
     )
 
-    assert_synced_allclose(regression_data, distance)
     assert interaction_type == InteractionType.ESCATTERING
     assert delta_shell == 1
     assert packet.next_line_id == 2
-    assert_synced_allclose(regression_data, estimators.mean_intensity_blueward)
+    assert_synced_allclose(
+        regression_data, distance, estimators.mean_intensity_blueward
+    )
 
 
 @pytest.mark.parametrize(
@@ -664,14 +676,15 @@ def test_nonhomologous_trace_packet_characterization(
         False,
     )
 
-    assert_synced_allclose(regression_data, distance)
     assert interaction_type == expected_interaction_type
     assert delta_shell == 1
     assert packet.next_line_id == expected_next_line_id
     assert packet.prev_line_id == expected_prev_line_id
-    assert_synced_allclose(regression_data, estimators.mean_intensity_blueward)
     assert_synced_allclose(
-        regression_data, estimators.energy_deposition_line_rate
+        regression_data,
+        distance,
+        estimators.mean_intensity_blueward,
+        estimators.energy_deposition_line_rate,
     )
 
 
@@ -694,9 +707,10 @@ def test_nonhomologous_trace_packet_no_line_fallthrough_characterization(
         False,
     )
 
-    assert_synced_allclose(regression_data, distance)
     assert interaction_type == InteractionType.ESCATTERING
     assert delta_shell == 1
     assert packet.next_line_id == 2
     assert packet.prev_line_id == 1
-    assert_synced_allclose(regression_data, estimators.mean_intensity_blueward)
+    assert_synced_allclose(
+        regression_data, distance, estimators.mean_intensity_blueward
+    )
