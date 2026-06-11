@@ -2,6 +2,9 @@ import numpy as np
 import pytest
 
 from tardis.conftest import assert_synced_allclose
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    init_estimators_bulk,
+)
 from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
     move_packet_across_shell_boundary as classic_move_boundary,
 )
@@ -59,36 +62,37 @@ FALLTHROUGH_OPACITY = {
 @pytest.mark.parametrize("enable_full_relativity", [False, True])
 def test_homologous_move_r_packet_characterization(
     move_r_packet,
-    r_packet,
-    bulk_estimators_3,
+    characterization_packet,
     enable_full_relativity: bool,
     regression_data,
 ) -> None:
-    packet = r_packet
+    packet = characterization_packet
+    packet.current_shell_id = 1
+    estimators = init_estimators_bulk(3)
 
     move_r_packet(
         packet,
         1.0e13,
         5.2e7,
-        bulk_estimators_3,
+        estimators,
         enable_full_relativity,
     )
 
     assert_synced_allclose(
         regression_data,
         np.array([packet.r, packet.mu]),
-        bulk_estimators_3.mean_intensity_total,
-        bulk_estimators_3.mean_frequency,
+        estimators.mean_intensity_total,
+        estimators.mean_frequency,
     )
 
 
 def test_nonhomologous_move_r_packet_characterization(
-    r_packet,
+    characterization_packet,
     nonhomologous_geometry,
     bulk_estimators,
     regression_data,
 ) -> None:
-    packet = r_packet
+    packet = characterization_packet
     packet.current_shell_id = 0
 
     nonhomologous_move_r_packet(
@@ -108,11 +112,11 @@ def test_nonhomologous_move_r_packet_characterization(
 
 
 def test_nonhomologous_move_r_packet_full_relativity_characterization(
-    r_packet,
+    characterization_packet,
     nonhomologous_geometry,
     bulk_estimators,
 ) -> None:
-    packet = r_packet
+    packet = characterization_packet
     packet.current_shell_id = 0
 
     with pytest.raises(
@@ -134,35 +138,36 @@ def test_nonhomologous_move_r_packet_full_relativity_characterization(
 )
 def test_homologous_move_r_packet_zero_distance_characterization(
     move_r_packet,
-    r_packet,
-    bulk_estimators_3,
+    characterization_packet,
     regression_data,
 ) -> None:
-    packet = r_packet
+    packet = characterization_packet
+    packet.current_shell_id = 1
+    estimators = init_estimators_bulk(3)
 
     move_r_packet(
         packet,
         0.0,
         5.2e7,
-        bulk_estimators_3,
+        estimators,
         False,
     )
 
     assert_synced_allclose(
         regression_data,
         np.array([packet.r, packet.mu]),
-        bulk_estimators_3.mean_intensity_total,
-        bulk_estimators_3.mean_frequency,
+        estimators.mean_intensity_total,
+        estimators.mean_frequency,
     )
 
 
 def test_nonhomologous_move_r_packet_zero_distance_characterization(
-    r_packet,
+    characterization_packet,
     nonhomologous_geometry,
     bulk_estimators,
     regression_data,
 ) -> None:
-    packet = r_packet
+    packet = characterization_packet
     packet.current_shell_id = 0
 
     nonhomologous_move_r_packet(
@@ -202,14 +207,14 @@ def test_nonhomologous_move_r_packet_zero_distance_characterization(
 )
 def test_move_packet_across_shell_boundary_characterization(
     move_boundary,
-    r_packet,
+    characterization_packet,
     current_shell_id: int,
     delta_shell: int,
     no_of_shells: int,
     expected_status: PacketStatus,
     expected_shell_id: int,
 ) -> None:
-    packet = r_packet
+    packet = characterization_packet
     packet.current_shell_id = current_shell_id
 
     move_boundary(packet, delta_shell, no_of_shells)

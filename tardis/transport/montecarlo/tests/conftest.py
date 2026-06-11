@@ -197,12 +197,6 @@ def characterization_packet(static_packet: RPacket, request) -> RPacket:
 
 
 @pytest.fixture
-def r_packet(characterization_packet: RPacket) -> RPacket:
-    characterization_packet.current_shell_id = 1
-    return characterization_packet
-
-
-@pytest.fixture
 def radial_geometry(request) -> NumbaRadial1DGeometry:
     r_outer_first_shell = getattr(request, "param", 8.0e14)
     return NumbaRadial1DGeometry(
@@ -251,11 +245,6 @@ def bulk_estimators():
 
 
 @pytest.fixture
-def bulk_estimators_3():
-    return init_estimators_bulk(3)
-
-
-@pytest.fixture
 def line_estimators() -> EstimatorsLine:
     return EstimatorsLine(np.zeros((2, 2)), np.zeros((2, 2)))
 
@@ -275,4 +264,3 @@ def vpacket_collection() -> VPacketCollection:
         v_packet_spawn_end_frequency=np.inf,
         temporary_v_packet_bins=0,
     )
-
