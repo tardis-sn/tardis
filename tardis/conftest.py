@@ -2,6 +2,8 @@ import os
 from copy import deepcopy
 from pathlib import Path
 
+import numpy as np
+import numpy.testing as npt
 import pytest
 from astropy import units as u
 from astropy.version import version as astropy_version
@@ -158,6 +160,19 @@ def pytest_collection_modifyitems(config, items):
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
+
+
+def assert_synced_allclose(
+    regression_data: object, *actual_values: object, **kwargs: object
+) -> None:
+    actual_array = np.concatenate(
+        [
+            np.asarray(actual, dtype=np.float64).ravel()
+            for actual in actual_values
+        ]
+    )
+    expected = regression_data.sync_ndarray(actual_array)
+    npt.assert_allclose(actual_array, expected, **kwargs)
 
 
 @pytest.fixture(scope="session")

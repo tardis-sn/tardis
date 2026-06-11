@@ -7,6 +7,7 @@ import pytest
 import tardis.transport.montecarlo.modes.classic.packet_propagation as classic_propagation
 import tardis.transport.montecarlo.modes.iip.packet_propagation as iip_propagation
 import tardis.transport.montecarlo.modes.nonhomologous.packet_propagation as nonhomologous_propagation
+from tardis.conftest import assert_synced_allclose
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.model.geometry.radial1d_nonhomologous import (
     NumbaNonhomologousRadial1DGeometry,
@@ -127,18 +128,14 @@ def nonhomologous_geometry() -> NumbaNonhomologousRadial1DGeometry:
 @pytest.fixture
 def classic_opacity_state() -> OpacityStateNumba:
     return OpacityStateNumba(
-        *_opacity_state_args(
-            np.array([3.999e14, 3.998e14]), np.zeros((2, 2))
-        )
+        *_opacity_state_args(np.array([3.999e14, 3.998e14]), np.zeros((2, 2)))
     )
 
 
 @pytest.fixture
 def iip_opacity_state() -> OpacityStateNumbaIIP:
     return OpacityStateNumbaIIP(
-        *_opacity_state_args(
-            np.array([3.999e14, 3.998e14]), np.zeros((2, 2))
-        ),
+        *_opacity_state_args(np.array([3.999e14, 3.998e14]), np.zeros((2, 2))),
         np.ones((2, 1, 1)),
     )
 
@@ -186,7 +183,9 @@ def _patch_common_classic_hooks(monkeypatch, module, interactions) -> None:
     monkeypatch.setattr(
         module, "trace_vpacket_volley", lambda *args: None, raising=False
     )
-    monkeypatch.setattr(module, "chi_electron_calculator", lambda *args: 1.0e-20)
+    monkeypatch.setattr(
+        module, "chi_electron_calculator", lambda *args: 1.0e-20
+    )
     monkeypatch.setattr(
         module,
         "line_scatter_event",
@@ -229,6 +228,7 @@ def test_classic_packet_propagation_dispatch_characterization(
     montecarlo_configuration: MonteCarloConfiguration,
     first_interaction: InteractionType,
     expected_interaction: InteractionType,
+    regression_data,
 ) -> None:
     _skip_unless_python_propagation()
     interactions = [(1.0e12, first_interaction, 1)]
@@ -250,7 +250,24 @@ def test_classic_packet_propagation_dispatch_characterization(
     )
 
     _assert_dispatch_result(
-        characterization_packet, recording_tracker, expected_interaction
+        characterization_packet,
+        recording_tracker,
+        expected_interaction,
+    )
+    assert_synced_allclose(
+        regression_data,
+        np.array(
+            [
+                characterization_packet.r,
+                characterization_packet.mu,
+                characterization_packet.nu,
+                characterization_packet.energy,
+            ]
+        ),
+        bulk_estimators.mean_intensity_total,
+        bulk_estimators.mean_frequency,
+        line_estimators.mean_intensity_blueward,
+        line_estimators.energy_deposition_line_rate,
     )
 
 
@@ -273,6 +290,7 @@ def test_iip_packet_propagation_dispatch_characterization(
     recording_tracker: _RecordingTracker,
     montecarlo_configuration: MonteCarloConfiguration,
     first_interaction: InteractionType,
+    regression_data,
 ) -> None:
     _skip_unless_python_propagation()
     interactions = [
@@ -312,7 +330,25 @@ def test_iip_packet_propagation_dispatch_characterization(
     )
 
     _assert_dispatch_result(
-        characterization_packet, recording_tracker, first_interaction
+        characterization_packet,
+        recording_tracker,
+        first_interaction,
+    )
+    assert_synced_allclose(
+        regression_data,
+        np.array(
+            [
+                characterization_packet.r,
+                characterization_packet.mu,
+                characterization_packet.nu,
+                characterization_packet.energy,
+            ]
+        ),
+        bulk_estimators.mean_intensity_total,
+        bulk_estimators.mean_frequency,
+        line_estimators.mean_intensity_blueward,
+        line_estimators.energy_deposition_line_rate,
+        continuum_estimators.photo_ion_estimator,
     )
 
 
@@ -335,6 +371,7 @@ def test_nonhomologous_packet_propagation_dispatch_characterization(
     recording_tracker: _RecordingTracker,
     montecarlo_configuration: MonteCarloConfiguration,
     first_interaction: InteractionType,
+    regression_data,
 ) -> None:
     _skip_unless_python_propagation()
     interactions = [(1.0e12, first_interaction, 1)]
@@ -357,7 +394,24 @@ def test_nonhomologous_packet_propagation_dispatch_characterization(
     )
 
     _assert_dispatch_result(
-        characterization_packet, recording_tracker, first_interaction
+        characterization_packet,
+        recording_tracker,
+        first_interaction,
+    )
+    assert_synced_allclose(
+        regression_data,
+        np.array(
+            [
+                characterization_packet.r,
+                characterization_packet.mu,
+                characterization_packet.nu,
+                characterization_packet.energy,
+            ]
+        ),
+        bulk_estimators.mean_intensity_total,
+        bulk_estimators.mean_frequency,
+        line_estimators.mean_intensity_blueward,
+        line_estimators.energy_deposition_line_rate,
     )
 
 
