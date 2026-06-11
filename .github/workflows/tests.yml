@@ -150,6 +150,11 @@ jobs:
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
 
+      - name: Run JIT-disabled characterization tests
+        env:
+          NUMBA_DISABLE_JIT: "1"
+        run: pytest tardis/transport/montecarlo/tests/test_single_packet_loop.py -k characterization ${{ env.PYTEST_FLAGS }}
+
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"
         if: contains(github.event.pull_request.labels.*.name, 'run-generation-tests') || github.ref == 'refs/heads/master'
