@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from numba import njit
-from numba.typed import List
+from numba.typed import List as TypedList
 from pandas.api.types import CategoricalDtype
 
 from tardis.transport.montecarlo.packets.radiative_packet import (
@@ -225,9 +225,11 @@ def tracker_full_df2tracker_last_interaction_df(
 
     # Filter out boundary events to only get actual interactions
     physics_interactions = df[
-        df["interaction_type"].isin(
-            ["LINE", "ESCATTERING", "CONTINUUM_PROCESS"]
-        )
+        df["interaction_type"].isin([
+            "LINE",
+            "ESCATTERING",
+            "CONTINUUM_PROCESS",
+        ])
     ]
 
     if physics_interactions.empty:
@@ -324,7 +326,7 @@ def tracker_full_df2tracker_last_interaction_df(
 @njit
 def generate_tracker_full_list(
     no_of_packets: int, length: int, extend_factor: int = 2
-) -> list:
+) -> TypedList:
     """
     Generate list of RPacketTracker instances.
 
@@ -337,12 +339,10 @@ def generate_tracker_full_list(
 
     Returns
     -------
-    list
-        A list containing RPacketTracker for each RPacket.
+    TypedList
+        A numba.typed.list containing RPacketTracker for each RPacket.
     """
-    rpacket_trackers = List()
+    rpacket_trackers = TypedList()
     for i in range(no_of_packets):
-        rpacket_trackers.append(
-            TrackerFull(length, extend_factor)
-        )
+        rpacket_trackers.append(TrackerFull(length, extend_factor))
     return rpacket_trackers
