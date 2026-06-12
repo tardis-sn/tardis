@@ -99,6 +99,24 @@ def g(atomic_dataset, selected_atoms):
     levels_module = Levels(None)
     return levels_module.calculate(atomic_dataset, selected_atoms)[3]
 
+@pytest.fixture
+def metastability(atomic_dataset, selected_atoms):
+    levels_module = Levels(None)
+    return levels_module.calculate(atomic_dataset, selected_atoms)[2]
+
+@pytest.fixture
+def lines(atomic_dataset, selected_atoms):
+    lines_module = Lines(None)
+    return lines_module.calculate(atomic_dataset, selected_atoms)[0]
+
+@pytest.fixture
+def lines_lower_level_index(levels, lines):
+    return LinesLowerLevelIndex(None).calculate(levels, lines)
+
+@pytest.fixture
+def lines_upper_level_index(levels, lines):
+    return LinesUpperLevelIndex(None).calculate(levels, lines)
+
 # PARTITION FUNCTION PROPERTIES
 
 @pytest.fixture
@@ -106,4 +124,58 @@ def level_boltzmann_factor_lte(excitation_energy, g, beta_rad, levels):
     level_boltzmann_factor_module = LevelBoltzmannFactorLTE(None)
     return level_boltzmann_factor_module.calculate(
         excitation_energy, g, beta_rad, levels
+    )
+
+@pytest.fixture
+def partition_function(level_boltzmann_factor_lte):
+    return PartitionFunction(None).calculate(level_boltzmann_factor_lte)
+
+# ION / LEVEL POPULATION PROPERTIES
+
+@pytest.fixture
+def ionization_data(atomic_dataset, selected_atoms):
+    return IonizationData(None).calculate(atomic_dataset, selected_atoms)
+
+@pytest.fixture
+def phi(g_electron, beta_rad, partition_function, ionization_data):
+    return PhiSahaLTE(None).calculate(
+        g_electron, beta_rad, partition_function, ionization_data
+    )
+
+@pytest.fixture
+def ion_number_density(phi, partition_function, number_density):
+    ion_number_density, _ = IonNumberDensity(None).calculate(
+        phi, partition_function, number_density
+    )
+    return ion_number_density
+
+@pytest.fixture
+def level_number_density(
+    level_boltzmann_factor_lte, ion_number_density, levels, partition_function
+):
+    return LevelNumberDensity(None).calculate(
+        level_boltzmann_factor_lte,
+        ion_number_density,
+        levels,
+        partition_function,
+    )
+
+# RADIATIVE PROPERTIES
+
+@pytest.fixture
+def stimulated_emission_factor(
+    g,
+    level_number_density,
+    lines_lower_level_index,
+    lines_upper_level_index,
+    metastability,
+    lines,
+):
+    return StimulatedEmissionFactor(nlte_species=None).calculate(
+        g,
+        level_number_density,
+        lines_lower_level_index,
+        lines_upper_level_index,
+        metastability,
+        lines,
     )
