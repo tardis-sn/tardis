@@ -167,12 +167,9 @@ def pytest_collection_modifyitems(config, items):
 def assert_synced_allclose(
     regression_data: object, *actual_values: object, **kwargs: object
 ) -> None:
-    actual_array = np.concatenate(
-        [
-            np.asarray(actual, dtype=np.float64).ravel()
-            for actual in actual_values
-        ]
-    )
+    actual_array = np.concatenate([
+        np.asarray(actual, dtype=np.float64).ravel() for actual in actual_values
+    ])
     expected = regression_data.sync_ndarray(actual_array)
     npt.assert_allclose(actual_array, expected, **kwargs)
 
@@ -185,7 +182,7 @@ def set_numba_seed(value: int) -> None:
 @pytest.fixture
 def set_seed_fixture() -> Callable[[int], None]:
     # Numba maintains RNG state separately from Python's NumPy RNG; seeding
-    # inside njitted code keeps random characterization tests reproducible.
+    # inside njitted code keeps random tests reproducible.
     return set_numba_seed
 
 
@@ -193,7 +190,7 @@ def set_seed_fixture() -> Callable[[int], None]:
 def python_numba_disabled() -> None:
     if os.environ.get("NUMBA_DISABLE_JIT") != "1":
         pytest.skip(
-            "This characterization path monkeypatches numba-dispatched code "
+            "This path monkeypatches numba-dispatched code "
             "and only runs with NUMBA_DISABLE_JIT=1."
         )
 

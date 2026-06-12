@@ -60,13 +60,13 @@ FALLTHROUGH_OPACITY = {
     [classic_move_r_packet, iip_move_r_packet],
 )
 @pytest.mark.parametrize("enable_full_relativity", [False, True])
-def test_homologous_move_r_packet_characterization(
+def test_homologous_move_r_packet(
     move_r_packet,
-    characterization_packet,
+    parametrized_packet,
     enable_full_relativity: bool,
     regression_data,
 ) -> None:
-    packet = characterization_packet
+    packet = parametrized_packet
     packet.current_shell_id = 1
     estimators = init_estimators_bulk(3)
 
@@ -86,13 +86,13 @@ def test_homologous_move_r_packet_characterization(
     )
 
 
-def test_nonhomologous_move_r_packet_characterization(
-    characterization_packet,
+def test_nonhomologous_move_r_packet(
+    parametrized_packet,
     nonhomologous_geometry,
     bulk_estimators,
     regression_data,
 ) -> None:
-    packet = characterization_packet
+    packet = parametrized_packet
     packet.current_shell_id = 0
 
     nonhomologous_move_r_packet(
@@ -111,12 +111,12 @@ def test_nonhomologous_move_r_packet_characterization(
     )
 
 
-def test_nonhomologous_move_r_packet_full_relativity_characterization(
-    characterization_packet,
+def test_nonhomologous_move_r_packet_full_relativity(
+    parametrized_packet,
     nonhomologous_geometry,
     bulk_estimators,
 ) -> None:
-    packet = characterization_packet
+    packet = parametrized_packet
     packet.current_shell_id = 0
 
     with pytest.raises(
@@ -136,12 +136,12 @@ def test_nonhomologous_move_r_packet_full_relativity_characterization(
     "move_r_packet",
     [classic_move_r_packet, iip_move_r_packet],
 )
-def test_homologous_move_r_packet_zero_distance_characterization(
+def test_homologous_move_r_packet_zero_distance(
     move_r_packet,
-    characterization_packet,
+    parametrized_packet,
     regression_data,
 ) -> None:
-    packet = characterization_packet
+    packet = parametrized_packet
     packet.current_shell_id = 1
     estimators = init_estimators_bulk(3)
 
@@ -161,13 +161,13 @@ def test_homologous_move_r_packet_zero_distance_characterization(
     )
 
 
-def test_nonhomologous_move_r_packet_zero_distance_characterization(
-    characterization_packet,
+def test_nonhomologous_move_r_packet_zero_distance(
+    parametrized_packet,
     nonhomologous_geometry,
     bulk_estimators,
     regression_data,
 ) -> None:
-    packet = characterization_packet
+    packet = parametrized_packet
     packet.current_shell_id = 0
 
     nonhomologous_move_r_packet(
@@ -205,16 +205,16 @@ def test_nonhomologous_move_r_packet_zero_distance_characterization(
         (1, 1, 3, PacketStatus.IN_PROCESS, 2),
     ],
 )
-def test_move_packet_across_shell_boundary_characterization(
+def test_move_packet_across_shell_boundary(
     move_boundary,
-    characterization_packet,
+    parametrized_packet,
     current_shell_id: int,
     delta_shell: int,
     no_of_shells: int,
     expected_status: PacketStatus,
     expected_shell_id: int,
 ) -> None:
-    packet = characterization_packet
+    packet = parametrized_packet
     packet.current_shell_id = current_shell_id
 
     move_boundary(packet, delta_shell, no_of_shells)
@@ -263,8 +263,8 @@ def test_move_packet_across_shell_boundary_characterization(
     ],
     indirect=["opacity_state_args", "radial_geometry"],
 )
-def test_classic_trace_packet_characterization(
-    characterization_packet,
+def test_classic_trace_packet(
+    parametrized_packet,
     opacity_electron: float,
     classic_opacity_state,
     disable_line_scattering: bool,
@@ -277,7 +277,7 @@ def test_classic_trace_packet_characterization(
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = classic_trace_packet(
-        characterization_packet,
+        parametrized_packet,
         radial_geometry,
         5.2e7,
         classic_opacity_state,
@@ -289,7 +289,7 @@ def test_classic_trace_packet_characterization(
 
     assert interaction_type == expected_interaction_type
     assert delta_shell == 1
-    assert characterization_packet.next_line_id == (
+    assert parametrized_packet.next_line_id == (
         1 if disable_line_scattering else 0
     )
     assert_synced_allclose(
@@ -301,7 +301,7 @@ def test_classic_trace_packet_characterization(
 
 
 @pytest.mark.parametrize(
-    "characterization_packet", [{"next_line_id": 2}], indirect=True
+    "parametrized_packet", [{"next_line_id": 2}], indirect=True
 )
 @pytest.mark.parametrize("radial_geometry", [2.0e16], indirect=True)
 @pytest.mark.parametrize(
@@ -309,8 +309,8 @@ def test_classic_trace_packet_characterization(
     [FALLTHROUGH_OPACITY],
     indirect=True,
 )
-def test_classic_trace_packet_no_line_fallthrough_characterization(
-    characterization_packet,
+def test_classic_trace_packet_no_line_fallthrough(
+    parametrized_packet,
     radial_geometry,
     classic_opacity_state,
     line_estimators,
@@ -321,7 +321,7 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = classic_trace_packet(
-        characterization_packet,
+        parametrized_packet,
         radial_geometry,
         5.2e7,
         classic_opacity_state,
@@ -333,7 +333,7 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
 
     assert interaction_type == InteractionType.ESCATTERING
     assert delta_shell == 1
-    assert characterization_packet.next_line_id == 2
+    assert parametrized_packet.next_line_id == 2
     assert_synced_allclose(
         regression_data, distance, line_estimators.mean_intensity_blueward
     )
@@ -392,8 +392,8 @@ def test_classic_trace_packet_no_line_fallthrough_characterization(
     ],
     indirect=["opacity_state_args", "radial_geometry"],
 )
-def test_iip_trace_packet_characterization(
-    characterization_packet,
+def test_iip_trace_packet(
+    parametrized_packet,
     chi_continuum: float,
     escat_prob: float,
     iip_opacity_state,
@@ -407,7 +407,7 @@ def test_iip_trace_packet_characterization(
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = iip_trace_packet(
-        characterization_packet,
+        parametrized_packet,
         radial_geometry,
         5.2e7,
         iip_opacity_state,
@@ -420,7 +420,7 @@ def test_iip_trace_packet_characterization(
 
     assert interaction_type == expected_interaction_type
     assert delta_shell == 1
-    assert characterization_packet.next_line_id == (
+    assert parametrized_packet.next_line_id == (
         1 if disable_line_scattering else 0
     )
     assert_synced_allclose(
@@ -432,7 +432,7 @@ def test_iip_trace_packet_characterization(
 
 
 @pytest.mark.parametrize(
-    "characterization_packet", [{"next_line_id": 2}], indirect=True
+    "parametrized_packet", [{"next_line_id": 2}], indirect=True
 )
 @pytest.mark.parametrize("radial_geometry", [2.0e16], indirect=True)
 @pytest.mark.parametrize(
@@ -440,8 +440,8 @@ def test_iip_trace_packet_characterization(
     [FALLTHROUGH_OPACITY],
     indirect=True,
 )
-def test_iip_trace_packet_no_line_fallthrough_characterization(
-    characterization_packet,
+def test_iip_trace_packet_no_line_fallthrough(
+    parametrized_packet,
     radial_geometry,
     iip_opacity_state,
     line_estimators,
@@ -452,7 +452,7 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = iip_trace_packet(
-        characterization_packet,
+        parametrized_packet,
         radial_geometry,
         5.2e7,
         iip_opacity_state,
@@ -465,7 +465,7 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
 
     assert interaction_type == InteractionType.ESCATTERING
     assert delta_shell == 1
-    assert characterization_packet.next_line_id == 2
+    assert parametrized_packet.next_line_id == 2
     assert_synced_allclose(
         regression_data, distance, line_estimators.mean_intensity_blueward
     )
@@ -476,7 +476,7 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
         "nonhomologous_geometry",
         "opacity_electron",
         "opacity_state_args",
-        "characterization_packet",
+        "parametrized_packet",
         "expected_interaction_type",
         "expected_next_line_id",
         "expected_prev_line_id",
@@ -522,13 +522,13 @@ def test_iip_trace_packet_no_line_fallthrough_characterization(
     indirect=[
         "nonhomologous_geometry",
         "opacity_state_args",
-        "characterization_packet",
+        "parametrized_packet",
     ],
 )
-def test_nonhomologous_trace_packet_characterization(
+def test_nonhomologous_trace_packet(
     nonhomologous_geometry,
     opacity_electron: float,
-    characterization_packet,
+    parametrized_packet,
     classic_opacity_state,
     line_estimators,
     set_seed_fixture,
@@ -540,7 +540,7 @@ def test_nonhomologous_trace_packet_characterization(
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = nonhomologous_trace_packet(
-        characterization_packet,
+        parametrized_packet,
         nonhomologous_geometry,
         classic_opacity_state,
         line_estimators,
@@ -551,8 +551,8 @@ def test_nonhomologous_trace_packet_characterization(
 
     assert interaction_type == expected_interaction_type
     assert delta_shell == 1
-    assert characterization_packet.next_line_id == expected_next_line_id
-    assert characterization_packet.prev_line_id == expected_prev_line_id
+    assert parametrized_packet.next_line_id == expected_next_line_id
+    assert parametrized_packet.prev_line_id == expected_prev_line_id
     assert_synced_allclose(
         regression_data,
         distance,
@@ -562,7 +562,7 @@ def test_nonhomologous_trace_packet_characterization(
 
 
 @pytest.mark.parametrize(
-    "characterization_packet",
+    "parametrized_packet",
     [{"next_line_id": 2, "prev_line_id": 1}],
     indirect=True,
 )
@@ -576,8 +576,8 @@ def test_nonhomologous_trace_packet_characterization(
     [FALLTHROUGH_OPACITY],
     indirect=True,
 )
-def test_nonhomologous_trace_packet_no_line_fallthrough_characterization(
-    characterization_packet,
+def test_nonhomologous_trace_packet_no_line_fallthrough(
+    parametrized_packet,
     nonhomologous_geometry,
     classic_opacity_state,
     line_estimators,
@@ -588,7 +588,7 @@ def test_nonhomologous_trace_packet_no_line_fallthrough_characterization(
     set_seed_fixture(1963)
 
     distance, interaction_type, delta_shell = nonhomologous_trace_packet(
-        characterization_packet,
+        parametrized_packet,
         nonhomologous_geometry,
         classic_opacity_state,
         line_estimators,
@@ -599,8 +599,8 @@ def test_nonhomologous_trace_packet_no_line_fallthrough_characterization(
 
     assert interaction_type == InteractionType.ESCATTERING
     assert delta_shell == 1
-    assert characterization_packet.next_line_id == 2
-    assert characterization_packet.prev_line_id == 1
+    assert parametrized_packet.next_line_id == 2
+    assert parametrized_packet.prev_line_id == 1
     assert_synced_allclose(
         regression_data, distance, line_estimators.mean_intensity_blueward
     )

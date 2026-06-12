@@ -98,10 +98,10 @@ def patch_common_classic_hooks(monkeypatch):
         (InteractionType.ESCATTERING, InteractionType.ESCATTERING),
     ],
 )
-def test_classic_packet_propagation_dispatch_characterization(
+def test_classic_packet_propagation_dispatch_numba_disabled(
     python_numba_disabled,
     patch_common_classic_hooks,
-    characterization_packet: RPacket,
+    parametrized_packet: RPacket,
     radial_geometry,
     classic_opacity_state,
     bulk_estimators,
@@ -122,7 +122,7 @@ def test_classic_packet_propagation_dispatch_characterization(
     patch_common_classic_hooks(classic_propagation, interactions)
 
     classic_propagation.packet_propagation(
-        characterization_packet,
+        parametrized_packet,
         radial_geometry,
         5.2e7,
         classic_opacity_state,
@@ -133,19 +133,17 @@ def test_classic_packet_propagation_dispatch_characterization(
         montecarlo_configuration,
     )
 
-    assert characterization_packet.status == PacketStatus.EMITTED
+    assert parametrized_packet.status == PacketStatus.EMITTED
     assert expected_interaction in recording_tracker.events
     assert recording_tracker.events[-1] == InteractionType.BOUNDARY
     assert_synced_allclose(
         regression_data,
-        np.array(
-            [
-                characterization_packet.r,
-                characterization_packet.mu,
-                characterization_packet.nu,
-                characterization_packet.energy,
-            ]
-        ),
+        np.array([
+            parametrized_packet.r,
+            parametrized_packet.mu,
+            parametrized_packet.nu,
+            parametrized_packet.energy,
+        ]),
         bulk_estimators.mean_intensity_total,
         bulk_estimators.mean_frequency,
         line_estimators.mean_intensity_blueward,
@@ -161,11 +159,11 @@ def test_classic_packet_propagation_dispatch_characterization(
         InteractionType.CONTINUUM_PROCESS,
     ],
 )
-def test_iip_packet_propagation_dispatch_characterization(
+def test_iip_packet_propagation_dispatch_numba_disabled(
     python_numba_disabled,
     monkeypatch,
     patch_common_classic_hooks,
-    characterization_packet: RPacket,
+    parametrized_packet: RPacket,
     radial_geometry,
     iip_opacity_state,
     bulk_estimators,
@@ -204,7 +202,7 @@ def test_iip_packet_propagation_dispatch_characterization(
     )
 
     iip_propagation.packet_propagation(
-        characterization_packet,
+        parametrized_packet,
         radial_geometry,
         5.2e7,
         iip_opacity_state,
@@ -215,19 +213,17 @@ def test_iip_packet_propagation_dispatch_characterization(
         montecarlo_configuration,
     )
 
-    assert characterization_packet.status == PacketStatus.EMITTED
+    assert parametrized_packet.status == PacketStatus.EMITTED
     assert first_interaction in recording_tracker.events
     assert recording_tracker.events[-1] == InteractionType.BOUNDARY
     assert_synced_allclose(
         regression_data,
-        np.array(
-            [
-                characterization_packet.r,
-                characterization_packet.mu,
-                characterization_packet.nu,
-                characterization_packet.energy,
-            ]
-        ),
+        np.array([
+            parametrized_packet.r,
+            parametrized_packet.mu,
+            parametrized_packet.nu,
+            parametrized_packet.energy,
+        ]),
         bulk_estimators.mean_intensity_total,
         bulk_estimators.mean_frequency,
         line_estimators.mean_intensity_blueward,
@@ -244,10 +240,10 @@ def test_iip_packet_propagation_dispatch_characterization(
         InteractionType.ESCATTERING,
     ],
 )
-def test_nonhomologous_packet_propagation_dispatch_characterization(
+def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
     python_numba_disabled,
     patch_common_classic_hooks,
-    characterization_packet: RPacket,
+    parametrized_packet: RPacket,
     nonhomologous_geometry,
     classic_opacity_state,
     bulk_estimators,
@@ -267,7 +263,7 @@ def test_nonhomologous_packet_propagation_dispatch_characterization(
     patch_common_classic_hooks(nonhomologous_propagation, interactions)
 
     nonhomologous_propagation.packet_propagation(
-        characterization_packet,
+        parametrized_packet,
         nonhomologous_geometry,
         classic_opacity_state,
         bulk_estimators,
@@ -277,19 +273,17 @@ def test_nonhomologous_packet_propagation_dispatch_characterization(
         montecarlo_configuration,
     )
 
-    assert characterization_packet.status == PacketStatus.EMITTED
+    assert parametrized_packet.status == PacketStatus.EMITTED
     assert first_interaction in recording_tracker.events
     assert recording_tracker.events[-1] == InteractionType.BOUNDARY
     assert_synced_allclose(
         regression_data,
-        np.array(
-            [
-                characterization_packet.r,
-                characterization_packet.mu,
-                characterization_packet.nu,
-                characterization_packet.energy,
-            ]
-        ),
+        np.array([
+            parametrized_packet.r,
+            parametrized_packet.mu,
+            parametrized_packet.nu,
+            parametrized_packet.energy,
+        ]),
         bulk_estimators.mean_intensity_total,
         bulk_estimators.mean_frequency,
         line_estimators.mean_intensity_blueward,

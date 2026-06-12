@@ -62,7 +62,7 @@ def gamma_loop_arrays() -> dict[str, np.ndarray]:
     }
 
 
-def test_gamma_distance_radial_characterization(
+def test_gamma_distance_radial(
     gamma_packet: GXPacket,
     regression_data,
 ) -> None:
@@ -78,7 +78,7 @@ def test_gamma_distance_radial_characterization(
     assert shell_change == 1
 
 
-def test_gamma_distance_radial_inward_characterization(
+def test_gamma_distance_radial_inward(
     gamma_packet: GXPacket,
     regression_data,
 ) -> None:
@@ -97,7 +97,7 @@ def test_gamma_distance_radial_inward_characterization(
     assert shell_change == 1
 
 
-def test_gamma_distance_radial_no_root_characterization(
+def test_gamma_distance_radial_no_root(
     gamma_packet: GXPacket,
 ) -> None:
     packet = gamma_packet
@@ -114,7 +114,7 @@ def test_gamma_distance_radial_no_root_characterization(
         )
 
 
-def test_gamma_distance_trace_characterization(
+def test_gamma_distance_trace(
     gamma_packet: GXPacket,
     regression_data,
 ) -> None:
@@ -151,7 +151,7 @@ def test_gamma_distance_trace_characterization(
         (10.0, 1.0e-20, 1.2001e5),
     ],
 )
-def test_gamma_distance_trace_winner_characterization(
+def test_gamma_distance_trace_winner(
     gamma_packet: GXPacket,
     tau: float,
     total_opacity: float,
@@ -173,9 +173,7 @@ def test_gamma_distance_trace_winner_characterization(
     assert actual[3] == 1
 
 
-def test_gamma_move_packet_characterization(
-    gamma_packet: GXPacket, regression_data
-) -> None:
+def test_gamma_move_packet(gamma_packet: GXPacket, regression_data) -> None:
     moved_packet = move_packet(gamma_packet, 2.5e13)
 
     assert_synced_allclose(
@@ -200,7 +198,7 @@ def test_gamma_move_packet_characterization(
         (1963, 0.0, 0.0, 1.0, GXPacketStatus.PAIR_CREATION),
     ],
 )
-def test_gamma_scatter_type_characterization(
+def test_gamma_scatter_type(
     seed: int,
     compton_opacity: float,
     photoabsorption_opacity: float,
@@ -218,9 +216,7 @@ def test_gamma_scatter_type_characterization(
     assert actual == expected
 
 
-def test_gamma_compton_angle_characterization(
-    set_seed_fixture, regression_data
-) -> None:
+def test_gamma_compton_angle(set_seed_fixture, regression_data) -> None:
     set_seed_fixture(1963)
 
     angle, lost_energy, new_energy = get_compton_angle(1000.0)
@@ -230,9 +226,7 @@ def test_gamma_compton_angle_characterization(
     )
 
 
-def test_gamma_compton_fraction_characterization(
-    set_seed_fixture, regression_data
-) -> None:
+def test_gamma_compton_fraction(set_seed_fixture, regression_data) -> None:
     set_seed_fixture(1963)
 
     angle, fraction = get_compton_fraction(1000.0)
@@ -240,7 +234,7 @@ def test_gamma_compton_fraction_characterization(
     assert_synced_allclose(regression_data, np.array([angle, fraction]))
 
 
-def test_gamma_compton_fraction_artis_characterization(
+def test_gamma_compton_fraction_artis(
     set_seed_fixture, regression_data
 ) -> None:
     set_seed_fixture(1963)
@@ -250,7 +244,7 @@ def test_gamma_compton_fraction_artis_characterization(
     assert_synced_allclose(regression_data, np.array([angle, fraction]))
 
 
-def test_gamma_compton_scatter_characterization(
+def test_gamma_compton_scatter(
     gamma_packet: GXPacket,
     set_seed_fixture,
     regression_data,
@@ -262,7 +256,7 @@ def test_gamma_compton_scatter_characterization(
     assert_synced_allclose(regression_data, actual)
 
 
-def test_gamma_pair_creation_survives_characterization(
+def test_gamma_pair_creation_survives(
     gamma_packet: GXPacket,
     set_seed_fixture,
     regression_data,
@@ -285,7 +279,7 @@ def test_gamma_pair_creation_survives_characterization(
     )
 
 
-def test_gamma_process_packet_path_photoabsorption_characterization(
+def test_gamma_process_packet_path_photoabsorption(
     gamma_packet: GXPacket,
     regression_data,
 ) -> None:
@@ -298,7 +292,7 @@ def test_gamma_process_packet_path_photoabsorption_characterization(
     assert_synced_allclose(regression_data, ejecta_energy_gained)
 
 
-def test_gamma_process_packet_path_pair_creation_characterization(
+def test_gamma_process_packet_path_pair_creation(
     gamma_packet: GXPacket,
     set_seed_fixture,
     regression_data,
@@ -315,7 +309,7 @@ def test_gamma_process_packet_path_pair_creation_characterization(
     )
 
 
-def test_gamma_process_packet_path_compton_characterization(
+def test_gamma_process_packet_path_compton(
     gamma_packet: GXPacket,
     set_seed_fixture,
     regression_data,
@@ -332,7 +326,7 @@ def test_gamma_process_packet_path_compton_characterization(
     )
 
 
-def test_gamma_packet_loop_negative_time_index_characterization(
+def test_gamma_packet_loop_negative_time_index(
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
 ) -> None:
@@ -349,7 +343,7 @@ def test_gamma_packet_loop_negative_time_index_characterization(
 
 
 @pytest.mark.parametrize("grey_opacity", [-1.0, 0.1])
-def test_gamma_packet_loop_escape_binning_characterization(
+def test_gamma_packet_loop_escape_binning(
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     grey_opacity: float,
@@ -397,7 +391,7 @@ def test_gamma_packet_loop_escape_binning_characterization(
     )
 
 
-def test_gamma_packet_loop_tardis_opacity_characterization(
+def test_gamma_packet_loop_tardis_opacity(
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     set_seed_fixture,
@@ -442,7 +436,7 @@ def test_gamma_packet_loop_tardis_opacity_characterization(
         ("kasen", "invalid", "Invalid pair creation opacity type!"),
     ],
 )
-def test_gamma_packet_loop_invalid_opacity_type_characterization(
+def test_gamma_packet_loop_invalid_opacity_type(
     gamma_packet: GXPacket,
     gamma_loop_arrays: dict[str, np.ndarray],
     photoabsorption_opacity_type: str,
@@ -459,7 +453,7 @@ def test_gamma_packet_loop_invalid_opacity_type_characterization(
         )
 
 
-def test_gamma_packet_loop_time_boundary_end_characterization(
+def test_gamma_packet_loop_time_boundary_end_numba_disabled(
     monkeypatch,
     python_numba_disabled,
     gamma_packet: GXPacket,
@@ -494,7 +488,7 @@ def test_gamma_packet_loop_time_boundary_end_characterization(
     )
 
 
-def test_gamma_packet_loop_inner_boundary_end_characterization(
+def test_gamma_packet_loop_inner_boundary_end_numba_disabled(
     monkeypatch,
     python_numba_disabled,
     gamma_packet: GXPacket,
@@ -530,7 +524,7 @@ def test_gamma_packet_loop_inner_boundary_end_characterization(
     )
 
 
-def test_gamma_packet_loop_interaction_deposition_characterization(
+def test_gamma_packet_loop_interaction_deposition_numba_disabled(
     monkeypatch,
     python_numba_disabled,
     gamma_packet: GXPacket,
@@ -571,7 +565,7 @@ def test_gamma_packet_loop_interaction_deposition_characterization(
     )
 
 
-def test_gamma_packet_loop_scattered_escape_characterization(
+def test_gamma_packet_loop_scattered_escape_numba_disabled(
     monkeypatch,
     python_numba_disabled,
     gamma_packet: GXPacket,

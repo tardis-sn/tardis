@@ -187,7 +187,7 @@ def montecarlo_configuration() -> MonteCarloConfiguration:
 
 
 @pytest.fixture
-def characterization_packet(static_packet: RPacket, request) -> RPacket:
+def parametrized_packet(static_packet: RPacket, request) -> RPacket:
     params = getattr(request, "param", {})
     static_packet.nu = 4.0e14
     static_packet.current_shell_id = params.get("current_shell_id", 0)
