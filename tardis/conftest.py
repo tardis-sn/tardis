@@ -1,10 +1,14 @@
 import os
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 
+import numpy as np
+import numpy.testing as npt
 import pytest
 from astropy import units as u
 from astropy.version import version as astropy_version
+from numba import njit
 
 from tardis import run_tardis
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
@@ -158,6 +162,37 @@ def pytest_collection_modifyitems(config, items):
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
+
+
+def assert_synced_allclose(
+    regression_data: object, *actual_values: object, **kwargs: object
+) -> None:
+    actual_array = np.concatenate([
+        np.asarray(actual, dtype=np.float64).ravel() for actual in actual_values
+    ])
+    expected = regression_data.sync_ndarray(actual_array)
+    npt.assert_allclose(actual_array, expected, **kwargs)
+
+
+@njit
+def set_numba_seed(value: int) -> None:
+    np.random.seed(value)
+
+
+@pytest.fixture
+def set_seed_fixture() -> Callable[[int], None]:
+    # Numba maintains RNG state separately from Python's NumPy RNG; seeding
+    # inside njitted code keeps random tests reproducible.
+    return set_numba_seed
+
+
+@pytest.fixture
+def python_numba_disabled() -> None:
+    if os.environ.get("NUMBA_DISABLE_JIT") != "1":
+        pytest.skip(
+            "This path monkeypatches numba-dispatched code "
+            "and only runs with NUMBA_DISABLE_JIT=1."
+        )
 
 
 @pytest.fixture(scope="session")

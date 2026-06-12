@@ -2,16 +2,30 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
-from numba import njit
 
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.model.geometry.radial1d_nonhomologous import (
     NumbaNonhomologousRadial1DGeometry,
 )
 from tardis.opacities.opacity_state_numba import (
+    OpacityStateNumba,
     opacity_state_numba_initialize,
 )
+from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
 from tardis.simulation import Simulation
 from tardis.transport.montecarlo import RPacket
+from tardis.transport.montecarlo.configuration.base import (
+    MonteCarloConfiguration,
+)
+from tardis.transport.montecarlo.estimators.estimators_bulk import (
+    init_estimators_bulk,
+)
+from tardis.transport.montecarlo.estimators.estimators_continuum import (
+    init_estimators_continuum,
+)
+from tardis.transport.montecarlo.estimators.estimators_line import (
+    EstimatorsLine,
+)
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
@@ -131,16 +145,122 @@ def static_packet():
 
 
 @pytest.fixture
-def set_seed_fixture():
-    def set_seed(value):
-        np.random.seed(value)
-
-    return njit(set_seed)
+def opacity_state_args(request) -> tuple:
+    params = getattr(request, "param", {})
+    line_list_nu = np.array(params.get("line_list_nu", [3.999e14, 3.998e14]))
+    tau_sobolev = params.get("tau_sobolev", np.zeros((2, 2)))
+    no_of_lines = len(line_list_nu)
+    no_of_shells = tau_sobolev.shape[1]
+    return (
+        np.ones(no_of_shells) * 1.0e8,
+        np.ones(no_of_shells) * 1.0e4,
+        line_list_nu,
+        tau_sobolev,
+        np.zeros((1, no_of_shells)),
+        np.zeros(no_of_lines, dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.zeros(1, dtype=np.int64),
+        np.zeros(1),
+        np.zeros((1, no_of_shells)),
+        np.zeros(1),
+        np.zeros(1),
+        np.zeros(1, dtype=np.int64),
+        np.zeros((1, no_of_shells)),
+        np.zeros(1),
+        np.zeros(1),
+        np.zeros(no_of_shells),
+        np.zeros((1, no_of_shells)),
+        np.zeros(1, dtype=np.int64),
+        0,
+    )
 
 
 @pytest.fixture
-def random_call_fixture():
-    def random_call():
-        np.random.random()
+def montecarlo_configuration() -> MonteCarloConfiguration:
+    config = MonteCarloConfiguration()
+    config.LINE_INTERACTION_TYPE = 0
+    config.SURVIVAL_PROBABILITY = 0.0
+    config.VPACKET_TAU_RUSSIAN = 10.0
+    return config
 
-    return njit(random_call)
+
+@pytest.fixture
+def parametrized_packet(static_packet: RPacket, request) -> RPacket:
+    params = getattr(request, "param", {})
+    static_packet.nu = 4.0e14
+    static_packet.current_shell_id = params.get("current_shell_id", 0)
+    static_packet.next_line_id = params.get("next_line_id", 0)
+    static_packet.prev_line_id = params.get("prev_line_id", 0)
+    return static_packet
+
+
+@pytest.fixture
+def radial_geometry(request) -> NumbaRadial1DGeometry:
+    r_outer_first_shell = getattr(request, "param", 8.0e14)
+    return NumbaRadial1DGeometry(
+        np.array([7.0e14, 8.0e14]),
+        np.array([r_outer_first_shell, 3.0e16]),
+        np.array([-1.0, -1.0]),
+        np.array([-1.0, -1.0]),
+    )
+
+
+@pytest.fixture
+def nonhomologous_geometry(request) -> NumbaNonhomologousRadial1DGeometry:
+    params = getattr(request, "param", {})
+    if params.get("negative_velocity_gradient", False):
+        v_inner = np.array([1.5e9, 2.0e9])
+        v_outer = np.array([1.0e9, 1.5e9])
+    else:
+        v_inner = np.array([1.0e9, 1.5e9])
+        v_outer = np.array([1.5e9, 2.0e9])
+
+    return NumbaNonhomologousRadial1DGeometry(
+        np.array([7.0e14, 8.0e14]),
+        np.array([params.get("r_outer_first_shell", 8.0e14), 3.0e16]),
+        v_inner,
+        v_outer,
+    )
+
+
+@pytest.fixture
+def classic_opacity_state(opacity_state_args: tuple) -> OpacityStateNumba:
+    return OpacityStateNumba(*opacity_state_args)
+
+
+@pytest.fixture
+def iip_opacity_state(opacity_state_args: tuple) -> OpacityStateNumbaIIP:
+    no_of_shells = opacity_state_args[3].shape[1]
+    return OpacityStateNumbaIIP(
+        *opacity_state_args,
+        np.ones((no_of_shells, 1, 1)),
+    )
+
+
+@pytest.fixture
+def bulk_estimators():
+    return init_estimators_bulk(2)
+
+
+@pytest.fixture
+def line_estimators() -> EstimatorsLine:
+    return EstimatorsLine(np.zeros((2, 2)), np.zeros((2, 2)))
+
+
+@pytest.fixture
+def continuum_estimators():
+    return init_estimators_continuum((1, 2), 2)
+
+
+@pytest.fixture
+def vpacket_collection() -> VPacketCollection:
+    return VPacketCollection(
+        source_rpacket_index=0,
+        spectrum_frequency_grid=np.array([1.0e14, 2.0e14]),
+        number_of_vpackets=0,
+        v_packet_spawn_start_frequency=0.0,
+        v_packet_spawn_end_frequency=np.inf,
+        temporary_v_packet_bins=0,
+    )
