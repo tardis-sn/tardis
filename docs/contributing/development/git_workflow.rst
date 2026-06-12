@@ -29,7 +29,7 @@ Preparation and Working with Git
 ================================
 
 In this document, we refer to the TARDIS ``master`` branch as the *trunk*. The first step is to setup up a python environment. We recommend using
-Miniconda for this purpose.
+Miniforge for this purpose, see https://github.com/conda-forge/miniforge.
 
 .. _forking:
 
@@ -271,7 +271,7 @@ In more detail
 #. Make some changes
 
 #. Once you are a bit further along, test your changes do not lead to
-   regressions, and add new tests (see the Astropy :ref:`testing-guidelines` we follow)::
+   regressions, and add new tests (see the `Astropy testing guidelines <https://docs.astropy.org/en/latest/development/testguide.html>`_ we follow)::
 
      pytest tardis
 
