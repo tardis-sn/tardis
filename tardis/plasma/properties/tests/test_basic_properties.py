@@ -138,7 +138,7 @@ def test_partition_function_output_index_names(partition_function):
 
 
 @pytest.mark.parametrize(
-    "boltzmann_values, expected_sum",
+    "boltzmann_factors, expected_sum",
     [
         ([1.0, 0.5], 1.5),        # two levels — typical case
         ([2.0, 1.0, 0.5], 3.5),   # three levels
@@ -146,13 +146,13 @@ def test_partition_function_output_index_names(partition_function):
     ],
 )
 def test_partition_function_sums_boltzmann_factors_within_ion(
-    boltzmann_values, expected_sum
+    boltzmann_factors, expected_sum
 ):
     index = pd.MultiIndex.from_tuples(
-        [(1, 0, k) for k in range(len(boltzmann_values))],
+        [(1, 0, k) for k in range(len(boltzmann_factors))],
         names=["atomic_number", "ion_number", "level_number"],
     )
-    level_boltzmann_factor = pd.DataFrame(boltzmann_values, index=index, columns=[0])
+    level_boltzmann_factor = pd.DataFrame(boltzmann_factors, index=index, columns=[0])
     result = PartitionFunction(None).calculate(level_boltzmann_factor)
     np.testing.assert_allclose(result.loc[(1, 0), 0], expected_sum)
 
