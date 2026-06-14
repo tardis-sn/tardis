@@ -1,0 +1,7 @@
+tardis.transport.montecarlo.modes.nonhomologous.interaction\_events module
+==========================================================================
+
+.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.interaction_events
+   :members:
+   :show-inheritance:
+   :undoc-members:
