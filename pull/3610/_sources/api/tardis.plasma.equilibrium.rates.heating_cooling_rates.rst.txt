@@ -1,7 +1,0 @@
-tardis.plasma.equilibrium.rates.heating\_cooling\_rates module
-==============================================================
-
-.. automodule:: tardis.plasma.equilibrium.rates.heating_cooling_rates
-   :members:
-   :show-inheritance:
-   :undoc-members:
