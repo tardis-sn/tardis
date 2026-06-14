@@ -1,7 +1,0 @@
-tardis.plasma.properties.nlte module
-====================================
-
-.. automodule:: tardis.plasma.properties.nlte
-   :members:
-   :show-inheritance:
-   :undoc-members:
