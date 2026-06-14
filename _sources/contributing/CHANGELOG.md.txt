@@ -1,5 +1,11 @@
 ## Changelog
 
+### release-2026.06.14 (2026/06/13 22:00)
+- [3610](https://github.com/tardis-sn/tardis/pull/3610) Pre-release 2026.06.14 (3610) (@tardis-bot)
+- [3602](https://github.com/tardis-sn/tardis/pull/3602) Convergence plots for Nonhomologous Workflow (3602) (@connor-mcclellan)
+- [3592](https://github.com/tardis-sn/tardis/pull/3592) Updated developer documentation (3592) (@andrewfullard)
+- [3594](https://github.com/tardis-sn/tardis/pull/3594) Add an agents definition to keep the LLMs under control (3594) (@andrewfullard)
+- [3600](https://github.com/tardis-sn/tardis/pull/3600) Post-release 2026.06.08 (3600) (@tardis-bot)
 ### release-2026.06.08 (2026/06/08 12:05)
 - [3599](https://github.com/tardis-sn/tardis/pull/3599) Pre-release 2026.06.08 (3599) (@tardis-bot)
 - [3596](https://github.com/tardis-sn/tardis/pull/3596) Tardis environment update 2026 (3596) (@andrewfullard)
