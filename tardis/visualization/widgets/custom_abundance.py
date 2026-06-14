@@ -432,7 +432,7 @@ class CustomAbundanceWidget:
             options=list(range(1, self.no_of_shells + 1)),
             name="Shell No. ",
             value=1,
-            width=160,
+            width=100,
         )
         self.dpd_shell_no.param.watch(self.dpd_shell_no_eventhandler, "value")
         self.btn_prev = pn.widgets.Button(
@@ -559,7 +559,7 @@ class CustomAbundanceWidget:
 
         self.ckb_overwrite = pn.widgets.Checkbox(
             name="overwrite",
-            align="center",
+            margin=(30, 0, 0, 0),
         )
 
         self.tbs_scale = pn.widgets.RadioButtonGroup(
@@ -1306,12 +1306,12 @@ class CustomAbundanceWidget:
 
             box_add_shell = pn.Row(
                     pn.Row(
-                        pn.pane.Str("Add shell(s) with velocity range (km/s): ", align='center'),
+                        pn.pane.Markdown("Add shell(s) with velocity range (km/s): ", align='center'),
                         self.input_v_start,
                         align='end',
                     ),
                     pn.Row(
-                        pn.pane.Str("to", align='center'),
+                        pn.pane.Markdown("to", align='center'),
                         self.input_v_end,
                         align='end',
                     ),
@@ -1322,7 +1322,8 @@ class CustomAbundanceWidget:
             )
 
             box_head = pn.Row(
-                self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell
+                self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell,
+                margin=(0, 0, 20, 0)
             )
 
             box_add_element = pn.Row(
