@@ -3,8 +3,8 @@
 cff-version: 1.0.3
 message: If you use this software, please cite it using these metadata.
 # FIXME title as repository name might not be the best name, please make human readable
-title: 'tardis-sn/tardis: TARDIS v2026.06.08'
-doi: 10.5281/zenodo.20597298
+title: 'tardis-sn/tardis: TARDIS v2026.06.14'
+doi: 10.5281/zenodo.20684899
 # FIXME splitting of full names is error prone, please check if given/family name are correct
 authors:
 - given-names: Wolfgang
@@ -185,11 +185,11 @@ authors:
 - given-names: Anirban
   family-names: Dutta
   affiliation:
-- given-names: Ryan
-  family-names: Groneck
-  affiliation:
 - given-names: Jing
   family-names: Lu
+  affiliation:
+- given-names: Ryan
+  family-names: Groneck
   affiliation:
 - given-names: Jordi
   family-names: Eguren
@@ -213,35 +213,35 @@ authors:
 - given-names: Arib
   family-names: Alam
   affiliation:
-- given-names: Ran
-  family-names: Livneh
-  affiliation:
-- given-names: Satwik
-  family-names: Kambham
-  affiliation:
 - given-names: Ayushi
   family-names: Daksh
-  affiliation:
-- given-names: Srinath
-  family-names: Rajagopalan
-  affiliation:
-- given-names: Israel
-  family-names: Roldan
   affiliation:
 - given-names: Connor
   family-names: McClellan
   affiliation: University of Virginia
   orcid: https://orcid.org/0000-0002-6040-8281
+- given-names: Satwik
+  family-names: Kambham
+  affiliation:
+- given-names: Ran
+  family-names: Livneh
+  affiliation:
+- given-names: Srinath
+  family-names: Rajagopalan
+  affiliation:
+- given-names: Sashank
+  family-names: Mishra
+  affiliation:
+  orcid: https://orcid.org/0000-0001-8302-1584
 - given-names: Jayant
   family-names: Bhakar
   affiliation:
 - given-names: Cecelia
   family-names: Powers
   affiliation:
-- given-names: Sashank
-  family-names: Mishra
+- given-names: Israel
+  family-names: Roldan
   affiliation:
-  orcid: https://orcid.org/0000-0001-8302-1584
 - given-names: Aaryan
   family-names: Dadu
   affiliation:
@@ -405,7 +405,7 @@ authors:
 - given-names: Sampark
   family-names: Sharma
   affiliation:
-version: release-2026.06.08
-date-released: 2026-06-08
+version: release-2026.06.14
+date-released: 2026-06-14
 repository-code: https://github.com/tardis-sn/tardis
 license: bsd-3-clause
