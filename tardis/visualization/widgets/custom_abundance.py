@@ -1359,7 +1359,7 @@ class CustomAbundanceWidget:
             )
 
             box_features = pn.Column(box_norm, help_note)
-            box_abundance = pn.Column(
+            box_abundance = pn.WidgetBox(
                     box_apply,
                     pn.Row(self.box_editor, box_features),
                     box_add_element,
@@ -1788,7 +1788,7 @@ class DensityEditor:
             self.input_d, pn.pane.Str("g/cm^3", align="end"),
             margin=(0, 0, 20, 0),
         )
-        widget = pn.Column(
+        widget = pn.WidgetBox(
                 self.input_d_time_0,
                 hint1,
                 d_box,
