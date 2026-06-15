@@ -48,6 +48,15 @@ def test_t_electrons(t_rad, link_t_rad_t_electron, t_electrons):
     )
 
 
+def test_beta_electron(t_electrons, beta_electron):
+    np.testing.assert_allclose(
+        beta_electron,
+        1 / (const.k_B.cgs.value * t_electrons),
+        atol=0,
+        rtol=1e-15,
+    )
+
+
 def test_t_rad(dilute_planckian_radiation_field, t_rad_calculated):
     np.testing.assert_allclose(
         t_rad_calculated,
@@ -182,8 +191,7 @@ def test_stimulated_emission_factor_regression(
     stimulated_emission_factor, regression_data
 ):
     expected = regression_data.sync_ndarray(
-        stimulated_emission_factor,
-        key="calculated_stimulated_emission_factor",
+        stimulated_emission_factor
     )
     np.testing.assert_allclose(
         stimulated_emission_factor, expected, atol=0, rtol=1e-15

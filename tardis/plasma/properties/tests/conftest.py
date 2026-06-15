@@ -72,6 +72,11 @@ def t_electrons(t_rad, link_t_rad_t_electron):
     return electron_temperature_module.calculate(t_rad, link_t_rad_t_electron)
 
 @pytest.fixture
+def beta_electron(t_electrons):
+    beta_electron_module = BetaElectron(None)
+    return beta_electron_module.calculate(t_electrons)
+
+@pytest.fixture
 def number_density(atomic_dataset, abundance, density):
     atomic_mass = atomic_dataset.atom_data.reindex(abundance.index)["mass"]
     return abundance.mul(density, axis=1).div(atomic_mass, axis=0)
@@ -107,7 +112,8 @@ def metastability(atomic_dataset, selected_atoms):
 @pytest.fixture
 def lines(atomic_dataset, selected_atoms):
     lines_module = Lines(None)
-    return lines_module.calculate(atomic_dataset, selected_atoms)[0]
+    lines, _, _, _ = lines_module.calculate(atomic_dataset, selected_atoms)
+    return lines[lines.index.isin(selected_atoms, level="atomic_number")]
 
 @pytest.fixture
 def lines_lower_level_index(levels, lines):
