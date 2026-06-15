@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=1fdb8884"></script>
+      <script src="../../../../_static/documentation_options.js?v=8b01649f"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -599,7 +599,7 @@ class CustomAbundanceWidget:
             options=list(range(1, self.no_of_shells + 1)),
             name=&quot;Shell No. &quot;,
             value=1,
-            width=160,
+            width=100,
         )
         self.dpd_shell_no.param.watch(self.dpd_shell_no_eventhandler, &quot;value&quot;)
         self.btn_prev = pn.widgets.Button(
@@ -726,7 +726,7 @@ class CustomAbundanceWidget:
 
         self.ckb_overwrite = pn.widgets.Checkbox(
             name=&quot;overwrite&quot;,
-            align=&quot;center&quot;,
+            margin=(30, 0, 0, 0),
         )
 
         self.tbs_scale = pn.widgets.RadioButtonGroup(
@@ -1548,12 +1548,12 @@ class CustomAbundanceWidget:
 
             box_add_shell = pn.Row(
                     pn.Row(
-                        pn.pane.Str(&quot;Add shell(s) with velocity range (km/s): &quot;, align=&#39;center&#39;),
+                        pn.pane.Markdown(&quot;Add shell(s) with velocity range (km/s): &quot;, align=&#39;center&#39;),
                         self.input_v_start,
                         align=&#39;end&#39;,
                     ),
                     pn.Row(
-                        pn.pane.Str(&quot;to&quot;, align=&#39;center&#39;),
+                        pn.pane.Markdown(&quot;to&quot;, align=&#39;center&#39;),
                         self.input_v_end,
                         align=&#39;end&#39;,
                     ),
@@ -1564,7 +1564,8 @@ class CustomAbundanceWidget:
             )
 
             box_head = pn.Row(
-                self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell
+                self.dpd_shell_no, self.btn_prev, self.btn_next, box_add_shell,
+                margin=(0, 0, 20, 0)
             )
 
             box_add_element = pn.Row(
@@ -1601,7 +1602,7 @@ class CustomAbundanceWidget:
             )
 
             box_features = pn.Column(box_norm, help_note)
-            box_abundance = pn.Column(
+            box_abundance = pn.WidgetBox(
                     box_apply,
                     pn.Row(self.box_editor, box_features),
                     box_add_element,
@@ -2078,7 +2079,7 @@ class DensityEditor:
             self.input_d, pn.pane.Str(&quot;g/cm^3&quot;, align=&quot;end&quot;),
             margin=(0, 0, 20, 0),
         )
-        widget = pn.Column(
+        widget = pn.WidgetBox(
                 self.input_d_time_0,
                 hint1,
                 d_box,
@@ -2100,7 +2101,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 09 Jun 2026.
+      <span class="lastupdated">Last updated on 15 Jun 2026.
       </span></p>
   </div>
 
