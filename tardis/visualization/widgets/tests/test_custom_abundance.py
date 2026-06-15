@@ -122,7 +122,7 @@ class TestCustomAbundanceWidget:
         caw.input_v_start.value = v0
         caw.input_v_end.value = v1
 
-        assert caw.overwrite_warning.layout.visible == expected
+        assert caw.overwrite_warning.visible == expected
 
     @pytest.mark.skip(
         reason="Problem with cutting model in restructure. See TARDIS issue 2390"
