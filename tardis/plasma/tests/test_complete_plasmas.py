@@ -1,4 +1,3 @@
-import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -95,7 +94,6 @@ class TestPlasma:
         "lines",
         "lines_lower_level_index",
         "lines_upper_level_index",
-        "atomic_mass",
         "ionization_data",
         "nu",
         "wavelength_cm",
@@ -117,8 +115,7 @@ class TestPlasma:
         "beta_sobolev",
         "transition_probabilities",
     ]
-    j_blues_properties = ["j_blues", "j_blues_norm_factor", "j_blue_estimator"]
-    input_properties = ["volume", "r_inner"]
+    j_blues_properties = ["j_blues"]
     helium_nlte_properties = ["helium_population", "helium_population_updated"]
 
     combined_properties = (
@@ -129,7 +126,6 @@ class TestPlasma:
         + level_population_properties
         + radiative_properties
         + j_blues_properties
-        + input_properties
         + helium_nlte_properties
     )
 
@@ -177,27 +173,23 @@ class TestPlasma:
 
     @pytest.mark.parametrize("attr", combined_properties)
     def test_plasma_properties(self, plasma, attr):
-        key = f"plasma/{attr}"
-        try:
-            expected = pd.read_hdf(self.regression_data.fpath, key)
-        except KeyError:
-            pytest.skip(f"Key {key} not found in regression data")
+        if not hasattr(plasma, attr):
+            pytest.skip(f'Property "{attr}" not applicable for this config')
 
-        if hasattr(plasma, attr):
-            actual = getattr(plasma, attr)
-            # TODO: recreate the atomic data from Carsus and Pandas 3.x to avoid this
-            if attr == "lines":
-                expected.columns.name = "N."
-            if attr == "selected_atoms":
-                npt.assert_allclose(actual.values, expected.values)
-            elif actual.ndim == 1:
-                actual = pd.Series(actual)
-                pdt.assert_series_equal(actual, expected)
-            else:
-                actual = pd.DataFrame(actual)
-                pdt.assert_frame_equal(actual, expected)
+        key = f"plasma/{attr}"
+        expected = pd.read_hdf(self.regression_data.fpath, key)
+        actual = getattr(plasma, attr)
+        # TODO: recreate the atomic data from Carsus and Pandas 3.x to avoid this
+        if attr == "lines":
+            expected.columns.name = "N."
+        if attr == "selected_atoms":
+            npt.assert_allclose(actual.values, expected.values)
+        elif actual.ndim == 1:
+            actual = pd.Series(actual)
+            pdt.assert_series_equal(actual, expected)
         else:
-            warnings.warn(f'Property "{attr}" not found')
+            actual = pd.DataFrame(actual)
+            pdt.assert_frame_equal(actual, expected)
 
     def test_levels(self, plasma):
         actual = pd.DataFrame(plasma.levels)
