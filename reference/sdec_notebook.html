@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -205,7 +205,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/reference/sdec_notebook.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="Analysing-Spectral-Energy-Distribution-and-Emission/Absorption-Visualization">
-<h1>Analysing Spectral Energy Distribution and Emission/Absorption Visualization<a class="headerlink" href="#Analysing-Spectral-Energy-Distribution-and-Emission/Absorption-Visualization" title="Link to this heading">¶</a></h1>
+<h1>Analysing Spectral Energy Distribution and Emission/Absorption Visualization<a class="headerlink" href="#Analysing-Spectral-Energy-Distribution-and-Emission/Absorption-Visualization" title="Link to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle"><strong>Note:</strong></p>
 <p>This notebook is only a sample demonstrating some of the features of the <code class="docutils literal notranslate"><span class="pre">sdecplotter</span></code> class. If you are interested in using additional features, you should directly access the <a class="reference external" href="https://github.com/tardis-sn/tardis/blob/master/tardis/visualization/tools/sdec_plot.py#L419">sdecplotter</a> class. You can see the rest of the features of the sdecplotter class <a class="reference external" href="docs/analysing_tardis_outputs/visualization/how_to_sdec_plot.ipynb">here</a>.</p>
@@ -213,7 +213,7 @@
 <p>A notebook for analyzing and visualizing the spectral energy distribution, emission and absorption patterns in supernova simulations using TARDIS.</p>
 <p>Every simulation run requires <a class="reference external" href="io/configuration/components/atomic/atomic_data.rst">atomic data</a> and a <a class="reference external" href="io/configuration/index.rst">configuration file</a>.</p>
 <section id="Atomic-Data">
-<h2>Atomic Data<a class="headerlink" href="#Atomic-Data" title="Link to this heading">¶</a></h2>
+<h2>Atomic Data<a class="headerlink" href="#Atomic-Data" title="Link to this heading"></a></h2>
 <p>We recommend using the <a class="reference external" href="https://github.com/tardis-sn/tardis-regression-data/raw/main/atom_data/kurucz_cd23_chianti_H_He_latest.h5">kurucz_cd23_chianti_H_He_latest.h5</a> dataset.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -228,7 +228,7 @@
 </div>
 </section>
 <section id="Example-Configuration-File">
-<h2>Example Configuration File<a class="headerlink" href="#Example-Configuration-File" title="Link to this heading">¶</a></h2>
+<h2>Example Configuration File<a class="headerlink" href="#Example-Configuration-File" title="Link to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -247,9 +247,9 @@
 </div>
 </section>
 <section id="Loading-Simulation-Data">
-<h2>Loading Simulation Data<a class="headerlink" href="#Loading-Simulation-Data" title="Link to this heading">¶</a></h2>
+<h2>Loading Simulation Data<a class="headerlink" href="#Loading-Simulation-Data" title="Link to this heading"></a></h2>
 <section id="Running-simulation">
-<h3>Running simulation<a class="headerlink" href="#Running-simulation" title="Link to this heading">¶</a></h3>
+<h3>Running simulation<a class="headerlink" href="#Running-simulation" title="Link to this heading"></a></h3>
 <p>To run the simulation, import the <code class="docutils literal notranslate"><span class="pre">run_tardis</span></code> function and create the <code class="docutils literal notranslate"><span class="pre">sim</span></code> object.</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle"><strong>Note:</strong></p>
@@ -270,7 +270,7 @@
 </div>
 </section>
 <section id="HDF">
-<h3>HDF<a class="headerlink" href="#HDF" title="Link to this heading">¶</a></h3>
+<h3>HDF<a class="headerlink" href="#HDF" title="Link to this heading"></a></h3>
 <p>TARDIS can save simulation data to HDF files for later analysis. The code below shows how to load a simulation from an HDF file. This is useful when you want to analyze simulation results without re-running the simulation.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -288,10 +288,10 @@
 </section>
 </section>
 <section id="Calculating-Spectral-Quantities">
-<h2>Calculating Spectral Quantities<a class="headerlink" href="#Calculating-Spectral-Quantities" title="Link to this heading">¶</a></h2>
+<h2>Calculating Spectral Quantities<a class="headerlink" href="#Calculating-Spectral-Quantities" title="Link to this heading"></a></h2>
 <p>This section demonstrates how to analyze the spectral decomposition (SDEC) output from TARDIS. SDEC helps understand how different atomic species contribute to the formation of spectral features through their emission and absorption processes.</p>
 <section id="Wavelength-and-Frequency-Grid-Setup">
-<h3>Wavelength and Frequency Grid Setup<a class="headerlink" href="#Wavelength-and-Frequency-Grid-Setup" title="Link to this heading">¶</a></h3>
+<h3>Wavelength and Frequency Grid Setup<a class="headerlink" href="#Wavelength-and-Frequency-Grid-Setup" title="Link to this heading"></a></h3>
 <p>First, we set up the wavelength and frequency grids for analysis and plotting</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -351,7 +351,7 @@
 </div>
 </section>
 <section id="Luminosity-Calculations">
-<h3>Luminosity Calculations<a class="headerlink" href="#Luminosity-Calculations" title="Link to this heading">¶</a></h3>
+<h3>Luminosity Calculations<a class="headerlink" href="#Luminosity-Calculations" title="Link to this heading"></a></h3>
 <p>Then we calculate emission and absorption luminosities for each atomic species to understand their contributions to the spectrum</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -556,11 +556,11 @@
 </section>
 </section>
 <section id="Plotting-Species-wise-Emission-and-Absorption-Contributions">
-<h2>Plotting Species-wise Emission and Absorption Contributions<a class="headerlink" href="#Plotting-Species-wise-Emission-and-Absorption-Contributions" title="Link to this heading">¶</a></h2>
+<h2>Plotting Species-wise Emission and Absorption Contributions<a class="headerlink" href="#Plotting-Species-wise-Emission-and-Absorption-Contributions" title="Link to this heading"></a></h2>
 <p>Now we will plot the species-wise emission and absorption contributions that we calculated in the previous step using calculate_emission_luminosities() and calculate_absorption_luminosities() respectively. We’ll start with packets that had no interaction with the ejecta, followed by electron scattering events, and then contributions from different atomic species. The colorbar will help you to identify the atomic species and their respective contributions to the total luminosity at each
 wavelength.</p>
 <section id="Matplotlib">
-<h3>Matplotlib<a class="headerlink" href="#Matplotlib" title="Link to this heading">¶</a></h3>
+<h3>Matplotlib<a class="headerlink" href="#Matplotlib" title="Link to this heading"></a></h3>
 <p>Generate Colors list based on species</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -702,7 +702,7 @@ wavelength.</p>
 </div>
 </section>
 <section id="Plotly">
-<h3>Plotly<a class="headerlink" href="#Plotly" title="Link to this heading">¶</a></h3>
+<h3>Plotly<a class="headerlink" href="#Plotly" title="Link to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -885,7 +885,7 @@ wavelength.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

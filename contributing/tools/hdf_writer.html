@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -194,7 +194,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/contributing/tools/hdf_writer.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="Example-Usage-of-HDFWriter">
-<h1>Example Usage of HDFWriter<a class="headerlink" href="#Example-Usage-of-HDFWriter" title="Link to this heading">¶</a></h1>
+<h1>Example Usage of HDFWriter<a class="headerlink" href="#Example-Usage-of-HDFWriter" title="Link to this heading"></a></h1>
 <p>If properties of a class needs to be saved in a hdf file, then the class should inherit from <code class="docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code> as demonstrated below.</p>
 <p><code class="docutils literal notranslate"><span class="pre">hdf_properties</span> <span class="pre">(list)</span></code> : Contains names of all the properties that needs to be saved. <code class="docutils literal notranslate"><span class="pre">hdf_name</span> <span class="pre">(str)</span></code> : Specifies the default name of the group under which the properties will be saved.</p>
 <div class="nbinput nblast docutils container">
@@ -229,7 +229,7 @@
 </div>
 <p>You can now save properties using <code class="docutils literal notranslate"><span class="pre">to_hdf</span></code> method.</p>
 <section id="Parameters">
-<h2>Parameters<a class="headerlink" href="#Parameters" title="Link to this heading">¶</a></h2>
+<h2>Parameters<a class="headerlink" href="#Parameters" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">file_path</span></code> : Path where the HDF file will be saved <code class="docutils literal notranslate"><span class="pre">path</span></code> : Path inside the HDF store to store the <code class="docutils literal notranslate"><span class="pre">elements</span></code> <code class="docutils literal notranslate"><span class="pre">name</span></code> : Name of the group inside HDF store, under which properties will be saved. If not specified , then it uses the value specified in <code class="docutils literal notranslate"><span class="pre">hdf_name</span></code> attribute. If <code class="docutils literal notranslate"><span class="pre">hdf_name</span></code> is also not defined , then it converts the Class name into Snake Case, and uses this value. Like for example , if <code class="docutils literal notranslate"><span class="pre">name</span></code> is not passed as an argument , and <code class="docutils literal notranslate"><span class="pre">hdf_name</span></code> is also not defined for
 <code class="docutils literal notranslate"><span class="pre">ExampleClass</span></code> above, then , it will save properties under <code class="docutils literal notranslate"><span class="pre">example_class</span></code> group.</p>
 <div class="nbinput nblast docutils container">
@@ -265,7 +265,7 @@ File path: test.hdf
 </pre></div></div>
 </div>
 <section id="Saving-nested-class-objects.">
-<h3>Saving nested class objects.<a class="headerlink" href="#Saving-nested-class-objects." title="Link to this heading">¶</a></h3>
+<h3>Saving nested class objects.<a class="headerlink" href="#Saving-nested-class-objects." title="Link to this heading"></a></h3>
 <p>Just extend <code class="docutils literal notranslate"><span class="pre">hdf_properties</span></code> list to include that class object.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -319,7 +319,7 @@ File path: nested_test.hdf
 </div>
 </section>
 <section id="Modified-Usage">
-<h3>Modified Usage<a class="headerlink" href="#Modified-Usage" title="Link to this heading">¶</a></h3>
+<h3>Modified Usage<a class="headerlink" href="#Modified-Usage" title="Link to this heading"></a></h3>
 <p>In <code class="docutils literal notranslate"><span class="pre">BasePlasma</span></code> class, the way properties of object are collected is different. It does not uses <code class="docutils literal notranslate"><span class="pre">hdf_properties</span></code> attribute. That`s why , <code class="docutils literal notranslate"><span class="pre">PlasmaWriterMixin</span></code> (which extends <code class="docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code>) changes how the properties of <code class="docutils literal notranslate"><span class="pre">BasePlasma</span></code> class will be collected, by changing <code class="docutils literal notranslate"><span class="pre">get_properties</span></code> function.</p>
 <p>Here is a quick demonstration, if behaviour of default <code class="docutils literal notranslate"><span class="pre">get_properties</span></code> function inside <code class="docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code> needs to be changed, by subclassing it to create a new <code class="docutils literal notranslate"><span class="pre">Mixin</span></code>.</p>
 <div class="nbinput nblast docutils container">
@@ -384,7 +384,7 @@ File path: demo_class.hdf
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

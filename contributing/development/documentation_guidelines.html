@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -164,19 +164,19 @@
            <div itemprop="articleBody">
              
   <section id="documentation-guidelines">
-<span id="id1"></span><h1>Documentation Guidelines<a class="headerlink" href="#documentation-guidelines" title="Link to this heading">¶</a></h1>
+<span id="id1"></span><h1>Documentation Guidelines<a class="headerlink" href="#documentation-guidelines" title="Link to this heading"></a></h1>
 <p>High-quality and consistent documentation is very important at TARDIS. It allows new users to find out how to do something specific using TARDIS, as well as helps developers (like you!) to understand the best practices.</p>
 <p>TARDIS uses the popular Python documentation generator <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a>. Sphinx translates a set of source files (often written in reStructuredText or Jupyter notebooks, see below) to HTML files, automatically producing cross-references, indices, etc. If you haven’t worked with Sphinx before, you should first read their <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/quickstart.html">quickstart</a> guide.</p>
 <section id="documenting-the-code-you-write">
-<h2>Documenting the code you write<a class="headerlink" href="#documenting-the-code-you-write" title="Link to this heading">¶</a></h2>
+<h2>Documenting the code you write<a class="headerlink" href="#documenting-the-code-you-write" title="Link to this heading"></a></h2>
 <p>When making or adding changes to the functionality of an aspect of TARDIS, an <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file or Jupyter notebook (<code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> file) should be created to demonstrate how it works, and that page must then be included in the documentation. This is described in detail in the following sections.</p>
 <section id="rst-documentation">
-<h3>RST Documentation<a class="headerlink" href="#rst-documentation" title="Link to this heading">¶</a></h3>
-<p>Documentation not featuring interactive code examples is written in Sphinx’s reStructuredText (see the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">sphinx documentation</a>). Files written in reStructuredText have a <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file extension, and are then built as HTML filed by Sphinx during the documentation build. Only the RST file, not the built HTML file, are committed to the repository. Documentation should be clear and concise. See <span class="xref std std-doc">../../io/visualization/using_widgets</span> as a good example of an RST-generated page.</p>
+<h3>RST Documentation<a class="headerlink" href="#rst-documentation" title="Link to this heading"></a></h3>
+<p>Documentation not featuring interactive code examples is written in Sphinx’s reStructuredText (see the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">sphinx documentation</a>). Files written in reStructuredText have a <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file extension, and are then built as HTML filed by Sphinx during the documentation build. Only the RST file, not the built HTML file, are committed to the repository. Documentation should be clear and concise. See <a class="reference internal" href="../../analyzing_tardis/visualization/using_widgets.html"><span class="doc">Using TARDIS Widgets</span></a> as a good example of an RST-generated page.</p>
 </section>
 <section id="ipynb-documentation">
-<h3>IPYNB Documentation<a class="headerlink" href="#ipynb-documentation" title="Link to this heading">¶</a></h3>
-<p>Often, code examples can help explain concepts better. The TARDIS utilizes <a class="reference external" href="https://jupyter.org/">Jupyter notebooks</a> (<code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> file extension) to demonstrate features of the code package within our documentation. See <a class="reference internal" href="../../quickstart.html"><span class="doc">Quickstart for TARDIS</span></a> or <span class="xref std std-doc">../../physics/montecarlo/initialization</span> for good examples.</p>
+<h3>IPYNB Documentation<a class="headerlink" href="#ipynb-documentation" title="Link to this heading"></a></h3>
+<p>Often, code examples can help explain concepts better. The TARDIS utilizes <a class="reference external" href="https://jupyter.org/">Jupyter notebooks</a> (<code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> file extension) to demonstrate features of the code package within our documentation. See <a class="reference internal" href="../../quickstart.html"><span class="doc">Quickstart for TARDIS</span></a> or <a class="reference internal" href="../../physics_walkthrough/montecarlo/initialization.html"><span class="doc">Energy Packet Initialization</span></a> for good examples.</p>
 <p>TARDIS uses the <a class="reference external" href="https://nbsphinx.readthedocs.io/">nbsphinx</a> extension to turn these notebooks into HTML pages in the documentation. During a documentation build, nbsphinx runs all notebooks in the documentation with cleared output and places their output in the HTML. <strong>Thus, notebook output must always be cleared before it is submitted</strong> to ensure that the notebooks are run by nbsphinx.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -187,12 +187,12 @@
 <p>An added benefit of IPYNB documentation is the ability to have interactive tutorials. All notebooks in the TARDIS documentation feature a button at the top encouraging users to launch the interactive version of the notebook (see the previously mentioned examples). This directs users to the TARDIS repository on <a class="reference external" href="https://mybinder.org/">Binder</a>, where the notebook can be run using an online Jupyter kernel. Additionally, all notebooks in the Input/Output section of the documentation are automatically linked to on the <a class="reference internal" href="../../tutorials.html"><span class="doc">Tutorials</span></a> page.</p>
 </section>
 <section id="including-your-page-in-the-tardis-documentation">
-<h3>Including Your Page in the TARDIS Documentation<a class="headerlink" href="#including-your-page-in-the-tardis-documentation" title="Link to this heading">¶</a></h3>
+<h3>Including Your Page in the TARDIS Documentation<a class="headerlink" href="#including-your-page-in-the-tardis-documentation" title="Link to this heading"></a></h3>
 <p>Whether your page is written in reStructuredText or as a Jupyter notebook, it must be included in the TARDIS documentation. This has three steps:</p>
 <ol class="arabic simple">
 <li><p>Determine the appropriate location for the page within the documentation. Feel free to reach out to someone in the TARDIS collaboration for help with this step.</p></li>
-<li><p>Place your file in the corresponding directory in the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory of the repository. For example, the <span class="xref std std-doc">../../io/visualization/using_widgets</span> is a subpage of “Visualization Tools and Widgets” under the Input/Output section of the documentation, so it is placed in <code class="docutils literal notranslate"><span class="pre">docs/io/visualization/</span></code>.</p></li>
-<li><p>Include your file in the/a <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-toctree">toctree</a> of the corresponding <code class="docutils literal notranslate"><span class="pre">index.rst</span></code>. For example, <span class="xref std std-doc">../../io/visualization/using_widgets</span> was included in a toctree of <code class="docutils literal notranslate"><span class="pre">docs/io/visualization/index.rst</span></code>.</p></li>
+<li><p>Place your file in the corresponding directory in the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory of the repository. For example, the <a class="reference internal" href="../../analyzing_tardis/visualization/using_widgets.html"><span class="doc">Using TARDIS Widgets</span></a> is a subpage of “Visualization Tools and Widgets” under the Analyzing TARDIS section of the documentation, so it is placed in <code class="docutils literal notranslate"><span class="pre">docs/analyzing_tardis/visualization/</span></code>.</p></li>
+<li><p>Include your file in the/a <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-toctree">toctree</a> of the corresponding <code class="docutils literal notranslate"><span class="pre">index.rst</span></code>. For example, <a class="reference internal" href="../../analyzing_tardis/visualization/using_widgets.html"><span class="doc">Using TARDIS Widgets</span></a> was included in a toctree of <code class="docutils literal notranslate"><span class="pre">docs/analyzing_tardis/visualization/index.rst</span></code>.</p></li>
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -201,7 +201,7 @@
 </section>
 </section>
 <section id="building-documentation-locally">
-<h2>Building documentation locally<a class="headerlink" href="#building-documentation-locally" title="Link to this heading">¶</a></h2>
+<h2>Building documentation locally<a class="headerlink" href="#building-documentation-locally" title="Link to this heading"></a></h2>
 <p>To build TARDIS documentation locally, use the following commands:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cd docs
 make html
@@ -220,13 +220,13 @@ make html
 <p>Additionally, check your terminal for warning messages during the documentation build (often caused by faulty hyperlinks or failing to include the page in the documentation). These should be repaired prior to merging your changes into the documentation. See below for troubleshooting tips.</p>
 </section>
 <section id="sharing-the-built-documentation-in-your-pull-request">
-<span id="doc-preview"></span><h2>Sharing the built documentation in your pull request<a class="headerlink" href="#sharing-the-built-documentation-in-your-pull-request" title="Link to this heading">¶</a></h2>
+<span id="doc-preview"></span><h2>Sharing the built documentation in your pull request<a class="headerlink" href="#sharing-the-built-documentation-in-your-pull-request" title="Link to this heading"></a></h2>
 <p>When proposing changes to the documentation, or the code in general, it is useful to reviewers to see how the documentation will look once your pull request is merged. This is done by adding the <code class="docutils literal notranslate"><span class="pre">build-docs</span></code> label to your pull request on GitHub. If you do not have permission to add the label, leave a comment in your pull request or contact a senior member of the collaboration and it will be added.</p>
 <p>The documentation will be built as soon as the label is added, and any subsequent commits while the label is present will trigger a documentation build. Your built documentation will be available at <code class="docutils literal notranslate"><span class="pre">https://tardis-sn.github.io/tardis/pull/&lt;pull</span> <span class="pre">request</span> <span class="pre">number&gt;/index.html</span></code>. It will also be automatically linked to in the comments of the pull request.</p>
 <p>Finally, to view the build logs (which will contain warning and error messages), go to the <code class="docutils literal notranslate"><span class="pre">Actions</span></code> tab in the TARDIS repository, and click on <code class="docutils literal notranslate"><span class="pre">docs</span></code> in the list of workflows. You can search documentation builds by branch to find your build log.</p>
 </section>
 <section id="troubleshooting-your-documentation">
-<h2>Troubleshooting Your Documentation<a class="headerlink" href="#troubleshooting-your-documentation" title="Link to this heading">¶</a></h2>
+<h2>Troubleshooting Your Documentation<a class="headerlink" href="#troubleshooting-your-documentation" title="Link to this heading"></a></h2>
 <p>It is important to keep your documentation free of warnings and errors, which can be found in the build logs (locally these will appear in your terminal, and for builds on GitHub see the last paragraph in the above section). On GitHub, these will give you a notification that your documentation build failed. Below are some pointers for resolving these issues:</p>
 <ul class="simple">
 <li><p>Errors often are a result of notebooks being incompatible with your new code. Make sure notebooks are always updated to reflect your additions.</p></li>
@@ -250,7 +250,7 @@ make html
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

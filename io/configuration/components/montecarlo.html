@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Spectrum Configuration" href="spectrum.html" />
-    <link rel="prev" title="Convert CMFGEN files to TARDIS file format" href="models/converters/cmfgen.html" />
+    <link rel="prev" title="Converting Arepo snapshots to be usable by TARDIS" href="../../../how_to/read_external_models/arepo_to_tardis.html" />
     <link href="../../../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -161,7 +161,7 @@
            <div itemprop="articleBody">
              
   <section id="monte-carlo-configuration">
-<span id="montecarlo-config"></span><h1>Monte Carlo Configuration<a class="headerlink" href="#monte-carlo-configuration" title="Link to this heading">¶</a></h1>
+<span id="montecarlo-config"></span><h1>Monte Carlo Configuration<a class="headerlink" href="#monte-carlo-configuration" title="Link to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">montecarlo</span></code> section describes the parameters for the Monte Carlo radiation transport and convergence criteria:</p>
 <table class="docutils align-default" id="montecarlo-yml">
 <tbody>
@@ -299,7 +299,7 @@
 <tr class="row-even"><td rowspan="3"><p>oneOf</p></td>
 <td colspan="2"><p><a class="reference internal" href="#damped-convergence-strategy"><span class="std std-ref">Damped Convergence Strategy</span></a></p></td>
 </tr>
-<tr class="row-odd"><td colspan="2"><p><span class="xref std std-ref">montecarlo_definitions.yml#/definitions/convergence_strategy/adaptive_damped</span></p></td>
+<tr class="row-odd"><td colspan="2"><p><a class="reference internal" href="#adaptive-damped-convergence-strategy"><span class="std std-ref">Adaptive Damped Convergence Strategy</span></a></p></td>
 </tr>
 <tr class="row-even"><td colspan="2"><p><a class="reference internal" href="#custom-convergence-strategy"><span class="std std-ref">Custom Convergence Strategy</span></a></p></td>
 </tr>
@@ -406,16 +406,16 @@ of the <a class="reference internal" href="../../../resources/zreferences.html#t
 <code class="docutils literal notranslate"><span class="pre">no_of_packets</span></code> to create a less noisy output spectrum. <code class="docutils literal notranslate"><span class="pre">no_of_virtual_packets</span></code> can also be set to greater than 0 (a useful number is 3) to
 use the Virtual Packet formalism. Increasing this number drastically increases computational costs (and memory requirements if they are logged).
 The <code class="docutils literal notranslate"><span class="pre">iterations</span></code> parameter describes the maximum number of <a class="reference internal" href="../../../resources/zreferences.html#term-Monte-Carlo"><span class="xref std std-term">Monte Carlo</span></a> loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
-sooner when the convergence threshold has been reached (see <span class="xref std std-doc">../../../physics/update_and_conv/update_and_conv</span>).</p>
+sooner when the convergence threshold has been reached (see <a class="reference internal" href="../../../physics_walkthrough/update_and_conv/update_and_conv.html"><span class="doc">Updating Plasma and Convergence</span></a>).</p>
 <section id="convergence-strategy">
-<span id="conv-config"></span><h2>Convergence Strategy<a class="headerlink" href="#convergence-strategy" title="Link to this heading">¶</a></h2>
+<span id="conv-config"></span><h2>Convergence Strategy<a class="headerlink" href="#convergence-strategy" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">convergence_criteria</span></code> section has a <code class="docutils literal notranslate"><span class="pre">type</span></code> keyword. Currently, one type is allowed: <code class="docutils literal notranslate"><span class="pre">damped</span></code>.
 All convergence criteria can be specified separately for the three variables for which convergence can be checked
 (<code class="docutils literal notranslate"><span class="pre">t_inner</span></code>, <code class="docutils literal notranslate"><span class="pre">t_rad</span></code>, <code class="docutils literal notranslate"><span class="pre">ws</span></code>) by specifying subsections in the <code class="docutils literal notranslate"><span class="pre">convergence_criteria</span></code> of the same name. These then
 override the defaults. Two more schemas are presented that further explain the <code class="docutils literal notranslate"><span class="pre">damped</span></code> and
 <code class="docutils literal notranslate"><span class="pre">custom</span></code> convergence strategies:</p>
 <section id="damped-convergence-strategy">
-<span id="damped-convergence-strategy"></span><span id="damped-config"></span><h3>Damped Convergence Strategy<a class="headerlink" href="#damped-convergence-strategy" title="Link to this heading">¶</a></h3>
+<span id="damped-convergence-strategy"></span><span id="damped-config"></span><h3>Damped Convergence Strategy<a class="headerlink" href="#damped-convergence-strategy" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p>type</p></td>
@@ -759,8 +759,288 @@ override the defaults. Two more schemas are presented that further explain the <
 </section>
 <p><code class="docutils literal notranslate"><span class="pre">damped</span></code> only has one parameter <code class="docutils literal notranslate"><span class="pre">damping-constant</span></code> and does not check for convergence. This can be used to fix the
 temperature of the inner boundary.</p>
+<section id="adaptive-damped-convergence-strategy">
+<span id="adaptive-damped-convergence-strategy"></span><h3>Adaptive Damped Convergence Strategy<a class="headerlink" href="#adaptive-damped-convergence-strategy" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="3"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="4"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td><p>enum</p></td>
+<td colspan="2"><p>adaptive_damped</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p>default</p></li>
+</ul>
+</td>
+<td colspan="3"><p>adaptive_damped</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>stop_if_converged</p></li>
+</ul>
+</td>
+<td colspan="3"><p>stop plasma iterations before number of specified iterations are reached if the simulation is plasma and inner boundary state is converged</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>boolean</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>fraction</p></li>
+</ul>
+</td>
+<td colspan="3"><p>the fraction of shells that have to converge to the given  convergence threshold. For example, 0.8 means that 80% of shells have to converge to the threshold that convergence is established</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td colspan="2"><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>0.8</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>hold_iterations</p></li>
+</ul>
+</td>
+<td colspan="3"><p>the number of iterations that the convergence criteria need to be fulfilled before TARDIS accepts the simulation as converged</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>multipleOf</p></td>
+<td colspan="2"><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>3</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>damping_constant</p></li>
+</ul>
+</td>
+<td colspan="3"><p>damping constant</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td colspan="2"><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>threshold</p></li>
+</ul>
+</td>
+<td colspan="3"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td colspan="2"><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>0.05</p></td>
+</tr>
+<tr class="row-even"><td rowspan="13"><ul class="simple">
+<li><p>t_inner</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>damping_constant</p></li>
+</ul>
+</td>
+<td colspan="2"><p>damping constant</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0.5</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>threshold</p></li>
+</ul>
+</td>
+<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>damped</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="13"><ul class="simple">
+<li><p>t_rad</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-even"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>damping_constant</p></li>
+</ul>
+</td>
+<td colspan="2"><p>damping constant</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>0.5</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p><strong>threshold</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>damped</p></td>
+</tr>
+<tr class="row-odd"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-even"><td rowspan="13"><ul class="simple">
+<li><p>w</p></li>
+</ul>
+</td>
+<td><p>type</p></td>
+<td colspan="2"><p><em>object</em></p></td>
+</tr>
+<tr class="row-odd"><td colspan="3"><p>properties</p></td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="simple">
+<li><p>damping_constant</p></li>
+</ul>
+</td>
+<td colspan="2"><p>damping constant</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>0.5</p></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="simple">
+<li><p><strong>threshold</strong></p></li>
+</ul>
+</td>
+<td colspan="2"><p>specifies the threshold that is taken as convergence  (i.e. 0.05 means that the value does not change more than 5%)</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p><em>number</em></p></td>
+</tr>
+<tr class="row-even"><td><p>minimum</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>type</p></li>
+</ul>
+</td>
+<td colspan="2"><p>THIS IS A DUMMY VARIABLE DO NOT USE</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td><p><em>string</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td><p>damped</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="2"><p>False</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="simple">
+<li><p>lock_t_inner_cycles</p></li>
+</ul>
+</td>
+<td colspan="3"><p>The number of cycles to lock the update of the inner boundary temperature. This process helps with convergence. The default is to switch it off (1 cycle)</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>multipleOf</p></td>
+<td colspan="2"><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>default</p></td>
+<td colspan="2"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="simple">
+<li><p>t_inner_update_exponent</p></li>
+</ul>
+</td>
+<td colspan="3"><p>L=4*pi*r**2*T^y</p></td>
+</tr>
+<tr class="row-even"><td><p>type</p></td>
+<td colspan="2"><p><em>number</em></p></td>
+</tr>
+<tr class="row-odd"><td><p>default</p></td>
+<td colspan="2"><p>-0.5</p></td>
+</tr>
+<tr class="row-even"><td><p>additionalProperties</p></td>
+<td colspan="3"><p>False</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="custom-convergence-strategy">
-<span id="custom-convergence-strategy"></span><h3>Custom Convergence Strategy<a class="headerlink" href="#custom-convergence-strategy" title="Link to this heading">¶</a></h3>
+<span id="custom-convergence-strategy"></span><h3>Custom Convergence Strategy<a class="headerlink" href="#custom-convergence-strategy" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p>type</p></td>
@@ -789,7 +1069,7 @@ temperature of the inner boundary.</p>
 </section>
 </section>
 <section id="parallel-execution-with-numba">
-<span id="parallelization"></span><h2>Parallel Execution with Numba<a class="headerlink" href="#parallel-execution-with-numba" title="Link to this heading">¶</a></h2>
+<span id="parallelization"></span><h2>Parallel Execution with Numba<a class="headerlink" href="#parallel-execution-with-numba" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">montecarlo</span></code> section of the Configuration file accepts the parameter <code class="docutils literal notranslate"><span class="pre">nthreads</span></code> which sets the number of
 threads to be used for parallelisation. Setting the value of the parameter between 1 and the environment variable
 <code class="docutils literal notranslate"><span class="pre">NUMBA_NUM_THREADS</span></code> (which is, by default, the number of CPU cores on your system) will automatically invoke Numba
@@ -801,7 +1081,7 @@ to parallelise the code. (See <a class="reference internal" href="../index.html#
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="models/converters/cmfgen.html" class="btn btn-neutral float-left" title="Convert CMFGEN files to TARDIS file format" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../../how_to/read_external_models/arepo_to_tardis.html" class="btn btn-neutral float-left" title="Converting Arepo snapshots to be usable by TARDIS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="spectrum.html" class="btn btn-neutral float-right" title="Spectrum Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
@@ -809,7 +1089,7 @@ to parallelise the code. (See <a class="reference internal" href="../index.html#
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

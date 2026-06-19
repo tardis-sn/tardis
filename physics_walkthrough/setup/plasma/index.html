@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -97,7 +97,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Plasma</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#the-plasma-graph">The Plasma Graph</a><ul class="simple">
+<li class="toctree-l3"><a class="reference internal" href="#the-plasma-graph">The Plasma Graph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#updating-the-plasma">Updating the Plasma</a></li>
@@ -167,7 +168,7 @@
            <div itemprop="articleBody">
              
   <section id="plasma">
-<span id="id1"></span><h1>Plasma<a class="headerlink" href="#plasma" title="Link to this heading">¶</a></h1>
+<span id="id1"></span><h1>Plasma<a class="headerlink" href="#plasma" title="Link to this heading"></a></h1>
 <p>The role of the plasma module is to determine the ionisation and excitation states of the elements of the
 supernova ejecta, given the basic structure, including the elemental abundances, densities and radiation temperature.
 After the calculation of the plasma state, the <span class="math notranslate nohighlight">\(\tau_{\textrm{sobolev}}\)</span> values can be calculated.</p>
@@ -187,7 +188,7 @@ by the Legacy Plasma when creating the plasma calculation structure include:</p>
 </dl>
 <p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LegacyPlasmaArray</span></code> uses these options to construct a map of the necessary plasma parameters that demonstrates how these parameters are dependent on one another (using <a class="reference external" href="https://networkx.github.io/">NetworkX</a>). Each time a particular parameter of the plasma is updated, all of the parameters dependent (directly or indirectly) on that particular one can be easily updated automatically, without requiring that all the plasma calculations are repeated.</p>
 <section id="properties-inputs-and-outputs">
-<h2>Properties, Inputs and Outputs<a class="headerlink" href="#properties-inputs-and-outputs" title="Link to this heading">¶</a></h2>
+<h2>Properties, Inputs and Outputs<a class="headerlink" href="#properties-inputs-and-outputs" title="Link to this heading"></a></h2>
 <dl class="simple">
 <dt>Each TARDIS plasma possesses an array of plasma properties, which are used to calculate plasma parameter values. Most plasma properties have a single output, e.g.</dt><dd><ul class="simple">
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GElectron</span></code>: (<code class="xref py py-obj docutils literal notranslate"><span class="pre">g_electron</span></code>,)</p></li>
@@ -203,17 +204,24 @@ by the Legacy Plasma when creating the plasma calculation structure include:</p>
 <p>Every property has a <code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate</span></code> function that returns the values of its outputs. The arguments required for that function become the property inputs. TARDIS will raise an error if it does not have all of the required inputs for a particular property. It will also raise an error if there is an output loop, i.e. if two properties are dependent on each other. Some different properties share output names; for example, <code class="xref py py-obj docutils literal notranslate"><span class="pre">PhiSahaLTE</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">PhiSahaNebular</span></code> both have an output called <code class="xref py py-obj docutils literal notranslate"><span class="pre">phi</span></code>. That is because the <code class="xref py py-obj docutils literal notranslate"><span class="pre">phi</span></code> value is calculated differently depending on the ionization method selected, but once calculated, both values interact in the same way with the rest of the plasma. TARDIS will import only one of the <code class="xref py py-obj docutils literal notranslate"><span class="pre">phi</span></code> properties when initialising the plasma.</p>
 </section>
 <section id="the-plasma-graph">
-<h2>The Plasma Graph<a class="headerlink" href="#the-plasma-graph" title="Link to this heading">¶</a></h2>
+<h2>The Plasma Graph<a class="headerlink" href="#the-plasma-graph" title="Link to this heading"></a></h2>
 <p>If the necessary Python modules (<a class="reference external" href="https://pygraphviz.github.io/">PyGraphviz</a> and <a class="reference external" href="https://dot2tex.readthedocs.io/en/latest/">dot2tex</a>) are available, TARDIS can output a .dot and a .tex file at the beginning of each run that can be compiled to produce a PDF image of the plasma module graph via the <code class="code docutils literal notranslate"><span class="pre">write_to_dot()</span></code> and <code class="code docutils literal notranslate"><span class="pre">write_to_tex()</span></code> functions, respectively. The nodes on this graph are the names of plasma properties, e.g. <code class="xref py py-obj docutils literal notranslate"><span class="pre">Levels</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">TauSobolev</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">IonNumberDensity</span></code>, along with a list of outputs from those properties. These nodes are connected by edges linking them with the sources of their inputs. The .tex file contains the name of the input/output linking the properties (e.g. <code class="xref py py-obj docutils literal notranslate"><span class="pre">levels</span></code>, <span class="math notranslate nohighlight">\(\tau_{\textrm{sobolev}}\)</span>, <span class="math notranslate nohighlight">\(n_{e}\)</span>), as well as the equations used to calculate them, written in LaTeX. See the tutorial below!</p>
 <div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html#Displaying-the-Graph-Within-A-Jupyter-Notebook">Displaying the Graph Within A Jupyter Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_to/output/how_to_plasma_graph.html#Saving-the-Graph-Onto-a-.tex-File">Saving the Graph Onto a .tex File</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </section>
 <section id="updating-the-plasma">
-<h2>Updating the Plasma<a class="headerlink" href="#updating-the-plasma" title="Link to this heading">¶</a></h2>
+<h2>Updating the Plasma<a class="headerlink" href="#updating-the-plasma" title="Link to this heading"></a></h2>
 <p>During each iteration of the main code, TARDIS updates the plasma using the <code class="xref py py-obj docutils literal notranslate"><span class="pre">update_radiationfield</span></code> function. This requires, at minimum, new values for <code class="xref py py-obj docutils literal notranslate"><span class="pre">t_rad</span></code> (the radiation temperature), <code class="xref py py-obj docutils literal notranslate"><span class="pre">w</span></code> (the dilution factor) and <code class="xref py py-obj docutils literal notranslate"><span class="pre">j_blues</span></code> (the intensity in the blue part of each line).</p>
 </section>
 <section id="plasma-calculations">
-<span id="id2"></span><h2>Plasma Calculations<a class="headerlink" href="#plasma-calculations" title="Link to this heading">¶</a></h2>
+<span id="id2"></span><h2>Plasma Calculations<a class="headerlink" href="#plasma-calculations" title="Link to this heading"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In this documentation we use the indices <span class="math notranslate nohighlight">\(i, j, k\)</span> to mean atomic number, ion number and level number respectively.</p>
@@ -254,7 +262,7 @@ by the Legacy Plasma when creating the plasma calculation structure include:</p>
 </div>
 </section>
 <section id="sobolev-optical-depth">
-<span id="tau-sobolev"></span><h2>Sobolev optical depth<a class="headerlink" href="#sobolev-optical-depth" title="Link to this heading">¶</a></h2>
+<span id="tau-sobolev"></span><h2>Sobolev optical depth<a class="headerlink" href="#sobolev-optical-depth" title="Link to this heading"></a></h2>
 <p>After the above calculations, TARDIS calculates the Sobolev optical depth <span class="math notranslate nohighlight">\(\tau_\textrm{Sobolev}\)</span> with the following formula:</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}C_\textrm{Sobolev} = \frac{\pi e^2}{m_e c}\\\tau_\textrm{Sobolev} = C_\textrm{Sobolev}\,  \lambda\, f_{\textrm{lower}\rightarrow\textrm{upper}}\,
@@ -262,7 +270,7 @@ by the Legacy Plasma when creating the plasma calculation structure include:</p>
     (1 - \frac{g_\textrm{lower}}{g_\textrm{upper}}\frac{N_\textrm{upper}}{N_\textrm{lower}})\end{aligned}\end{align} \]</div>
 </section>
 <section id="macro-atom-line-interaction-treatment">
-<h2>Macro Atom Line Interaction Treatment<a class="headerlink" href="#macro-atom-line-interaction-treatment" title="Link to this heading">¶</a></h2>
+<h2>Macro Atom Line Interaction Treatment<a class="headerlink" href="#macro-atom-line-interaction-treatment" title="Link to this heading"></a></h2>
 <p>The following page describes the macro atom treatment of line interactions:</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -284,7 +292,7 @@ by the Legacy Plasma when creating the plasma calculation structure include:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

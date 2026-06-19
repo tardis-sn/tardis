@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -163,7 +163,7 @@
            <div itemprop="articleBody">
              
   <section id="code-quality-guidelines">
-<h1>Code Quality Guidelines<a class="headerlink" href="#code-quality-guidelines" title="Link to this heading">¶</a></h1>
+<h1>Code Quality Guidelines<a class="headerlink" href="#code-quality-guidelines" title="Link to this heading"></a></h1>
 <p>Code quality ensures that new developers will have an easier time understanding what previous developers have written. Hence, in an open-source software like TARDIS, writing quality code is essential. Quoting from <a class="reference external" href="https://realpython.com/python-code-quality">this RealPython article</a>, a high-quality code is identified by:</p>
 <ul class="simple">
 <li><p><strong>It does what it is supposed to do</strong> - code should perform the functions that it is written for.</p></li>
@@ -171,10 +171,10 @@
 <li><p><strong>It is easy to read, maintain, and extend</strong> - code should be easy to comprehend and it should be easy to add a new feature in it without disrupting previous features.</p></li>
 </ul>
 <section id="code-style-conventions">
-<h2>Code Style Conventions<a class="headerlink" href="#code-style-conventions" title="Link to this heading">¶</a></h2>
+<h2>Code Style Conventions<a class="headerlink" href="#code-style-conventions" title="Link to this heading"></a></h2>
 <p>TARDIS follows the <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP 8</a> style guide written by the author of the Python programming language. It defines a consistent way to write your code making, it easier to read and maintain.</p>
 <section id="ruff">
-<h3>Ruff<a class="headerlink" href="#ruff" title="Link to this heading">¶</a></h3>
+<h3>Ruff<a class="headerlink" href="#ruff" title="Link to this heading"></a></h3>
 <p><a class="reference external" href="https://docs.astral.sh/ruff/">Ruff</a> is a code linter and formatter that checks for common mistakes and automatically fixes them. It is currently not installed in the TARDIS conda environment, so you will have to install it manually:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge ruff
 </pre></div>
@@ -190,7 +190,7 @@ ruff check &lt;source_file_or_directory&gt; --fix # Lints and fixes any fixable 
 </div>
 </section>
 <section id="pre-commit-optional">
-<h3>Pre-commit (Optional)<a class="headerlink" href="#pre-commit-optional" title="Link to this heading">¶</a></h3>
+<h3>Pre-commit (Optional)<a class="headerlink" href="#pre-commit-optional" title="Link to this heading"></a></h3>
 <p><a class="reference external" href="https://pre-commit.com/">Pre-commit</a> hooks are tools that help enforce quality standards by running checks on your code before you commit. If you choose to use pre-commit on your local machine, please follow these steps:</p>
 <p>Install pre-commit by running:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install pre-commit
@@ -203,7 +203,7 @@ ruff check &lt;source_file_or_directory&gt; --fix # Lints and fixes any fixable 
 <p>This needs to be done only once per repository. The pre-commit hooks will now automatically run on each commit to ensure your changes meet our code quality standards.</p>
 </section>
 <section id="naming-conventions">
-<h3>Naming Conventions<a class="headerlink" href="#naming-conventions" title="Link to this heading">¶</a></h3>
+<h3>Naming Conventions<a class="headerlink" href="#naming-conventions" title="Link to this heading"></a></h3>
 <p>While Ruff automatically conforms your code to a majority of the PEP 8 style guide (like whitespace usage, string quotes, code layout, etc.), your code still needs to conform to the <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/#naming-conventions">PEP 8 naming conventions</a>. The main things to keep in mind are:</p>
 <ul class="simple">
 <li><p>Function names should be lowercase, with words separated by underscores as necessary to improve readability (i.e. snake_case).</p></li>
@@ -213,7 +213,7 @@ ruff check &lt;source_file_or_directory&gt; --fix # Lints and fixes any fixable 
 </section>
 </section>
 <section id="docstrings">
-<span id="id2"></span><h2>Docstrings<a class="headerlink" href="#docstrings" title="Link to this heading">¶</a></h2>
+<span id="id2"></span><h2>Docstrings<a class="headerlink" href="#docstrings" title="Link to this heading"></a></h2>
 <p>A docstring (short for documentation string) is a string that describes a module’s, function’s, class’s, or method’s definition. The docstring is a special attribute of the object (<code class="docutils literal notranslate"><span class="pre">object.__doc__</span></code>) and, for consistency, is surrounded by triple double quotes. Besides helping others understand what your code does, docstrings are used by Sphinx to auto-generate <a class="reference external" href="https://tardis-sn.github.io/tardis/api/modules.html">API documentation</a>.</p>
 <p>At TARDIS, we follow the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">Numpy docstring format</a> - please go through this format guide before writing docstrings. The following is an example of a properly formatted docstring from the <a class="reference external" href="https://github.com/tardis-sn/tardis/blob/master/tardis/io/model_reader.py">model_reader</a> module of TARDIS:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">read_density_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filetype</span><span class="p">):</span>
@@ -262,7 +262,7 @@ ruff check &lt;source_file_or_directory&gt; --fix # Lints and fixes any fixable 
 </ul>
 </section>
 <section id="edge-cases-and-exception-handling">
-<h2>Edge Cases and Exception Handling<a class="headerlink" href="#edge-cases-and-exception-handling" title="Link to this heading">¶</a></h2>
+<h2>Edge Cases and Exception Handling<a class="headerlink" href="#edge-cases-and-exception-handling" title="Link to this heading"></a></h2>
 <p>Code should be written with a bit of foresight to handle errors that can occur during its execution. If you know that an <a class="reference external" href="https://docs.python.org/3/tutorial/errors.html">exception</a> is likely to occur in a certain case and can be dealt with accordingly, then your code should <a class="reference external" href="https://docs.python.org/3/tutorial/errors.html#handling-exceptions">handle</a> that exception. In another scenario, you may know that a particular edge case might cause your code to break, then you should <a class="reference external" href="https://docs.python.org/3/tutorial/errors.html#raising-exceptions">raise</a> an appropriate exception to describe what has gone wrong and terminate the program’s execution. An example of this in practice (taken from <a class="reference external" href="https://github.com/tardis-sn/tardis/blob/7d7c4bc4f99c909ff45070ae9576390d96734014/tardis/widgets/kromer_plot.py#L447-L451">here</a>) is featured below:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_calculate_plotting_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">packets_mode</span><span class="p">,</span> <span class="n">packet_wvl_range</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">packets_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;virtual&quot;</span><span class="p">,</span> <span class="s2">&quot;real&quot;</span><span class="p">]:</span>
@@ -294,7 +294,7 @@ Hence, it is appropriate to raise an exception in this case. However, if there i
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

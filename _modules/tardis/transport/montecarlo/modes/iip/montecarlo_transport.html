@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -261,6 +261,7 @@ def montecarlo_transport(
     )
 
     for i in prange(no_of_packets):
+        packet_index = np.int64(i)
         thread_id = get_thread_id()
         if show_progress_bars:
             if thread_id == main_thread_id:
@@ -272,12 +273,12 @@ def montecarlo_transport(
                     )
 
         r_packet = RPacket(
-            packet_collection.initial_radii[i],
-            packet_collection.initial_mus[i],
-            packet_collection.initial_nus[i],
-            packet_collection.initial_energies[i],
-            packet_collection.packet_seeds[i],
-            i,
+            packet_collection.initial_radii[packet_index],
+            packet_collection.initial_mus[packet_index],
+            packet_collection.initial_nus[packet_index],
+            packet_collection.initial_energies[packet_index],
+            packet_collection.packet_seeds[packet_index],
+            packet_index,
         )
         # Seed the random number generator
         np.random.seed(r_packet.seed)
@@ -290,7 +291,7 @@ def montecarlo_transport(
         ]
 
         # Get the RPacket tracker for this thread
-        tracker = trackers[i]
+        tracker = trackers[packet_index]
 
         loop = packet_propagation(
             r_packet,
@@ -339,7 +340,7 @@ def montecarlo_transport(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

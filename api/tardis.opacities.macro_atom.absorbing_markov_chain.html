@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -170,7 +170,7 @@
            <div itemprop="articleBody">
              
   <section id="module-tardis.opacities.macro_atom.absorbing_markov_chain">
-<span id="tardis-opacities-macro-atom-absorbing-markov-chain-module"></span><h1>tardis.opacities.macro_atom.absorbing_markov_chain module<a class="headerlink" href="#module-tardis.opacities.macro_atom.absorbing_markov_chain" title="Link to this heading">¶</a></h1>
+<span id="tardis-opacities-macro-atom-absorbing-markov-chain-module"></span><h1>tardis.opacities.macro_atom.absorbing_markov_chain module<a class="headerlink" href="#module-tardis.opacities.macro_atom.absorbing_markov_chain" title="Link to this heading"></a></h1>
 <p>Calculate absorption probabilities using absorbing Markov chain theory.</p>
 <p>This module implements the mathematical framework of absorbing Markov chains
 to compute probabilities of photon absorption in each cell and the expected
@@ -181,7 +181,7 @@ number of steps before absorption from each source state.</p>
 </dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs">
-<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">create_absorbing_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><span class="pre">DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#create_absorbing_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.opacities.macro_atom.absorbing_markov_chain.</span></span><span class="sig-name descname"><span class="pre">create_absorbing_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><span class="pre">DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/opacities/macro_atom/absorbing_markov_chain.html#create_absorbing_probs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs" title="Link to this definition"></a></dt>
 <dd><p>Calculate absorbing Markov chain probabilities and deactivation data.</p>
 <p>Computes the absorption probability matrices for each cell and extracts
 deactivation probabilities by solving the absorbing Markov chain system.
@@ -241,7 +241,7 @@ absorption states.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

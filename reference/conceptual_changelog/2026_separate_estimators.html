@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,13 +138,13 @@
            <div itemprop="articleBody">
              
   <section id="monte-carlo-estimators-separation-february-11-2026">
-<h1>Monte Carlo Estimators Separation (February 11, 2026)<a class="headerlink" href="#monte-carlo-estimators-separation-february-11-2026" title="Link to this heading">¶</a></h1>
+<h1>Monte Carlo Estimators Separation (February 11, 2026)<a class="headerlink" href="#monte-carlo-estimators-separation-february-11-2026" title="Link to this heading"></a></h1>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>Refactored the Monte Carlo radiation field estimators from a single combined class into three separate, focused classes. This improves code clarity, maintainability, and allows independent optimization of each estimator type.</p>
 </section>
 <section id="motivation">
-<h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">¶</a></h2>
+<h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading"></a></h2>
 <p>The original <code class="docutils literal notranslate"><span class="pre">RadiationFieldMCEstimators</span></code> class contained all estimator arrays in a single jitclass:</p>
 <ul class="simple">
 <li><p>Cell-level radiation field properties (mean intensity, mean frequency)</p></li>
@@ -160,12 +160,12 @@
 </ul>
 </section>
 <section id="architecture-changes">
-<h2>Architecture Changes<a class="headerlink" href="#architecture-changes" title="Link to this heading">¶</a></h2>
+<h2>Architecture Changes<a class="headerlink" href="#architecture-changes" title="Link to this heading"></a></h2>
 <section id="new-estimator-classes">
-<h3>New Estimator Classes<a class="headerlink" href="#new-estimator-classes" title="Link to this heading">¶</a></h3>
+<h3>New Estimator Classes<a class="headerlink" href="#new-estimator-classes" title="Link to this heading"></a></h3>
 <p>Created three separate jitclass-based estimators:</p>
 <section id="estimatorsbulk-estimators-bulk-py">
-<h4>1. <code class="docutils literal notranslate"><span class="pre">EstimatorsBulk</span></code> (estimators_bulk.py)<a class="headerlink" href="#estimatorsbulk-estimators-bulk-py" title="Link to this heading">¶</a></h4>
+<h4>1. <code class="docutils literal notranslate"><span class="pre">EstimatorsBulk</span></code> (estimators_bulk.py)<a class="headerlink" href="#estimatorsbulk-estimators-bulk-py" title="Link to this heading"></a></h4>
 <p><strong>Purpose:</strong> Cell-level radiation field properties</p>
 <p><strong>Attributes:</strong></p>
 <ul class="simple">
@@ -175,7 +175,7 @@
 <p><strong>Usage:</strong> Updated by <code class="docutils literal notranslate"><span class="pre">update_estimators_bulk()</span></code> in <code class="docutils literal notranslate"><span class="pre">move_r_packet()</span></code></p>
 </section>
 <section id="estimatorsline-estimators-line-py">
-<h4>2. <code class="docutils literal notranslate"><span class="pre">EstimatorsLine</span></code> (estimators_line.py)<a class="headerlink" href="#estimatorsline-estimators-line-py" title="Link to this heading">¶</a></h4>
+<h4>2. <code class="docutils literal notranslate"><span class="pre">EstimatorsLine</span></code> (estimators_line.py)<a class="headerlink" href="#estimatorsline-estimators-line-py" title="Link to this heading"></a></h4>
 <p><strong>Purpose:</strong> Line-specific interaction tracking</p>
 <p><strong>Attributes:</strong></p>
 <ul class="simple">
@@ -185,7 +185,7 @@
 <p><strong>Usage:</strong> Updated by <code class="docutils literal notranslate"><span class="pre">update_estimators_line()</span></code> in <code class="docutils literal notranslate"><span class="pre">trace_packet()</span></code></p>
 </section>
 <section id="estimatorscontinuum-estimators-continuum-py">
-<h4>3. <code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum</span></code> (estimators_continuum.py)<a class="headerlink" href="#estimatorscontinuum-estimators-continuum-py" title="Link to this heading">¶</a></h4>
+<h4>3. <code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum</span></code> (estimators_continuum.py)<a class="headerlink" href="#estimatorscontinuum-estimators-continuum-py" title="Link to this heading"></a></h4>
 <p><strong>Purpose:</strong> Continuum process tracking</p>
 <p><strong>Attributes:</strong></p>
 <ul class="simple">
@@ -200,7 +200,7 @@
 </section>
 </section>
 <section id="factory-pattern">
-<h3>Factory Pattern<a class="headerlink" href="#factory-pattern" title="Link to this heading">¶</a></h3>
+<h3>Factory Pattern<a class="headerlink" href="#factory-pattern" title="Link to this heading"></a></h3>
 <p>Each estimator class includes:</p>
 <ul class="simple">
 <li><p><strong>Instance factory:</strong> <code class="docutils literal notranslate"><span class="pre">init_estimators_*()</span></code> - Allocates and returns a single estimator instance</p></li>
@@ -209,7 +209,7 @@
 </ul>
 </section>
 <section id="global-vs-local-estimators">
-<h3>Global vs Local Estimators<a class="headerlink" href="#global-vs-local-estimators" title="Link to this heading">¶</a></h3>
+<h3>Global vs Local Estimators<a class="headerlink" href="#global-vs-local-estimators" title="Link to this heading"></a></h3>
 <p>Implemented a clear separation for parallel Monte Carlo simulations:</p>
 <p><strong>Global Estimators</strong> (suffix: <code class="docutils literal notranslate"><span class="pre">_global</span></code>):</p>
 <ul class="simple">
@@ -244,9 +244,9 @@
 </section>
 </section>
 <section id="implementation-details">
-<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading">¶</a></h2>
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading"></a></h2>
 <section id="core-files-modified">
-<h3>Core Files Modified<a class="headerlink" href="#core-files-modified" title="Link to this heading">¶</a></h3>
+<h3>Core Files Modified<a class="headerlink" href="#core-files-modified" title="Link to this heading"></a></h3>
 <ol class="simple">
 <li><p><strong>montecarlo_main_loop.py</strong></p>
 <ul class="simple">
@@ -302,7 +302,7 @@
 </ol>
 </section>
 <section id="backward-compatibility">
-<h3>Backward Compatibility<a class="headerlink" href="#backward-compatibility" title="Link to this heading">¶</a></h3>
+<h3>Backward Compatibility<a class="headerlink" href="#backward-compatibility" title="Link to this heading"></a></h3>
 <p><strong>Legacy Support:</strong></p>
 <ul class="simple">
 <li><p>Kept <code class="docutils literal notranslate"><span class="pre">RadiationFieldMCEstimators</span></code> in <code class="docutils literal notranslate"><span class="pre">legacy_mc_estimators.py</span></code> for backward compatibility</p></li>
@@ -328,7 +328,7 @@
 </ul>
 </section>
 <section id="tests-fixed">
-<h3>Tests Fixed<a class="headerlink" href="#tests-fixed" title="Link to this heading">¶</a></h3>
+<h3>Tests Fixed<a class="headerlink" href="#tests-fixed" title="Link to this heading"></a></h3>
 <p>Updated test files to work with new estimator structure:</p>
 <ul class="simple">
 <li><p><strong>test_packet.py</strong>: Updated imports, fixture, and function calls</p>
@@ -342,14 +342,14 @@
 </section>
 </section>
 <section id="terminology-changes">
-<h2>Terminology Changes<a class="headerlink" href="#terminology-changes" title="Link to this heading">¶</a></h2>
+<h2>Terminology Changes<a class="headerlink" href="#terminology-changes" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><strong>“shells”</strong> → <strong>“cells”</strong>: Updated throughout to support future multi-dimensional geometries</p></li>
 <li><p><strong>Estimator attributes:</strong> More descriptive names (e.g., <code class="docutils literal notranslate"><span class="pre">mean_intensity_total</span></code> instead of <code class="docutils literal notranslate"><span class="pre">j_estimator</span></code>)</p></li>
 </ul>
 </section>
 <section id="benefits">
-<h2>Benefits<a class="headerlink" href="#benefits" title="Link to this heading">¶</a></h2>
+<h2>Benefits<a class="headerlink" href="#benefits" title="Link to this heading"></a></h2>
 <ol class="simple">
 <li><p><strong>Finer-Grained Separation</strong>: Bulk vs line vs continuum estimators clearly separated</p></li>
 <li><p><strong>Clarity of Purpose</strong>: Each file has specific, focused responsibility</p></li>
@@ -364,7 +364,7 @@
 </ol>
 </section>
 <section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h2>
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h2>
 <p>Created example notebook: <code class="docutils literal notranslate"><span class="pre">docs/physics/transport/montecarlo/estimators_example.ipynb</span></code></p>
 <ul class="simple">
 <li><p>Demonstrates running Monte Carlo loop directly</p></li>
@@ -373,7 +373,7 @@
 </ul>
 </section>
 <section id="testing">
-<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">¶</a></h2>
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
 <p>All tests pass:</p>
 <ul class="simple">
 <li><p>✅ Full TARDIS regression tests (5/5)</p></li>
@@ -383,7 +383,7 @@
 <p><strong>Regression data unchanged</strong> - HDF5 output structure and values remain identical.</p>
 </section>
 <section id="commands-executed">
-<h2>Commands Executed<a class="headerlink" href="#commands-executed" title="Link to this heading">¶</a></h2>
+<h2>Commands Executed<a class="headerlink" href="#commands-executed" title="Link to this heading"></a></h2>
 <ol class="simple">
 <li><p>Initial refactoring following 13-step plan</p></li>
 <li><p>Additional refinement: Renamed estimators with <code class="docutils literal notranslate"><span class="pre">_global</span></code>/<code class="docutils literal notranslate"><span class="pre">_local</span></code> suffixes for clarity</p></li>
@@ -392,7 +392,7 @@
 </ol>
 </section>
 <section id="files-created">
-<h2>Files Created<a class="headerlink" href="#files-created" title="Link to this heading">¶</a></h2>
+<h2>Files Created<a class="headerlink" href="#files-created" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/transport/montecarlo/estimators/estimators_bulk.py</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/transport/montecarlo/estimators/estimators_line.py</span></code></p></li>
@@ -402,7 +402,7 @@
 </ul>
 </section>
 <section id="files-modified">
-<h2>Files Modified<a class="headerlink" href="#files-modified" title="Link to this heading">¶</a></h2>
+<h2>Files Modified<a class="headerlink" href="#files-modified" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/transport/montecarlo/montecarlo_main_loop.py</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/transport/montecarlo/single_packet_loop.py</span></code></p></li>
@@ -418,7 +418,7 @@
 </ul>
 </section>
 <section id="future-work">
-<h2>Future Work<a class="headerlink" href="#future-work" title="Link to this heading">¶</a></h2>
+<h2>Future Work<a class="headerlink" href="#future-work" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Consider deprecating <code class="docutils literal notranslate"><span class="pre">RadiationFieldMCEstimators</span></code> in future release</p></li>
 <li><p>Add deprecation warnings to legacy property access</p></li>
@@ -426,13 +426,13 @@
 </ul>
 </section>
 <section id="phase-2-complete-migration-february-11-2026">
-<h2>Phase 2: Complete Migration (February 11, 2026)<a class="headerlink" href="#phase-2-complete-migration-february-11-2026" title="Link to this heading">¶</a></h2>
+<h2>Phase 2: Complete Migration (February 11, 2026)<a class="headerlink" href="#phase-2-complete-migration-february-11-2026" title="Link to this heading"></a></h2>
 <section id="removal-of-legacy-code">
-<h3>Removal of Legacy Code<a class="headerlink" href="#removal-of-legacy-code" title="Link to this heading">¶</a></h3>
+<h3>Removal of Legacy Code<a class="headerlink" href="#removal-of-legacy-code" title="Link to this heading"></a></h3>
 <p>Completed full migration by removing all dependencies on the legacy <code class="docutils literal notranslate"><span class="pre">RadiationFieldMCEstimators</span></code> class and the <code class="docutils literal notranslate"><span class="pre">legacy_mc_estimators.py</span></code> file.</p>
 </section>
 <section id="changes-made">
-<h3>Changes Made<a class="headerlink" href="#changes-made" title="Link to this heading">¶</a></h3>
+<h3>Changes Made<a class="headerlink" href="#changes-made" title="Link to this heading"></a></h3>
 <ol class="simple">
 <li><p><strong>Updated all code to use new estimator structure directly:</strong></p>
 <ul class="simple">
@@ -470,7 +470,7 @@
 </ol>
 </section>
 <section id="impact">
-<h3>Impact<a class="headerlink" href="#impact" title="Link to this heading">¶</a></h3>
+<h3>Impact<a class="headerlink" href="#impact" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>All tests passing:</strong> Full regression test suite confirms functionality maintained</p></li>
 <li><p><strong>Cleaner codebase:</strong> No more intermediate compatibility layer</p></li>
@@ -480,13 +480,13 @@
 </ul>
 </section>
 <section id="files-deleted">
-<h3>Files Deleted<a class="headerlink" href="#files-deleted" title="Link to this heading">¶</a></h3>
+<h3>Files Deleted<a class="headerlink" href="#files-deleted" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/transport/montecarlo/estimators/legacy_mc_estimators.py</span></code></p></li>
 </ul>
 </section>
 <section id="additional-files-modified">
-<h3>Additional Files Modified<a class="headerlink" href="#additional-files-modified" title="Link to this heading">¶</a></h3>
+<h3>Additional Files Modified<a class="headerlink" href="#additional-files-modified" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/transport/montecarlo/montecarlo_transport_state.py</span></code> - Removed <code class="docutils literal notranslate"><span class="pre">radfield_mc_estimators</span></code> property</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/spectrum/formal_integral/source_function.py</span></code> - Direct estimator access</p></li>
@@ -501,13 +501,13 @@
 </section>
 </section>
 <section id="phase-3-complete-codebase-migration-february-11-2026">
-<h2>Phase 3: Complete Codebase Migration (February 11, 2026)<a class="headerlink" href="#phase-3-complete-codebase-migration-february-11-2026" title="Link to this heading">¶</a></h2>
+<h2>Phase 3: Complete Codebase Migration (February 11, 2026)<a class="headerlink" href="#phase-3-complete-codebase-migration-february-11-2026" title="Link to this heading"></a></h2>
 <section id="final-cleanup-of-remaining-references">
-<h3>Final Cleanup of Remaining References<a class="headerlink" href="#final-cleanup-of-remaining-references" title="Link to this heading">¶</a></h3>
+<h3>Final Cleanup of Remaining References<a class="headerlink" href="#final-cleanup-of-remaining-references" title="Link to this heading"></a></h3>
 <p>Completed comprehensive search and update of ALL remaining references to legacy estimators throughout the entire codebase, including benchmarks, workflows, and test files.</p>
 </section>
 <section id="id1">
-<h3>Changes Made<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<h3>Changes Made<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ol class="simple">
 <li><p><strong>Benchmark fixes:</strong></p>
 <ul class="simple">
@@ -561,7 +561,7 @@
 </ol>
 </section>
 <section id="verification">
-<h3>Verification<a class="headerlink" href="#verification" title="Link to this heading">¶</a></h3>
+<h3>Verification<a class="headerlink" href="#verification" title="Link to this heading"></a></h3>
 <p><strong>Complete codebase verification:</strong></p>
 <ul class="simple">
 <li><p>Comprehensive grep search with <code class="docutils literal notranslate"><span class="pre">includeIgnoredFiles=true</span></code> confirmed <strong>zero references</strong> to <code class="docutils literal notranslate"><span class="pre">RadiationFieldMCEstimators</span></code> or <code class="docutils literal notranslate"><span class="pre">radfield_mc_estimators</span></code> remain in Python codebase</p></li>
@@ -581,7 +581,7 @@
 </ul>
 </section>
 <section id="id2">
-<h3>Impact<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<h3>Impact<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>100% migration complete:</strong> Zero legacy estimator code remains</p></li>
 <li><p><strong>Benchmarks functional:</strong> All ASV benchmarks properly use new structure</p></li>
@@ -591,7 +591,7 @@
 </ul>
 </section>
 <section id="files-modified-phase-3">
-<h3>Files Modified (Phase 3)<a class="headerlink" href="#files-modified-phase-3" title="Link to this heading">¶</a></h3>
+<h3>Files Modified (Phase 3)<a class="headerlink" href="#files-modified-phase-3" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/benchmark_base.py</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">benchmarks/transport_montecarlo_estimators_radfield_estimator_calcs.py</span></code></p></li>
@@ -606,7 +606,7 @@
 </ul>
 </section>
 <section id="architecture-achievement">
-<h3>Architecture Achievement<a class="headerlink" href="#architecture-achievement" title="Link to this heading">¶</a></h3>
+<h3>Architecture Achievement<a class="headerlink" href="#architecture-achievement" title="Link to this heading"></a></h3>
 <p>The refactoring successfully achieved complete separation of concerns:</p>
 <ul class="simple">
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">EstimatorsBulk</span></code></strong>: Cell-level radiation field (mean intensity, mean frequency)</p></li>
@@ -617,13 +617,13 @@
 </section>
 </section>
 <section id="phase-4-type-hints-and-code-quality-february-11-2026">
-<h2>Phase 4: Type Hints and Code Quality (February 11, 2026)<a class="headerlink" href="#phase-4-type-hints-and-code-quality-february-11-2026" title="Link to this heading">¶</a></h2>
+<h2>Phase 4: Type Hints and Code Quality (February 11, 2026)<a class="headerlink" href="#phase-4-type-hints-and-code-quality-february-11-2026" title="Link to this heading"></a></h2>
 <section id="comprehensive-type-annotation-coverage">
-<h3>Comprehensive Type Annotation Coverage<a class="headerlink" href="#comprehensive-type-annotation-coverage" title="Link to this heading">¶</a></h3>
+<h3>Comprehensive Type Annotation Coverage<a class="headerlink" href="#comprehensive-type-annotation-coverage" title="Link to this heading"></a></h3>
 <p>Completed final code quality pass to ensure all transport functions have complete, accurate type hints in function signatures (not in docstrings) with no <code class="docutils literal notranslate"><span class="pre">Any</span></code> types or <code class="docutils literal notranslate"><span class="pre">TYPE_CHECKING</span></code> usage.</p>
 </section>
 <section id="id3">
-<h3>Changes Made<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<h3>Changes Made<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <ol class="simple">
 <li><p><strong>Removed unused parameters:</strong></p>
 <ul class="simple">
@@ -685,7 +685,7 @@
 </ol>
 </section>
 <section id="id4">
-<h3>Impact<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<h3>Impact<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Complete type safety:</strong> All transport and estimator functions have full type coverage</p></li>
 <li><p><strong>Better IDE support:</strong> Auto-completion and type checking work correctly</p></li>
@@ -695,7 +695,7 @@
 </ul>
 </section>
 <section id="files-modified-phase-4">
-<h3>Files Modified (Phase 4)<a class="headerlink" href="#files-modified-phase-4" title="Link to this heading">¶</a></h3>
+<h3>Files Modified (Phase 4)<a class="headerlink" href="#files-modified-phase-4" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/transport/montecarlo/r_packet_transport.py</span></code> - Added comprehensive type hints, removed unused parameter</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">tardis/transport/montecarlo/single_packet_loop.py</span></code> - Updated trace_packet call sites</p></li>
@@ -704,7 +704,7 @@
 </ul>
 </section>
 <section id="code-quality-achievement">
-<h3>Code Quality Achievement<a class="headerlink" href="#code-quality-achievement" title="Link to this heading">¶</a></h3>
+<h3>Code Quality Achievement<a class="headerlink" href="#code-quality-achievement" title="Link to this heading"></a></h3>
 <p>All 27 files modified across Phases 1-4 now have:</p>
 <ul class="simple">
 <li><p>✅ 100% type hint coverage in function signatures</p></li>
@@ -728,7 +728,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

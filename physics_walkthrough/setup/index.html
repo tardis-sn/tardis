@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -145,7 +145,7 @@
            <div itemprop="articleBody">
              
   <section id="setting-up-the-simulation">
-<span id="setup"></span><h1>Setting Up the Simulation<a class="headerlink" href="#setting-up-the-simulation" title="Link to this heading">¶</a></h1>
+<span id="setup"></span><h1>Setting Up the Simulation<a class="headerlink" href="#setting-up-the-simulation" title="Link to this heading"></a></h1>
 <p>The first step executed when TARDIS runs is to call an instance of the <code class="docutils literal notranslate"><span class="pre">Simulation</span></code> class. This sets up a lot of
 things that TARDIS will need during its run. The main things that are set up are the supernova model (a <code class="docutils literal notranslate"><span class="pre">SimulationState</span></code> object), the
 initial plasma state (a <code class="docutils literal notranslate"><span class="pre">BasePlasma</span></code> object, which may be updated throughout the simulation, see <a class="reference internal" href="../update_and_conv/update_and_conv.html"><span class="doc">Updating Plasma and Convergence</span></a>),
@@ -171,7 +171,18 @@ class.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="plasma/index.html">Plasma</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="plasma/index.html#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="plasma/index.html#the-plasma-graph">The Plasma Graph</a><ul class="simple">
+<li class="toctree-l2"><a class="reference internal" href="plasma/index.html#the-plasma-graph">The Plasma Graph</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../how_to/output/how_to_plasma_graph.html">How to Generate the Plasma Graph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../how_to/output/how_to_plasma_graph.html#Displaying-the-Graph-Within-A-Jupyter-Notebook">Displaying the Graph Within A Jupyter Notebook</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../how_to/output/how_to_plasma_graph.html#Saving-the-Graph-Onto-a-.tex-File">Saving the Graph Onto a .tex File</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../how_to/output/how_to_plasma_graph.html#Default-Plasma-Graph">Default Plasma Graph</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../how_to/output/how_to_plasma_graph.html#Plasma-Graph-with-Different-Scale">Plasma Graph with Different Scale</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../how_to/output/how_to_plasma_graph.html#Plasma-Graph-with-No-Equations">Plasma Graph with No Equations</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../how_to/output/how_to_plasma_graph.html#Plasma-Graph-with-Inputted-Arguments">Plasma Graph with Inputted Arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="plasma/index.html#updating-the-plasma">Updating the Plasma</a></li>
@@ -217,7 +228,7 @@ class.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

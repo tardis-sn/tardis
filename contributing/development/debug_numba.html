@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -169,7 +169,7 @@
            <div itemprop="articleBody">
              
   <section id="debugging-numba-powered-code">
-<h1>Debugging Numba-powered code<a class="headerlink" href="#debugging-numba-powered-code" title="Link to this heading">¶</a></h1>
+<h1>Debugging Numba-powered code<a class="headerlink" href="#debugging-numba-powered-code" title="Link to this heading"></a></h1>
 <p>This page summarizes practical debugging workflows for TARDIS’s Numba-powered
 code. It is based on Numba’s current debugging guidance:</p>
 <ul class="simple">
@@ -177,7 +177,7 @@ code. It is based on Numba’s current debugging guidance:</p>
 <li><p><a class="reference external" href="https://numba.readthedocs.io/en/stable/user/troubleshoot.html#debugging-jit-compiled-code-with-gdb">https://numba.readthedocs.io/en/stable/user/troubleshoot.html#debugging-jit-compiled-code-with-gdb</a></p></li>
 </ul>
 <section id="notebook-debugging-workflow">
-<h2>Notebook debugging workflow<a class="headerlink" href="#notebook-debugging-workflow" title="Link to this heading">¶</a></h2>
+<h2>Notebook debugging workflow<a class="headerlink" href="#notebook-debugging-workflow" title="Link to this heading"></a></h2>
 <p>For most debugging tasks, use a Jupyter notebook so you can inspect state
 interactively between steps.</p>
 <p>Suggested structure:</p>
@@ -190,7 +190,7 @@ interactively between steps.</p>
 executes quickly and you can iterate rapidly.</p>
 </section>
 <section id="recommended-debugging-workflow">
-<h2>Recommended debugging workflow<a class="headerlink" href="#recommended-debugging-workflow" title="Link to this heading">¶</a></h2>
+<h2>Recommended debugging workflow<a class="headerlink" href="#recommended-debugging-workflow" title="Link to this heading"></a></h2>
 <p>When investigating a bug in the Numba Monte Carlo path, start with the fastest
 loop and only escalate if needed.</p>
 <ol class="arabic simple">
@@ -200,7 +200,7 @@ loop and only escalate if needed.</p>
 </ol>
 </section>
 <section id="set-environment-variables-before-importing-numba-tardis">
-<h2>Set environment variables before importing Numba/TARDIS<a class="headerlink" href="#set-environment-variables-before-importing-numba-tardis" title="Link to this heading">¶</a></h2>
+<h2>Set environment variables before importing Numba/TARDIS<a class="headerlink" href="#set-environment-variables-before-importing-numba-tardis" title="Link to this heading"></a></h2>
 <p>In notebooks, set debug-related environment variables in the first code cell,
 before importing modules that trigger Numba compilation:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -218,7 +218,7 @@ before importing modules that trigger Numba compilation:</p>
 first cell.</p>
 </section>
 <section id="python-level-debugging-disable-jit">
-<h2>1) Python-level debugging (disable JIT)<a class="headerlink" href="#python-level-debugging-disable-jit" title="Link to this heading">¶</a></h2>
+<h2>1) Python-level debugging (disable JIT)<a class="headerlink" href="#python-level-debugging-disable-jit" title="Link to this heading"></a></h2>
 <p>Numba documents <code class="docutils literal notranslate"><span class="pre">NUMBA_DISABLE_JIT=1</span></code> as the first-line option for debugging
 logic problems. This makes <code class="docutils literal notranslate"><span class="pre">&#64;jit</span></code>/<code class="docutils literal notranslate"><span class="pre">&#64;njit</span></code> functions execute as regular
 Python functions.</p>
@@ -244,7 +244,7 @@ Python functions.</p>
 </ul>
 </section>
 <section id="diagnose-and-fix-type-errors">
-<h2>2) Diagnose and fix type errors<a class="headerlink" href="#diagnose-and-fix-type-errors" title="Link to this heading">¶</a></h2>
+<h2>2) Diagnose and fix type errors<a class="headerlink" href="#diagnose-and-fix-type-errors" title="Link to this heading"></a></h2>
 <p>Many Numba failures are typing failures (for example <code class="docutils literal notranslate"><span class="pre">TypingError</span></code> and
 “cannot unify” messages).</p>
 <p>They can often be resolved by simply disabled JIT and allowing pure Python
@@ -273,7 +273,7 @@ errors to reveal the underlying type issues.</p>
 the failing expression is easier to localize.</p>
 </section>
 <section id="debug-compiled-cpu-code-with-gdb">
-<h2>1) Debug compiled CPU code with GDB<a class="headerlink" href="#debug-compiled-cpu-code-with-gdb" title="Link to this heading">¶</a></h2>
+<h2>1) Debug compiled CPU code with GDB<a class="headerlink" href="#debug-compiled-cpu-code-with-gdb" title="Link to this heading"></a></h2>
 <p>For issues that only appear with JIT enabled, run with debug-oriented Numba
 settings:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">NUMBA_DEBUGINFO</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">NUMBA_OPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">NUMBA_EXTEND_VARIABLE_LIFETIMES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
@@ -300,7 +300,7 @@ small script or one-liner command and attach GDB there. This is typically more
 reliable than trying to drive <code class="docutils literal notranslate"><span class="pre">gdb</span></code> from inside an active notebook session.</p>
 </section>
 <section id="memcheck-for-suspected-native-memory-errors">
-<h2>4) Memcheck for suspected native memory errors<a class="headerlink" href="#memcheck-for-suspected-native-memory-errors" title="Link to this heading">¶</a></h2>
+<h2>4) Memcheck for suspected native memory errors<a class="headerlink" href="#memcheck-for-suspected-native-memory-errors" title="Link to this heading"></a></h2>
 <p>If you suspect out-of-bounds access or use-after-free behavior in compiled
 code, Numba recommends running under Valgrind Memcheck with suppression files
 from the matching Python and Numba versions.</p>
@@ -314,7 +314,7 @@ from the matching Python and Numba versions.</p>
 have a minimal reproducer.</p>
 </section>
 <section id="practical-notebook-caveats">
-<h2>Practical notebook caveats<a class="headerlink" href="#practical-notebook-caveats" title="Link to this heading">¶</a></h2>
+<h2>Practical notebook caveats<a class="headerlink" href="#practical-notebook-caveats" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Environment variables must be set before Numba compilation; kernel restart is
 often required.</p></li>
@@ -336,7 +336,7 @@ often required.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

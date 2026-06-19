@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -616,7 +616,6 @@ class CustomAbundanceWidget:
         self.checks = [
             ipw.Checkbox(
                 indent=False,
-                icon=&quot;lock&quot;,
                 layout=ipw.Layout(
                     width=&quot;30px&quot;,
                 ),
@@ -686,7 +685,6 @@ class CustomAbundanceWidget:
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
         self.input_v_start = ipw.FloatText(
-            min=0,
             description=&quot;Add shell(s) with velocity range (km/s): &quot;,
             style={&quot;description_width&quot;: &quot;initial&quot;},
             layout=ipw.Layout(
@@ -694,7 +692,6 @@ class CustomAbundanceWidget:
             ),
         )
         self.input_v_end = ipw.FloatText(
-            min=0,
             description=&quot;to&quot;,
             style={&quot;description_width&quot;: &quot;initial&quot;},
             layout=ipw.Layout(width=&quot;110px&quot;),
@@ -1565,7 +1562,6 @@ class CustomAbundanceWidget:
                 &quot;&lt;p style=&#39;text-indent: 40px&#39;&gt; On clicking the &#39;Normalize&#39; &quot;
                 &quot;button, the locked abundance(s) will &lt;b&gt;not be normalized&lt;/b&gt;.&quot;
                 &quot; &lt;/p&gt;&quot;,
-                indent=True,
             )
 
             self.abundance_note = ipw.HTML(
@@ -2129,7 +2125,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

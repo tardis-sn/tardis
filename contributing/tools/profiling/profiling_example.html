@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -192,7 +192,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/contributing/tools/profiling/profiling_example.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="Basic-Profile-of-TARDIS">
-<h1>Basic Profile of TARDIS<a class="headerlink" href="#Basic-Profile-of-TARDIS" title="Link to this heading">¶</a></h1>
+<h1>Basic Profile of TARDIS<a class="headerlink" href="#Basic-Profile-of-TARDIS" title="Link to this heading"></a></h1>
 <p>A profile is a set of statistics that describes how often and for how long various parts of the program execute (cProfile). A majority of TARDIS can be profiled, however, some code is Numba code, which cannot be profiled. This is because Numba compiles these functions directly to machine code; the python interpreter doesn’t see these functions and therefore it doesn’t read them.</p>
 <p>This notebook uses snakeviz, which is a graphical viewer for the output of cProfile, to visualize the results and make them interactive. In order to use SnakeViz, you must first download it via pip. The first cell loads SnakeViz and gets the notebook ready to run TARDIS.</p>
 <div class="nbinput docutils container">
@@ -250,7 +250,7 @@ run_tardis(&#39;tardis_example.yml&#39;)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

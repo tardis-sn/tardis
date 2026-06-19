@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -155,7 +155,7 @@
            <div itemprop="articleBody">
              
   <section id="spectrum-generation-with-virtual-packets">
-<span id="virtual-packets"></span><h1>Spectrum Generation with Virtual Packets<a class="headerlink" href="#spectrum-generation-with-virtual-packets" title="Link to this heading">¶</a></h1>
+<span id="virtual-packets"></span><h1>Spectrum Generation with Virtual Packets<a class="headerlink" href="#spectrum-generation-with-virtual-packets" title="Link to this heading"></a></h1>
 <p>The main purpose of TARDIS is the generation of synthetic spectra. Currently,
 two methods are implemented to calculate the spectrum during the main Monte
 Carlo calculation. One follows the obvious approach of recording the properties
@@ -182,12 +182,12 @@ behaviour for the same computational costs, is implemented in TARDIS. It relies
 on the concept of so-called “virtual packets” and goes back to the works by
 <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../resources/zreferences.html#id7" title="K. S. Long and C. Knigge. Modeling the Spectral Signatures of Accretion Disk Winds: A New Monte Carlo Approach. Astrophysical Journal, 579:725-740, November 2002. arXiv:arXiv:astro-ph/0208011, doi:10.1086/342879.">LongKnigge02</a>]</span> and <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../../resources/zreferences.html#id16" title="S. A. Sim, D. Proga, L. Miller, K. S. Long, and T. J. Turner. Multidimensional modelling of X-ray spectra for AGN accretion disc outflows - III. Application to a hydrodynamical simulation. Monthly Notices of the RAS, 408:1396-1408, November 2010. arXiv:1006.3449, doi:10.1111/j.1365-2966.2010.17215.x.">SimProgaMiller+10</a>]</span>.</p>
 <section id="id4">
-<h2>Virtual Packets<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<h2>Virtual Packets<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
 <p>The virtual packet scheme is best explained by first detailing how it works and
 then illustrating the physical reasoning for introducing this scheme. More
 information about this scheme may be found in <span class="bibtex-citation" id="id5">[<a class="reference internal" href="../../resources/zreferences.html#id6" title="W. E. Kerzendorf and S. A. Sim. A spectral synthesis code for rapid modelling of supernovae. Monthly Notices of the RAS, 440:387-404, May 2014. arXiv:1401.5469, doi:10.1093/mnras/stu055.">KerzendorfSim14</a>]</span>.</p>
 <section id="virtual-packet-procedure">
-<h3>Virtual Packet Procedure<a class="headerlink" href="#virtual-packet-procedure" title="Link to this heading">¶</a></h3>
+<h3>Virtual Packet Procedure<a class="headerlink" href="#virtual-packet-procedure" title="Link to this heading"></a></h3>
 <p>In the virtual packet scheme, a new population of Monte Carlo packets is
 introduced. Every time a real packet is launched or performs a physical
 interaction, a pre-defined number of virtual packets, <span class="math notranslate nohighlight">\(N_v\)</span>, are
@@ -238,7 +238,7 @@ packets</p>
 \[\varepsilon_v = \varepsilon \frac{1 - \mu_{\mathrm{min}}}{2 N_v}.\]</div>
 </section>
 <section id="interpretation">
-<h3>Interpretation<a class="headerlink" href="#interpretation" title="Link to this heading">¶</a></h3>
+<h3>Interpretation<a class="headerlink" href="#interpretation" title="Link to this heading"></a></h3>
 <p>The basic idea underlying the virtual packet scheme may be illustrated by
 considering the formal solution of the time-independent radiative transfer
 problem :</p>
@@ -281,7 +281,7 @@ entire propagation path more expensive.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

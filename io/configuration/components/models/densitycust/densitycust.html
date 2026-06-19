@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../../../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -162,9 +162,9 @@
            <div itemprop="articleBody">
              
   <section id="using-a-custom-density-profile">
-<span id="densitycust"></span><h1>Using a custom density profile<a class="headerlink" href="#using-a-custom-density-profile" title="Link to this heading">¶</a></h1>
+<span id="densitycust"></span><h1>Using a custom density profile<a class="headerlink" href="#using-a-custom-density-profile" title="Link to this heading"></a></h1>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>TARDIS also has the capability to work with arbitrary density profiles. This is
 particularly useful if the results of detailed explosion simulations should be
 mapped into TARDIS. The density profile is supplied in the form of a simple
@@ -207,7 +207,7 @@ assumed to be uniform with each cell.</p>
 </div>
 </section>
 <section id="inner-boundary">
-<h2>Inner Boundary<a class="headerlink" href="#inner-boundary" title="Link to this heading">¶</a></h2>
+<h2>Inner Boundary<a class="headerlink" href="#inner-boundary" title="Link to this heading"></a></h2>
 <p>The first velocity-density pair in a custom density file (given by index 0) specifies the velocity of the inner boundary approximation. The density associated with this velocity is the density within the inner boundary, which does not affect TARDIS spectra. Therefore, the first density (5.4869692e-10 in the example above) can be replaced by a placeholder value. The user can choose to both specify a custom density file AND specify v_inner_boundary or v_outer_boundary in the configuration YAML file for a TARDIS run. However, the YAML-specified values must be within the velocity range specified in the custom density file, otherwise TARDIS will raise an error. When one of the YAML-specified boundary velocities falls within the velocity range specified in the custom density file, then the boundary velocity is set equal to the number in the configuration YAML file. This has the effect of splitting a cell in the custom density file into two parts, a region within the boundary and a region outside the boundary.</p>
 <p>It is always a good idea to check the model velocities and abundances used in a TARDIS simulation after it has been successfully run.</p>
 <div class="admonition warning">
@@ -218,7 +218,7 @@ realistic model. In any real calculation, better resolution
 </div>
 </section>
 <section id="tardis-input-file">
-<h2>TARDIS input file<a class="headerlink" href="#tardis-input-file" title="Link to this heading">¶</a></h2>
+<h2>TARDIS input file<a class="headerlink" href="#tardis-input-file" title="Link to this heading"></a></h2>
 <p>If you create a correctly formatted density profile file (called “density.dat”
 in this example), you can use it in TARDIS by putting the following lines in
 the model section of the YAML file:</p>
@@ -252,7 +252,7 @@ Values for the boundary velocities that lie outside the range covered by density
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

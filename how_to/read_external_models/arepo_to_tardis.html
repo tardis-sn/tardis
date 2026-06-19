@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -38,6 +38,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Monte Carlo Configuration" href="../../io/configuration/components/montecarlo.html" />
+    <link rel="prev" title="Convert CMFGEN files to TARDIS file format" href="../../io/configuration/components/models/converters/cmfgen.html" />
     <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -98,11 +100,28 @@
 <li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/tardisgamma/index.html">TARDIS-High Energy</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../api/modules.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/faq.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../reference/visualization_reference.html">Visualization Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../io/configuration/index.html">Configuration Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../io/configuration/index.html">Configuration Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../io/configuration/index.html#configuration-documentation">Configuration Documentation</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../io/configuration/components/index.html">Configuration Components</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../io/configuration/components/supernova.html">Supernova Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../io/configuration/components/atomic/atomic_data.html">Atomic Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../io/configuration/components/plasma.html">Plasma Configuration</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../../io/configuration/components/models/index.html">Models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../io/configuration/components/montecarlo.html">Monte Carlo Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../io/configuration/components/spectrum.html">Spectrum Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../io/configuration/components/debug.html">Debug Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/configuration/example.html">TARDIS Example Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/configuration/config_validator.html">Configuration Validator</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../io/hdf/index.html">Hierarchical Data Format (HDF5) Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing/CHANGELOG.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../resources/research_done_using_TARDIS/research_papers.html">Papers Using TARDIS</a></li>
@@ -130,6 +149,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../io/configuration/index.html">Configuration Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../io/configuration/components/index.html">Configuration Components</a></li>
+          <li class="breadcrumb-item"><a href="../../io/configuration/components/models/index.html">Models</a></li>
       <li class="breadcrumb-item active">Converting Arepo snapshots to be usable by TARDIS</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/how_to/read_external_models/arepo_to_tardis.ipynb.txt" rel="nofollow"> View page source</a>
@@ -178,18 +200,18 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/how_to/read_external_models/arepo_to_tardis.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="Converting-Arepo-snapshots-to-be-usable-by-TARDIS">
-<h1>Converting Arepo snapshots to be usable by TARDIS<a class="headerlink" href="#Converting-Arepo-snapshots-to-be-usable-by-TARDIS" title="Link to this heading">¶</a></h1>
+<h1>Converting Arepo snapshots to be usable by TARDIS<a class="headerlink" href="#Converting-Arepo-snapshots-to-be-usable-by-TARDIS" title="Link to this heading"></a></h1>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle">Note</p>
 <p>This notebook cannot be run interactively!</p>
 </div>
 <section id="What-is-Arepo?">
-<h2>What is <a class="reference external" href="https://arepo-code.org/">Arepo</a>?<a class="headerlink" href="#What-is-Arepo?" title="Link to this heading">¶</a></h2>
+<h2>What is <a class="reference external" href="https://arepo-code.org/">Arepo</a>?<a class="headerlink" href="#What-is-Arepo?" title="Link to this heading"></a></h2>
 <blockquote>
 <div><p><em>Arepo is a massively parallel gravity and magnetohydrodynamics code for astrophysics, designed for problems of large dynamic range. It employs a finite-volume approach to discretize the equations of hydrodynamics on a moving Voronoi mesh, and a tree-particle-mesh method for gravitational interactions. Arepo is originally optimized for cosmological simulations of structure formation, but has also been used in many other applications in astrophysics.</em></p>
 </div></blockquote>
 <p><span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../resources/zreferences.html#id23" title="Rainer Weinberger, Volker Springel, and Rüdiger Pakmor. The arepo public code release. The Astrophysical Journal Supplement Series, 248(2):32, Jun 2020. URL: http://dx.doi.org/10.3847/1538-4365/ab908c, doi:10.3847/1538-4365/ab908c.">WSP20</a>]</span></p>
-<p>This parser is intended for loading Arepo output files (‘snapshots’), extracting the relevant (line-of-sight dependent) data and exporting it to <code class="docutils literal notranslate"><span class="pre">csvy</span></code> files, which can in turn be used in TARDIS models (see CSVY model).</p>
+<p>This parser is intended for loading Arepo output files (‘snapshots’), extracting the relevant (line-of-sight dependent) data and exporting it to <code class="docutils literal notranslate"><span class="pre">csvy</span></code> files, which can in turn be used in TARDIS models (<a class="reference internal" href="../../io/configuration/components/models/index.html#how-to-index-rst-csvy-model"><span class="std std-ref">see CSVY model</span></a>).</p>
 <div class="admonition note">
 <p class="admonition-title fa fa-exclamation-circle">Note</p>
 <p>This parser has been developed for the (not publicly available) development version of Arepo, not the public version. Although it should also work with snapshots from the public version, this has not been tested. If you run into trouble loading the snapshot using the built-in functions, try providing the data manually.</p>
@@ -228,7 +250,7 @@
 </div>
 </section>
 <section id="Loading-the-simulation-data">
-<h2>Loading the simulation data<a class="headerlink" href="#Loading-the-simulation-data" title="Link to this heading">¶</a></h2>
+<h2>Loading the simulation data<a class="headerlink" href="#Loading-the-simulation-data" title="Link to this heading"></a></h2>
 <p>As a first step, the relevant data has to be loaded from an Arepo snapshot, i.e. an output file of Arepo. In case you have the arepo-snap-util package installed, you can use the built in wrapper (as described below) to load the relevant data. In case you do not have this package installed or want to load the snapshot in a different way, you can manually provide the relevant data and continue with the next step.</p>
 <p>If you’re using the built-in tool, you will need to provide the path to the snapshot file, a list with the elements you want to include in your TARDIS model, as well as the species file with which the Arepo simulation was run. <em>(The species file should contain one header line, followed by two columns, where the first contains the names of all the species and is used to find the indices of the individual species within the snapshot. The second column is not used by the loader.)</em></p>
 <p>In case you have the arepo-snap-util package installed, you can load the data directly from a snapshot:</p>
@@ -343,7 +365,7 @@ Nuclear data shape (per element):  (1218054,)
 <p>The data should have the same shape as the one provided by the built-in tool (see the given shapes above for an example).</p>
 </section>
 <section id="Extracting-a-profile-and-converting-it-to-a-csvy-file">
-<h2>Extracting a profile and converting it to a csvy file<a class="headerlink" href="#Extracting-a-profile-and-converting-it-to-a-csvy-file" title="Link to this heading">¶</a></h2>
+<h2>Extracting a profile and converting it to a csvy file<a class="headerlink" href="#Extracting-a-profile-and-converting-it-to-a-csvy-file" title="Link to this heading"></a></h2>
 <p>Now you can create a TARDIS model. There are two possibilities on how to extract the profiles from the snapshot:</p>
 <ul class="simple">
 <li><p><strong>Cone profile</strong>: This extracts the data within a specified cone using <code class="docutils literal notranslate"><span class="pre">create_cone_profile()</span></code></p></li>
@@ -437,15 +459,15 @@ Nuclear data shape (per element):  (1218054,)
 </div>
 </section>
 <section id="Plotting-the-data">
-<h2>Plotting the data<a class="headerlink" href="#Plotting-the-data" title="Link to this heading">¶</a></h2>
+<h2>Plotting the data<a class="headerlink" href="#Plotting-the-data" title="Link to this heading"></a></h2>
 <p>Using <code class="docutils literal notranslate"><span class="pre">plot_profile()</span></code> you can create a plot of the exported profile. You can save it by passing <code class="docutils literal notranslate"><span class="pre">save=&lt;filename&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">dpi=&lt;dpi&gt;</span></code> arguments. Due to the large number of cells usually used in Arepo simulations, it is recommended to plot the data only <strong>after</strong> rebinning the profiles or exporting them to a <code class="docutils literal notranslate"><span class="pre">csvy</span></code> file (which automatically rebins the data).</p>
 </section>
 <section id="Manually-rebinning-the-data">
-<h2>Manually rebinning the data<a class="headerlink" href="#Manually-rebinning-the-data" title="Link to this heading">¶</a></h2>
+<h2>Manually rebinning the data<a class="headerlink" href="#Manually-rebinning-the-data" title="Link to this heading"></a></h2>
 <p>Using <code class="docutils literal notranslate"><span class="pre">rebin_profile()</span></code>, you can manually rebin the data to a specified number of shells, using the mean value of the data in each bin (mass-weighted for velocities and abundances). The function returns the same 10 values as the profile creation functions.</p>
 </section>
 <section id="Selecting-a-specific-region">
-<h2>Selecting a specific region<a class="headerlink" href="#Selecting-a-specific-region" title="Link to this heading">¶</a></h2>
+<h2>Selecting a specific region<a class="headerlink" href="#Selecting-a-specific-region" title="Link to this heading"></a></h2>
 <p>In many cases you only want a very specific region from the snapshot, e.g. cutting out the dense, optically thick regions. This can be achieved using the keywords <code class="docutils literal notranslate"><span class="pre">inner_radius</span></code> and <code class="docutils literal notranslate"><span class="pre">outer_radius</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -552,7 +574,7 @@ abundances).</p>
 <p>The export function will not overwrite existing files, but rather add an incrementing number to the filename.</p>
 </div>
 <section id="Using-the-legacy-command-line-tool">
-<h3>Using the legacy command line tool<a class="headerlink" href="#Using-the-legacy-command-line-tool" title="Link to this heading">¶</a></h3>
+<h3>Using the legacy command line tool<a class="headerlink" href="#Using-the-legacy-command-line-tool" title="Link to this heading"></a></h3>
 <div class="admonition warning">
 <p class="admonition-title fa fa-exclamation-circle">Note</p>
 <p>The command line tool uses the legacy class-based API which is still available in <code class="docutils literal notranslate"><span class="pre">tardis.io.model.arepo.arepo</span></code> but is deprecated. For new code, please use the functional API shown above.</p>
@@ -576,13 +598,16 @@ abundances).</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../io/configuration/components/models/converters/cmfgen.html" class="btn btn-neutral float-left" title="Convert CMFGEN files to TARDIS file format" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../io/configuration/components/montecarlo.html" class="btn btn-neutral float-right" title="Monte Carlo Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

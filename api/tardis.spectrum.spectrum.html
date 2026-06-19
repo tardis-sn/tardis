@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -169,10 +169,10 @@
            <div itemprop="articleBody">
              
   <section id="module-tardis.spectrum.spectrum">
-<span id="tardis-spectrum-spectrum-module"></span><h1>tardis.spectrum.spectrum module<a class="headerlink" href="#module-tardis.spectrum.spectrum" title="Link to this heading">¶</a></h1>
+<span id="tardis-spectrum-spectrum-module"></span><h1>tardis.spectrum.spectrum module<a class="headerlink" href="#module-tardis.spectrum.spectrum" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.spectrum.spectrum.TARDISSpectrum">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.spectrum.</span></span><span class="sig-name descname"><span class="pre">TARDISSpectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminosity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.spectrum.spectrum.</span></span><span class="sig-name descname"><span class="pre">TARDISSpectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">luminosity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="tardis.io.hdf_writer_mixin.html#tardis.io.hdf_writer_mixin.HDFWriterMixin" title="tardis.io.hdf_writer_mixin.HDFWriterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">HDFWriterMixin</span></code></a></p>
 <dl class="simple">
 <dt>_frequency: astropy.units.Quantity with unit ‘Hz’ or a length</dt><dd><p>These are bin edges of frequency or wavelenght bins for the spectrum.</p>
@@ -201,32 +201,32 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.spectrum.TARDISSpectrum.f_nu_to_f_lambda">
-<span class="sig-name descname"><span class="pre">f_nu_to_f_lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f_nu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum.f_nu_to_f_lambda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.f_nu_to_f_lambda" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">f_nu_to_f_lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f_nu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum.f_nu_to_f_lambda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.f_nu_to_f_lambda" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.spectrum.spectrum.TARDISSpectrum.flux_lambda">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flux_lambda</span></span><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.flux_lambda" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flux_lambda</span></span><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.flux_lambda" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tardis.spectrum.spectrum.TARDISSpectrum.flux_nu">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flux_nu</span></span><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.flux_nu" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flux_nu</span></span><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.flux_nu" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tardis.spectrum.spectrum.TARDISSpectrum.hdf_properties">
-<span class="sig-name descname"><span class="pre">hdf_properties</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['_frequency',</span> <span class="pre">'luminosity',</span> <span class="pre">'delta_frequency',</span> <span class="pre">'wavelength',</span> <span class="pre">'luminosity_density_lambda']</span></em><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.hdf_properties" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">hdf_properties</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['_frequency',</span> <span class="pre">'luminosity',</span> <span class="pre">'delta_frequency',</span> <span class="pre">'wavelength',</span> <span class="pre">'luminosity_density_lambda']</span></em><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.hdf_properties" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.spectrum.TARDISSpectrum.luminosity_to_flux">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">luminosity_to_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">luminosity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum.luminosity_to_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.luminosity_to_flux" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">luminosity_to_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">luminosity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum.luminosity_to_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.luminosity_to_flux" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.spectrum.TARDISSpectrum.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wavelength'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.plot" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wavelength'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.plot" title="Link to this definition"></a></dt>
 <dd><p>Plot the Spectrum</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -248,7 +248,7 @@ for a list of all possible arguments.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.spectrum.spectrum.TARDISSpectrum.to_ascii">
-<span class="sig-name descname"><span class="pre">to_ascii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'luminosity_density'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum.to_ascii"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.to_ascii" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_ascii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'luminosity_density'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/spectrum/spectrum.html#TARDISSpectrum.to_ascii"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.spectrum.spectrum.TARDISSpectrum.to_ascii" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -267,7 +267,7 @@ for a list of all possible arguments.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

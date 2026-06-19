@@ -12,7 +12,7 @@ configuration file. This section provides comprehensive documentation of all ava
 .. note::
    **Learning configuration basics?** See the configuration tutorial in our :doc:`../../tutorials`.
    
-   **Need help with a specific configuration task?** Check our :doc:`../../how_to_guides`.
+   **Need help with a specific configuration task?** Check our :doc:`../../how_to/index`.
 
 Configuration Documentation
 ===========================

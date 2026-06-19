@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -260,6 +260,14 @@ class HDFWriterMixin:
                 value = value.cgs.value
             if np.isscalar(value):
                 scalars[key] = value
+            elif isinstance(value, pd.MultiIndex):
+                value.to_frame(index=False).to_hdf(
+                    buf, key=str(Path(path) / key), format=format
+                )
+            elif isinstance(value, pd.Index):
+                value.to_frame(index=False).to_hdf(
+                    buf, key=str(Path(path) / key), format=format
+                )
             elif hasattr(value, &quot;shape&quot;):
                 if value.ndim == 1:
                     # This try,except block is only for model.plasma.levels
@@ -297,7 +305,9 @@ class HDFWriterMixin:
         )
 
         if scalars:
-            pd.Series(scalars).to_hdf(buf, key=str(Path(path) / &quot;scalars&quot;))
+            pd.Series(scalars, name=&quot;value&quot;).to_hdf(
+                buf, key=str(Path(path) / &quot;scalars&quot;)
+            )
 
         if buf.is_open:
             buf.close()</div>
@@ -483,7 +493,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

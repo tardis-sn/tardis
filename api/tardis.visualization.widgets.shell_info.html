@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -170,10 +170,10 @@
            <div itemprop="articleBody">
              
   <section id="module-tardis.visualization.widgets.shell_info">
-<span id="tardis-visualization-widgets-shell-info-module"></span><h1>tardis.visualization.widgets.shell_info module<a class="headerlink" href="#module-tardis.visualization.widgets.shell_info" title="Link to this heading">¶</a></h1>
+<span id="tardis-visualization-widgets-shell-info-module"></span><h1>tardis.visualization.widgets.shell_info module<a class="headerlink" href="#module-tardis.visualization.widgets.shell_info" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.BaseShellInfo">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">BaseShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_radiative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilution_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abundance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">BaseShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_radiative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dilution_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abundance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ion_number_density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level_number_density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The simulation information that is used by shell info widget</p>
 <p>Initialize the object with all simulation properties in use</p>
@@ -201,7 +201,7 @@ number, ion number, level number) and column labels are shell number</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.BaseShellInfo.element_count">
-<span class="sig-name descname"><span class="pre">element_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo.element_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo.element_count" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">element_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo.element_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo.element_count" title="Link to this definition"></a></dt>
 <dd><p>Generates fractional abundance of elements present in a specific
 shell in a form that can be used by a table widget</p>
 <dl class="field-list simple">
@@ -224,7 +224,7 @@ specific shell, against each atomic number</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.BaseShellInfo.ion_count">
-<span class="sig-name descname"><span class="pre">ion_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell_num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo.ion_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo.ion_count" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ion_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atomic_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell_num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo.ion_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo.ion_count" title="Link to this definition"></a></dt>
 <dd><p>Generates fractional abundance of ions of a specific element and
 shell, in a form that can be used by a table widget</p>
 <dl class="field-list simple">
@@ -249,7 +249,7 @@ specific element, against each ion number</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.BaseShellInfo.level_count">
-<span class="sig-name descname"><span class="pre">level_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell_num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo.level_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo.level_count" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">level_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atomic_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell_num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo.level_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo.level_count" title="Link to this definition"></a></dt>
 <dd><p>Generates fractional abundance of levels of a specific ion, element
 and shell, in a form that can be used by a table widget</p>
 <dl class="field-list simple">
@@ -277,7 +277,7 @@ against each level number</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.BaseShellInfo.shells_data">
-<span class="sig-name descname"><span class="pre">shells_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo.shells_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo.shells_data" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">shells_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#BaseShellInfo.shells_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.BaseShellInfo.shells_data" title="Link to this definition"></a></dt>
 <dd><p>Generates shells data in a form that can be used by a table widget</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -294,7 +294,7 @@ simulation model</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.HDFShellInfo">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">HDFShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#HDFShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.HDFShellInfo" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">HDFShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#HDFShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.HDFShellInfo" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#tardis.visualization.widgets.shell_info.BaseShellInfo" title="tardis.visualization.widgets.shell_info.BaseShellInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseShellInfo</span></code></a></p>
 <p>The simulation information that is used by shell info widget, obtained
 from a simulation HDF file</p>
@@ -313,7 +313,7 @@ default arguments)</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">ShellInfoWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_info_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">ShellInfoWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_info_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>The Shell Info Widget to explore abundances in different shells.</p>
 <p>It consists of four interlinked table widgets - shells table; element count,
@@ -333,7 +333,7 @@ file</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.display">
-<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.display" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.display" title="Link to this definition"></a></dt>
 <dd><p>Display the shell info widget by putting all component widgets nicely
 together and allowing interaction between the table widgets</p>
 <dl class="field-list simple">
@@ -348,7 +348,7 @@ together and allowing interaction between the table widgets</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table">
-<span class="sig-name descname"><span class="pre">update_element_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_element_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update_element_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_element_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table" title="Link to this definition"></a></dt>
 <dd><p>Event listener to update the data in element count table widget based
 on interaction (row selected event) in shells table widget.</p>
 <dl class="field-list simple">
@@ -369,7 +369,7 @@ of <code class="code docutils literal notranslate"><span class="pre">on</span></
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table">
-<span class="sig-name descname"><span class="pre">update_ion_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_ion_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update_ion_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_ion_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table" title="Link to this definition"></a></dt>
 <dd><p>Event listener to update the data in ion count table widget based
 on interaction (row selected event) in element count table widget.</p>
 <dl class="field-list simple">
@@ -390,7 +390,7 @@ of <code class="code docutils literal notranslate"><span class="pre">on</span></
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table">
-<span class="sig-name descname"><span class="pre">update_level_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_level_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update_level_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_level_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table" title="Link to this definition"></a></dt>
 <dd><p>Event listener to update the data in level count table widget based
 on interaction (row selected event) in ion count table widget.</p>
 <dl class="field-list simple">
@@ -413,7 +413,7 @@ of <code class="code docutils literal notranslate"><span class="pre">on</span></
 
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.SimulationShellInfo">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">SimulationShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#SimulationShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.SimulationShellInfo" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">SimulationShellInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#SimulationShellInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.SimulationShellInfo" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#tardis.visualization.widgets.shell_info.BaseShellInfo" title="tardis.visualization.widgets.shell_info.BaseShellInfo"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseShellInfo</span></code></a></p>
 <p>The simulation information that is used by shell info widget, obtained
 from a TARDIS Simulation object</p>
@@ -430,7 +430,7 @@ from a TARDIS Simulation object</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.shell_info_from_hdf">
-<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">shell_info_from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#shell_info_from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.shell_info_from_hdf" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">shell_info_from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hdf_fpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#shell_info_from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.shell_info_from_hdf" title="Link to this definition"></a></dt>
 <dd><p>Create shell info widget from a simulation HDF file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -451,7 +451,7 @@ default arguments)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.shell_info_from_simulation">
-<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">shell_info_from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#shell_info_from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.shell_info_from_simulation" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">shell_info_from_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#shell_info_from_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.shell_info_from_simulation" title="Link to this definition"></a></dt>
 <dd><p>Create shell info widget from a TARDIS simulation object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -482,7 +482,7 @@ default arguments)</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

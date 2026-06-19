@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -167,14 +167,14 @@
            <div itemprop="articleBody">
              
   <section id="tardis-development-playbook">
-<span id="development-playbook"></span><h1>TARDIS Development Playbook<a class="headerlink" href="#tardis-development-playbook" title="Link to this heading">¶</a></h1>
+<span id="development-playbook"></span><h1>TARDIS Development Playbook<a class="headerlink" href="#tardis-development-playbook" title="Link to this heading"></a></h1>
 <p>This page documents the day-to-day developer workflow used by the TARDIS team.
 It complements (and does not replace) the existing installation, testing,
 and CI pages.</p>
 <p>The wording on this page is intentionally advisory (recommended and
 encouraged) because practices can vary slightly by change type and urgency.</p>
 <section id="source-of-truth-for-setup">
-<h2>Source of Truth for Setup<a class="headerlink" href="#source-of-truth-for-setup" title="Link to this heading">¶</a></h2>
+<h2>Source of Truth for Setup<a class="headerlink" href="#source-of-truth-for-setup" title="Link to this heading"></a></h2>
 <p>For environment creation and first-time installation commands, follow
 <a class="reference internal" href="../../getting_started/installation.html#installation"><span class="std std-ref">Installation</span></a>.</p>
 <div class="admonition note">
@@ -185,7 +185,7 @@ to avoid drift.</p>
 </div>
 </section>
 <section id="developer-qa-loop-before-review">
-<h2>Developer QA Loop Before Review<a class="headerlink" href="#developer-qa-loop-before-review" title="Link to this heading">¶</a></h2>
+<h2>Developer QA Loop Before Review<a class="headerlink" href="#developer-qa-loop-before-review" title="Link to this heading"></a></h2>
 <p>For a typical code pull request, contributors are expected to:</p>
 <ol class="arabic">
 <li><p>Run Ruff formatting/linting (through VS Code integration or CLI):</p>
@@ -214,7 +214,7 @@ CLI commands remain the fallback and should be considered authoritative.</p>
 </div>
 </section>
 <section id="change-type-testing-expectations">
-<h2>Change-Type Testing Expectations<a class="headerlink" href="#change-type-testing-expectations" title="Link to this heading">¶</a></h2>
+<h2>Change-Type Testing Expectations<a class="headerlink" href="#change-type-testing-expectations" title="Link to this heading"></a></h2>
 <p>Use this matrix to decide what to run before opening or updating a PR:</p>
 <ul class="simple">
 <li><p>Documentation-only change: local docs build is preferred; CI docs build can
@@ -226,7 +226,7 @@ matching updates in the regression-data repository when needed.</p></li>
 </ul>
 </section>
 <section id="regression-data-policy">
-<h2>Regression Data Policy<a class="headerlink" href="#regression-data-policy" title="Link to this heading">¶</a></h2>
+<h2>Regression Data Policy<a class="headerlink" href="#regression-data-policy" title="Link to this heading"></a></h2>
 <p>General policy:</p>
 <ul class="simple">
 <li><p>Update existing regression data only when behavior changes are intentional,
@@ -254,7 +254,7 @@ which we have seen to produce small but sometimes impactful numerical difference
 </div>
 </section>
 <section id="ci-triage-guidance">
-<h2>CI Triage Guidance<a class="headerlink" href="#ci-triage-guidance" title="Link to this heading">¶</a></h2>
+<h2>CI Triage Guidance<a class="headerlink" href="#ci-triage-guidance" title="Link to this heading"></a></h2>
 <p>General triage priorities:</p>
 <ul class="simple">
 <li><p>Test failures are required to resolve before merge.</p></li>
@@ -270,7 +270,7 @@ cache/network flakiness). Otherwise, identify and fix root cause first.</p>
 the PR is encouraged.</p>
 </section>
 <section id="merge-readiness-and-review-expectations">
-<h2>Merge Readiness and Review Expectations<a class="headerlink" href="#merge-readiness-and-review-expectations" title="Link to this heading">¶</a></h2>
+<h2>Merge Readiness and Review Expectations<a class="headerlink" href="#merge-readiness-and-review-expectations" title="Link to this heading"></a></h2>
 <p>Typical merge requirements:</p>
 <ul class="simple">
 <li><p>Clear PR title and description.</p></li>
@@ -287,7 +287,7 @@ the PR is encouraged.</p>
 </ul>
 </section>
 <section id="branch-protection-and-merge-behavior">
-<h2>Branch protection and merge behavior<a class="headerlink" href="#branch-protection-and-merge-behavior" title="Link to this heading">¶</a></h2>
+<h2>Branch protection and merge behavior<a class="headerlink" href="#branch-protection-and-merge-behavior" title="Link to this heading"></a></h2>
 <p>Current practice:</p>
 <ul class="simple">
 <li><p>Squash merge is used by default.</p></li>
@@ -302,7 +302,7 @@ scenarios.</p></li>
 <p>For complex incidents, creating a retrospective issue is recommended.</p>
 </section>
 <section id="workflow-labels-used-in-prs">
-<h2>Workflow labels used in PRs<a class="headerlink" href="#workflow-labels-used-in-prs" title="Link to this heading">¶</a></h2>
+<h2>Workflow labels used in PRs<a class="headerlink" href="#workflow-labels-used-in-prs" title="Link to this heading"></a></h2>
 <p>Common labels and effects:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">build-docs</span></code>: forces docs build/preview when needed.</p></li>
@@ -321,14 +321,14 @@ preparing likely regression-data updates.</p></li>
 </ul>
 </section>
 <section id="review-cadence-and-escalation">
-<h2>Review cadence and escalation<a class="headerlink" href="#review-cadence-and-escalation" title="Link to this heading">¶</a></h2>
+<h2>Review cadence and escalation<a class="headerlink" href="#review-cadence-and-escalation" title="Link to this heading"></a></h2>
 <p>We perform a weekly triage of open PRs.</p>
 <p>If a PR has no review activity for around two weeks, contributors are
 encouraged to post a follow-up comment on the PR to request attention.</p>
 <p>External contributors should use GitHub Issues for support requests that do not fit as PR comments.</p>
 </section>
 <section id="commit-and-changelog-notes">
-<h2>Commit and changelog notes<a class="headerlink" href="#commit-and-changelog-notes" title="Link to this heading">¶</a></h2>
+<h2>Commit and changelog notes<a class="headerlink" href="#commit-and-changelog-notes" title="Link to this heading"></a></h2>
 <p>No strict commit-message convention is enforced. Because we squash merge PRs, individual commit messages are lost on master.</p>
 <p>The project changelog is generated by CI from <code class="docutils literal notranslate"><span class="pre">master</span></code> history, so PR titles
 should be written as clear release-note-quality summaries.</p>
@@ -339,7 +339,7 @@ protection settings and CI workflow ownership decisions.</p>
 </div>
 </section>
 <section id="external-contributors-vs-core-maintainers">
-<h2>External Contributors vs Core Maintainers<a class="headerlink" href="#external-contributors-vs-core-maintainers" title="Link to this heading">¶</a></h2>
+<h2>External Contributors vs Core Maintainers<a class="headerlink" href="#external-contributors-vs-core-maintainers" title="Link to this heading"></a></h2>
 <p>External contributors are expected to follow the full documented workflow,
 including passing required checks and providing complete PR context.</p>
 <p>Core maintainers may apply limited discretion for urgent fixes (for example,
@@ -347,7 +347,7 @@ expedited merges), but should still preserve strict standards for test health
 and scientific correctness.</p>
 </section>
 <section id="notebook-expectations">
-<h2>Notebook Expectations<a class="headerlink" href="#notebook-expectations" title="Link to this heading">¶</a></h2>
+<h2>Notebook Expectations<a class="headerlink" href="#notebook-expectations" title="Link to this heading"></a></h2>
 <p>Adding a new notebook is optional and case-by-case. In practice, notebooks are
 most useful when a change introduces user-facing behavior, a new workflow, or a
 concept that benefits from executable examples.</p>
@@ -366,7 +366,7 @@ concept that benefits from executable examples.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 

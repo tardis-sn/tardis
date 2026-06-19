@@ -26,7 +26,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3c5c241e"></script>
+      <script src="../_static/documentation_options.js?v=65a18ed8"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -178,7 +178,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/how_to/convert_atomic_data.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="Convert-atomic-data">
-<h1>Convert atomic data<a class="headerlink" href="#Convert-atomic-data" title="Link to this heading">¶</a></h1>
+<h1>Convert atomic data<a class="headerlink" href="#Convert-atomic-data" title="Link to this heading"></a></h1>
 <p>This notebook demonstrates how a specific atomic data file is converted from an old continuum TARDIS version to modern TARDIS so the two can be compared directly without re-generating atomic data for a deprecated and unsupported atom data format.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -199,12 +199,12 @@
 </div>
 </div>
 <section id="Utility-functions">
-<h2>Utility functions<a class="headerlink" href="#Utility-functions" title="Link to this heading">¶</a></h2>
+<h2>Utility functions<a class="headerlink" href="#Utility-functions" title="Link to this heading"></a></h2>
 <p>The basic procedure here is to convert a structured array into a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe matching the structure of our template atomic data.</p>
 <p>To accomplish this, the structures we need to create from the old data format are an <code class="docutils literal notranslate"><span class="pre">pd.Index</span></code> object to organize the rows, columns with datatypes matching the template, and the table data itself.</p>
 <p>Most of these table conversions can be reduced to two basic operations - porting a table that has a multi-index, and porting a table that has a simple index.</p>
 <section id="Multi-Index-Port">
-<h3>Multi-Index Port<a class="headerlink" href="#Multi-Index-Port" title="Link to this heading">¶</a></h3>
+<h3>Multi-Index Port<a class="headerlink" href="#Multi-Index-Port" title="Link to this heading"></a></h3>
 <p>Tables with a multi-index in the new format are missing the formal <code class="docutils literal notranslate"><span class="pre">pd.MultiIndex</span></code> structure, but contain all the same indices in the same format. These are fairly straightforward to convert.</p>
 <p>The only trick is making sure the dtypes of the ported data columns match the format of the template atom data. After the <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> is created from the old data, we loop through each column and set its dtype to be equal to that of the template.</p>
 <p>The same procedure is applied to each level of the <code class="docutils literal notranslate"><span class="pre">pd.MultiIndex</span></code>, as these are converted to floats by default, but we typically want <code class="docutils literal notranslate"><span class="pre">int</span></code> for atomic number, levels, etc.</p>
@@ -285,7 +285,7 @@
 </div>
 </section>
 <section id="Simple-Port">
-<h3>Simple Port<a class="headerlink" href="#Simple-Port" title="Link to this heading">¶</a></h3>
+<h3>Simple Port<a class="headerlink" href="#Simple-Port" title="Link to this heading"></a></h3>
 <p>For tables that only have a single index, the conversion is much simpler. We just need to create the <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> from the old structured array and then ensure the dtypes of the columns and (single) index match up.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -340,7 +340,7 @@
 </div>
 </section>
 <section id="Checksum-Utility-Functions">
-<h3>Checksum Utility Functions<a class="headerlink" href="#Checksum-Utility-Functions" title="Link to this heading">¶</a></h3>
+<h3>Checksum Utility Functions<a class="headerlink" href="#Checksum-Utility-Functions" title="Link to this heading"></a></h3>
 <p>These are included directly from the <code class="docutils literal notranslate"><span class="pre">carsus</span></code> utilities for writing checksum metadata for an HDF5 file.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -398,7 +398,7 @@
 </section>
 </section>
 <section id="Converting-the-atomic-data">
-<h2>Converting the atomic data<a class="headerlink" href="#Converting-the-atomic-data" title="Link to this heading">¶</a></h2>
+<h2>Converting the atomic data<a class="headerlink" href="#Converting-the-atomic-data" title="Link to this heading"></a></h2>
 <p>The utility functions above are included for completeness. For the rest of this script, I’ll import these functions directly from the Python script in <code class="docutils literal notranslate"><span class="pre">./tardis/scripts/convert_atomic_data.py</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -409,7 +409,7 @@
 </div>
 </div>
 <section id="Loading-the-files">
-<h3>Loading the files<a class="headerlink" href="#Loading-the-files" title="Link to this heading">¶</a></h3>
+<h3>Loading the files<a class="headerlink" href="#Loading-the-files" title="Link to this heading"></a></h3>
 <p>We need to use three existing atomic data files to produce our new file in the modern TARDIS format:</p>
 <ol class="arabic simple">
 <li><p>Old atomic data</p></li>
@@ -459,7 +459,7 @@
 </div>
 </section>
 <section id="Collisions-data">
-<h3>Collisions data<a class="headerlink" href="#Collisions-data" title="Link to this heading">¶</a></h3>
+<h3>Collisions data<a class="headerlink" href="#Collisions-data" title="Link to this heading"></a></h3>
 <p>Let’s take a look at the structure of our data to see what we’re working with.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -524,7 +524,7 @@
 </div>
 </section>
 <section id="Re-load-Old-Atom-Data-with-h5py">
-<h3>Re-load Old Atom Data with h5py<a class="headerlink" href="#Re-load-Old-Atom-Data-with-h5py" title="Link to this heading">¶</a></h3>
+<h3>Re-load Old Atom Data with h5py<a class="headerlink" href="#Re-load-Old-Atom-Data-with-h5py" title="Link to this heading"></a></h3>
 <p>We’ve gotten all useful info out of the old dataframe using <code class="docutils literal notranslate"><span class="pre">pandas</span></code>, so now load the same file with h5py directly to get the rest.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -555,7 +555,7 @@
 <p>Now we can see the other fields that will populate our new atom data file—we just have to convert them to the same data structures and key names as the template.</p>
 </section>
 <section id="Collisions-Metadata">
-<h3>Collisions Metadata<a class="headerlink" href="#Collisions-Metadata" title="Link to this heading">¶</a></h3>
+<h3>Collisions Metadata<a class="headerlink" href="#Collisions-Metadata" title="Link to this heading"></a></h3>
 <p>This particular atomic data format stores the temperatures for the collisions data table as a separate array stored in a “metadata” field. The <code class="docutils literal notranslate"><span class="pre">AtomData</span></code> loader class in TARDIS checks for this field when loading data written in this format.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
@@ -598,7 +598,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </section>
 <section id="Atom-Data">
-<h3>Atom Data<a class="headerlink" href="#Atom-Data" title="Link to this heading">¶</a></h3>
+<h3>Atom Data<a class="headerlink" href="#Atom-Data" title="Link to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
@@ -612,7 +612,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </section>
 <section id="Ionization-Data">
-<h3>Ionization Data<a class="headerlink" href="#Ionization-Data" title="Link to this heading">¶</a></h3>
+<h3>Ionization Data<a class="headerlink" href="#Ionization-Data" title="Link to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -625,7 +625,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </section>
 <section id="Levels-Data">
-<h3>Levels Data<a class="headerlink" href="#Levels-Data" title="Link to this heading">¶</a></h3>
+<h3>Levels Data<a class="headerlink" href="#Levels-Data" title="Link to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
@@ -638,7 +638,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </section>
 <section id="Lines-Data">
-<h3>Lines Data<a class="headerlink" href="#Lines-Data" title="Link to this heading">¶</a></h3>
+<h3>Lines Data<a class="headerlink" href="#Lines-Data" title="Link to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
@@ -651,7 +651,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </section>
 <section id="Lines-Metadata">
-<h3>Lines Metadata<a class="headerlink" href="#Lines-Metadata" title="Link to this heading">¶</a></h3>
+<h3>Lines Metadata<a class="headerlink" href="#Lines-Metadata" title="Link to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
@@ -681,7 +681,7 @@ format version   1.0
 </div>
 </section>
 <section id="Macroatom-Data">
-<h3>Macroatom Data<a class="headerlink" href="#Macroatom-Data" title="Link to this heading">¶</a></h3>
+<h3>Macroatom Data<a class="headerlink" href="#Macroatom-Data" title="Link to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
@@ -692,7 +692,7 @@ format version   1.0
 </div>
 </section>
 <section id="Macroatom-References">
-<h3>Macroatom References<a class="headerlink" href="#Macroatom-References" title="Link to this heading">¶</a></h3>
+<h3>Macroatom References<a class="headerlink" href="#Macroatom-References" title="Link to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
@@ -705,7 +705,7 @@ format version   1.0
 </div>
 </section>
 <section id="Photoionization-Data">
-<h3>Photoionization Data<a class="headerlink" href="#Photoionization-Data" title="Link to this heading">¶</a></h3>
+<h3>Photoionization Data<a class="headerlink" href="#Photoionization-Data" title="Link to this heading"></a></h3>
 <p>Note that this data is stored in an entirely different file - in this case, it is already in the correct format for our new atomic data file, so we can just copy it into our new dataframe.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
@@ -747,7 +747,7 @@ atomic_number ion_number level_number
 </div>
 </section>
 <section id="Zeta-Data">
-<h3>Zeta Data<a class="headerlink" href="#Zeta-Data" title="Link to this heading">¶</a></h3>
+<h3>Zeta Data<a class="headerlink" href="#Zeta-Data" title="Link to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
@@ -791,7 +791,7 @@ atomic_number ion_number level_number
 </div>
 </section>
 <section id="Metadata">
-<h3>Metadata<a class="headerlink" href="#Metadata" title="Link to this heading">¶</a></h3>
+<h3>Metadata<a class="headerlink" href="#Metadata" title="Link to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
@@ -844,7 +844,7 @@ atomic_number ion_number level_number
 </div>
 </section>
 <section id="Write-out-/-Close-files">
-<h3>Write out / Close files<a class="headerlink" href="#Write-out-/-Close-files" title="Link to this heading">¶</a></h3>
+<h3>Write out / Close files<a class="headerlink" href="#Write-out-/-Close-files" title="Link to this heading"></a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
@@ -869,7 +869,7 @@ atomic_number ion_number level_number
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 14 Jun 2026.
+      <span class="lastupdated">Last updated on 19 Jun 2026.
       </span></p>
   </div>
 
