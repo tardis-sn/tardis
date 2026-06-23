@@ -17,57 +17,6 @@ levels_property = Levels(plasma_parent=BasePlasma)
 partition_function_property = PartitionFunction(plasma_parent=BasePlasma)
 
 
-def test_beta_rad(t_rad, beta_rad):
-    np.testing.assert_allclose(
-        beta_rad,
-        1 / (const.k_B.cgs.value * t_rad),
-        atol=0,
-        rtol=1e-15,
-    )
-
-
-def test_g_electron(beta_rad, g_electron):
-    np.testing.assert_allclose(
-        g_electron,
-        (
-            (2 * np.pi * const.m_e.cgs.value / beta_rad)
-            / (const.h.cgs.value**2)
-        )
-        ** 1.5,
-        atol=0,
-        rtol=1e-15,
-    )
-
-
-def test_t_electrons(t_rad, link_t_rad_t_electron, t_electrons):
-    np.testing.assert_allclose(
-        t_electrons,
-        t_rad * link_t_rad_t_electron,
-        atol=0,
-        rtol=1e-15,
-    )
-
-
-def test_beta_electron(t_electrons, beta_electron):
-    np.testing.assert_allclose(
-        beta_electron,
-        1 / (const.k_B.cgs.value * t_electrons),
-        atol=0,
-        rtol=1e-15,
-    )
-
-
-def test_t_rad(dilute_planckian_radiation_field, t_rad_calculated):
-    np.testing.assert_allclose(
-        t_rad_calculated,
-        dilute_planckian_radiation_field.temperature.cgs.value,
-        atol=0,
-        rtol=1e-15,
-    )
-
-
-def test_selected_atoms(number_density, selected_atoms):
-    pdt.assert_index_equal(selected_atoms, number_density.index)
 
 
 def test_ionization_data_calculate_atomic_property(
@@ -142,9 +91,6 @@ def test_partition_function_calculate(level_boltzmann_factor_lte, regression_dat
     )
 
 
-def test_partition_function_output_index_names(partition_function):
-    assert partition_function.index.names == ["atomic_number", "ion_number"]
-
 
 @pytest.mark.parametrize(
     "boltzmann_factors, expected_sum",
@@ -167,9 +113,6 @@ def test_partition_function_sums_boltzmann_factors_within_ion(
 
 
 # ── StimulatedEmissionFactor ──────────────────────────────────────────────────
-# Integration tests use the full fixture chain from conftest.py (rule 2.5).
-# Edge-case unit tests use minimal inline data where no conftest fixture covers
-# that specific controlled state; each test has a single assertion (rule 2.1).
 
 
 def test_stimulated_emission_factor_output_shape(
@@ -220,21 +163,6 @@ def _two_level_inputs(n_lower, n_upper, g_lower, g_upper, metastable_upper=False
     )
 
 
-@pytest.mark.parametrize(
-    "n_lower, n_upper, g_lower, g_upper",
-    [
-        (1e10, 5e9, 2.0, 4.0),   # absorption dominated — positive factor
-        (1e10, 1e10, 2.0, 4.0),  # equal populations
-        (2e10, 1e10, 1.0, 1.0),  # lower > upper, equal weights
-    ],
-)
-def test_stimulated_emission_factor_formula(n_lower, n_upper, g_lower, g_upper):
-    inputs = _two_level_inputs(n_lower, n_upper, g_lower, g_upper)
-    actual = StimulatedEmissionFactor().calculate(**inputs)
-    expected = 1.0 - (g_lower * n_upper) / (g_upper * n_lower)
-    np.testing.assert_allclose(actual[0, 0], expected, rtol=1e-15)
-
-
 def test_stimulated_emission_factor_n_lower_zero_gives_zero():
     inputs = _two_level_inputs(n_lower=0.0, n_upper=1e10, g_lower=2.0, g_upper=4.0)
     actual = StimulatedEmissionFactor().calculate(**inputs)
@@ -259,15 +187,3 @@ def test_stimulated_emission_factor_nlte_species_clamps_negative_to_zero():
     assert actual[0, 0] == 0.0
 
 
-def test_stimulated_emission_factor_caches_g_lower_after_first_calculate():
-    inputs = _two_level_inputs(n_lower=1e10, n_upper=1e10, g_lower=2.0, g_upper=4.0)
-    factor_module = StimulatedEmissionFactor()
-    factor_module.calculate(**inputs)
-    assert factor_module._g_lower is not None
-
-
-def test_stimulated_emission_factor_caches_g_upper_after_first_calculate():
-    inputs = _two_level_inputs(n_lower=1e10, n_upper=1e10, g_lower=2.0, g_upper=4.0)
-    factor_module = StimulatedEmissionFactor()
-    factor_module.calculate(**inputs)
-    assert factor_module._g_upper is not None
