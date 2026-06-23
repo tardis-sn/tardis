@@ -293,7 +293,8 @@ class FormalIntegralSolver:
         ), "Frequency grid must be uniform"
 
         luminosity = (
-            u.Quantity(luminosity_densities, "erg/s/Hz") * delta_frequency
+            u.Quantity(luminosity_densities, u.erg / u.s / u.Hz)
+            * delta_frequency
         )
 
         frequencies = frequencies.to("Hz", u.spectral())

@@ -449,7 +449,6 @@ class CustomAbundanceWidget:
         self.checks = [
             ipw.Checkbox(
                 indent=False,
-                icon="lock",
                 layout=ipw.Layout(
                     width="30px",
                 ),
@@ -519,7 +518,6 @@ class CustomAbundanceWidget:
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
         self.input_v_start = ipw.FloatText(
-            min=0,
             description="Add shell(s) with velocity range (km/s): ",
             style={"description_width": "initial"},
             layout=ipw.Layout(
@@ -527,7 +525,6 @@ class CustomAbundanceWidget:
             ),
         )
         self.input_v_end = ipw.FloatText(
-            min=0,
             description="to",
             style={"description_width": "initial"},
             layout=ipw.Layout(width="110px"),
@@ -1323,7 +1320,6 @@ class CustomAbundanceWidget:
                 "<p style='text-indent: 40px'> On clicking the 'Normalize' "
                 "button, the locked abundance(s) will <b>not be normalized</b>."
                 " </p>",
-                indent=True,
             )
 
             self.abundance_note = ipw.HTML(
