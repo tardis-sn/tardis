@@ -4,6 +4,7 @@ from typing import Optional
 import astropy.units as u
 import numpy as np
 import pandas as pd
+from numba.typed import List as TypedList
 
 from tardis.transport.montecarlo.packet_source.high_energy import (
     GammaRayPacketSource,
@@ -258,23 +259,23 @@ def run_gamma_ray_loop(
     total_energy = np.zeros((number_of_shells, len(times) - 1))
 
     logger.info("Creating packet list")
-    packets = []
     # This for loop is expensive. Need to rewrite GX packet to handle arrays
-    packets = [
-        GXPacket(
-            packet_collection.location[:, i],
-            packet_collection.direction[:, i],
-            packet_collection.energy_rf[i],
-            packet_collection.energy_cmf[i],
-            packet_collection.nu_rf[i],
-            packet_collection.nu_cmf[i],
-            packet_collection.status[i],
-            packet_collection.shell[i],
-            packet_collection.time_start[i],
-            packet_collection.time_index[i],
+    packets = TypedList()
+    for i in range(number_of_packets):
+        packets.append(
+            GXPacket(
+                packet_collection.location[:, i],
+                packet_collection.direction[:, i],
+                packet_collection.energy_rf[i],
+                packet_collection.energy_cmf[i],
+                packet_collection.nu_rf[i],
+                packet_collection.nu_cmf[i],
+                packet_collection.status[i],
+                packet_collection.shell[i],
+                packet_collection.time_start[i],
+                packet_collection.time_index[i],
+            )
         )
-        for i in range(number_of_packets)
-    ]
 
     # Calculate isotope positron fraction separately
     isotope_positron_fraction = legacy_calculate_positron_fraction(
