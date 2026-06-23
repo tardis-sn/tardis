@@ -16,7 +16,7 @@ Detailed Guides
 .. toctree::
     :maxdepth: 2
 
-    spectrum/spectrum-visualization-notebook
+    spectrum/index
     visualization/index
 
 .. note::

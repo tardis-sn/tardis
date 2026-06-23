@@ -130,4 +130,12 @@ Code should be written with a bit of foresight to handle errors that can occur d
             )
         # Rest of the code ...
 
-Here, the ``packets_mode`` parameter can only be string "virtual" or "real". Thus, in case of an invalid value passed, it raises a specific exception (``ValueError``) and informs the user of what the error is and how it can be resolved. Aside from raising exception an exception, this method safely returns without executing code with an invalid parameter value which would have caused unwanted behaviour.
+Here, the ``packets_mode`` parameter can only be string "virtual" or "real". Thus, in case of an invalid value passed, it raises a specific exception (``ValueError``) and informs the user of what the error is and how it can be resolved. Aside from raising an exception, this method safely returns without executing code with an invalid parameter value which would have caused unwanted behaviour.
+
+An important caveat to the above is that as research software, we expect the user
+to correctly input parameters and respond to failures. Thus, we do not want to raise exceptions for every possible edge case, as this would make the code unnecessarily verbose and difficult to read. 
+Instead, we should only raise exceptions for edge cases that are likely to occur and can be easily handled by the user. 
+For example, in the above code snippet, it is likely that a user might accidentally pass an invalid value to ``packets_mode``, and it is easy for them to fix this error by simply passing a valid value. 
+Hence, it is appropriate to raise an exception in this case. However, if there is an edge case that is unlikely to occur or cannot be easily fixed by the user, then it may be better to simply let the code fail without raising an exception.
+
+
