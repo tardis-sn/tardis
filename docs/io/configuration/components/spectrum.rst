@@ -13,7 +13,7 @@ Finally, the spectrum configuration tells TARDIS information needed for spectrum
 TARDIS produces the spectrum via three different methods. For more information on these methods, visit the
 pages below:
  
-* real: :doc:`Basic Spectrum Generation <../../../physics/spectrum/basic>`
+* real: :doc:`Basic Spectrum Generation <../../../physics_walkthrough/spectrum/basic>`
 * virtual: :ref:`Virtual Packet Scheme <virtual_packets>`
 * integrated: :ref:`Formal Integral Method <formal_integral>`
 
@@ -44,6 +44,5 @@ One can also change these parameters as they wish by reading in the configuratio
 .. warning::
     As of now, the `method` argument serves no purpose other than adding 
     the integrated spectrum to the HDF output when "integrated" is used as the method
-    (see :doc:`How to Store Simulations to HDF <../../output/how_to_to_hdf>`). 
-
+    (see :doc:`How to Store Simulations to HDF <../../../how_to/output/how_to_to_hdf>`). 
 

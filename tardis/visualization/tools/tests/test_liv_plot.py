@@ -4,6 +4,7 @@ from copy import deepcopy
 import astropy.units as u
 import numpy as np
 import pytest
+from matplotlib import pyplot as plt
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
@@ -204,7 +205,8 @@ class TestLIVPlotter:
         )
         if packets_mode == "virtual":
             pytest.skip("Skipping tests for virtual packets mode")
-        return fig, plotter
+        yield fig, plotter
+        plt.close(fig.figure)
 
     @pytest.fixture(scope="function")
     def generate_plot_mpl_hdf(self, plotter_generate_plot_mpl):
@@ -558,7 +560,8 @@ class TestLIVPlotter:
             pytest.skip("Skipping tests for virtual packets mode")
 
         plotter_from_workflow._param_idx = param_idx
-        return fig, plotter_from_workflow
+        yield fig, plotter_from_workflow
+        plt.close(fig.figure)
 
     def test_generate_plot_mpl_workflow_vs_regression(
         self, plotter_generate_plot_mpl_from_workflow, liv_regression_data
