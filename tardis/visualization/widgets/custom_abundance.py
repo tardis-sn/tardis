@@ -1641,26 +1641,24 @@ class DensityEditor:
         )
 
         # Formula to compute density profile
-        form_exp = pn.pane.HTML(
+        form_exp = pn.pane.LaTeX(
             r"$$\rho = \rho_0 \times \exp \left( -\frac{v}{v_0} \right)$$",
             margin=(0, 0, 0, 100),
-            disable_math=False
         )
-        form_pow = pn.pane.HTML(
+        form_pow = pn.pane.LaTeX(
             r"$$\rho = \rho_0 \times \left( \frac{v}{v_0} \right)^n$$",
             margin=(0, 0, 0, 100),
-            disable_math=False
         )
 
         self.exp_box = pn.Column(
             form_exp,
-            pn.Row(self.input_rho_0, pn.pane.Str("g cm^3")),
-            pn.Row(self.input_v_0, pn.pane.Str("km/s")),
+            pn.Row(self.input_rho_0, pn.pane.Str("g cm^3", align="end")),
+            pn.Row(self.input_v_0, pn.pane.Str("km/s", align="end")),
         )
         self.pow_box = pn.Column(
             form_pow,
-            pn.Row(self.input_rho_0, pn.pane.Str("g cm^3")),
-            pn.Row(self.input_v_0, pn.pane.Str("km/s")),
+            pn.Row(self.input_rho_0, pn.pane.Str("g cm^3", align="end")),
+            pn.Row(self.input_v_0, pn.pane.Str("km/s", align="end")),
             self.input_exp,
         )
 
