@@ -22,6 +22,9 @@ Currently, we use GitHub Actions to run all of our pipelines. Making changes to 
 pipeline is as easy as making a pull request. To create a new GitHub Action workflow, 
 just create a new YAML file in ``.github/workflows``.
 
+For merge expectations, required checks, CI triage guidance,
+and PR label usage, see :ref:`development-playbook`.
+
 TARDIS Pipelines
 ================
 

@@ -43,9 +43,6 @@ at a time, remember to choose the second radio button and set the range of
 shell number using int slider. The selected shell(s) is highlighted in the 
 plot.
 
-.. image:: ../images/cus_abund_edit_abundance.gif
-    :alt: Demo of editing abundances
-
 Normalize Abundances
 --------------------
 Click `Normalize` button to normalize the abundances on selected shell(s) to 
@@ -54,17 +51,11 @@ normalization, you can select the checkbox near that element to lock it.
 The normalization will be applied to other elements and the sum of the 
 abundances still remains at 1.
 
-.. image:: ../images/cus_abund_norm.gif
-    :alt: Demo of normalization
-
 Edit Densities
 --------------
 In `Edit Density` tab, you also can edit either single shell or the whole 
 density profile. To calculate a new profile, you need to choose the density 
 type and input required parameters.
-
-.. image:: ../images/cus_abund_edit_density.gif
-    :alt: Demo of editing densities
 
 Add New Element
 ---------------
@@ -72,18 +63,12 @@ At the bottom of the editor, the symbol input box allows you to add new element
 or isotope to the model. It automatically recognizes whether the symbol exists 
 or whether the element is already in the model.
 
-.. image:: ../images/cus_abund_add_element.gif
-    :alt: Demo of adding new element
-
 Add New Shell
 -------------
 Another important functionality is to add new shell to the model. You need to 
 specify the velocity range of the new shell and abundances at that new shell 
 will be set to 0. Note that the existing shell(s) will be resized smartly if 
 the new shell overlaps with it.
-
-.. image:: ../images/cus_abund_add_shell.gif
-    :alt: Demo of adding new shell
 
 Shell Info Widget
 #################
@@ -144,9 +129,6 @@ the figure and a pink colored selection box will appear. By making a
 selection across the wavelength range you're interested in, tables update
 to show line information of only packets from that range.
 
-.. image:: ../images/line_info_spectrum_selection.gif
-    :alt: Demo of making selection
-
 After making a selection, if you need to resize the selection box (say, make it
 narrower), simply redraw a new selection box over the older one.
 
@@ -154,9 +136,6 @@ Using Rangesilder
 -----------------
 The rangeslider is a long bar below the figure that allows you to zoom in on a
 particular wavelength range in the long spectrum.
-
-.. image:: ../images/line_info_spectrum_rangeslider.gif
-    :alt: Demo of using rangeslider
 
 Either you can **slide** the zoomed range by clicking and dragging it or you 
 can **resize** it by dragging the handles (vertical bars) at its edges.
@@ -170,9 +149,6 @@ options like **Zoom** (magnifying glass icon), to do a rectangular zoom which
 may be helpful to focus on a feature in the spectrum. You can always revert
 back to the initial state of the figure by clicking on **Reset Axes** option.
 
-.. image:: ../images/line_info_spectrum_modebar.gif
-    :alt: Demo of using modebar options
-
 There are also several other options in the modebar which we have not explained
 (because they are not very relevant) but you're free to explore them as long as
 you remember to click back on the **Box Select** option for making selections on
@@ -182,9 +158,6 @@ Energy Level Diagram
 ####################
 
 This widget lets you visualize the last line interactions
-
-.. image:: ../images/energy_level_widget_demo.gif
-    :alt: Demo of Energy Level Diagram
 
 By selecting an ion on the widget, you can see its energy level diagram, which
 also shows information about the last line interactions experienced by packets
@@ -202,7 +175,7 @@ with thicker lines representing more packets than the thin lines.
 The wavelength of the transition is given by the color.
 
 Setting Other Options
----------------------
+=====================
 You can select the range on which to filter the wavelength using the slider.
 You can also select the model shell by which to filter the last line interactions
 and the level populations. If no shell is selected, then all the last line

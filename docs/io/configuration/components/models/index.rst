@@ -97,7 +97,7 @@ Here we aim to provide converters for the most commonly used file formats.
     :maxdepth: 2
 
     converters/cmfgen
-    converters/arepo_to_tardis
+    ../../../../how_to/read_external_models/arepo_to_tardis
 
 Built-in Structure, Density, and Abundance
 ==========================================
@@ -231,6 +231,9 @@ For example:
 
 For more information, see `Abundance <../../../../physics_walkthrough/setup/model.ipynb#abundance>`_.
 
+.. _/how_to/index.rst#csvy-model:
+.. _/io/configuration/components/models/index.rst#csvy-model:
+.. _csvy-model:
 .. _csvy-models:
 
 CSVY Model
