@@ -193,7 +193,7 @@ class TestPlasma:
             pdt.assert_frame_equal(actual, expected)
 
     def test_levels(self, plasma):
-        actual = pd.DataFrame(plasma.levels)
+        actual = plasma.levels.to_frame(index=False)
         key = "plasma/levels"
         expected = pd.read_hdf(self.regression_data.fpath, key)
         pdt.assert_frame_equal(actual, expected)
