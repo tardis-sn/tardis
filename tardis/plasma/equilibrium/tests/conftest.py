@@ -36,6 +36,15 @@ def new_chianti_atomic_dataset_si(tardis_regression_path):
     )
     return AtomData.from_hdf(atomic_data_fname)
 
+@pytest.fixture
+def new_chianti_atomic_dataset(tardis_regression_path):
+    atomic_data_fname = (
+        tardis_regression_path
+        / "atom_data"
+        / "kurucz_cd23_chianti_H_He_latest.h5"
+    )
+    return AtomData.from_hdf(atomic_data_fname)
+
 
 @pytest.fixture(scope="session")
 def hydrogen_atomic_data_fname(tardis_regression_path):

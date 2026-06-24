@@ -87,7 +87,7 @@ def test_radiative_rate_solver_init(new_chianti_atomic_dataset,regression_data):
     pdt.assert_frame_equal(actual_einstein_coeffs,expected_einstein_coeffs)
 
 def test_radiative_rate_solver_solve(new_chianti_atomic_dataset, mock_radiation_field, regression_data):
-    einstein_coefficients_df = new_chianti_atomic_dataset.lines.xs((1,0),drop_level=False)
+    einstein_coefficients_df = new_chianti_atomic_dataset_si.lines.xs((1,0),drop_level=False)
     solver = RadiativeRatesSolver(einstein_coefficients_df)
     actual_radiative_rates = solver.solve(mock_radiation_field)
     expected_radiative_rates = regression_data.sync_dataframe(
