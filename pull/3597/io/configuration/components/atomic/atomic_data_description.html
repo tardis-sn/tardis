@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Atomic Data Format Description &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -162,19 +162,19 @@
            <div itemprop="articleBody">
              
   <section id="atomic-data-format-description">
-<span id="atomic-data-descritpion"></span><h1>Atomic Data Format Description<a class="headerlink" href="#atomic-data-format-description" title="Link to this heading">¶</a></h1>
+<span id="atomic-data-descritpion"></span><h1>Atomic Data Format Description<a class="headerlink" href="#atomic-data-format-description" title="Link to this heading"></a></h1>
 <p>The atomic data for tardis is stored in <a class="reference external" href="http://www.h5py.org/">HDF5 files</a>. TARDIS ships with a
 relatively simple atomic dataset that only contains silicon lines and levels. TARDIS also has a full atomic dataset which contains
 the complete Kurucz dataset (<a class="reference external" href="http://kurucz.harvard.edu/LINELISTS/GFALL/">http://kurucz.harvard.edu/LINELISTS/GFALL/</a>). This full dataset also contains recombination
 coefficients from the ground state (<span class="math notranslate nohighlight">\(\zeta-\textrm{factor}\)</span> used in <a class="reference internal" href="../../../../physics_walkthrough/setup/plasma/nebular_plasma.html#calc-zeta-label"><span class="std std-ref">Calculating Zeta</span></a>) and data for calculating the
 branching or macro atom line interaction (<a class="reference internal" href="../../../../physics_walkthrough/setup/plasma/macroatom.html#macroatom"><span class="std std-ref">Macro Atom</span></a>).</p>
 <section id="hdf5-dataset">
-<h2>HDF5 Dataset<a class="headerlink" href="#hdf5-dataset" title="Link to this heading">¶</a></h2>
+<h2>HDF5 Dataset<a class="headerlink" href="#hdf5-dataset" title="Link to this heading"></a></h2>
 <p>As mentioned previously, all atomic data is stored in <a class="reference external" href="http://www.h5py.org/">HDF5 files</a>  that contain tables
 that include mass, ionization, levels and lines data. The atom data that ships with TARDIS is located in data/atom.</p>
 <p>The dataset <code class="docutils literal notranslate"><span class="pre">basic_atom_set</span></code> contains the Atomic Number, Symbol of the elements and average mass of the elements.</p>
 <section id="basic-atomic-data">
-<h3>Basic Atomic Data<a class="headerlink" href="#basic-atomic-data" title="Link to this heading">¶</a></h3>
+<h3>Basic Atomic Data<a class="headerlink" href="#basic-atomic-data" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
@@ -200,7 +200,7 @@ that include mass, ionization, levels and lines data. The atom data that ships w
 <p>The ionization data is stored in <code class="docutils literal notranslate"><span class="pre">ionization_data</span></code>.</p>
 </section>
 <section id="ionization-data">
-<h3>Ionization Data<a class="headerlink" href="#ionization-data" title="Link to this heading">¶</a></h3>
+<h3>Ionization Data<a class="headerlink" href="#ionization-data" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
@@ -229,7 +229,7 @@ that include mass, ionization, levels and lines data. The atom data that ships w
 </div>
 </section>
 <section id="levels-data">
-<h3>Levels Data<a class="headerlink" href="#levels-data" title="Link to this heading">¶</a></h3>
+<h3>Levels Data<a class="headerlink" href="#levels-data" title="Link to this heading"></a></h3>
 <p>The levels data is stored in <code class="docutils literal notranslate"><span class="pre">levels_data</span></code>.</p>
 <table class="docutils align-default">
 <thead>
@@ -268,7 +268,7 @@ that include mass, ionization, levels and lines data. The atom data that ships w
 <p>All lines are stored in <code class="docutils literal notranslate"><span class="pre">lines_data</span></code>.</p>
 </section>
 <section id="lines-data">
-<h3>Lines Data<a class="headerlink" href="#lines-data" title="Link to this heading">¶</a></h3>
+<h3>Lines Data<a class="headerlink" href="#lines-data" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
@@ -352,7 +352,7 @@ has three states:</p>
 </ul>
 </section>
 <section id="macro-atom-data">
-<h3>Macro Atom Data<a class="headerlink" href="#macro-atom-data" title="Link to this heading">¶</a></h3>
+<h3>Macro Atom Data<a class="headerlink" href="#macro-atom-data" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
@@ -508,7 +508,7 @@ For details on the macro atom, please refer to <a class="reference internal" hre
 <p>The <code class="docutils literal notranslate"><span class="pre">macro_references</span></code> dataset contains the numbers for each block:</p>
 </section>
 <section id="macro-atom-references">
-<h3>Macro Atom References<a class="headerlink" href="#macro-atom-references" title="Link to this heading">¶</a></h3>
+<h3>Macro Atom References<a class="headerlink" href="#macro-atom-references" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
@@ -546,7 +546,7 @@ For details on the macro atom, please refer to <a class="reference internal" hre
 </section>
 </section>
 <section id="the-atom-data-class">
-<h2>The Atom Data Class<a class="headerlink" href="#the-atom-data-class" title="Link to this heading">¶</a></h2>
+<h2>The Atom Data Class<a class="headerlink" href="#the-atom-data-class" title="Link to this heading"></a></h2>
 <p>Atom Data is stored inside TARDIS in the <code class="xref py py-class docutils literal notranslate"><span class="pre">AtomData</span></code>-class. The class method <code class="xref py py-func docutils literal notranslate"><span class="pre">AtomData.from_hdf()</span></code> will
 instantiate a new <code class="xref py py-obj docutils literal notranslate"><span class="pre">AtomData</span></code>-class from an HDF5 file. If none is given it will automatically
 take the default HDF5-dataset shipped with TARDIS. A second function <code class="xref py py-func docutils literal notranslate"><span class="pre">AtomData.prepare_atom_data()</span></code>
@@ -554,7 +554,7 @@ will cut the levels and lines data to only the required atoms and ions. In addit
 of references needed by macro atom or branching line interactions.</p>
 </section>
 <section id="indexing-fun">
-<h2>Indexing fun<a class="headerlink" href="#indexing-fun" title="Link to this heading">¶</a></h2>
+<h2>Indexing fun<a class="headerlink" href="#indexing-fun" title="Link to this heading"></a></h2>
 <p>The main problem with the atomic data is indexing. Most of these references require multiple numbers, e.g. atomic number,
 ion number and level number. The <a class="reference external" href="https://pandas.pydata.org/">pandas</a> framework provides the ideal functions to accomplish this. In TARDIS, we extensively
 use <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.MultiIndex.html#pandas.MultiIndex" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.MultiIndex</span></code></a>, <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Series</span></code></a> and <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+974.ge652ee88a5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a>.</p>
@@ -574,7 +574,7 @@ use <a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

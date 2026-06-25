@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.iip_plasma.continuum.radiative_processes &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
 
@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -631,13 +631,13 @@ class FreeFree(PhysicalContinuumProcess):
         # Likely to be Eq. 6.1.8 in http://personal.psu.edu/rbc3/A534/lec6.pdf
         # see also FF_OPAC_CONST in tardis/opacities/opacities.py
         chi_ff_factor = (
-            self.ion_number_density.multiply(
+            self.ion_number_density.copy().multiply(
                 ionic_charge_squared * ff_gaunt_factor, axis=0
             )
             .sum()
             .values
         )
-        chi_ff_factor *= chi_ff_helper
+        chi_ff_factor = chi_ff_factor * chi_ff_helper
         return chi_ff_factor
 
     def _get_ionic_charge(self):
@@ -656,7 +656,7 @@ class FreeFree(PhysicalContinuumProcess):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

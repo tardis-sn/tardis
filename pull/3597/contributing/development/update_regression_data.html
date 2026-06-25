@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Update the Regression Data &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -111,14 +111,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contribution Guidelines</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Workflow</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="development_playbook.html">TARDIS Development Playbook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html">Reporting Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="git_workflow.html">General Workflow to add a new feature</a></li>
 <li class="toctree-l2"><a class="reference internal" href="git_workflow.html#preparation-and-working-with-git">Preparation and Working with Git</a></li>
-<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html">Documentation Guidelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="running_tests.html">Running tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="code_quality.html">Code Quality Guidelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer_faq.html">Developer FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html">Testing Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running_tests.html">Running tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html">Documentation Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#tardis-core-team-instructions">TARDIS core team Instructions</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="continuous_integration.html">Continuous Integration</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Update the Regression Data</a><ul>
@@ -126,7 +127,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="matterbridge.html">Matterbridge Server</a></li>
-<li class="toctree-l3"><a class="reference internal" href="debug_numba.html">Debugging numba_montecarlo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="debug_numba.html">Debugging Numba-powered code</a></li>
 </ul>
 </li>
 </ul>
@@ -161,7 +162,7 @@
            <div itemprop="articleBody">
              
   <section id="update-the-regression-data">
-<span id="update-regression-data"></span><h1>Update the Regression Data<a class="headerlink" href="#update-the-regression-data" title="Link to this heading">¶</a></h1>
+<span id="update-regression-data"></span><h1>Update the Regression Data<a class="headerlink" href="#update-the-regression-data" title="Link to this heading"></a></h1>
 <p>A special kind of tests are executed only when <code class="docutils literal notranslate"><span class="pre">pytest</span></code> is called alongside the <code class="docutils literal notranslate"><span class="pre">--tardis-regression-data</span></code> flag. These tests compare the output of the TARDIS code (mostly arrays) against the information stored in the regression data files.</p>
 <p>TARDIS stores regression data in the <a class="reference external" href="https://github.com/tardis-sn/tardis-regression-data">tardis-regression-data</a> repository. Sometimes, this data needs to be updated. The procedure to update these files has been simplified, allowing for a more straightforward process.</p>
 <p>Imagine you are working on a new feature (or fix) for TARDIS, and you have opened a pull request. If the regression data tests are failing, this could happen for various reasons:</p>
@@ -182,7 +183,7 @@
 </ol>
 <p>If any issues arise during this process, please tag a <a class="reference external" href="https://tardis-sn.github.io/people/collaboration/">TARDIS team member</a> responsible for CI/CD.</p>
 <section id="faq">
-<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">¶</a></h2>
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h2>
 <p>In case you encounter an error similar to this:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>&lt;branch-name&gt;
 Uploading<span class="w"> </span>LFS<span class="w"> </span>objects:<span class="w"> </span><span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">1</span>/1<span class="o">)</span>,<span class="w"> </span><span class="m">13</span><span class="w"> </span>MB<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w"> </span>B/s,<span class="w"> </span><span class="k">done</span>.
@@ -228,7 +229,7 @@ git<span class="w"> </span>version<span class="w"> </span><span class="m">2</spa
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

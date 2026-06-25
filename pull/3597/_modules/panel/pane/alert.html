@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>panel.pane.alert &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -144,13 +144,15 @@ See https://getbootstrap.com/docs/4.0/components/alerts/
 &quot;&quot;&quot;
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any, ClassVar
+import typing as t
 
 import param
 
 from ..io.resources import CDN_DIST
 from .markup import Markdown
+
+if t.TYPE_CHECKING:
+    from collections.abc import Mapping
 
 ALERT_TYPES = [
     &quot;primary&quot;, &quot;secondary&quot;, &quot;success&quot;, &quot;danger&quot;,
@@ -170,19 +172,24 @@ class Alert(Markdown):
     &gt;&gt;&gt; Alert(&#39;Some important message&#39;, alert_type=&#39;warning&#39;)
     &quot;&quot;&quot;
 
-    alert_type = param.Selector(default=&quot;primary&quot;, objects=ALERT_TYPES)
+    alert_type: t.Literal[
+        &quot;primary&quot;, &quot;secondary&quot;, &quot;success&quot;, &quot;danger&quot;,
+        &quot;warning&quot;, &quot;info&quot;, &quot;light&quot;, &quot;dark&quot;
+    ] = param.Selector(default=&quot;primary&quot;, objects=ALERT_TYPES, doc=&quot;&quot;&quot;
+        The type of Alert and one of &#39;primary&#39;, &#39;secondary&#39;, &#39;success&#39;, &#39;danger&#39;,
+        &#39;warning&#39;, &#39;info&#39;, &#39;light&#39;, &#39;dark&#39;.&quot;&quot;&quot;)  # type: ignore[assignment, ty:invalid-assignment]
 
-    priority: ClassVar[float | bool | None] = 0
+    priority: t.ClassVar[float | bool | None] = 0
 
-    _rename: ClassVar[Mapping[str, str | None]] = {&#39;alert_type&#39;: None}
+    _rename: t.ClassVar[Mapping[str, str | None]] = {&#39;alert_type&#39;: None}
 
-    _stylesheets: ClassVar[list[str]] = [
+    _stylesheets: t.ClassVar[list[str]] = [
         f&#39;{CDN_DIST}css/alerts.css&#39;
     ]
 
     @classmethod
-    def applies(cls, obj: Any) -&gt; float | bool | None:
-        priority = Markdown.applies(obj)
+    def applies(cls, object: t.Any) -&gt; float | bool | None:
+        priority = Markdown.applies(object)
         return 0 if priority else False
 
     def __init__(self, object=None, **params):
@@ -206,7 +213,7 @@ class Alert(Markdown):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

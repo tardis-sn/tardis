@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.transport.montecarlo.modes.iip.solver &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/plot_directive.css" />
 
@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -139,6 +139,7 @@
   <h1>Source code for tardis.transport.montecarlo.modes.iip.solver</h1><div class="highlight"><pre>
 <span></span>import logging
 
+import pandas as pd
 from astropy import units as u
 from numba import cuda, set_num_threads
 
@@ -250,10 +251,19 @@ class MCTransportSolverIIP(HDFWriterMixin):
         iteration=0,
     ):
         if not plasma.continuum_interaction_species.empty:
-            if plasma.gamma is not None:
-                n_levels_bf_species_by_n_cells_tuple = plasma.gamma.shape
-            else:
-                n_levels_bf_species_by_n_cells_tuple = plasma.phi_lucy.shape
+            # Combine phi_lucy data for all nlte_species to get total shape
+            if plasma.nlte_species:
+                all_species_phi_lucy = pd.concat(
+                    [
+                        plasma.phi_lucy.loc[species]
+                        for species in plasma.nlte_species
+                    ],
+                    axis=0,
+                )
+                n_levels_bf_species_by_n_cells_tuple = (
+                    all_species_phi_lucy.shape
+                )
+
         else:
             n_levels_bf_species_by_n_cells_tuple = (0, 0)
 
@@ -487,7 +497,7 @@ class MCTransportSolverIIP(HDFWriterMixin):
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

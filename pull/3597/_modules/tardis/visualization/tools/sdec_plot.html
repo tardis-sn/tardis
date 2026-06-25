@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.visualization.tools.sdec_plot &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
 
@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1048,8 +1048,8 @@ class SDECPlotter:
             self.plot_wavelength.value,
             lower_level,
             upper_level,
-            color=&quot;#4C4C4C&quot;,
-            label=&quot;No interaction&quot;,
+            color=self._predefined_traces[&quot;emission&quot;][&quot;noint&quot;][&quot;fillcolor&quot;],
+            label=self._predefined_traces[&quot;emission&quot;][&quot;noint&quot;][&quot;name&quot;]
         )
 
         lower_level = upper_level
@@ -1062,8 +1062,8 @@ class SDECPlotter:
             self.plot_wavelength.value,
             lower_level,
             upper_level,
-            color=&quot;#8F8F8F&quot;,
-            label=&quot;Electron Scatter Only&quot;,
+            color=self._predefined_traces[&quot;emission&quot;][&quot;escatter&quot;][&quot;fillcolor&quot;],
+            label=self._predefined_traces[&quot;emission&quot;][&quot;escatter&quot;][&quot;name&quot;]
         )
 
         # If the &#39;other&#39; column exists then plot it as silver
@@ -1078,8 +1078,8 @@ class SDECPlotter:
                 self.plot_wavelength.value,
                 lower_level,
                 upper_level,
-                color=&quot;#C2C2C2&quot;,
-                label=&quot;Other elements&quot;,
+                color=self._predefined_traces[&quot;emission&quot;][&quot;other&quot;][&quot;fillcolor&quot;],
+                label=self._predefined_traces[&quot;emission&quot;][&quot;other&quot;][&quot;name&quot;]
             )
 
         # Contribution from each element
@@ -1232,6 +1232,213 @@ class SDECPlotter:
                 color = self.cmap(i / len(self.species))
             color_list.append(color)
         self._color_list = color_list
+
+<div class="viewcode-block" id="SDECPlotter.generate_plot_bk">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_bk">[docs]</a>
+    def generate_plot_bk(
+        self,
+        packets_mode=&quot;virtual&quot;,
+        packet_wvl_range=None,
+        distance=None,
+        observed_spectrum=None,
+        show_modeled_spectrum=True,
+        fig=None,
+        graph_width=800,
+        graph_height=400,
+        cmapname=&quot;jet&quot;,
+        nelements=None,
+        species_list=None,
+        blackbody_photosphere=True,
+    ):
+        &quot;&quot;&quot;
+        Generate Spectral element DEComposition (SDEC) Plot using Bokeh.
+
+        Parameters
+        ----------
+        packets_mode : {&#39;virtual&#39;, &#39;real&#39;}, optional
+            Mode of packets to be considered, either real or virtual. Default
+            value is &#39;virtual&#39;
+        packet_wvl_range : astropy.Quantity or None, optional
+            Wavelength range to restrict the analysis of escaped packets.
+        distance : astropy.Quantity or None, optional
+            Distance used to calculate flux instead of luminosity in the plot.
+        observed_spectrum : tuple or list of astropy.Quantity, optional
+            Option to plot an observed spectrum in the SDEC plot.
+        show_modeled_spectrum : bool, optional
+            Whether to show modeled spectrum in SDEC Plot.
+        fig : bokeh.plotting.figure or None, optional
+            Figure object on which to create plot.
+        graph_width : int, optional
+            Width of the bokeh figure.
+        graph_height : int, optional
+            Height of the bokeh figure.
+        cmapname : str, optional
+            Name of matplotlib colormap to be used for showing elements.
+        nelements: int
+            Number of elements to include in plot.
+        species_list: list of strings or None
+            list of strings containing the names of species that should be included.
+        blackbody_photosphere: bool
+            Whether to include the blackbody photosphere in the plot.
+
+        Returns
+        -------
+        bokeh.plotting.figure
+            Figure object on which SDEC Plot is created
+        &quot;&quot;&quot;
+        if species_list is not None and nelements is not None:
+            logger.info(&quot;Both nelements and species_list were requested. Species_list takes priority; nelements is ignored&quot;)
+
+        self._parse_species_list(species_list=species_list)
+
+        self._calculate_plotting_data(
+            packets_mode=packets_mode,
+            packet_wvl_range=packet_wvl_range,
+            distance=distance,
+            nelements=nelements,
+        )
+
+        if fig is None:
+            from bokeh.plotting import figure
+            self.fig = figure(
+                width=graph_width,
+                height=graph_height,
+                title=&quot;SDEC Plot&quot;,
+                tools=&quot;box_select,reset,pan,wheel_zoom,save&quot;,
+                y_axis_type=&quot;linear&quot;
+            )
+        else:
+            self.fig = fig
+
+        self._make_colorbar_labels()
+        self.cmap = plt.get_cmap(cmapname, len(self._species_name))
+        self._make_colorbar_colors()
+
+        self._plot_emission_bk()
+        self._plot_absorption_bk()
+
+        if show_modeled_spectrum:
+            self.fig.line(
+                x=self.plot_wavelength.value,
+                y=self.modeled_spectrum_luminosity.value,
+                line_color=&quot;blue&quot;,
+                line_dash=&quot;dashed&quot;,
+                line_width=1,
+                legend_label=f&quot;{packets_mode.capitalize()} Spectrum&quot;
+            )
+
+        if observed_spectrum:
+            if distance is None:
+                raise ValueError(&quot;Distance must be specified if an observed_spectrum is given.&quot;)
+            observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
+            observed_spectrum_flux = observed_spectrum[1].to(&quot;erg/(s cm**2 AA)&quot;)
+            self.fig.line(
+                x=observed_spectrum_wavelength.value,
+                y=observed_spectrum_flux.value,
+                line_color=&quot;black&quot;,
+                line_width=1.2,
+                legend_label=&quot;Observed Spectrum&quot;
+            )
+
+        if blackbody_photosphere:
+            self.fig.line(
+                x=self.plot_wavelength.value,
+                y=self.photosphere_luminosity.value,
+                line_color=&quot;red&quot;,
+                line_dash=&quot;dashed&quot;,
+                line_width=1.5,
+                legend_label=&quot;Blackbody Photosphere&quot;
+            )
+
+        self._show_colorbar_bk()
+
+        xlabel = f&quot;Wavelength [{u.AA}]&quot;
+        if distance is not None:
+            ylabel = f&quot;F_lambda [{u.Unit(&#39;erg/(s cm**2 AA)&#39;)}]&quot;
+        else:
+            ylabel = f&quot;L_lambda [{u.Unit(&#39;erg/(s AA)&#39;)}]&quot;
+
+        self.fig.xaxis.axis_label = xlabel
+        self.fig.yaxis.axis_label = ylabel
+
+        return self.fig</div>
+
+
+    def _plot_emission_bk(self):
+        &quot;&quot;&quot;Plot emission part of the SDEC Plot using Bokeh.&quot;&quot;&quot;
+        lower_level = np.zeros(self.emission_luminosities_df.shape[0])
+        upper_level = lower_level + self.emission_luminosities_df[(&quot;noint&quot;, &quot;&quot;)].to_numpy()
+
+        self.fig.varea(
+            x=self.plot_wavelength.value,
+            y1=lower_level, y2=upper_level,
+            fill_color=self._predefined_traces[&quot;emission&quot;][&quot;noint&quot;][&quot;fillcolor&quot;],
+            legend_label=self._predefined_traces[&quot;emission&quot;][&quot;noint&quot;][&quot;name&quot;]
+        )
+
+        lower_level = upper_level
+        upper_level = lower_level + self.emission_luminosities_df[(&quot;escatter&quot;, &quot;&quot;)].to_numpy()
+        self.fig.varea(
+            x=self.plot_wavelength.value,
+            y1=lower_level, y2=upper_level,
+            fill_color=self._predefined_traces[&quot;emission&quot;][&quot;escatter&quot;][&quot;fillcolor&quot;],
+            legend_label=self._predefined_traces[&quot;emission&quot;][&quot;escatter&quot;][&quot;name&quot;]
+        )
+
+        if &quot;other&quot; in self.emission_luminosities_df.keys():
+            lower_level = upper_level
+            upper_level = lower_level + self.emission_luminosities_df[(&quot;other&quot;, &quot;&quot;)].to_numpy()
+            self.fig.varea(
+                x=self.plot_wavelength.value,
+                y1=lower_level, y2=upper_level,
+                fill_color=self._predefined_traces[&quot;emission&quot;][&quot;other&quot;][&quot;fillcolor&quot;],
+                legend_label=self._predefined_traces[&quot;emission&quot;][&quot;other&quot;][&quot;name&quot;]
+            )
+
+        for species_counter, identifier in enumerate(self.species):
+            try:
+                lower_level = upper_level
+                upper_level = lower_level + self.emission_luminosities_df[tuple(identifier)].to_numpy()
+                hex_color = clr.to_hex(self._color_list[species_counter])
+                self.fig.varea(x=self.plot_wavelength.value, y1=lower_level, y2=upper_level, fill_color=hex_color)
+            except KeyError:
+                self._log_missing_species(identifier, &quot;emitted&quot;)
+
+    def _plot_absorption_bk(self):
+        &quot;&quot;&quot;Plot absorption part of the SDEC Plot using Bokeh.&quot;&quot;&quot;
+        lower_level = np.zeros(self.absorption_luminosities_df.shape[0])
+
+        if &quot;other&quot; in self.absorption_luminosities_df.keys():
+            upper_level = lower_level
+            lower_level = upper_level - self.absorption_luminosities_df[(&quot;other&quot;, &quot;&quot;)].to_numpy()
+            self.fig.varea(x=self.plot_wavelength.value, y1=upper_level, y2=lower_level, fill_color=&quot;silver&quot;)
+
+        for species_counter, identifier in enumerate(self.species):
+            try:
+                upper_level = lower_level
+                lower_level = upper_level - self.absorption_luminosities_df[tuple(identifier)].to_numpy()
+                hex_color = clr.to_hex(self._color_list[species_counter])
+                self.fig.varea(x=self.plot_wavelength.value, y1=upper_level, y2=lower_level, fill_color=hex_color)
+            except KeyError:
+                self._log_missing_species(identifier, &quot;absorbed&quot;)
+
+    def _show_colorbar_bk(self):
+        &quot;&quot;&quot;Show Bokeh colorbar with labels of elements mapped to colors.&quot;&quot;&quot;
+        from bokeh.models import LinearColorMapper, ColorBar, FixedTicker, CustomJSTickFormatter
+        if len(self._species_name) == 0:
+            return
+
+        colors = [clr.to_hex(self.cmap(i / len(self._species_name))) for i in range(len(self._species_name))]
+        mapper = LinearColorMapper(palette=colors, low=0, high=len(self._species_name))
+
+        ticker = FixedTicker(ticks=np.arange(0, len(self._species_name)) + 0.5)
+        tick_dict = {float(t): str(l) for t, l in zip(np.arange(0, len(self._species_name)) + 0.5, self._species_name)}
+
+        formatter_js = &quot;const labels = &quot; + str(tick_dict) + &quot;; return labels[tick] || &#39;&#39;;&quot;
+        formatter = CustomJSTickFormatter(code=formatter_js)
+
+        color_bar = ColorBar(color_mapper=mapper, ticker=ticker, formatter=formatter, title=&quot;Elements&quot;)
+        self.fig.add_layout(color_bar, &#39;right&#39;)
 
 <div class="viewcode-block" id="SDECPlotter.generate_plot_ply">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.tools.sdec_plot.html#tardis.visualization.tools.sdec_plot.SDECPlotter.generate_plot_ply">[docs]</a>
@@ -1522,7 +1729,7 @@ class SDECPlotter:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

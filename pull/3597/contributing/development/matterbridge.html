@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Matterbridge Server &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,7 +35,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Debugging numba_montecarlo" href="debug_numba.html" />
+    <link rel="next" title="Debugging Numba-powered code" href="debug_numba.html" />
     <link rel="prev" title="Update the Regression Data" href="update_regression_data.html" />
     <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
 
@@ -111,14 +111,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contribution Guidelines</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Developer Workflow</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="development_playbook.html">TARDIS Development Playbook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html">Reporting Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="git_workflow.html">General Workflow to add a new feature</a></li>
 <li class="toctree-l2"><a class="reference internal" href="git_workflow.html#preparation-and-working-with-git">Preparation and Working with Git</a></li>
-<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html">Documentation Guidelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="running_tests.html">Running tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="code_quality.html">Code Quality Guidelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developer_faq.html">Developer FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html">Testing Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="running_tests.html">Running tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html">Documentation Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#tardis-core-team-instructions">TARDIS core team Instructions</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="continuous_integration.html">Continuous Integration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="update_regression_data.html">Update the Regression Data</a></li>
@@ -130,7 +131,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cron-job">Cron job</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="debug_numba.html">Debugging numba_montecarlo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="debug_numba.html">Debugging Numba-powered code</a></li>
 </ul>
 </li>
 </ul>
@@ -165,9 +166,9 @@
            <div itemprop="articleBody">
              
   <section id="matterbridge-server">
-<h1>Matterbridge Server<a class="headerlink" href="#matterbridge-server" title="Link to this heading">¶</a></h1>
+<h1>Matterbridge Server<a class="headerlink" href="#matterbridge-server" title="Link to this heading"></a></h1>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>We use Matterbridge to connect channels across different messaging platforms
 such as <em>Slack</em>, <em>Mattermost</em> and <em>Gitter</em>. Matterbridge provides binaries
 for  many operating systems. The <code class="docutils literal notranslate"><span class="pre">matterbridge</span></code> binary is intended to be used</p>
@@ -187,27 +188,27 @@ Linux service.</p>
 A <em>cron</em> job restarts the service periodically to prevent disconnections.</p>
 </section>
 <section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h2>
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
 <p>Use the TOML file in <code class="docutils literal notranslate"><span class="pre">tardis-matterbridge</span></code> as an example. You can set up
 as many gateways as you want!</p>
 <section id="slack">
-<h3>Slack<a class="headerlink" href="#slack" title="Link to this heading">¶</a></h3>
+<h3>Slack<a class="headerlink" href="#slack" title="Link to this heading"></a></h3>
 <p>Follow the <a class="reference external" href="https://github.com/42wim/matterbridge/wiki/Slack-bot-setup">steps for Slack in the Matterbridge wiki</a> and read carefully
 <a class="reference external" href="https://github.com/42wim/matterbridge/issues/964#issuecomment-612721850">this comment</a> (do not add any scopes manually!). Copy the token to use
 later in the TOML file.</p>
 </section>
 <section id="gitter">
-<h3>Gitter<a class="headerlink" href="#gitter" title="Link to this heading">¶</a></h3>
+<h3>Gitter<a class="headerlink" href="#gitter" title="Link to this heading"></a></h3>
 <p>Create a new GitHub dedicated account to use as a bot, refer to <a class="reference external" href="https://developer.gitter.im/docs/authentication">this link</a>
 and copy the token to use later in the TOML file.</p>
 </section>
 <section id="mattermost">
-<h3>Mattermost<a class="headerlink" href="#mattermost" title="Link to this heading">¶</a></h3>
+<h3>Mattermost<a class="headerlink" href="#mattermost" title="Link to this heading"></a></h3>
 <p>Follow the <a class="reference external" href="https://github.com/42wim/matterbridge/wiki/Section-Mattermost-%28basic%29">steps for Mattermost in the Matterbridge wiki</a>.</p>
 </section>
 </section>
 <section id="first-time-setup">
-<h2>First-time setup<a class="headerlink" href="#first-time-setup" title="Link to this heading">¶</a></h2>
+<h2>First-time setup<a class="headerlink" href="#first-time-setup" title="Link to this heading"></a></h2>
 <p>Follow these steps to set up the server:</p>
 <ol class="arabic simple">
 <li><p><em>ssh</em> to <a class="reference external" href="http://opensupernova.org">OpenSupernova.org</a> server.</p></li>
@@ -222,7 +223,7 @@ and copy the token to use later in the TOML file.</p>
 </ol>
 </section>
 <section id="update-server-configuration">
-<h2>Update server configuration<a class="headerlink" href="#update-server-configuration" title="Link to this heading">¶</a></h2>
+<h2>Update server configuration<a class="headerlink" href="#update-server-configuration" title="Link to this heading"></a></h2>
 <p>After updating the TOML file, follow these steps:</p>
 <ol class="arabic simple">
 <li><p><em>ssh</em> to <a class="reference external" href="http://opensupernova.org">OpenSupernova.org</a> server.</p></li>
@@ -233,7 +234,7 @@ and copy the token to use later in the TOML file.</p>
 </ol>
 </section>
 <section id="cron-job">
-<h2>Cron job<a class="headerlink" href="#cron-job" title="Link to this heading">¶</a></h2>
+<h2>Cron job<a class="headerlink" href="#cron-job" title="Link to this heading"></a></h2>
 <p>To edit the cron job, <em>ssh</em> to <a class="reference external" href="http://opensupernova.org">OpenSupernova.org</a> and run <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">crontab</span> <span class="pre">-e</span></code>.</p>
 </section>
 </section>
@@ -243,14 +244,14 @@ and copy the token to use later in the TOML file.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="update_regression_data.html" class="btn btn-neutral float-left" title="Update the Regression Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="debug_numba.html" class="btn btn-neutral float-right" title="Debugging numba_montecarlo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="debug_numba.html" class="btn btn-neutral float-right" title="Debugging Numba-powered code" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

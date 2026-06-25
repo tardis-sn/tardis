@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How to Generate the Plasma Graph &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -26,11 +26,13 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -99,9 +101,25 @@
 <li class="toctree-l1"><a class="reference internal" href="../../io/output/index.html">Additional Outputs</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Physics Walkthrough</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/intro/index.html">Physics Walkthrough Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../physics_walkthrough/setup/index.html">Setting Up the Simulation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../physics_walkthrough/setup/setup_example.html">Setup Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../physics_walkthrough/setup/model.html">Model</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../physics_walkthrough/setup/plasma/index.html">Plasma</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../physics_walkthrough/setup/plasma/index.html#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../../physics_walkthrough/setup/plasma/index.html#the-plasma-graph">The Plasma Graph</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">How to Generate the Plasma Graph</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../physics_walkthrough/setup/plasma/index.html#updating-the-plasma">Updating the Plasma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../physics_walkthrough/setup/plasma/index.html#plasma-calculations">Plasma Calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../physics_walkthrough/setup/plasma/index.html#sobolev-optical-depth">Sobolev optical depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../physics_walkthrough/setup/plasma/index.html#macro-atom-line-interaction-treatment">Macro Atom Line Interaction Treatment</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/montecarlo/index.html">Monte Carlo Iteration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/update_and_conv/update_and_conv.html">Updating Plasma and Convergence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../physics_walkthrough/spectrum/index.html">Spectrum Generation</a></li>
@@ -189,7 +207,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/how_to/output/how_to_plasma_graph.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="How-to-Generate-the-Plasma-Graph">
-<h1>How to Generate the Plasma Graph<a class="headerlink" href="#How-to-Generate-the-Plasma-Graph" title="Link to this heading">¶</a></h1>
+<h1>How to Generate the Plasma Graph<a class="headerlink" href="#How-to-Generate-the-Plasma-Graph" title="Link to this heading"></a></h1>
 <p>After running a simulation, TARDIS has the ability to create a <a class="reference external" href="https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)">graph</a> showcasing how each variable used to compute the plasma state is connected and calculated (see the <a class="reference external" href="../../physics/setup/plasma/index.rst">Plasma Documentation</a> for more information). To do so, one needs to utilize the <code class="docutils literal notranslate"><span class="pre">write_to_tex</span></code> command to generate a .tex file that displays the graph. This how-to aims to showcase how the .tex file can be generated and
 what options can be inputted to display the graph in a preferred method. To start, TARDIS needs to perform a simulation. Here the <code class="docutils literal notranslate"><span class="pre">tardis_example.yml</span></code> configuration file is used as in the <a class="reference internal" href="../../quickstart.html"><span class="doc">quickstart guide</span></a>.</p>
 <div class="nbinput nblast docutils container">
@@ -254,8 +272,8 @@ Auto-detected Sphinx build environment
 
 /* Override VSCode background color */
 .cell-output-ipywidget-background:has(
-    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
-  ),
+  > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
+),
 .cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
   background-color: transparent !important;
 }
@@ -274,9 +292,11 @@ var element = document.currentScript.previousSibling.previousSibling;
   }
 
   const force = true;
-  const py_version = '3.7.3'.replace('rc', '-rc.').replace('.dev', '-dev.');
+  const version = '3.9.0'.replace('rc', '-rc.').replace('.dev', '-dev.');
   const reloading = false;
   const Bokeh = root.Bokeh;
+  const BK_RE = /^https:\/\/cdn\.bokeh\.org\/bokeh\/(release|dev)\/bokeh-/;
+  const PN_RE = /^https:\/\/cdn\.holoviz\.org\/panel\/[^/]+\/dist\/panel/i;
 
   // Set a timeout for this load but only if we are not already initializing
   if (typeof (root._bokeh_timeout) === "undefined" || (force || !root._bokeh_is_initializing)) {
@@ -296,7 +316,7 @@ var element = document.currentScript.previousSibling.previousSibling;
     console.debug("Bokeh: all callbacks have finished");
   }
 
-  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
+  function load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, callback) {
     if (css_urls == null) css_urls = [];
     if (js_urls == null) js_urls = [];
     if (js_modules == null) js_modules = [];
@@ -370,7 +390,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
       const escaped = encodeURI(url)
-      if (skip.indexOf(escaped) !== -1 || existing_scripts.indexOf(escaped) !== -1) {
+      const shouldSkip = skip.includes(escaped) || existing_scripts.includes(escaped)
+      const isBokehOrPanel = BK_RE.test(escaped) || PN_RE.test(escaped)
+      const missingOrBroken = Bokeh == null || Bokeh.Panel == null || (Bokeh.version != version && !Bokeh.versions?.has(version)) || Bokeh.versions?.get(version)?.Panel == null;
+      if (shouldSkip && !(isBokehOrPanel && missingOrBroken)) {
         if (!window.requirejs) {
           on_load();
         }
@@ -434,10 +457,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     document.body.appendChild(element);
   }
 
-  const js_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-3.7.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.7.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.7.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.7.3.min.js", "https://cdn.holoviz.org/panel/1.7.1/dist/panel.min.js"];
+  const js_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-3.9.0.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.9.0.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.9.0.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.9.0.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/panel.min.js"];
   const js_modules = [];
   const js_exports = {};
-  const css_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/font-awesome/css/all.min.css"];
+  const css_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"];
   const inline_js = [    function(Bokeh) {
       Bokeh.set_log_level("info");
     },
@@ -455,24 +478,13 @@ function(Bokeh) {} // ensure no trailing comma for IE
           }
         }
       }
-      // Cache old bokeh versions
-      if (Bokeh != undefined && !reloading) {
-        var NewBokeh = root.Bokeh;
-        if (Bokeh.versions === undefined) {
-          Bokeh.versions = new Map();
-        }
-        if (NewBokeh.version !== Bokeh.version) {
-          Bokeh.versions.set(NewBokeh.version, NewBokeh)
-        }
-        root.Bokeh = Bokeh;
-      }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(run_inline_js, 100);
     } else if (!root._bokeh_failed_load) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     }
-    root._bokeh_is_initializing = false
+    root._bokeh_is_initializing = false;
   }
 
   function load_or_wait() {
@@ -489,24 +501,35 @@ function(Bokeh) {} // ensure no trailing comma for IE
       root._bokeh_timeout = Date.now() + 5000;
       root._bokeh_is_initializing = false;
       root._bokeh_onload_callbacks = undefined;
-      root._bokeh_is_loading = 0
+      root._bokeh_is_loading = 0;
       console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
       load_or_wait();
     } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
       setTimeout(load_or_wait, 100);
     } else {
-      root._bokeh_is_initializing = true
-      root._bokeh_onload_callbacks = []
-      const bokeh_loaded = root.Bokeh != null && (root.Bokeh.version === py_version || (root.Bokeh.versions !== undefined && root.Bokeh.versions.has(py_version)));
+      root._bokeh_is_initializing = true;
+      root._bokeh_onload_callbacks = [];
+      const bokeh_loaded = Bokeh != null && ((Bokeh.version === version && Bokeh.Panel) || (Bokeh.versions?.has(version) && Bokeh.versions.get(version)?.Panel));
       if (!reloading && !bokeh_loaded) {
         if (root.Bokeh) {
           root.Bokeh = undefined;
         }
         console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
       }
-      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
+      load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, function() {
         console.debug("Bokeh: BokehJS plotting callback run at", now());
         run_inline_js();
+        if (Bokeh != undefined && !reloading) {
+          const NewBokeh = root.Bokeh;
+          if (Bokeh.versions === undefined) {
+            Bokeh.versions = new Map();
+          }
+          if (NewBokeh.version !== Bokeh.version) {
+            Bokeh[NewBokeh.version] = NewBokeh;
+            Bokeh.versions.set(NewBokeh.version, NewBokeh);
+          }
+          root.Bokeh = Bokeh;
+        }
       });
     }
   }
@@ -547,7 +570,6 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
           var messages = comm.messages[Symbol.asyncIterator]();
           function processIteratorResult(result) {
             var message = result.value;
-            console.log(message)
             var content = {data: message.data, comm_id};
             var buffers = []
             for (var buffer of message.buffers || []) {
@@ -574,7 +596,22 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
         }
       } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
         var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
-        comm.open();
+        let retries = 0;
+        const open = () => {
+          if (comm.active) {
+            comm.open();
+          } else if (retries > 3) {
+            console.warn('Comm target never activated')
+          } else {
+            retries += 1
+            setTimeout(open, 500)
+          }
+        }
+        if (comm.active) {
+          comm.open();
+        } else {
+          setTimeout(open, 500)
+        }
         if (msg_handler) {
           comm.onMsg = msg_handler;
         }
@@ -769,17 +806,17 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div id='9c008aba-904e-4e7f-a728-9461e7dcef93'>
-  <div id="f44f08e4-1391-47f6-bbe1-8c86c20fd893" data-root-id="9c008aba-904e-4e7f-a728-9461e7dcef93" style="display: contents;"></div>
+<div id='569a56cd-31b6-4b95-a85b-37b2aabaa60b'>
+  <div id="a17ee077-f031-436b-a905-a29ff325839b" data-root-id="569a56cd-31b6-4b95-a85b-37b2aabaa60b" style="display: contents;"></div>
 </div>
 <script type="application/javascript">(function(root) {
-  var docs_json = {"fc03b905-8e51-4c4d-bef7-e2c3821a82e9":{"version":"3.7.3","title":"Bokeh Application","roots":[{"type":"object","name":"panel.models.browser.BrowserInfo","id":"9c008aba-904e-4e7f-a728-9461e7dcef93"},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"513d5ab5-24f3-44f0-948f-0ad4cf36ba8d","attributes":{"plot_id":"9c008aba-904e-4e7f-a728-9461e7dcef93","comm_id":"a6fa4e83062441f3a47b72ccebfe2bb3","client_comm_id":"0822aef04fef4b05b900ab4753b883e2"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
-  var render_items = [{"docid":"fc03b905-8e51-4c4d-bef7-e2c3821a82e9","roots":{"9c008aba-904e-4e7f-a728-9461e7dcef93":"f44f08e4-1391-47f6-bbe1-8c86c20fd893"},"root_ids":["9c008aba-904e-4e7f-a728-9461e7dcef93"]}];
+  var docs_json = {"566ed5b8-66fc-490c-b368-7627a6efdd47":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"3ad90025-127d-4289-99a9-32e71fb18544","attributes":{"notifications":{"type":"object","name":"Notifications","id":"dfa8e788-0a5e-40e4-aa57-1b480ed50c3c"}}},"roots":[{"type":"object","name":"panel.models.browser.BrowserInfo","id":"569a56cd-31b6-4b95-a85b-37b2aabaa60b"},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"fb99543b-a63c-40aa-b8dc-f9391a0097c7","attributes":{"plot_id":"569a56cd-31b6-4b95-a85b-37b2aabaa60b","comm_id":"09f9fe3f70a8477593696c6da6f3f8de","client_comm_id":"478fbd186cef4d7999942f89290f46f3"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"566ed5b8-66fc-490c-b368-7627a6efdd47","roots":{"569a56cd-31b6-4b95-a85b-37b2aabaa60b":"a17ee077-f031-436b-a905-a29ff325839b"},"root_ids":["569a56cd-31b6-4b95-a85b-37b2aabaa60b"]}];
   var docs = Object.values(docs_json)
   if (!docs) {
     return
   }
-  const py_version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
+  const version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
   async function embed_document(root) {
     var Bokeh = get_bokeh(root)
     await Bokeh.embed.embed_items_notebook(docs_json, render_items);
@@ -801,12 +838,12 @@ if (window.Jupyter !== undefined) {
   function get_bokeh(root) {
     if (root.Bokeh === undefined) {
       return null
-    } else if (root.Bokeh.version !== py_version) {
-      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(py_version)) {
+    } else if (root.Bokeh.version !== version) {
+      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(version)) {
     return null
       }
-      return root.Bokeh.versions.get(py_version);
-    } else if (root.Bokeh.version === py_version) {
+      return root.Bokeh.versions.get(version);
+    } else if (root.Bokeh.version === version) {
       return root.Bokeh
     }
     return null
@@ -862,8 +899,8 @@ Auto-detected Sphinx build environment
 
 /* Override VSCode background color */
 .cell-output-ipywidget-background:has(
-    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
-  ),
+  > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
+),
 .cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
   background-color: transparent !important;
 }
@@ -882,9 +919,11 @@ var element = document.currentScript.previousSibling.previousSibling;
   }
 
   const force = false;
-  const py_version = '3.7.3'.replace('rc', '-rc.').replace('.dev', '-dev.');
+  const version = '3.9.0'.replace('rc', '-rc.').replace('.dev', '-dev.');
   const reloading = true;
   const Bokeh = root.Bokeh;
+  const BK_RE = /^https:\/\/cdn\.bokeh\.org\/bokeh\/(release|dev)\/bokeh-/;
+  const PN_RE = /^https:\/\/cdn\.holoviz\.org\/panel\/[^/]+\/dist\/panel/i;
 
   // Set a timeout for this load but only if we are not already initializing
   if (typeof (root._bokeh_timeout) === "undefined" || (force || !root._bokeh_is_initializing)) {
@@ -904,7 +943,7 @@ var element = document.currentScript.previousSibling.previousSibling;
     console.debug("Bokeh: all callbacks have finished");
   }
 
-  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
+  function load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, callback) {
     if (css_urls == null) css_urls = [];
     if (js_urls == null) js_urls = [];
     if (js_modules == null) js_modules = [];
@@ -978,7 +1017,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
       const escaped = encodeURI(url)
-      if (skip.indexOf(escaped) !== -1 || existing_scripts.indexOf(escaped) !== -1) {
+      const shouldSkip = skip.includes(escaped) || existing_scripts.includes(escaped)
+      const isBokehOrPanel = BK_RE.test(escaped) || PN_RE.test(escaped)
+      const missingOrBroken = Bokeh == null || Bokeh.Panel == null || (Bokeh.version != version && !Bokeh.versions?.has(version)) || Bokeh.versions?.get(version)?.Panel == null;
+      if (shouldSkip && !(isBokehOrPanel && missingOrBroken)) {
         if (!window.requirejs) {
           on_load();
         }
@@ -1042,10 +1084,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     document.body.appendChild(element);
   }
 
-  const js_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js"];
+  const js_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js"];
   const js_modules = [];
   const js_exports = {};
-  const css_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/font-awesome/css/all.min.css"];
+  const css_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"];
   const inline_js = [    function(Bokeh) {
       Bokeh.set_log_level("info");
     },
@@ -1063,24 +1105,13 @@ function(Bokeh) {} // ensure no trailing comma for IE
           }
         }
       }
-      // Cache old bokeh versions
-      if (Bokeh != undefined && !reloading) {
-        var NewBokeh = root.Bokeh;
-        if (Bokeh.versions === undefined) {
-          Bokeh.versions = new Map();
-        }
-        if (NewBokeh.version !== Bokeh.version) {
-          Bokeh.versions.set(NewBokeh.version, NewBokeh)
-        }
-        root.Bokeh = Bokeh;
-      }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(run_inline_js, 100);
     } else if (!root._bokeh_failed_load) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     }
-    root._bokeh_is_initializing = false
+    root._bokeh_is_initializing = false;
   }
 
   function load_or_wait() {
@@ -1097,24 +1128,35 @@ function(Bokeh) {} // ensure no trailing comma for IE
       root._bokeh_timeout = Date.now() + 5000;
       root._bokeh_is_initializing = false;
       root._bokeh_onload_callbacks = undefined;
-      root._bokeh_is_loading = 0
+      root._bokeh_is_loading = 0;
       console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
       load_or_wait();
     } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
       setTimeout(load_or_wait, 100);
     } else {
-      root._bokeh_is_initializing = true
-      root._bokeh_onload_callbacks = []
-      const bokeh_loaded = root.Bokeh != null && (root.Bokeh.version === py_version || (root.Bokeh.versions !== undefined && root.Bokeh.versions.has(py_version)));
+      root._bokeh_is_initializing = true;
+      root._bokeh_onload_callbacks = [];
+      const bokeh_loaded = Bokeh != null && ((Bokeh.version === version && Bokeh.Panel) || (Bokeh.versions?.has(version) && Bokeh.versions.get(version)?.Panel));
       if (!reloading && !bokeh_loaded) {
         if (root.Bokeh) {
           root.Bokeh = undefined;
         }
         console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
       }
-      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
+      load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, function() {
         console.debug("Bokeh: BokehJS plotting callback run at", now());
         run_inline_js();
+        if (Bokeh != undefined && !reloading) {
+          const NewBokeh = root.Bokeh;
+          if (Bokeh.versions === undefined) {
+            Bokeh.versions = new Map();
+          }
+          if (NewBokeh.version !== Bokeh.version) {
+            Bokeh[NewBokeh.version] = NewBokeh;
+            Bokeh.versions.set(NewBokeh.version, NewBokeh);
+          }
+          root.Bokeh = Bokeh;
+        }
       });
     }
   }
@@ -1155,7 +1197,6 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
           var messages = comm.messages[Symbol.asyncIterator]();
           function processIteratorResult(result) {
             var message = result.value;
-            console.log(message)
             var content = {data: message.data, comm_id};
             var buffers = []
             for (var buffer of message.buffers || []) {
@@ -1182,7 +1223,22 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
         }
       } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
         var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
-        comm.open();
+        let retries = 0;
+        const open = () => {
+          if (comm.active) {
+            comm.open();
+          } else if (retries > 3) {
+            console.warn('Comm target never activated')
+          } else {
+            retries += 1
+            setTimeout(open, 500)
+          }
+        }
+        if (comm.active) {
+          comm.open();
+        } else {
+          setTimeout(open, 500)
+        }
         if (msg_handler) {
           comm.onMsg = msg_handler;
         }
@@ -1377,33 +1433,23 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "01d2f7502f714dc98c7d0eabdb86c1f2"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "b44b4fa202ef4c26954e1b9ee63f0395"}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "c84ffe432c6441b4972c05884261b9ff"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "e11fd16e8d2843109a98ab213c9f11e7"}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<script type="text/javascript">
+<script>
 window.PlotlyConfig = {MathJaxConfig: 'local'};
 if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
-if (typeof require !== 'undefined') {
-require.undef("plotly");
-requirejs.config({
-    paths: {
-        'plotly': ['https://cdn.plot.ly/plotly-2.32.0.min']
-    }
-});
-require(['plotly'], function(Plotly) {
-    window._Plotly = Plotly;
-});
-}
-</script></div>
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-3.6.0.min"</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -1433,8 +1479,8 @@ Initializing tabulator and plotly panel extensions for widgets to work
 
 /* Override VSCode background color */
 .cell-output-ipywidget-background:has(
-    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
-  ),
+  > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
+),
 .cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
   background-color: transparent !important;
 }
@@ -1453,9 +1499,11 @@ var element = document.currentScript.previousSibling.previousSibling;
   }
 
   const force = false;
-  const py_version = '3.7.3'.replace('rc', '-rc.').replace('.dev', '-dev.');
+  const version = '3.9.0'.replace('rc', '-rc.').replace('.dev', '-dev.');
   const reloading = true;
   const Bokeh = root.Bokeh;
+  const BK_RE = /^https:\/\/cdn\.bokeh\.org\/bokeh\/(release|dev)\/bokeh-/;
+  const PN_RE = /^https:\/\/cdn\.holoviz\.org\/panel\/[^/]+\/dist\/panel/i;
 
   // Set a timeout for this load but only if we are not already initializing
   if (typeof (root._bokeh_timeout) === "undefined" || (force || !root._bokeh_is_initializing)) {
@@ -1475,7 +1523,7 @@ var element = document.currentScript.previousSibling.previousSibling;
     console.debug("Bokeh: all callbacks have finished");
   }
 
-  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
+  function load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, callback) {
     if (css_urls == null) css_urls = [];
     if (js_urls == null) js_urls = [];
     if (js_modules == null) js_modules = [];
@@ -1509,7 +1557,7 @@ var element = document.currentScript.previousSibling.previousSibling;
 
     const skip = [];
     if (window.requirejs) {
-      window.requirejs.config({'packages': {}, 'paths': {'tabulator': 'https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.1/dist/js/tabulator.min', 'moment': 'https://cdn.jsdelivr.net/npm/luxon/build/global/luxon.min', 'plotly': 'https://cdn.plot.ly/plotly-3.0.1.min'}, 'shim': {}});
+      window.requirejs.config({'packages': {}, 'paths': {'tabulator': 'https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min', 'moment': 'https://cdn.jsdelivr.net/npm/luxon/build/global/luxon.min', 'plotly': 'https://cdn.plot.ly/plotly-3.1.0.min', 'katex': 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min', 'autoLoad': 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min'}, 'shim': {}});
       require(["tabulator"], function(Tabulator) {
         window.Tabulator = Tabulator
         on_load()
@@ -1522,7 +1570,15 @@ var element = document.currentScript.previousSibling.previousSibling;
         window.Plotly = Plotly
         on_load()
       })
-      root._bokeh_is_loading = css_urls.length + 3;
+      require(["katex"], function(katex) {
+        window.katex = katex
+        on_load()
+      })
+      require(["autoLoad"], function(renderMathInElement) {
+        window.renderMathInElement = renderMathInElement
+        on_load()
+      })
+      root._bokeh_is_loading = css_urls.length + 5;
     } else {
       root._bokeh_is_loading = css_urls.length + js_urls.length + js_modules.length + Object.keys(js_exports).length;
     }
@@ -1551,17 +1607,27 @@ var element = document.currentScript.previousSibling.previousSibling;
       console.debug("Bokeh: injecting link tag for BokehJS stylesheet: ", url);
       document.body.appendChild(element);
     }    if (((window.Tabulator !== undefined) && (!(window.Tabulator instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/tabulator-tables@6.3.1/dist/js/tabulator.min.js'];
+      var urls = ['https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/tabulator-tables@6.4.0/dist/js/tabulator.min.js'];
       for (var i = 0; i < urls.length; i++) {
         skip.push(encodeURI(urls[i]))
       }
     }    if (((window.moment !== undefined) && (!(window.moment instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/luxon/build/global/luxon.min.js'];
+      var urls = ['https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/luxon/build/global/luxon.min.js'];
       for (var i = 0; i < urls.length; i++) {
         skip.push(encodeURI(urls[i]))
       }
     }    if (((window.Plotly !== undefined) && (!(window.Plotly instanceof HTMLElement))) || window.requirejs) {
       var urls = [];
+      for (var i = 0; i < urls.length; i++) {
+        skip.push(encodeURI(urls[i]))
+      }
+    }    if (((window.katex !== undefined) && (!(window.katex instanceof HTMLElement))) || window.requirejs) {
+      var urls = ['https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/katex.min.js'];
+      for (var i = 0; i < urls.length; i++) {
+        skip.push(encodeURI(urls[i]))
+      }
+    }    if (((window.renderMathInElement !== undefined) && (!(window.renderMathInElement instanceof HTMLElement))) || window.requirejs) {
+      var urls = ['https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/contrib/auto-render.min.js'];
       for (var i = 0; i < urls.length; i++) {
         skip.push(encodeURI(urls[i]))
       }
@@ -1576,7 +1642,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
       const escaped = encodeURI(url)
-      if (skip.indexOf(escaped) !== -1 || existing_scripts.indexOf(escaped) !== -1) {
+      const shouldSkip = skip.includes(escaped) || existing_scripts.includes(escaped)
+      const isBokehOrPanel = BK_RE.test(escaped) || PN_RE.test(escaped)
+      const missingOrBroken = Bokeh == null || Bokeh.Panel == null || (Bokeh.version != version && !Bokeh.versions?.has(version)) || Bokeh.versions?.get(version)?.Panel == null;
+      if (shouldSkip && !(isBokehOrPanel && missingOrBroken)) {
         if (!window.requirejs) {
           on_load();
         }
@@ -1640,10 +1709,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     document.body.appendChild(element);
   }
 
-  const js_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/plotlyplot/plotly-3.0.1.min.js", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/tabulator-tables@6.3.1/dist/js/tabulator.min.js", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/luxon/build/global/luxon.min.js"];
+  const js_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/katex.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/contrib/auto-render.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/plotlyplot/plotly-3.1.0.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/tabulator-tables@6.4.0/dist/js/tabulator.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/luxon/build/global/luxon.min.js"];
   const js_modules = [];
   const js_exports = {};
-  const css_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/plotlyplot/maplibre-gl@4.4.1/dist/maplibre-gl.css?v=1.7.1", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/tabulator-tables@6.3.1/dist/css/tabulator_simple.min.css?v=1.7.1", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/font-awesome/css/all.min.css"];
+  const css_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/katex.min.css", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/plotlyplot/maplibre-gl@4.4.1/dist/maplibre-gl.css", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/tabulator-tables@6.4.0/dist/css/tabulator_simple.min.css", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"];
   const inline_js = [    function(Bokeh) {
       Bokeh.set_log_level("info");
     },
@@ -1661,24 +1730,13 @@ function(Bokeh) {} // ensure no trailing comma for IE
           }
         }
       }
-      // Cache old bokeh versions
-      if (Bokeh != undefined && !reloading) {
-        var NewBokeh = root.Bokeh;
-        if (Bokeh.versions === undefined) {
-          Bokeh.versions = new Map();
-        }
-        if (NewBokeh.version !== Bokeh.version) {
-          Bokeh.versions.set(NewBokeh.version, NewBokeh)
-        }
-        root.Bokeh = Bokeh;
-      }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(run_inline_js, 100);
     } else if (!root._bokeh_failed_load) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     }
-    root._bokeh_is_initializing = false
+    root._bokeh_is_initializing = false;
   }
 
   function load_or_wait() {
@@ -1695,24 +1753,35 @@ function(Bokeh) {} // ensure no trailing comma for IE
       root._bokeh_timeout = Date.now() + 5000;
       root._bokeh_is_initializing = false;
       root._bokeh_onload_callbacks = undefined;
-      root._bokeh_is_loading = 0
+      root._bokeh_is_loading = 0;
       console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
       load_or_wait();
     } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
       setTimeout(load_or_wait, 100);
     } else {
-      root._bokeh_is_initializing = true
-      root._bokeh_onload_callbacks = []
-      const bokeh_loaded = root.Bokeh != null && (root.Bokeh.version === py_version || (root.Bokeh.versions !== undefined && root.Bokeh.versions.has(py_version)));
+      root._bokeh_is_initializing = true;
+      root._bokeh_onload_callbacks = [];
+      const bokeh_loaded = Bokeh != null && ((Bokeh.version === version && Bokeh.Panel) || (Bokeh.versions?.has(version) && Bokeh.versions.get(version)?.Panel));
       if (!reloading && !bokeh_loaded) {
         if (root.Bokeh) {
           root.Bokeh = undefined;
         }
         console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
       }
-      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
+      load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, function() {
         console.debug("Bokeh: BokehJS plotting callback run at", now());
         run_inline_js();
+        if (Bokeh != undefined && !reloading) {
+          const NewBokeh = root.Bokeh;
+          if (Bokeh.versions === undefined) {
+            Bokeh.versions = new Map();
+          }
+          if (NewBokeh.version !== Bokeh.version) {
+            Bokeh[NewBokeh.version] = NewBokeh;
+            Bokeh.versions.set(NewBokeh.version, NewBokeh);
+          }
+          root.Bokeh = Bokeh;
+        }
       });
     }
   }
@@ -1753,7 +1822,6 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
           var messages = comm.messages[Symbol.asyncIterator]();
           function processIteratorResult(result) {
             var message = result.value;
-            console.log(message)
             var content = {data: message.data, comm_id};
             var buffers = []
             for (var buffer of message.buffers || []) {
@@ -1780,7 +1848,22 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
         }
       } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
         var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
-        comm.open();
+        let retries = 0;
+        const open = () => {
+          if (comm.active) {
+            comm.open();
+          } else if (retries > 3) {
+            console.warn('Comm target never activated')
+          } else {
+            retries += 1
+            setTimeout(open, 500)
+          }
+        }
+        if (comm.active) {
+          comm.open();
+        } else {
+          setTimeout(open, 500)
+        }
         if (msg_handler) {
           comm.onMsg = msg_handler;
         }
@@ -1981,17 +2064,17 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div id='a6a02035-c922-4bc0-b90d-cd4a42f3b28a'>
-  <div id="c8e9ce15-1928-43c2-a8e6-b48737025a37" data-root-id="a6a02035-c922-4bc0-b90d-cd4a42f3b28a" style="display: contents;"></div>
+<div id='3fdbd2b8-4b9f-418a-b779-7daa6e93907e'>
+  <div id="fbc882a4-edcc-4ecc-b7e7-dba7d940f2b5" data-root-id="3fdbd2b8-4b9f-418a-b779-7daa6e93907e" style="display: contents;"></div>
 </div>
 <script type="application/javascript">(function(root) {
-  var docs_json = {"3f46e078-cb92-479d-a759-d481fdfca63e":{"version":"3.7.3","title":"Bokeh Application","roots":[{"type":"object","name":"panel.models.markup.HTML","id":"a6a02035-c922-4bc0-b90d-cd4a42f3b28a","attributes":{"styles":{"type":"map","entries":[["border","1px solid #ddd"],["background-color","white"],["overflow-y","auto"],["overflow-x","auto"],["font-family","monospace"],["padding","8px"],["white-space","pre-wrap"]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"a4a37445-20a5-4493-a099-b1c1dbecce79","attributes":{"url":"https://cdn.holoviz.org/panel/1.7.1/dist/css/loading.css"}},{"type":"object","name":"ImportedStyleSheet","id":"0e0b8cde-a799-4d45-a713-9ccabe0f8e72","attributes":{"url":"https://cdn.holoviz.org/panel/1.7.1/dist/bundled/font-awesome/css/all.min.css"}},{"type":"object","name":"ImportedStyleSheet","id":"c97b15ce-3bab-4c8b-9ed2-4e1e3c669d66","attributes":{"url":"https://cdn.holoviz.org/panel/1.7.1/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"e16cb3b5-6cb6-41bd-b002-f75c89a244fe","attributes":{"url":"https://cdn.holoviz.org/panel/1.7.1/dist/bundled/theme/native.css"}}],"height":300,"min_width":0,"margin":[5,10],"sizing_mode":"stretch_width","align":"start","text":"&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.parse_atom_data&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tReading Atomic Data from kurucz_cd23_chianti_H_He_latest.h5 (parse_atom_data.py:40)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.util&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tAtom Data kurucz_cd23_chianti_H_He_latest.h5 not found in local path.\n\tExists in TARDIS Data repo /home/runner/Downloads/tardis-data/kurucz_cd23_chianti_H_He_latest.h5 (util.py:33)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Reading Atom Data with: UUID = b58b2ef63bf811f08edf96479f911fbd MD5  = 5d80fa4ae0638469bf1ff281b6ca2a94  (base.py:258)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Non provided Atomic Data: levels, lines, collision_data, collision_data_temperatures, synpp_refs, photoionization_data, yg_data, two_photon_data, linelist_atoms, linelist_molecules (base.py:262)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.model.parse_composition_configuration&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; Number of density points larger than number of shells. Assuming inner point irrelevant (parse_composition_configuration.py:63)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.model.parse_mass_fraction_configuration&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; model_isotope_time_0 is not set in the configuration. Isotopic mass fractions will not be decayed and is assumed to be correct for the time_explosion. THIS IS NOT RECOMMENDED! (parse_mass_fraction_configuration.py:101)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 1 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;py.warnings&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; /home/runner/work/tardis/tardis/tardis/transport/montecarlo/modes/classic/montecarlo_transport.py:161: NumbaTypeSafetyWarning:\n\nunsafe cast from uint64 to int64. Precision may be lost.\n\n (warnings.py:110)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 7.943e+42 erg / s\n\tLuminosity absorbed  = 2.657e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.        t_rad    next_t_rad         w    next_w\n0          9926.501965  10116.400117  0.400392  0.512668\n5          9852.611678  10283.504112  0.211205  0.192793\n10         9779.813302  10189.827247  0.142695  0.115336\n15         9708.082813   9923.884385  0.104556  0.085604&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 9933.952 K\n\tExpected t_inner for next iteration = 10702.988 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 2 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.072e+43 erg / s\n\tLuminosity absorbed  = 3.567e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10116.400117  10859.335083  0.512668  0.515006\n5          10283.504112  11047.813469  0.192793  0.197296\n10         10189.827247  10784.014772  0.115336  0.124660\n15          9923.884385  10512.786812  0.085604  0.092163&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10702.988 K\n\tExpected t_inner for next iteration = 10671.223 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 3 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.072e+43 erg / s\n\tLuminosity absorbed  = 3.405e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 1/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10859.335083  11028.367667  0.515006  0.478453\n5          11047.813469  11225.720704  0.197296  0.184581\n10         10784.014772  10962.940980  0.124660  0.117054\n15         10512.786812  10638.764585  0.092163  0.087737&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10671.223 K\n\tExpected t_inner for next iteration = 10640.300 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 4 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.062e+43 erg / s\n\tLuminosity absorbed  = 3.343e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 2/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11028.367667  11039.195242  0.478453  0.469587\n5          11225.720704  11221.258877  0.184581  0.183026\n10         10962.940980  10996.505309  0.117054  0.114706\n15         10638.764585  10711.508546  0.087737  0.084769&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10640.300 K\n\tExpected t_inner for next iteration = 10634.325 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 5 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.052e+43 erg / s\n\tLuminosity absorbed  = 3.401e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 3/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11039.195242  10998.789084  0.469587  0.477674\n5          11221.258877  11294.641191  0.183026  0.177204\n10         10996.505309  11052.895920  0.114706  0.112235\n15         10711.508546  10717.828389  0.084769  0.083837&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10634.325 K\n\tExpected t_inner for next iteration = 10652.352 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 6 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.059e+43 erg / s\n\tLuminosity absorbed  = 3.424e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 4/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10998.789084  11054.210691  0.477674  0.470495\n5          11294.641191  11199.467106  0.177204  0.185990\n10         11052.895920  10990.566575  0.112235  0.115141\n15         10717.828389  10661.243541  0.083837  0.085553&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10652.352 K\n\tExpected t_inner for next iteration = 10651.891 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 7 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.061e+43 erg / s\n\tLuminosity absorbed  = 3.409e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 5/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11054.210691  11038.116422  0.470495  0.469156\n5          11199.467106  11334.960475  0.185990  0.176689\n10         10990.566575  11001.652865  0.115141  0.114078\n15         10661.243541  10738.063893  0.085553  0.083841&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.891 K\n\tExpected t_inner for next iteration = 10647.389 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 8 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.066e+43 erg / s\n\tLuminosity absorbed  = 3.339e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 6/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11038.116422  11067.726564  0.469156  0.468792\n5          11334.960475  11345.349156  0.176689  0.176570\n10         11001.652865  11075.099653  0.114078  0.112232\n15         10738.063893  10667.117872  0.083841  0.085676&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.389 K\n\tExpected t_inner for next iteration = 10631.313 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 9 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.053e+43 erg / s\n\tLuminosity absorbed  = 3.381e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 7/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11067.726564  11028.090146  0.468792  0.470004\n5          11345.349156  11331.415395  0.176570  0.177394\n10         11075.099653  11110.491648  0.112232  0.110346\n15         10667.117872  10685.541256  0.085676  0.084306&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10631.313 K\n\tExpected t_inner for next iteration = 10647.705 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 10 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.065e+43 erg / s\n\tLuminosity absorbed  = 3.343e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 8/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11028.090146  11010.668144  0.470004  0.478204\n5          11331.415395  11351.652490  0.177394  0.176805\n10         11110.491648  11093.944975  0.110346  0.111728\n15         10685.541256  10661.650687  0.084306  0.086093&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.705 K\n\tExpected t_inner for next iteration = 10632.321 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 11 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.052e+43 erg / s\n\tLuminosity absorbed  = 3.395e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 9/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11010.668144  11012.589597  0.478204  0.474125\n5          11351.652490  11263.036102  0.176805  0.181170\n10         11093.944975  10974.207510  0.111728  0.115166\n15         10661.650687  10573.933232  0.086093  0.087431&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10632.321 K\n\tExpected t_inner for next iteration = 10651.129 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 12 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.061e+43 erg / s\n\tLuminosity absorbed  = 3.407e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 10/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11012.589597  11111.110931  0.474125  0.462769\n5          11263.036102  11393.783860  0.181170  0.174409\n10         10974.207510  11058.216516  0.115166  0.111998\n15         10573.933232  10641.288598  0.087431  0.086211&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.129 K\n\tExpected t_inner for next iteration = 10647.736 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 13 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.058e+43 erg / s\n\tLuminosity absorbed  = 3.411e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 11/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11111.110931  11073.718554  0.462769  0.467763\n5          11393.783860  11442.925323  0.174409  0.171317\n10         11058.216516  11194.007214  0.111998  0.107744\n15         10641.288598  10700.089076  0.086211  0.085061&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.736 K\n\tExpected t_inner for next iteration = 10650.333 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 14 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.068e+43 erg / s\n\tLuminosity absorbed  = 3.335e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 12/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11073.718554  11042.652176  0.467763  0.473196\n5          11442.925323  11385.836907  0.171317  0.176879\n10         11194.007214  11126.822925  0.107744  0.110562\n15         10700.089076  10719.455945  0.085061  0.084659&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10650.333 K\n\tExpected t_inner for next iteration = 10629.375 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 15 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.051e+43 erg / s\n\tLuminosity absorbed  = 3.390e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 13/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11042.652176  10972.498902  0.473196  0.479822\n5          11385.836907  11244.959847  0.176879  0.182422\n10         11126.822925  11059.964223  0.110562  0.112385\n15         10719.455945  10669.537176  0.084659  0.085082&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10629.375 K\n\tExpected t_inner for next iteration = 10651.199 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 16 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.056e+43 erg / s\n\tLuminosity absorbed  = 3.453e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 14/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10972.498902  11054.220137  0.479822  0.470790\n5          11244.959847  11390.935659  0.182422  0.172641\n10         11059.964223  11062.336960  0.112385  0.112268\n15         10669.537176  10762.756528  0.085082  0.082607&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.199 K\n\tExpected t_inner for next iteration = 10659.896 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 17 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.067e+43 erg / s\n\tLuminosity absorbed  = 3.389e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 15/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11054.220137  11094.082655  0.470790  0.465237\n5          11390.935659  11354.965044  0.172641  0.176871\n10         11062.336960  11180.146847  0.112268  0.107948\n15         10762.756528  10773.332233  0.082607  0.082896&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10659.896 K\n\tExpected t_inner for next iteration = 10639.937 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 18 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.058e+43 erg / s\n\tLuminosity absorbed  = 3.371e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 16/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11094.082655  11081.093239  0.465237  0.462475\n5          11354.965044  11430.220627  0.176871  0.170952\n10         11180.146847  11202.439479  0.107948  0.106734\n15         10773.332233  10763.553188  0.082896  0.082201&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10639.937 K\n\tExpected t_inner for next iteration = 10642.096 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 19 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.054e+43 erg / s\n\tLuminosity absorbed  = 3.424e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 17/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11081.093239  11069.393981  0.462475  0.466629\n5          11430.220627  11516.913779  0.170952  0.167577\n10         11202.439479  11196.954370  0.106734  0.106345\n15         10763.553188  10723.696320  0.082201  0.083164&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10642.096 K\n\tExpected t_inner for next iteration = 10655.927 K\n (base.py:656)&lt;/div&gt;","disable_math":true}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
-  var render_items = [{"docid":"3f46e078-cb92-479d-a759-d481fdfca63e","roots":{"a6a02035-c922-4bc0-b90d-cd4a42f3b28a":"c8e9ce15-1928-43c2-a8e6-b48737025a37"},"root_ids":["a6a02035-c922-4bc0-b90d-cd4a42f3b28a"]}];
+  var docs_json = {"a5b36207-f7be-4d6a-a022-010866f50ab0":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"fc6598f0-0e16-4d98-aa3a-ea664911bfe2","attributes":{"notifications":{"type":"object","name":"Notifications","id":"d695844f-723b-4db8-a3b5-d3e0ce206aa6"}}},"roots":[{"type":"object","name":"panel.models.markup.HTML","id":"3fdbd2b8-4b9f-418a-b779-7daa6e93907e","attributes":{"styles":{"type":"map","entries":[["border","1px solid #ddd"],["background-color","white"],["overflow-y","auto"],["overflow-x","auto"],["font-family","monospace"],["padding","8px"],["white-space","pre-wrap"]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 300px));\n  -webkit-mask-size: auto calc(min(50%, 300px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"5c5a28f7-5668-480d-8372-2544c482a829","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/css/loading.css?v=1.9.3"}},{"type":"object","name":"ImportedStyleSheet","id":"cc702fda-7d7b-478d-80b0-09c60f2d0d32","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"}},{"type":"object","name":"ImportedStyleSheet","id":"af88312e-1e20-4bd5-b467-b8cfe15885e7","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"320ea529-10dd-4f47-b1d4-9ccb012f4329","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/native.css"}}],"height":300,"min_width":0,"margin":[5,10],"sizing_mode":"stretch_width","align":"start","text":"&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.parse_atom_data&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tReading Atomic Data from kurucz_cd23_chianti_H_He_latest.h5 (parse_atom_data.py:40)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.util&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tAtom Data kurucz_cd23_chianti_H_He_latest.h5 not found in local path.\n\tExists in TARDIS Data repo /home/runner/Downloads/tardis-data/kurucz_cd23_chianti_H_He_latest.h5 (util.py:33)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Reading Atom Data with: UUID = b58b2ef63bf811f08edf96479f911fbd MD5  = 5d80fa4ae0638469bf1ff281b6ca2a94  (base.py:258)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Non provided Atomic Data: levels, lines, collision_data, collision_data_temperatures, synpp_refs, photoionization_data, yg_data, two_photon_data, linelist_atoms, linelist_molecules (base.py:262)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.model.parse_composition_configuration&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; Number of density points larger than number of shells. Assuming inner point irrelevant (parse_composition_configuration.py:63)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.model.parse_mass_fraction_configuration&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; model_isotope_time_0 is not set in the configuration. Isotopic mass fractions will not be decayed and is assumed to be correct for the time_explosion. THIS IS NOT RECOMMENDED! (parse_mass_fraction_configuration.py:101)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 1 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 7.943e+42 erg / s\n\tLuminosity absorbed  = 2.657e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.        t_rad    next_t_rad         w    next_w\n0          9926.501965  10116.400117  0.400392  0.512668\n5          9852.611678  10283.504112  0.211205  0.192793\n10         9779.813302  10189.827247  0.142695  0.115336\n15         9708.082813   9923.884385  0.104556  0.085604&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 9933.952 K\n\tExpected t_inner for next iteration = 10702.988 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 2 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.072e+43 erg / s\n\tLuminosity absorbed  = 3.567e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10116.400117  10859.335083  0.512668  0.515006\n5          10283.504112  11047.813469  0.192793  0.197296\n10         10189.827247  10784.014772  0.115336  0.124660\n15          9923.884385  10512.786812  0.085604  0.092163&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10702.988 K\n\tExpected t_inner for next iteration = 10671.223 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 3 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.072e+43 erg / s\n\tLuminosity absorbed  = 3.405e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 1/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10859.335083  11028.367667  0.515006  0.478453\n5          11047.813469  11225.720704  0.197296  0.184581\n10         10784.014772  10962.940980  0.124660  0.117054\n15         10512.786812  10638.764585  0.092163  0.087737&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10671.223 K\n\tExpected t_inner for next iteration = 10640.300 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 4 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.062e+43 erg / s\n\tLuminosity absorbed  = 3.343e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 2/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11028.367667  11039.195242  0.478453  0.469587\n5          11225.720704  11221.258877  0.184581  0.183026\n10         10962.940980  10996.505309  0.117054  0.114706\n15         10638.764585  10711.508546  0.087737  0.084769&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10640.300 K\n\tExpected t_inner for next iteration = 10634.325 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 5 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.052e+43 erg / s\n\tLuminosity absorbed  = 3.401e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 3/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11039.195242  10998.789084  0.469587  0.477674\n5          11221.258877  11294.641191  0.183026  0.177204\n10         10996.505309  11052.895920  0.114706  0.112235\n15         10711.508546  10717.828389  0.084769  0.083837&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10634.325 K\n\tExpected t_inner for next iteration = 10652.352 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 6 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.059e+43 erg / s\n\tLuminosity absorbed  = 3.424e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 4/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10998.789084  11054.210691  0.477674  0.470495\n5          11294.641191  11199.467106  0.177204  0.185990\n10         11052.895920  10990.566575  0.112235  0.115141\n15         10717.828389  10661.243541  0.083837  0.085553&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10652.352 K\n\tExpected t_inner for next iteration = 10651.891 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 7 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.061e+43 erg / s\n\tLuminosity absorbed  = 3.409e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 5/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11054.210691  11038.116422  0.470495  0.469156\n5          11199.467106  11334.960475  0.185990  0.176689\n10         10990.566575  11001.652865  0.115141  0.114078\n15         10661.243541  10738.063893  0.085553  0.083841&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.891 K\n\tExpected t_inner for next iteration = 10647.389 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 8 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.066e+43 erg / s\n\tLuminosity absorbed  = 3.339e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 6/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11038.116422  11067.726564  0.469156  0.468792\n5          11334.960475  11345.349156  0.176689  0.176570\n10         11001.652865  11075.099653  0.114078  0.112232\n15         10738.063893  10667.117872  0.083841  0.085676&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.389 K\n\tExpected t_inner for next iteration = 10631.313 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 9 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.053e+43 erg / s\n\tLuminosity absorbed  = 3.381e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 7/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11067.726564  11028.090146  0.468792  0.470004\n5          11345.349156  11331.415395  0.176570  0.177394\n10         11075.099653  11110.491648  0.112232  0.110346\n15         10667.117872  10685.541256  0.085676  0.084306&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10631.313 K\n\tExpected t_inner for next iteration = 10647.705 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 10 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.065e+43 erg / s\n\tLuminosity absorbed  = 3.343e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 8/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11028.090146  11010.668144  0.470004  0.478204\n5          11331.415395  11351.652490  0.177394  0.176805\n10         11110.491648  11093.944975  0.110346  0.111728\n15         10685.541256  10661.650687  0.084306  0.086093&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.705 K\n\tExpected t_inner for next iteration = 10632.321 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 11 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.052e+43 erg / s\n\tLuminosity absorbed  = 3.395e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 9/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11010.668144  11012.589597  0.478204  0.474125\n5          11351.652490  11263.036102  0.176805  0.181170\n10         11093.944975  10974.207510  0.111728  0.115166\n15         10661.650687  10573.933232  0.086093  0.087431&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10632.321 K\n\tExpected t_inner for next iteration = 10651.129 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 12 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.061e+43 erg / s\n\tLuminosity absorbed  = 3.407e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 10/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11012.589597  11111.110931  0.474125  0.462769\n5          11263.036102  11393.783860  0.181170  0.174409\n10         10974.207510  11058.216516  0.115166  0.111998\n15         10573.933232  10641.288598  0.087431  0.086211&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.129 K\n\tExpected t_inner for next iteration = 10647.736 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 13 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.058e+43 erg / s\n\tLuminosity absorbed  = 3.411e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 11/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11111.110931  11073.718554  0.462769  0.467763\n5          11393.783860  11442.925323  0.174409  0.171317\n10         11058.216516  11194.007214  0.111998  0.107744\n15         10641.288598  10700.089076  0.086211  0.085061&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.736 K\n\tExpected t_inner for next iteration = 10650.333 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 14 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.068e+43 erg / s\n\tLuminosity absorbed  = 3.335e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 12/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11073.718554  11042.652176  0.467763  0.473196\n5          11442.925323  11385.836907  0.171317  0.176879\n10         11194.007214  11126.822925  0.107744  0.110562\n15         10700.089076  10719.455945  0.085061  0.084659&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10650.333 K\n\tExpected t_inner for next iteration = 10629.375 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 15 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.051e+43 erg / s\n\tLuminosity absorbed  = 3.390e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 13/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11042.652176  10972.498902  0.473196  0.479822\n5          11385.836907  11244.959847  0.176879  0.182422\n10         11126.822925  11059.964223  0.110562  0.112385\n15         10719.455945  10669.537176  0.084659  0.085082&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10629.375 K\n\tExpected t_inner for next iteration = 10651.199 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 16 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.056e+43 erg / s\n\tLuminosity absorbed  = 3.453e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 14/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10972.498902  11054.220137  0.479822  0.470790\n5          11244.959847  11390.935659  0.182422  0.172641\n10         11059.964223  11062.336960  0.112385  0.112268\n15         10669.537176  10762.756528  0.085082  0.082607&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.199 K\n\tExpected t_inner for next iteration = 10659.896 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 17 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.067e+43 erg / s\n\tLuminosity absorbed  = 3.389e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 15/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11054.220137  11094.082655  0.470790  0.465237\n5          11390.935659  11354.965044  0.172641  0.176871\n10         11062.336960  11180.146847  0.112268  0.107948\n15         10762.756528  10773.332233  0.082607  0.082896&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10659.896 K\n\tExpected t_inner for next iteration = 10639.937 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 18 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.058e+43 erg / s\n\tLuminosity absorbed  = 3.371e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 16/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11094.082655  11081.093239  0.465237  0.462475\n5          11354.965044  11430.220627  0.176871  0.170952\n10         11180.146847  11202.439479  0.107948  0.106734\n15         10773.332233  10763.553188  0.082896  0.082201&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10639.937 K\n\tExpected t_inner for next iteration = 10642.096 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 19 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.054e+43 erg / s\n\tLuminosity absorbed  = 3.424e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 17/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11081.093239  11069.393981  0.462475  0.466629\n5          11430.220627  11516.913779  0.170952  0.167577\n10         11202.439479  11196.954370  0.106734  0.106345\n15         10763.553188  10723.696320  0.082201  0.083164&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10642.096 K\n\tExpected t_inner for next iteration = 10655.927 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tSimulation finished in 19 iterations \n\tSimulation took 66.77 s\n (base.py:563)&lt;/div&gt;","disable_math":true}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"a5b36207-f7be-4d6a-a022-010866f50ab0","roots":{"3fdbd2b8-4b9f-418a-b779-7daa6e93907e":"fbc882a4-edcc-4ecc-b7e7-dba7d940f2b5"},"root_ids":["3fdbd2b8-4b9f-418a-b779-7daa6e93907e"]}];
   var docs = Object.values(docs_json)
   if (!docs) {
     return
   }
-  const py_version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
+  const version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
   async function embed_document(root) {
     var Bokeh = get_bokeh(root)
     await Bokeh.embed.embed_items_notebook(docs_json, render_items);
@@ -2013,19 +2096,19 @@ if (window.Jupyter !== undefined) {
   function get_bokeh(root) {
     if (root.Bokeh === undefined) {
       return null
-    } else if (root.Bokeh.version !== py_version) {
-      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(py_version)) {
+    } else if (root.Bokeh.version !== version) {
+      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(version)) {
     return null
       }
-      return root.Bokeh.versions.get(py_version);
-    } else if (root.Bokeh.version === py_version) {
+      return root.Bokeh.versions.get(version);
+    } else if (root.Bokeh.version === version) {
       return root.Bokeh
     }
     return null
   }
   function is_loaded(root) {
     var Bokeh = get_bokeh(root)
-    return (Bokeh != null && Bokeh.Panel !== undefined && ( root.Tabulator !== undefined) && ( root.Plotly !== undefined) && ( root.Tabulator !== undefined) && ( root.Plotly !== undefined))
+    return (Bokeh != null && Bokeh.Panel !== undefined && ( root.Tabulator !== undefined) && ( root.Plotly !== undefined) && ( root.katex !== undefined) && ( root.Tabulator !== undefined) && ( root.Plotly !== undefined) && ( root.katex !== undefined))
   }
   if (is_loaded(root)) {
     embed_document(root);
@@ -2061,7 +2144,7 @@ Embedding the final state for Jupyter environments
 </pre></div></div>
 </div>
 <section id="Displaying-the-Graph-Within-A-Jupyter-Notebook">
-<h2>Displaying the Graph Within A Jupyter Notebook<a class="headerlink" href="#Displaying-the-Graph-Within-A-Jupyter-Notebook" title="Link to this heading">¶</a></h2>
+<h2>Displaying the Graph Within A Jupyter Notebook<a class="headerlink" href="#Displaying-the-Graph-Within-A-Jupyter-Notebook" title="Link to this heading"></a></h2>
 <p>Now that TARDIS has finished a simulation run, the plasma graph can now be generated. To display the basic graph within a Jupyter Notebook, one can simply use the <code class="docutils literal notranslate"><span class="pre">nx.draw</span></code> as follows:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -2113,7 +2196,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </section>
 <section id="Saving-the-Graph-Onto-a-.tex-File">
-<h2>Saving the Graph Onto a .tex File<a class="headerlink" href="#Saving-the-Graph-Onto-a-.tex-File" title="Link to this heading">¶</a></h2>
+<h2>Saving the Graph Onto a .tex File<a class="headerlink" href="#Saving-the-Graph-Onto-a-.tex-File" title="Link to this heading"></a></h2>
 <p>With the <code class="docutils literal notranslate"><span class="pre">write_to_tex</span></code> command, a copy of the graph can be saved within a .tex file. Currently, there are four parameters TARDIS uses to write the graph in <a class="reference external" href="https://en.wikipedia.org/wiki/LaTeX">LaTeX</a> and save it to a .tex file:</p>
 <ul><li><p>fname_graph: The name of the file TARDIS will save the graph onto (required)</p>
 </li><li><p>scale: a scaling factor to expand/contract the generated graph</p>
@@ -2125,7 +2208,7 @@ Populating the interactive namespace from numpy and matplotlib
 <p>As of now, TARDIS has an issue of not spacing edges correctly, causing the default output to look very condensed and unreadable in certain areas. It is recommended, therefore, to use the given parameters to generate a graph that displays everything in as readable a format as possible.</p>
 </div>
 <section id="Default-Plasma-Graph">
-<h3>Default Plasma Graph<a class="headerlink" href="#Default-Plasma-Graph" title="Link to this heading">¶</a></h3>
+<h3>Default Plasma Graph<a class="headerlink" href="#Default-Plasma-Graph" title="Link to this heading"></a></h3>
 <p>From above, TARDIS only needs the name of the file it should save the graph to as default.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -2176,124 +2259,124 @@ Populating the interactive namespace from numpy and matplotlib
 % Start of code
 \begin{tikzpicture}[&gt;=latex&#39;,line join=bevel,scale=0.5]
 %%
-\node (DilutePlanckianRadField) at (726.87bp,1150.6bp) [draw,ellipse] {$\textrm{DilutePlanckianRadField}$};
+\node (DilutePlanckianRadField) at (784.87bp,1150.6bp) [draw,ellipse] {$\textrm{DilutePlanckianRadField}$};
   \node (TRadiative) at (972.87bp,1061.4bp) [draw,ellipse] {$\textrm{TRadiative}$};
   \node (DilutionFactor) at (712.87bp,1061.4bp) [draw,ellipse] {$\textrm{DilutionFactor}$};
   \node (ElectronTemperature) at (366.87bp,972.1bp) [draw,ellipse] {$\textrm{ElectronTemperature: }\textrm{const.}\times T_{\textrm{rad}}$};
   \node (BetaRadiation) at (1103.9bp,972.1bp) [draw,ellipse] {$\textrm{BetaRadiation: }\dfrac{1}{k_{B} T_{\textrm{rad}}}$};
-  \node (NumberDensity) at (1745.9bp,1150.6bp) [draw,ellipse] {$\textrm{NumberDensity}$};
-  \node (SelectedAtoms) at (2421.9bp,1061.4bp) [draw,ellipse] {$\textrm{SelectedAtoms}$};
-  \node (IonNumberDensity) at (2183.9bp,488.35bp) [draw,ellipse] {$\textrm{IonNumberDensity}$};
-  \node (Levels) at (2176.9bp,972.1bp) [draw,ellipse] {$\textrm{Levels}$};
+  \node (NumberDensity) at (1675.9bp,1150.6bp) [draw,ellipse] {$\textrm{NumberDensity}$};
+  \node (SelectedAtoms) at (2400.9bp,1061.4bp) [draw,ellipse] {$\textrm{SelectedAtoms}$};
+  \node (IonNumberDensity) at (2194.9bp,488.35bp) [draw,ellipse] {$\textrm{IonNumberDensity}$};
+  \node (Levels) at (2175.9bp,972.1bp) [draw,ellipse] {$\textrm{Levels}$};
   \node (Lines) at (2797.9bp,918.1bp) [draw,ellipse] {$\textrm{Lines}$};
-  \node (IonizationData) at (1937.9bp,972.1bp) [draw,ellipse] {$\textrm{IonizationData}$};
-  \node (MacroAtomData) at (2462.9bp,972.1bp) [draw,ellipse] {$\textrm{MacroAtomData}$};
+  \node (IonizationData) at (1936.9bp,972.1bp) [draw,ellipse] {$\textrm{IonizationData}$};
+  \node (MacroAtomData) at (2461.9bp,972.1bp) [draw,ellipse] {$\textrm{MacroAtomData}$};
   \node (LevelNumberDensity) at (2333.9bp,399.1bp) [draw,ellipse] {$\textrm{LevelNumberDensity: }N_{i,j}\dfrac{bf_{i,j,k}}{Z_{i,j}}$};
-  \node (TimeExplosion) at (3223.9bp,309.85bp) [draw,ellipse] {$\textrm{TimeExplosion}$};
-  \node (TauSobolev) at (2867.9bp,208.55bp) [draw,ellipse] {$\textrm{TauSobolev: }\dfrac{\pi e^{2}}{m_{e} c}f_{lu}\lambda t_{exp}        n_{lower} \Big(1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\Big)$};
-  \node (TransitionProbabilities) at (2563.9bp,18.0bp) [draw,ellipse] {$\textrm{TransitionProbabilities}$};
-  \node (BetaSobolev) at (2706.9bp,107.25bp) [draw,ellipse] {$\textrm{BetaSobolev}$};
-  \node (AtomicData) at (2154.9bp,1061.4bp) [draw,ellipse] {$\textrm{AtomicData}$};
+  \node (TimeExplosion) at (3218.9bp,309.85bp) [draw,ellipse] {$\textrm{TimeExplosion}$};
+  \node (TauSobolev) at (2878.9bp,208.55bp) [draw,ellipse] {$\textrm{TauSobolev: }\dfrac{\pi e^{2}}{m_{e} c}f_{lu}\lambda t_{exp}        n_{lower} \Big(1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\Big)$};
+  \node (TransitionProbabilities) at (2574.9bp,18.0bp) [draw,ellipse] {$\textrm{TransitionProbabilities}$};
+  \node (BetaSobolev) at (2717.9bp,107.25bp) [draw,ellipse] {$\textrm{BetaSobolev}$};
+  \node (AtomicData) at (2133.9bp,1061.4bp) [draw,ellipse] {$\textrm{AtomicData}$};
   \node (LevelBoltzmannFactorLTE) at (2075.9bp,864.1bp) [draw,ellipse] {$\textrm{LevelBoltzmannFactorLTE: }g_{i,j,k}e^{\dfrac{-\epsilon_{i,j,k}}{k_{\textrm{B}}T_{\textrm{rad}}}}$};
-  \node (StimulatedEmissionFactor) at (2606.9bp,309.85bp) [draw,ellipse] {$\textrm{StimulatedEmissionFactor: }1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}$};
-  \node (PhiSahaLTE) at (1332.9bp,577.6bp) [draw,ellipse] {$\textrm{PhiSahaLTE: }\dfrac{2Z_{i,j+1}}{Z_{i,j}}\big(                      \dfrac{2\pi m_{e}/\beta_{\textrm{rad}}}{h^2}                      \big)^{3/2}e^{\dfrac{-\chi_{i,j}}{kT_{\textrm{rad}}}}$};
-  \node (JBlues) at (2934.9bp,107.25bp) [draw,ellipse] {$\textrm{JBlues}$};
+  \node (StimulatedEmissionFactor) at (2601.9bp,309.85bp) [draw,ellipse] {$\textrm{StimulatedEmissionFactor: }1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}$};
+  \node (PhiSahaLTE) at (1343.9bp,577.6bp) [draw,ellipse] {$\textrm{PhiSahaLTE: }\dfrac{2Z_{i,j+1}}{Z_{i,j}}\big(                      \dfrac{2\pi m_{e}/\beta_{\textrm{rad}}}{h^2}                      \big)^{3/2}e^{\dfrac{-\chi_{i,j}}{kT_{\textrm{rad}}}}$};
+  \node (JBlues) at (2945.9bp,107.25bp) [draw,ellipse] {$\textrm{JBlues}$};
   \node (LinkTRadTElectron) at (366.87bp,1061.4bp) [draw,ellipse] {$\textrm{LinkTRadTElectron}$};
-  \node (HeliumTreatment) at (2047.9bp,1150.6bp) [draw,ellipse] {$\textrm{HeliumTreatment}$};
-  \node (ContinuumInteractionSpecies) at (2419.9bp,1150.6bp) [draw,ellipse] {$\textrm{ContinuumInteractionSpecies}$};
-  \node (NLTEIonizationSpecies) at (2818.9bp,1150.6bp) [draw,ellipse] {$\textrm{NLTEIonizationSpecies}$};
-  \node (NLTEExcitationSpecies) at (3185.9bp,1150.6bp) [draw,ellipse] {$\textrm{NLTEExcitationSpecies}$};
-  \node (GElectron) at (916.87bp,810.1bp) [draw,ellipse] {$\textrm{GElectron: }\Big(\dfrac{2\pi m_{e}/\beta_{\textrm{rad}}}{h^2}\Big)^{3/2}$};
-  \node (LevelBoltzmannFactorNoNLTE) at (2140.9bp,756.1bp) [draw,ellipse] {$\textrm{LevelBoltzmannFactorNoNLTE}$};
-  \node (PartitionFunction) at (2140.9bp,666.85bp) [draw,ellipse] {$\textrm{PartitionFunction: }\sum_{k}bf_{i,j,k}$};
-  \draw [-&gt;] (DilutePlanckianRadField) ..controls (815.24bp,1118.3bp) and (874.39bp,1097.3bp)  .. (TRadiative);
+  \node (HeliumTreatment) at (1977.9bp,1150.6bp) [draw,ellipse] {$\textrm{HeliumTreatment}$};
+  \node (ContinuumInteractionSpecies) at (2349.9bp,1150.6bp) [draw,ellipse] {$\textrm{ContinuumInteractionSpecies}$};
+  \node (NLTEIonizationSpecies) at (2748.9bp,1150.6bp) [draw,ellipse] {$\textrm{NLTEIonizationSpecies}$};
+  \node (NLTEExcitationSpecies) at (3115.9bp,1150.6bp) [draw,ellipse] {$\textrm{NLTEExcitationSpecies}$};
+  \node (GElectron) at (926.87bp,810.1bp) [draw,ellipse] {$\textrm{GElectron: }\Big(\dfrac{2\pi m_{e}/\beta_{\textrm{rad}}}{h^2}\Big)^{3/2}$};
+  \node (LevelBoltzmannFactorNoNLTE) at (2151.9bp,756.1bp) [draw,ellipse] {$\textrm{LevelBoltzmannFactorNoNLTE}$};
+  \node (PartitionFunction) at (2151.9bp,666.85bp) [draw,ellipse] {$\textrm{PartitionFunction: }\sum_{k}bf_{i,j,k}$};
+  \draw [-&gt;] (DilutePlanckianRadField) ..controls (851.85bp,1118.5bp) and (894.95bp,1098.5bp)  .. (TRadiative);
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (874.16bp,1101.3bp) node {dilute-planckian-radiation-field};
-  \draw [-&gt;] (DilutePlanckianRadField) ..controls (722.21bp,1120.5bp) and (719.65bp,1104.6bp)  .. (DilutionFactor);
-  \draw (723.38bp,1101.3bp) node {dilute-planckian-radiation-field};
+  \draw (897.96bp,1101.3bp) node {dilute-planckian-radiation-field};
+  \draw [-&gt;] (DilutePlanckianRadField) ..controls (760.29bp,1119.8bp) and (746.09bp,1102.6bp)  .. (DilutionFactor);
+  \draw (757.57bp,1101.3bp) node {dilute-planckian-radiation-field};
   \draw [-&gt;] (TRadiative) ..controls (789.18bp,1033.9bp) and (612.58bp,1008.5bp)  .. (ElectronTemperature);
   \draw (726.4bp,1012.05bp) node {$T_{\textrm{rad}}$};
   \draw [-&gt;] (TRadiative) ..controls (1018.1bp,1030.2bp) and (1046.2bp,1011.5bp)  .. (BetaRadiation);
   \draw (1052.36bp,1012.05bp) node {$T_{\textrm{rad}}$};
-  \draw [-&gt;] (NumberDensity) ..controls (1966.8bp,1121.1bp) and (2186.7bp,1092.7bp)  .. (SelectedAtoms);
-  \draw (2146.67bp,1101.3bp) node {$N_{i}$};
-  \draw [-&gt;] (NumberDensity) ..controls (1553.4bp,1127.0bp) and (1445.9bp,1103.9bp)  .. (1445.9bp,1062.4bp) .. controls (1445.9bp,1062.4bp) and (1445.9bp,1062.4bp)  .. (1445.9bp,809.1bp) .. controls (1445.9bp,775.79bp) and (1445.0bp,760.25bp)  .. (1469.9bp,738.1bp) .. controls (1612.4bp,611.25bp) and (1701.9bp,682.05bp)  .. (1889.9bp,648.85bp) .. controls (1973.2bp,634.14bp) and (2211.4bp,659.48bp)  .. (2266.9bp,595.6bp) .. controls (2290.9bp,567.94bp) and (2254.5bp,534.38bp)  .. (IonNumberDensity);
+  \draw [-&gt;] (NumberDensity) ..controls (1909.8bp,1121.4bp) and (2152.6bp,1092.2bp)  .. (SelectedAtoms);
+  \draw (2105.56bp,1101.3bp) node {$N_{i}$};
+  \draw [-&gt;] (NumberDensity) ..controls (1531.6bp,1120.9bp) and (1445.9bp,1095.7bp)  .. (1445.9bp,1062.4bp) .. controls (1445.9bp,1062.4bp) and (1445.9bp,1062.4bp)  .. (1445.9bp,809.1bp) .. controls (1445.9bp,775.79bp) and (1444.9bp,760.18bp)  .. (1469.9bp,738.1bp) .. controls (1616.4bp,608.45bp) and (1708.1bp,682.38bp)  .. (1900.9bp,648.85bp) .. controls (1984.2bp,634.35bp) and (2222.4bp,659.48bp)  .. (2277.9bp,595.6bp) .. controls (2301.9bp,567.94bp) and (2265.5bp,534.38bp)  .. (IonNumberDensity);
   \draw (1448.12bp,805.43bp) node {$N_{i}$};
-  \draw [-&gt;] (SelectedAtoms) ..controls (2385.4bp,1031.6bp) and (2364.0bp,1016.9bp)  .. (2342.9bp,1008.1bp) .. controls (2317.6bp,997.52bp) and (2288.7bp,990.0bp)  .. (Levels);
-  \draw (2377.15bp,1012.05bp) node {selected-atoms};
-  \draw [-&gt;] (SelectedAtoms) ..controls (2505.0bp,1029.9bp) and (2562.2bp,1008.8bp)  .. (2611.9bp,990.1bp) .. controls (2657.8bp,972.84bp) and (2710.0bp,952.89bp)  .. (Lines);
-  \draw (2565.76bp,1012.05bp) node {selected-atoms};
-  \draw [-&gt;] (SelectedAtoms) ..controls (2306.9bp,1034.1bp) and (2237.3bp,1019.1bp)  .. (2175.9bp,1008.1bp) .. controls (2131.9bp,1000.2bp) and (2083.1bp,992.8bp)  .. (IonizationData);
-  \draw (2266.36bp,1012.05bp) node {selected-atoms};
-  \draw [-&gt;] (SelectedAtoms) ..controls (2435.7bp,1030.9bp) and (2443.5bp,1014.3bp)  .. (MacroAtomData);
-  \draw (2448.3bp,1012.05bp) node {selected-atoms};
-  \draw [-&gt;] (IonNumberDensity) ..controls (2236.3bp,456.84bp) and (2268.9bp,437.87bp)  .. (LevelNumberDensity);
-  \draw (2274.56bp,439.05bp) node {$N_{i,j}$};
-  \draw [-&gt;] (TimeExplosion) ..controls (3118.3bp,279.39bp) and (3044.3bp,258.77bp)  .. (TauSobolev);
-  \draw (3090.48bp,260.55bp) node {$t_{\textrm{exp}}$};
-  \draw [-&gt;] (TauSobolev) ..controls (2648.2bp,166.22bp) and (2591.0bp,147.85bp)  .. (2572.4bp,125.25bp) .. controls (2554.7bp,103.85bp) and (2554.8bp,71.091bp)  .. (TransitionProbabilities);
-  \draw (2574.62bp,102.58bp) node {$\tau_{\textrm{sobolev}}$};
-  \draw [-&gt;] (TauSobolev) ..controls (2796.0bp,163.24bp) and (2766.7bp,145.17bp)  .. (BetaSobolev);
-  \draw (2789.62bp,147.2bp) node {$\tau_{\textrm{sobolev}}$};
-  \draw [-&gt;] (AtomicData) ..controls (2162.2bp,1031.2bp) and (2166.3bp,1015.0bp)  .. (Levels);
-  \draw (2170.09bp,1012.05bp) node {atomic-data};
-  \draw [-&gt;] (AtomicData) ..controls (2245.4bp,1042.2bp) and (2260.5bp,1035.2bp)  .. (2272.9bp,1025.4bp) .. controls (2301.5bp,1002.7bp) and (2282.7bp,973.11bp)  .. (2313.9bp,954.1bp) .. controls (2351.4bp,931.25bp) and (2665.2bp,941.24bp)  .. (2708.9bp,936.1bp) .. controls (2715.3bp,935.35bp) and (2721.9bp,934.4bp)  .. (Lines);
-  \draw (2288.5bp,1012.05bp) node {atomic-data};
-  \draw [-&gt;] (AtomicData) ..controls (2079.0bp,1029.8bp) and (2027.6bp,1009.2bp)  .. (IonizationData);
-  \draw (2068.06bp,1012.05bp) node {atomic-data};
-  \draw [-&gt;] (AtomicData) ..controls (1721.0bp,1040.1bp) and (795.36bp,996.31bp)  .. (780.87bp,990.1bp) .. controls (759.49bp,980.94bp) and (761.93bp,967.45bp)  .. (742.87bp,954.1bp) .. controls (640.31bp,882.27bp) and (575.49bp,920.41bp)  .. (490.87bp,828.1bp) .. controls (396.46bp,725.11bp) and (379.87bp,673.7bp)  .. (379.87bp,533.98bp) .. controls (379.87bp,533.98bp) and (379.87bp,533.98bp)  .. (379.87bp,106.25bp) .. controls (379.87bp,56.294bp) and (1858.4bp,29.478bp)  .. (TransitionProbabilities);
-  \draw (382.14bp,528.3bp) node {atomic-data};
-  \draw [-&gt;] (AtomicData) ..controls (2251.5bp,1041.3bp) and (2279.2bp,1034.1bp)  .. (2303.9bp,1025.4bp) .. controls (2320.4bp,1019.5bp) and (2323.0bp,1014.4bp)  .. (2339.4bp,1008.1bp) .. controls (2355.3bp,1002.0bp) and (2372.6bp,996.49bp)  .. (MacroAtomData);
-  \draw (2341.62bp,1012.05bp) node {atomic-data};
-  \draw [-&gt;] (Levels) ..controls (2144.3bp,936.94bp) and (2119.0bp,910.32bp)  .. (LevelBoltzmannFactorLTE);
-  \draw (2143.57bp,913.43bp) node {$\textrm{levels}$};
-  \draw [-&gt;] (Levels) ..controls (2259.1bp,957.84bp) and (2273.9bp,955.77bp)  .. (2287.9bp,954.1bp) .. controls (2380.4bp,943.04bp) and (2697.9bp,958.34bp)  .. (2697.9bp,865.1bp) .. controls (2697.9bp,865.1bp) and (2697.9bp,865.1bp)  .. (2697.9bp,398.1bp) .. controls (2697.9bp,370.53bp) and (2675.8bp,348.96bp)  .. (StimulatedEmissionFactor);
+  \draw [-&gt;] (SelectedAtoms) ..controls (2375.0bp,1031.5bp) and (2359.0bp,1016.7bp)  .. (2341.9bp,1008.1bp) .. controls (2318.5bp,996.34bp) and (2291.4bp,988.52bp)  .. (Levels);
+  \draw (2369.03bp,1012.05bp) node {selected-atoms};
+  \draw [-&gt;] (SelectedAtoms) ..controls (2493.4bp,1030.4bp) and (2556.4bp,1009.6bp)  .. (2610.9bp,990.1bp) .. controls (2657.6bp,973.42bp) and (2710.4bp,953.24bp)  .. (Lines);
+  \draw (2559.84bp,1012.05bp) node {selected-atoms};
+  \draw [-&gt;] (SelectedAtoms) ..controls (2291.1bp,1034.0bp) and (2225.2bp,1019.0bp)  .. (2166.9bp,1008.1bp) .. controls (2125.2bp,1000.3bp) and (2079.1bp,993.01bp)  .. (IonizationData);
+  \draw (2253.09bp,1012.05bp) node {selected-atoms};
+  \draw [-&gt;] (SelectedAtoms) ..controls (2421.6bp,1030.7bp) and (2433.5bp,1013.7bp)  .. (MacroAtomData);
+  \draw (2439.09bp,1012.05bp) node {selected-atoms};
+  \draw [-&gt;] (IonNumberDensity) ..controls (2243.3bp,456.96bp) and (2273.2bp,438.21bp)  .. (LevelNumberDensity);
+  \draw (2279.07bp,439.05bp) node {$N_{i,j}$};
+  \draw [-&gt;] (TimeExplosion) ..controls (3117.4bp,279.22bp) and (3047.5bp,258.81bp)  .. (TauSobolev);
+  \draw (3091.58bp,260.55bp) node {$t_{\textrm{exp}}$};
+  \draw [-&gt;] (TauSobolev) ..controls (2659.2bp,166.22bp) and (2602.0bp,147.85bp)  .. (2583.4bp,125.25bp) .. controls (2565.7bp,103.85bp) and (2565.8bp,71.091bp)  .. (TransitionProbabilities);
+  \draw (2585.62bp,102.58bp) node {$\tau_{\textrm{sobolev}}$};
+  \draw [-&gt;] (TauSobolev) ..controls (2807.0bp,163.24bp) and (2777.7bp,145.17bp)  .. (BetaSobolev);
+  \draw (2800.62bp,147.2bp) node {$\tau_{\textrm{sobolev}}$};
+  \draw [-&gt;] (AtomicData) ..controls (2148.0bp,1030.9bp) and (2156.0bp,1014.3bp)  .. (Levels);
+  \draw (2160.89bp,1012.05bp) node {atomic-data};
+  \draw [-&gt;] (AtomicData) ..controls (2227.3bp,1042.3bp) and (2244.4bp,1035.2bp)  .. (2258.9bp,1025.4bp) .. controls (2291.7bp,1003.0bp) and (2277.7bp,972.59bp)  .. (2312.9bp,954.1bp) .. controls (2351.9bp,933.61bp) and (2665.1bp,941.25bp)  .. (2708.9bp,936.1bp) .. controls (2715.3bp,935.35bp) and (2721.9bp,934.4bp)  .. (Lines);
+  \draw (2277.45bp,1012.05bp) node {atomic-data};
+  \draw [-&gt;] (AtomicData) ..controls (2065.1bp,1029.9bp) and (2019.2bp,1009.6bp)  .. (IonizationData);
+  \draw (2055.27bp,1012.05bp) node {atomic-data};
+  \draw [-&gt;] (AtomicData) ..controls (1703.9bp,1039.9bp) and (795.12bp,996.21bp)  .. (780.87bp,990.1bp) .. controls (759.49bp,980.93bp) and (761.82bp,967.61bp)  .. (742.87bp,954.1bp) .. controls (644.13bp,883.73bp) and (581.91bp,918.31bp)  .. (500.87bp,828.1bp) .. controls (407.6bp,724.28bp) and (390.87bp,673.54bp)  .. (390.87bp,533.98bp) .. controls (390.87bp,533.98bp) and (390.87bp,533.98bp)  .. (390.87bp,106.25bp) .. controls (390.87bp,56.294bp) and (1869.4bp,29.478bp)  .. (TransitionProbabilities);
+  \draw (393.14bp,528.3bp) node {atomic-data};
+  \draw [-&gt;] (AtomicData) ..controls (2242.5bp,1042.5bp) and (2274.5bp,1035.0bp)  .. (2302.9bp,1025.4bp) .. controls (2319.5bp,1019.7bp) and (2322.0bp,1014.4bp)  .. (2338.4bp,1008.1bp) .. controls (2354.3bp,1002.0bp) and (2371.6bp,996.49bp)  .. (MacroAtomData);
+  \draw (2340.62bp,1012.05bp) node {atomic-data};
+  \draw [-&gt;] (Levels) ..controls (2143.6bp,936.94bp) and (2118.5bp,910.32bp)  .. (LevelBoltzmannFactorLTE);
+  \draw (2142.92bp,913.43bp) node {$\textrm{levels}$};
+  \draw [-&gt;] (Levels) ..controls (2255.0bp,957.57bp) and (2268.3bp,955.64bp)  .. (2280.9bp,954.1bp) .. controls (2374.9bp,942.59bp) and (2697.9bp,959.86bp)  .. (2697.9bp,865.1bp) .. controls (2697.9bp,865.1bp) and (2697.9bp,865.1bp)  .. (2697.9bp,398.1bp) .. controls (2697.9bp,369.9bp) and (2674.9bp,348.41bp)  .. (StimulatedEmissionFactor);
   \draw (2700.12bp,617.55bp) node {$\textrm{metastability}$};
-  \draw [-&gt;] (Levels) ..controls (2365.4bp,940.36bp) and (2605.8bp,899.46bp)  .. (2640.9bp,882.1bp) .. controls (2651.0bp,877.08bp) and (2659.9bp,876.44bp)  .. (2659.9bp,865.1bp) .. controls (2659.9bp,865.1bp) and (2659.9bp,865.1bp)  .. (2659.9bp,487.35bp) .. controls (2659.9bp,451.26bp) and (2584.4bp,429.7bp)  .. (LevelNumberDensity);
+  \draw [-&gt;] (Levels) ..controls (2364.8bp,940.38bp) and (2605.7bp,899.49bp)  .. (2640.9bp,882.1bp) .. controls (2651.0bp,877.08bp) and (2659.9bp,876.44bp)  .. (2659.9bp,865.1bp) .. controls (2659.9bp,865.1bp) and (2659.9bp,865.1bp)  .. (2659.9bp,487.35bp) .. controls (2659.9bp,451.26bp) and (2584.4bp,429.7bp)  .. (LevelNumberDensity);
   \draw (2662.12bp,662.18bp) node {$\textrm{levels}$};
-  \draw [-&gt;] (Lines) ..controls (3036.4bp,897.39bp) and (3383.9bp,862.05bp)  .. (3383.9bp,811.1bp) .. controls (3383.9bp,811.1bp) and (3383.9bp,811.1bp)  .. (3383.9bp,308.85bp) .. controls (3383.9bp,269.21bp) and (3324.4bp,245.04bp)  .. (TauSobolev);
-  \draw (3386.12bp,572.93bp) node {$\textrm{lines}$};
-  \draw [-&gt;] (Lines) ..controls (2780.4bp,879.32bp) and (2766.9bp,843.51bp)  .. (2766.9bp,811.1bp) .. controls (2766.9bp,811.1bp) and (2766.9bp,811.1bp)  .. (2766.9bp,398.1bp) .. controls (2766.9bp,365.41bp) and (2740.8bp,344.9bp)  .. (StimulatedEmissionFactor);
+  \draw [-&gt;] (Lines) ..controls (3034.8bp,897.15bp) and (3378.9bp,861.6bp)  .. (3378.9bp,811.1bp) .. controls (3378.9bp,811.1bp) and (3378.9bp,811.1bp)  .. (3378.9bp,308.85bp) .. controls (3378.9bp,269.92bp) and (3319.8bp,246.02bp)  .. (TauSobolev);
+  \draw (3381.12bp,572.93bp) node {$\textrm{lines}$};
+  \draw [-&gt;] (Lines) ..controls (2780.4bp,879.32bp) and (2766.9bp,843.51bp)  .. (2766.9bp,811.1bp) .. controls (2766.9bp,811.1bp) and (2766.9bp,811.1bp)  .. (2766.9bp,398.1bp) .. controls (2766.9bp,365.06bp) and (2740.7bp,344.5bp)  .. (StimulatedEmissionFactor);
   \draw (2769.12bp,617.55bp) node {$\textrm{lines}$};
-  \draw [-&gt;] (IonizationData) ..controls (1689.9bp,964.72bp) and (1528.2bp,956.05bp)  .. (1505.9bp,936.1bp) .. controls (1481.9bp,914.69bp) and (1491.9bp,897.27bp)  .. (1491.9bp,865.1bp) .. controls (1491.9bp,865.1bp) and (1491.9bp,865.1bp)  .. (1491.9bp,665.85bp) .. controls (1491.9bp,633.32bp) and (1466.0bp,612.84bp)  .. (PhiSahaLTE);
+  \draw [-&gt;] (IonizationData) ..controls (1689.3bp,964.68bp) and (1528.2bp,955.99bp)  .. (1505.9bp,936.1bp) .. controls (1481.9bp,914.69bp) and (1491.9bp,897.27bp)  .. (1491.9bp,865.1bp) .. controls (1491.9bp,865.1bp) and (1491.9bp,865.1bp)  .. (1491.9bp,665.85bp) .. controls (1491.9bp,633.7bp) and (1465.6bp,613.15bp)  .. (PhiSahaLTE);
   \draw (1494.12bp,751.43bp) node {ionization-data};
-  \draw [-&gt;] (JBlues) ..controls (2815.2bp,78.109bp) and (2713.3bp,54.147bp)  .. (TransitionProbabilities);
-  \draw (2784.85bp,57.95bp) node {$J_{\textrm{blue}}$};
+  \draw [-&gt;] (JBlues) ..controls (2826.2bp,78.109bp) and (2724.3bp,54.147bp)  .. (TransitionProbabilities);
+  \draw (2795.85bp,57.95bp) node {$J_{\textrm{blue}}$};
   \draw [-&gt;] (LinkTRadTElectron) ..controls (366.87bp,1031.3bp) and (366.87bp,1015.3bp)  .. (ElectronTemperature);
   \draw (369.12bp,1012.05bp) node {$T_{\textrm{electron}}/T_{\textrm{rad}}$};
-  \draw [-&gt;] (BetaRadiation) ..controls (1050.2bp,925.18bp) and (984.0bp,868.54bp)  .. (GElectron);
-  \draw (1062.32bp,913.43bp) node {$\beta_{\textrm{rad}}$};
+  \draw [-&gt;] (BetaRadiation) ..controls (1053.1bp,925.18bp) and (990.41bp,868.54bp)  .. (GElectron);
+  \draw (1064.66bp,913.43bp) node {$\beta_{\textrm{rad}}$};
   \draw [-&gt;] (BetaRadiation) ..controls (1422.8bp,936.33bp) and (1724.1bp,903.47bp)  .. (LevelBoltzmannFactorLTE);
   \draw (1735.98bp,913.43bp) node {$\beta_{\textrm{rad}}$};
-  \draw [-&gt;] (BetaRadiation) ..controls (1312.0bp,941.91bp) and (1354.9bp,915.13bp)  .. (1354.9bp,865.1bp) .. controls (1354.9bp,865.1bp) and (1354.9bp,865.1bp)  .. (1354.9bp,665.85bp) .. controls (1354.9bp,645.67bp) and (1349.3bp,623.64bp)  .. (PhiSahaLTE);
-  \draw (1357.12bp,751.43bp) node {$\beta_{\textrm{rad}}$};
-  \draw [-&gt;] (GElectron) ..controls (1022.2bp,750.72bp) and (1208.5bp,647.51bp)  .. (PhiSahaLTE);
-  \draw (1110.12bp,706.8bp) node {$g_{\textrm{electron}}$};
-  \draw [-&gt;] (LevelBoltzmannFactorLTE) ..controls (2096.6bp,829.33bp) and (2112.4bp,803.51bp)  .. (LevelBoltzmannFactorNoNLTE);
-  \draw (2120.24bp,805.43bp) node {$bf_{i,j,k}$};
-  \draw [-&gt;] (PhiSahaLTE) ..controls (1665.1bp,542.54bp) and (1912.3bp,517.2bp)  .. (IonNumberDensity);
-  \draw (1836.85bp,528.3bp) node {$\Phi$};
-  \draw [-&gt;] (StimulatedEmissionFactor) ..controls (2687.9bp,278.01bp) and (2737.8bp,259.03bp)  .. (TauSobolev);
-  \draw (2739.62bp,260.55bp) node {stimulated-emission-factor};
-  \draw [-&gt;] (StimulatedEmissionFactor) ..controls (2456.7bp,279.55bp) and (2393.6bp,261.26bp)  .. (2376.9bp,238.6bp) .. controls (2321.0bp,163.13bp) and (2447.3bp,80.388bp)  .. (TransitionProbabilities);
-  \draw (2387.6bp,147.2bp) node {stimulated-emission-factor};
-  \draw [-&gt;] (LevelNumberDensity) ..controls (2163.0bp,365.41bp) and (2086.2bp,336.79bp)  .. (2126.4bp,291.85bp) .. controls (2152.7bp,262.45bp) and (2322.0bp,242.39bp)  .. (TauSobolev);
-  \draw (2128.62bp,305.18bp) node {$N_{i,j,k}$};
-  \draw [-&gt;] (LevelNumberDensity) ..controls (2432.1bp,366.72bp) and (2494.9bp,346.65bp)  .. (StimulatedEmissionFactor);
-  \draw (2497.08bp,349.8bp) node {$N_{i,j,k}$};
-  \draw [-&gt;] (PartitionFunction) ..controls (2251.9bp,639.22bp) and (2282.3bp,622.53bp)  .. (2299.9bp,595.6bp) .. controls (2317.2bp,569.07bp) and (2318.8bp,549.77bp)  .. (2299.9bp,524.35bp) .. controls (2295.3bp,518.23bp) and (2289.7bp,513.13bp)  .. (IonNumberDensity);
-  \draw (2315.67bp,572.93bp) node {$Z_{i,j}$};
-  \draw [-&gt;] (PartitionFunction) ..controls (1869.5bp,636.55bp) and (1653.6bp,613.24bp)  .. (PhiSahaLTE);
-  \draw (1811.49bp,617.55bp) node {$Z_{i,j}$};
-  \draw [-&gt;] (PartitionFunction) ..controls (2276.9bp,640.19bp) and (2305.9bp,623.36bp)  .. (2321.9bp,595.6bp) .. controls (2350.1bp,546.48bp) and (2350.7bp,526.83bp)  .. (2345.9bp,470.35bp) .. controls (2344.7bp,456.38bp) and (2342.2bp,441.02bp)  .. (LevelNumberDensity);
-  \draw (2349.89bp,528.3bp) node {$Z_{i,j}$};
-  \draw [-&gt;] (BetaSobolev) ..controls (2657.2bp,75.935bp) and (2625.9bp,56.859bp)  .. (TransitionProbabilities);
-  \draw (2650.43bp,57.95bp) node {$\beta_{\textrm{sobolev}}$};
-  \draw [-&gt;] (LevelBoltzmannFactorNoNLTE) ..controls (2324.6bp,726.74bp) and (2410.9bp,703.51bp)  .. (2410.9bp,667.85bp) .. controls (2410.9bp,667.85bp) and (2410.9bp,667.85bp)  .. (2410.9bp,487.35bp) .. controls (2410.9bp,461.37bp) and (2391.4bp,439.47bp)  .. (LevelNumberDensity);
-  \draw (2413.12bp,572.93bp) node {level-boltzmann-factor};
-  \draw [-&gt;] (LevelBoltzmannFactorNoNLTE) ..controls (2140.9bp,726.04bp) and (2140.9bp,710.06bp)  .. (PartitionFunction);
-  \draw (2143.12bp,706.8bp) node {level-boltzmann-factor};
+  \draw [-&gt;] (BetaRadiation) ..controls (1262.0bp,936.15bp) and (1364.9bp,904.41bp)  .. (1364.9bp,865.1bp) .. controls (1364.9bp,865.1bp) and (1364.9bp,865.1bp)  .. (1364.9bp,665.85bp) .. controls (1364.9bp,645.73bp) and (1359.5bp,623.69bp)  .. (PhiSahaLTE);
+  \draw (1367.12bp,751.43bp) node {$\beta_{\textrm{rad}}$};
+  \draw [-&gt;] (GElectron) ..controls (1032.5bp,750.72bp) and (1219.2bp,647.51bp)  .. (PhiSahaLTE);
+  \draw (1120.58bp,706.8bp) node {$g_{\textrm{electron}}$};
+  \draw [-&gt;] (LevelBoltzmannFactorLTE) ..controls (2100.1bp,829.25bp) and (2118.8bp,803.28bp)  .. (LevelBoltzmannFactorNoNLTE);
+  \draw (2127.37bp,805.43bp) node {$bf_{i,j,k}$};
+  \draw [-&gt;] (PhiSahaLTE) ..controls (1676.1bp,542.54bp) and (1923.3bp,517.2bp)  .. (IonNumberDensity);
+  \draw (1847.85bp,528.3bp) node {$\Phi$};
+  \draw [-&gt;] (StimulatedEmissionFactor) ..controls (2687.9bp,278.02bp) and (2741.5bp,258.81bp)  .. (TauSobolev);
+  \draw (2742.62bp,260.55bp) node {stimulated-emission-factor};
+  \draw [-&gt;] (StimulatedEmissionFactor) ..controls (2436.5bp,281.72bp) and (2407.0bp,265.05bp)  .. (2387.9bp,238.6bp) .. controls (2332.8bp,162.55bp) and (2458.8bp,80.08bp)  .. (TransitionProbabilities);
+  \draw (2397.36bp,147.2bp) node {stimulated-emission-factor};
+  \draw [-&gt;] (LevelNumberDensity) ..controls (2157.7bp,365.61bp) and (2080.7bp,337.21bp)  .. (2121.4bp,291.85bp) .. controls (2148.3bp,261.81bp) and (2321.8bp,241.7bp)  .. (TauSobolev);
+  \draw (2123.62bp,305.18bp) node {$N_{i,j,k}$};
+  \draw [-&gt;] (LevelNumberDensity) ..controls (2430.2bp,366.75bp) and (2491.7bp,346.73bp)  .. (StimulatedEmissionFactor);
+  \draw (2494.13bp,349.8bp) node {$N_{i,j,k}$};
+  \draw [-&gt;] (PartitionFunction) ..controls (2262.9bp,639.22bp) and (2293.3bp,622.53bp)  .. (2310.9bp,595.6bp) .. controls (2328.2bp,569.07bp) and (2329.8bp,549.77bp)  .. (2310.9bp,524.35bp) .. controls (2306.3bp,518.23bp) and (2300.7bp,513.13bp)  .. (IonNumberDensity);
+  \draw (2326.67bp,572.93bp) node {$Z_{i,j}$};
+  \draw [-&gt;] (PartitionFunction) ..controls (1880.5bp,636.55bp) and (1664.6bp,613.24bp)  .. (PhiSahaLTE);
+  \draw (1822.49bp,617.55bp) node {$Z_{i,j}$};
+  \draw [-&gt;] (PartitionFunction) ..controls (2287.9bp,640.19bp) and (2316.9bp,623.36bp)  .. (2332.9bp,595.6bp) .. controls (2361.1bp,546.48bp) and (2365.8bp,526.33bp)  .. (2356.9bp,470.35bp) .. controls (2354.6bp,455.95bp) and (2349.8bp,440.48bp)  .. (LevelNumberDensity);
+  \draw (2362.68bp,528.3bp) node {$Z_{i,j}$};
+  \draw [-&gt;] (BetaSobolev) ..controls (2668.2bp,75.935bp) and (2636.9bp,56.859bp)  .. (TransitionProbabilities);
+  \draw (2661.43bp,57.95bp) node {$\beta_{\textrm{sobolev}}$};
+  \draw [-&gt;] (LevelBoltzmannFactorNoNLTE) ..controls (2335.6bp,726.74bp) and (2421.9bp,703.51bp)  .. (2421.9bp,667.85bp) .. controls (2421.9bp,667.85bp) and (2421.9bp,667.85bp)  .. (2421.9bp,487.35bp) .. controls (2421.9bp,460.18bp) and (2400.5bp,438.58bp)  .. (LevelNumberDensity);
+  \draw (2424.12bp,572.93bp) node {level-boltzmann-factor};
+  \draw [-&gt;] (LevelBoltzmannFactorNoNLTE) ..controls (2151.9bp,726.04bp) and (2151.9bp,710.06bp)  .. (PartitionFunction);
+  \draw (2154.12bp,706.8bp) node {level-boltzmann-factor};
 %
 \end{tikzpicture}
 % End of code
@@ -2328,7 +2411,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </section>
 <section id="Plasma-Graph-with-Different-Scale">
-<h3>Plasma Graph with Different Scale<a class="headerlink" href="#Plasma-Graph-with-Different-Scale" title="Link to this heading">¶</a></h3>
+<h3>Plasma Graph with Different Scale<a class="headerlink" href="#Plasma-Graph-with-Different-Scale" title="Link to this heading"></a></h3>
 <p>One can change the scaling of the graph by passing in a positive, non-zero float into the <code class="docutils literal notranslate"><span class="pre">scale</span></code> parameter to either make the resulting graph larger (scale &gt; 0.5) or smaller (scale &lt; 0.5).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -2356,7 +2439,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </section>
 <section id="Plasma-Graph-with-No-Equations">
-<h3>Plasma Graph with No Equations<a class="headerlink" href="#Plasma-Graph-with-No-Equations" title="Link to this heading">¶</a></h3>
+<h3>Plasma Graph with No Equations<a class="headerlink" href="#Plasma-Graph-with-No-Equations" title="Link to this heading"></a></h3>
 <p>TARDIS has the option to generate a graph without any equations or edge labels via the <code class="docutils literal notranslate"><span class="pre">latex_label</span></code> command. The graph in this case will only consist of nodes containing the names of variables used to calculate the plasma state connected with edges.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -2384,7 +2467,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </section>
 <section id="Plasma-Graph-with-Inputted-Arguments">
-<h3>Plasma Graph with Inputted Arguments<a class="headerlink" href="#Plasma-Graph-with-Inputted-Arguments" title="Link to this heading">¶</a></h3>
+<h3>Plasma Graph with Inputted Arguments<a class="headerlink" href="#Plasma-Graph-with-Inputted-Arguments" title="Link to this heading"></a></h3>
 <p>In order to create the .tex file, TARDIS will first convert the graph into a readable <a class="reference external" href="https://graphviz.org/doc/info/lang.html">DOT</a> format via the <code class="docutils literal notranslate"><span class="pre">write_to_dot</span></code> function. As such, using the <code class="docutils literal notranslate"><span class="pre">args</span></code> parameter within the <code class="docutils literal notranslate"><span class="pre">write_to_tex</span></code> function, one can pass in any Graphviz attribute for TARDIS to implement as a list. In this example, the following attributes are used:</p>
 <ul><li><p>nodesep: changes spacing of nodes</p>
 </li><li><p>edge[lblstyle]: edits the edge labels</p>
@@ -2419,7 +2502,7 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 </div>
 <script type="application/vnd.jupyter.widget-state+json">
-{"state": {"77c9760055eb41bcb7402b379a18867f": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "5dfb900d0b0d41fd8c17706f969345ca": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "96113bafbe1347ebbc0fe03ee49d0788": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_77c9760055eb41bcb7402b379a18867f", "max": 20.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_5dfb900d0b0d41fd8c17706f969345ca", "tabbable": null, "tooltip": null, "value": 20.0}}, "95efeedfadf64eb0beac7df77498231c": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "8c3fe4a3119a4cb79bd5c6c9f2e76535": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "fc13a6351bd447619b898de8e7fb9ed1": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_95efeedfadf64eb0beac7df77498231c", "placeholder": "\u200b", "style": "IPY_MODEL_8c3fe4a3119a4cb79bd5c6c9f2e76535", "tabbable": null, "tooltip": null, "value": "Iterations:"}}, "b307e5c2c91e474bbfd1b709a460f920": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "49b16aef86c64b2ab591877a2b14b6de": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "759bb6f394124ac588d089a1e1e4ef62": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_b307e5c2c91e474bbfd1b709a460f920", "placeholder": "\u200b", "style": "IPY_MODEL_49b16aef86c64b2ab591877a2b14b6de", "tabbable": null, "tooltip": null, "value": "20/20\u2007[01:17&lt;00:00,\u2007\u20072.88s/it]"}}, "7ab5c56e0842428892e4a69bf99a6a64": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "01d2f7502f714dc98c7d0eabdb86c1f2": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_fc13a6351bd447619b898de8e7fb9ed1", "IPY_MODEL_96113bafbe1347ebbc0fe03ee49d0788", "IPY_MODEL_759bb6f394124ac588d089a1e1e4ef62"], "layout": "IPY_MODEL_7ab5c56e0842428892e4a69bf99a6a64", "tabbable": null, "tooltip": null}}, "87c570a6c3b045748eb10400f476b347": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "757b540799f04e2cb0c609e6e98996d9": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "43f3aa7d4c3d4ad690d7eb0f8e9518fe": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_87c570a6c3b045748eb10400f476b347", "max": 100000.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_757b540799f04e2cb0c609e6e98996d9", "tabbable": null, "tooltip": null, "value": 100000.0}}, "3116dfca21e14835b883569fc778a5e6": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "8c8a00b9abbd4997a2f2d61344a23b8d": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "da44c89b20b24c239eab59f841a587ad": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_3116dfca21e14835b883569fc778a5e6", "placeholder": "\u200b", "style": "IPY_MODEL_8c8a00b9abbd4997a2f2d61344a23b8d", "tabbable": null, "tooltip": null, "value": "Packets:\u2007\u2007\u2007"}}, "9aaf5536f52642d29f59fcf3cd36e911": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "b3d5ba98fa9543079ea445c5c1306885": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "5205b5b0132641fbbb87706fcdcc4e8c": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_9aaf5536f52642d29f59fcf3cd36e911", "placeholder": "\u200b", "style": "IPY_MODEL_b3d5ba98fa9543079ea445c5c1306885", "tabbable": null, "tooltip": null, "value": "100000/100000\u2007[00:06&lt;00:00,\u200715626.46it/s]"}}, "288ab9821d024903ab79ae794c0f931c": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "c84ffe432c6441b4972c05884261b9ff": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_da44c89b20b24c239eab59f841a587ad", "IPY_MODEL_43f3aa7d4c3d4ad690d7eb0f8e9518fe", "IPY_MODEL_5205b5b0132641fbbb87706fcdcc4e8c"], "layout": "IPY_MODEL_288ab9821d024903ab79ae794c0f931c", "tabbable": null, "tooltip": null}}}, "version_major": 2, "version_minor": 0}
+{"state": {"60273a6908c74c6db98873bc6e8da673": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "676b781e78274cabb839e6af0220aac6": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "e0f10dec0b5848eabb311a6b0024dd5a": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_60273a6908c74c6db98873bc6e8da673", "max": 20.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_676b781e78274cabb839e6af0220aac6", "tabbable": null, "tooltip": null, "value": 20.0}}, "0e6c61a4fd8e49cbb1d5d1bb5c846473": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "f84ae6d65fb74ac3aba8faf1eb84f054": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "aeffad2cd8fb4e8fa9c1257944372d03": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_0e6c61a4fd8e49cbb1d5d1bb5c846473", "placeholder": "\u200b", "style": "IPY_MODEL_f84ae6d65fb74ac3aba8faf1eb84f054", "tabbable": null, "tooltip": null, "value": "Iterations:"}}, "8ba11d00a50f449c8685521d0e9d78d7": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "a329918ab58b4fcbb3802e951099c3e2": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "507aac7364614f2498bf3be4ab9a03a5": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_8ba11d00a50f449c8685521d0e9d78d7", "placeholder": "\u200b", "style": "IPY_MODEL_a329918ab58b4fcbb3802e951099c3e2", "tabbable": null, "tooltip": null, "value": "20/20\u2007[01:11&lt;00:00,\u2007\u20072.72s/it]"}}, "306adaf884fd4a7fac7994a0f6e377d0": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "b44b4fa202ef4c26954e1b9ee63f0395": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_aeffad2cd8fb4e8fa9c1257944372d03", "IPY_MODEL_e0f10dec0b5848eabb311a6b0024dd5a", "IPY_MODEL_507aac7364614f2498bf3be4ab9a03a5"], "layout": "IPY_MODEL_306adaf884fd4a7fac7994a0f6e377d0", "tabbable": null, "tooltip": null}}, "71d34007e10d440f84f202f488dabea9": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "a7adaa821c5f430db02f5e3307990bda": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "2738fe969c724540bf5dc4c15222c58c": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_71d34007e10d440f84f202f488dabea9", "max": 100000.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_a7adaa821c5f430db02f5e3307990bda", "tabbable": null, "tooltip": null, "value": 100000.0}}, "7c675f21beca470cbaa17eacd715e7d8": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "8cdd8763ecdc440a9e330bab588d8a0b": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "95be79784ab04fddbd8688c201a9bd21": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_7c675f21beca470cbaa17eacd715e7d8", "placeholder": "\u200b", "style": "IPY_MODEL_8cdd8763ecdc440a9e330bab588d8a0b", "tabbable": null, "tooltip": null, "value": "Packets:\u2007\u2007\u2007"}}, "f12633481cdc4715bab67fc8ff6d1191": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "4409d1fb27e7464dbf85524728a0f581": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "6f135624ba9544fba64cd35c7e8eb6b0": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_f12633481cdc4715bab67fc8ff6d1191", "placeholder": "\u200b", "style": "IPY_MODEL_4409d1fb27e7464dbf85524728a0f581", "tabbable": null, "tooltip": null, "value": "100000/100000\u2007[00:04&lt;00:00,\u200722960.52it/s]"}}, "63d9b0e98cbb473e8de858bbe4bfa431": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "e11fd16e8d2843109a98ab213c9f11e7": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_95be79784ab04fddbd8688c201a9bd21", "IPY_MODEL_2738fe969c724540bf5dc4c15222c58c", "IPY_MODEL_6f135624ba9544fba64cd35c7e8eb6b0"], "layout": "IPY_MODEL_63d9b0e98cbb473e8de858bbe4bfa431", "tabbable": null, "tooltip": null}}}, "version_major": 2, "version_minor": 0}
 </script></section>
 </section>
 </section>
@@ -2436,7 +2519,7 @@ Populating the interactive namespace from numpy and matplotlib
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

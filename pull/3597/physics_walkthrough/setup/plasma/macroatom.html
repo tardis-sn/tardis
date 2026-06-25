@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Macro Atom &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -160,11 +160,11 @@
            <div itemprop="articleBody">
              
   <section id="macro-atom">
-<span id="macroatom"></span><h1>Macro Atom<a class="headerlink" href="#macro-atom" title="Link to this heading">¶</a></h1>
-<p>The macro atom is described in detail in <span id="id1">[<a class="reference internal" href="../../../resources/zreferences.html#id10" title="L. B. Lucy. Monte Carlo transition probabilities. Astronomy and Astrophysics, 384:725-735, March 2002. arXiv:arXiv:astro-ph/0107377, doi:10.1051/0004-6361:20011756.">Lucy02</a>]</span>. The basic principle is that when an energy packet
+<span id="macroatom"></span><h1>Macro Atom<a class="headerlink" href="#macro-atom" title="Link to this heading"></a></h1>
+<p>The macro atom is described in detail in <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../../resources/zreferences.html#id10" title="L. B. Lucy. Monte Carlo transition probabilities. Astronomy and Astrophysics, 384:725-735, March 2002. arXiv:arXiv:astro-ph/0107377, doi:10.1051/0004-6361:20011756.">Lucy02</a>]</span>. The basic principle is that when an energy packet
 is absorbed that the macro atom is on a certain level. Three probabilities govern the next step the P<sub>up</sub>,
 P<sub>down</sub> and P<sub>down emission</sub> being the probability for going to a higher level, a lower level and a lower
-level and emitting a photon while doing this respectively (see Figure 1 in <span id="id2">[<a class="reference internal" href="../../../resources/zreferences.html#id10" title="L. B. Lucy. Monte Carlo transition probabilities. Astronomy and Astrophysics, 384:725-735, March 2002. arXiv:arXiv:astro-ph/0107377, doi:10.1051/0004-6361:20011756.">Lucy02</a>]</span> ).</p>
+level and emitting a photon while doing this respectively (see Figure 1 in <span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../../resources/zreferences.html#id10" title="L. B. Lucy. Monte Carlo transition probabilities. Astronomy and Astrophysics, 384:725-735, March 2002. arXiv:arXiv:astro-ph/0107377, doi:10.1051/0004-6361:20011756.">Lucy02</a>]</span> ).</p>
 <p>The macro atom is the most complex idea to implement as a data structure. The setup is done in <code class="xref py py-obj docutils literal notranslate"><span class="pre">tardisatomic</span></code>, but
 we will nonetheless discuss it here (as <code class="xref py py-obj docutils literal notranslate"><span class="pre">tardisatomic</span></code> is even less documented than this one).</p>
 <p>For each level, we look at the line list to see what transitions (upwards or downwards is possible). We create two arrays,
@@ -192,8 +192,8 @@ part of each set contains the upwards probabilities (internal upward), the secon
 </tbody>
 </table>
 <p>We now will calculate the transition probabilities, using the radiative rates in Equation 20, 21, and 22
-in <span id="id3">[<a class="reference internal" href="../../../resources/zreferences.html#id10" title="L. B. Lucy. Monte Carlo transition probabilities. Astronomy and Astrophysics, 384:725-735, March 2002. arXiv:arXiv:astro-ph/0107377, doi:10.1051/0004-6361:20011756.">Lucy02</a>]</span>. Then we calculate the downward emission probability from Equation 5, the downward and
-upward internal transition probabilities in <span id="id4">[<a class="reference internal" href="../../../resources/zreferences.html#id9" title="L. B. Lucy. Monte Carlo transition probabilities. II. Astronomy and Astrophysics, 403:261-275, May 2003. arXiv:arXiv:astro-ph/0303202, doi:10.1051/0004-6361:20030357.">Lucy03</a>]</span>.</p>
+in <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../../../resources/zreferences.html#id10" title="L. B. Lucy. Monte Carlo transition probabilities. Astronomy and Astrophysics, 384:725-735, March 2002. arXiv:arXiv:astro-ph/0107377, doi:10.1051/0004-6361:20011756.">Lucy02</a>]</span>. Then we calculate the downward emission probability from Equation 5, the downward and
+upward internal transition probabilities in <span class="bibtex-citation" id="id4">[<a class="reference internal" href="../../../resources/zreferences.html#id9" title="L. B. Lucy. Monte Carlo transition probabilities. II. Astronomy and Astrophysics, 403:261-275, May 2003. arXiv:arXiv:astro-ph/0303202, doi:10.1051/0004-6361:20030357.">Lucy03</a>]</span>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}p_\textrm{emission down}&amp;= {\cal R}_{\textrm{i}\rightarrow\textrm{lower}}\,(\epsilon_\textrm{upper} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
 p_\textrm{internal down}&amp;= {\cal R}_{\textrm{i}\rightarrow\textrm{lower}}\,\epsilon_\textrm{lower}/{\cal D}_{i}\\,
@@ -204,7 +204,7 @@ p_\textrm{internal up}&amp;={\cal R}_{\textrm{i}\rightarrow\textrm{upper}}\,\eps
 </dl>
 <p>We ignore the probability to emit a k-packet as TARDIS only works with photon packets.
 Next we calculate the radiative
-rates using equation 10 in <span id="id5">[<a class="reference internal" href="../../../resources/zreferences.html#id9" title="L. B. Lucy. Monte Carlo transition probabilities. II. Astronomy and Astrophysics, 403:261-275, May 2003. arXiv:arXiv:astro-ph/0303202, doi:10.1051/0004-6361:20030357.">Lucy03</a>]</span>.</p>
+rates using equation 10 in <span class="bibtex-citation" id="id5">[<a class="reference internal" href="../../../resources/zreferences.html#id9" title="L. B. Lucy. Monte Carlo transition probabilities. II. Astronomy and Astrophysics, 403:261-275, May 2003. arXiv:arXiv:astro-ph/0303202, doi:10.1051/0004-6361:20030357.">Lucy03</a>]</span>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}{\cal R}_{\textrm{upper}\rightarrow\textrm{lower}} &amp;=
 A_{\textrm{upper}\rightarrow\textrm{lower}}\beta_\textrm{Sobolev}n_\textrm{upper}\\
@@ -278,7 +278,7 @@ p_\textrm{internal up} &amp;= \underbrace{\frac{1}{h\nu} f_{\textrm{i}\rightarro
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

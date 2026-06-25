@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Features In-Progress &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -161,22 +161,22 @@
            <div itemprop="articleBody">
              
   <section id="features-in-progress">
-<span id="in-progress"></span><h1>Features In-Progress<a class="headerlink" href="#features-in-progress" title="Link to this heading">¶</a></h1>
+<span id="in-progress"></span><h1>Features In-Progress<a class="headerlink" href="#features-in-progress" title="Link to this heading"></a></h1>
 <p>This is a current status summary of ongoing development projects in the TARDIS collaboration. Brief summaries of the projects are listed below. Other projects and their descriptions can be found in the <a class="reference external" href="https://github.com/tardis-sn/tardis/projects">GitHub Projects</a> or the <a class="reference external" href="https://github.com/tardis-sn/tep">TARDIS Enhancement Proposals (TEPS) repository</a>.</p>
 <p>Additionally, documentation for features that are not yet implemented can be found here.</p>
 <section id="google-summer-of-code-gsoc">
-<h2>Google Summer of Code (GSOC)<a class="headerlink" href="#google-summer-of-code-gsoc" title="Link to this heading">¶</a></h2>
+<h2>Google Summer of Code (GSOC)<a class="headerlink" href="#google-summer-of-code-gsoc" title="Link to this heading"></a></h2>
 <p>Many new TARDIS developments are made through GSOC students. To learn more about potential GSOC projects, see the <a class="reference external" href="https://tardis-sn.github.io/gsoc/tardis-gsoc-ideas.html">GSOC ideas page</a>.</p>
 </section>
 <section id="restructure">
-<h2>Restructure<a class="headerlink" href="#restructure" title="Link to this heading">¶</a></h2>
+<h2>Restructure<a class="headerlink" href="#restructure" title="Link to this heading"></a></h2>
 <p>Restructuring TARDIS to be more modularized in order to facilitate the addition of new physics modules and improve maintainability.</p>
 </section>
 <section id="new-physics">
-<h2>New Physics<a class="headerlink" href="#new-physics" title="Link to this heading">¶</a></h2>
+<h2>New Physics<a class="headerlink" href="#new-physics" title="Link to this heading"></a></h2>
 <p>TARDIS is currently capable of simulating spherically symmetric type Ia and stripped envelope supernovae at a single point in time in the earlier stages of the explosion. To expand to more types of supernovae, such as type Ib, Ic, and IIP, and to model a larger variety of times after the explosion, new physics capabilities are necessary.</p>
 <section id="simulate-supernovae-in-the-nebular-phase">
-<h3>Simulate Supernovae in the Nebular Phase<a class="headerlink" href="#simulate-supernovae-in-the-nebular-phase" title="Link to this heading">¶</a></h3>
+<h3>Simulate Supernovae in the Nebular Phase<a class="headerlink" href="#simulate-supernovae-in-the-nebular-phase" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Currently, TARDIS assumes an inner boundary approximation to the photosphere. New physics is required to handle the breakdown of the photosphere at late times. This involves a detailed treatment of the decay products of the radioactive isotopes in SN ejecta, as well as their deposition in various processes such as Compton scattering, photoabsorption and pair production.</p></li>
 <li><p>Deposited energy needs to be thermalized by solving the Spencer-Fano equations, resulting in fractions of the energy going into heating, non-thermal excitation and non-thermal ionization.</p></li>
@@ -203,40 +203,40 @@
 </div>
 </section>
 <section id="implement-more-continuum-interactions">
-<h3>Implement More Continuum Interactions<a class="headerlink" href="#implement-more-continuum-interactions" title="Link to this heading">¶</a></h3>
+<h3>Implement More Continuum Interactions<a class="headerlink" href="#implement-more-continuum-interactions" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Currently, TARDIS considers Thomson electron scattering and line interactions when performing radiative transfer. In many cases, other continuum interactions have nontrivial effects of the propagation of light.</p></li>
 <li><p>Treatment of bound-free and free-free processes have been developed and are being integrated into TARDIS.</p></li>
 </ul>
 </section>
 <section id="simulate-non-homologous-expansion">
-<h3>Simulate Non-Homologous Expansion<a class="headerlink" href="#simulate-non-homologous-expansion" title="Link to this heading">¶</a></h3>
+<h3>Simulate Non-Homologous Expansion<a class="headerlink" href="#simulate-non-homologous-expansion" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Currently, TARDIS models supernovae as expanding homologously. This is not always the case in many types of supernovae, and much of the simulation needs to be modified in order to drop this assumption.</p></li>
 </ul>
 </section>
 <section id="simulate-asymmetric-supernovae">
-<h3>Simulate Asymmetric Supernovae<a class="headerlink" href="#simulate-asymmetric-supernovae" title="Link to this heading">¶</a></h3>
+<h3>Simulate Asymmetric Supernovae<a class="headerlink" href="#simulate-asymmetric-supernovae" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Currently, TARDIS assumes spherical symmetry in its calculations. A framework is being developed to allow for dropping this assumption and modeling 2D and 3D radiative transfer for spherically asymmetric supernovae.</p></li>
 </ul>
 </section>
 <section id="adding-time-dependence">
-<h3>Adding Time Dependence<a class="headerlink" href="#adding-time-dependence" title="Link to this heading">¶</a></h3>
+<h3>Adding Time Dependence<a class="headerlink" href="#adding-time-dependence" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p>Currently, TARDIS performs time-independent radiative transfer. Groundwork is being laid for the eventual goal of having TARDIS perform <em>time-dependent</em> radiative transfer.</p></li>
 </ul>
 </section>
 </section>
 <section id="interoperability">
-<h2>Interoperability<a class="headerlink" href="#interoperability" title="Link to this heading">¶</a></h2>
+<h2>Interoperability<a class="headerlink" href="#interoperability" title="Link to this heading"></a></h2>
 <section id="read-different-model-data">
-<h3>Read Different Model Data<a class="headerlink" href="#read-different-model-data" title="Link to this heading">¶</a></h3>
+<h3>Read Different Model Data<a class="headerlink" href="#read-different-model-data" title="Link to this heading"></a></h3>
 <p>Adding parsers to generate TARDIS models produced by other codes.</p>
 </section>
 </section>
 <section id="stardis">
-<h2>STARDIS<a class="headerlink" href="#stardis" title="Link to this heading">¶</a></h2>
+<h2>STARDIS<a class="headerlink" href="#stardis" title="Link to this heading"></a></h2>
 <p>Developing a radiative transfer code using the TARDIS infrastructure that produces synthetic stellar spectra. See <a class="reference external" href="https://github.com/tardis-sn/stardis">https://github.com/tardis-sn/stardis</a>.</p>
 </section>
 </section>
@@ -253,7 +253,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

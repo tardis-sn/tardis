@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Physics Walkthrough Introduction &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -147,16 +147,16 @@
            <div itemprop="articleBody">
              
   <section id="physics-walkthrough-introduction">
-<span id="walkthrough"></span><h1>Physics Walkthrough Introduction<a class="headerlink" href="#physics-walkthrough-introduction" title="Link to this heading">¶</a></h1>
+<span id="walkthrough"></span><h1>Physics Walkthrough Introduction<a class="headerlink" href="#physics-walkthrough-introduction" title="Link to this heading"></a></h1>
 <p><strong>This explanation section helps you understand the theory and concepts behind TARDIS.</strong></p>
 <p>These pages explain <em>why</em> TARDIS works the way it does, providing the theoretical foundation for understanding supernova radiative transfer simulations.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>Want to learn by doing?</strong> Check out our <a class="reference internal" href="../../tutorials.html"><span class="doc">Tutorials</span></a> for hands-on practice.</p>
-<p><strong>Need to solve a specific problem?</strong> See our <span class="xref std std-doc">../../how_to_guides</span>.</p>
+<p><strong>Need to solve a specific problem?</strong> See our <a class="reference internal" href="../../how_to/index.html"><span class="doc">&lt;no title&gt;</span></a>.</p>
 </div>
 <section id="how-tardis-works">
-<h2>How TARDIS Works<a class="headerlink" href="#how-tardis-works" title="Link to this heading">¶</a></h2>
+<h2>How TARDIS Works<a class="headerlink" href="#how-tardis-works" title="Link to this heading"></a></h2>
 <p>The goal of TARDIS is, given input information about a supernova, to determine (i) properties of the plasma making up the supernova and (ii) the spectrum of light that is emitted from the supernova.</p>
 <p>The physics of TARDIS is in four major parts, which are summarized here and in the diagram below. First, the TARDIS simulation is set up (<a class="reference internal" href="../setup/index.html"><span class="doc">Setting Up the Simulation</span></a>) from a TARDIS configuration (see <a class="reference internal" href="../../io/configuration/tutorial_read_configuration.html"><span class="doc">here</span></a> for how the configuration is created). This involves the creation of the supernova model and the initial conditions of the supernova’s plasma, as well as initializing the Monte Carlo transport. Next is the Monte Carlo Iteration (<a class="reference internal" href="../montecarlo/index.html"><span class="doc">Monte Carlo Iteration</span></a>) where the heart of TARDIS takes place; packets of light are sent through the supernova and tracked as they interact with matter. Next, TARDIS uses information from the Monte Carlo iteration to update properties of the plasma to eventually find the correct plasma state (<a class="reference internal" href="../update_and_conv/update_and_conv.html"><span class="doc">Updating Plasma and Convergence</span></a>). This process of doing a Monte Carlo iteration and then updating the plasma is repeated for a specified number of times or until certain aspects of the plasma state converge (as is also discussed in <a class="reference internal" href="../update_and_conv/update_and_conv.html"><span class="doc">Updating Plasma and Convergence</span></a>). After that, data generated in the Monte Carlo simulation is used to synthesize the output spectrum of the supernova (<a class="reference internal" href="../spectrum/index.html"><span class="doc">Spectrum Generation</span></a>).</p>
 <p>In the diagram, each physics step is shown in a box with the name of the step (bolded and underlined) along with the method that triggers the step (italicized) and the major components of the step. The reading of the configuration and the overall iterative process (comprising the Monte Carlo Iteration step and Updating Plasma and Convergence step) are also shown, again with the methods triggering these processes in italics.</p>
@@ -182,7 +182,7 @@
 }</p></object></div>
 </section>
 <section id="background-material">
-<h2>Background Material<a class="headerlink" href="#background-material" title="Link to this heading">¶</a></h2>
+<h2>Background Material<a class="headerlink" href="#background-material" title="Link to this heading"></a></h2>
 <p>TARDIS is home to an incredibly diverse, multidisciplinary team. As such, we believe that it is important to make an understanding of the physics of TARDIS accessible to all, from students just getting started with physics and astronomy to expert researchers. The following pages are designed to give an overview of the basic physics that TARDIS relies upon to new students or anyone else in need of a refresher!</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -215,7 +215,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Configuration Validator &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -153,7 +153,7 @@
            <div itemprop="articleBody">
              
   <section id="configuration-validator">
-<h1>Configuration Validator<a class="headerlink" href="#configuration-validator" title="Link to this heading">¶</a></h1>
+<h1>Configuration Validator<a class="headerlink" href="#configuration-validator" title="Link to this heading"></a></h1>
 <p>The default config validator takes a user configuration and a default configuration and creates a consistent and valid configuration for TARDIS based on the constraints given in the default configuration. Both input data are normally given as a YAML dictionary with a consistent hierarchical structure, i.e. for every item in the user configuration there has to be a declaration in the default configuration at the same hierarchical level. This declaration can be either an unspecific empty level declaration like:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -204,7 +204,7 @@
 </ul>
 <p>Additionally to the four standard keywords the types integer, float, and quantity can have the keywords <code class="docutils literal notranslate"><span class="pre">allowed_value</span></code> and <code class="docutils literal notranslate"><span class="pre">allowed_type</span></code>. <code class="docutils literal notranslate"><span class="pre">allowed_value</span></code> specifies the allowed values in a list, whereas <code class="docutils literal notranslate"><span class="pre">allowed_type</span></code> specifies a range of allowed values, such as “x&gt;10”.</p>
 <section id="container">
-<h2>Container<a class="headerlink" href="#container" title="Link to this heading">¶</a></h2>
+<h2>Container<a class="headerlink" href="#container" title="Link to this heading"></a></h2>
 <p>For more complex configurations with dependencies, you can use the containers that allow branching in the configuration. A container is declared in the default configuration file by setting the  <code class="docutils literal notranslate"><span class="pre">property_type</span></code> to container property and specifying the properties of the container with keyword type. The <code class="docutils literal notranslate"><span class="pre">property_type</span></code> of this section is container-declaration that allows you to specify the possible container items with the keyword container. For every specified container item, the code expects the declaration of all sub items. The keywords for this are “_“ + “name of the container item”.
 If the type declaration for this container is finished, you can specify all container items like normal items. Here is an example for a container configuration with two branches:</p>
 <ul class="simple">
@@ -280,7 +280,7 @@ If the type declaration for this container is finished, you can specify all cont
 </ul>
 </section>
 <section id="how-to-use">
-<h2>How to use<a class="headerlink" href="#how-to-use" title="Link to this heading">¶</a></h2>
+<h2>How to use<a class="headerlink" href="#how-to-use" title="Link to this heading"></a></h2>
 <p>To use the default parser create a new config object form the class ConfigurationValidator either from a dictionaries or from YAML files:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- My_config = ConfigurationValidator(default configuration dictionary, user configuration dictionary)
 </pre></div>
@@ -305,7 +305,7 @@ If the type declaration for this container is finished, you can specify all cont
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

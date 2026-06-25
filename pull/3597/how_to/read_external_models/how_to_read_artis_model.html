@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How to Read ARTIS Models with TARDIS &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -26,11 +26,13 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -188,7 +190,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/how_to/read_external_models/how_to_read_artis_model.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="How-to-Read-ARTIS-Models-with-TARDIS">
-<h1>How to Read ARTIS Models with TARDIS<a class="headerlink" href="#How-to-Read-ARTIS-Models-with-TARDIS" title="Link to this heading">¶</a></h1>
+<h1>How to Read ARTIS Models with TARDIS<a class="headerlink" href="#How-to-Read-ARTIS-Models-with-TARDIS" title="Link to this heading"></a></h1>
 <p>This notebook demonstrates how to read in density and abundance data from ARTIS-based files using TARDIS.</p>
 <p>We assume you’ve already installed TARDIS (including the <code class="docutils literal notranslate"><span class="pre">tardis.io.model.artis</span></code> module).</p>
 <div class="nbinput docutils container">
@@ -392,7 +394,7 @@ ArtisData(time_of_model=&lt;Quantity 99.067104 s&gt;, velocity=&lt;Quantity [1.2
            2.61242000e-03, 1.85296834e-03, 1.63018165e-03, 1.42059081e-03,
            1.37620141e-03, 1.03744719e-03, 1.29344212e-03, 8.36557891e-04,
            6.76628054e-04, 7.88420667e-04, 6.38247320e-04, 4.96215128e-04,
-           3.61824524e-04, 3.51911938e-04] g / cm3&gt;, mass_fractions=cell_index                           1             2             3   \
+           3.61824524e-04, 3.51911938e-04] g / cm3&gt;, mass_fractions=cell_index                         1.0           2.0           3.0   \
 atomic_number mass_number
 1             -1           1.542961e-08  1.819425e-08  2.113432e-08
 2             -1           3.044396e-03  3.063491e-03  3.096934e-03
@@ -429,7 +431,7 @@ atomic_number mass_number
 26             52          5.052319e-06  5.013408e-06  4.915389e-06
 24             48          6.168110e-07  6.140697e-07  6.130545e-07
 
-cell_index                           4             5             6   \
+cell_index                         4.0           5.0           6.0   \
 atomic_number mass_number
 1             -1           2.411562e-08  2.666167e-08  2.862944e-08
 2             -1           3.144010e-03  3.217901e-03  3.347346e-03
@@ -466,7 +468,7 @@ atomic_number mass_number
 26             52          4.839975e-06  4.727071e-06  4.580685e-06
 24             48          6.060005e-07  6.067441e-07  6.268937e-07
 
-cell_index                           7             8             9   \
+cell_index                         7.0           8.0           9.0   \
 atomic_number mass_number
 1             -1           3.144721e-08  3.547179e-08  4.020866e-08
 2             -1           3.557821e-03  3.886029e-03  4.330122e-03
@@ -503,7 +505,7 @@ atomic_number mass_number
 26             52          4.443940e-06  4.411024e-06  4.667291e-06
 24             48          6.797306e-07  7.830217e-07  9.375288e-07
 
-cell_index                           10  ...            61            62  \
+cell_index                         10.0  ...          61.0          62.0  \
 atomic_number mass_number                ...
 1             -1           4.495169e-08  ...  1.209495e-24  3.329407e-24
 2             -1           4.823087e-03  ...  6.486897e-12  1.319849e-11
@@ -540,7 +542,7 @@ atomic_number mass_number                ...
 26             52          5.264160e-06  ...  1.659489e-13  9.863714e-14
 24             48          1.113761e-06  ...  7.817914e-12  5.815667e-12
 
-cell_index                           63            64            65  \
+cell_index                         63.0          64.0          65.0  \
 atomic_number mass_number
 1             -1           1.097191e-23  3.866955e-23  1.122361e-22
 2             -1           3.099221e-11  7.337384e-11  1.533182e-10
@@ -577,7 +579,7 @@ atomic_number mass_number
 26             52          4.595312e-14  1.760052e-14  6.162002e-15
 24             48          3.655108e-12  2.341958e-12  1.394190e-12
 
-cell_index                           66            67            68  \
+cell_index                         66.0          67.0          68.0  \
 atomic_number mass_number
 1             -1           3.781693e-22  1.363554e-21  3.583212e-21
 2             -1           3.609942e-10  9.163784e-10  2.110113e-09
@@ -614,7 +616,7 @@ atomic_number mass_number
 26             52          2.033915e-15  5.858914e-16  1.396395e-16
 24             48          8.039162e-13  4.132950e-13  1.943107e-13
 
-cell_index                           69            70
+cell_index                         69.0          70.0
 atomic_number mass_number
 1             -1           1.019389e-20  2.405973e-20
 2             -1           4.639171e-09  9.135262e-09
@@ -706,7 +708,7 @@ time_explosion = 99.067104 s
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

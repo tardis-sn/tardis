@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.scripts.convert_atomic_data module &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -169,14 +169,14 @@
            <div itemprop="articleBody">
              
   <section id="module-tardis.scripts.convert_atomic_data">
-<span id="tardis-scripts-convert-atomic-data-module"></span><h1>tardis.scripts.convert_atomic_data module<a class="headerlink" href="#module-tardis.scripts.convert_atomic_data" title="Link to this heading">¶</a></h1>
+<span id="tardis-scripts-convert-atomic-data-module"></span><h1>tardis.scripts.convert_atomic_data module<a class="headerlink" href="#module-tardis.scripts.convert_atomic_data" title="Link to this heading"></a></h1>
 <p>Quick-and-dirty script for converting an older atomic data format to one compatible with modern TARDIS.</p>
 <p>Arguments are
 {old_atomdata_to_convert} {old_photoionization_data_to_convert}
 {new_atom_data_as_template} {output_atomdata}</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.scripts.convert_atomic_data.hash_pandas_object">
-<span class="sig-prename descclassname"><span class="pre">tardis.scripts.convert_atomic_data.</span></span><span class="sig-name descname"><span class="pre">hash_pandas_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pd_object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'md5'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/scripts/convert_atomic_data.html#hash_pandas_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.scripts.convert_atomic_data.hash_pandas_object" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.scripts.convert_atomic_data.</span></span><span class="sig-name descname"><span class="pre">hash_pandas_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pd_object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'md5'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/scripts/convert_atomic_data.html#hash_pandas_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.scripts.convert_atomic_data.hash_pandas_object" title="Link to this definition"></a></dt>
 <dd><p>Hash Pandas objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -204,12 +204,12 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.scripts.convert_atomic_data.multiindex_port">
-<span class="sig-prename descclassname"><span class="pre">tardis.scripts.convert_atomic_data.</span></span><span class="sig-name descname"><span class="pre">multiindex_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">olddata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templatedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templatekey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oldkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/scripts/convert_atomic_data.html#multiindex_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.scripts.convert_atomic_data.multiindex_port" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.scripts.convert_atomic_data.</span></span><span class="sig-name descname"><span class="pre">multiindex_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">olddata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templatedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templatekey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oldkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/scripts/convert_atomic_data.html#multiindex_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.scripts.convert_atomic_data.multiindex_port" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.scripts.convert_atomic_data.serialize_pandas_object">
-<span class="sig-prename descclassname"><span class="pre">tardis.scripts.convert_atomic_data.</span></span><span class="sig-name descname"><span class="pre">serialize_pandas_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pd_object</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/scripts/convert_atomic_data.html#serialize_pandas_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.scripts.convert_atomic_data.serialize_pandas_object" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.scripts.convert_atomic_data.</span></span><span class="sig-name descname"><span class="pre">serialize_pandas_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pd_object</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/scripts/convert_atomic_data.html#serialize_pandas_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.scripts.convert_atomic_data.serialize_pandas_object" title="Link to this definition"></a></dt>
 <dd><p>Serialize Pandas objects with Pickle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -228,7 +228,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="tardis.scripts.convert_atomic_data.simple_port">
-<span class="sig-prename descclassname"><span class="pre">tardis.scripts.convert_atomic_data.</span></span><span class="sig-name descname"><span class="pre">simple_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">olddata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templatedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templatekey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oldkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/scripts/convert_atomic_data.html#simple_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.scripts.convert_atomic_data.simple_port" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">tardis.scripts.convert_atomic_data.</span></span><span class="sig-name descname"><span class="pre">simple_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">olddata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templatedata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templatekey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oldkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/scripts/convert_atomic_data.html#simple_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.scripts.convert_atomic_data.simple_port" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
@@ -245,7 +245,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

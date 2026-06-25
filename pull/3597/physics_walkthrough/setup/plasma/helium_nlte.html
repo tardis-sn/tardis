@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Helium NLTE &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -163,17 +163,17 @@
            <div itemprop="articleBody">
              
   <section id="helium-nlte">
-<h1>Helium NLTE<a class="headerlink" href="#helium-nlte" title="Link to this heading">¶</a></h1>
+<h1>Helium NLTE<a class="headerlink" href="#helium-nlte" title="Link to this heading"></a></h1>
 <dl class="simple">
 <dt>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">helium_treatment</span></code> setting in the TARDIS config. file will accept one of three options:</dt><dd><ul class="simple">
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">none</span></code>: The default setting. Populate helium in the same way as the other elements.</p></li>
-<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">recomb-nlte</span></code>: Treats helium in NLTE using the analytical approximation outlined in <span id="id1">[<a class="reference internal" href="../../../resources/zreferences.html#id19" title="A. Boyle, S. A. Sim, S. Hachinger, and W. Kerzendorf. Helium in double-detonation models of type ia supernovae. Astronomy and Astrophysics, 599:A46, March 2017. arXiv:1611.05938, doi:10.1051/0004-6361/201629712.">BoyleSimHachingerKerzendorf17</a>]</span>.</p></li>
+<li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">recomb-nlte</span></code>: Treats helium in NLTE using the analytical approximation outlined in <span class="bibtex-citation" id="id1">[<a class="reference internal" href="../../../resources/zreferences.html#id19" title="A. Boyle, S. A. Sim, S. Hachinger, and W. Kerzendorf. Helium in double-detonation models of type ia supernovae. Astronomy and Astrophysics, 599:A46, March 2017. arXiv:1611.05938, doi:10.1051/0004-6361/201629712.">BoyleSimHachingerKerzendorf17</a>]</span>.</p></li>
 <li><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">numerical-nlte</span></code>: To be implemented. Will allow the use of a separate module (not distributed with TARDIS) to perform helium NLTE calculations numerically.</p></li>
 </ul>
 </dd>
 </dl>
 <section id="recombination-he-nlte">
-<h2>Recombination He NLTE<a class="headerlink" href="#recombination-he-nlte" title="Link to this heading">¶</a></h2>
+<h2>Recombination He NLTE<a class="headerlink" href="#recombination-he-nlte" title="Link to this heading"></a></h2>
 <p>Paper version:</p>
 <p>This section will summarise the equations used in the calculation of the helium state for the <code class="xref py py-obj docutils literal notranslate"><span class="pre">recomb-NLTE</span></code> approximation in TARDIS. A full physical justification for these equations will be provided in an upcoming paper. All of the level populations are given as a function of the He II ground state population (<span class="math notranslate nohighlight">\(n_{2,1,0}\)</span>), and the values are then normalised using the helium number density to give the correct level number densities.</p>
 <dl>
@@ -207,7 +207,7 @@
 \[\frac{N_{i,j}}{Z_{i,j}} = \frac{n_{i,j,k}}{g_{i,j,k}}\]</div>
 </section>
 <section id="numerical-he-nlte">
-<h2>Numerical He NLTE<a class="headerlink" href="#numerical-he-nlte" title="Link to this heading">¶</a></h2>
+<h2>Numerical He NLTE<a class="headerlink" href="#numerical-he-nlte" title="Link to this heading"></a></h2>
 <p>Another <code class="xref py py-obj docutils literal notranslate"><span class="pre">helium_treatment</span></code> option offered by TARDIS is <code class="xref py py-obj docutils literal notranslate"><span class="pre">numerical-nlte</span></code>. The use of this plasma property requires an additional code that is the property of Stephan Hachinger (see arXiv:1201.1506) and is not distributed with TARDIS. TARDIS also requires a specific atomic datafile to use this module. This plasma option is included so that people who have access to and permission to use the necessary module may use it. Otherwise, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">recomb-NLTE</span></code> option provides a very accurate alternative approximation.</p>
 </section>
 </section>
@@ -224,7 +224,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

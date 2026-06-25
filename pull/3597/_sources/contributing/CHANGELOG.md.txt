@@ -1,5 +1,18 @@
 ## Changelog
 
+### release-2026.06.14 (2026/06/13 22:00)
+- [3610](https://github.com/tardis-sn/tardis/pull/3610) Pre-release 2026.06.14 (3610) (@tardis-bot)
+- [3602](https://github.com/tardis-sn/tardis/pull/3602) Convergence plots for Nonhomologous Workflow (3602) (@connor-mcclellan)
+- [3592](https://github.com/tardis-sn/tardis/pull/3592) Updated developer documentation (3592) (@andrewfullard)
+- [3594](https://github.com/tardis-sn/tardis/pull/3594) Add an agents definition to keep the LLMs under control (3594) (@andrewfullard)
+- [3600](https://github.com/tardis-sn/tardis/pull/3600) Post-release 2026.06.08 (3600) (@tardis-bot)
+### release-2026.06.08 (2026/06/08 12:05)
+- [3599](https://github.com/tardis-sn/tardis/pull/3599) Pre-release 2026.06.08 (3599) (@tardis-bot)
+- [3596](https://github.com/tardis-sn/tardis/pull/3596) Tardis environment update 2026 (3596) (@andrewfullard)
+- [3582](https://github.com/tardis-sn/tardis/pull/3582) Add multiple element ejecta support to IIP workflow (3582) (@jvshields)
+- [3400](https://github.com/tardis-sn/tardis/pull/3400) [GSOC] Added SDECPlotter support to LineInfoWidget for displaying additional spectrum analysis data (3400) (@SS-9098)
+- [3589](https://github.com/tardis-sn/tardis/pull/3589) Changed Dataset.dims to Dataset.size (3589) (@SS-9098)
+- [3587](https://github.com/tardis-sn/tardis/pull/3587) Post-release 2026.05.31 (3587) (@tardis-bot)
 ### release-2026.05.31 (2026/05/26 10:11)
 - [3584](https://github.com/tardis-sn/tardis/pull/3584) Post-release 2026.05.26 (3584) (@tardis-bot)
 ### release-2026.05.26 (2026/05/26 09:35)

@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.opacities.macro_atom.macroatom_state &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
 
@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -259,8 +259,9 @@ class MacroAtomState:
         macro_block_references: pd.Series | None = None,
         references_index: pd.Series | None = None,
         normalized_deactivating_probs: pd.DataFrame | None = None,
-        deactivating_metadata: pd.DataFrame | None = None,
         absorbing_probability_matrix: np.ndarray | None = None,
+        photo_ion_block_idx: int = -99,
+        k_packet_idx: int = -99,
     ) -&gt; None:
         &quot;&quot;&quot;
         Initialize a MacroAtomState object.
@@ -277,10 +278,10 @@ class MacroAtomState:
             Index references to the Macro Atom blocks. Default is None.
         normalized_deactivating_probs
             Dataframe containing emission probabilities from a chosen absorbing state
-        deactivating_metadata
-            Dataframe containing metadata for deactivation channels from a chosen absobing state.
         absorbing_probability_matrix
             Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
+        k_packet_idx:
+            Int describing the index location of the k_packet block
         &quot;&quot;&quot;
         self.transition_probabilities = transition_probabilities
         self.transition_metadata = transition_metadata
@@ -288,8 +289,9 @@ class MacroAtomState:
         self.macro_block_references = macro_block_references
         self.references_index = references_index
         self.normalized_deactivating_probs = normalized_deactivating_probs
-        self.deactivating_metadata = deactivating_metadata
         self.absorbing_probability_matrix = absorbing_probability_matrix
+        self.photo_ion_block_idx = photo_ion_block_idx
+        self.k_packet_idx = k_packet_idx
 
 <div class="viewcode-block" id="MacroAtomState.to_legacy_format">
 <a class="viewcode-back" href="../../../../api/tardis.opacities.macro_atom.macroatom_state.html#tardis.opacities.macro_atom.macroatom_state.MacroAtomState.to_legacy_format">[docs]</a>
@@ -421,7 +423,7 @@ class MacroAtomState:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

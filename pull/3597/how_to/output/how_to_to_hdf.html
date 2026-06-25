@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How to Store Simulations to HDF &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -26,11 +26,13 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -191,7 +193,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/how_to/output/how_to_to_hdf.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="How-to-Store-Simulations-to-HDF">
-<h1>How to Store Simulations to HDF<a class="headerlink" href="#How-to-Store-Simulations-to-HDF" title="Link to this heading">¶</a></h1>
+<h1>How to Store Simulations to HDF<a class="headerlink" href="#How-to-Store-Simulations-to-HDF" title="Link to this heading"></a></h1>
 <p>You can ask TARDIS to store the state of each iteration of the simulation you are running. We show examples of how this is done:</p>
 <p>Initialize the simulation with the <code class="docutils literal notranslate"><span class="pre">tardis_example.yml</span></code> configuration file.</p>
 <div class="nbinput docutils container">
@@ -239,8 +241,8 @@ Auto-detected Sphinx build environment
 
 /* Override VSCode background color */
 .cell-output-ipywidget-background:has(
-    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
-  ),
+  > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
+),
 .cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
   background-color: transparent !important;
 }
@@ -259,9 +261,11 @@ var element = document.currentScript.previousSibling.previousSibling;
   }
 
   const force = true;
-  const py_version = '3.7.3'.replace('rc', '-rc.').replace('.dev', '-dev.');
+  const version = '3.9.0'.replace('rc', '-rc.').replace('.dev', '-dev.');
   const reloading = false;
   const Bokeh = root.Bokeh;
+  const BK_RE = /^https:\/\/cdn\.bokeh\.org\/bokeh\/(release|dev)\/bokeh-/;
+  const PN_RE = /^https:\/\/cdn\.holoviz\.org\/panel\/[^/]+\/dist\/panel/i;
 
   // Set a timeout for this load but only if we are not already initializing
   if (typeof (root._bokeh_timeout) === "undefined" || (force || !root._bokeh_is_initializing)) {
@@ -281,7 +285,7 @@ var element = document.currentScript.previousSibling.previousSibling;
     console.debug("Bokeh: all callbacks have finished");
   }
 
-  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
+  function load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, callback) {
     if (css_urls == null) css_urls = [];
     if (js_urls == null) js_urls = [];
     if (js_modules == null) js_modules = [];
@@ -355,7 +359,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
       const escaped = encodeURI(url)
-      if (skip.indexOf(escaped) !== -1 || existing_scripts.indexOf(escaped) !== -1) {
+      const shouldSkip = skip.includes(escaped) || existing_scripts.includes(escaped)
+      const isBokehOrPanel = BK_RE.test(escaped) || PN_RE.test(escaped)
+      const missingOrBroken = Bokeh == null || Bokeh.Panel == null || (Bokeh.version != version && !Bokeh.versions?.has(version)) || Bokeh.versions?.get(version)?.Panel == null;
+      if (shouldSkip && !(isBokehOrPanel && missingOrBroken)) {
         if (!window.requirejs) {
           on_load();
         }
@@ -419,10 +426,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     document.body.appendChild(element);
   }
 
-  const js_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-3.7.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.7.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.7.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.7.3.min.js", "https://cdn.holoviz.org/panel/1.7.1/dist/panel.min.js"];
+  const js_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-3.9.0.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.9.0.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.9.0.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.9.0.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/panel.min.js"];
   const js_modules = [];
   const js_exports = {};
-  const css_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/font-awesome/css/all.min.css"];
+  const css_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"];
   const inline_js = [    function(Bokeh) {
       Bokeh.set_log_level("info");
     },
@@ -440,24 +447,13 @@ function(Bokeh) {} // ensure no trailing comma for IE
           }
         }
       }
-      // Cache old bokeh versions
-      if (Bokeh != undefined && !reloading) {
-        var NewBokeh = root.Bokeh;
-        if (Bokeh.versions === undefined) {
-          Bokeh.versions = new Map();
-        }
-        if (NewBokeh.version !== Bokeh.version) {
-          Bokeh.versions.set(NewBokeh.version, NewBokeh)
-        }
-        root.Bokeh = Bokeh;
-      }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(run_inline_js, 100);
     } else if (!root._bokeh_failed_load) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     }
-    root._bokeh_is_initializing = false
+    root._bokeh_is_initializing = false;
   }
 
   function load_or_wait() {
@@ -474,24 +470,35 @@ function(Bokeh) {} // ensure no trailing comma for IE
       root._bokeh_timeout = Date.now() + 5000;
       root._bokeh_is_initializing = false;
       root._bokeh_onload_callbacks = undefined;
-      root._bokeh_is_loading = 0
+      root._bokeh_is_loading = 0;
       console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
       load_or_wait();
     } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
       setTimeout(load_or_wait, 100);
     } else {
-      root._bokeh_is_initializing = true
-      root._bokeh_onload_callbacks = []
-      const bokeh_loaded = root.Bokeh != null && (root.Bokeh.version === py_version || (root.Bokeh.versions !== undefined && root.Bokeh.versions.has(py_version)));
+      root._bokeh_is_initializing = true;
+      root._bokeh_onload_callbacks = [];
+      const bokeh_loaded = Bokeh != null && ((Bokeh.version === version && Bokeh.Panel) || (Bokeh.versions?.has(version) && Bokeh.versions.get(version)?.Panel));
       if (!reloading && !bokeh_loaded) {
         if (root.Bokeh) {
           root.Bokeh = undefined;
         }
         console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
       }
-      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
+      load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, function() {
         console.debug("Bokeh: BokehJS plotting callback run at", now());
         run_inline_js();
+        if (Bokeh != undefined && !reloading) {
+          const NewBokeh = root.Bokeh;
+          if (Bokeh.versions === undefined) {
+            Bokeh.versions = new Map();
+          }
+          if (NewBokeh.version !== Bokeh.version) {
+            Bokeh[NewBokeh.version] = NewBokeh;
+            Bokeh.versions.set(NewBokeh.version, NewBokeh);
+          }
+          root.Bokeh = Bokeh;
+        }
       });
     }
   }
@@ -532,7 +539,6 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
           var messages = comm.messages[Symbol.asyncIterator]();
           function processIteratorResult(result) {
             var message = result.value;
-            console.log(message)
             var content = {data: message.data, comm_id};
             var buffers = []
             for (var buffer of message.buffers || []) {
@@ -559,7 +565,22 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
         }
       } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
         var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
-        comm.open();
+        let retries = 0;
+        const open = () => {
+          if (comm.active) {
+            comm.open();
+          } else if (retries > 3) {
+            console.warn('Comm target never activated')
+          } else {
+            retries += 1
+            setTimeout(open, 500)
+          }
+        }
+        if (comm.active) {
+          comm.open();
+        } else {
+          setTimeout(open, 500)
+        }
         if (msg_handler) {
           comm.onMsg = msg_handler;
         }
@@ -754,17 +775,17 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div id='1fccbe8d-967d-485e-936e-c036ec92eb8e'>
-  <div id="e1421194-e77a-43a2-820d-de74143daa36" data-root-id="1fccbe8d-967d-485e-936e-c036ec92eb8e" style="display: contents;"></div>
+<div id='88a313bc-71c1-47d9-b6b3-bdf17f1e4d00'>
+  <div id="f2c5e841-5b1d-4b3e-bf29-f7075dd3b5d1" data-root-id="88a313bc-71c1-47d9-b6b3-bdf17f1e4d00" style="display: contents;"></div>
 </div>
 <script type="application/javascript">(function(root) {
-  var docs_json = {"9d7b23b7-6639-49d4-8815-433e13e3a8f7":{"version":"3.7.3","title":"Bokeh Application","roots":[{"type":"object","name":"panel.models.browser.BrowserInfo","id":"1fccbe8d-967d-485e-936e-c036ec92eb8e"},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"47d05fa7-cdf6-48b1-90ec-88909f6f5e2c","attributes":{"plot_id":"1fccbe8d-967d-485e-936e-c036ec92eb8e","comm_id":"5ec73fa39fbc4188b86668f48d019242","client_comm_id":"8285f51fba7a4a029f66a5aa49b73235"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
-  var render_items = [{"docid":"9d7b23b7-6639-49d4-8815-433e13e3a8f7","roots":{"1fccbe8d-967d-485e-936e-c036ec92eb8e":"e1421194-e77a-43a2-820d-de74143daa36"},"root_ids":["1fccbe8d-967d-485e-936e-c036ec92eb8e"]}];
+  var docs_json = {"f309c589-5d6f-4513-8577-abca9150715b":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"d81295f9-4bd4-4d6b-badb-c6e0ab9d54cc","attributes":{"notifications":{"type":"object","name":"Notifications","id":"56ee413b-355d-4c10-9695-540c83c8f2b7"}}},"roots":[{"type":"object","name":"panel.models.browser.BrowserInfo","id":"88a313bc-71c1-47d9-b6b3-bdf17f1e4d00"},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"2880e16a-d935-4ea8-b4da-7f569164d6b6","attributes":{"plot_id":"88a313bc-71c1-47d9-b6b3-bdf17f1e4d00","comm_id":"ab0a8cc134154a7fae6de622b196b3d0","client_comm_id":"6dce1f220e4d40ec8d9e22a8f00bd7fa"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"f309c589-5d6f-4513-8577-abca9150715b","roots":{"88a313bc-71c1-47d9-b6b3-bdf17f1e4d00":"f2c5e841-5b1d-4b3e-bf29-f7075dd3b5d1"},"root_ids":["88a313bc-71c1-47d9-b6b3-bdf17f1e4d00"]}];
   var docs = Object.values(docs_json)
   if (!docs) {
     return
   }
-  const py_version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
+  const version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
   async function embed_document(root) {
     var Bokeh = get_bokeh(root)
     await Bokeh.embed.embed_items_notebook(docs_json, render_items);
@@ -786,12 +807,12 @@ if (window.Jupyter !== undefined) {
   function get_bokeh(root) {
     if (root.Bokeh === undefined) {
       return null
-    } else if (root.Bokeh.version !== py_version) {
-      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(py_version)) {
+    } else if (root.Bokeh.version !== version) {
+      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(version)) {
     return null
       }
-      return root.Bokeh.versions.get(py_version);
-    } else if (root.Bokeh.version === py_version) {
+      return root.Bokeh.versions.get(version);
+    } else if (root.Bokeh.version === version) {
       return root.Bokeh
     }
     return null
@@ -847,8 +868,8 @@ Auto-detected Sphinx build environment
 
 /* Override VSCode background color */
 .cell-output-ipywidget-background:has(
-    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
-  ),
+  > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
+),
 .cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
   background-color: transparent !important;
 }
@@ -867,9 +888,11 @@ var element = document.currentScript.previousSibling.previousSibling;
   }
 
   const force = false;
-  const py_version = '3.7.3'.replace('rc', '-rc.').replace('.dev', '-dev.');
+  const version = '3.9.0'.replace('rc', '-rc.').replace('.dev', '-dev.');
   const reloading = true;
   const Bokeh = root.Bokeh;
+  const BK_RE = /^https:\/\/cdn\.bokeh\.org\/bokeh\/(release|dev)\/bokeh-/;
+  const PN_RE = /^https:\/\/cdn\.holoviz\.org\/panel\/[^/]+\/dist\/panel/i;
 
   // Set a timeout for this load but only if we are not already initializing
   if (typeof (root._bokeh_timeout) === "undefined" || (force || !root._bokeh_is_initializing)) {
@@ -889,7 +912,7 @@ var element = document.currentScript.previousSibling.previousSibling;
     console.debug("Bokeh: all callbacks have finished");
   }
 
-  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
+  function load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, callback) {
     if (css_urls == null) css_urls = [];
     if (js_urls == null) js_urls = [];
     if (js_modules == null) js_modules = [];
@@ -963,7 +986,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
       const escaped = encodeURI(url)
-      if (skip.indexOf(escaped) !== -1 || existing_scripts.indexOf(escaped) !== -1) {
+      const shouldSkip = skip.includes(escaped) || existing_scripts.includes(escaped)
+      const isBokehOrPanel = BK_RE.test(escaped) || PN_RE.test(escaped)
+      const missingOrBroken = Bokeh == null || Bokeh.Panel == null || (Bokeh.version != version && !Bokeh.versions?.has(version)) || Bokeh.versions?.get(version)?.Panel == null;
+      if (shouldSkip && !(isBokehOrPanel && missingOrBroken)) {
         if (!window.requirejs) {
           on_load();
         }
@@ -1027,10 +1053,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     document.body.appendChild(element);
   }
 
-  const js_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js"];
+  const js_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js"];
   const js_modules = [];
   const js_exports = {};
-  const css_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/font-awesome/css/all.min.css"];
+  const css_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"];
   const inline_js = [    function(Bokeh) {
       Bokeh.set_log_level("info");
     },
@@ -1048,24 +1074,13 @@ function(Bokeh) {} // ensure no trailing comma for IE
           }
         }
       }
-      // Cache old bokeh versions
-      if (Bokeh != undefined && !reloading) {
-        var NewBokeh = root.Bokeh;
-        if (Bokeh.versions === undefined) {
-          Bokeh.versions = new Map();
-        }
-        if (NewBokeh.version !== Bokeh.version) {
-          Bokeh.versions.set(NewBokeh.version, NewBokeh)
-        }
-        root.Bokeh = Bokeh;
-      }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(run_inline_js, 100);
     } else if (!root._bokeh_failed_load) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     }
-    root._bokeh_is_initializing = false
+    root._bokeh_is_initializing = false;
   }
 
   function load_or_wait() {
@@ -1082,24 +1097,35 @@ function(Bokeh) {} // ensure no trailing comma for IE
       root._bokeh_timeout = Date.now() + 5000;
       root._bokeh_is_initializing = false;
       root._bokeh_onload_callbacks = undefined;
-      root._bokeh_is_loading = 0
+      root._bokeh_is_loading = 0;
       console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
       load_or_wait();
     } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
       setTimeout(load_or_wait, 100);
     } else {
-      root._bokeh_is_initializing = true
-      root._bokeh_onload_callbacks = []
-      const bokeh_loaded = root.Bokeh != null && (root.Bokeh.version === py_version || (root.Bokeh.versions !== undefined && root.Bokeh.versions.has(py_version)));
+      root._bokeh_is_initializing = true;
+      root._bokeh_onload_callbacks = [];
+      const bokeh_loaded = Bokeh != null && ((Bokeh.version === version && Bokeh.Panel) || (Bokeh.versions?.has(version) && Bokeh.versions.get(version)?.Panel));
       if (!reloading && !bokeh_loaded) {
         if (root.Bokeh) {
           root.Bokeh = undefined;
         }
         console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
       }
-      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
+      load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, function() {
         console.debug("Bokeh: BokehJS plotting callback run at", now());
         run_inline_js();
+        if (Bokeh != undefined && !reloading) {
+          const NewBokeh = root.Bokeh;
+          if (Bokeh.versions === undefined) {
+            Bokeh.versions = new Map();
+          }
+          if (NewBokeh.version !== Bokeh.version) {
+            Bokeh[NewBokeh.version] = NewBokeh;
+            Bokeh.versions.set(NewBokeh.version, NewBokeh);
+          }
+          root.Bokeh = Bokeh;
+        }
       });
     }
   }
@@ -1140,7 +1166,6 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
           var messages = comm.messages[Symbol.asyncIterator]();
           function processIteratorResult(result) {
             var message = result.value;
-            console.log(message)
             var content = {data: message.data, comm_id};
             var buffers = []
             for (var buffer of message.buffers || []) {
@@ -1167,7 +1192,22 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
         }
       } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
         var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
-        comm.open();
+        let retries = 0;
+        const open = () => {
+          if (comm.active) {
+            comm.open();
+          } else if (retries > 3) {
+            console.warn('Comm target never activated')
+          } else {
+            retries += 1
+            setTimeout(open, 500)
+          }
+        }
+        if (comm.active) {
+          comm.open();
+        } else {
+          setTimeout(open, 500)
+        }
         if (msg_handler) {
           comm.onMsg = msg_handler;
         }
@@ -1362,33 +1402,23 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "c10dda5ad4294614816fbdadbcc8f36a"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "4222e4494df343ef835e8692015d2878"}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "da4eeb07219f4866bf44a33fdb1bb1b9"}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "6238ce82e8e94c48a1a4be870bba9b63"}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<script type="text/javascript">
+<script>
 window.PlotlyConfig = {MathJaxConfig: 'local'};
 if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
-if (typeof require !== 'undefined') {
-require.undef("plotly");
-requirejs.config({
-    paths: {
-        'plotly': ['https://cdn.plot.ly/plotly-2.32.0.min']
-    }
-});
-require(['plotly'], function(Plotly) {
-    window._Plotly = Plotly;
-});
-}
-</script></div>
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-3.6.0.min"</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -1418,8 +1448,8 @@ Initializing tabulator and plotly panel extensions for widgets to work
 
 /* Override VSCode background color */
 .cell-output-ipywidget-background:has(
-    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
-  ),
+  > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
+),
 .cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
   background-color: transparent !important;
 }
@@ -1438,9 +1468,11 @@ var element = document.currentScript.previousSibling.previousSibling;
   }
 
   const force = false;
-  const py_version = '3.7.3'.replace('rc', '-rc.').replace('.dev', '-dev.');
+  const version = '3.9.0'.replace('rc', '-rc.').replace('.dev', '-dev.');
   const reloading = true;
   const Bokeh = root.Bokeh;
+  const BK_RE = /^https:\/\/cdn\.bokeh\.org\/bokeh\/(release|dev)\/bokeh-/;
+  const PN_RE = /^https:\/\/cdn\.holoviz\.org\/panel\/[^/]+\/dist\/panel/i;
 
   // Set a timeout for this load but only if we are not already initializing
   if (typeof (root._bokeh_timeout) === "undefined" || (force || !root._bokeh_is_initializing)) {
@@ -1460,7 +1492,7 @@ var element = document.currentScript.previousSibling.previousSibling;
     console.debug("Bokeh: all callbacks have finished");
   }
 
-  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
+  function load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, callback) {
     if (css_urls == null) css_urls = [];
     if (js_urls == null) js_urls = [];
     if (js_modules == null) js_modules = [];
@@ -1494,7 +1526,7 @@ var element = document.currentScript.previousSibling.previousSibling;
 
     const skip = [];
     if (window.requirejs) {
-      window.requirejs.config({'packages': {}, 'paths': {'tabulator': 'https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.1/dist/js/tabulator.min', 'moment': 'https://cdn.jsdelivr.net/npm/luxon/build/global/luxon.min', 'plotly': 'https://cdn.plot.ly/plotly-3.0.1.min'}, 'shim': {}});
+      window.requirejs.config({'packages': {}, 'paths': {'tabulator': 'https://cdn.jsdelivr.net/npm/tabulator-tables@6.4.0/dist/js/tabulator.min', 'moment': 'https://cdn.jsdelivr.net/npm/luxon/build/global/luxon.min', 'plotly': 'https://cdn.plot.ly/plotly-3.1.0.min', 'katex': 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min', 'autoLoad': 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min'}, 'shim': {}});
       require(["tabulator"], function(Tabulator) {
         window.Tabulator = Tabulator
         on_load()
@@ -1507,7 +1539,15 @@ var element = document.currentScript.previousSibling.previousSibling;
         window.Plotly = Plotly
         on_load()
       })
-      root._bokeh_is_loading = css_urls.length + 3;
+      require(["katex"], function(katex) {
+        window.katex = katex
+        on_load()
+      })
+      require(["autoLoad"], function(renderMathInElement) {
+        window.renderMathInElement = renderMathInElement
+        on_load()
+      })
+      root._bokeh_is_loading = css_urls.length + 5;
     } else {
       root._bokeh_is_loading = css_urls.length + js_urls.length + js_modules.length + Object.keys(js_exports).length;
     }
@@ -1536,17 +1576,27 @@ var element = document.currentScript.previousSibling.previousSibling;
       console.debug("Bokeh: injecting link tag for BokehJS stylesheet: ", url);
       document.body.appendChild(element);
     }    if (((window.Tabulator !== undefined) && (!(window.Tabulator instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/tabulator-tables@6.3.1/dist/js/tabulator.min.js'];
+      var urls = ['https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/tabulator-tables@6.4.0/dist/js/tabulator.min.js'];
       for (var i = 0; i < urls.length; i++) {
         skip.push(encodeURI(urls[i]))
       }
     }    if (((window.moment !== undefined) && (!(window.moment instanceof HTMLElement))) || window.requirejs) {
-      var urls = ['https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/luxon/build/global/luxon.min.js'];
+      var urls = ['https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/luxon/build/global/luxon.min.js'];
       for (var i = 0; i < urls.length; i++) {
         skip.push(encodeURI(urls[i]))
       }
     }    if (((window.Plotly !== undefined) && (!(window.Plotly instanceof HTMLElement))) || window.requirejs) {
       var urls = [];
+      for (var i = 0; i < urls.length; i++) {
+        skip.push(encodeURI(urls[i]))
+      }
+    }    if (((window.katex !== undefined) && (!(window.katex instanceof HTMLElement))) || window.requirejs) {
+      var urls = ['https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/katex.min.js'];
+      for (var i = 0; i < urls.length; i++) {
+        skip.push(encodeURI(urls[i]))
+      }
+    }    if (((window.renderMathInElement !== undefined) && (!(window.renderMathInElement instanceof HTMLElement))) || window.requirejs) {
+      var urls = ['https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/contrib/auto-render.min.js'];
       for (var i = 0; i < urls.length; i++) {
         skip.push(encodeURI(urls[i]))
       }
@@ -1561,7 +1611,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     for (let i = 0; i < js_urls.length; i++) {
       const url = js_urls[i];
       const escaped = encodeURI(url)
-      if (skip.indexOf(escaped) !== -1 || existing_scripts.indexOf(escaped) !== -1) {
+      const shouldSkip = skip.includes(escaped) || existing_scripts.includes(escaped)
+      const isBokehOrPanel = BK_RE.test(escaped) || PN_RE.test(escaped)
+      const missingOrBroken = Bokeh == null || Bokeh.Panel == null || (Bokeh.version != version && !Bokeh.versions?.has(version)) || Bokeh.versions?.get(version)?.Panel == null;
+      if (shouldSkip && !(isBokehOrPanel && missingOrBroken)) {
         if (!window.requirejs) {
           on_load();
         }
@@ -1625,10 +1678,10 @@ var element = document.currentScript.previousSibling.previousSibling;
     document.body.appendChild(element);
   }
 
-  const js_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/plotlyplot/plotly-3.0.1.min.js", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/tabulator-tables@6.3.1/dist/js/tabulator.min.js", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/luxon/build/global/luxon.min.js"];
+  const js_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/katex.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/contrib/auto-render.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/plotlyplot/plotly-3.1.0.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/tabulator-tables@6.4.0/dist/js/tabulator.min.js", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/luxon/build/global/luxon.min.js"];
   const js_modules = [];
   const js_exports = {};
-  const css_urls = ["https://cdn.holoviz.org/panel/1.7.1/dist/bundled/plotlyplot/maplibre-gl@4.4.1/dist/maplibre-gl.css?v=1.7.1", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/datatabulator/tabulator-tables@6.3.1/dist/css/tabulator_simple.min.css?v=1.7.1", "https://cdn.holoviz.org/panel/1.7.1/dist/bundled/font-awesome/css/all.min.css"];
+  const css_urls = ["https://cdn.holoviz.org/panel/1.9.3/dist/bundled/katex/katex@0.16.22/dist/katex.min.css", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/plotlyplot/maplibre-gl@4.4.1/dist/maplibre-gl.css", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/datatabulator/tabulator-tables@6.4.0/dist/css/tabulator_simple.min.css", "https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"];
   const inline_js = [    function(Bokeh) {
       Bokeh.set_log_level("info");
     },
@@ -1646,24 +1699,13 @@ function(Bokeh) {} // ensure no trailing comma for IE
           }
         }
       }
-      // Cache old bokeh versions
-      if (Bokeh != undefined && !reloading) {
-        var NewBokeh = root.Bokeh;
-        if (Bokeh.versions === undefined) {
-          Bokeh.versions = new Map();
-        }
-        if (NewBokeh.version !== Bokeh.version) {
-          Bokeh.versions.set(NewBokeh.version, NewBokeh)
-        }
-        root.Bokeh = Bokeh;
-      }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(run_inline_js, 100);
     } else if (!root._bokeh_failed_load) {
       console.log("Bokeh: BokehJS failed to load within specified timeout.");
       root._bokeh_failed_load = true;
     }
-    root._bokeh_is_initializing = false
+    root._bokeh_is_initializing = false;
   }
 
   function load_or_wait() {
@@ -1680,24 +1722,35 @@ function(Bokeh) {} // ensure no trailing comma for IE
       root._bokeh_timeout = Date.now() + 5000;
       root._bokeh_is_initializing = false;
       root._bokeh_onload_callbacks = undefined;
-      root._bokeh_is_loading = 0
+      root._bokeh_is_loading = 0;
       console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
       load_or_wait();
     } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
       setTimeout(load_or_wait, 100);
     } else {
-      root._bokeh_is_initializing = true
-      root._bokeh_onload_callbacks = []
-      const bokeh_loaded = root.Bokeh != null && (root.Bokeh.version === py_version || (root.Bokeh.versions !== undefined && root.Bokeh.versions.has(py_version)));
+      root._bokeh_is_initializing = true;
+      root._bokeh_onload_callbacks = [];
+      const bokeh_loaded = Bokeh != null && ((Bokeh.version === version && Bokeh.Panel) || (Bokeh.versions?.has(version) && Bokeh.versions.get(version)?.Panel));
       if (!reloading && !bokeh_loaded) {
         if (root.Bokeh) {
           root.Bokeh = undefined;
         }
         console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
       }
-      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
+      load_libs(css_urls, js_urls, js_modules, js_exports, Bokeh, function() {
         console.debug("Bokeh: BokehJS plotting callback run at", now());
         run_inline_js();
+        if (Bokeh != undefined && !reloading) {
+          const NewBokeh = root.Bokeh;
+          if (Bokeh.versions === undefined) {
+            Bokeh.versions = new Map();
+          }
+          if (NewBokeh.version !== Bokeh.version) {
+            Bokeh[NewBokeh.version] = NewBokeh;
+            Bokeh.versions.set(NewBokeh.version, NewBokeh);
+          }
+          root.Bokeh = Bokeh;
+        }
       });
     }
   }
@@ -1738,7 +1791,6 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
           var messages = comm.messages[Symbol.asyncIterator]();
           function processIteratorResult(result) {
             var message = result.value;
-            console.log(message)
             var content = {data: message.data, comm_id};
             var buffers = []
             for (var buffer of message.buffers || []) {
@@ -1765,7 +1817,22 @@ if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
         }
       } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
         var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
-        comm.open();
+        let retries = 0;
+        const open = () => {
+          if (comm.active) {
+            comm.open();
+          } else if (retries > 3) {
+            console.warn('Comm target never activated')
+          } else {
+            retries += 1
+            setTimeout(open, 500)
+          }
+        }
+        if (comm.active) {
+          comm.open();
+        } else {
+          setTimeout(open, 500)
+        }
         if (msg_handler) {
           comm.onMsg = msg_handler;
         }
@@ -1966,17 +2033,17 @@ if (window.Jupyter !== undefined) {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div id='d8631ed9-f50b-41c8-97bf-582bf0aa1376'>
-  <div id="d744c989-a394-4454-942e-e5e4883664ea" data-root-id="d8631ed9-f50b-41c8-97bf-582bf0aa1376" style="display: contents;"></div>
+<div id='ba12755e-abdf-4daa-8e8e-564366c5d687'>
+  <div id="c64b2ac2-c55f-48e4-849d-663e82ad3a20" data-root-id="ba12755e-abdf-4daa-8e8e-564366c5d687" style="display: contents;"></div>
 </div>
 <script type="application/javascript">(function(root) {
-  var docs_json = {"c0df4971-b85b-4459-866f-670ff274d4ff":{"version":"3.7.3","title":"Bokeh Application","roots":[{"type":"object","name":"panel.models.markup.HTML","id":"d8631ed9-f50b-41c8-97bf-582bf0aa1376","attributes":{"styles":{"type":"map","entries":[["border","1px solid #ddd"],["background-color","white"],["overflow-y","auto"],["overflow-x","auto"],["font-family","monospace"],["padding","8px"],["white-space","pre-wrap"]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"013b8ec8-3322-4c21-986a-bf98c4119689","attributes":{"url":"https://cdn.holoviz.org/panel/1.7.1/dist/css/loading.css"}},{"type":"object","name":"ImportedStyleSheet","id":"be0b1399-1001-4067-a5fc-2ead9ffc595a","attributes":{"url":"https://cdn.holoviz.org/panel/1.7.1/dist/bundled/font-awesome/css/all.min.css"}},{"type":"object","name":"ImportedStyleSheet","id":"c3de22b8-4081-4b0b-bdf4-3de8f3d72fd6","attributes":{"url":"https://cdn.holoviz.org/panel/1.7.1/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"f605713a-da45-4498-a3fe-c165ebf5de4f","attributes":{"url":"https://cdn.holoviz.org/panel/1.7.1/dist/bundled/theme/native.css"}}],"height":300,"min_width":0,"margin":[5,10],"sizing_mode":"stretch_width","align":"start","text":"&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.parse_atom_data&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tReading Atomic Data from kurucz_cd23_chianti_H_He_latest.h5 (parse_atom_data.py:40)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.util&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tAtom Data kurucz_cd23_chianti_H_He_latest.h5 not found in local path.\n\tExists in TARDIS Data repo /home/runner/Downloads/tardis-data/kurucz_cd23_chianti_H_He_latest.h5 (util.py:33)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Reading Atom Data with: UUID = b58b2ef63bf811f08edf96479f911fbd MD5  = 5d80fa4ae0638469bf1ff281b6ca2a94  (base.py:258)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Non provided Atomic Data: levels, lines, collision_data, collision_data_temperatures, synpp_refs, photoionization_data, yg_data, two_photon_data, linelist_atoms, linelist_molecules (base.py:262)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.model.parse_composition_configuration&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; Number of density points larger than number of shells. Assuming inner point irrelevant (parse_composition_configuration.py:63)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.model.parse_mass_fraction_configuration&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; model_isotope_time_0 is not set in the configuration. Isotopic mass fractions will not be decayed and is assumed to be correct for the time_explosion. THIS IS NOT RECOMMENDED! (parse_mass_fraction_configuration.py:101)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 1 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;py.warnings&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; /home/runner/work/tardis/tardis/tardis/transport/montecarlo/modes/classic/montecarlo_transport.py:161: NumbaTypeSafetyWarning:\n\nunsafe cast from uint64 to int64. Precision may be lost.\n\n (warnings.py:110)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 7.943e+42 erg / s\n\tLuminosity absorbed  = 2.657e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.        t_rad    next_t_rad         w    next_w\n0          9926.501965  10116.400117  0.400392  0.512668\n5          9852.611678  10283.504112  0.211205  0.192793\n10         9779.813302  10189.827247  0.142695  0.115336\n15         9708.082813   9923.884385  0.104556  0.085604&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 9933.952 K\n\tExpected t_inner for next iteration = 10702.988 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 2 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.072e+43 erg / s\n\tLuminosity absorbed  = 3.567e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10116.400117  10859.335083  0.512668  0.515006\n5          10283.504112  11047.813469  0.192793  0.197296\n10         10189.827247  10784.014772  0.115336  0.124660\n15          9923.884385  10512.786812  0.085604  0.092163&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10702.988 K\n\tExpected t_inner for next iteration = 10671.223 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 3 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.072e+43 erg / s\n\tLuminosity absorbed  = 3.405e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 1/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10859.335083  11028.367667  0.515006  0.478453\n5          11047.813469  11225.720704  0.197296  0.184581\n10         10784.014772  10962.940980  0.124660  0.117054\n15         10512.786812  10638.764585  0.092163  0.087737&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10671.223 K\n\tExpected t_inner for next iteration = 10640.300 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 4 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.062e+43 erg / s\n\tLuminosity absorbed  = 3.343e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 2/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11028.367667  11039.195242  0.478453  0.469587\n5          11225.720704  11221.258877  0.184581  0.183026\n10         10962.940980  10996.505309  0.117054  0.114706\n15         10638.764585  10711.508546  0.087737  0.084769&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10640.300 K\n\tExpected t_inner for next iteration = 10634.325 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 5 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.052e+43 erg / s\n\tLuminosity absorbed  = 3.401e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 3/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11039.195242  10998.789084  0.469587  0.477674\n5          11221.258877  11294.641191  0.183026  0.177204\n10         10996.505309  11052.895920  0.114706  0.112235\n15         10711.508546  10717.828389  0.084769  0.083837&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10634.325 K\n\tExpected t_inner for next iteration = 10652.352 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 6 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.059e+43 erg / s\n\tLuminosity absorbed  = 3.424e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 4/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10998.789084  11054.210691  0.477674  0.470495\n5          11294.641191  11199.467106  0.177204  0.185990\n10         11052.895920  10990.566575  0.112235  0.115141\n15         10717.828389  10661.243541  0.083837  0.085553&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10652.352 K\n\tExpected t_inner for next iteration = 10651.891 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 7 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.061e+43 erg / s\n\tLuminosity absorbed  = 3.409e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 5/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11054.210691  11038.116422  0.470495  0.469156\n5          11199.467106  11334.960475  0.185990  0.176689\n10         10990.566575  11001.652865  0.115141  0.114078\n15         10661.243541  10738.063893  0.085553  0.083841&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.891 K\n\tExpected t_inner for next iteration = 10647.389 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 8 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.066e+43 erg / s\n\tLuminosity absorbed  = 3.339e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 6/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11038.116422  11067.726564  0.469156  0.468792\n5          11334.960475  11345.349156  0.176689  0.176570\n10         11001.652865  11075.099653  0.114078  0.112232\n15         10738.063893  10667.117872  0.083841  0.085676&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.389 K\n\tExpected t_inner for next iteration = 10631.313 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 9 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.053e+43 erg / s\n\tLuminosity absorbed  = 3.381e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 7/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11067.726564  11028.090146  0.468792  0.470004\n5          11345.349156  11331.415395  0.176570  0.177394\n10         11075.099653  11110.491648  0.112232  0.110346\n15         10667.117872  10685.541256  0.085676  0.084306&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10631.313 K\n\tExpected t_inner for next iteration = 10647.705 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 10 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.065e+43 erg / s\n\tLuminosity absorbed  = 3.343e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 8/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11028.090146  11010.668144  0.470004  0.478204\n5          11331.415395  11351.652490  0.177394  0.176805\n10         11110.491648  11093.944975  0.110346  0.111728\n15         10685.541256  10661.650687  0.084306  0.086093&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.705 K\n\tExpected t_inner for next iteration = 10632.321 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 11 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.052e+43 erg / s\n\tLuminosity absorbed  = 3.395e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 9/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11010.668144  11012.589597  0.478204  0.474125\n5          11351.652490  11263.036102  0.176805  0.181170\n10         11093.944975  10974.207510  0.111728  0.115166\n15         10661.650687  10573.933232  0.086093  0.087431&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10632.321 K\n\tExpected t_inner for next iteration = 10651.129 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 12 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.061e+43 erg / s\n\tLuminosity absorbed  = 3.407e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 10/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11012.589597  11111.110931  0.474125  0.462769\n5          11263.036102  11393.783860  0.181170  0.174409\n10         10974.207510  11058.216516  0.115166  0.111998\n15         10573.933232  10641.288598  0.087431  0.086211&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.129 K\n\tExpected t_inner for next iteration = 10647.736 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 13 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.058e+43 erg / s\n\tLuminosity absorbed  = 3.411e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 11/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11111.110931  11073.718554  0.462769  0.467763\n5          11393.783860  11442.925323  0.174409  0.171317\n10         11058.216516  11194.007214  0.111998  0.107744\n15         10641.288598  10700.089076  0.086211  0.085061&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.736 K\n\tExpected t_inner for next iteration = 10650.333 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 14 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.068e+43 erg / s\n\tLuminosity absorbed  = 3.335e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 12/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11073.718554  11042.652176  0.467763  0.473196\n5          11442.925323  11385.836907  0.171317  0.176879\n10         11194.007214  11126.822925  0.107744  0.110562\n15         10700.089076  10719.455945  0.085061  0.084659&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10650.333 K\n\tExpected t_inner for next iteration = 10629.375 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 15 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.051e+43 erg / s\n\tLuminosity absorbed  = 3.390e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 13/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11042.652176  10972.498902  0.473196  0.479822\n5          11385.836907  11244.959847  0.176879  0.182422\n10         11126.822925  11059.964223  0.110562  0.112385\n15         10719.455945  10669.537176  0.084659  0.085082&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10629.375 K\n\tExpected t_inner for next iteration = 10651.199 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 16 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.056e+43 erg / s\n\tLuminosity absorbed  = 3.453e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 14/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10972.498902  11054.220137  0.479822  0.470790\n5          11244.959847  11390.935659  0.182422  0.172641\n10         11059.964223  11062.336960  0.112385  0.112268\n15         10669.537176  10762.756528  0.085082  0.082607&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.199 K\n\tExpected t_inner for next iteration = 10659.896 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 17 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.067e+43 erg / s\n\tLuminosity absorbed  = 3.389e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 15/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11054.220137  11094.082655  0.470790  0.465237\n5          11390.935659  11354.965044  0.172641  0.176871\n10         11062.336960  11180.146847  0.112268  0.107948\n15         10762.756528  10773.332233  0.082607  0.082896&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10659.896 K\n\tExpected t_inner for next iteration = 10639.937 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 18 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.058e+43 erg / s\n\tLuminosity absorbed  = 3.371e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 16/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11094.082655  11081.093239  0.465237  0.462475\n5          11354.965044  11430.220627  0.176871  0.170952\n10         11180.146847  11202.439479  0.107948  0.106734\n15         10773.332233  10763.553188  0.082896  0.082201&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10639.937 K\n\tExpected t_inner for next iteration = 10642.096 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 19 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.054e+43 erg / s\n\tLuminosity absorbed  = 3.424e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 17/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11081.093239  11069.393981  0.462475  0.466629\n5          11430.220627  11516.913779  0.170952  0.167577\n10         11202.439479  11196.954370  0.106734  0.106345\n15         10763.553188  10723.696320  0.082201  0.083164&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10642.096 K\n\tExpected t_inner for next iteration = 10655.927 K\n (base.py:656)&lt;/div&gt;","disable_math":true}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
-  var render_items = [{"docid":"c0df4971-b85b-4459-866f-670ff274d4ff","roots":{"d8631ed9-f50b-41c8-97bf-582bf0aa1376":"d744c989-a394-4454-942e-e5e4883664ea"},"root_ids":["d8631ed9-f50b-41c8-97bf-582bf0aa1376"]}];
+  var docs_json = {"70210c47-5f90-4e30-9ac8-cb605891f4a6":{"version":"3.9.0","title":"Bokeh Application","config":{"type":"object","name":"DocumentConfig","id":"cb4bfa6a-ec7e-45ca-b47f-ac2d39b186f3","attributes":{"notifications":{"type":"object","name":"Notifications","id":"8363efdd-a551-4778-9276-38f80f16d5b6"}}},"roots":[{"type":"object","name":"panel.models.markup.HTML","id":"ba12755e-abdf-4daa-8e8e-564366c5d687","attributes":{"styles":{"type":"map","entries":[["border","1px solid #ddd"],["background-color","white"],["overflow-y","auto"],["overflow-x","auto"],["font-family","monospace"],["padding","8px"],["white-space","pre-wrap"]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 300px));\n  -webkit-mask-size: auto calc(min(50%, 300px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"a13cb867-5844-4cfd-b169-815140848584","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/css/loading.css?v=1.9.3"}},{"type":"object","name":"ImportedStyleSheet","id":"0ca7b917-6e43-4efd-ae69-4208e428f4b2","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/font-awesome/css/all.min.css"}},{"type":"object","name":"ImportedStyleSheet","id":"2732d3ef-d59c-4d02-9630-eaa9c0eafc4a","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"e042e5fc-182e-489b-b680-1ec11a3f006d","attributes":{"url":"https://cdn.holoviz.org/panel/1.9.3/dist/bundled/theme/native.css"}}],"height":300,"min_width":0,"margin":[5,10],"sizing_mode":"stretch_width","align":"start","text":"&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.parse_atom_data&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tReading Atomic Data from kurucz_cd23_chianti_H_He_latest.h5 (parse_atom_data.py:40)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.util&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tAtom Data kurucz_cd23_chianti_H_He_latest.h5 not found in local path.\n\tExists in TARDIS Data repo /home/runner/Downloads/tardis-data/kurucz_cd23_chianti_H_He_latest.h5 (util.py:33)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Reading Atom Data with: UUID = b58b2ef63bf811f08edf96479f911fbd MD5  = 5d80fa4ae0638469bf1ff281b6ca2a94  (base.py:258)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.atom_data.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Non provided Atomic Data: levels, lines, collision_data, collision_data_temperatures, synpp_refs, photoionization_data, yg_data, two_photon_data, linelist_atoms, linelist_molecules (base.py:262)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.model.parse_composition_configuration&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; Number of density points larger than number of shells. Assuming inner point irrelevant (parse_composition_configuration.py:63)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.io.model.parse_mass_fraction_configuration&lt;/span&gt; &lt;span style=&quot;color: orange; font-weight: bold;&quot;&gt;[WARNING]&lt;/span&gt; model_isotope_time_0 is not set in the configuration. Isotopic mass fractions will not be decayed and is assumed to be correct for the time_explosion. THIS IS NOT RECOMMENDED! (parse_mass_fraction_configuration.py:101)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 1 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 7.943e+42 erg / s\n\tLuminosity absorbed  = 2.657e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.        t_rad    next_t_rad         w    next_w\n0          9926.501965  10116.400117  0.400392  0.512668\n5          9852.611678  10283.504112  0.211205  0.192793\n10         9779.813302  10189.827247  0.142695  0.115336\n15         9708.082813   9923.884385  0.104556  0.085604&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 9933.952 K\n\tExpected t_inner for next iteration = 10702.988 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 2 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.072e+43 erg / s\n\tLuminosity absorbed  = 3.567e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10116.400117  10859.335083  0.512668  0.515006\n5          10283.504112  11047.813469  0.192793  0.197296\n10         10189.827247  10784.014772  0.115336  0.124660\n15          9923.884385  10512.786812  0.085604  0.092163&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10702.988 K\n\tExpected t_inner for next iteration = 10671.223 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 3 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.072e+43 erg / s\n\tLuminosity absorbed  = 3.405e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 1/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10859.335083  11028.367667  0.515006  0.478453\n5          11047.813469  11225.720704  0.197296  0.184581\n10         10784.014772  10962.940980  0.124660  0.117054\n15         10512.786812  10638.764585  0.092163  0.087737&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10671.223 K\n\tExpected t_inner for next iteration = 10640.300 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 4 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.062e+43 erg / s\n\tLuminosity absorbed  = 3.343e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 2/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11028.367667  11039.195242  0.478453  0.469587\n5          11225.720704  11221.258877  0.184581  0.183026\n10         10962.940980  10996.505309  0.117054  0.114706\n15         10638.764585  10711.508546  0.087737  0.084769&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10640.300 K\n\tExpected t_inner for next iteration = 10634.325 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 5 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.052e+43 erg / s\n\tLuminosity absorbed  = 3.401e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 3/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11039.195242  10998.789084  0.469587  0.477674\n5          11221.258877  11294.641191  0.183026  0.177204\n10         10996.505309  11052.895920  0.114706  0.112235\n15         10711.508546  10717.828389  0.084769  0.083837&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10634.325 K\n\tExpected t_inner for next iteration = 10652.352 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 6 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.059e+43 erg / s\n\tLuminosity absorbed  = 3.424e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 4/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10998.789084  11054.210691  0.477674  0.470495\n5          11294.641191  11199.467106  0.177204  0.185990\n10         11052.895920  10990.566575  0.112235  0.115141\n15         10717.828389  10661.243541  0.083837  0.085553&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10652.352 K\n\tExpected t_inner for next iteration = 10651.891 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 7 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.061e+43 erg / s\n\tLuminosity absorbed  = 3.409e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 5/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11054.210691  11038.116422  0.470495  0.469156\n5          11199.467106  11334.960475  0.185990  0.176689\n10         10990.566575  11001.652865  0.115141  0.114078\n15         10661.243541  10738.063893  0.085553  0.083841&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.891 K\n\tExpected t_inner for next iteration = 10647.389 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 8 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.066e+43 erg / s\n\tLuminosity absorbed  = 3.339e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 6/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11038.116422  11067.726564  0.469156  0.468792\n5          11334.960475  11345.349156  0.176689  0.176570\n10         11001.652865  11075.099653  0.114078  0.112232\n15         10738.063893  10667.117872  0.083841  0.085676&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.389 K\n\tExpected t_inner for next iteration = 10631.313 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 9 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.053e+43 erg / s\n\tLuminosity absorbed  = 3.381e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 7/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11067.726564  11028.090146  0.468792  0.470004\n5          11345.349156  11331.415395  0.176570  0.177394\n10         11075.099653  11110.491648  0.112232  0.110346\n15         10667.117872  10685.541256  0.085676  0.084306&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10631.313 K\n\tExpected t_inner for next iteration = 10647.705 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 10 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.065e+43 erg / s\n\tLuminosity absorbed  = 3.343e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 8/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11028.090146  11010.668144  0.470004  0.478204\n5          11331.415395  11351.652490  0.177394  0.176805\n10         11110.491648  11093.944975  0.110346  0.111728\n15         10685.541256  10661.650687  0.084306  0.086093&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.705 K\n\tExpected t_inner for next iteration = 10632.321 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 11 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.052e+43 erg / s\n\tLuminosity absorbed  = 3.395e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 9/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11010.668144  11012.589597  0.478204  0.474125\n5          11351.652490  11263.036102  0.176805  0.181170\n10         11093.944975  10974.207510  0.111728  0.115166\n15         10661.650687  10573.933232  0.086093  0.087431&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10632.321 K\n\tExpected t_inner for next iteration = 10651.129 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 12 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.061e+43 erg / s\n\tLuminosity absorbed  = 3.407e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 10/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11012.589597  11111.110931  0.474125  0.462769\n5          11263.036102  11393.783860  0.181170  0.174409\n10         10974.207510  11058.216516  0.115166  0.111998\n15         10573.933232  10641.288598  0.087431  0.086211&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.129 K\n\tExpected t_inner for next iteration = 10647.736 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 13 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.058e+43 erg / s\n\tLuminosity absorbed  = 3.411e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 11/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11111.110931  11073.718554  0.462769  0.467763\n5          11393.783860  11442.925323  0.174409  0.171317\n10         11058.216516  11194.007214  0.111998  0.107744\n15         10641.288598  10700.089076  0.086211  0.085061&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10647.736 K\n\tExpected t_inner for next iteration = 10650.333 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 14 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.068e+43 erg / s\n\tLuminosity absorbed  = 3.335e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 12/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11073.718554  11042.652176  0.467763  0.473196\n5          11442.925323  11385.836907  0.171317  0.176879\n10         11194.007214  11126.822925  0.107744  0.110562\n15         10700.089076  10719.455945  0.085061  0.084659&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10650.333 K\n\tExpected t_inner for next iteration = 10629.375 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 15 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.051e+43 erg / s\n\tLuminosity absorbed  = 3.390e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 13/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11042.652176  10972.498902  0.473196  0.479822\n5          11385.836907  11244.959847  0.176879  0.182422\n10         11126.822925  11059.964223  0.110562  0.112385\n15         10719.455945  10669.537176  0.084659  0.085082&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10629.375 K\n\tExpected t_inner for next iteration = 10651.199 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 16 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.056e+43 erg / s\n\tLuminosity absorbed  = 3.453e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 14/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          10972.498902  11054.220137  0.479822  0.470790\n5          11244.959847  11390.935659  0.182422  0.172641\n10         11059.964223  11062.336960  0.112385  0.112268\n15         10669.537176  10762.756528  0.085082  0.082607&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10651.199 K\n\tExpected t_inner for next iteration = 10659.896 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 17 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.067e+43 erg / s\n\tLuminosity absorbed  = 3.389e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 15/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11054.220137  11094.082655  0.470790  0.465237\n5          11390.935659  11354.965044  0.172641  0.176871\n10         11062.336960  11180.146847  0.112268  0.107948\n15         10762.756528  10773.332233  0.082607  0.082896&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10659.896 K\n\tExpected t_inner for next iteration = 10639.937 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 18 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.058e+43 erg / s\n\tLuminosity absorbed  = 3.371e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 16/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11094.082655  11081.093239  0.465237  0.462475\n5          11354.965044  11430.220627  0.176871  0.170952\n10         11180.146847  11202.439479  0.107948  0.106734\n15         10773.332233  10763.553188  0.082896  0.082201&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10639.937 K\n\tExpected t_inner for next iteration = 10642.096 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tStarting iteration 19 of 20 (base.py:445)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tLuminosity emitted   = 1.054e+43 erg / s\n\tLuminosity absorbed  = 3.424e+42 erg / s\n\tLuminosity requested = 1.059e+43 erg / s\n (base.py:661)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; Iteration converged 17/4 consecutive times. (base.py:265)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;pre style=&quot;white-space: pre; margin: 0;&quot;&gt;Shell No.         t_rad    next_t_rad         w    next_w\n0          11081.093239  11069.393981  0.462475  0.466629\n5          11430.220627  11516.913779  0.170952  0.167577\n10         11202.439479  11196.954370  0.106734  0.106345\n15         10763.553188  10723.696320  0.082201  0.083164&lt;/pre&gt;&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tCurrent t_inner = 10642.096 K\n\tExpected t_inner for next iteration = 10655.927 K\n (base.py:656)&lt;/div&gt;&lt;div style=&#x27;margin: 2px 0; padding: 2px 0;&#x27;&gt;&lt;span&gt;tardis.simulation.base&lt;/span&gt; &lt;span style=&quot;color: #D3D3D3; font-weight: bold;&quot;&gt;[INFO]&lt;/span&gt; \n\tSimulation finished in 19 iterations \n\tSimulation took 45.85 s\n (base.py:563)&lt;/div&gt;","disable_math":true}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"start","kind":"Any","default":0},{"name":"end","kind":"Any","default":100},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"JSComponent1","properties":[{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"ReactComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"AnyWidgetComponent1","properties":[{"name":"use_shadow_dom","kind":"Any","default":true},{"name":"esm_constants","kind":"Any","default":{"type":"map"}}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"max_notifications","kind":"Any","default":5},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_rendered","kind":"Any","default":false},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"70210c47-5f90-4e30-9ac8-cb605891f4a6","roots":{"ba12755e-abdf-4daa-8e8e-564366c5d687":"c64b2ac2-c55f-48e4-849d-663e82ad3a20"},"root_ids":["ba12755e-abdf-4daa-8e8e-564366c5d687"]}];
   var docs = Object.values(docs_json)
   if (!docs) {
     return
   }
-  const py_version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
+  const version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
   async function embed_document(root) {
     var Bokeh = get_bokeh(root)
     await Bokeh.embed.embed_items_notebook(docs_json, render_items);
@@ -1998,19 +2065,19 @@ if (window.Jupyter !== undefined) {
   function get_bokeh(root) {
     if (root.Bokeh === undefined) {
       return null
-    } else if (root.Bokeh.version !== py_version) {
-      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(py_version)) {
+    } else if (root.Bokeh.version !== version) {
+      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(version)) {
     return null
       }
-      return root.Bokeh.versions.get(py_version);
-    } else if (root.Bokeh.version === py_version) {
+      return root.Bokeh.versions.get(version);
+    } else if (root.Bokeh.version === version) {
       return root.Bokeh
     }
     return null
   }
   function is_loaded(root) {
     var Bokeh = get_bokeh(root)
-    return (Bokeh != null && Bokeh.Panel !== undefined && ( root.Tabulator !== undefined) && ( root.Plotly !== undefined) && ( root.Tabulator !== undefined) && ( root.Plotly !== undefined))
+    return (Bokeh != null && Bokeh.Panel !== undefined && ( root.Tabulator !== undefined) && ( root.Plotly !== undefined) && ( root.katex !== undefined) && ( root.Tabulator !== undefined) && ( root.Plotly !== undefined) && ( root.katex !== undefined))
   }
   if (is_loaded(root)) {
     embed_document(root);
@@ -2047,7 +2114,7 @@ Embedding the final state for Jupyter environments
 </div>
 <p>You can now use the <code class="docutils literal notranslate"><span class="pre">to_hdf</span></code> method, to save properties to a HDF file.</p>
 <section id="Parameters">
-<h2>Parameters<a class="headerlink" href="#Parameters" title="Link to this heading">¶</a></h2>
+<h2>Parameters<a class="headerlink" href="#Parameters" title="Link to this heading"></a></h2>
 <div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">file_path</span></code>: Path where the HDF file should be stored. (Required)</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">path</span></code>: Path inside the HDF store to store the elements. (Optional)</div>
@@ -2073,37 +2140,26 @@ Embedding the final state for Jupyter environments
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:148: PerformanceWarning:
-
-
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:156: PerformanceWarning:
 your performance may suffer as PyTables will pickle object types that it cannot
-map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;Index([0], dtype=&#39;int64&#39;)]
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;RangeIndex(start=0, stop=1, step=1)]
 
-
- (<span class="ansi-bold">warnings.py</span>:110)
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:131: PerformanceWarning:
-
-
-your performance may suffer as PyTables will pickle object types that it cannot
-map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;Index([0], dtype=&#39;int64&#39;)]
-
-
- (<span class="ansi-bold">warnings.py</span>:110)
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:157: PerformanceWarning:
-
-
+  data.to_hdf(buf, key=str(Path(path) / key), format=format)
+ (<span class="ansi-bold">_py_warnings.py</span>:230)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:165: PerformanceWarning:
 your performance may suffer as PyTables will pickle object types that it cannot
 map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None]
 
+  pd.Series(scalars, name=&#34;value&#34;).to_hdf(
+ (<span class="ansi-bold">_py_warnings.py</span>:230)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:165: PerformanceWarning:
+your performance may suffer as PyTables will pickle object types that it cannot
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None]
 
- (<span class="ansi-bold">warnings.py</span>:110)
+  pd.Series(scalars, name=&#34;value&#34;).to_hdf(
+ (<span class="ansi-bold">_py_warnings.py</span>:230)
 [<span class="ansi-bold">tardis.spectrum.formal_integral.formal_integral_solver</span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  The formal integral implementation was not specified. Please run with config option numba or cuda.Defaulting to numba implementation. (<span class="ansi-bold">formal_integral_solver.py</span>:100)
 [<span class="ansi-bold">tardis.spectrum.formal_integral.formal_integral_solver</span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  The number of interpolate_shells was not specified. The value was set to 80. (<span class="ansi-bold">formal_integral_solver.py</span>:216)
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/micromamba/envs/tardis/lib/python3.13/site-packages/astropy/units/format/generic.py:507: UnitsWarning:
-
-&#39;erg/s/Hz&#39; contains multiple slashes, which is discouraged by the FITS standard
-
- (<span class="ansi-bold">warnings.py</span>:110)
 </pre></div></div>
 </div>
 <p>Open the stored HDF file with pandas and print a list of its entries using the <code class="docutils literal notranslate"><span class="pre">keys()</span></code> method:</p>
@@ -2269,10 +2325,10 @@ dtype: float64
 </pre></div></div>
 </div>
 <section id="Breakdown-of-the-various-to_hdf-methods">
-<h3>Breakdown of the various to_hdf methods<a class="headerlink" href="#Breakdown-of-the-various-to_hdf-methods" title="Link to this heading">¶</a></h3>
+<h3>Breakdown of the various to_hdf methods<a class="headerlink" href="#Breakdown-of-the-various-to_hdf-methods" title="Link to this heading"></a></h3>
 <p>Every module in TARDIS has its own <code class="docutils literal notranslate"><span class="pre">to_hdf</span></code> method responsible to store its own data to an HDF file.</p>
 <section id="Plasma">
-<h4>Plasma<a class="headerlink" href="#Plasma" title="Link to this heading">¶</a></h4>
+<h4>Plasma<a class="headerlink" href="#Plasma" title="Link to this heading"></a></h4>
 <p>The following call will store every plasma property to <code class="docutils literal notranslate"><span class="pre">/tmp/plasma_output.hdf</span></code> under <code class="docutils literal notranslate"><span class="pre">/parent/plasma</span></code></p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -2287,30 +2343,18 @@ dtype: float64
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:148: PerformanceWarning:
-
-
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:156: PerformanceWarning:
 your performance may suffer as PyTables will pickle object types that it cannot
-map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;Index([0], dtype=&#39;int64&#39;)]
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;RangeIndex(start=0, stop=1, step=1)]
 
-
- (<span class="ansi-bold">warnings.py</span>:110)
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:131: PerformanceWarning:
-
-
-your performance may suffer as PyTables will pickle object types that it cannot
-map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;Index([0], dtype=&#39;int64&#39;)]
-
-
- (<span class="ansi-bold">warnings.py</span>:110)
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:157: PerformanceWarning:
-
-
+  data.to_hdf(buf, key=str(Path(path) / key), format=format)
+ (<span class="ansi-bold">_py_warnings.py</span>:230)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:165: PerformanceWarning:
 your performance may suffer as PyTables will pickle object types that it cannot
 map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None]
 
-
- (<span class="ansi-bold">warnings.py</span>:110)
+  pd.Series(scalars, name=&#34;value&#34;).to_hdf(
+ (<span class="ansi-bold">_py_warnings.py</span>:230)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -2385,22 +2429,18 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:148: PerformanceWarning:
-
-
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:156: PerformanceWarning:
 your performance may suffer as PyTables will pickle object types that it cannot
-map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;Index([0], dtype=&#39;int64&#39;)]
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;RangeIndex(start=0, stop=1, step=1)]
 
-
- (<span class="ansi-bold">warnings.py</span>:110)
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:157: PerformanceWarning:
-
-
+  data.to_hdf(buf, key=str(Path(path) / key), format=format)
+ (<span class="ansi-bold">_py_warnings.py</span>:230)
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:165: PerformanceWarning:
 your performance may suffer as PyTables will pickle object types that it cannot
 map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None]
 
-
- (<span class="ansi-bold">warnings.py</span>:110)
+  pd.Series(scalars, name=&#34;value&#34;).to_hdf(
+ (<span class="ansi-bold">_py_warnings.py</span>:230)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -2433,7 +2473,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </section>
 <section id="Model">
-<h4>Model<a class="headerlink" href="#Model" title="Link to this heading">¶</a></h4>
+<h4>Model<a class="headerlink" href="#Model" title="Link to this heading"></a></h4>
 <p>The following call will store properties of the <code class="docutils literal notranslate"><span class="pre">SimulationState</span></code> to <code class="docutils literal notranslate"><span class="pre">/tmp/model_output.hdf</span></code> under <code class="docutils literal notranslate"><span class="pre">/simulation_state</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
@@ -2474,7 +2514,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </section>
 <section id="MontecarloTransport">
-<h4>MontecarloTransport<a class="headerlink" href="#MontecarloTransport" title="Link to this heading">¶</a></h4>
+<h4>MontecarloTransport<a class="headerlink" href="#MontecarloTransport" title="Link to this heading"></a></h4>
 <p>The following call will store properties of the <code class="docutils literal notranslate"><span class="pre">MontecarloTransport</span></code> to <code class="docutils literal notranslate"><span class="pre">/tmp/transport_output.hdf</span></code> under <code class="docutils literal notranslate"><span class="pre">/transport</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
@@ -2489,14 +2529,12 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:157: PerformanceWarning:
-
-
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/runner/work/tardis/tardis/tardis/io/hdf_writer_mixin.py:165: PerformanceWarning:
 your performance may suffer as PyTables will pickle object types that it cannot
 map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None]
 
-
- (<span class="ansi-bold">warnings.py</span>:110)
+  pd.Series(scalars, name=&#34;value&#34;).to_hdf(
+ (<span class="ansi-bold">_py_warnings.py</span>:230)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -2531,7 +2569,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </section>
 <section id="Close-all-HDF-Files">
-<h4>Close all HDF Files<a class="headerlink" href="#Close-all-HDF-Files" title="Link to this heading">¶</a></h4>
+<h4>Close all HDF Files<a class="headerlink" href="#Close-all-HDF-Files" title="Link to this heading"></a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
@@ -2553,7 +2591,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 </div>
 </div>
 <script type="application/vnd.jupyter.widget-state+json">
-{"state": {"ca1b00107f41484783bdb4837d30a6e3": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "65b40fbbcdab4ec19e160b4d43b2fef6": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "e55058bb9980419e8d0fc8dd10962b8d": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_ca1b00107f41484783bdb4837d30a6e3", "max": 20.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_65b40fbbcdab4ec19e160b4d43b2fef6", "tabbable": null, "tooltip": null, "value": 20.0}}, "c525d349c1694a8e9f9d57cf9dffc1c3": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "4bd119cf8e334168acb895cf43c12165": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "214b196b7ded48caaf1219ce57d37cdb": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_c525d349c1694a8e9f9d57cf9dffc1c3", "placeholder": "\u200b", "style": "IPY_MODEL_4bd119cf8e334168acb895cf43c12165", "tabbable": null, "tooltip": null, "value": "Iterations:"}}, "4f97e0c7eeda4f76b3b549aa1e1fe2d5": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "6dc5785f879948d9a2ce25bbf57b0e3b": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "9558ecc7f0914817a891c0f3c143310f": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_4f97e0c7eeda4f76b3b549aa1e1fe2d5", "placeholder": "\u200b", "style": "IPY_MODEL_6dc5785f879948d9a2ce25bbf57b0e3b", "tabbable": null, "tooltip": null, "value": "20/20\u2007[01:16&lt;00:00,\u2007\u20072.97s/it]"}}, "b6a9cca8ac9642698a62e5209726f0df": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "c10dda5ad4294614816fbdadbcc8f36a": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_214b196b7ded48caaf1219ce57d37cdb", "IPY_MODEL_e55058bb9980419e8d0fc8dd10962b8d", "IPY_MODEL_9558ecc7f0914817a891c0f3c143310f"], "layout": "IPY_MODEL_b6a9cca8ac9642698a62e5209726f0df", "tabbable": null, "tooltip": null}}, "315e2ff4eabd45e39cae7daf63caf601": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "8387f8014ce4445cba85de6a3939ad2c": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "a24f8d20437744418b7348ef545d86ce": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_315e2ff4eabd45e39cae7daf63caf601", "max": 100000.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_8387f8014ce4445cba85de6a3939ad2c", "tabbable": null, "tooltip": null, "value": 100000.0}}, "330bc0028aa94ccc8f89f19c2630767e": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "e13860c730af4ff1a2f10c258078ed41": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "659c455526c74cb8a72674f775233c91": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_330bc0028aa94ccc8f89f19c2630767e", "placeholder": "\u200b", "style": "IPY_MODEL_e13860c730af4ff1a2f10c258078ed41", "tabbable": null, "tooltip": null, "value": "Packets:\u2007\u2007\u2007"}}, "2c947e9336214c708d4a0c5162a62bc1": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "1bcad8f4a698432999b18386144c176b": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "ec4f5d1271584136b84a071618382b8e": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_2c947e9336214c708d4a0c5162a62bc1", "placeholder": "\u200b", "style": "IPY_MODEL_1bcad8f4a698432999b18386144c176b", "tabbable": null, "tooltip": null, "value": "100000/100000\u2007[00:26&lt;00:00,\u200715068.85it/s]"}}, "d5eb00fda63a448d8cde7615e8106897": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "da4eeb07219f4866bf44a33fdb1bb1b9": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_659c455526c74cb8a72674f775233c91", "IPY_MODEL_a24f8d20437744418b7348ef545d86ce", "IPY_MODEL_ec4f5d1271584136b84a071618382b8e"], "layout": "IPY_MODEL_d5eb00fda63a448d8cde7615e8106897", "tabbable": null, "tooltip": null}}}, "version_major": 2, "version_minor": 0}
+{"state": {"ad4f4c560b4947a7814f67377337e6cc": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "f3aae408e45d4220918a643551f34b48": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "e37b861e0836424c874bc80d7b37af25": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_ad4f4c560b4947a7814f67377337e6cc", "max": 20.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_f3aae408e45d4220918a643551f34b48", "tabbable": null, "tooltip": null, "value": 20.0}}, "cfa5f999d1ad4acd8d7ed0edd4b82e9f": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "de7774fafcd6457e9777da6a224c7686": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "cb8550d5955346819ac3de0fa30f965b": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_cfa5f999d1ad4acd8d7ed0edd4b82e9f", "placeholder": "\u200b", "style": "IPY_MODEL_de7774fafcd6457e9777da6a224c7686", "tabbable": null, "tooltip": null, "value": "Iterations:"}}, "f48d3248a19e49b5a6bebd12f03e8325": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "ffac33a429854d4f901fc833d1b44bd6": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "af246fd498524e14ac12ee56bed2ea82": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_f48d3248a19e49b5a6bebd12f03e8325", "placeholder": "\u200b", "style": "IPY_MODEL_ffac33a429854d4f901fc833d1b44bd6", "tabbable": null, "tooltip": null, "value": "20/20\u2007[00:50&lt;00:00,\u2007\u20072.52s/it]"}}, "cb7011265d084ab6a25f28b560162e92": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "4222e4494df343ef835e8692015d2878": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_cb8550d5955346819ac3de0fa30f965b", "IPY_MODEL_e37b861e0836424c874bc80d7b37af25", "IPY_MODEL_af246fd498524e14ac12ee56bed2ea82"], "layout": "IPY_MODEL_cb7011265d084ab6a25f28b560162e92", "tabbable": null, "tooltip": null}}, "7596a508c5674ae09e5f96d234627337": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "6fe8ac136f7b4137b5792803f5986d10": {"model_name": "ProgressStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "bar_color": null, "description_width": ""}}, "034ee919a752455bad3491038df38bfd": {"model_name": "FloatProgressModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "FloatProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "ProgressView", "bar_style": "", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_7596a508c5674ae09e5f96d234627337", "max": 100000.0, "min": 0.0, "orientation": "horizontal", "style": "IPY_MODEL_6fe8ac136f7b4137b5792803f5986d10", "tabbable": null, "tooltip": null, "value": 100000.0}}, "14835c4840494f1f9baf80d4f317731e": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "d2c56708759b4332a9f4b2c36d470573": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "529e76cb63b04b66a5e933d75416f89b": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_14835c4840494f1f9baf80d4f317731e", "placeholder": "\u200b", "style": "IPY_MODEL_d2c56708759b4332a9f4b2c36d470573", "tabbable": null, "tooltip": null, "value": "Packets:\u2007\u2007\u2007"}}, "c69647fe52744e018c1a0e02d3127eb7": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "0554c30382ec41e7b83dd5ee09f83d3d": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "df93f05c1d7f4cf4ac6a39ade1e70bd6": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_c69647fe52744e018c1a0e02d3127eb7", "placeholder": "\u200b", "style": "IPY_MODEL_0554c30382ec41e7b83dd5ee09f83d3d", "tabbable": null, "tooltip": null, "value": "100000/100000\u2007[00:19&lt;00:00,\u200723516.39it/s]"}}, "f9f9c268be3d472c9d836820cbbf28ef": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "6238ce82e8e94c48a1a4be870bba9b63": {"model_name": "HBoxModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_529e76cb63b04b66a5e933d75416f89b", "IPY_MODEL_034ee919a752455bad3491038df38bfd", "IPY_MODEL_df93f05c1d7f4cf4ac6a39ade1e70bd6"], "layout": "IPY_MODEL_f9f9c268be3d472c9d836820cbbf28ef", "tabbable": null, "tooltip": null}}}, "version_major": 2, "version_minor": 0}
 </script></section>
 </section>
 </section>
@@ -2571,7 +2609,7 @@ map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

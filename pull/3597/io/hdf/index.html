@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hierarchical Data Format (HDF5) Reference &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -153,16 +153,16 @@
            <div itemprop="articleBody">
              
   <section id="hierarchical-data-format-hdf5-reference">
-<h1>Hierarchical Data Format (HDF5) Reference<a class="headerlink" href="#hierarchical-data-format-hdf5-reference" title="Link to this heading">¶</a></h1>
+<h1>Hierarchical Data Format (HDF5) Reference<a class="headerlink" href="#hierarchical-data-format-hdf5-reference" title="Link to this heading"></a></h1>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <section id="what-is-hdf5">
-<h3>What is HDF5?<a class="headerlink" href="#what-is-hdf5" title="Link to this heading">¶</a></h3>
+<h3>What is HDF5?<a class="headerlink" href="#what-is-hdf5" title="Link to this heading"></a></h3>
 <p><a class="reference external" href="https://www.hdfgroup.org/solutions/hdf5/">HDF5</a> is a high-performance data software library and file format to manage, process, and store your heterogeneous data. HDF5 is built for fast I/O processing and storage.</p>
 <p>In TARDIS, it is used to store the data from simulations and other actions.</p>
 </section>
 <section id="hdf5-structure">
-<h3>HDF5 structure<a class="headerlink" href="#hdf5-structure" title="Link to this heading">¶</a></h3>
+<h3>HDF5 structure<a class="headerlink" href="#hdf5-structure" title="Link to this heading"></a></h3>
 <p>All this data is stored in the following structure:</p>
 <ul class="simple">
 <li><p><strong>File:</strong> a contiguous string of bytes in a computer store (memory, disk, etc.), and the bytes represent zero or more objects of the model.</p></li>
@@ -177,11 +177,11 @@
 <p>This structure is stored in a file with the extension “.h5”.</p>
 </section>
 <section id="libraries">
-<h3>Libraries<a class="headerlink" href="#libraries" title="Link to this heading">¶</a></h3>
+<h3>Libraries<a class="headerlink" href="#libraries" title="Link to this heading"></a></h3>
 <p>TARDIS uses <a class="reference external" href="https://www.hdfgroup.org/downloads/hdf5">these libraries</a> in Python, but they could be installed on the computer to work with the H5 files. The advantage of installing the libraries on the computer is that it allows you to handle the HDF5 with command-line instructions quickly and powerfully.</p>
 </section>
 <section id="hdfview">
-<h3>HDFView<a class="headerlink" href="#hdfview" title="Link to this heading">¶</a></h3>
+<h3>HDFView<a class="headerlink" href="#hdfview" title="Link to this heading"></a></h3>
 <p><a class="reference external" href="https://www.hdfgroup.org/downloads/hdfview/">HDFView is a visual tool</a> written in Java for browsing and editing HDF (HDF5 and HDF4) files. Using HDFView, you can:</p>
 <ul class="simple">
 <li><p>View a file hierarchy in a tree structure.</p></li>
@@ -192,9 +192,9 @@
 </section>
 </section>
 <section id="extract-data">
-<h2>Extract data<a class="headerlink" href="#extract-data" title="Link to this heading">¶</a></h2>
+<h2>Extract data<a class="headerlink" href="#extract-data" title="Link to this heading"></a></h2>
 <section id="extract-data-using-the-hdf5-libraries">
-<h3>Extract data using the HDF5 libraries<a class="headerlink" href="#extract-data-using-the-hdf5-libraries" title="Link to this heading">¶</a></h3>
+<h3>Extract data using the HDF5 libraries<a class="headerlink" href="#extract-data-using-the-hdf5-libraries" title="Link to this heading"></a></h3>
 <p>In TARDIS the generated data is valuable because it has been reviewed and validated. For this reason, TARDIS tests against the generated data.</p>
 <p>Then the question is how to extract data from the actual “.h5” files. It could be easily pulled and followed by the next commands:</p>
 <p>Copy the specific group of data in a new “.h5” file.</p>
@@ -242,7 +242,7 @@ attribute: &lt;transposed of &lt;/test_transport_simple/transport_state/j_blue_e
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

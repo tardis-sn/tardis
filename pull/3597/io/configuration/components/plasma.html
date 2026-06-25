@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Plasma Configuration &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -161,7 +161,7 @@
            <div itemprop="articleBody">
              
   <section id="plasma-configuration">
-<span id="plasma-config"></span><h1>Plasma Configuration<a class="headerlink" href="#plasma-configuration" title="Link to this heading">¶</a></h1>
+<span id="plasma-config"></span><h1>Plasma Configuration<a class="headerlink" href="#plasma-configuration" title="Link to this heading"></a></h1>
 <p>The plasma configuration gives TARDIS the necessary information to calculate the plasma state (see <a class="reference internal" href="../../../physics_walkthrough/setup/plasma/index.html#plasma"><span class="std std-ref">Plasma</span></a>):</p>
 <table class="docutils align-default" id="plasma-yml">
 <tbody>
@@ -484,14 +484,14 @@ The radiative rates describe how to calculate the <span class="math notranslate 
 <p>2) <code class="docutils literal notranslate"><span class="pre">dilute-blackbody</span></code> in which
 <span class="math notranslate nohighlight">\(J_\textrm{blue} = W \times \textrm{Blackbody}(T_\textrm{rad})\)</span></p>
 <p>3) <code class="docutils literal notranslate"><span class="pre">detailed</span></code> in which the <span class="math notranslate nohighlight">\(J_\textrm{blue}\)</span>
-are calculated using an <a class="reference internal" href="../../../resources/zreferences.html#term-Estimator"><span class="xref std std-term">estimator</span></a> (this is described in <span class="xref std std-doc">../../../physics/montecarlo/estimators</span>).</p>
+are calculated using an <a class="reference internal" href="../../../resources/zreferences.html#term-Estimator"><span class="xref std std-term">estimator</span></a> (this is described in <a class="reference internal" href="../../../physics_walkthrough/montecarlo/estimators.html"><span class="doc">Volume-Based Estimators</span></a>).</p>
 <p>TARDIS currently supports three different kinds of line interaction: <code class="docutils literal notranslate"><span class="pre">scatter</span></code> — a resonance scattering implementation,
 <code class="docutils literal notranslate"><span class="pre">macroatom</span></code> — the most complex form of line interaction described in <a class="reference internal" href="../../../physics_walkthrough/setup/plasma/macroatom.html#macroatom"><span class="std std-ref">Macro Atom</span></a> and <code class="docutils literal notranslate"><span class="pre">downbranch</span></code> a simplified
 version of <code class="docutils literal notranslate"><span class="pre">macroatom</span></code> in which only downward transitions are allowed (see <a class="reference internal" href="../../../physics_walkthrough/montecarlo/lineinteraction.html#lineinteraction"><span class="std std-ref">Line Interaction Treatments</span></a>).</p>
 <p>Finally, <code class="docutils literal notranslate"><span class="pre">w_epsilon</span></code> describes the dilution factor to use to calculate <span class="math notranslate nohighlight">\(J_\textrm{blue}\)</span> that are 0, which
 causes problems with the code (so <span class="math notranslate nohighlight">\(J_\textrm{blue}\)</span> are set to a very small number).</p>
 <section id="continuum-interaction">
-<h2>Continuum Interaction<a class="headerlink" href="#continuum-interaction" title="Link to this heading">¶</a></h2>
+<h2>Continuum Interaction<a class="headerlink" href="#continuum-interaction" title="Link to this heading"></a></h2>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">plasma</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">link_t_rad_t_electron</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
 <span class="w">    </span><span class="nt">continuum_interaction</span><span class="p">:</span>
@@ -508,7 +508,7 @@ causes problems with the code (so <span class="math notranslate nohighlight">\(J
 <code class="docutils literal notranslate"><span class="pre">enable_adiabatic_cooling</span></code> enables adiabatic cooling.</p>
 </section>
 <section id="nlte">
-<h2>NLTE<a class="headerlink" href="#nlte" title="Link to this heading">¶</a></h2>
+<h2>NLTE<a class="headerlink" href="#nlte" title="Link to this heading"></a></h2>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">nlte</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">coronal_approximation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
 <span class="w">    </span><span class="nt">classical_nebular</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
@@ -520,7 +520,7 @@ This is useful for debugging with <a class="reference internal" href="../../../r
 normal operations.</p>
 </section>
 <section id="nlte-ionization">
-<h2>NLTE Ionization<a class="headerlink" href="#nlte-ionization" title="Link to this heading">¶</a></h2>
+<h2>NLTE Ionization<a class="headerlink" href="#nlte-ionization" title="Link to this heading"></a></h2>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">plasma</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">nlte_ionization_species</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">H I</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">H II</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">He I</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">He II</span><span class="p p-Indicator">]</span>
 <span class="w">    </span><span class="nt">nlte_solver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root</span>
@@ -558,7 +558,7 @@ NLTE excitation is important).</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

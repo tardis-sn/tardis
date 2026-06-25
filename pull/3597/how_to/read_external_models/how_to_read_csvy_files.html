@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How to Read CSVY Format Files &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -26,11 +26,13 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -176,7 +178,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/how_to/read_external_models/how_to_read_csvy_files.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="How-to-Read-CSVY-Format-Files">
-<h1>How to Read CSVY Format Files<a class="headerlink" href="#How-to-Read-CSVY-Format-Files" title="Link to this heading">¶</a></h1>
+<h1>How to Read CSVY Format Files<a class="headerlink" href="#How-to-Read-CSVY-Format-Files" title="Link to this heading"></a></h1>
 <p>This notebook demonstrates reading CSVY (CSV + YAML) format files used by TARDIS. CSVY files combine YAML metadata with CSV tabular data.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -194,7 +196,7 @@
 </div>
 </div>
 <section id="Uniform-Density-CSVY-File">
-<h2>Uniform Density CSVY File<a class="headerlink" href="#Uniform-Density-CSVY-File" title="Link to this heading">¶</a></h2>
+<h2>Uniform Density CSVY File<a class="headerlink" href="#Uniform-Density-CSVY-File" title="Link to this heading"></a></h2>
 <p>CSVY file with uniform density and abundance profiles defined in YAML only (no CSV data).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -223,7 +225,7 @@ CSV Data: None
 </div>
 </section>
 <section id="Power-Law-Density-CSVY-File">
-<h2>Power-Law Density CSVY File<a class="headerlink" href="#Power-Law-Density-CSVY-File" title="Link to this heading">¶</a></h2>
+<h2>Power-Law Density CSVY File<a class="headerlink" href="#Power-Law-Density-CSVY-File" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -251,7 +253,7 @@ Density exponent: -2
 </div>
 </section>
 <section id="Exponential-Density-CSVY-File">
-<h2>Exponential Density CSVY File<a class="headerlink" href="#Exponential-Density-CSVY-File" title="Link to this heading">¶</a></h2>
+<h2>Exponential Density CSVY File<a class="headerlink" href="#Exponential-Density-CSVY-File" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -277,7 +279,7 @@ Density rho_0: 1e-09 g / cm3
 </div>
 </section>
 <section id="Full-Model-CSVY-File-with-CSV-Data">
-<h2>Full Model CSVY File with CSV Data<a class="headerlink" href="#Full-Model-CSVY-File-with-CSV-Data" title="Link to this heading">¶</a></h2>
+<h2>Full Model CSVY File with CSV Data<a class="headerlink" href="#Full-Model-CSVY-File-with-CSV-Data" title="Link to this heading"></a></h2>
 <p>CSVY file where velocity, density, and abundances are provided in the CSV section.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -318,7 +320,7 @@ CSV Data:
 </div>
 </section>
 <section id="Another-Full-CSVY-File-from-IO-Tests">
-<h2>Another Full CSVY File from IO Tests<a class="headerlink" href="#Another-Full-CSVY-File-from-IO-Tests" title="Link to this heading">¶</a></h2>
+<h2>Another Full CSVY File from IO Tests<a class="headerlink" href="#Another-Full-CSVY-File-from-IO-Tests" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -351,7 +353,7 @@ CSV Data:
 </div>
 </section>
 <section id="CSVY-File-with-Only-YAML-(No-CSV-Data)">
-<h2>CSVY File with Only YAML (No CSV Data)<a class="headerlink" href="#CSVY-File-with-Only-YAML-(No-CSV-Data)" title="Link to this heading">¶</a></h2>
+<h2>CSVY File with Only YAML (No CSV Data)<a class="headerlink" href="#CSVY-File-with-Only-YAML-(No-CSV-Data)" title="Link to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -377,7 +379,7 @@ CSV Data: None
 </div>
 </section>
 <section id="Using-Individual-Reader-Functions">
-<h2>Using Individual Reader Functions<a class="headerlink" href="#Using-Individual-Reader-Functions" title="Link to this heading">¶</a></h2>
+<h2>Using Individual Reader Functions<a class="headerlink" href="#Using-Individual-Reader-Functions" title="Link to this heading"></a></h2>
 <p>Read only YAML or only CSV data separately.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -420,7 +422,7 @@ CSV shape: (3, 5)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

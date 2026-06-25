@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>How to run TARDIS with a custom ejecta model &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -26,11 +26,13 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -198,7 +200,7 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/io/configuration/components/models/Custom_TARDIS_Model_Tutorial.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="How-to-run-TARDIS-with-a-custom-ejecta-model">
-<h1>How to run TARDIS with a custom ejecta model<a class="headerlink" href="#How-to-run-TARDIS-with-a-custom-ejecta-model" title="Link to this heading">¶</a></h1>
+<h1>How to run TARDIS with a custom ejecta model<a class="headerlink" href="#How-to-run-TARDIS-with-a-custom-ejecta-model" title="Link to this heading"></a></h1>
 <p>This notebook will go through multiple detailed examples of how to properly run TARDIS with a custom ejecta profile specified by a custom density file and a custom abundance file.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -211,7 +213,7 @@
 </div>
 </div>
 <section id="Your-custom-density-file">
-<h2>Your custom density file<a class="headerlink" href="#Your-custom-density-file" title="Link to this heading">¶</a></h2>
+<h2>Your custom density file<a class="headerlink" href="#Your-custom-density-file" title="Link to this heading"></a></h2>
 <p>First, let’s look at an example of a custom density file.</p>
 80 day
 
@@ -224,12 +226,12 @@
 <li><p>The third column lists the density of the cell.</p></li>
 </ul>
 <section id="Important:">
-<h3>Important:<a class="headerlink" href="#Important:" title="Link to this heading">¶</a></h3>
+<h3>Important:<a class="headerlink" href="#Important:" title="Link to this heading"></a></h3>
 <p>The <strong>default behavior</strong> of TARDIS is to use the first shell as the inner boundary. This means that v_inner_boundary = 9500, and the corresponding density 9e-16 is ignored because it is within the inner boundary. It can be replaced by an arbitrary number. The outer boundary of the last shell will be used as v_outer_boundary, so the default behavior will set v_outer_boundary = 12000.</p>
 </section>
 </section>
 <section id="Your-custom-abundance-file">
-<h2>Your custom abundance file<a class="headerlink" href="#Your-custom-abundance-file" title="Link to this heading">¶</a></h2>
+<h2>Your custom abundance file<a class="headerlink" href="#Your-custom-abundance-file" title="Link to this heading"></a></h2>
 <p>Let’s look at an example of a custom density file.</p>
 H He
 
@@ -239,12 +241,12 @@ H He
 <li><p>After a skipped line, each row specifies the chemical abundance of one shell. Therefore the numbers in a given row should sum to 1.0</p></li>
 </ul>
 <section id="id1">
-<h3>Important:<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<h3>Important:<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>Note that there are only 2 shells specified in this abundance file (despite the custom density file having 3 lines). This is because the custom density file specifies the boundaries of the shells, while the abundance file specifies the abundances within each shell.</p>
 </section>
 </section>
 <section id="Running-TARDIS-with-the-custom-files">
-<h2>Running TARDIS with the custom files<a class="headerlink" href="#Running-TARDIS-with-the-custom-files" title="Link to this heading">¶</a></h2>
+<h2>Running TARDIS with the custom files<a class="headerlink" href="#Running-TARDIS-with-the-custom-files" title="Link to this heading"></a></h2>
 <p>Now let’s run TARDIS using the example custom files.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -519,15 +521,15 @@ densities loaded by TARDIS: (NOTE that the density in the first line of the file
 </div>
 </section>
 <section id="Specifying-boundary-velocities-in-the-config-file">
-<h2>Specifying boundary velocities in the config file<a class="headerlink" href="#Specifying-boundary-velocities-in-the-config-file" title="Link to this heading">¶</a></h2>
+<h2>Specifying boundary velocities in the config file<a class="headerlink" href="#Specifying-boundary-velocities-in-the-config-file" title="Link to this heading"></a></h2>
 <p>In addition to specifying custom density and abundance files, the user can set the v_inner_boundary and v_outer_boundary velocities in the YAML config file. This can cause some confusion, so we carefully go through some examples.</p>
 <section id="id2">
-<h3>Important:<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<h3>Important:<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>Boundary velocities set in the YAML config file must be <strong>within</strong> the velocity range specified in the custom density file (if one is provided).</p>
 </section>
 </section>
 <section id="Example-1)-v_inner_boundary-lower-than-first-velocity-in-density-file">
-<h2>Example 1) v_inner_boundary lower than first velocity in density file<a class="headerlink" href="#Example-1)-v_inner_boundary-lower-than-first-velocity-in-density-file" title="Link to this heading">¶</a></h2>
+<h2>Example 1) v_inner_boundary lower than first velocity in density file<a class="headerlink" href="#Example-1)-v_inner_boundary-lower-than-first-velocity-in-density-file" title="Link to this heading"></a></h2>
 <p>In this example, the first velocity in the density file is 9500 km/s. The user can specify in the config file the velocity of the inner boundary to a lower velocity, say v_inner_boundary = 9000 km/s. This will cause TARDIS to raise an error.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -593,7 +595,7 @@ densities loaded by TARDIS: (NOTE that the density in the first line of the file
 </div>
 </section>
 <section id="Example-2)-v_outer_boundary-larger-than-last-velocity-in-density-file">
-<h2>Example 2) v_outer_boundary larger than last velocity in density file<a class="headerlink" href="#Example-2)-v_outer_boundary-larger-than-last-velocity-in-density-file" title="Link to this heading">¶</a></h2>
+<h2>Example 2) v_outer_boundary larger than last velocity in density file<a class="headerlink" href="#Example-2)-v_outer_boundary-larger-than-last-velocity-in-density-file" title="Link to this heading"></a></h2>
 <p>In this example, the last velocity in the density file is 12000 km/s. The user can specify in the config file the velocity of the outer boundary to a larger velocity, say v_outer_boundary = 13000 km/s. This will cause TARDIS to raise an error.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -659,7 +661,7 @@ densities loaded by TARDIS: (NOTE that the density in the first line of the file
 </div>
 </section>
 <section id="Example-3)-v_boundaries-in-config-file-are-within-density-file-velocity-range">
-<h2>Example 3) v_boundaries in config file are within density file velocity range<a class="headerlink" href="#Example-3)-v_boundaries-in-config-file-are-within-density-file-velocity-range" title="Link to this heading">¶</a></h2>
+<h2>Example 3) v_boundaries in config file are within density file velocity range<a class="headerlink" href="#Example-3)-v_boundaries-in-config-file-are-within-density-file-velocity-range" title="Link to this heading"></a></h2>
 <p>Here the user sets v_inner_boundary = 9700 and v_outer_boundary = 11500 in the config file. Both values fall within the velocity range specified by the custom density file.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -923,7 +925,7 @@ densities loaded by TARDIS: (NOTE that the density in the first line of the file
 </pre></div></div>
 </div>
 <section id="id3">
-<h3>Important:<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<h3>Important:<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>Notice that the inner and outer boundary velocities are the ones specifically set by the user.</p>
 </section>
 </section>
@@ -941,7 +943,7 @@ densities loaded by TARDIS: (NOTE that the density in the first line of the file
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

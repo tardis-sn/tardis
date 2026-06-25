@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Benchmarking Information &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
       <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -26,11 +26,13 @@
     <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+      <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@1.0.13/dist/embed-amd.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -190,10 +192,10 @@
 <div class="admonition note">
 <p class="note-p">You can interact with this notebook online: <a href="https://mybinder.org/v2/gh/tardis-sn/tardis/HEAD?filepath=docs/contributing/tools/benchmark.ipynb" class="launch-btn" target="_blank" rel="noopener noreferrer">Launch notebook</a></p>
 </div><section id="Benchmarking-Information">
-<h1>Benchmarking Information<a class="headerlink" href="#Benchmarking-Information" title="Link to this heading">¶</a></h1>
+<h1>Benchmarking Information<a class="headerlink" href="#Benchmarking-Information" title="Link to this heading"></a></h1>
 <p>A benchmark is a comparison of the performance of code along commit history. It is a way to measure the performance of the code and to ensure that the code is not getting slower. In this notebook, we will be understanding the best ways to write benchmarks and how to run them. Throughout the notebook, we will be using the <code class="docutils literal notranslate"><span class="pre">asv</span></code> package for benchmarking.</p>
 <section id="Setting-up-asv">
-<h2>Setting up asv<a class="headerlink" href="#Setting-up-asv" title="Link to this heading">¶</a></h2>
+<h2>Setting up asv<a class="headerlink" href="#Setting-up-asv" title="Link to this heading"></a></h2>
 <p>Prior to installing asv, you need to set up a conda environment and install conda-build. You can do this by running the following commands:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>conda activate base
 conda install conda-build
@@ -205,7 +207,7 @@ conda install conda-build
 </div>
 </section>
 <section id="Running-the-benchmarks">
-<h2>Running the benchmarks<a class="headerlink" href="#Running-the-benchmarks" title="Link to this heading">¶</a></h2>
+<h2>Running the benchmarks<a class="headerlink" href="#Running-the-benchmarks" title="Link to this heading"></a></h2>
 <p>To run the benchmarks, you can run the following commands:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/env.yml
 asv run
@@ -270,7 +272,7 @@ Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /home/runner/Downl
 </div>
 </section>
 <section id="Writing-Benchmarks">
-<h2>Writing Benchmarks<a class="headerlink" href="#Writing-Benchmarks" title="Link to this heading">¶</a></h2>
+<h2>Writing Benchmarks<a class="headerlink" href="#Writing-Benchmarks" title="Link to this heading"></a></h2>
 <p>TARDIS has adopted a class way of writing benchmarks. You can browse the benchmarks directory in the tardis repository to understand how the benchmarks are written. Here are some of the important points to keep in mind while writing benchmarks:</p>
 <ul class="simple">
 <li><p>The naming of file must specify the directory along with the file. Mentioning the tardis directory is not required.</p></li>
@@ -296,7 +298,7 @@ Atomic Data kurucz_cd23_chianti_H_He_latest already exists in /home/runner/Downl
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

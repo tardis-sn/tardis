@@ -16,7 +16,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tardis.visualization.widgets.custom_abundance &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
 
@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -175,7 +175,13 @@ from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = &quot;---&quot;
-
+input_style = &quot;&quot;&quot;
+    .bk-input-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    }
+    &quot;&quot;&quot;
 
 <div class="viewcode-block" id="CustomAbundanceWidgetData">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidgetData">[docs]</a>
@@ -622,7 +628,7 @@ class CustomAbundanceWidget:
             pn.widgets.Checkbox(
                 width=30,
                 sizing_mode=&quot;stretch_height&quot;,
-                margin=(25, 0, 0, 0)
+                margin=(10, 0, 0, 0)
             )
             for element in self.data.elements
         ]
@@ -632,6 +638,7 @@ class CustomAbundanceWidget:
                 end=1,
                 step=0.01,
                 name=element,
+                stylesheets=[input_style],
             )
             for element in self.data.elements
         ]
@@ -652,15 +659,23 @@ class CustomAbundanceWidget:
             &quot;Unnormalized&quot;,
             alert_type=&quot;warning&quot;,
             visible=False,
+            width=200,
+            height=30,
+            stylesheets=[&quot;:host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}&quot;],
         )
 
         self.symb_warning = pn.pane.Alert(
-            visible=False, alert_type=&quot;warning&quot;
+            visible=False,
+            alert_type=&quot;warning&quot;,
+            width=200,
+            height=30,
+            stylesheets=[&quot;:host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}&quot;],
         )
         self.input_symb = pn.widgets.TextInput(
             name=&quot;Element: &quot;,
             placeholder=&quot;symbol&quot;,
             width=125,
+            stylesheets=[input_style],
         )
         self.input_symb.param.watch(self.input_symb_eventhandler, &quot;value&quot;)
         self.btn_add_element = pn.widgets.Button(
@@ -668,7 +683,6 @@ class CustomAbundanceWidget:
             name=&quot;Add&quot;,
             disabled=True,
             width=60,
-            align=&#39;end&#39;,
         )
         self.btn_add_element.on_click(self.on_btn_add_element)
 
@@ -693,14 +707,17 @@ class CustomAbundanceWidget:
         self.input_v_start = pn.widgets.FloatInput(
             start=0,
             step=1,
-            width=110,
+            name=&quot;Add shell(s) with velocity range (km/s): &quot;,
             align=&#39;end&#39;,
+            stylesheets=[input_style],
         )
         self.input_v_end = pn.widgets.FloatInput(
             start=0,
             step=1,
-            width=110,
+            width=90,
+            name=&quot;to&quot;,
             align=&#39;end&#39;,
+            stylesheets=[input_style],
         )
         self.input_v_start.param.watch(self.input_v_eventhandler, &quot;value&quot;)
         self.input_v_end.param.watch(self.input_v_eventhandler, &quot;value&quot;)
@@ -1267,8 +1284,8 @@ class CustomAbundanceWidget:
         self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new Input control and Checkbox control.
-        item = pn.widgets.FloatInput(start=0, end=1, step=0.01)
-        check = pn.widgets.Checkbox(width=30)
+        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[input_style])
+        check = pn.widgets.Checkbox(width=30, sizing_mode=&quot;stretch_height&quot;, margin=(10, 0, 0, 0))
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
         item.param.watch(self.input_item_eventhandler, &quot;value&quot;)
@@ -1283,7 +1300,7 @@ class CustomAbundanceWidget:
 
         self.box_editor[:] = [
             pn.Column(*self.input_items),
-            pn.Column(*self.checks, margin=(0, 0, 0, 10)),
+            pn.Column(*self.checks),
         ]
 
         with self.fig.batch_update():
@@ -1547,16 +1564,8 @@ class CustomAbundanceWidget:
             )
 
             box_add_shell = pn.Row(
-                    pn.Row(
-                        pn.pane.Markdown(&quot;Add shell(s) with velocity range (km/s): &quot;, align=&#39;center&#39;),
-                        self.input_v_start,
-                        align=&#39;end&#39;,
-                    ),
-                    pn.Row(
-                        pn.pane.Markdown(&quot;to&quot;, align=&#39;center&#39;),
-                        self.input_v_end,
-                        align=&#39;end&#39;,
-                    ),
+                    self.input_v_start,
+                    self.input_v_end,
                     self.btn_add_shell,
                     self.overwrite_warning,
                 margin=(0, 0, 0, 50),
@@ -1570,7 +1579,8 @@ class CustomAbundanceWidget:
 
             box_add_element = pn.Row(
                 self.input_symb, self.btn_add_element, self.symb_warning,
-                margin=(0, 0, 0, 80),
+                width=200,
+                margin=(0, 0, 0, 60),
             )
 
             help_note = pn.pane.HTML(
@@ -1871,7 +1881,7 @@ class DensityEditor:
         self.input_d_time_0 = pn.widgets.FloatInput(
             value=self.data.density_t_0.value,
             name=&quot;Density time_0 (day): &quot;,
-            margin=(0, 0, 20, 0),
+            margin=(10, 0, 20, 10),
         )
         self.input_d_time_0.param.watch(self.input_d_time_0_eventhandler, &quot;value&quot;)
 
@@ -1883,19 +1893,19 @@ class DensityEditor:
         self.dpd_dtype.param.watch(self.dpd_dtype_eventhandler, &quot;value&quot;)
 
         self.input_rho_0 = pn.widgets.FloatInput(
-            name=&quot;rho_0&quot;, width=300
+            name=&quot;rho_0&quot;, width=300, stylesheets=[input_style],
         )
 
         self.input_exp = pn.widgets.FloatInput(
-            name=&quot;exponent&quot;, width=300
+            name=&quot;exponent&quot;, width=300, stylesheets=[input_style],
         )
 
         self.input_v_0 = pn.widgets.FloatInput(
-            name=&quot;v_0&quot;, width=300
+            name=&quot;v_0&quot;, width=300, stylesheets=[input_style],
         )
 
         self.input_value = pn.widgets.FloatInput(
-            name=&quot;value&quot;, width=300
+            name=&quot;value&quot;, width=300, stylesheets=[input_style],
         )
 
         self.btn_calculate = pn.widgets.Button(
@@ -1910,26 +1920,24 @@ class DensityEditor:
         )
 
         # Formula to compute density profile
-        form_exp = pn.pane.HTML(
+        form_exp = pn.pane.LaTeX(
             r&quot;$$\rho = \rho_0 \times \exp \left( -\frac{v}{v_0} \right)$$&quot;,
             margin=(0, 0, 0, 100),
-            disable_math=False
         )
-        form_pow = pn.pane.HTML(
+        form_pow = pn.pane.LaTeX(
             r&quot;$$\rho = \rho_0 \times \left( \frac{v}{v_0} \right)^n$$&quot;,
             margin=(0, 0, 0, 100),
-            disable_math=False
         )
 
         self.exp_box = pn.Column(
             form_exp,
-            pn.Row(self.input_rho_0, pn.pane.Str(&quot;g cm^3&quot;)),
-            pn.Row(self.input_v_0, pn.pane.Str(&quot;km/s&quot;)),
+            pn.Row(self.input_rho_0, pn.pane.Str(&quot;g cm^3&quot;, align=&quot;end&quot;)),
+            pn.Row(self.input_v_0, pn.pane.Str(&quot;km/s&quot;, align=&quot;end&quot;)),
         )
         self.pow_box = pn.Column(
             form_pow,
-            pn.Row(self.input_rho_0, pn.pane.Str(&quot;g cm^3&quot;)),
-            pn.Row(self.input_v_0, pn.pane.Str(&quot;km/s&quot;)),
+            pn.Row(self.input_rho_0, pn.pane.Str(&quot;g cm^3&quot;, align=&quot;end&quot;)),
+            pn.Row(self.input_v_0, pn.pane.Str(&quot;km/s&quot;, align=&quot;end&quot;)),
             self.input_exp,
         )</div>
 
@@ -2101,7 +2109,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 

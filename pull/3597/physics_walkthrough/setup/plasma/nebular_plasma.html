@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nebular Plasma &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8b01649f"></script>
+      <script src="../../../_static/documentation_options.js?v=a5f6f3ce"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -163,7 +163,7 @@
            <div itemprop="articleBody">
              
   <section id="nebular-plasma">
-<span id="id1"></span><h1>Nebular Plasma<a class="headerlink" href="#nebular-plasma" title="Link to this heading">¶</a></h1>
+<span id="id1"></span><h1>Nebular Plasma<a class="headerlink" href="#nebular-plasma" title="Link to this heading"></a></h1>
 <p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">NebularPlasma</span></code> class is a more complex description of the Plasma state than the <code class="xref py py-obj docutils literal notranslate"><span class="pre">LTEPlasma</span></code>. It takes a dilution factor
 (W) into account, which deals with the dilution of the radiation field due to geometric, line-blocking and other effects.</p>
 <p>The calculations follow the same steps as <code class="xref py py-obj docutils literal notranslate"><span class="pre">LTEPlasma</span></code>; however, the calculations are different and often take into account
@@ -179,12 +179,12 @@ and then calculate the number density of the ions (and an electron number densit
 In the first step, we calculate the ionization balance using the LTE approximation (<span class="math notranslate nohighlight">\(\Phi_{i, j}(\textrm{LTE})\)</span>). Then we adjust the ionization balance using
 two factors: <span class="math notranslate nohighlight">\(\zeta\)</span> and <span class="math notranslate nohighlight">\(\delta\)</span>.</p>
 <section id="calculating-zeta">
-<span id="calc-zeta-label"></span><h2>Calculating Zeta<a class="headerlink" href="#calculating-zeta" title="Link to this heading">¶</a></h2>
+<span id="calc-zeta-label"></span><h2>Calculating Zeta<a class="headerlink" href="#calculating-zeta" title="Link to this heading"></a></h2>
 <p><span class="math notranslate nohighlight">\(\zeta\)</span> is read in for specific temperatures and then interpolated for the target temperature.</p>
 </section>
 <section id="calculating-delta">
-<h2>Calculating Delta<a class="headerlink" href="#calculating-delta" title="Link to this heading">¶</a></h2>
-<p><span class="math notranslate nohighlight">\(\delta\)</span> is a radiation field correction factors which is calculated according to Mazzali &amp; Lucy 1993 (<span id="id2">[<a class="reference internal" href="../../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>; henceforth ML93)</p>
+<h2>Calculating Delta<a class="headerlink" href="#calculating-delta" title="Link to this heading"></a></h2>
+<p><span class="math notranslate nohighlight">\(\delta\)</span> is a radiation field correction factors which is calculated according to Mazzali &amp; Lucy 1993 (<span class="bibtex-citation" id="id2">[<a class="reference internal" href="../../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>; henceforth ML93)</p>
 <p>In ML93, the radiation field correction factor is denoted as <span class="math notranslate nohighlight">\(\delta\)</span> and is calculated in Formula 15 &amp; 20.</p>
 <p>The radiation correction factor changes according to a ionization energy threshold <span class="math notranslate nohighlight">\(\chi_\textrm{T}\)</span>
 and the species ionization threshold (from the ground state) <span class="math notranslate nohighlight">\(\chi_0\)</span>.</p>
@@ -199,7 +199,7 @@ and the species ionization threshold (from the ground state) <span class="math n
 \frac{\chi_0}{k T_\textrm{e}}),\]</div>
 <p>where <span class="math notranslate nohighlight">\(T_\textrm{R}\)</span> is the radiation field temperature, <span class="math notranslate nohighlight">\(T_\textrm{e}\)</span> is the electron temperature and W is the
 dilution factor.</p>
-<p>Now, we can calculate the ionization balance using equation 14 in <span id="id3">[<a class="reference internal" href="../../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>:</p>
+<p>Now, we can calculate the ionization balance using equation 14 in <span class="bibtex-citation" id="id3">[<a class="reference internal" href="../../../resources/zreferences.html#id14" title="P. A. Mazzali and L. B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. Astronomy and Astrophysics, 279:447-456, November 1993.">MazzaliLucy93</a>]</span>:</p>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}\begin{split}\Phi_{i,j} &amp;= \frac{N_{i, j+1} n_e}{N_{i, j}} \\\end{split}\\\begin{split}\Phi_{i, j} &amp;= W \times[\delta \zeta + W ( 1 - \zeta)] \left(\frac{T_\textrm{e}}{T_\textrm{R}}\right)^{1/2}
 \Phi_{i, j}(\textrm{LTE}) \\\end{split}\end{aligned}\end{align} \]</div>
@@ -213,7 +213,7 @@ N_{i, j, k}(\textrm{metastable}) &amp;= \frac{g_k}{Z_{i, j}}\times N_{i, j} \tim
 the quantities calculated here.</p>
 </section>
 <section id="example-calculations">
-<h2>Example Calculations<a class="headerlink" href="#example-calculations" title="Link to this heading">¶</a></h2>
+<h2>Example Calculations<a class="headerlink" href="#example-calculations" title="Link to this heading"></a></h2>
 </section>
 </section>
 
@@ -229,7 +229,7 @@ the quantities calculated here.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 15 Jun 2026.
+      <span class="lastupdated">Last updated on 25 Jun 2026.
       </span></p>
   </div>
 
