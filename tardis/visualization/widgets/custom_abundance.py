@@ -36,7 +36,13 @@ from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
-
+input_style = """
+    .bk-input-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    }
+    """
 
 class CustomAbundanceWidgetData:
     """The model information and data that required in custom
@@ -455,7 +461,7 @@ class CustomAbundanceWidget:
             pn.widgets.Checkbox(
                 width=30,
                 sizing_mode="stretch_height",
-                margin=(25, 0, 0, 0)
+                margin=(10, 0, 0, 0)
             )
             for element in self.data.elements
         ]
@@ -465,6 +471,7 @@ class CustomAbundanceWidget:
                 end=1,
                 step=0.01,
                 name=element,
+                stylesheets=[input_style],
             )
             for element in self.data.elements
         ]
@@ -494,6 +501,7 @@ class CustomAbundanceWidget:
             name="Element: ",
             placeholder="symbol",
             width=125,
+            stylesheets=[input_style],
         )
         self.input_symb.param.watch(self.input_symb_eventhandler, "value")
         self.btn_add_element = pn.widgets.Button(
@@ -526,14 +534,17 @@ class CustomAbundanceWidget:
         self.input_v_start = pn.widgets.FloatInput(
             start=0,
             step=1,
-            width=110,
+            name="Add shell(s) with velocity range (km/s): ",
             align='end',
+            stylesheets=[input_style],
         )
         self.input_v_end = pn.widgets.FloatInput(
             start=0,
             step=1,
-            width=110,
+            width=90,
+            name="to",
             align='end',
+            stylesheets=[input_style],
         )
         self.input_v_start.param.watch(self.input_v_eventhandler, "value")
         self.input_v_end.param.watch(self.input_v_eventhandler, "value")
@@ -1049,8 +1060,8 @@ class CustomAbundanceWidget:
         self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new Input control and Checkbox control.
-        item = pn.widgets.FloatInput(start=0, end=1, step=0.01)
-        check = pn.widgets.Checkbox(width=30)
+        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[input_style])
+        check = pn.widgets.Checkbox(width=30, sizing_mode="stretch_height", margin=(10, 0, 0, 0))
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
         item.param.watch(self.input_item_eventhandler, "value")
@@ -1065,7 +1076,7 @@ class CustomAbundanceWidget:
 
         self.box_editor[:] = [
             pn.Column(*self.input_items),
-            pn.Column(*self.checks, margin=(0, 0, 0, 10)),
+            pn.Column(*self.checks),
         ]
 
         with self.fig.batch_update():
@@ -1305,16 +1316,8 @@ class CustomAbundanceWidget:
             )
 
             box_add_shell = pn.Row(
-                    pn.Row(
-                        pn.pane.Markdown("Add shell(s) with velocity range (km/s): ", align='center'),
-                        self.input_v_start,
-                        align='end',
-                    ),
-                    pn.Row(
-                        pn.pane.Markdown("to", align='center'),
-                        self.input_v_end,
-                        align='end',
-                    ),
+                    self.input_v_start,
+                    self.input_v_end,
                     self.btn_add_shell,
                     self.overwrite_warning,
                 margin=(0, 0, 0, 50),
@@ -1328,7 +1331,8 @@ class CustomAbundanceWidget:
 
             box_add_element = pn.Row(
                 self.input_symb, self.btn_add_element, self.symb_warning,
-                margin=(0, 0, 0, 80),
+                width=200,
+                margin=(0, 0, 0, 60),
             )
 
             help_note = pn.pane.HTML(
@@ -1614,19 +1618,19 @@ class DensityEditor:
         self.dpd_dtype.param.watch(self.dpd_dtype_eventhandler, "value")
 
         self.input_rho_0 = pn.widgets.FloatInput(
-            name="rho_0", width=300
+            name="rho_0", width=300, stylesheets=[input_style],
         )
 
         self.input_exp = pn.widgets.FloatInput(
-            name="exponent", width=300
+            name="exponent", width=300, stylesheets=[input_style],
         )
 
         self.input_v_0 = pn.widgets.FloatInput(
-            name="v_0", width=300
+            name="v_0", width=300, stylesheets=[input_style],
         )
 
         self.input_value = pn.widgets.FloatInput(
-            name="value", width=300
+            name="value", width=300, stylesheets=[input_style],
         )
 
         self.btn_calculate = pn.widgets.Button(
