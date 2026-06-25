@@ -510,3 +510,25 @@ def test_hdf_simulation_state_nparray(
     if hasattr(actual, "cgs"):
         actual = actual.cgs.value
     assert_almost_equal(actual, expected.values)
+
+def test_csvy_power_law_density_matches_config(example_configuration_dir, atomic_dataset):
+    config = Configuration.from_yaml(
+        example_configuration_dir / "tardis_configv1_density_power_law_test.yml"
+    )
+    # The config already has the atomic data, but the fixture provides it
+    simulation_state_config = SimulationState.from_config(config, atomic_dataset)
+
+    # Let's mock a config that points to the CSVY model instead
+    import copy
+    csvy_config = copy.deepcopy(config)
+    csvy_config.csvy_model = str(example_configuration_dir / "tardis_configv1_density_power_law_test.csvy")
+    # For a CSVY model to be loaded via from_csvy, it expects the config to just be the wrapper.
+    # Actually, tardis has from_csvy(config) which takes the wrapper config.
+    csvy_simulation_state = SimulationState.from_csvy(csvy_config)
+
+    # Compare the densities
+    from numpy.testing import assert_array_almost_equal
+    assert_array_almost_equal(
+        simulation_state_config.density.value,
+        csvy_simulation_state.density.value
+    )

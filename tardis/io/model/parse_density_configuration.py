@@ -103,9 +103,7 @@ def parse_density_section_csvy(
         )
         velocity = csvy_model_config.velocity.values * velocity_unit
 
-    adjusted_velocity = velocity.insert(0, 0)
-    v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
-    no_of_shells = len(adjusted_velocity) - 1
+    v_middle = velocity[:-1] * 0.5 + velocity[1:] * 0.5
 
     if hasattr(csvy_model_config, "density"):
         density_0, time_0 = parse_density_section_config(

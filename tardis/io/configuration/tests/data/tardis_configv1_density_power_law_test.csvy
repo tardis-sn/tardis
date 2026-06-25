@@ -1,0 +1,56 @@
+---
+name: test_power_law_density
+model_density_time_0: 2.0 day
+model_isotope_time_0: 0.0 day
+description: CSVY test file for power-law density regression test (matches tardis_configv1_density_power_law_test.yml)
+tardis_model_config_version: v1.0
+
+datatype:
+    fields:
+        - name: O
+          desc: fractional O abundance
+        - name: Mg
+          desc: fractional Mg abundance
+        - name: Si
+          desc: fractional Si abundance
+        - name: S
+          desc: fractional S abundance
+        - name: Ar
+          desc: fractional Ar abundance
+        - name: Ca
+          desc: fractional Ca abundance
+
+density:
+    type: power_law
+    time_0: 2 day
+    rho_0: 1e-11 g/cm^3
+    v_0: 11000 km/s
+    exponent: -5
+
+velocity:
+    start: 1.1e4 km/s
+    stop: 20000 km/s
+    num: 20
+
+---
+O,Mg,Si,S,Ar,Ca
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
+0.19,0.03,0.52,0.19,0.04,0.03
