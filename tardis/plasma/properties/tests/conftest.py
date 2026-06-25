@@ -117,11 +117,13 @@ def lines(atomic_dataset, selected_atoms):
 
 @pytest.fixture
 def lines_lower_level_index(levels, lines):
-    return LinesLowerLevelIndex(None).calculate(levels, lines)
+    lines_lower_level_index_module = LinesLowerLevelIndex(None)
+    return lines_lower_level_index_module.calculate(levels, lines)
 
 @pytest.fixture
 def lines_upper_level_index(levels, lines):
-    return LinesUpperLevelIndex(None).calculate(levels, lines)
+    lines_upper_level_index_module = LinesUpperLevelIndex(None)
+    return lines_upper_level_index_module.calculate(levels, lines)
 
 # PARTITION FUNCTION PROPERTIES
 
@@ -134,23 +136,27 @@ def level_boltzmann_factor_lte(excitation_energy, g, beta_rad, levels):
 
 @pytest.fixture
 def partition_function(level_boltzmann_factor_lte):
-    return PartitionFunction(None).calculate(level_boltzmann_factor_lte)
+    partition_function_module = PartitionFunction(None)
+    return partition_function_module.calculate(level_boltzmann_factor_lte)
 
 # ION / LEVEL POPULATION PROPERTIES
 
 @pytest.fixture
 def ionization_data(atomic_dataset, selected_atoms):
-    return IonizationData(None).calculate(atomic_dataset, selected_atoms)
+    ionization_data_module = IonizationData(None)
+    return ionization_data_module.calculate(atomic_dataset, selected_atoms)
 
 @pytest.fixture
 def phi(g_electron, beta_rad, partition_function, ionization_data):
-    return PhiSahaLTE(None).calculate(
+    phi_module = PhiSahaLTE(None)
+    return phi_module.calculate(
         g_electron, beta_rad, partition_function, ionization_data
     )
 
 @pytest.fixture
 def ion_number_density(phi, partition_function, number_density):
-    ion_number_density, _ = IonNumberDensity(None).calculate(
+    ion_number_density_module = IonNumberDensity(None)
+    ion_number_density, _ = ion_number_density_module.calculate(
         phi, partition_function, number_density
     )
     return ion_number_density
@@ -159,7 +165,8 @@ def ion_number_density(phi, partition_function, number_density):
 def level_number_density(
     level_boltzmann_factor_lte, ion_number_density, levels, partition_function
 ):
-    return LevelNumberDensity(None).calculate(
+    level_number_density_module = LevelNumberDensity(None)
+    return level_number_density_module.calculate(
         level_boltzmann_factor_lte,
         ion_number_density,
         levels,
@@ -177,7 +184,8 @@ def stimulated_emission_factor(
     metastability,
     lines,
 ):
-    return StimulatedEmissionFactor(nlte_species=None).calculate(
+    stimulated_emission_factor_module = StimulatedEmissionFactor(nlte_species=None)
+    return stimulated_emission_factor_module.calculate(
         g,
         level_number_density,
         lines_lower_level_index,
@@ -185,3 +193,41 @@ def stimulated_emission_factor(
         metastability,
         lines,
     )
+
+# STIMULATED EMISSION FACTORS TWO LEVEL INPUT
+@pytest.fixture
+def two_level_inputs():
+    """Return a builder for minimal 2-level, 1-zone, 1-line edge-case inputs."""
+
+    def _build(
+        n_lower: float,
+        n_upper: float,
+        g_lower: float,
+        g_upper: float,
+        metastable_upper: bool = False,
+    ) -> dict:
+        levels_index = pd.MultiIndex.from_tuples(
+            [(1, 0, 0), (1, 0, 1)],
+            names=["atomic_number", "ion_number", "level_number"],
+        )
+        lines_index = pd.MultiIndex.from_tuples(
+            [(1, 0, 0, 1)],
+            names=[
+                "atomic_number",
+                "ion_number",
+                "level_number_lower",
+                "level_number_upper",
+            ],
+        )
+        return dict(
+            g=pd.Series([g_lower, g_upper], index=levels_index),
+            level_number_density=pd.DataFrame(
+                [[n_lower], [n_upper]], index=levels_index, columns=[0]
+            ),
+            metastability=pd.Series([False, metastable_upper], index=levels_index),
+            lines=pd.DataFrame({"wavelength": [6562.8]}, index=lines_index),
+            lines_lower_level_index=np.array([0], dtype=np.int64),
+            lines_upper_level_index=np.array([1], dtype=np.int64),
+        )
+
+    return _build

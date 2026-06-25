@@ -20,11 +20,9 @@ partition_function_property = PartitionFunction(plasma_parent=BasePlasma)
 
 
 def test_ionization_data_calculate_atomic_property(
-    atomic_dataset, selected_atoms, regression_data
+   ionization_data, regression_data
 ):
-    actual_ionization_data = ionization_data_property.calculate(
-        atomic_dataset, selected_atoms
-    )
+    actual_ionization_data = ionization_data
     expected_ionization_data = regression_data.sync_dataframe(
         actual_ionization_data, key="ionization_data"
     )
@@ -47,10 +45,7 @@ def test_ionization_data_incomplete_atomic_data(selected_atoms):
         ionization_data, selected_atoms
     )
 
-def test_levels_calculate(atomic_dataset, selected_atoms, regression_data):
-    levels_index, excitation_energy, metastability, g = levels_property.calculate(
-        atomic_dataset, selected_atoms
-    )
+def test_levels_calculate(regression_data,levels,excitation_energy,metastability,g):
 
     actual_levels = pd.DataFrame(
         {
@@ -58,7 +53,7 @@ def test_levels_calculate(atomic_dataset, selected_atoms, regression_data):
             "metastability": metastability,
             "g": g,
         },
-        index=levels_index,
+        index=levels,
     )
     expected_levels = regression_data.sync_dataframe(
         actual_levels, key="calculated_levels"
@@ -68,26 +63,21 @@ def test_levels_calculate(atomic_dataset, selected_atoms, regression_data):
     )
 
 
-def test_lines_calculate(atomic_dataset, selected_atoms, regression_data):
-    actual_lines, _, _, _ = lines_property.calculate(
-        atomic_dataset, selected_atoms
-    )
+def test_lines_calculate(regression_data,lines):
     expected_lines = regression_data.sync_dataframe(
-        actual_lines, key="calculated_lines"
+        lines, key="calculated_lines"
     )
     pdt.assert_frame_equal(
-        actual_lines, expected_lines, atol=0, rtol=1e-15
+        lines, expected_lines, atol=0, rtol=1e-15
     )
 
-def test_partition_function_calculate(level_boltzmann_factor_lte, regression_data):
-    actual_partition_function_calculate = partition_function_property.calculate(
-        level_boltzmann_factor_lte
-    )
-    expected_partition_function_calculate = regression_data.sync_dataframe(
-        actual_partition_function_calculate, key="calculated_partition_function"
+def test_partition_function_calculate(partition_function, regression_data):
+
+    expected_partition_function = regression_data.sync_dataframe(
+        partition_function, key="calculated_partition_function"
     )
     pdt.assert_frame_equal(
-        actual_partition_function_calculate, expected_partition_function_calculate, atol=0, rtol=1e-15
+        partition_function, expected_partition_function, atol=0, rtol=1e-15
     )
 
 
@@ -141,46 +131,28 @@ def test_stimulated_emission_factor_regression(
     )
 
 
-def _two_level_inputs(n_lower, n_upper, g_lower, g_upper, metastable_upper=False):
-    """Minimal 2-level, 1-zone, 1-line system for edge-case unit tests."""
-    levels_index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0), (1, 0, 1)],
-        names=["atomic_number", "ion_number", "level_number"],
-    )
-    lines_index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1)],
-        names=["atomic_number", "ion_number", "level_number_lower", "level_number_upper"],
-    )
-    return dict(
-        g=pd.Series([g_lower, g_upper], index=levels_index),
-        level_number_density=pd.DataFrame(
-            [[n_lower], [n_upper]], index=levels_index, columns=[0]
-        ),
-        metastability=pd.Series([False, metastable_upper], index=levels_index),
-        lines=pd.DataFrame({"wavelength": [6562.8]}, index=lines_index),
-        lines_lower_level_index=np.array([0], dtype=np.int64),
-        lines_upper_level_index=np.array([1], dtype=np.int64),
-    )
-
-
-def test_stimulated_emission_factor_n_lower_zero_gives_zero():
-    inputs = _two_level_inputs(n_lower=0.0, n_upper=1e10, g_lower=2.0, g_upper=4.0)
+def test_stimulated_emission_factor_n_lower_zero_gives_zero(two_level_inputs):
+    inputs = two_level_inputs(n_lower=0.0, n_upper=1e10, g_lower=2.0, g_upper=4.0)
     actual = StimulatedEmissionFactor().calculate(**inputs)
     assert actual[0, 0] == 0.0
 
 
-def test_stimulated_emission_factor_metastable_upper_clamps_negative_to_zero():
+def test_stimulated_emission_factor_metastable_upper_clamps_negative_to_zero(
+    two_level_inputs,
+):
     # g_lower > g_upper forces a negative raw factor; metastable flag must clamp it
-    inputs = _two_level_inputs(
+    inputs = two_level_inputs(
         n_lower=1e10, n_upper=3e10, g_lower=4.0, g_upper=2.0, metastable_upper=True
     )
     actual = StimulatedEmissionFactor().calculate(**inputs)
     assert actual[0, 0] == 0.0
 
 
-def test_stimulated_emission_factor_nlte_species_clamps_negative_to_zero():
+def test_stimulated_emission_factor_nlte_species_clamps_negative_to_zero(
+    two_level_inputs,
+):
     # Same inverted population; NLTE flag must clamp the negative factor
-    inputs = _two_level_inputs(
+    inputs = two_level_inputs(
         n_lower=1e10, n_upper=3e10, g_lower=4.0, g_upper=2.0
     )
     actual = StimulatedEmissionFactor(nlte_species={(1, 0)}).calculate(**inputs)
