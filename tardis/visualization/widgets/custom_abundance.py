@@ -1066,7 +1066,7 @@ class CustomAbundanceWidget:
         self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new Input control and Checkbox control.
-        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[WIDGET_INPUT_STYLE])
+        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 15px}"])
         check = pn.widgets.Checkbox(width=30, sizing_mode="stretch_height", margin=(10, 0, 0, 0))
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
@@ -1081,7 +1081,7 @@ class CustomAbundanceWidget:
             self.input_items[i].name = self.data.elements[i]
 
         self.box_editor[:] = [
-            pn.Column(*self.input_items),
+            pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
             pn.Column(*self.checks),
         ]
 
@@ -1315,7 +1315,7 @@ class CustomAbundanceWidget:
         else:
             # --------------Combine widget components--------------
             self.box_editor = pn.Row(
-                    pn.Column(*self.input_items),
+                    pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
                     pn.Column(
                         *self.checks
                     ),
@@ -1338,7 +1338,7 @@ class CustomAbundanceWidget:
             box_add_element = pn.Row(
                 self.input_symb, self.btn_add_element, self.symb_warning,
                 width=200,
-                margin=(0, 0, 0, 60),
+                margin=(0, 0, 0, 110),
             )
 
             help_note = pn.pane.HTML(
@@ -1359,7 +1359,7 @@ class CustomAbundanceWidget:
 
             box_apply = pn.Column(
 
-                    "Apply abundance(s) to:",
+                    pn.pane.Markdown("Apply abundance(s) to:", margin=(0, 0, 0, 0)),
                     self.rbs_single_apply,
                     pn.Row(
                             self.rbs_multi_apply,
