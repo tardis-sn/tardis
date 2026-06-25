@@ -105,15 +105,16 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             meta_stable_upper & (stimulated_emission_factor < 0)
         ] = 0.0
         if self.nlte_species:
-            nlte_lines_mask = (
-                lines.reset_index()
-                .apply(
-                    lambda row: (row.atomic_number, row.ion_number)
-                    in self.nlte_species,
-                    axis=1,
+            atomic_numbers = lines.index.get_level_values(
+                "atomic_number"
+            ).to_numpy()
+            ion_numbers = lines.index.get_level_values("ion_number").to_numpy()
+
+            nlte_lines_mask = np.zeros(len(lines), dtype=bool)
+            for atomic_number, ion_number in self.nlte_species:
+                nlte_lines_mask |= (atomic_numbers == atomic_number) & (
+                    ion_numbers == ion_number
                 )
-                .values
-            )
             stimulated_emission_factor[
                 (stimulated_emission_factor < 0)
                 & nlte_lines_mask[np.newaxis, :].T
@@ -275,9 +276,10 @@ class TransitionProbabilities(ConvergedPlasmaProperty):
     def _calculate_transition_probability(
         self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor
     ):
-        transition_probabilities = np.empty(
-            (self.transition_probability_coef.shape[0], beta_sobolev.shape[1])
-        )
+        transition_probabilities = np.empty((
+            self.transition_probability_coef.shape[0],
+            beta_sobolev.shape[1],
+        ))
         # trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
         transition_type = macro_atom_data.transition_type.values
         lines_idx = macro_atom_data.lines_idx.values
@@ -311,12 +313,10 @@ class TransitionProbabilities(ConvergedPlasmaProperty):
         self.transition_up_line_filter = macro_atom_data.lines_idx.values[
             self.transition_up_filter
         ]
-        self.block_references = np.hstack(
-            (
-                atomic_data.macro_atom_references.block_references,
-                len(macro_atom_data),
-            )
-        )
+        self.block_references = np.hstack((
+            atomic_data.macro_atom_references.block_references,
+            len(macro_atom_data),
+        ))
 
     @staticmethod
     def _get_transition_probability_coefs(macro_atom_data):
