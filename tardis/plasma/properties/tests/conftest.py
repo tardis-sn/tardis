@@ -30,16 +30,16 @@ def abundance(number_of_cells):
 
 @pytest.fixture
 def density(number_of_cells):
-    return np.ones(number_of_cells) * 1e-14
+    return np.linspace(0.7e-14, 1.3e-14, number_of_cells)
 
 
 @pytest.fixture
 def t_rad(number_of_cells):
-    return np.ones(number_of_cells) * 10000
+    return np.linspace(9500.0, 10500.0, number_of_cells)
 
 @pytest.fixture
 def w(number_of_cells):
-    return np.ones(number_of_cells) * 1.0
+    return np.linspace(0.85, 1.15, number_of_cells)
 
 @pytest.fixture
 def dilute_planckian_radiation_field(t_rad, w):
