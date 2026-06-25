@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=202b69a0"></script>
+      <script src="../../../../_static/documentation_options.js?v=3e4a6edc"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -222,13 +222,18 @@ def extend_with_default(
 DefaultDraft7Validator = extend_with_default(Draft7Validator)
 
 
-def _create_schema_registry() -&gt; Registry:
+def _create_schema_registry(schema_dir: Path = SCHEMA_DIR) -&gt; Registry:
     &quot;&quot;&quot;
     Create a registry containing all schema files for reference resolution.
 
     Loads all YAML schema files from the schemas directory and creates a
     referencing Registry that can be used to resolve $ref references between
     schema files during validation.
+
+    Parameters
+    ----------
+    schema_dir : Path
+        Path to the directory containing the schema files
 
     Returns
     -------
@@ -244,7 +249,7 @@ def _create_schema_registry() -&gt; Registry:
     registry = Registry()
 
     # Load all schema files in the schemas directory
-    for schema_file in SCHEMA_DIR.glob(&quot;*.yml&quot;):
+    for schema_file in schema_dir.glob(&quot;*.yml&quot;):
         with open(schema_file) as f:
             schema_content = yaml.load(f, Loader=YAMLLoader)
 
@@ -285,7 +290,7 @@ def is_quantity(checker: Any, instance: Any) -&gt; bool:
 <a class="viewcode-back" href="../../../../api/tardis.io.configuration.config_validator.html#tardis.io.configuration.config_validator.validate_dict">[docs]</a>
 def validate_dict(
     config_dict: dict[str, Any],
-    schemapath: Path = CONFIG_SCHEMA_FNAME,
+    schemapath: str | Path = CONFIG_SCHEMA_FNAME,
     validator: type[Draft7Validator] = DefaultDraft7Validator,
 ) -&gt; dict[str, Any]:
     &quot;&quot;&quot;
@@ -300,7 +305,7 @@ def validate_dict(
     ----------
     config_dict : dict[str, Any]
         The configuration dictionary to validate.
-    schemapath : Path, optional
+    schemapath : str or Path, optional
         Path to the main schema file. Defaults to CONFIG_SCHEMA_FNAME.
     validator : type[Draft7Validator], optional
         The validator class to use. Defaults to DefaultDraft7Validator.
@@ -323,11 +328,12 @@ def validate_dict(
     This function creates a deep copy of the input dictionary before
     validation to avoid modifying the original data.
     &quot;&quot;&quot;
+    schemapath = Path(schemapath)
     with open(schemapath) as f:
         schema = yaml.load(f, Loader=YAMLLoader)
 
     # Create registry for schema references
-    registry = _create_schema_registry()
+    registry = _create_schema_registry(schemapath.parent)
 
     validated_dict = deepcopy(config_dict)
     custom_type_checker = validator.TYPE_CHECKER.redefine(&quot;quantity&quot;, is_quantity)
@@ -344,7 +350,7 @@ def validate_dict(
 <a class="viewcode-back" href="../../../../api/tardis.io.configuration.config_validator.html#tardis.io.configuration.config_validator.validate_yaml">[docs]</a>
 def validate_yaml(
     configpath: Path,
-    schemapath: Path = CONFIG_SCHEMA_FNAME,
+    schemapath: str | Path = CONFIG_SCHEMA_FNAME,
     validator: type[Draft7Validator] = DefaultDraft7Validator,
 ) -&gt; dict[str, Any]:
     &quot;&quot;&quot;
@@ -358,7 +364,7 @@ def validate_yaml(
     ----------
     configpath : Path
         Path to the YAML configuration file to validate.
-    schemapath : Path, optional
+    schemapath : str or Path, optional
         Path to the main schema file. Defaults to CONFIG_SCHEMA_FNAME.
     validator : type[Draft7Validator], optional
         The validator class to use. Defaults to DefaultDraft7Validator.
