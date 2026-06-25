@@ -492,10 +492,17 @@ class CustomAbundanceWidget:
             "Unnormalized",
             alert_type="warning",
             visible=False,
+            width=200,
+            height=30,
+            stylesheets=[":host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}"],
         )
 
         self.symb_warning = pn.pane.Alert(
-            visible=False, alert_type="warning"
+            visible=False,
+            alert_type="warning",
+            width=200,
+            height=30,
+            stylesheets=[":host(.alert) {padding: 0px 0px 0px 10px;} p {margin: 5px}"],
         )
         self.input_symb = pn.widgets.TextInput(
             name="Element: ",
@@ -509,7 +516,6 @@ class CustomAbundanceWidget:
             name="Add",
             disabled=True,
             width=60,
-            align='end',
         )
         self.btn_add_element.on_click(self.on_btn_add_element)
 
@@ -1606,7 +1612,7 @@ class DensityEditor:
         self.input_d_time_0 = pn.widgets.FloatInput(
             value=self.data.density_t_0.value,
             name="Density time_0 (day): ",
-            margin=(0, 0, 20, 0),
+            margin=(10, 0, 20, 10),
         )
         self.input_d_time_0.param.watch(self.input_d_time_0_eventhandler, "value")
 
