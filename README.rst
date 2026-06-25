@@ -114,14 +114,14 @@ The following BibTeX entries are needed for the references:
           adsnote = {Provided by the SAO/NASA Astrophysics Data System}
     }
 
-.. |CITATION| replace:: kerzendorf_2026_20470290
+.. |CITATION| replace:: kerzendorf_2026_20684899
 
-.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.470290-blue
-                 :target: https://doi.org/10.5281/zenodo.470290
+.. |DOI_BADGE| image:: https://img.shields.io/badge/DOI-10.5281/zenodo.84899-blue
+                 :target: https://doi.org/10.5281/zenodo.84899
 
 .. code-block:: bibtex
 
-    @software{kerzendorf_2026_20470290,
+    @software{kerzendorf_2026_20684899,
       author       = {Kerzendorf, Wolfgang and
                       Sim, Stuart and
                       Vogl, Christian and
@@ -152,19 +152,19 @@ The following BibTeX entries are needed for the references:
                       Cawley, Kevin and
                       Singhal, Jaladh and
                       Barbosa, Talytha and
-                      Sondhi, Dhruv and
                       Yu, Jenny and
+                      Sondhi, Dhruv and
                       O'Brien, Jack and
                       Shields, Josh and
                       Patel, Maryam and
                       Rathi, Shikha and
                       Varanasi, Kaushik and
-                      Gillanders, James and
                       Chitchyan, Sona and
-                      Gupta, Sumit and
-                      Singh, Shreyas and
+                      Gillanders, James and
                       Marie Lynn, Haille and
                       Savel, Arjun and
+                      Gupta, Sumit and
+                      Singh, Shreyas and
                       Reinecke, Martin and
                       Eweis, Youssef and
                       Shah, Swayam and
@@ -173,86 +173,86 @@ The following BibTeX entries are needed for the references:
                       Visser, Erin and
                       Bentil, Laud and
                       Black, William and
-                      Groneck, Ryan and
-                      Lu, Jing and
                       Kumar, Asish and
                       Dutta, Anirban and
+                      Lu, Jing and
+                      Groneck, Ryan and
                       Eguren, Jordi and
+                      Bartnik, Matthew and
                       Kumar, Ansh and
                       Srivastava, Sarthak and
-                      Bartnik, Matthew and
+                      Varma Buddaraju, Rohith and
                       Magee, Mark and
                       Alam, Arib and
-                      Varma Buddaraju, Rohith and
-                      Livneh, Ran and
-                      Kambham, Satwik and
                       Daksh, Ayushi and
+                      McClellan, Connor and
+                      Kambham, Satwik and
+                      Livneh, Ran and
+                      Rajagopalan, Srinath and
                       Mishra, Sashank and
                       Bhakar, Jayant and
                       Powers, Cecelia and
                       Roldan, Israel and
-                      Rajagopalan, Srinath and
-                      McClellan, Connor and
+                      Dadu, Aaryan and
                       Reichenbach, John and
+                      Jain, Rinkle and
                       Nitish, P and
                       Actions, GitHub and
-                      Jain, Rinkle and
-                      Dadu, Aaryan and
+                      Saraf, Shreyans and
                       Brar, Antreev and
-                      Chaumal, Aarya and
-                      Singh, Sourav and
                       Gupta, Harshul and
-                      Kowalski, Nathan and
+                      Singh, Sourav and
+                      Chaumal, Aarya and
                       Gangbhoj, Riddhi and
                       Sofiatti, Caroline and
+                      Kowalski, Nathan and
+                      Matsumura, Yuki and
+                      Selsing, Jonatan and
+                      Patidar, Abhishek and
                       Talegaonkar, Chinmay and
                       Perkins, Haille and
-                      Selsing, Jonatan and
-                      Matsumura, Yuki and
-                      Patidar, Abhishek and
+                      Lemoine, Thom and
                       Wahi, Ujjwal and
                       Aggarwal, Yash and
-                      Patel, Pratik and
                       Singh Rathore, Parikshit and
                       L. Lim, P. and
-                      Nagadevi, Kona and
+                      Chen, Nutan and
                       Buchner, Johannes and
                       Bhandari, Jhalak and
-                      Patra, Nilesh and
+                      Vieira, Nicholas and
                       Yap, Kevin and
+                      Nagadevi, Kona and
+                      Patra, Nilesh and
                       Truong, Le and
-                      Chen, Nutan and
                       Zingale, Michael and
                       Sandler, Morgan and
                       Zaheer, Musabbiha and
                       Sarafina, Nance and
-                      Vieira, Nicholas and
                       Gupta, Suyash and
-                      Lemoine, Thom and
-                      Kumar, Atul and
-                      Saraf, Shreyans and
-                      Nayak U, Ashwin and
                       Dasgupta, Debajyoti and
-                      Jaiswal, Abhayraj and
-                      Watson, Clyde and
-                      Kumar, Aman and
-                      Volodin, Dmitry and
+                      Prasad, Shilpi and
                       Martinez, Laureano and
+                      Jaiswal, Abhayraj and
+                      Kumar, Aman and
+                      Nayak U, Ashwin and
+                      Kumar, Atul and
+                      Watson, Clyde and
                       PATIDAR, ABHISHEK and
+                      Venkat, Shashank and
+                      Volodin, Dmitry and
                       Diddige, Harshitha and
+                      Patel, Pratik and
                       Rao, Rishmita and
                       Prasad, Rohit and
                       Gajanan Nalbalwar, Rudraksh and
-                      Sharma, Sampark and
-                      Venkat, Shashank and
-                      Prasad, Shilpi},
-      title        = {tardis-sn/tardis: TARDIS v2026.05.31},
-      month        = may,
+                      Sharma, Sampark},
+      title        = {tardis-sn/tardis: TARDIS v2026.06.14},
+      month        = jun,
       year         = 2026,
       publisher    = {Zenodo},
-      version      = {release-2026.05.31},
-      doi          = {10.5281/zenodo.20470290},
-      url          = {https://doi.org/10.5281/zenodo.20470290},
+      version      = {release-2026.06.14},
+      doi          = {10.5281/zenodo.20684899},
+      url          = {https://doi.org/10.5281/zenodo.20684899},
     }
 
 

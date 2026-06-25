@@ -152,7 +152,7 @@ class PositroniumSampler:
             Number of grid points for the CDF, by default 1000
         """
         self.x_grid = np.linspace(1e-4, 0.9999, n_grid)
-        self.norm_pdf = self.pdf(self.x_grid) / np.trapz(
+        self.norm_pdf = self.pdf(self.x_grid) / np.trapezoid(
             self.pdf(self.x_grid), self.x_grid
         )
         self.cdf_grid = np.cumsum(self.norm_pdf)

@@ -562,8 +562,8 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
                 ind.get_level_values(3),
             ]
         )
-        e_lu = excitation_energy.loc[lu_index]
-        e_ll = excitation_energy.loc[ll_index]
+        e_lu = excitation_energy.reindex(lu_index)
+        e_ll = excitation_energy.reindex(ll_index)
         hnu = e_lu.values - e_ll.values
         hnu = pd.DataFrame(hnu, index=ind)
         # hnu = pd.DataFrame(const.h.cgs.value * nu_lines, index=index)
@@ -1316,6 +1316,7 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         level_number_density,
         lte_level_number_density,
         gamma,
+        coll_deexc_coeff,
     ):
         photoionization_data = atomic_data.photoionization_data
         nu_i = photoionization_data.groupby(level=[0, 1, 2]).first().nu
@@ -1426,14 +1427,13 @@ class IIpWorkflowContinuumConnectors(ProcessingPlasmaProperty):
         )
 
         # NOW K_PACKET_IDX
-        k_packet_idx = (
-            atomic_data.macro_atom_references.references_idx.max() + 1
-        )
+        k_packet_idx = atomic_data.macro_atom_references.references_idx.max()
 
         # NOW DELTA_E_YG
+        # TODO: RENAME THIS - it's not really delta E yg. It's just the energy diff
+        # levels where we have a continuum rate.
         energies = atomic_data.levels.energy
-        yg_data = atomic_data.yg_data
-        index = yg_data.index
+        index = coll_deexc_coeff.index
         lu_index = index.droplevel("level_number_lower")
         ll_index = index.droplevel("level_number_upper")
         delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values

@@ -18,13 +18,13 @@ When making or adding changes to the functionality of an aspect of TARDIS, an ``
 RST Documentation
 -----------------
 
-Documentation not featuring interactive code examples is written in Sphinx's reStructuredText (see the `sphinx documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_). Files written in reStructuredText have a ``.rst`` file extension, and are then built as HTML filed by Sphinx during the documentation build. Only the RST file, not the built HTML file, are committed to the repository. Documentation should be clear and concise. See :doc:`../../io/visualization/using_widgets` as a good example of an RST-generated page.
+Documentation not featuring interactive code examples is written in Sphinx's reStructuredText (see the `sphinx documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_). Files written in reStructuredText have a ``.rst`` file extension, and are then built as HTML filed by Sphinx during the documentation build. Only the RST file, not the built HTML file, are committed to the repository. Documentation should be clear and concise. See :doc:`../../analyzing_tardis/visualization/using_widgets` as a good example of an RST-generated page.
 
 
 IPYNB Documentation
 -------------------
 
-Often, code examples can help explain concepts better. The TARDIS utilizes `Jupyter notebooks <https://jupyter.org/>`_ (``.ipynb`` file extension) to demonstrate features of the code package within our documentation. See :doc:`../../quickstart` or :doc:`../../physics/montecarlo/initialization` for good examples.
+Often, code examples can help explain concepts better. The TARDIS utilizes `Jupyter notebooks <https://jupyter.org/>`_ (``.ipynb`` file extension) to demonstrate features of the code package within our documentation. See :doc:`../../quickstart` or :doc:`../../physics_walkthrough/montecarlo/initialization` for good examples.
 
 TARDIS uses the `nbsphinx <https://nbsphinx.readthedocs.io/>`_ extension to turn these notebooks into HTML pages in the documentation. During a documentation build, nbsphinx runs all notebooks in the documentation with cleared output and places their output in the HTML. **Thus, notebook output must always be cleared before it is submitted** to ensure that the notebooks are run by nbsphinx.
 
@@ -45,8 +45,8 @@ Including Your Page in the TARDIS Documentation
 Whether your page is written in reStructuredText or as a Jupyter notebook, it must be included in the TARDIS documentation. This has three steps:
 
 1. Determine the appropriate location for the page within the documentation. Feel free to reach out to someone in the TARDIS collaboration for help with this step.
-2. Place your file in the corresponding directory in the ``docs/`` directory of the repository. For example, the :doc:`../../io/visualization/using_widgets` is a subpage of "Visualization Tools and Widgets" under the Input/Output section of the documentation, so it is placed in ``docs/io/visualization/``.
-3. Include your file in the/a `toctree <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-toctree>`_ of the corresponding ``index.rst``. For example, :doc:`../../io/visualization/using_widgets` was included in a toctree of ``docs/io/visualization/index.rst``.
+2. Place your file in the corresponding directory in the ``docs/`` directory of the repository. For example, the :doc:`../../analyzing_tardis/visualization/using_widgets` is a subpage of "Visualization Tools and Widgets" under the Analyzing TARDIS section of the documentation, so it is placed in ``docs/analyzing_tardis/visualization/``.
+3. Include your file in the/a `toctree <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-toctree>`_ of the corresponding ``index.rst``. For example, :doc:`../../analyzing_tardis/visualization/using_widgets` was included in a toctree of ``docs/analyzing_tardis/visualization/index.rst``.
 
 .. note::
     
