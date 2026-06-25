@@ -36,7 +36,7 @@ from tardis.visualization.widgets.util import debounce
 
 BASE_DIR = tardis.__path__[0]
 YAML_DELIMITER = "---"
-input_style = """
+WIDGET_INPUT_STYLE = """
     .bk-input-group {
     flex-direction: row;
     align-items: center;
@@ -471,7 +471,7 @@ class CustomAbundanceWidget:
                 end=1,
                 step=0.01,
                 name=element,
-                stylesheets=[input_style],
+                stylesheets=[WIDGET_INPUT_STYLE, "label {width: 15px;}"],
             )
             for element in self.data.elements
         ]
@@ -508,7 +508,7 @@ class CustomAbundanceWidget:
             name="Element: ",
             placeholder="symbol",
             width=125,
-            stylesheets=[input_style],
+            stylesheets=[WIDGET_INPUT_STYLE],
         )
         self.input_symb.param.watch(self.input_symb_eventhandler, "value")
         self.btn_add_element = pn.widgets.Button(
@@ -542,7 +542,7 @@ class CustomAbundanceWidget:
             step=1,
             name="Add shell(s) with velocity range (km/s): ",
             align='end',
-            stylesheets=[input_style],
+            stylesheets=[WIDGET_INPUT_STYLE],
         )
         self.input_v_end = pn.widgets.FloatInput(
             start=0,
@@ -550,7 +550,7 @@ class CustomAbundanceWidget:
             width=90,
             name="to",
             align='end',
-            stylesheets=[input_style],
+            stylesheets=[WIDGET_INPUT_STYLE],
         )
         self.input_v_start.param.watch(self.input_v_eventhandler, "value")
         self.input_v_end.param.watch(self.input_v_eventhandler, "value")
@@ -1066,7 +1066,7 @@ class CustomAbundanceWidget:
         self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new Input control and Checkbox control.
-        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[input_style])
+        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[WIDGET_INPUT_STYLE])
         check = pn.widgets.Checkbox(width=30, sizing_mode="stretch_height", margin=(10, 0, 0, 0))
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
@@ -1374,6 +1374,7 @@ class CustomAbundanceWidget:
                     box_apply,
                     pn.Row(self.box_editor, box_features),
                     box_add_element,
+                    sizing_mode="stretch_width"
             )
             box_density = self.density_editor.display()
 
@@ -1624,19 +1625,19 @@ class DensityEditor:
         self.dpd_dtype.param.watch(self.dpd_dtype_eventhandler, "value")
 
         self.input_rho_0 = pn.widgets.FloatInput(
-            name="rho_0", width=300, stylesheets=[input_style],
+            name="rho_0", width=300, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
         )
 
         self.input_exp = pn.widgets.FloatInput(
-            name="exponent", width=300, stylesheets=[input_style],
+            name="exponent", width=300, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
         )
 
         self.input_v_0 = pn.widgets.FloatInput(
-            name="v_0", width=300, stylesheets=[input_style],
+            name="v_0", width=300, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
         )
 
         self.input_value = pn.widgets.FloatInput(
-            name="value", width=300, stylesheets=[input_style],
+            name="value", width=300, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
         )
 
         self.btn_calculate = pn.widgets.Button(
@@ -1805,5 +1806,6 @@ class DensityEditor:
                 self.dpd_dtype,
                 self.dtype_out,
                 self.btn_calculate,
+                sizing_mode="stretch_width"
         )
         return widget
