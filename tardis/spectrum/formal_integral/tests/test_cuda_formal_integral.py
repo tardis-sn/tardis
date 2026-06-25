@@ -207,7 +207,7 @@ def test_line_search_cuda(nu_insert, simulation_verysimple_opacity_state):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = simulation_verysimple_opacity_state.line_list_nu
+    line_list_nu = simulation_verysimple_opacity_state.line_list_nu.copy()
 
     expected[0] = formal_integral_numba.line_search(
         line_list_nu, nu_insert, len(line_list_nu)
@@ -243,7 +243,7 @@ def test_reverse_binary_search(nu_insert, simulation_verysimple_opacity_state):
     """
     actual = np.zeros(1)
     expected = np.zeros(1)
-    line_list_nu = simulation_verysimple_opacity_state.line_list_nu
+    line_list_nu = simulation_verysimple_opacity_state.line_list_nu.copy()
 
     imin = 0
     imax = len(line_list_nu) - 1

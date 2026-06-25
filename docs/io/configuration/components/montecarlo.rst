@@ -16,7 +16,7 @@ of the :term:`Monte Carlo` loop (which calculates the final spectrum!) when the 
 ``no_of_packets`` to create a less noisy output spectrum. ``no_of_virtual_packets`` can also be set to greater than 0 (a useful number is 3) to
 use the Virtual Packet formalism. Increasing this number drastically increases computational costs (and memory requirements if they are logged).
 The ``iterations`` parameter describes the maximum number of :term:`Monte Carlo` loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
-sooner when the convergence threshold has been reached (see :doc:`../../../physics/update_and_conv/update_and_conv`).
+sooner when the convergence threshold has been reached (see :doc:`../../../physics_walkthrough/update_and_conv/update_and_conv`).
  
 .. _conv-config:
 
@@ -35,6 +35,8 @@ override the defaults. Two more schemas are presented that further explain the `
 
 ``damped`` only has one parameter ``damping-constant`` and does not check for convergence. This can be used to fix the
 temperature of the inner boundary.
+
+.. jsonschema:: schemas/montecarlo_definitions.yml#/definitions/convergence_strategy/adaptive_damped
 
 .. jsonschema:: schemas/montecarlo_definitions.yml#/definitions/convergence_strategy/custom
 
