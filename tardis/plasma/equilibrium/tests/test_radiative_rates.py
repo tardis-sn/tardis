@@ -84,10 +84,14 @@ def test_radiative_rate_solver_init(new_chianti_atomic_dataset,regression_data):
     actual_einstein_coeffs = solver.einstein_coefficients
     expected_einstein_coeffs = regression_data.sync_dataframe(
         actual_einstein_coeffs, key="einstein_coeffs")
-    pdt.assert_frame_equal(actual_einstein_coeffs,expected_einstein_coeffs)
+    # CAN DO A NORMAL ASSERT WHEN ATOMIC DATA IS UPDATED FOR PANDAS 3.X
+    assert actual_einstein_coeffs.columns.names == ["N."]
+    pdt.assert_frame_equal(
+        actual_einstein_coeffs, expected_einstein_coeffs, check_names=False
+    )
 
 def test_radiative_rate_solver_solve(new_chianti_atomic_dataset, mock_radiation_field, regression_data):
-    einstein_coefficients_df = new_chianti_atomic_dataset_si.lines.xs((1,0),drop_level=False)
+    einstein_coefficients_df = new_chianti_atomic_dataset.lines.xs((1,0),drop_level=False)
     solver = RadiativeRatesSolver(einstein_coefficients_df)
     actual_radiative_rates = solver.solve(mock_radiation_field)
     expected_radiative_rates = regression_data.sync_dataframe(
