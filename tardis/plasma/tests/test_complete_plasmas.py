@@ -184,7 +184,8 @@ class TestPlasma:
         if attr == "lines":
             expected.columns.name = "N."
         if attr == "selected_atoms":
-            npt.assert_allclose(actual.values, expected.values)
+            actual = actual.to_frame(index=False)
+            pdt.assert_frame_equal(actual, expected)
         elif actual.ndim == 1:
             actual = pd.Series(actual)
             pdt.assert_series_equal(actual, expected)
