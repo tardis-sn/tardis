@@ -80,13 +80,18 @@ def extend_with_default(
 DefaultDraft7Validator = extend_with_default(Draft7Validator)
 
 
-def _create_schema_registry() -> Registry:
+def _create_schema_registry(schema_dir: Path) -> Registry:
     """
     Create a registry containing all schema files for reference resolution.
 
     Loads all YAML schema files from the schemas directory and creates a
     referencing Registry that can be used to resolve $ref references between
     schema files during validation.
+
+    Parameters
+    ----------
+    schema_dir : Path
+        Path to the directory containing the schema files
 
     Returns
     -------
@@ -102,7 +107,7 @@ def _create_schema_registry() -> Registry:
     registry = Registry()
 
     # Load all schema files in the schemas directory
-    for schema_file in SCHEMA_DIR.glob("*.yml"):
+    for schema_file in schema_dir.glob("*.yml"):
         with open(schema_file) as f:
             schema_content = yaml.load(f, Loader=YAMLLoader)
 
@@ -180,7 +185,7 @@ def validate_dict(
         schema = yaml.load(f, Loader=YAMLLoader)
 
     # Create registry for schema references
-    registry = _create_schema_registry()
+    registry = _create_schema_registry(schemapath.parent)
 
     validated_dict = deepcopy(config_dict)
     custom_type_checker = validator.TYPE_CHECKER.redefine("quantity", is_quantity)
