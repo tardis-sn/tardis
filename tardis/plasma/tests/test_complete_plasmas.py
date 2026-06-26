@@ -155,7 +155,6 @@ class TestPlasma:
         hash_string = f"plasma_unittest{hash_string}"
         config.plasma.save_path = hash_string
         request.cls.regression_data = RegressionData(request)
-        request.cls.regression_data.fname = f"{hash_string}.h5"
         return config
 
     @pytest.fixture(scope="class")
@@ -166,37 +165,35 @@ class TestPlasma:
     ):
         config["atom_data"] = str(chianti_he_db_fpath)
         sim = Simulation.from_config(config)
-        data = self.regression_data.sync_hdf_store(
-            sim.plasma, update_fname=False
-        )
         yield sim.plasma
-        data.close()
 
     @pytest.mark.parametrize("attr", combined_properties)
     def test_plasma_properties(self, plasma, attr):
         if not hasattr(plasma, attr):
             pytest.skip(f'Property "{attr}" not applicable for this config')
 
-        key = f"plasma/{attr}"
-        expected = pd.read_hdf(self.regression_data.fpath, key)
         actual = getattr(plasma, attr)
-        # TODO: recreate the atomic data from Carsus and Pandas 3.x to avoid this
-        if attr == "lines":
-            expected.columns.name = "N."
+        key = f"plasma/{attr}"
         if attr == "selected_atoms":
             actual = actual.to_frame(index=False)
+            expected = self.regression_data.sync_dataframe(actual, key)
             pdt.assert_frame_equal(actual, expected)
         elif actual.ndim == 1:
             actual = pd.Series(actual)
+            expected = self.regression_data.sync_dataframe(actual, key)
             pdt.assert_series_equal(actual, expected)
         else:
             actual = pd.DataFrame(actual)
+            expected = self.regression_data.sync_dataframe(actual, key)
+            # TODO: recreate the atomic data from Carsus and Pandas 3.x to avoid this
+            if attr == "lines":
+                expected.columns.name = "N."
             pdt.assert_frame_equal(actual, expected)
 
     def test_levels(self, plasma):
-        actual = plasma.levels.to_frame(index=False)
+        actual = pd.DataFrame(plasma.levels)
         key = "plasma/levels"
-        expected = pd.read_hdf(self.regression_data.fpath, key)
+        expected = self.regression_data.sync_dataframe(actual, key)
         pdt.assert_frame_equal(actual, expected)
 
     @pytest.mark.parametrize("attr", scalars_properties)
@@ -204,21 +201,16 @@ class TestPlasma:
         actual = getattr(plasma, attr)
         if hasattr(actual, "cgs"):
             actual = actual.cgs.value
-        key = "plasma/scalars"
-        expected = pd.read_hdf(self.regression_data.fpath, key)[attr]
+        expected = self.regression_data.sync_ndarray(actual)
         npt.assert_equal(actual, expected)
 
     def test_helium_treatment(self, plasma):
         actual = plasma.helium_treatment
-        key = "plasma/scalars"
-        expected = pd.read_hdf(self.regression_data.fpath, key)[
-            "helium_treatment"
-        ]
+        expected = self.regression_data.sync_str(actual)
         assert actual == expected
 
     def test_zeta_data(self, plasma):
         if hasattr(plasma, "zeta_data"):
             actual = plasma.zeta_data
-            key = "plasma/zeta_data"
-            expected = pd.read_hdf(self.regression_data.fpath, key)
-            npt.assert_allclose(actual, expected.values)
+            expected = self.regression_data.sync_ndarray(actual)
+            npt.assert_allclose(actual, expected)
