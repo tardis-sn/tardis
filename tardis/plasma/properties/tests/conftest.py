@@ -100,14 +100,14 @@ def excitation_energy(atomic_dataset, selected_atoms):
     return levels_module.calculate(atomic_dataset, selected_atoms)[1]
 
 @pytest.fixture
-def g(atomic_dataset, selected_atoms):
-    levels_module = Levels(None)
-    return levels_module.calculate(atomic_dataset, selected_atoms)[3]
-
-@pytest.fixture
 def metastability(atomic_dataset, selected_atoms):
     levels_module = Levels(None)
     return levels_module.calculate(atomic_dataset, selected_atoms)[2]
+
+@pytest.fixture
+def g(atomic_dataset, selected_atoms):
+    levels_module = Levels(None)
+    return levels_module.calculate(atomic_dataset, selected_atoms)[3]
 
 @pytest.fixture
 def lines(atomic_dataset, selected_atoms):
