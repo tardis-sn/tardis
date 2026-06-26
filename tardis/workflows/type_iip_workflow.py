@@ -932,9 +932,9 @@ class TypeIIPWorkflow(WorkflowLogging):
             )
 
             self.opacity_states = self.solve_opacity()
-
+            logger.info("Opacity solve finished.")
             self.solve_montecarlo(self.opacity_states, self.real_packet_count)
-
+            logger.info("Montecarlo solve finished.")
             (
                 estimated_values,
                 estimated_radfield_properties,
@@ -952,6 +952,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             # After first MC step
             self.solve_thermal_balance()
+            logger.info("Thermal balance solve finished.")
 
             self.solve_continuum_state(normalized_continuum_estimators)
 
