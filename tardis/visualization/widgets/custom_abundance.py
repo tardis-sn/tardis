@@ -1638,28 +1638,28 @@ class DensityEditor:
             name="rho_0",
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
         )
 
         self.input_exp = pn.widgets.FloatInput(
             name="exponent",
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
         )
 
         self.input_v_0 = pn.widgets.FloatInput(
             name="v_0",
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
         )
 
         self.input_value = pn.widgets.FloatInput(
             name="value",
             width=300,
             margin=(5, 0, 5, 10),
-            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px; text-align: end;}"],
         )
 
         self.btn_calculate = pn.widgets.Button(
