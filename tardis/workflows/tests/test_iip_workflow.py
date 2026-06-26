@@ -1,11 +1,19 @@
+from __future__ import annotations
+
+from copy import deepcopy
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
 import pytest
 
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
-from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
 
 
 def _max_rel_diff(actual, expected):
@@ -19,9 +27,93 @@ def _max_rel_diff(actual, expected):
     return float(np.nanmax(relative_difference))
 
 
+def _as_regression_dataframe(value: Any) -> pd.DataFrame:
+    if isinstance(value, pd.DataFrame):
+        return value
+    if isinstance(value, pd.Series):
+        return value.to_frame("value")
+
+    values = np.asarray(value)
+    if values.ndim == 1:
+        return pd.DataFrame({"value": values})
+    return pd.DataFrame(values)
+
+
+def _assert_regression_dataframe(
+    regression_data: Any,
+    key: str,
+    actual: Any,
+    *,
+    rtol: float = 1e-12,
+    atol: float = 0.0,
+) -> None:
+    actual_frame = _as_regression_dataframe(actual)
+    expected_frame = regression_data.sync_dataframe(actual_frame, key=key)
+    pd.testing.assert_frame_equal(
+        actual_frame,
+        expected_frame,
+        rtol=rtol,
+        atol=atol,
+        check_dtype=False,
+        check_names=False,
+    )
+
+
+PLASMA_SOLVER_REGRESSION_OUTPUTS = (
+    "electron_densities",
+    "t_electrons",
+    "link_t_rad_t_electron",
+    "p_fb_deactivation",
+    "chi_bf",
+    "fractional_heating",
+    "sp_fb_cooling_rates",
+    "stimulated_emission_factor",
+    "b",
+    "ion_ratio",
+    "j_blues",
+)
+
+
+INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS = (
+    "transition_probabilities",
+    "ion_number_density",
+    "tau_sobolevs",
+    "beta_sobolev",
+    "level_number_density",
+    *PLASMA_SOLVER_REGRESSION_OUTPUTS,
+)
+
+
 @pytest.fixture
 def iip_regression_path(tardis_regression_path):
     return tardis_regression_path / "tardis" / "workflows" / "tests"
+
+
+@pytest.fixture
+def thermal_balance_guess() -> Callable[
+    [Any], tuple[np.ndarray, np.ndarray]
+]:
+    def build_guess(plasma_solver: Any) -> tuple[np.ndarray, np.ndarray]:
+        max_electron_number_density = (
+            plasma_solver.number_density
+            .multiply(
+                plasma_solver.number_density.index.values,
+                axis=0,
+            )
+            .sum()
+            .values
+        )
+        electron_fraction = (
+            plasma_solver.electron_densities / max_electron_number_density
+        ).values
+
+        guess = np.zeros(2 * len(plasma_solver.link_t_rad_t_electron))
+        guess[::2] = electron_fraction
+        guess[1::2] = plasma_solver.link_t_rad_t_electron
+
+        return guess, max_electron_number_density
+
+    return build_guess
 
 
 @pytest.fixture
@@ -97,34 +189,32 @@ def iip_plasma_nlte_init(
 
     # ctardis starts with a constant rad temperature in all cells
     radiation_temp = 9984.96131287 * np.ones(24)
-    dilution_factor = np.array(
-        [
-            0.18635244,
-            0.15938095,
-            0.11736085,
-            0.34665656,
-            0.32265696,
-            0.30224056,
-            0.28436446,
-            0.26841929,
-            0.2540108,
-            0.24086562,
-            0.22878441,
-            0.21761613,
-            0.20724285,
-            0.1975702,
-            0.18852112,
-            0.18003167,
-            0.17204798,
-            0.16452412,
-            0.15742053,
-            0.15070279,
-            0.14434073,
-            0.13830767,
-            0.13257993,
-            0.12856901,
-        ]
-    )
+    dilution_factor = np.array([
+        0.18635244,
+        0.15938095,
+        0.11736085,
+        0.34665656,
+        0.32265696,
+        0.30224056,
+        0.28436446,
+        0.26841929,
+        0.2540108,
+        0.24086562,
+        0.22878441,
+        0.21761613,
+        0.20724285,
+        0.1975702,
+        0.18852112,
+        0.18003167,
+        0.17204798,
+        0.16452412,
+        0.15742053,
+        0.15070279,
+        0.14434073,
+        0.13830767,
+        0.13257993,
+        0.12856901,
+    ])
 
     iip_plasma.update_radiationfield(
         radiation_temp,
@@ -133,7 +223,6 @@ def iip_plasma_nlte_init(
         ctardis_compare_config.plasma.nlte,
         initialize_nlte=True,
         n_e_convergence_threshold=0.05,
-        **{},
     )
     return iip_plasma
 
@@ -147,63 +236,59 @@ def iip_plasma_after_mc(
         key="data",
     )
 
-    radiation_temp = np.array(
-        [
-            9992.27229695,
-            9992.59224105,
-            9983.78000964,
-            9980.58614386,
-            9979.83477025,
-            9968.05132981,
-            9957.88724805,
-            9949.36369847,
-            9946.8743961,
-            9937.71425418,
-            9934.85610192,
-            9928.23880919,
-            9926.40535242,
-            9916.93223133,
-            9912.22246589,
-            9911.051763,
-            9910.26097021,
-            9901.72775668,
-            9895.9432972,
-            9891.58754489,
-            9886.70685954,
-            9880.93185734,
-            9876.00858684,
-            9872.59842944,
-        ]
-    )
+    radiation_temp = np.array([
+        9992.27229695,
+        9992.59224105,
+        9983.78000964,
+        9980.58614386,
+        9979.83477025,
+        9968.05132981,
+        9957.88724805,
+        9949.36369847,
+        9946.8743961,
+        9937.71425418,
+        9934.85610192,
+        9928.23880919,
+        9926.40535242,
+        9916.93223133,
+        9912.22246589,
+        9911.051763,
+        9910.26097021,
+        9901.72775668,
+        9895.9432972,
+        9891.58754489,
+        9886.70685954,
+        9880.93185734,
+        9876.00858684,
+        9872.59842944,
+    ])
 
-    dilution_factor = np.array(
-        [
-            0.3571996,
-            0.31756545,
-            0.27019532,
-            0.36604569,
-            0.33787167,
-            0.31579601,
-            0.29590609,
-            0.27936991,
-            0.2634541,
-            0.24940025,
-            0.23579985,
-            0.22373621,
-            0.21241799,
-            0.20254584,
-            0.19309261,
-            0.18394483,
-            0.1755579,
-            0.16798016,
-            0.16076174,
-            0.15381029,
-            0.14730572,
-            0.14119434,
-            0.13532174,
-            0.13124624,
-        ]
-    )
+    dilution_factor = np.array([
+        0.3571996,
+        0.31756545,
+        0.27019532,
+        0.36604569,
+        0.33787167,
+        0.31579601,
+        0.29590609,
+        0.27936991,
+        0.2634541,
+        0.24940025,
+        0.23579985,
+        0.22373621,
+        0.21241799,
+        0.20254584,
+        0.19309261,
+        0.18394483,
+        0.1755579,
+        0.16798016,
+        0.16076174,
+        0.15381029,
+        0.14730572,
+        0.14119434,
+        0.13532174,
+        0.13124624,
+    ])
 
     photo_ion_estimator = pd.read_hdf(
         iip_regression_path / "ctardis_photo_ion_estimator_after_mc.h5",
@@ -274,6 +359,18 @@ def iip_plasma_after_mc(
     )
 
     return iip_plasma_nlte_init
+
+
+def test_type_iip_workflow_initial_plasma_regression(
+    type_iip_workflow,
+    regression_data,
+):
+    for attr in INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        _assert_regression_dataframe(
+            regression_data,
+            f"workflow_init_{attr}",
+            getattr(type_iip_workflow.plasma_solver, attr),
+        )
 
 
 def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
@@ -462,6 +559,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
 def test_iip_plasma_after_mc(
     iip_regression_path,
     iip_plasma_after_mc,
+    regression_data,
 ):
     tau_sobolevs_ctardis = pd.read_hdf(
         iip_regression_path / "ctardis_tau_sobolevs_after_mc.h5",
@@ -569,10 +667,35 @@ def test_iip_plasma_after_mc(
         check_names=False,
     )
 
+    for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        _assert_regression_dataframe(
+            regression_data,
+            f"after_mc_{attr}",
+            getattr(iip_plasma_after_mc, attr),
+        )
+
 
 def test_thermal_balance_solver(
-    iip_regression_path, type_iip_workflow, iip_plasma_after_mc
+    iip_regression_path,
+    type_iip_workflow,
+    iip_plasma_after_mc,
+    regression_data,
+    thermal_balance_guess,
 ):
+    type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
+    initial_guess, max_electron_number_density = thermal_balance_guess(
+        type_iip_workflow.plasma_solver
+    )
+    initial_residual = type_iip_workflow.thermal_balance_iteration(
+        initial_guess,
+        max_electron_number_density,
+    )
+    _assert_regression_dataframe(
+        regression_data,
+        "thermal_balance_iteration_initial_residual",
+        initial_residual,
+    )
+
     type_iip_workflow.plasma_solver = iip_plasma_after_mc
     type_iip_workflow.solve_thermal_balance()
 
@@ -678,6 +801,26 @@ def test_thermal_balance_solver(
         atol=0,
         check_dtype=False,
         check_names=False,
+    )
+
+    for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        _assert_regression_dataframe(
+            regression_data,
+            f"after_thermal_balance_{attr}",
+            getattr(type_iip_workflow.plasma_solver, attr),
+        )
+
+    final_guess, max_electron_number_density = thermal_balance_guess(
+        type_iip_workflow.plasma_solver
+    )
+    residual = type_iip_workflow.thermal_balance_iteration(
+        final_guess,
+        max_electron_number_density,
+    )
+    _assert_regression_dataframe(
+        regression_data,
+        "thermal_balance_iteration_residual",
+        residual,
     )
 
 
