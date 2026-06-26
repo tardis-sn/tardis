@@ -439,6 +439,7 @@ class CustomAbundanceWidget:
             name="Shell No. ",
             value=1,
             width=100,
+            margin=(5, 5, 5, 0),
         )
         self.dpd_shell_no.param.watch(self.dpd_shell_no_eventhandler, "value")
         self.btn_prev = pn.widgets.Button(
@@ -447,6 +448,7 @@ class CustomAbundanceWidget:
             width=30,
             height=30,
             align='end',
+            margin=(5, 5, 5, 0),
         )
         self.btn_prev.on_click(self.on_btn_prev)
         self.btn_next = pn.widgets.Button(
@@ -454,6 +456,7 @@ class CustomAbundanceWidget:
             width=30,
             height=30,
             align='end',
+            margin=5,
         )
         self.btn_next.on_click(self.on_btn_next)
 
@@ -509,6 +512,7 @@ class CustomAbundanceWidget:
             placeholder="symbol",
             width=125,
             stylesheets=[WIDGET_INPUT_STYLE],
+            margin=5,
         )
         self.input_symb.param.watch(self.input_symb_eventhandler, "value")
         self.btn_add_element = pn.widgets.Button(
@@ -516,6 +520,7 @@ class CustomAbundanceWidget:
             name="Add",
             disabled=True,
             width=60,
+            margin=(5, 0),
         )
         self.btn_add_element.on_click(self.on_btn_add_element)
 
@@ -535,6 +540,7 @@ class CustomAbundanceWidget:
             disabled=True,
             width=80,
             align='end',
+            margin=5,
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
         self.input_v_start = pn.widgets.FloatInput(
@@ -542,6 +548,7 @@ class CustomAbundanceWidget:
             step=1,
             name="Add shell(s) with velocity range (km/s): ",
             align='end',
+            margin=(5, 5, 5, 15),
             stylesheets=[WIDGET_INPUT_STYLE],
         )
         self.input_v_end = pn.widgets.FloatInput(
@@ -550,6 +557,7 @@ class CustomAbundanceWidget:
             width=90,
             name="to",
             align='end',
+            margin=5,
             stylesheets=[WIDGET_INPUT_STYLE],
         )
         self.input_v_start.param.watch(self.input_v_eventhandler, "value")
@@ -563,11 +571,12 @@ class CustomAbundanceWidget:
         self.btn_output = pn.widgets.Button(
             name="Output CSVY File",
             align="end",
+            margin=5,
         )
         self.btn_output.on_click(self.on_btn_output)
 
         self.input_path = pn.widgets.TextInput(
-            name="File path: ", placeholder="Input file name or path"
+            name="File path: ", placeholder="Input file name or path", margin=(5, 0, 5, 10)
         )
 
         self.input_i_time_0 = pn.widgets.FloatInput(
@@ -1607,6 +1616,7 @@ class DensityEditor:
         self.input_d = pn.widgets.FloatInput(
             name="Density",
             width=230,
+            margin=(5, 0, 5, 10),
         )
         self.input_d.param.watch(self.input_d_eventhandler, "value")
 
@@ -1625,19 +1635,31 @@ class DensityEditor:
         self.dpd_dtype.param.watch(self.dpd_dtype_eventhandler, "value")
 
         self.input_rho_0 = pn.widgets.FloatInput(
-            name="rho_0", width=300, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
+            name="rho_0",
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
         )
 
         self.input_exp = pn.widgets.FloatInput(
-            name="exponent", width=300, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
+            name="exponent",
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
         )
 
         self.input_v_0 = pn.widgets.FloatInput(
-            name="v_0", width=300, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
+            name="v_0",
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
         )
 
         self.input_value = pn.widgets.FloatInput(
-            name="value", width=300, stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
+            name="value",
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, "label {width: 70px;}"],
         )
 
         self.btn_calculate = pn.widgets.Button(
@@ -1648,7 +1670,7 @@ class DensityEditor:
         self.btn_calculate.on_click(self.on_btn_calculate)
 
         self.uniform_box = pn.Row(
-            self.input_value, pn.pane.Str("g cm^3")
+            self.input_value, pn.pane.Markdown("g cm^3", margin=(0,5))
         )
 
         # Formula to compute density profile
@@ -1663,13 +1685,13 @@ class DensityEditor:
 
         self.exp_box = pn.Column(
             form_exp,
-            pn.Row(self.input_rho_0, pn.pane.Str("g cm^3", align="end")),
-            pn.Row(self.input_v_0, pn.pane.Str("km/s", align="end")),
+            pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0,5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0,5))),
         )
         self.pow_box = pn.Column(
             form_pow,
-            pn.Row(self.input_rho_0, pn.pane.Str("g cm^3", align="end")),
-            pn.Row(self.input_v_0, pn.pane.Str("km/s", align="end")),
+            pn.Row(self.input_rho_0, pn.pane.Markdown("g cm^3", margin=(0,5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown("km/s", margin=(0,5))),
             self.input_exp,
         )
 
@@ -1795,7 +1817,7 @@ class DensityEditor:
             "<font size='3'>2) Edit densities for all shells:</font>"
         )
         d_box = pn.Row(
-            self.input_d, pn.pane.Str("g/cm^3", align="end"),
+            self.input_d, pn.pane.Markdown("g/cm^3", margin=(15, 5)),
             margin=(0, 0, 20, 0),
         )
         widget = pn.WidgetBox(
