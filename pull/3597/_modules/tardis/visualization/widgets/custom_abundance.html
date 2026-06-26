@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=d26f5950"></script>
+      <script src="../../../../_static/documentation_options.js?v=038d3b97"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -606,6 +606,7 @@ class CustomAbundanceWidget:
             name=&quot;Shell No. &quot;,
             value=1,
             width=100,
+            margin=(5, 5, 5, 0),
         )
         self.dpd_shell_no.param.watch(self.dpd_shell_no_eventhandler, &quot;value&quot;)
         self.btn_prev = pn.widgets.Button(
@@ -614,6 +615,7 @@ class CustomAbundanceWidget:
             width=30,
             height=30,
             align=&#39;end&#39;,
+            margin=(5, 5, 5, 0),
         )
         self.btn_prev.on_click(self.on_btn_prev)
         self.btn_next = pn.widgets.Button(
@@ -621,6 +623,7 @@ class CustomAbundanceWidget:
             width=30,
             height=30,
             align=&#39;end&#39;,
+            margin=5,
         )
         self.btn_next.on_click(self.on_btn_next)
 
@@ -676,6 +679,7 @@ class CustomAbundanceWidget:
             placeholder=&quot;symbol&quot;,
             width=125,
             stylesheets=[WIDGET_INPUT_STYLE],
+            margin=5,
         )
         self.input_symb.param.watch(self.input_symb_eventhandler, &quot;value&quot;)
         self.btn_add_element = pn.widgets.Button(
@@ -683,6 +687,7 @@ class CustomAbundanceWidget:
             name=&quot;Add&quot;,
             disabled=True,
             width=60,
+            margin=(5, 0),
         )
         self.btn_add_element.on_click(self.on_btn_add_element)
 
@@ -702,6 +707,7 @@ class CustomAbundanceWidget:
             disabled=True,
             width=80,
             align=&#39;end&#39;,
+            margin=5,
         )
         self.btn_add_shell.on_click(self.on_btn_add_shell)
         self.input_v_start = pn.widgets.FloatInput(
@@ -709,6 +715,7 @@ class CustomAbundanceWidget:
             step=1,
             name=&quot;Add shell(s) with velocity range (km/s): &quot;,
             align=&#39;end&#39;,
+            margin=(5, 5, 5, 15),
             stylesheets=[WIDGET_INPUT_STYLE],
         )
         self.input_v_end = pn.widgets.FloatInput(
@@ -717,6 +724,7 @@ class CustomAbundanceWidget:
             width=90,
             name=&quot;to&quot;,
             align=&#39;end&#39;,
+            margin=5,
             stylesheets=[WIDGET_INPUT_STYLE],
         )
         self.input_v_start.param.watch(self.input_v_eventhandler, &quot;value&quot;)
@@ -730,11 +738,12 @@ class CustomAbundanceWidget:
         self.btn_output = pn.widgets.Button(
             name=&quot;Output CSVY File&quot;,
             align=&quot;end&quot;,
+            margin=5,
         )
         self.btn_output.on_click(self.on_btn_output)
 
         self.input_path = pn.widgets.TextInput(
-            name=&quot;File path: &quot;, placeholder=&quot;Input file name or path&quot;
+            name=&quot;File path: &quot;, placeholder=&quot;Input file name or path&quot;, margin=(5, 0, 5, 10)
         )
 
         self.input_i_time_0 = pn.widgets.FloatInput(
@@ -750,6 +759,7 @@ class CustomAbundanceWidget:
             options=[&quot;Linear&quot;, &quot;Log&quot;],
             name=&quot;Scale of yaxes: &quot;,
             value=&quot;Linear&quot;,
+            width=200,
         )
         self.tbs_scale.param.watch(self.tbs_scale_eventhandler, &quot;value&quot;)
 
@@ -1284,7 +1294,7 @@ class CustomAbundanceWidget:
         self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
 
         # Add new Input control and Checkbox control.
-        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[WIDGET_INPUT_STYLE])
+        item = pn.widgets.FloatInput(start=0, end=1, step=0.01, stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 15px}&quot;])
         check = pn.widgets.Checkbox(width=30, sizing_mode=&quot;stretch_height&quot;, margin=(10, 0, 0, 0))
         item.index = self.no_of_elements - 1
         check.index = self.no_of_elements - 1
@@ -1299,7 +1309,7 @@ class CustomAbundanceWidget:
             self.input_items[i].name = self.data.elements[i]
 
         self.box_editor[:] = [
-            pn.Column(*self.input_items),
+            pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
             pn.Column(*self.checks),
         ]
 
@@ -1557,7 +1567,7 @@ class CustomAbundanceWidget:
         else:
             # --------------Combine widget components--------------
             self.box_editor = pn.Row(
-                    pn.Column(*self.input_items),
+                    pn.Column(*self.input_items, margin=(0, 0, 0, 50)),
                     pn.Column(
                         *self.checks
                     ),
@@ -1580,7 +1590,7 @@ class CustomAbundanceWidget:
             box_add_element = pn.Row(
                 self.input_symb, self.btn_add_element, self.symb_warning,
                 width=200,
-                margin=(0, 0, 0, 60),
+                margin=(0, 0, 0, 110),
             )
 
             help_note = pn.pane.HTML(
@@ -1601,7 +1611,7 @@ class CustomAbundanceWidget:
 
             box_apply = pn.Column(
 
-                    &quot;Apply abundance(s) to:&quot;,
+                    pn.pane.Markdown(&quot;Apply abundance(s) to:&quot;, margin=(0, 0, 0, 0)),
                     self.rbs_single_apply,
                     pn.Row(
                             self.rbs_multi_apply,
@@ -1644,7 +1654,7 @@ class CustomAbundanceWidget:
             self.density_editor.read_density()
 
             return pn.Column(
-                    self.tbs_scale,
+                    pn.Row(pn.pane.Markdown(&quot;Scale of yaxes:&quot;, margin=(0, 0)), self.tbs_scale),
                     pn.panel(self.fig, sizing_mode=&quot;stretch_width&quot;),
                     box_head,
                     main_tab,
@@ -1876,6 +1886,7 @@ class DensityEditor:
         self.input_d = pn.widgets.FloatInput(
             name=&quot;Density&quot;,
             width=230,
+            margin=(5, 0, 5, 10),
         )
         self.input_d.param.watch(self.input_d_eventhandler, &quot;value&quot;)
 
@@ -1894,19 +1905,31 @@ class DensityEditor:
         self.dpd_dtype.param.watch(self.dpd_dtype_eventhandler, &quot;value&quot;)
 
         self.input_rho_0 = pn.widgets.FloatInput(
-            name=&quot;rho_0&quot;, width=300, stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px;}&quot;],
+            name=&quot;rho_0&quot;,
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px; text-align: end;}&quot;],
         )
 
         self.input_exp = pn.widgets.FloatInput(
-            name=&quot;exponent&quot;, width=300, stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px;}&quot;],
+            name=&quot;exponent&quot;,
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px; text-align: end;}&quot;],
         )
 
         self.input_v_0 = pn.widgets.FloatInput(
-            name=&quot;v_0&quot;, width=300, stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px;}&quot;],
+            name=&quot;v_0&quot;,
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px; text-align: end;}&quot;],
         )
 
         self.input_value = pn.widgets.FloatInput(
-            name=&quot;value&quot;, width=300, stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px;}&quot;],
+            name=&quot;value&quot;,
+            width=300,
+            margin=(5, 0, 5, 10),
+            stylesheets=[WIDGET_INPUT_STYLE, &quot;label {width: 70px; text-align: end;}&quot;],
         )
 
         self.btn_calculate = pn.widgets.Button(
@@ -1917,7 +1940,7 @@ class DensityEditor:
         self.btn_calculate.on_click(self.on_btn_calculate)
 
         self.uniform_box = pn.Row(
-            self.input_value, pn.pane.Str(&quot;g cm^3&quot;)
+            self.input_value, pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0,5))
         )
 
         # Formula to compute density profile
@@ -1932,13 +1955,13 @@ class DensityEditor:
 
         self.exp_box = pn.Column(
             form_exp,
-            pn.Row(self.input_rho_0, pn.pane.Str(&quot;g cm^3&quot;, align=&quot;end&quot;)),
-            pn.Row(self.input_v_0, pn.pane.Str(&quot;km/s&quot;, align=&quot;end&quot;)),
+            pn.Row(self.input_rho_0, pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0,5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown(&quot;km/s&quot;, margin=(0,5))),
         )
         self.pow_box = pn.Column(
             form_pow,
-            pn.Row(self.input_rho_0, pn.pane.Str(&quot;g cm^3&quot;, align=&quot;end&quot;)),
-            pn.Row(self.input_v_0, pn.pane.Str(&quot;km/s&quot;, align=&quot;end&quot;)),
+            pn.Row(self.input_rho_0, pn.pane.Markdown(&quot;g cm^3&quot;, margin=(0,5))),
+            pn.Row(self.input_v_0, pn.pane.Markdown(&quot;km/s&quot;, margin=(0,5))),
             self.input_exp,
         )</div>
 
@@ -2085,7 +2108,7 @@ class DensityEditor:
             &quot;&lt;font size=&#39;3&#39;&gt;2) Edit densities for all shells:&lt;/font&gt;&quot;
         )
         d_box = pn.Row(
-            self.input_d, pn.pane.Str(&quot;g/cm^3&quot;, align=&quot;end&quot;),
+            self.input_d, pn.pane.Markdown(&quot;g/cm^3&quot;, margin=(15, 5)),
             margin=(0, 0, 20, 0),
         )
         widget = pn.WidgetBox(
@@ -2111,7 +2134,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 25 Jun 2026.
+      <span class="lastupdated">Last updated on 26 Jun 2026.
       </span></p>
   </div>
 
