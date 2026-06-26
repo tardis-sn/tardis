@@ -592,6 +592,7 @@ class CustomAbundanceWidget:
             options=["Linear", "Log"],
             name="Scale of yaxes: ",
             value="Linear",
+            width=200,
         )
         self.tbs_scale.param.watch(self.tbs_scale_eventhandler, "value")
 
@@ -1411,7 +1412,7 @@ class CustomAbundanceWidget:
             self.density_editor.read_density()
 
             return pn.Column(
-                    self.tbs_scale,
+                    pn.Row(pn.pane.Markdown("Scale of yaxes:", margin=(0, 0)), self.tbs_scale),
                     pn.panel(self.fig, sizing_mode="stretch_width"),
                     box_head,
                     main_tab,
