@@ -806,6 +806,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ionization_energies: pd.Series,
         selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = "macroatom",
+        nthreads: int = 1,
     ) -> None:
         """
         Initialize the ContinuumMacroAtomSolver.
@@ -825,6 +826,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             If empty, all photoionization transitions are included.
         line_interaction_type
             Type of line interaction to use. Default is "macroatom".
+        nthreads
+            Maximum number of worker threads for shell-independent opacity
+            calculations.
         """
         super().__init__(
             lines=lines,
@@ -852,6 +856,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         #     self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         # )
         self.ionization_energies = ionization_energies
+        self.nthreads = nthreads
 
     def solve(
         self,
@@ -1315,7 +1320,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities, macro_atom_transition_metadata
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            max_workers=self.nthreads,
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -1646,7 +1653,9 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities, macro_atom_transition_metadata
+            normalized_probabilities,
+            macro_atom_transition_metadata,
+            max_workers=self.nthreads,
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
