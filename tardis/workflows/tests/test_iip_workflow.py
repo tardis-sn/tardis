@@ -648,6 +648,31 @@ def thermal_balance_guess(
     return guess, max_electron_number_density
 
 
+def test_nlte_beta_sobolev_array_path_matches_dataframe_path(
+    iip_plasma_after_mc,
+):
+    nlte_property = iip_plasma_after_mc.plasma_properties_dict[
+        "LevelBoltzmannFactorNLTE"
+    ]
+    level_density = pd.DataFrame(
+        iip_plasma_after_mc.level_number_density[0].copy(deep=True)
+    )
+
+    dataframe_beta_sobolev = nlte_property._caculate_beta_sobolevs(
+        level_density
+    )
+    array_beta_sobolev = nlte_property._calculate_beta_sobolevs_from_values(
+        level_density[0].to_numpy()
+    )
+
+    np.testing.assert_allclose(
+        array_beta_sobolev,
+        dataframe_beta_sobolev,
+        rtol=1e-14,
+        atol=0.0,
+    )
+
+
 def test_thermal_balance_solver(
     iip_regression_path,
     type_iip_workflow,

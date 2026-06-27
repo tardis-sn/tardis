@@ -693,6 +693,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         super(ThermalBalanceTest, self).__init__(plasma_parent)
         self.T_min = T_min
         self.T_max = T_max
+        self._photo_ion_thermal_cache = {}
         self._t_diff = None
         self._counter = -1
         # self._iterations = -1
@@ -703,6 +704,43 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         self.level_number_previous = None
         self.heating_rates = None
         self._converged_t_electrons = []
+
+    def _get_photo_ion_thermal_data(self, photo_ion_cross_sections):
+        cache_key = id(photo_ion_cross_sections)
+        if cache_key not in self._photo_ion_thermal_cache:
+            x_sect = photo_ion_cross_sections["x_sect"]
+            nu = photo_ion_cross_sections["nu"]
+            nu_i = nu.groupby(level=[0, 1, 2]).first()
+            nu_i_expanded = nu_i / nu
+
+            alpha_sp_energy_prefactor = (
+                8
+                * np.pi
+                * x_sect
+                * nu**3
+                * const.h.cgs.value
+                / (const.c.cgs.value) ** 2
+            )
+            alpha_sp_energy_prefactor = alpha_sp_energy_prefactor.multiply(
+                1.0 - nu_i_expanded
+            )
+
+            collion_coeff = photo_ion_cross_sections.groupby(
+                level=[0, 1, 2]
+            ).first()
+            collion_coeff = 1.55e13 * collion_coeff["x_sect"]
+            ion_number = collion_coeff.index.get_level_values(1).values
+            collion_coeff[ion_number == 0] *= 0.1
+            collion_coeff[ion_number == 1] *= 0.2
+            collion_coeff[ion_number >= 2] *= 0.3
+
+            self._photo_ion_thermal_cache[cache_key] = (
+                nu,
+                nu_i,
+                alpha_sp_energy_prefactor,
+                collion_coeff,
+            )
+        return self._photo_ion_thermal_cache[cache_key]
 
     def calculate(
         self,
@@ -998,9 +1036,18 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         shell,
     ):
         electron_density = electron_densities[shell]
-        coll_ion_rate_coeff = CollIonRateCoeff(plasma_parent=None).calculate(
-            photo_ion_cross_sections, np.array([t_electron])
-        )[0]
+        _, nu_i, _, collion_coeff = self._get_photo_ion_thermal_data(
+            photo_ion_cross_sections
+        )
+        u0 = (
+            nu_i.values
+            / t_electron
+            * (const.h.cgs.value / const.k_B.cgs.value)
+        )
+        factor = 1.0 / u0 * np.exp(-u0)
+        coll_ion_rate_coeff = collion_coeff.multiply(factor).divide(
+            np.sqrt(t_electron)
+        )
         index = coll_ion_rate_coeff.index
         ion_index = get_ion_multi_index(index)
         ion_density = ion_number_density.loc[ion_index, shell].values
@@ -1021,7 +1068,6 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
             * electron_density
             * coll_ion_rate_coeff
         )
-        nu_i = photo_ion_cross_sections["nu"].groupby(level=[0, 1, 2]).first()
         # heating_balance = (heating_balance * nu_i * const.h.cgs.value).sum()
         # return heating_balance
         return (coll_ion_heating * nu_i * const.h.cgs.value).sum(), (
@@ -1031,22 +1077,15 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
     def _calculate_sp_recomb_heating_rate_coeff(
         self, t_electron, photo_ion_cross_sections
     ):
-        x_sect = photo_ion_cross_sections["x_sect"]
-        nu = photo_ion_cross_sections["nu"]
-        nu_i = photo_ion_cross_sections["nu"].groupby(level=[0, 1, 2]).first()
-        alpha_sp_E = (
-            8
-            * np.pi
-            * x_sect
-            * nu**3
-            * const.h.cgs.value
-            / (const.c.cgs.value) ** 2
+        nu, _, alpha_sp_energy_prefactor, _ = (
+            self._get_photo_ion_thermal_data(photo_ion_cross_sections)
         )
-        alpha_sp_E = alpha_sp_E.multiply(1.0 - nu_i / nu)
         boltzmann_factor = np.exp(
             -nu.values / t_electron * (const.h.cgs.value / const.k_B.cgs.value)
         )
-        alpha_sp_E = pd.DataFrame(alpha_sp_E.multiply(boltzmann_factor))
+        alpha_sp_E = pd.DataFrame(
+            alpha_sp_energy_prefactor.multiply(boltzmann_factor)
+        )
         alpha_sp_E.insert(0, "nu", nu)
         alpha_sp_E = alpha_sp_E.groupby(level=[0, 1, 2]).apply(
             lambda sub: trapezoid(sub[0], sub["nu"])
@@ -1172,10 +1211,6 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         #                coll_exc_cooling[shell])/coll_exc_cooling_old
         #        #self.coll_exc_heating_evolution[self._counter][shell] = coll_exc_heating_balance
         # self.coll_t_electrons[self._counter][shell] = t_electron
-
-        adiabatic_cooling = self._calculate_adiabatic_cooling(
-            electron_densities[shell], t_electron, time_explosion, shell
-        )
 
         total_cooling = (
             fb_cooling + ff_cooling + coll_ion_cooling + coll_exc_cooling[shell]
