@@ -167,6 +167,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             self.calculate = self._calculate_with_continuum
         else:
             self.calculate = self._calculate_general
+        self._beta_sobolev_inputs = None
         self._update_inputs()
 
     def _main_nlte_calculation(
@@ -532,18 +533,16 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             species, phis, number_density, phi_nlte=x[-1]
         )
         level_density_nlte_species = ion_numbers[species[1]] * x[:-1]
-        level_density = pd.DataFrame(
-            self.plasma_parent.level_number_density[0].copy(deep=True)
+        level_density_values = self.plasma_parent.level_number_density[
+            0
+        ].to_numpy(copy=True)
+        level_density_values[
+            self._get_species_level_positions(species)
+        ] = level_density_nlte_species
+
+        beta_sobolev = self._calculate_beta_sobolevs_from_values(
+            level_density_values
         )
-
-        level_density.loc[species, 0] = level_density_nlte_species
-
-        try:
-            beta_sobolev = self._caculate_beta_sobolevs(level_density)
-        except Exception:
-            import pdb
-
-            pdb.set_trace()
         radiative_rates = self._setup_radiative_rates(
             beta_sobolev,
             lines_idx,
@@ -666,6 +665,112 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         beta_sobolev = calculate_beta_sobolev(tau_sobolev)
 
         return beta_sobolev.values
+
+    def _get_species_level_positions(
+        self, species: tuple[int, int]
+    ) -> np.ndarray:
+        if not hasattr(self, "_species_level_positions"):
+            self._species_level_positions = {}
+        if species not in self._species_level_positions:
+            level_index = self.plasma_parent.level_number_density.index
+            self._species_level_positions[species] = np.flatnonzero(
+                (
+                    level_index.get_level_values("atomic_number")
+                    == species[0]
+                )
+                & (
+                    level_index.get_level_values("ion_number")
+                    == species[1]
+                )
+            )
+        return self._species_level_positions[species]
+
+    def _get_beta_sobolev_inputs(self) -> dict[str, np.ndarray | float]:
+        if self._beta_sobolev_inputs is None:
+            pl = self.plasma_parent
+            g_values = pl.g.to_numpy()
+            lines_lower_level_index = pl.lines_lower_level_index
+            lines_upper_level_index = pl.lines_upper_level_index
+            atomic_numbers = pl.lines.index.get_level_values(
+                "atomic_number"
+            ).to_numpy()
+            ion_numbers = pl.lines.index.get_level_values(
+                "ion_number"
+            ).to_numpy()
+            nlte_lines_mask = np.zeros(len(pl.lines), dtype=bool)
+            for atomic_number, ion_number in self.plasma_parent.nlte_species:
+                nlte_lines_mask |= (atomic_numbers == atomic_number) & (
+                    ion_numbers == ion_number
+                )
+            tau_sobolev_property = self.plasma_parent.plasma_properties_dict[
+                "TauSobolev"
+            ]
+            time_explosion = pl.time_explosion
+            if hasattr(time_explosion, "to_value"):
+                time_explosion = time_explosion.to_value("s")
+            self._beta_sobolev_inputs = {
+                "g_lower": g_values[lines_lower_level_index],
+                "g_upper": g_values[lines_upper_level_index],
+                "lines_lower_level_index": lines_lower_level_index,
+                "lines_upper_level_index": lines_upper_level_index,
+                "meta_stable_upper": pl.metastability.to_numpy()[
+                    lines_upper_level_index
+                ],
+                "nlte_lines_mask": nlte_lines_mask,
+                "tau_coefficient": (
+                    tau_sobolev_property.sobolev_coefficient
+                    * pl.f_lu.to_numpy()
+                    * pl.wavelength_cm.to_numpy()
+                    * time_explosion
+                ),
+            }
+        return self._beta_sobolev_inputs
+
+    def _calculate_beta_sobolevs_from_values(
+        self, level_density_values: np.ndarray
+    ) -> np.ndarray:
+        inputs = self._get_beta_sobolev_inputs()
+        n_lower = level_density_values.take(
+            inputs["lines_lower_level_index"], mode="raise"
+        )
+        n_upper = level_density_values.take(
+            inputs["lines_upper_level_index"], mode="raise"
+        )
+        stimulated_emission_factor = 1 - (
+            inputs["g_lower"] * n_upper / (inputs["g_upper"] * n_lower)
+        )
+        stimulated_emission_factor[n_lower == 0.0] = 0.0
+        stimulated_emission_factor[
+            np.isneginf(stimulated_emission_factor)
+        ] = 0.0
+        stimulated_emission_factor[
+            inputs["meta_stable_upper"] & (stimulated_emission_factor < 0)
+        ] = 0.0
+        stimulated_emission_factor[
+            inputs["nlte_lines_mask"] & (stimulated_emission_factor < 0)
+        ] = 0.0
+
+        tau_sobolev = (
+            inputs["tau_coefficient"] * n_lower * stimulated_emission_factor
+        )
+        if np.any(np.isnan(tau_sobolev)) or np.any(
+            np.isinf(np.abs(tau_sobolev))
+        ):
+            raise ValueError(
+                "Some tau_sobolevs are nan, inf, -inf in tau_sobolevs."
+                " Something went wrong!"
+            )
+
+        beta_sobolev = np.empty_like(tau_sobolev)
+        high_tau = tau_sobolev > 1e3
+        low_tau = tau_sobolev < 1e-4
+        mid_tau = ~(high_tau | low_tau)
+        beta_sobolev[high_tau] = tau_sobolev[high_tau] ** -1
+        beta_sobolev[low_tau] = 1 - 0.5 * tau_sobolev[low_tau]
+        beta_sobolev[mid_tau] = (
+            1 - np.exp(-tau_sobolev[mid_tau])
+        ) / tau_sobolev[mid_tau]
+        return beta_sobolev[:, np.newaxis]
 
     @staticmethod
     def _setup_bb_rates(
