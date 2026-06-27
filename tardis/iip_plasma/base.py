@@ -23,6 +23,15 @@ class BasePlasma:
             plasma_properties, **kwargs
         )
         self._build_graph()
+        self._plasma_properties_dict = {
+            item.name: item for item in self.plasma_properties
+        }
+        self._update_list_cache = {}
+        self._topological_sort_order = list(nx.topological_sort(self.graph))
+        self._topological_sort_indices = {
+            module_name: index
+            for index, module_name in enumerate(self._topological_sort_order)
+        }
         #        self.write_to_tex('Plasma_Graph')
         self.plasma_converged = True
         self.update(**kwargs)
@@ -49,7 +58,7 @@ class BasePlasma:
 
     @property
     def plasma_properties_dict(self):
-        return {item.name: item for item in self.plasma_properties}
+        return self._plasma_properties_dict
 
     def get_value(self, item):
         return getattr(self.outputs_dict[item], item)
@@ -160,13 +169,15 @@ class BasePlasma:
                 )
             self.outputs_dict[key].set_value(kwargs[key])
 
+        plasma_properties_dict = self.plasma_properties_dict
         for module_name in self._resolve_update_list(kwargs.keys()):
-            module = self.plasma_properties_dict[module_name].__class__
+            plasma_property = plasma_properties_dict[module_name]
+            module = plasma_property.__class__
             if (
                 not issubclass(module, ConvergedPlasmaProperty)
                 or self.plasma_converged
             ):
-                self.plasma_properties_dict[module_name].update()
+                plasma_property.update()
 
     def _update_module_type_str(self):
         for node in self.graph:
@@ -188,6 +199,11 @@ class BasePlasma:
             : ~list
             all affected modules.
         """
+        changed_properties = tuple(changed_properties)
+        cache_key = frozenset(changed_properties)
+        if cache_key in self._update_list_cache:
+            return self._update_list_cache[cache_key].copy()
+
         descendants_ob = []
 
         for plasma_property in changed_properties:
@@ -195,16 +211,15 @@ class BasePlasma:
             descendants_ob += nx.descendants(self.graph, node_name)
 
         descendants_ob = list(set(descendants_ob))
-        sort_order = list(nx.topological_sort(self.graph))
-
-        descendants_ob.sort(key=lambda val: sort_order.index(val))
+        descendants_ob.sort(key=self._topological_sort_indices.__getitem__)
+        self._update_list_cache[cache_key] = descendants_ob
 
         logger.debug(
             f"Updating modules in the following order:"
             f"{'->'.join(descendants_ob)}"
         )
 
-        return descendants_ob
+        return descendants_ob.copy()
 
     def write_to_dot(self, fname, latex_label=True):
         #        self._update_module_type_str()
