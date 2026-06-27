@@ -182,6 +182,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             self.atom_data.photoionization_data,
             self.atom_data.ionization_data,
             line_interaction_type=line_interaction_type,
+            nthreads=configuration.montecarlo.nthreads,
         )
 
         self.transport_state = None
