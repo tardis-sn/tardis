@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+from numba import njit
 from scipy.optimize import least_squares, root
 
 from tardis.iip_plasma.exceptions import (
@@ -24,6 +25,49 @@ __all__ = [
     "LevelBoltzmannFactorNoNLTE",
     "PartitionFunction",
 ]
+
+
+@njit(error_model="numpy")
+def _calculate_beta_sobolevs_from_selected_lines(
+    level_density_values: np.ndarray,
+    line_indices: np.ndarray,
+    lines_lower_level_index: np.ndarray,
+    lines_upper_level_index: np.ndarray,
+    g_lower: np.ndarray,
+    g_upper: np.ndarray,
+    meta_stable_upper: np.ndarray,
+    nlte_lines_mask: np.ndarray,
+    tau_coefficient: np.ndarray,
+) -> np.ndarray:
+    beta_sobolev = np.empty(line_indices.shape[0], dtype=np.float64)
+    for i in range(line_indices.shape[0]):
+        line_index = line_indices[i]
+        n_lower = level_density_values[lines_lower_level_index[line_index]]
+        n_upper = level_density_values[lines_upper_level_index[line_index]]
+
+        stimulated_emission_factor = 1 - (
+            g_lower[line_index] * n_upper / (g_upper[line_index] * n_lower)
+        )
+        if (
+            n_lower == 0.0
+            or np.isneginf(stimulated_emission_factor)
+            or (
+                meta_stable_upper[line_index] and stimulated_emission_factor < 0
+            )
+            or (nlte_lines_mask[line_index] and stimulated_emission_factor < 0)
+        ):
+            stimulated_emission_factor = 0.0
+
+        tau_sobolev = (
+            tau_coefficient[line_index] * n_lower * stimulated_emission_factor
+        )
+        if tau_sobolev > 1e3:
+            beta_sobolev[i] = tau_sobolev**-1
+        elif tau_sobolev < 1e-4:
+            beta_sobolev[i] = 1 - 0.5 * tau_sobolev
+        else:
+            beta_sobolev[i] = (1 - np.exp(-tau_sobolev)) / tau_sobolev
+    return beta_sobolev[:, np.newaxis]
 
 
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
@@ -536,16 +580,15 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         level_density_values = self.plasma_parent.level_number_density[
             0
         ].to_numpy(copy=True)
-        level_density_values[
-            self._get_species_level_positions(species)
-        ] = level_density_nlte_species
+        level_density_values[self._get_species_level_positions(species)] = (
+            level_density_nlte_species
+        )
 
         beta_sobolev = self._calculate_beta_sobolevs_from_values(
-            level_density_values
+            level_density_values, lines_idx
         )
         radiative_rates = self._setup_radiative_rates(
             beta_sobolev,
-            lines_idx,
             r_ul_matrix.copy(),
             r_lu_matrix.copy(),
             r_lu_index,
@@ -591,7 +634,6 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _setup_radiative_rates(
         self,
         beta_sobolev,
-        lines_idx,
         r_ul_matrix,
         r_lu_matrix,
         r_lu_index,
@@ -605,8 +647,9 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         r_lu_matrix_reshaped = r_lu_matrix.reshape(-1)
 
         # TODO: ? is this the right thing to do
-        r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev[lines_idx].ravel()
-        r_lu_matrix_reshaped[r_lu_index] *= beta_sobolev[lines_idx].ravel()
+        selected_beta_sobolev = beta_sobolev.ravel()
+        r_ul_matrix_reshaped[r_ul_index] *= selected_beta_sobolev
+        r_lu_matrix_reshaped[r_lu_index] *= selected_beta_sobolev
 
         rates_matrix = r_lu_matrix + r_ul_matrix
 
@@ -674,14 +717,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         if species not in self._species_level_positions:
             level_index = self.plasma_parent.level_number_density.index
             self._species_level_positions[species] = np.flatnonzero(
-                (
-                    level_index.get_level_values("atomic_number")
-                    == species[0]
-                )
-                & (
-                    level_index.get_level_values("ion_number")
-                    == species[1]
-                )
+                (level_index.get_level_values("atomic_number") == species[0])
+                & (level_index.get_level_values("ion_number") == species[1])
             )
         return self._species_level_positions[species]
 
@@ -727,50 +764,34 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         return self._beta_sobolev_inputs
 
     def _calculate_beta_sobolevs_from_values(
-        self, level_density_values: np.ndarray
+        self,
+        level_density_values: np.ndarray,
+        line_indices: np.ndarray | slice | None = None,
     ) -> np.ndarray:
         inputs = self._get_beta_sobolev_inputs()
-        n_lower = level_density_values.take(
-            inputs["lines_lower_level_index"], mode="raise"
+        if line_indices is None:
+            line_indices = np.arange(len(inputs["tau_coefficient"]))
+        elif isinstance(line_indices, tuple):
+            line_indices = line_indices[0]
+        beta_sobolev = _calculate_beta_sobolevs_from_selected_lines(
+            level_density_values,
+            line_indices,
+            inputs["lines_lower_level_index"],
+            inputs["lines_upper_level_index"],
+            inputs["g_lower"],
+            inputs["g_upper"],
+            inputs["meta_stable_upper"],
+            inputs["nlte_lines_mask"],
+            inputs["tau_coefficient"],
         )
-        n_upper = level_density_values.take(
-            inputs["lines_upper_level_index"], mode="raise"
-        )
-        stimulated_emission_factor = 1 - (
-            inputs["g_lower"] * n_upper / (inputs["g_upper"] * n_lower)
-        )
-        stimulated_emission_factor[n_lower == 0.0] = 0.0
-        stimulated_emission_factor[
-            np.isneginf(stimulated_emission_factor)
-        ] = 0.0
-        stimulated_emission_factor[
-            inputs["meta_stable_upper"] & (stimulated_emission_factor < 0)
-        ] = 0.0
-        stimulated_emission_factor[
-            inputs["nlte_lines_mask"] & (stimulated_emission_factor < 0)
-        ] = 0.0
-
-        tau_sobolev = (
-            inputs["tau_coefficient"] * n_lower * stimulated_emission_factor
-        )
-        if np.any(np.isnan(tau_sobolev)) or np.any(
-            np.isinf(np.abs(tau_sobolev))
+        if np.any(np.isnan(beta_sobolev)) or np.any(
+            np.isinf(np.abs(beta_sobolev))
         ):
             raise ValueError(
-                "Some tau_sobolevs are nan, inf, -inf in tau_sobolevs."
+                "Some beta_sobolevs are nan, inf, -inf in beta_sobolevs."
                 " Something went wrong!"
             )
-
-        beta_sobolev = np.empty_like(tau_sobolev)
-        high_tau = tau_sobolev > 1e3
-        low_tau = tau_sobolev < 1e-4
-        mid_tau = ~(high_tau | low_tau)
-        beta_sobolev[high_tau] = tau_sobolev[high_tau] ** -1
-        beta_sobolev[low_tau] = 1 - 0.5 * tau_sobolev[low_tau]
-        beta_sobolev[mid_tau] = (
-            1 - np.exp(-tau_sobolev[mid_tau])
-        ) / tau_sobolev[mid_tau]
-        return beta_sobolev[:, np.newaxis]
+        return beta_sobolev
 
     @staticmethod
     def _setup_bb_rates(
