@@ -56,6 +56,55 @@ def calculate_rate_coefficient_from_estimator(
     return rate_coeff
 
 
+def integrate_array_by_level_groups(
+    values: np.ndarray, nu: pd.Series
+) -> pd.Series | pd.DataFrame:
+    group_indices, index, nu_values = prepare_level_group_integration(nu)
+    return integrate_array_by_prepared_level_groups(
+        values,
+        group_indices,
+        index,
+        nu_values,
+    )
+
+
+def prepare_level_group_integration(
+    nu: pd.Series,
+) -> tuple[tuple[np.ndarray, ...], pd.MultiIndex, np.ndarray]:
+    grouped_nu = tuple(nu.groupby(level=[0, 1, 2]).indices.items())
+    group_indices = tuple(group_indices for _, group_indices in grouped_nu)
+    index = pd.MultiIndex.from_tuples(
+        [group_key for group_key, _ in grouped_nu],
+        names=nu.index.names,
+    )
+    return group_indices, index, nu.values
+
+
+def integrate_array_by_prepared_level_groups(
+    values: np.ndarray,
+    group_indices: tuple[np.ndarray, ...],
+    index: pd.MultiIndex,
+    nu_values: np.ndarray,
+) -> pd.Series | pd.DataFrame:
+    if values.ndim == 1:
+        integrated = np.empty(len(group_indices))
+        for group_number, indices in enumerate(group_indices):
+            integrated[group_number] = trapezoid(
+                values[indices],
+                nu_values[indices],
+            )
+        return pd.Series(integrated, index=index)
+
+    integrated = np.empty((len(group_indices), values.shape[1]))
+    for group_number, indices in enumerate(group_indices):
+        integrated[group_number] = trapezoid(
+            values[indices],
+            nu_values[indices],
+            axis=0,
+        )
+    return pd.DataFrame(integrated, index=index)
+
+
 class SpontRecombRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
@@ -83,15 +132,8 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
             / t_electrons
             * (const.h.cgs.value / const.k_B.cgs.value)
         )
-        recomb_coeff = pd.DataFrame(boltzmann_factor * alpha_sp, index=nu.index)
-        recomb_coeff.insert(0, "nu", nu)
-        recomb_coeff = recomb_coeff.groupby(level=[0, 1, 2])
-        tmp = {}
-        for i in range(len(t_electrons)):
-            tmp[i] = recomb_coeff.apply(
-                lambda sub: trapezoid(sub[i], sub["nu"])
-            )
-        alpha_sp = pd.DataFrame(tmp)
+        recomb_coeff = boltzmann_factor * alpha_sp
+        alpha_sp = integrate_array_by_level_groups(recomb_coeff, nu)
         phi_lucy = phi_lucy.loc[alpha_sp.index]
 
         # TODO: Revert
@@ -537,7 +579,10 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
             / t_electrons
             * (const.h.cgs.value / const.k_B.cgs.value)
         )
-        gamma = 0.276 * self.exp1_times_exp(u0)
+        gamma = np.empty_like(u0)
+        floor_mask = u0 > 0.75
+        gamma[floor_mask] = 0.2
+        gamma[~floor_mask] = 0.276 * self.exp1_times_exp(u0[~floor_mask])
         gamma[gamma < 0.2] = 0.2
         factor = pd.DataFrame(u0 * np.exp(-u0) * gamma)
         coll_excitation_coeff = coll_excitation_coeff.multiply(factor, axis=0)
@@ -724,6 +769,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
             alpha_sp_energy_prefactor = alpha_sp_energy_prefactor.multiply(
                 1.0 - nu_i_expanded
             )
+            integration_data = prepare_level_group_integration(nu)
 
             collion_coeff = photo_ion_cross_sections.groupby(
                 level=[0, 1, 2]
@@ -739,6 +785,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
                 nu_i,
                 alpha_sp_energy_prefactor,
                 collion_coeff,
+                integration_data,
             )
         return self._photo_ion_thermal_cache[cache_key]
 
@@ -785,6 +832,9 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
             # conv_status = np.ones_like(t_electrons) * 0.8
             # if self._t_diff is None:
             #    self._t_diff = np.ones_like(t_electrons) * 100.
+            phi_lucy = self._calculate_phi_lucy(
+                t_electrons, excitation_energy, g, levels, ionization_data
+            )
 
             for shell in range(len(electron_densities)):
                 t_old = t_electrons[shell]
@@ -814,7 +864,9 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
                 )
 
                 heat_mid, frac_heating, sp_fb_cooling_rate = (
-                    self.heating_function(t_old, *args)
+                    self.heating_function(
+                        t_old, *args, phi_lucy=phi_lucy[shell]
+                    )
                 )
                 fractional_heating[shell] = frac_heating
                 sp_fb_cooling_rates[shell] = sp_fb_cooling_rate
@@ -894,7 +946,13 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
     def _calculate_phi_lucy(
         t_electrons, excitation_energy, g, levels, ionization_data
     ):
-        beta_electron = BetaRadiation.calculate(np.array([t_electrons]))
+        is_scalar_temperature = np.ndim(t_electrons) == 0
+        t_electrons = (
+            np.array([t_electrons])
+            if is_scalar_temperature
+            else np.asarray(t_electrons)
+        )
+        beta_electron = BetaRadiation.calculate(t_electrons)
         level_boltzmann_factor = LevelBoltzmannFactorLTETe.calculate(
             excitation_energy, g, beta_electron, levels
         )
@@ -906,7 +964,9 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         phi_lucy = PhiLucy(plasma_parent=None).calculate(
             phi_Te, level_boltzmann_factor, partition_function
         )
-        return phi_lucy[0]
+        if is_scalar_temperature:
+            return phi_lucy[0]
+        return phi_lucy
 
     def _calculate_ff_heating_balance(
         self,
@@ -1036,13 +1096,11 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         shell,
     ):
         electron_density = electron_densities[shell]
-        _, nu_i, _, collion_coeff = self._get_photo_ion_thermal_data(
+        _, nu_i, _, collion_coeff, _ = self._get_photo_ion_thermal_data(
             photo_ion_cross_sections
         )
         u0 = (
-            nu_i.values
-            / t_electron
-            * (const.h.cgs.value / const.k_B.cgs.value)
+            nu_i.values / t_electron * (const.h.cgs.value / const.k_B.cgs.value)
         )
         factor = 1.0 / u0 * np.exp(-u0)
         coll_ion_rate_coeff = collion_coeff.multiply(factor).divide(
@@ -1077,18 +1135,20 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
     def _calculate_sp_recomb_heating_rate_coeff(
         self, t_electron, photo_ion_cross_sections
     ):
-        nu, _, alpha_sp_energy_prefactor, _ = (
-            self._get_photo_ion_thermal_data(photo_ion_cross_sections)
-        )
+        (
+            nu,
+            _,
+            alpha_sp_energy_prefactor,
+            _,
+            integration_data,
+        ) = self._get_photo_ion_thermal_data(photo_ion_cross_sections)
         boltzmann_factor = np.exp(
             -nu.values / t_electron * (const.h.cgs.value / const.k_B.cgs.value)
         )
-        alpha_sp_E = pd.DataFrame(
-            alpha_sp_energy_prefactor.multiply(boltzmann_factor)
-        )
-        alpha_sp_E.insert(0, "nu", nu)
-        alpha_sp_E = alpha_sp_E.groupby(level=[0, 1, 2]).apply(
-            lambda sub: trapezoid(sub[0], sub["nu"])
+        alpha_sp_E = alpha_sp_energy_prefactor.values * boltzmann_factor
+        alpha_sp_E = integrate_array_by_prepared_level_groups(
+            alpha_sp_E,
+            *integration_data,
         )
         return alpha_sp_E
 
@@ -1137,6 +1197,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         coll_exc_cooling,
         coll_deexc_heating,
         mode="detailed",
+        phi_lucy=None,
     ):
         bf_heating = self._calculate_bf_heating_rate(
             bf_heating_coeff,
@@ -1152,9 +1213,10 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         # beta_electron = BetaRadiation.calculate(np.array([t_electron]))
         # level_boltzmann_factor_Te = LevelBoltzmannFactorLTETe.calculate(excitation_energy, g, beta_electron, levels)
 
-        phi_lucy = self._calculate_phi_lucy(
-            t_electron, excitation_energy, g, levels, ionization_data
-        )
+        if phi_lucy is None:
+            phi_lucy = self._calculate_phi_lucy(
+                t_electron, excitation_energy, g, levels, ionization_data
+            )
 
         # ff_heating_balance = self._calculate_ff_heating_balance(
         #        t_electron, ff_heating_estimator, electron_densities, ion_number_density, shell)

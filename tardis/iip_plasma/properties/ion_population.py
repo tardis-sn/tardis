@@ -451,16 +451,16 @@ class NLTEIonNumberDensity(ProcessingPlasmaProperty):
                 number_density,
                 shell=i,
             )
+            rates = [alpha_tot, gamma_tot, coll_ion_tot, coll_recomb_tot]
+            func, jac = self._get_functions(
+                charge_conservation_vector,
+                number_density_vectors,
+                number_conservation_index,
+                phi_prep,
+                *rates,
+                shell=i,
+            )
             for initial_guess in initial_guesses:
-                rates = [alpha_tot, gamma_tot, coll_ion_tot, coll_recomb_tot]
-                func, jac = self._get_functions(
-                    charge_conservation_vector,
-                    number_density_vectors,
-                    number_conservation_index,
-                    phi_prep,
-                    *rates,
-                    shell=i,
-                )
                 sol = root(
                     fun=func, x0=initial_guess, jac=jac, options={"xtol": 1e-12}
                 )
