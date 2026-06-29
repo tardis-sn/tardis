@@ -531,7 +531,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     )
 
                     initial = (
-                        self.plasma_parent.level_number_density[i]
+                        self.plasma_parent
+                        .level_number_density[i]
                         .loc[species]
                         .values
                     ).copy()
@@ -734,7 +735,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             )
         return self._species_level_positions[species]
 
-    def _get_beta_sobolev_inputs(self) -> dict[str, np.ndarray | float]:
+    def _get_cached_beta_sobolev_inputs(self) -> dict[str, np.ndarray | float]:
+        """Records constant beta sobolev inputs to avoid accessing them every call"""
         if self._beta_sobolev_inputs is None:
             pl = self.plasma_parent
             g_values = pl.g.to_numpy()
@@ -780,21 +782,21 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         level_density_values: np.ndarray,
         line_indices: np.ndarray | slice | None = None,
     ) -> np.ndarray:
-        inputs = self._get_beta_sobolev_inputs()
+        cached_inputs = self._get_cached_beta_sobolev_inputs()
         if line_indices is None:
-            line_indices = np.arange(len(inputs["tau_coefficient"]))
+            line_indices = np.arange(len(cached_inputs["tau_coefficient"]))
         elif isinstance(line_indices, tuple):
             line_indices = line_indices[0]
         beta_sobolev = _calculate_beta_sobolevs_from_selected_lines(
             level_density_values,
             line_indices,
-            inputs["lines_lower_level_index"],
-            inputs["lines_upper_level_index"],
-            inputs["g_lower"],
-            inputs["g_upper"],
-            inputs["meta_stable_upper"],
-            inputs["nlte_lines_mask"],
-            inputs["tau_coefficient"],
+            cached_inputs["lines_lower_level_index"],
+            cached_inputs["lines_upper_level_index"],
+            cached_inputs["g_lower"],
+            cached_inputs["g_upper"],
+            cached_inputs["meta_stable_upper"],
+            cached_inputs["nlte_lines_mask"],
+            cached_inputs["tau_coefficient"],
         )
         if np.any(np.isnan(beta_sobolev)) or np.any(
             np.isinf(np.abs(beta_sobolev))
@@ -831,18 +833,20 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             (number_of_levels, number_of_levels, len(t_electrons)),
             dtype=np.float64,
         )
-        r_ul_matrix_reshaped = r_ul_matrix.reshape(
-            (number_of_levels**2, len(t_electrons))
-        )
+        r_ul_matrix_reshaped = r_ul_matrix.reshape((
+            number_of_levels**2,
+            len(t_electrons),
+        ))
         r_ul_matrix_reshaped[r_ul_index] = (
             A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
         )
         # TODO: Revert
         # r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
         r_lu_matrix = np.zeros_like(r_ul_matrix)
-        r_lu_matrix_reshaped = r_lu_matrix.reshape(
-            (number_of_levels**2, len(t_electrons))
-        )
+        r_lu_matrix_reshaped = r_lu_matrix.reshape((
+            number_of_levels**2,
+            len(t_electrons),
+        ))
         # r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
         #        j_blues[lines_index] * beta_sobolevs[lines_index]
         r_lu_matrix_reshaped[r_lu_index] = (
@@ -904,13 +908,15 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
         index = list(self._get_rate_index(no_of_levels))
         coll_excitation_rates = (
-            coll_exc_coeff.reindex(index)
+            coll_exc_coeff
+            .reindex(index)
             .fillna(0)
             .to_numpy()
             .reshape((no_of_levels, no_of_levels, len(electron_densities)))
         )
         coll_deexcitation_rates = (
-            coll_deexc_coeff.reindex(index)
+            coll_deexc_coeff
+            .reindex(index)
             .fillna(0)
             .to_numpy()
             .reshape((no_of_levels, no_of_levels, len(electron_densities)))
