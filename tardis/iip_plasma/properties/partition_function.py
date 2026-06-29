@@ -39,6 +39,34 @@ def _calculate_beta_sobolevs_from_selected_lines(
     nlte_lines_mask: np.ndarray,
     tau_coefficient: np.ndarray,
 ) -> np.ndarray:
+    """Calculate Sobolev escape probabilities for selected lines.
+
+    Parameters
+    ----------
+    level_density_values : numpy.ndarray
+        Level number densities indexed by level position.
+    line_indices : numpy.ndarray
+        Line positions for which beta Sobolev values should be calculated.
+    lines_lower_level_index : numpy.ndarray
+        Level-density positions of the lower line levels.
+    lines_upper_level_index : numpy.ndarray
+        Level-density positions of the upper line levels.
+    g_lower : numpy.ndarray
+        Statistical weights of the lower line levels.
+    g_upper : numpy.ndarray
+        Statistical weights of the upper line levels.
+    meta_stable_upper : numpy.ndarray
+        Boolean mask marking lines with metastable upper levels.
+    nlte_lines_mask : numpy.ndarray
+        Boolean mask marking NLTE lines.
+    tau_coefficient : numpy.ndarray
+        Precomputed multiplicative coefficient for Sobolev optical depth.
+
+    Returns
+    -------
+    numpy.ndarray
+        Beta Sobolev values for ``line_indices``.
+    """
     beta_sobolev = np.empty(line_indices.shape[0], dtype=np.float64)
     for i in range(line_indices.shape[0]):
         line_index = line_indices[i]
@@ -725,6 +753,19 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _get_species_level_positions(
         self, species: tuple[int, int]
     ) -> np.ndarray:
+        """Return cached level-number-density positions for a species.
+
+        Parameters
+        ----------
+        species : tuple[int, int]
+            Atomic number and ion number identifying the species.
+
+        Returns
+        -------
+        numpy.ndarray
+            Integer positions in the level number density index for the
+            requested species.
+        """
         if not hasattr(self, "_species_level_positions"):
             self._species_level_positions = {}
         if species not in self._species_level_positions:
@@ -736,7 +777,14 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         return self._species_level_positions[species]
 
     def _get_cached_beta_sobolev_inputs(self) -> dict[str, np.ndarray | float]:
-        """Records constant beta sobolev inputs to avoid accessing them every call"""
+        """Return cached inputs shared by beta Sobolev array calculations.
+
+        Returns
+        -------
+        dict[str, numpy.ndarray or float]
+            Arrays and scalar coefficients derived from plasma state that do
+            not change during an individual beta Sobolev solve.
+        """
         if self._beta_sobolev_inputs is None:
             pl = self.plasma_parent
             g_values = pl.g.to_numpy()
@@ -782,6 +830,20 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         level_density_values: np.ndarray,
         line_indices: np.ndarray | slice | None = None,
     ) -> np.ndarray:
+        """Calculate beta Sobolev values from level-density arrays.
+
+        Parameters
+        ----------
+        level_density_values : numpy.ndarray
+            Level number densities aligned with the plasma level index.
+        line_indices : numpy.ndarray or slice or None, optional
+            Line positions to calculate. If None, all lines are calculated.
+
+        Returns
+        -------
+        numpy.ndarray
+            Beta Sobolev values for the requested line positions.
+        """
         cached_inputs = self._get_cached_beta_sobolev_inputs()
         if line_indices is None:
             line_indices = np.arange(len(cached_inputs["tau_coefficient"]))
@@ -902,6 +964,27 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         no_of_levels,
         electron_densities,
     ):
+        """Build collisional rate matrices for all selected shells.
+
+        Parameters
+        ----------
+        coll_exc_coeff : pandas.DataFrame
+            Collisional excitation coefficients indexed by lower and upper
+            level number.
+        coll_deexc_coeff : pandas.DataFrame
+            Collisional de-excitation coefficients indexed by upper and lower
+            level number.
+        no_of_levels : int
+            Number of levels in the species rate-equation system.
+        electron_densities : numpy.ndarray
+            Electron densities for the shells being solved.
+
+        Returns
+        -------
+        numpy.ndarray
+            Collisional rate matrices with shape
+            ``(no_of_levels, no_of_levels, len(electron_densities))``.
+        """
         electron_densities = np.asarray(electron_densities)
         coll_deexc_coeff = coll_deexc_coeff.copy(deep=False)
         coll_deexc_coeff.index = coll_deexc_coeff.index.swaplevel(0, 1)

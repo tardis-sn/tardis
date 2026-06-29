@@ -10,6 +10,7 @@ from tardis.iip_plasma.properties.continuum import (
 
 
 def test_normalize_transition_probabilities_matches_groupby_transform():
+    """Compare transition normalization with the pandas groupby baseline."""
     index = pd.MultiIndex.from_tuples(
         [(0, 1), (0, 2), (1, 3), (1, 4), (2, 5)],
         names=["source_level_idx", "destination_level_idx"],

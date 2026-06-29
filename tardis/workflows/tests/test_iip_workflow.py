@@ -306,6 +306,7 @@ def test_type_iip_workflow_initial_plasma_regression(
     type_iip_workflow,
     regression_data,
 ):
+    """Compare initial IIP plasma outputs with regression references."""
     for attr in INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS:
         assert_regression_dataframe(
             regression_data,
@@ -651,6 +652,7 @@ def thermal_balance_guess(
 def test_nlte_beta_sobolev_array_path_matches_dataframe_path(
     iip_plasma_after_mc,
 ):
+    """Compare optimized beta Sobolev array path with DataFrame path."""
     nlte_property = iip_plasma_after_mc.plasma_properties_dict[
         "LevelBoltzmannFactorNLTE"
     ]

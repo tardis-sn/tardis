@@ -10,6 +10,20 @@ from tardis.opacities.macro_atom.absorbing_markov_chain import (
 def _create_absorbing_probs_reference(
     transition_probabilities: pd.DataFrame, metadata: pd.DataFrame
 ) -> tuple[np.ndarray, pd.DataFrame]:
+    """Calculate absorbing probabilities using the full diagonal RHS method.
+
+    Parameters
+    ----------
+    transition_probabilities : pandas.DataFrame
+        Transition probabilities for each cell.
+    metadata : pandas.DataFrame
+        Transition metadata with source and destination level indices.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, pandas.DataFrame]
+        Reference absorbing probability matrix and deactivating probabilities.
+    """
     num_cells = transition_probabilities.shape[1]
     num_states = len(metadata.source.unique())
     internal_mask = metadata.transition_type >= 0
@@ -40,29 +54,28 @@ def _create_absorbing_probs_reference(
 
 
 def test_create_absorbing_probs_matches_full_diagonal_solve() -> None:
-    metadata = pd.DataFrame(
-        {
-            "source": [
-                (1, 1, 0),
-                (1, 1, 0),
-                (1, 1, 1),
-                (1, 1, 1),
-                ("k", -99, -99),
-                ("k", -99, -99),
-            ],
-            "destination": [
-                (1, 1, 1),
-                ("k", -99, -99),
-                (1, 1, 0),
-                ("k", -99, -99),
-                (1, 1, 0),
-                ("k", -99, -99),
-            ],
-            "transition_type": [1, -1, 1, -1, 1, -1],
-            "source_level_idx": [0, 0, 1, 1, 2, 2],
-            "destination_level_idx": [1, 2, 0, 2, 0, 2],
-        }
-    )
+    """Compare production absorbing probabilities with the reference solve."""
+    metadata = pd.DataFrame({
+        "source": [
+            (1, 1, 0),
+            (1, 1, 0),
+            (1, 1, 1),
+            (1, 1, 1),
+            ("k", -99, -99),
+            ("k", -99, -99),
+        ],
+        "destination": [
+            (1, 1, 1),
+            ("k", -99, -99),
+            (1, 1, 0),
+            ("k", -99, -99),
+            (1, 1, 0),
+            ("k", -99, -99),
+        ],
+        "transition_type": [1, -1, 1, -1, 1, -1],
+        "source_level_idx": [0, 0, 1, 1, 2, 2],
+        "destination_level_idx": [1, 2, 0, 2, 0, 2],
+    })
     transition_probabilities = pd.DataFrame(
         np.array(
             [
