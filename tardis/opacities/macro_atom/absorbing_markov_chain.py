@@ -75,6 +75,18 @@ def create_absorbing_probs(
     identity_matrix = scipy.sparse.identity(num_states, format="csc")
 
     def solve_cell(cell: int) -> tuple[int, np.ndarray]:
+        """Solve the absorbing Markov chain system for one cell.
+
+        Parameters
+        ----------
+        cell : int
+            Cell index in the transition probability table.
+
+        Returns
+        -------
+        tuple[int, numpy.ndarray]
+            Cell index and full state-by-state absorbing probability matrix.
+        """
         # In each cell, solve for absorbing markov chain probability
         # Follows math https://en.wikipedia.org/wiki/Absorbing_Markov_chain
         vals = internal_jump_probs.iloc[:, cell].to_numpy()

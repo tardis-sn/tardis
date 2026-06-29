@@ -11,6 +11,8 @@ class InputB(Input):
 
 
 class SumAB(ProcessingPlasmaProperty):
+    """Processing property that sums test inputs ``a`` and ``b``."""
+
     outputs = ("sum_ab",)
 
     def calculate(self, a: float, b: float) -> float:
@@ -25,6 +27,7 @@ class TwiceSum(ProcessingPlasmaProperty):
 
 
 def test_resolve_update_list_uses_cached_independent_copy() -> None:
+    """Ensure cached update lists cannot be mutated by callers."""
     plasma = BasePlasma([InputA, InputB, SumAB, TwiceSum], a=1.0, b=2.0)
 
     update_list = plasma._resolve_update_list(["a", "b"])

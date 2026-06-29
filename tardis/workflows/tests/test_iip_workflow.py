@@ -26,6 +26,19 @@ def _max_rel_diff(actual, expected):
 
 
 def _as_regression_dataframe(value: Any) -> pd.DataFrame:
+    """Convert regression values to a DataFrame for storage comparison.
+
+    Parameters
+    ----------
+    value : Any
+        Series, DataFrame, or array-like value produced by the workflow.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Two-dimensional representation suitable for regression-data sync and
+        comparison.
+    """
     if isinstance(value, pd.DataFrame):
         return value
     if isinstance(value, pd.Series):
@@ -45,6 +58,21 @@ def _assert_regression_dataframe(
     rtol: float = 1e-12,
     atol: float = 0.0,
 ) -> None:
+    """Assert that a workflow value matches stored regression data.
+
+    Parameters
+    ----------
+    regression_data : Any
+        Regression-data fixture used to sync and retrieve reference data.
+    key : str
+        Regression-data key.
+    actual : Any
+        Current workflow value to compare.
+    rtol : float, optional
+        Relative tolerance for frame comparison.
+    atol : float, optional
+        Absolute tolerance for frame comparison.
+    """
     actual_frame = _as_regression_dataframe(actual)
     expected_frame = regression_data.sync_dataframe(actual_frame, key=key)
     pd.testing.assert_frame_equal(
@@ -89,7 +117,29 @@ def iip_regression_path(tardis_regression_path):
 
 @pytest.fixture
 def thermal_balance_guess() -> Callable[[Any], tuple[np.ndarray, np.ndarray]]:
+    """Build initial electron-density and temperature guesses for tests.
+
+    Returns
+    -------
+    collections.abc.Callable
+        Function that returns the thermal balance guess vector and maximum
+        electron number density for a plasma solver.
+    """
+
     def build_guess(plasma_solver: Any) -> tuple[np.ndarray, np.ndarray]:
+        """Build a thermal balance guess from a plasma solver.
+
+        Parameters
+        ----------
+        plasma_solver : Any
+            Plasma solver containing number densities and previous thermal
+            state.
+
+        Returns
+        -------
+        tuple[numpy.ndarray, numpy.ndarray]
+            Guess vector and maximum electron number density.
+        """
         max_electron_number_density = (
             plasma_solver.number_density
             .multiply(
@@ -361,6 +411,7 @@ def test_type_iip_workflow_initial_plasma_regression(
     type_iip_workflow,
     regression_data,
 ):
+    """Compare initial IIP plasma outputs with regression references."""
     for attr in INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS:
         _assert_regression_dataframe(
             regression_data,
@@ -674,6 +725,7 @@ def test_iip_plasma_after_mc(
 def test_nlte_beta_sobolev_array_path_matches_dataframe_path(
     iip_plasma_after_mc,
 ):
+    """Compare optimized beta Sobolev array path with DataFrame path."""
     nlte_property = iip_plasma_after_mc.plasma_properties_dict[
         "LevelBoltzmannFactorNLTE"
     ]

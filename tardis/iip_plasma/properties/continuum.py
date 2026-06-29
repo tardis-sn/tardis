@@ -59,6 +59,19 @@ def calculate_rate_coefficient_from_estimator(
 def prepare_level_group_integration(
     nu: pd.Series,
 ) -> tuple[tuple[np.ndarray, ...], pd.MultiIndex, np.ndarray]:
+    """Prepare reusable level-group metadata for continuum integration.
+
+    Parameters
+    ----------
+    nu : pandas.Series
+        Frequencies indexed by atomic number, ion number, and level number.
+
+    Returns
+    -------
+    tuple[tuple[numpy.ndarray, ...], pandas.MultiIndex, numpy.ndarray]
+        Group row positions, the grouped level index, and the frequency values
+        aligned with arrays passed to ``integrate_array_by_prepared_level_groups``.
+    """
     grouped_nu = tuple(nu.groupby(level=[0, 1, 2]).indices.items())
     group_indices = tuple(group_indices for _, group_indices in grouped_nu)
     index = pd.MultiIndex.from_tuples(
@@ -74,6 +87,28 @@ def integrate_array_by_prepared_level_groups(
     index: pd.MultiIndex,
     nu_values: np.ndarray,
 ) -> pd.Series | pd.DataFrame:
+    """Integrate values over precomputed continuum level groups.
+
+    Parameters
+    ----------
+    values : numpy.ndarray
+        One- or two-dimensional values aligned with ``nu_values`` along the
+        first axis.
+    group_indices : tuple[numpy.ndarray, ...]
+        Row positions for each level group, as returned by
+        ``prepare_level_group_integration``.
+    index : pandas.MultiIndex
+        Output index for the integrated level groups.
+    nu_values : numpy.ndarray
+        Frequency values aligned with the first axis of ``values``.
+
+    Returns
+    -------
+    pandas.Series or pandas.DataFrame
+        Trapezoidal integrals for each level group. One-dimensional input
+        returns a Series; two-dimensional input returns a DataFrame with the
+        remaining input axis preserved as columns.
+    """
     if values.ndim == 1:
         integrated = np.empty(len(group_indices))
         for group_number, indices in enumerate(group_indices):
@@ -749,6 +784,20 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
         self._converged_t_electrons = []
 
     def _get_photo_ion_thermal_data(self, photo_ion_cross_sections):
+        """Return cached thermal integration inputs for photoionization data.
+
+        Parameters
+        ----------
+        photo_ion_cross_sections : pandas.DataFrame
+            Photoionization cross-section table with ``x_sect`` and ``nu``
+            columns.
+
+        Returns
+        -------
+        tuple[pandas.Series, tuple[tuple[numpy.ndarray, ...], pandas.MultiIndex, numpy.ndarray]]
+            Bound-free energy prefactor and prepared integration metadata used
+            by the thermal balance solver.
+        """
         cache_key = id(photo_ion_cross_sections)
         if cache_key not in self._photo_ion_thermal_cache:
             x_sect = photo_ion_cross_sections["x_sect"]

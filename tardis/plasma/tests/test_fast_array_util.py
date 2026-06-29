@@ -10,6 +10,7 @@ from tardis.plasma.properties.continuum_processes.fast_array_util import (
 def test_cumulative_integrate_array_by_blocks_matches_python_reference() -> (
     None
 ):
+    """Compare blockwise cumulative integration with a Python reference."""
     x = np.array([1.0, 1.5, 2.0, 3.0, 3.25, 4.0, 5.0, 6.0])
     f = np.array([
         [1.0, 2.0, 3.0],
