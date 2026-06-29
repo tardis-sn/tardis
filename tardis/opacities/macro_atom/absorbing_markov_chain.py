@@ -74,7 +74,7 @@ def create_absorbing_probs(
     cols = metadata[internal_mask].destination_level_idx.values
     identity_matrix = scipy.sparse.identity(num_states, format="csc")
 
-    def solve_cell(cell: int) -> tuple[int, np.ndarray, np.ndarray]:
+    def solve_cell(cell: int) -> tuple[int, np.ndarray]:
         # In each cell, solve for absorbing markov chain probability
         # Follows math https://en.wikipedia.org/wiki/Absorbing_Markov_chain
         vals = internal_jump_probs.iloc[:, cell].to_numpy()
@@ -94,47 +94,27 @@ def create_absorbing_probs(
         deactivation_row = np.asarray(
             internal_jump_matrix.sum(axis=1)
         ).flatten()
-        rhs_diagonal = 1 - deactivation_row
-        active_rhs_columns = np.flatnonzero(rhs_diagonal)
-        if len(active_rhs_columns) == 0:
-            return cell, active_rhs_columns, np.empty((num_states, 0))
-
-        # Solve (I - Q) * X = diag(1 - deactivation_row) only for columns
-        # whose right-hand side is nonzero, then scatter back to the full
-        # state-by-state matrix expected by transport.
-        rhs = np.zeros((num_states, len(active_rhs_columns)))
-        rhs[active_rhs_columns, np.arange(len(active_rhs_columns))] = (
-            rhs_diagonal[active_rhs_columns]
-        )
-        solved_columns = np.asarray(
+        solved_matrix = np.asarray(
             scipy.sparse.linalg.splu(csc_N, permc_spec="MMD_AT_PLUS_A").solve(
-                rhs
+                np.diag(1 - deactivation_row)
             )
         )
-        if solved_columns.ndim == 1:
-            solved_columns = solved_columns[:, np.newaxis]
-        return cell, active_rhs_columns, solved_columns
+        return cell, solved_matrix
 
     if max_workers > 1 and num_cells > 1:
         with ThreadPoolExecutor(
             max_workers=min(max_workers, num_cells)
         ) as executor:
             cell_solutions = executor.map(solve_cell, range(num_cells))
-            for cell, active_rhs_columns, solved_columns in cell_solutions:
-                absorbing_probability_matrix[cell][:, active_rhs_columns] = (
-                    solved_columns
-                )
+            for cell, solved_matrix in cell_solutions:
+                absorbing_probability_matrix[cell] = solved_matrix
     else:
         for cell in range(num_cells):
-            _, active_rhs_columns, solved_columns = solve_cell(cell)
-            absorbing_probability_matrix[cell][:, active_rhs_columns] = (
-                solved_columns
-            )
+            _, solved_matrix = solve_cell(cell)
+            absorbing_probability_matrix[cell] = solved_matrix
 
     deactivating_probs = transition_probabilities.copy()
-    deactivating_probs[~internal_mask] = transition_probabilities[
-        ~internal_mask
-    ]
+    deactivating_probs[internal_mask] *= 0
 
     return (
         absorbing_probability_matrix,
