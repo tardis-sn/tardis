@@ -56,18 +56,6 @@ def calculate_rate_coefficient_from_estimator(
     return rate_coeff
 
 
-def integrate_array_by_level_groups(
-    values: np.ndarray, nu: pd.Series
-) -> pd.Series | pd.DataFrame:
-    group_indices, index, nu_values = prepare_level_group_integration(nu)
-    return integrate_array_by_prepared_level_groups(
-        values,
-        group_indices,
-        index,
-        nu_values,
-    )
-
-
 def prepare_level_group_integration(
     nu: pd.Series,
 ) -> tuple[tuple[np.ndarray, ...], pd.MultiIndex, np.ndarray]:
@@ -132,8 +120,15 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
             / t_electrons
             * (const.h.cgs.value / const.k_B.cgs.value)
         )
-        recomb_coeff = boltzmann_factor * alpha_sp
-        alpha_sp = integrate_array_by_level_groups(recomb_coeff, nu)
+        recomb_coeff = pd.DataFrame(boltzmann_factor * alpha_sp, index=nu.index)
+        recomb_coeff.insert(0, "nu", nu)
+        recomb_coeff = recomb_coeff.groupby(level=[0, 1, 2])
+        tmp = {}
+        for i in range(len(t_electrons)):
+            tmp[i] = recomb_coeff.apply(
+                lambda sub: trapezoid(sub[i], sub["nu"])
+            )
+        alpha_sp = pd.DataFrame(tmp)
         phi_lucy = phi_lucy.loc[alpha_sp.index]
 
         # TODO: Revert
@@ -835,7 +830,6 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
             phi_lucy = self._calculate_phi_lucy(
                 t_electrons, excitation_energy, g, levels, ionization_data
             )
-
             for shell in range(len(electron_densities)):
                 t_old = t_electrons[shell]
                 # if not self._conv_status[shell]:

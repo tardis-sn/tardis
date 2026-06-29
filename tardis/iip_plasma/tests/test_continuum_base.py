@@ -5,7 +5,8 @@ from scipy.integrate import trapezoid
 
 from tardis.iip_plasma.continuum.base import ContinuumProcess
 from tardis.iip_plasma.properties.continuum import (
-    integrate_array_by_level_groups,
+    integrate_array_by_prepared_level_groups,
+    prepare_level_group_integration,
 )
 
 
@@ -42,52 +43,7 @@ def test_normalize_transition_probabilities_matches_groupby_transform():
     assert np.issubdtype(actual["lines_idx"].dtype, np.integer)
 
 
-def test_integrate_array_by_level_groups_matches_groupby_apply():
-    index = pd.MultiIndex.from_tuples(
-        [
-            (1, 0, 0),
-            (1, 0, 0),
-            (1, 0, 0),
-            (2, 1, 0),
-            (2, 1, 0),
-            (2, 1, 0),
-            (2, 1, 1),
-            (2, 1, 1),
-        ],
-        names=["atomic_number", "ion_number", "level_number"],
-    )
-    nu = pd.Series([1.0, 1.5, 2.0, 3.0, 3.25, 4.0, 5.0, 6.0], index=index)
-    values = np.array(
-        [
-            [1.0, 2.0, 3.0],
-            [1.5, 2.5, 3.5],
-            [2.0, 3.0, 4.0],
-            [0.5, 1.0, 1.5],
-            [0.75, 1.25, 1.75],
-            [1.0, 1.5, 2.0],
-            [1.25, 1.75, 2.25],
-            [1.5, 2.0, 2.5],
-        ]
-    )
-
-    actual = integrate_array_by_level_groups(values, nu)
-
-    frame = pd.DataFrame(values, index=index)
-    frame.insert(0, "nu", nu)
-    grouped = frame.groupby(level=[0, 1, 2])
-    expected = pd.DataFrame(
-        {
-            shell: grouped.apply(
-                lambda sub, shell=shell: trapezoid(sub[shell], sub["nu"])
-            )
-            for shell in range(values.shape[1])
-        }
-    )
-
-    assert_frame_equal(actual, expected)
-
-
-def test_integrate_array_by_level_groups_matches_series_groupby_apply():
+def test_integrate_array_by_prepared_level_groups_matches_series_groupby_apply():
     index = pd.MultiIndex.from_tuples(
         [
             (1, 0, 0),
@@ -101,7 +57,10 @@ def test_integrate_array_by_level_groups_matches_series_groupby_apply():
     nu = pd.Series([1.0, 1.5, 2.0, 3.0, 4.0], index=index)
     values = np.array([1.0, 1.5, 2.0, 0.5, 1.0])
 
-    actual = integrate_array_by_level_groups(values, nu)
+    actual = integrate_array_by_prepared_level_groups(
+        values,
+        *prepare_level_group_integration(nu),
+    )
 
     frame = pd.DataFrame({"values": values, "nu": nu}, index=index)
     expected = frame.groupby(level=[0, 1, 2]).apply(

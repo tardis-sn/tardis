@@ -112,9 +112,10 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
 
             nlte_lines_mask = np.zeros(len(lines), dtype=bool)
             for atomic_number, ion_number in self.nlte_species:
-                nlte_lines_mask |= (atomic_numbers == atomic_number) & (
+                species_match = (atomic_numbers == atomic_number) & (
                     ion_numbers == ion_number
                 )
+                nlte_lines_mask = nlte_lines_mask | species_match
             stimulated_emission_factor[
                 (stimulated_emission_factor < 0)
                 & nlte_lines_mask[np.newaxis, :].T
