@@ -131,11 +131,7 @@ def create_absorbing_probs(
                 solved_columns
             )
 
-    deactivating_probs = transition_probabilities.__class__(
-        np.zeros_like(transition_probabilities.to_numpy()),
-        index=transition_probabilities.index,
-        columns=transition_probabilities.columns,
-    )
+    deactivating_probs = transition_probabilities.copy()
     deactivating_probs[~internal_mask] = transition_probabilities[
         ~internal_mask
     ]
