@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from tardis.iip_plasma.base import BasePlasma
 from tardis.iip_plasma.properties.base import Input, ProcessingPlasmaProperty
 

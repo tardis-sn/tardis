@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from itertools import pairwise
 
 import numpy as np
@@ -9,20 +7,20 @@ from tardis.plasma.properties.continuum_processes.fast_array_util import (
 )
 
 
-def test_cumulative_integrate_array_by_blocks_matches_python_reference() -> None:
+def test_cumulative_integrate_array_by_blocks_matches_python_reference() -> (
+    None
+):
     x = np.array([1.0, 1.5, 2.0, 3.0, 3.25, 4.0, 5.0, 6.0])
-    f = np.array(
-        [
-            [1.0, 2.0, 3.0],
-            [1.5, 2.5, 3.5],
-            [2.0, 3.0, 4.0],
-            [0.5, 1.0, 1.5],
-            [0.75, 1.25, 1.75],
-            [1.0, 1.5, 2.0],
-            [1.25, 1.75, 2.25],
-            [1.5, 2.0, 2.5],
-        ]
-    )
+    f = np.array([
+        [1.0, 2.0, 3.0],
+        [1.5, 2.5, 3.5],
+        [2.0, 3.0, 4.0],
+        [0.5, 1.0, 1.5],
+        [0.75, 1.25, 1.75],
+        [1.0, 1.5, 2.0],
+        [1.25, 1.75, 2.25],
+        [1.5, 2.0, 2.5],
+    ])
     block_references = np.array([0, 3, 8])
 
     actual = cumulative_integrate_array_by_blocks(f, x, block_references)

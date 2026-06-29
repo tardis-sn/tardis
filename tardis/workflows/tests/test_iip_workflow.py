@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -90,9 +88,7 @@ def iip_regression_path(tardis_regression_path):
 
 
 @pytest.fixture
-def thermal_balance_guess() -> Callable[
-    [Any], tuple[np.ndarray, np.ndarray]
-]:
+def thermal_balance_guess() -> Callable[[Any], tuple[np.ndarray, np.ndarray]]:
     def build_guess(plasma_solver: Any) -> tuple[np.ndarray, np.ndarray]:
         max_electron_number_density = (
             plasma_solver.number_density

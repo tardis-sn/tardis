@@ -9,8 +9,6 @@ References
     Absorbing Markov chain theory: https://en.wikipedia.org/wiki/Absorbing_Markov_chain
 """
 
-from __future__ import annotations
-
 from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING
 

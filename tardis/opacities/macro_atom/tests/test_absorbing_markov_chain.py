@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import numpy as np
 import pandas as pd
 import scipy
@@ -42,40 +40,36 @@ def _create_absorbing_probs_reference(
 
 
 def test_create_absorbing_probs_matches_full_diagonal_solve() -> None:
-    metadata = pd.DataFrame(
-        {
-            "source": [
-                (1, 1, 0),
-                (1, 1, 0),
-                (1, 1, 1),
-                (1, 1, 1),
-                ("k", -99, -99),
-                ("k", -99, -99),
-            ],
-            "destination": [
-                (1, 1, 1),
-                ("k", -99, -99),
-                (1, 1, 0),
-                ("k", -99, -99),
-                (1, 1, 0),
-                ("k", -99, -99),
-            ],
-            "transition_type": [1, -1, 1, -1, 1, -1],
-            "source_level_idx": [0, 0, 1, 1, 2, 2],
-            "destination_level_idx": [1, 2, 0, 2, 0, 2],
-        }
-    )
+    metadata = pd.DataFrame({
+        "source": [
+            (1, 1, 0),
+            (1, 1, 0),
+            (1, 1, 1),
+            (1, 1, 1),
+            ("k", -99, -99),
+            ("k", -99, -99),
+        ],
+        "destination": [
+            (1, 1, 1),
+            ("k", -99, -99),
+            (1, 1, 0),
+            ("k", -99, -99),
+            (1, 1, 0),
+            ("k", -99, -99),
+        ],
+        "transition_type": [1, -1, 1, -1, 1, -1],
+        "source_level_idx": [0, 0, 1, 1, 2, 2],
+        "destination_level_idx": [1, 2, 0, 2, 0, 2],
+    })
     transition_probabilities = pd.DataFrame(
-        np.array(
-            [
-                [0.20, 0.15, 0.10],
-                [0.80, 0.85, 0.90],
-                [0.35, 0.25, 0.45],
-                [0.65, 0.75, 0.55],
-                [0.00, 0.00, 0.00],
-                [1.00, 1.00, 1.00],
-            ]
-        )
+        np.array([
+            [0.20, 0.15, 0.10],
+            [0.80, 0.85, 0.90],
+            [0.35, 0.25, 0.45],
+            [0.65, 0.75, 0.55],
+            [0.00, 0.00, 0.00],
+            [1.00, 1.00, 1.00],
+        ])
     )
 
     actual_matrix, actual_deactivating_probs = create_absorbing_probs(
