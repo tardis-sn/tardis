@@ -42,23 +42,55 @@ jobs:
             });
 
   check-first-time-committer:
+    if: >
+      github.event.action == 'opened' &&
+      contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'), github.event.pull_request.author_association)
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      issues: write
+      pull-requests: read
 
     steps:
       - name: Welcome first-time contributor
-        uses: actions/first-interaction@v3
+        uses: actions/github-script@v9
         with:
-          repo_token: ${{ secrets.BOT_TOKEN }}
-          pr_message: |
-            👋 Welcome @${{ github.event.pull_request.user.login }}! Thank you for your first contribution to this repository!
+          script: |
+            const marker = '<!-- tardis:first-time-contributor-welcome -->';
+            const issue_number = context.payload.pull_request.number;
+            const login = context.payload.pull_request.user.login;
+            const body = [
+              marker,
+              `👋 Welcome @${login}! Thank you for your first contribution to this repository!`,
+              '',
+              '**If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and our [PR checklist](https://tardis-sn.github.io/summer_of_code/pr_checklist/).**',
+              '',
+              'Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.',
+            ].join('\n');
 
-            **If you are applying to GSoC, please read our [AI Usage Policy](https://tardis-sn.github.io/summer_of_code/ai_usage_policy/) and our [PR checklist](https://tardis-sn.github.io/summer_of_code/pr_checklist/).**
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              per_page: 100,
+            });
 
-            Please mark the pull request as draft if you are not ready for review yet or if there are things you will be adding.
-          issue_message: |
-            👋 Welcome! Thank you for opening your first issue in this repository!
+            const existingComment = comments.find((comment) => comment.body?.includes(marker));
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body,
+              });
+            }
 
   check-orcid:
     runs-on: ubuntu-latest
