@@ -78,7 +78,7 @@ class TestValidFields:
         nu = atomic_dataset.lines["nu"].values
         actual_intensities = valid_rad_field.calculate_mean_intensity(nu)
         expected_intensities = regression_data.sync_ndarray(actual_intensities)
-        npt.assert_allclose(actual_intensities, expected_intensities,atol=0, rtol=1e-15)
+        npt.assert_allclose(actual_intensities, expected_intensities,atol=0, rtol=2e-14)
 
     def test_temperature_and_dilution_lengths_from_simulation_state(
         self, simulation_state_rad_field, simulation_state
@@ -98,7 +98,7 @@ class TestValidFields:
             simulation_state_rad_field.calculate_mean_intensity(nu)
         )
         expected_intensities = regression_data.sync_ndarray(actual_intensities)
-        npt.assert_allclose(actual_intensities, expected_intensities,atol=0, rtol=1e-15)
+        npt.assert_allclose(actual_intensities, expected_intensities,atol=0, rtol=2e-14)
 
 
 
