@@ -104,7 +104,9 @@ def trace_vpacket_within_shell(
     chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
-    v = numba_radial_1d_geometry.get_velocity(v_packet.r, v_packet.current_shell_id)
+    v = numba_radial_1d_geometry.get_velocity(
+        v_packet.r, v_packet.current_shell_id
+    )
     doppler_factor = get_doppler_factor_nonhomologous(
         v,
         v_packet.mu,
@@ -155,9 +157,7 @@ def trace_vpacket_within_shell(
         ]
 
         distance_trace_line = calculate_distance_line_nonhomologous(
-            v_packet,
-            numba_radial_1d_geometry,
-            nu_line
+            v_packet, numba_radial_1d_geometry, nu_line
         )
 
         if distance_boundary <= distance_trace_line:
@@ -299,7 +299,9 @@ def trace_vpacket_volley(
         mu_min = 0.0
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
-    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
+    v = numba_radial_1d_geometry.get_velocity(
+        r_packet.r, r_packet.current_shell_id
+    )
     r_packet_doppler_factor = get_doppler_factor_nonhomologous(
         v,
         r_packet.mu,
@@ -314,7 +316,7 @@ def trace_vpacket_volley(
             # connor-mcclellan: for some reason this is still accessed and
             # causes crashes even when relativity is turned off - beta_inner
             # undefined
-            #else:
+            # else:
             #    weight = (
             #        2
             #        * (v_packet_mu + beta_inner)

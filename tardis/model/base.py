@@ -271,7 +271,10 @@ class SimulationState(HDFWriterMixin):
 
     @classmethod
     def from_config(
-        cls, config: Configuration, atom_data: AtomData, legacy_mode_enabled: bool = False
+        cls,
+        config: Configuration,
+        atom_data: AtomData,
+        legacy_mode_enabled: bool = False,
     ) -> "SimulationState":
         """Create a new SimulationState instance from a Configuration object.
 
@@ -364,7 +367,8 @@ class SimulationState(HDFWriterMixin):
             )
 
             field_names = {
-                field["name"] for field in csvy_data.model_config.datatype.fields
+                field["name"]
+                for field in csvy_data.model_config.datatype.fields
             }
             assert set(csvy_data.raw_csv_data.columns) - field_names == set(), (
                 "CSVY columns exist without field descriptions"
@@ -384,7 +388,10 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
 
         geometry = parse_geometry_from_csvy(
-            config, csvy_data.model_config, csvy_data.raw_csv_data, time_explosion
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            time_explosion,
         )
 
         composition = parse_composition_from_csvy(
@@ -399,7 +406,11 @@ class SimulationState(HDFWriterMixin):
         )
 
         radiation_field_state = parse_radiation_field_state_from_csvy(
-            config, csvy_data.model_config, csvy_data.raw_csv_data, geometry, packet_source
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            geometry,
+            packet_source,
         )
 
         return cls(

@@ -119,8 +119,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
     @abstractmethod
     def calculate(self, *args, **kwargs):
         raise NotImplementedError(
-            "This method needs to be implemented by "
-            "processing plasma modules"
+            "This method needs to be implemented by processing plasma modules"
         )
 
 

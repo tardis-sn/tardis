@@ -93,13 +93,17 @@ def packet_propagation(
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        raise NotImplementedError("Full relativity not supported for non-homology.")
+        raise NotImplementedError(
+            "Full relativity not supported for non-homology."
+        )
     else:
         set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
-    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
+    v = numba_radial_1d_geometry.get_velocity(
+        r_packet.r, r_packet.current_shell_id
+    )
     doppler_factor = get_doppler_factor_nonhomologous(
         v,
         r_packet.mu,
@@ -131,7 +135,9 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
-        v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
+        v = numba_radial_1d_geometry.get_velocity(
+            r_packet.r, r_packet.current_shell_id
+        )
         doppler_factor = get_doppler_factor_nonhomologous(
             v,
             r_packet.mu,
@@ -255,8 +261,7 @@ def packet_propagation(
 
 @njit
 def set_packet_props_partial_relativity(
-    r_packet: RPacket,
-    geometry: NumbaNonhomologousRadial1DGeometry
+    r_packet: RPacket, geometry: NumbaNonhomologousRadial1DGeometry
 ) -> None:
     """
     Set packet properties using partial relativistic corrections.
@@ -289,6 +294,8 @@ def set_packet_props_full_relativity(
 ) -> None:
 
     raise NotImplementedError("Full relativity not supported for non-homology.")
+
+
 #    beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 #
 #    inverse_doppler_factor = get_inverse_doppler_factor(

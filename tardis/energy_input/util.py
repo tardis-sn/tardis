@@ -257,7 +257,8 @@ def solve_quadratic_equation_expanding(position, direction, time, radius):
         - (radius / light_distance) ** 2.0
     )
     b = 2.0 * (
-        np.dot(position_contiguous, direction_contiguous) - radius**2.0 / light_distance
+        np.dot(position_contiguous, direction_contiguous)
+        - radius**2.0 / light_distance
     )
     c = np.dot(position_contiguous, position_contiguous) - radius**2.0
     discriminant = b**2.0 - 4.0 * a * c

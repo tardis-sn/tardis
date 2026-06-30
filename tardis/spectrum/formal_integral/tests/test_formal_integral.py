@@ -33,7 +33,9 @@ def test_check_formal_integral_requirements(
     assert check_formal_integral_requirements(sim_state, plasma, transport)
 
     # should return false
-    warning_match = "The integrator is missing either model, opacity state or transport"
+    warning_match = (
+        "The integrator is missing either model, opacity state or transport"
+    )
     with pytest.warns(UserWarning, match=warning_match):
         assert not check_formal_integral_requirements(
             None, plasma, transport, raises=False

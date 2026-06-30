@@ -262,7 +262,7 @@ class PhotoionizationData(object):
             with pd.HDFStore(fname, "r") as phot_data:
                 photoionization_x_sections = phot_data["photoionization_data"]
                 return photoionization_x_sections
-        except (IOError, err):
+        except IOError, err:
             print(err.errno)
             print(err)
             raise IOError(

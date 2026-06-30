@@ -9,7 +9,7 @@ from packaging.version import Version as pversion
 
 __version__ = ilversion("tardis")
 last_release = pversion(__version__).base_version
-__all__ = ['__version__', 'run_tardis', 'last_release']
+__all__ = ["__version__", "run_tardis", "last_release"]
 
 if ("astropy.units" in sys.modules) or ("astropy.constants" in sys.modules):
     import warnings

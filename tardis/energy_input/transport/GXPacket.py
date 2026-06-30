@@ -78,7 +78,9 @@ class GXPacket:
             float: packet radius
         """
         return np.sqrt(
-            self.location[0] ** 2.0 + self.location[1] ** 2.0 + self.location[2] ** 2.0
+            self.location[0] ** 2.0
+            + self.location[1] ** 2.0
+            + self.location[2] ** 2.0
         )
 
 

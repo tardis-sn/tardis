@@ -82,7 +82,7 @@ class ContinuumProcess:
 
     @staticmethod
     def _normalize_transition_probabilities(dataframe, no_ref_columns=0):
-        normalization_fct = lambda x: (x / x.sum())
+        normalization_fct = lambda x: x / x.sum()
         normalized_dataframe_orig = (
             dataframe.iloc[:, no_ref_columns:]
             .groupby(level=0)

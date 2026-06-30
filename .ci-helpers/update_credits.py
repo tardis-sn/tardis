@@ -59,9 +59,7 @@ def generate_zenodo():
         )
 
     except Exception as e:
-        warnings.warn(
-            "Failed to retrieve Zenodo record for TARDIS: " f"{str(e)}"
-        )
+        warnings.warn(f"Failed to retrieve Zenodo record for TARDIS: {str(e)}")
 
         not_found_msg = """
                         Couldn"t retrieve the TARDIS software citation from Zenodo. Get it 

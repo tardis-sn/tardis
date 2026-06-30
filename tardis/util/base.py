@@ -38,7 +38,9 @@ ATOMIC_SYMBOLS_DATA = (
 )
 
 ATOMIC_NUMBER2SYMBOL = OrderedDict(ATOMIC_SYMBOLS_DATA.to_dict())
-SYMBOL2ATOMIC_NUMBER = OrderedDict((y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items())
+SYMBOL2ATOMIC_NUMBER = OrderedDict(
+    (y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items()
+)
 
 synpp_default_yaml_fname = get_internal_data_path("synpp_default.yaml")
 
@@ -177,7 +179,9 @@ def calculate_luminosity(
         spec_fname, usecols=(wavelength_column, flux_column), unpack=True
     )
 
-    flux_density = np.trapezoid(flux, wavelength) * (flux_unit * wavelength_unit)
+    flux_density = np.trapezoid(flux, wavelength) * (
+        flux_unit * wavelength_unit
+    )
     luminosity = (flux_density * 4 * np.pi * distance**2).to("erg/s")
 
     return luminosity.value, wavelength.min(), wavelength.max()
@@ -212,8 +216,10 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     radial1d_mdl.atom_data.synpp_refs["ref_log_tau"] = -99.0
     for key, value in radial1d_mdl.atom_data.synpp_refs.iterrows():
         try:
-            radial1d_mdl.atom_data.synpp_refs["ref_log_tau"].loc[key] = np.log10(
-                radial1d_mdl.plasma.tau_sobolevs[0].loc[value["line_id"]]
+            radial1d_mdl.atom_data.synpp_refs["ref_log_tau"].loc[key] = (
+                np.log10(
+                    radial1d_mdl.plasma.tau_sobolevs[0].loc[value["line_id"]]
+                )
             )
         except KeyError:
             logger.debug(
@@ -298,7 +304,9 @@ def intensity_black_body(nu, temperature):
     """
     beta_rad = 1 / (k_B_cgs * temperature)
     coefficient = 2 * h_cgs / c_cgs**2
-    intensity = ne.evaluate("coefficient * nu**3 / " "(exp(h_cgs * nu * beta_rad) -1 )")
+    intensity = ne.evaluate(
+        "coefficient * nu**3 / (exp(h_cgs * nu * beta_rad) -1 )"
+    )
     return intensity
 
 
@@ -375,7 +383,9 @@ def species_string_to_tuple(species_string):
             )
 
     if ion_number - 1 > atomic_number:
-        raise ValueError("Species given does not exist: ion number > atomic number")
+        raise ValueError(
+            "Species given does not exist: ion number > atomic number"
+        )
 
     return atomic_number, ion_number - 1
 
@@ -527,11 +537,12 @@ def quantity_linspace(start, stop, num, **kwargs):
     """
     if not (hasattr(start, "unit") and hasattr(stop, "unit")):
         raise ValueError(
-            "Both start and stop need to be quantities with a " "unit attribute"
+            "Both start and stop need to be quantities with a unit attribute"
         )
 
     return (
-        np.linspace(start.value, stop.to(start.unit).value, num, **kwargs) * start.unit
+        np.linspace(start.value, stop.to(start.unit).value, num, **kwargs)
+        * start.unit
     )
 
 

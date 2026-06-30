@@ -68,9 +68,7 @@ def macro_atom_event(
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED
         and transition_type == MacroAtomTransitionType.BF_COOLING
     ):
-        bf_cooling(
-            r_packet, geometry, opacity_state, enable_full_relativity
-        )
+        bf_cooling(r_packet, geometry, opacity_state, enable_full_relativity)
 
     elif (
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED

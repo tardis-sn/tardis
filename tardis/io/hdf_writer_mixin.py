@@ -94,7 +94,9 @@ class HDFWriterMixin:
 
         try:  # when path_or_buf is a str, the HDFStore should get created
             buf = pd.HDFStore(
-                path_or_buf, complevel=complevel, complib=complib  # type: ignore[arg-type]
+                path_or_buf,
+                complevel=complevel,
+                complib=complib,  # type: ignore[arg-type]
             )
         except TypeError as e:
             if str(e) == "Expected bytes, got HDFStore":
@@ -244,13 +246,18 @@ class HDFWriterMixin:
             except AttributeError:
                 name = self.convert_to_snake_case(self.__class__.__name__)
                 logger.debug(
-                    "self.hdf_name not present, setting name to %s for HDF", name
+                    "self.hdf_name not present, setting name to %s for HDF",
+                    name,
                 )
 
         data = self.get_properties()
         buff_path = str(Path(path) / (name or ""))
         self.to_hdf_util(
-            file_path_or_buf, buff_path, data, overwrite=overwrite, format=format
+            file_path_or_buf,
+            buff_path,
+            data,
+            overwrite=overwrite,
+            format=format,
         )
 
 

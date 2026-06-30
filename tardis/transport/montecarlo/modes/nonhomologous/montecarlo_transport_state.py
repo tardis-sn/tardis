@@ -190,7 +190,9 @@ class MonteCarloTransportStateNonhomologous(HDFWriterMixin):
     @property
     def virt_packet_initial_mus(self):
         try:
-            return u.Quantity(self.vpacket_tracker.initial_mus, u.dimensionless_angles)
+            return u.Quantity(
+                self.vpacket_tracker.initial_mus, u.dimensionless_angles
+            )
         except AttributeError:
             warnings.warn(
                 "MontecarloTransport.virt_packet_initial_mus:"

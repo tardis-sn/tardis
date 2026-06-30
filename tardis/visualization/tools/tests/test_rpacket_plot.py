@@ -10,7 +10,7 @@ import pytest
 from tardis.visualization import RPacketPlotter
 
 
-@pytest.fixture(scope="module", params=[2,5,10])
+@pytest.fixture(scope="module", params=[2, 5, 10])
 def rpacket_plotter(request, simulation_rpacket_tracking):
     """
     Factory function to create an RPacketPlotter instance.
@@ -29,10 +29,13 @@ def rpacket_plotter(request, simulation_rpacket_tracking):
         simulation_rpacket_tracking, no_of_packets=request.param
     )
 
+
 class TestRPacketPlotter:
     """Test the RPacketPlotter class."""
 
-    def test_get_coordinates_with_theta_init(self, simulation_rpacket_tracking, rpacket_plotter):
+    def test_get_coordinates_with_theta_init(
+        self, simulation_rpacket_tracking, rpacket_plotter
+    ):
         """
         Test for the get_coordinates_with_theta_init method.
 
@@ -178,8 +181,9 @@ class TestRPacketPlotter:
             expected_rpacket_interactions = np.append(
                 multiple_packet_interaction[rpacket],
                 np.full(
-                    expected_max_array_size - len(multiple_packet_interaction[rpacket]),
-                    multiple_packet_interaction[rpacket][-1]
+                    expected_max_array_size
+                    - len(multiple_packet_interaction[rpacket]),
+                    multiple_packet_interaction[rpacket][-1],
                 ),
             )
 
@@ -314,7 +318,9 @@ class TestRPacketPlotter:
                 for packet in range(no_of_packets):
                     assert frame.data[packet] == expected_frame[packet]
 
-    def test_create_packet_scatter(self, simulation_rpacket_tracking, rpacket_plotter):
+    def test_create_packet_scatter(
+        self, simulation_rpacket_tracking, rpacket_plotter
+    ):
         """
         Test for the create_packet_scatter method.
 
@@ -385,5 +391,7 @@ class TestRPacketPlotter:
             npt.assert_allclose(scatter.y, multiple_packet_y[packet_no][:frame])
             assert list(scatter.marker.color) == [
                 rpacket_plotter.interaction_from_num[interaction]["color"]
-                for interaction in multiple_packet_interaction[packet_no][:frame]
+                for interaction in multiple_packet_interaction[packet_no][
+                    :frame
+                ]
             ]

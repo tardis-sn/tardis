@@ -74,7 +74,9 @@ def read_csv_composition(fname: str, delimiter=r"\s+"):
     )
 
 
-def read_simple_ascii_mass_fractions(fname: str) -> tuple[np.ndarray, pd.DataFrame]:
+def read_simple_ascii_mass_fractions(
+    fname: str,
+) -> tuple[np.ndarray, pd.DataFrame]:
     """Reading a mass fraction file of the following structure (example; lines starting with hash will be ignored):
     The first line of mass fractions describe the mass fractions in the center of the model and are not used.
     #index element1, element2, ..., element30

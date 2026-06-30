@@ -102,10 +102,13 @@ class CustomAbundanceWidgetData:
             ).cgs
         else:
             velocity_field_index = [
-                field["name"] for field in csvy_data.model_config.datatype.fields
+                field["name"]
+                for field in csvy_data.model_config.datatype.fields
             ].index("velocity")
             velocity_unit = u.Unit(
-                csvy_data.model_config.datatype.fields[velocity_field_index]["unit"]
+                csvy_data.model_config.datatype.fields[velocity_field_index][
+                    "unit"
+                ]
             )
             velocity = csvy_data.raw_csv_data["velocity"].values * velocity_unit
 
@@ -142,10 +145,13 @@ class CustomAbundanceWidgetData:
                 raise ValueError(f"Unrecognized density type {d_conf.type}")
         else:
             density_field_index = [
-                field["name"] for field in csvy_data.model_config.datatype.fields
+                field["name"]
+                for field in csvy_data.model_config.datatype.fields
             ].index("density")
             density_unit = u.Unit(
-                csvy_data.model_config.datatype.fields[density_field_index]["unit"]
+                csvy_data.model_config.datatype.fields[density_field_index][
+                    "unit"
+                ]
             )
             density_0 = csvy_data.raw_csv_data["density"].values * density_unit
             time_0 = csvy_data.model_config.model_density_time_0
@@ -729,8 +735,7 @@ class CustomAbundanceWidget:
 
         return bool(
             index_1 - index_0 > 1
-            or (index_1 - index_0 == 1
-            and not np.isclose(v_vals[index_0], v_0))
+            or (index_1 - index_0 == 1 and not np.isclose(v_vals[index_0], v_0))
         )
 
     def on_btn_add_shell(self, obj):
@@ -1039,7 +1044,9 @@ class CustomAbundanceWidget:
             z = nuc.Z
             self.data.abundance.loc[(z, mass_no), :] = 0
 
-        self.data.abundance = self.data.abundance.sort_index(kind=SORTING_ALGORITHM)
+        self.data.abundance = self.data.abundance.sort_index(
+            kind=SORTING_ALGORITHM
+        )
 
         # Add new BoundedFloatText control and Checkbox control.
         item = ipw.BoundedFloatText(min=0, max=1, step=0.01)

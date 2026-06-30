@@ -74,7 +74,9 @@ class ConvergencePlots:
             self.plasma_plot_config = kwargs["plasma_plot_config"]
 
         if "t_inner_luminosities_config" in kwargs:
-            self.t_inner_luminosities_config = kwargs["t_inner_luminosities_config"]
+            self.t_inner_luminosities_config = kwargs[
+                "t_inner_luminosities_config"
+            ]
 
         if "plasma_cmap" in kwargs:
             self.plasma_colorscale = pu.get_hex_color_strings(
@@ -82,7 +84,9 @@ class ConvergencePlots:
             )
         else:
             # default color scale is jet
-            self.plasma_colorscale = pu.get_hex_color_strings(length=self.iterations)
+            self.plasma_colorscale = pu.get_hex_color_strings(
+                length=self.iterations
+            )
 
         if "t_inner_luminosities_colors" in kwargs:
             # use cmap if string
@@ -92,7 +96,9 @@ class ConvergencePlots:
                     name=kwargs["t_inner_luminosities_colors"],
                 )
             else:
-                self.t_inner_luminosities_colors = kwargs["t_inner_luminosities_colors"]
+                self.t_inner_luminosities_colors = kwargs[
+                    "t_inner_luminosities_colors"
+                ]
         else:
             # using default plotly colors
             self.t_inner_luminosities_colors = [None] * 5
@@ -237,7 +243,9 @@ class ConvergencePlots:
             ),
             height=630,
             hoverlabel_align="right",
-            margin=dict(b=25, t=25, pad=0),  # reduces whitespace surrounding the plot
+            margin=dict(
+                b=25, t=25, pad=0
+            ),  # reduces whitespace surrounding the plot
         )
 
         # allow overriding default layout
@@ -297,7 +305,9 @@ class ConvergencePlots:
     def update_plasma_plots(self):
         """Update plasma convergence plots every iteration."""
         # convert velocity to km/s
-        velocity_km_s = self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
+        velocity_km_s = (
+            self.iterable_data["velocity"].to(u.km / u.s).value.tolist()
+        )
 
         # add luminosity data in hover data in plasma plots
         customdata = len(velocity_km_s) * [
@@ -315,7 +325,9 @@ class ConvergencePlots:
         # add a radiation temperature vs shell velocity trace to the plasma plot
         self.plasma_plot.add_scatter(
             x=velocity_km_s,
-            y=np.append(self.iterable_data["t_rad"], self.iterable_data["t_rad"][-1:]),
+            y=np.append(
+                self.iterable_data["t_rad"], self.iterable_data["t_rad"][-1:]
+            ),
             line_color=self.plasma_colorscale[self.current_iteration - 1],
             line_shape="hv",
             row=1,
@@ -349,10 +361,12 @@ class ConvergencePlots:
             # traces are updated according to the order they were added
             # the first trace is of the inner boundary temperature plot
             self.t_inner_luminosities_plot.data[0].x = x
-            self.t_inner_luminosities_plot.data[0].y = self.value_data["t_inner"]
-            self.t_inner_luminosities_plot.data[0].hovertemplate = (
-                "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"  # trace name in extra tag to avoid new lines in hoverdata
-            )
+            self.t_inner_luminosities_plot.data[0].y = self.value_data[
+                "t_inner"
+            ]
+            self.t_inner_luminosities_plot.data[
+                0
+            ].hovertemplate = "<b>%{y:.3f}</b> at X = %{x:,.0f}<extra>Inner Boundary Temperature</extra>"  # trace name in extra tag to avoid new lines in hoverdata
 
             # the next three for emitted, absorbed and requested luminosities
             for index, luminosity in zip(range(1, 4), self.luminosities):
@@ -374,9 +388,9 @@ class ConvergencePlots:
 
             self.t_inner_luminosities_plot.data[4].x = x
             self.t_inner_luminosities_plot.data[4].y = y
-            self.t_inner_luminosities_plot.data[4].hovertemplate = (
-                "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
-            )
+            self.t_inner_luminosities_plot.data[
+                4
+            ].hovertemplate = "<b>%{y:.2f}%</b> at X = %{x:,.0f}"
 
     def update(self, export_convergence_plots=False, last=False):
         """

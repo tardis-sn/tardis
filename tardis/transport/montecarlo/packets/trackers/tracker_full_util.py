@@ -225,11 +225,13 @@ def tracker_full_df2tracker_last_interaction_df(
 
     # Filter out boundary events to only get actual interactions
     physics_interactions = df[
-        df["interaction_type"].isin([
-            "LINE",
-            "ESCATTERING",
-            "CONTINUUM_PROCESS",
-        ])
+        df["interaction_type"].isin(
+            [
+                "LINE",
+                "ESCATTERING",
+                "CONTINUUM_PROCESS",
+            ]
+        )
     ]
 
     if physics_interactions.empty:

@@ -1,6 +1,7 @@
 """This module provides an opacity calculator class with which the opacities
 and optical depth information may be extracted from Tardis runs.
 """
+
 import logging
 
 import astropy.units as units
@@ -132,8 +133,9 @@ class OpacityCalculator:
         allowed_values = ["log", "linear"]
         if val not in allowed_values:
             raise ValueError(
-                "wrong bin_scaling; must be "
-                "among {:s}".format(",".join(allowed_values))
+                "wrong bin_scaling; must be among {:s}".format(
+                    ",".join(allowed_values)
+                )
             )
         self._reset_bins()
         self._bin_scaling = val
@@ -309,7 +311,6 @@ class OpacityCalculator:
         kappa_exp = np.zeros((self.nbins, self.nshells)) / units.cm
 
         for i in range(self.nbins):
-
             lam_low = self.nu_bins[i + 1].to(
                 "AA", equivalencies=units.spectral()
             )

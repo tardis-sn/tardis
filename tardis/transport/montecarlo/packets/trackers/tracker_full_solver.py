@@ -42,17 +42,15 @@ class TrackerFullSolver:
         )
         return TrackerFullState(trackers)
 
-    def process_tracker_state(
-        self, tracker_state: TrackerFullState
-    ) -> None:
+    def process_tracker_state(self, tracker_state: TrackerFullState) -> None:
         """
         Process a completed tracker state and add DataFrames to it.
         Removes the tracker list after processing.
         """
         # Create DataFrames from trackers
         tracker_state.full_df = trackers_full_to_df(tracker_state.trackers)
-        tracker_state.last_interaction_df = tracker_full_df2tracker_last_interaction_df(
-            tracker_state.full_df
+        tracker_state.last_interaction_df = (
+            tracker_full_df2tracker_last_interaction_df(tracker_state.full_df)
         )
 
         # Clear trackers and mark as tracked

@@ -231,13 +231,13 @@ def compton_scatter(photon, compton_angle):
         final_compton_scattered_vector_contiguous, comov_direction_contiguous
     )
 
-    assert (
-        np.abs(norm_phi - 1) < 1e-8
-    ), "Error, norm of Compton scatter vector is not 1!"
+    assert np.abs(norm_phi - 1) < 1e-8, (
+        "Error, norm of Compton scatter vector is not 1!"
+    )
 
-    assert (
-        np.abs(norm_theta - np.cos(compton_angle)) < 1e-8
-    ), "Error, difference between new vector angle and Compton angle is more than 0!"
+    assert np.abs(norm_theta - np.cos(compton_angle)) < 1e-8, (
+        "Error, difference between new vector angle and Compton angle is more than 0!"
+    )
 
     # Calculate the angle aberration of the final direction
     final_direction = angle_aberration_gamma(

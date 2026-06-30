@@ -108,8 +108,9 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             nlte_lines_mask = (
                 lines.reset_index()
                 .apply(
-                    lambda row: (row.atomic_number, row.ion_number)
-                    in self.nlte_species,
+                    lambda row: (
+                        (row.atomic_number, row.ion_number) in self.nlte_species
+                    ),
                     axis=1,
                 )
                 .values

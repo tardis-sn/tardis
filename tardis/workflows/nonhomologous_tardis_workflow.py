@@ -118,7 +118,6 @@ class NonhomologousTARDISWorkflow(StandardTARDISWorkflow):
             enable_virtual_packet_logging=self.enable_virtual_packet_logging,
         )
 
-
     def get_convergence_estimates(self) -> tuple[dict, object]:
         """Compute convergence estimates from the transport state
 

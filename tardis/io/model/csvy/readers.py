@@ -179,7 +179,6 @@ def load_yaml_from_csvy(fpath: str | Path) -> dict:
         raise ValueError(f"End {YAML_DELIMITER} not found")
 
 
-
 def load_csv_from_csvy(fpath: str | Path) -> pd.DataFrame | None:
     """
     Load only the CSV data from a CSVY file.

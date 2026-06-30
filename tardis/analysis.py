@@ -21,10 +21,13 @@ class LastLineInteraction:
         transport_state = simulation.transport.transport_state
 
         if transport_state.tracker_full_df is None:
-            raise ValueError("No tracking data available. Enable tracking by setting config.montecarlo.tracking.track_rpacket = True")
+            raise ValueError(
+                "No tracking data available. Enable tracking by setting config.montecarlo.tracking.track_rpacket = True"
+            )
 
-
-        packet_data = extract_and_process_packet_data(simulation, "real", include_shell_id=True)
+        packet_data = extract_and_process_packet_data(
+            simulation, "real", include_shell_id=True
+        )
         packets_df = packet_data["packets_df"]
 
         return cls(
@@ -36,7 +39,6 @@ class LastLineInteraction:
             simulation.plasma.atomic_data.lines,
             packet_filter_mode,
         )
-
 
     def __init__(
         self,
@@ -289,7 +291,9 @@ class TARDISHistory:
                     int(re.match(r"model(\d+)", key.split("/")[1]).groups()[0])
                 )
 
-            self.iterations = np.sort(np.unique(iterations), kind=SORTING_ALGORITHM)
+            self.iterations = np.sort(
+                np.unique(iterations), kind=SORTING_ALGORITHM
+            )
             hdf_store.close()
         else:
             self.iterations = iterations

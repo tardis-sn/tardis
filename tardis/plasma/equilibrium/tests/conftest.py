@@ -36,6 +36,7 @@ def new_chianti_atomic_dataset_si(tardis_regression_path):
     )
     return AtomData.from_hdf(atomic_data_fname)
 
+
 @pytest.fixture
 def new_chianti_atomic_dataset(tardis_regression_path):
     atomic_data_fname = (
@@ -63,6 +64,7 @@ def hydrogen_atomic_data_fname(tardis_regression_path):
         pytest.exit(atom_data_missing_str)
 
     return atomic_data_fname
+
 
 @pytest.fixture(params=[(14, 1, slice(None), slice(None))])
 def radiative_transitions(new_chianti_atomic_dataset_si, request):

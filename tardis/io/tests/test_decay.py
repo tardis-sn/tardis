@@ -34,9 +34,12 @@ def raw_abundance_simple() -> pd.DataFrame:
 
 
 def test_abundance_merge(
-    simple_abundance_model: IsotopicMassFraction, raw_abundance_simple: pd.DataFrame
+    simple_abundance_model: IsotopicMassFraction,
+    raw_abundance_simple: pd.DataFrame,
 ) -> None:
-    decayed_df = simple_abundance_model.calculate_decayed_mass_fractions(100 * u.day)
+    decayed_df = simple_abundance_model.calculate_decayed_mass_fractions(
+        100 * u.day
+    )
     isotope_df = decayed_df.as_atoms()
     combined_df = decayed_df.merge(raw_abundance_simple, normalize=False)
 

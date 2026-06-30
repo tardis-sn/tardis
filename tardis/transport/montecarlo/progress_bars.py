@@ -18,6 +18,7 @@ packet_pbar = tqdm(
     bar_format="{desc:<}{bar}{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]",
 )
 
+
 def update_packets_pbar(i: int, no_of_packets: int) -> None:
     """
     Update packet progress bar with packet count updates only.

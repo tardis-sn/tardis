@@ -244,7 +244,7 @@ def assert_equality(item1: Any, item2: Any) -> None:
         if hasattr(item1, "unit"):
             assert item1.unit == item2.unit
         assert np.allclose(item1, item2, atol=0.0)
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         assert item1 == item2
 
 

@@ -97,7 +97,6 @@ class RPacketPlotter:
                 "color_dark": "#6A4C93",
                 "opacity": 0.8,
             },
-
         }
         self.theme_colors = dict(
             light=dict(
@@ -358,7 +357,9 @@ class RPacketPlotter:
                 ),
                 name="e-scattering",
                 hoverlabel=dict(font=dict(color="#222")),
-                marker=dict(color=self.interaction_from_num["ESCATTERING"]["color"]),
+                marker=dict(
+                    color=self.interaction_from_num["ESCATTERING"]["color"]
+                ),
             )
         )
         self.fig.add_trace(
@@ -513,7 +514,6 @@ class RPacketPlotter:
                     new_theta += np.asin(-1 * sin_term)
                 theta.append(new_theta)
 
-
         # converting the thetas into x and y coordinates using radius as radius*cos(theta) and radius*sin(theta) respectively
         rpacket_x = (np.array(r_track)) * np.cos(np.array(theta)) * 1e-5 / time
         rpacket_y = (np.array(r_track)) * np.sin(np.array(theta)) * 1e-5 / time
@@ -561,7 +561,7 @@ class RPacketPlotter:
         """
         # Remove rows with any NaN values
         r_packet_tracker = r_packet_tracker.dropna()
-        
+
         # for plotting packets at equal intervals throught the circle, we choose thetas distributed uniformly
         thetas = np.linspace(0, 2 * np.pi, self.no_of_packets + 1)
         all_rpackets_x_coords = []
@@ -573,7 +573,7 @@ class RPacketPlotter:
             packet_data = r_packet_tracker.loc[packet_no]
             interaction_types = packet_data["interaction_type"]
             mu_data = packet_data["after_mu"]
-            
+
             (
                 rpacket_x,
                 rpacket_y,
@@ -638,7 +638,9 @@ class RPacketPlotter:
             if padding_size > 0:
                 x_padding = np.ones(padding_size) * rpacket_x[packet_no][-1]
                 y_padding = np.ones(padding_size) * rpacket_y[packet_no][-1]
-                interactions_padding = np.full(padding_size, interactions[packet_no][-1])
+                interactions_padding = np.full(
+                    padding_size, interactions[packet_no][-1]
+                )
 
                 rpacket_x[packet_no] = np.append(
                     rpacket_x[packet_no], x_padding
@@ -695,7 +697,12 @@ class RPacketPlotter:
         """
         return [
             self.create_packet_scatter(
-                packet_no, rpacket_x, rpacket_y, interactions, theme, frame=frame
+                packet_no,
+                rpacket_x,
+                rpacket_y,
+                interactions,
+                theme,
+                frame=frame,
             )
             for packet_no in range(len(rpacket_x))
         ]

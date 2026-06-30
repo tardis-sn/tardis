@@ -167,7 +167,7 @@ def test_tardis_version_metadata(tmpdir):
     fname = str(tmpdir.mkdir("data").join("test.hdf"))
     actual = MockHDF(1.5)
     actual.to_hdf(fname, path="test", overwrite=True)
-    
+
     metadata = pd.read_hdf(fname, key="/test/mock_hdf/metadata")
     assert "tardis_version" in metadata
     assert metadata["tardis_version"] == __version__

@@ -19,7 +19,6 @@ class PlasmaSolverSettings:
 
 
 class BasePlasma(PlasmaWriterMixin):
-
     outputs_dict = {}
     hdf_name = "plasma"
 
@@ -48,7 +47,7 @@ class BasePlasma(PlasmaWriterMixin):
     def __setattr__(self, key, value):
         if key != "module_dict" and key in self.outputs_dict:
             raise AttributeError(
-                "Plasma inputs can only be updated using " "the 'update' method"
+                "Plasma inputs can only be updated using the 'update' method"
             )
         else:
             super().__setattr__(key, value)
@@ -140,7 +139,6 @@ class BasePlasma(PlasmaWriterMixin):
         self.previous_iteration_properties = []
         self.outputs_dict = {}
         for plasma_property in plasma_properties:
-
             if issubclass(plasma_property, PreviousIterationProperty):
                 current_property_object = plasma_property(
                     **property_kwargs.get(plasma_property, {})
@@ -184,7 +182,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in kwargs:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    f"Trying to update property {key}" f" that is unavailable"
+                    f"Trying to update property {key} that is unavailable"
                 )
             self.outputs_dict[key].set_value(kwargs[key])
 
@@ -211,7 +209,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    f"Trying to freeze property {key}" " that is unavailable"
+                    f"Trying to freeze property {key} that is unavailable"
                 )
             self.outputs_dict[key].frozen = True
 
@@ -234,7 +232,7 @@ class BasePlasma(PlasmaWriterMixin):
         for key in args:
             if key not in self.outputs_dict:
                 raise PlasmaMissingModule(
-                    f"Trying to thaw property {key}" " that is unavailable"
+                    f"Trying to thaw property {key} that is unavailable"
                 )
             self.outputs_dict[key].frozen = False
 
@@ -271,7 +269,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         logger.debug(
             f"Updating modules in the following order:"
-            f'{"->".join(descendants_ob)}'
+            f"{'->'.join(descendants_ob)}"
         )
 
         return descendants_ob
@@ -296,7 +294,7 @@ class BasePlasma(PlasmaWriterMixin):
             import pygraphviz
         except:
             logger.warning(
-                "pygraphviz missing. Plasma graph will not be " "generated."
+                "pygraphviz missing. Plasma graph will not be generated."
             )
             return
         print_graph = self.graph.copy()
@@ -305,9 +303,9 @@ class BasePlasma(PlasmaWriterMixin):
         for node in print_graph:
             if latex_label is True:
                 if hasattr(self.plasma_properties_dict[node], "latex_formula"):
-                    print_graph.nodes[str(node)][
-                        "label"
-                    ] = f"\\\\textrm{{{node}: }}"
+                    print_graph.nodes[str(node)]["label"] = (
+                        f"\\\\textrm{{{node}: }}"
+                    )
                     node_list = self.plasma_properties_dict[node]
                     formulae = node_list.latex_formula
                     for output in range(len(formulae)):
@@ -315,9 +313,9 @@ class BasePlasma(PlasmaWriterMixin):
                         label = formula.replace("\\", "\\\\")
                         print_graph.nodes[str(node)]["label"] += label
                 else:
-                    print_graph.nodes[str(node)][
-                        "label"
-                    ] = f"\\\\textrm{{{node}}}"
+                    print_graph.nodes[str(node)]["label"] = (
+                        f"\\\\textrm{{{node}}}"
+                    )
             else:
                 print_graph.nodes[str(node)]["label"] = node
 
@@ -382,7 +380,7 @@ class BasePlasma(PlasmaWriterMixin):
             import dot2tex
         except:
             logger.warning(
-                "dot2tex missing. Plasma graph will not be " "generated."
+                "dot2tex missing. Plasma graph will not be generated."
             )
             return
 

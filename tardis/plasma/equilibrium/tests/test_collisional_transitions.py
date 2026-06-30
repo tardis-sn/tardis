@@ -67,7 +67,6 @@ def legacy_cmfgen_collision_rate_plasma_solver(nlte_atomic_dataset):
     )
 
 
-
 def test_legacy_cmfgen_collisional_strengths(
     legacy_cmfgen_collision_rate_plasma_solver,
     nlte_atomic_dataset,

@@ -3,6 +3,7 @@ Grotrian Diagram Widget for TARDIS simulation models.
 
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
+
 import ipywidgets as ipw
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ from tardis.util.base import (
     species_tuple_to_string,
 )
 
-ANGSTROM_SYMBOL = "\u212B"
+ANGSTROM_SYMBOL = "\u212b"
 
 
 def is_zero_defined(transform):
@@ -439,18 +440,18 @@ class GrotrianPlot:
         ]
 
         ### Map the levels to merged levels
-        excite_lines[
-            "merged_level_number_lower"
-        ] = excite_lines.level_number_lower.map(self.level_mapping)
-        excite_lines[
-            "merged_level_number_upper"
-        ] = excite_lines.level_number_upper.map(self.level_mapping)
-        deexcite_lines[
-            "merged_level_number_lower"
-        ] = deexcite_lines.level_number_lower.map(self.level_mapping)
-        deexcite_lines[
-            "merged_level_number_upper"
-        ] = deexcite_lines.level_number_upper.map(self.level_mapping)
+        excite_lines["merged_level_number_lower"] = (
+            excite_lines.level_number_lower.map(self.level_mapping)
+        )
+        excite_lines["merged_level_number_upper"] = (
+            excite_lines.level_number_upper.map(self.level_mapping)
+        )
+        deexcite_lines["merged_level_number_lower"] = (
+            deexcite_lines.level_number_lower.map(self.level_mapping)
+        )
+        deexcite_lines["merged_level_number_upper"] = (
+            deexcite_lines.level_number_upper.map(self.level_mapping)
+        )
 
         ### Group by level pairs
         excite_lines = (
@@ -517,12 +518,12 @@ class GrotrianPlot:
                 transform=self._transition_width_transform,
                 zero_undefined_offset=1e-3,
             )
-            excite_lines[
-                "transition_width_coefficient"
-            ] = transition_width_coefficient[: len(excite_lines)]
-            deexcite_lines[
-                "transition_width_coefficient"
-            ] = transition_width_coefficient[len(excite_lines) :]
+            excite_lines["transition_width_coefficient"] = (
+                transition_width_coefficient[: len(excite_lines)]
+            )
+            deexcite_lines["transition_width_coefficient"] = (
+                transition_width_coefficient[len(excite_lines) :]
+            )
 
         self.excite_lines = excite_lines
         self.deexcite_lines = deexcite_lines

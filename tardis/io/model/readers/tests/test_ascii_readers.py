@@ -11,7 +11,11 @@ from tardis.io.model.readers.generic_readers import (
 
 
 def test_simple_ascii_density_reader_time(example_model_file_dir):
-    (time_model, velocity, density,) = read_simple_ascii_density(
+    (
+        time_model,
+        velocity,
+        density,
+    ) = read_simple_ascii_density(
         example_model_file_dir / "tardis_simple_ascii_density_test.dat"
     )
 
@@ -22,7 +26,10 @@ def test_simple_ascii_density_reader_time(example_model_file_dir):
 
 
 def test_simple_ascii_abundance_reader(artis_data_dir):
-    (index, abundances,) = read_simple_ascii_mass_fractions(
+    (
+        index,
+        abundances,
+    ) = read_simple_ascii_mass_fractions(
         artis_data_dir / "artis_abundances.dat"
     )
 

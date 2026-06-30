@@ -140,12 +140,10 @@ class ContinuumInteractionSpecies(Input):
 
 
 class NLTEIonizationSpecies(Input):
-
     outputs = ("nlte_ionization_species",)
 
 
 class NLTEExcitationSpecies(Input):
-
     outputs = ("nlte_excitation_species",)
 
 

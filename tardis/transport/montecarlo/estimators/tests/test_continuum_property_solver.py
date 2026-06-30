@@ -15,7 +15,6 @@ from tardis.transport.montecarlo.estimators.continuum_radfield_properties import
 
 
 @pytest.mark.skip("Fix once continuum works again")
-
 def test_continuum_estimators(
     continuum_config,
     nlte_atomic_dataset,

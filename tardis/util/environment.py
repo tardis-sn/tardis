@@ -3,19 +3,21 @@ import sys
 from enum import StrEnum
 import logging
 from IPython import get_ipython
+
 logger = logging.getLogger(__name__)
 
-class Environment(StrEnum):    
-    VSCODE = 'vscode'
-    JUPYTER = 'jupyter'
-    TERMINAL = 'terminal'
-    SSH_JH = 'ssh_jh'
-    SPHINX = 'sphinx'
-    
+
+class Environment(StrEnum):
+    VSCODE = "vscode"
+    JUPYTER = "jupyter"
+    TERMINAL = "terminal"
+    SSH_JH = "ssh_jh"
+    SPHINX = "sphinx"
+
     @classmethod
-    def get_current_environment(cls) -> 'Environment':
+    def get_current_environment(cls) -> "Environment":
         """Get the current execution environment.
-        
+
         Returns
         -------
         Environment
@@ -34,21 +36,23 @@ class Environment(StrEnum):
         else:
             logger.critical("Unknown environment detected")
             return cls.TERMINAL
-    
+
     @staticmethod
     def is_terminal() -> bool:
         """
         Checking if the current environment is a terminal.
         """
         return sys.stdout.isatty()
-    
+
     @staticmethod
     def is_vscode() -> bool:
         """
         Checking if the current environment is VSCode
         """
-        return any(x for x in ('VSCODE_PID', 'VSCODE', 'VSCODE_CWD') if x in os.environ)
-    
+        return any(
+            x for x in ("VSCODE_PID", "VSCODE", "VSCODE_CWD") if x in os.environ
+        )
+
     @staticmethod
     def _detect_jupyter_shell() -> bool:
         """
@@ -59,9 +63,11 @@ class Environment(StrEnum):
             from ipykernel.zmqshell import ZMQInteractiveShell
             from IPython.core.interactiveshell import InteractiveShell
         except ImportError:
-            logger.debug("Cannot import IPython/Jupyter modules. Not in IPython environment")
+            logger.debug(
+                "Cannot import IPython/Jupyter modules. Not in IPython environment"
+            )
             return False
-        
+
         try:
             # Trying to get the value of the shell via the get_ipython() method
             shell = get_ipython()
@@ -83,13 +89,15 @@ class Environment(StrEnum):
     def is_sshjh() -> bool:
         """
         Checking if the current environment is JupyterHub
-        
+
         Returns
         -------
         True : if running in notebook with JupyterHub environment variables
         False : otherwise
         """
-        return Environment._detect_jupyter_shell() and any(key.startswith('JUPYTERHUB') for key in os.environ.keys())
+        return Environment._detect_jupyter_shell() and any(
+            key.startswith("JUPYTERHUB") for key in os.environ.keys()
+        )
 
     @staticmethod
     def is_notebook() -> bool:
@@ -101,33 +109,39 @@ class Environment(StrEnum):
         True : if the shell environment is Jupyter Based
         False : if the shell environment is Terminal or anything else
         """
-        return Environment._detect_jupyter_shell() and not any(key.startswith('JUPYTERHUB') for key in os.environ.keys()) and not Environment.is_sphinx()
+        return (
+            Environment._detect_jupyter_shell()
+            and not any(
+                key.startswith("JUPYTERHUB") for key in os.environ.keys()
+            )
+            and not Environment.is_sphinx()
+        )
 
     @staticmethod
     def is_sphinx() -> bool:
         """
         Checking if the current environment is Sphinx documentation build
-        
+
         Returns
         -------
         True : if running in Sphinx build environment
         False : otherwise
         """
-        return os.environ.get('TARDIS_SPHINX_BUILD') == '1'
-    
+        return os.environ.get("TARDIS_SPHINX_BUILD") == "1"
+
     @staticmethod
     def allows_widget_display() -> bool:
         """
         Checking if the current environment allows widget display
-        
+
         Returns
         -------
         True : if the environment supports widget display (notebook, vscode, sshjh, or sphinx)
         False : otherwise
         """
-        return (Environment.is_notebook() or 
-                Environment.is_vscode() or 
-                Environment.is_sshjh() or 
-                Environment.is_sphinx())
-
-
+        return (
+            Environment.is_notebook()
+            or Environment.is_vscode()
+            or Environment.is_sshjh()
+            or Environment.is_sphinx()
+        )

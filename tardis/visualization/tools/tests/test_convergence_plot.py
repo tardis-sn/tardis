@@ -8,9 +8,7 @@ import pytest
 from astropy import units as u
 
 from tardis import run_tardis
-from tardis.visualization.tools.convergence_plot import (
-    ConvergencePlots
-)
+from tardis.visualization.tools.convergence_plot import ConvergencePlots
 from collections import defaultdict
 import plotly.graph_objects as go
 from astropy import units as u
@@ -71,7 +69,9 @@ def test_fetch_data(convergence_plots):
 def test_build(convergence_plots):
     """Test if convergence plots are instances of plotly.graph_objs.FigureWidget() and have appropriate number of traces."""
     assert isinstance(convergence_plots.plasma_plot, go.FigureWidget)
-    assert isinstance(convergence_plots.t_inner_luminosities_plot, go.FigureWidget)
+    assert isinstance(
+        convergence_plots.t_inner_luminosities_plot, go.FigureWidget
+    )
 
     # check number of traces
     assert len(convergence_plots.t_inner_luminosities_plot.data) == 5

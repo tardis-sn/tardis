@@ -1,4 +1,5 @@
 """Tests for custom abundance widget."""
+
 from pathlib import Path
 
 import numpy as np

@@ -174,7 +174,9 @@ def read_snec_output_xg(
     merged_data_blocks: list[pd.DataFrame] = []
     for i, time_stamp in enumerate(mass_xg_data.timestamps):
         merged_df = mass_xg_data.data_blocks[i][["radius"]].copy()
-        merged_df["enclosed_mass"] = mass_xg_data.data_blocks[i]["enclosed_mass"]
+        merged_df["enclosed_mass"] = mass_xg_data.data_blocks[i][
+            "enclosed_mass"
+        ]
 
         for quantity_name, xg_data in all_xg_data.items():
             merged_df[quantity_name] = xg_data.data_blocks[i][quantity_name]
@@ -288,10 +290,14 @@ def read_snec_em_output(snec_output_dir: Path) -> pd.DataFrame:
         DataFrame containing the output quantities for each cell, indexed by cell ID.
     """
     em_output_metadata = [
-        item for item in SNEC_EM_OUTPUT_METADATA.keys() if not item.startswith("index_")
+        item
+        for item in SNEC_EM_OUTPUT_METADATA.keys()
+        if not item.startswith("index_")
     ]
     em_index_output_metadata = [
-        item for item in SNEC_EM_OUTPUT_METADATA.keys() if item.startswith("index_")
+        item
+        for item in SNEC_EM_OUTPUT_METADATA.keys()
+        if item.startswith("index_")
     ]
 
     em_output_df = read_snec_dat_output(
@@ -306,7 +312,9 @@ def read_snec_em_output(snec_output_dir: Path) -> pd.DataFrame:
         first_column_name="time",
     )
 
-    npt.assert_allclose(em_output_df["time"], em_index_output_df["time"], rtol=1e-9)
+    npt.assert_allclose(
+        em_output_df["time"], em_index_output_df["time"], rtol=1e-9
+    )
 
     return em_output_df.join(em_index_output_df.iloc[:, 1:])
 

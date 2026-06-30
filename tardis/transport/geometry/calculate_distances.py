@@ -114,9 +114,9 @@ def calculate_distance_line(
 
 @njit(**njit_dict_no_parallel)
 def calculate_distance_line_nonhomologous(
-    rpacket : RPacket,
-    geometry : NumbaNonhomologousRadial1DGeometry,
-    nu_line : float
+    rpacket: RPacket,
+    geometry: NumbaNonhomologousRadial1DGeometry,
+    nu_line: float,
 ):
     """
     Calculate distance until RPacket is in resonance with the next line
@@ -125,7 +125,7 @@ def calculate_distance_line_nonhomologous(
     -------
     distance (cm)
     """
-    #TODO: unit check / handling here?
+    # TODO: unit check / handling here?
     r_inner = geometry.r_inner[rpacket.current_shell_id]
     r_outer = geometry.r_outer[rpacket.current_shell_id]
     v_inner = geometry.v_inner[rpacket.current_shell_id]
@@ -140,8 +140,8 @@ def calculate_distance_line_nonhomologous(
     # Define useful variables to simplify coefficients
     n = C_SPEED_OF_LIGHT * (1 - nu_line / nu_rest)
     m = dvdr
-    p = 1.0 - mu*mu
-    q = v_outer - m*r_outer
+    p = 1.0 - mu * mu
+    q = v_outer - m * r_outer
 
     # Characteristic scales for non-dimensionalization
     r0 = r_outer - r_inner
@@ -151,15 +151,15 @@ def calculate_distance_line_nonhomologous(
         return MISS_DISTANCE
 
     # Dimensionless quantities to use in the quartic solver - improves floating point accuracy
-    rd = r/r0
-    nd = n/v0
-    md = 1.0 # m/(v0/r0) # dimensionless m will always be 1
-    qd = q/v0
+    rd = r / r0
+    nd = n / v0
+    md = 1.0  # m/(v0/r0) # dimensionless m will always be 1
+    qd = q / v0
 
-    md2 = md*md
-    rd2 = rd*rd
-    nd2 = nd*nd
-    qd2 = qd*qd
+    md2 = md * md
+    rd2 = rd * rd
+    nd2 = nd * nd
+    qd2 = qd * qd
 
     # Define coefficients of the quartic polynomial
     a = md2
@@ -172,11 +172,13 @@ def calculate_distance_line_nonhomologous(
     # n is the relative line velocity
     # If m and n have the same sign, a doppler shift *may* reach the line in this cell
     # If m and n have opposite signs, the velocity in this cell *cannot* shift the packet towards the line
-    beta = v/C_SPEED_OF_LIGHT
+    beta = v / C_SPEED_OF_LIGHT
     doppler_factor = 1.0 - mu * beta
     comov_nu = nu_rest * doppler_factor
 
-    if (comov_nu - nu_line > 1e-14*nu_line and m > 0.0) or (comov_nu - nu_line < -1e-14*nu_line and m < 0.0):
+    if (comov_nu - nu_line > 1e-14 * nu_line and m > 0.0) or (
+        comov_nu - nu_line < -1e-14 * nu_line and m < 0.0
+    ):
         # Obtain roots of the quartic polynomial for x (= d_line + r_i \mu_i)
         x = depressed_quartic(a, b, c, d, e)
         # Convert each root x_i to a candidate distance: d = r0*x_i - r*mu

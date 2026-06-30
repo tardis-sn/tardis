@@ -179,17 +179,13 @@ class NonhomologousRadial1DGeometry:
     @property
     def velocity_gradient(self):
         """Velocity gradient in each cell"""
-        return (
-            (self.v_outer - self.v_inner)
-            / (self.r_outer - self.r_inner)
-        )
+        return (self.v_outer - self.v_inner) / (self.r_outer - self.r_inner)
 
     @property
     def velocity_gradient_active(self):
         """Velocity gradient in each cell"""
-        return (
-            (self.v_outer_active - self.v_inner_active)
-            / (self.r_outer_active - self.r_inner_active)
+        return (self.v_outer_active - self.v_inner_active) / (
+            self.r_outer_active - self.r_inner_active
         )
 
     def get_velocity(self, r: u.Quantity, shell_id: int):
@@ -213,7 +209,9 @@ class NonhomologousRadial1DGeometry:
         --------
             geometry.get_velocity(rpacket.r, rpacket.current_shell_id)
         """
-        return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (r - self.r_inner[shell_id])
+        return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (
+            r - self.r_inner[shell_id]
+        )
 
     @property
     def no_of_shells(self):
@@ -269,7 +267,9 @@ class NumbaNonhomologousRadial1DGeometry:
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.v_outer = v_outer
-        self.velocity_gradient = (self.v_outer - self.v_inner) / (self.r_outer - self.r_inner)
+        self.velocity_gradient = (self.v_outer - self.v_inner) / (
+            self.r_outer - self.r_inner
+        )
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
     def get_velocity(self, r: float, shell_id: int):
@@ -289,5 +289,6 @@ class NumbaNonhomologousRadial1DGeometry:
         float
             Velocity at radius r within shell shell_id
         """
-        return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (r - self.r_inner[shell_id])
-
+        return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (
+            r - self.r_inner[shell_id]
+        )

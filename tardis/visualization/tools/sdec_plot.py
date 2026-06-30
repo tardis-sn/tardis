@@ -904,7 +904,7 @@ class SDECPlotter:
             lower_level,
             upper_level,
             color=self._predefined_traces["emission"]["noint"]["fillcolor"],
-            label=self._predefined_traces["emission"]["noint"]["name"]
+            label=self._predefined_traces["emission"]["noint"]["name"],
         )
 
         lower_level = upper_level
@@ -918,7 +918,7 @@ class SDECPlotter:
             lower_level,
             upper_level,
             color=self._predefined_traces["emission"]["escatter"]["fillcolor"],
-            label=self._predefined_traces["emission"]["escatter"]["name"]
+            label=self._predefined_traces["emission"]["escatter"]["name"],
         )
 
         # If the 'other' column exists then plot it as silver
@@ -934,7 +934,7 @@ class SDECPlotter:
                 lower_level,
                 upper_level,
                 color=self._predefined_traces["emission"]["other"]["fillcolor"],
-                label=self._predefined_traces["emission"]["other"]["name"]
+                label=self._predefined_traces["emission"]["other"]["name"],
             )
 
         # Contribution from each element
@@ -1009,7 +1009,7 @@ class SDECPlotter:
         """Show matplotlib colorbar with labels of elements mapped to colors."""
         if len(self._species_name) == 0:
             return
-            
+
         color_values = [
             self.cmap(species_counter / len(self._species_name))
             for species_counter in range(len(self._species_name))
@@ -1140,7 +1140,9 @@ class SDECPlotter:
             Figure object on which SDEC Plot is created
         """
         if species_list is not None and nelements is not None:
-            logger.info("Both nelements and species_list were requested. Species_list takes priority; nelements is ignored")
+            logger.info(
+                "Both nelements and species_list were requested. Species_list takes priority; nelements is ignored"
+            )
 
         self._parse_species_list(species_list=species_list)
 
@@ -1153,12 +1155,13 @@ class SDECPlotter:
 
         if fig is None:
             from bokeh.plotting import figure
+
             self.fig = figure(
                 width=graph_width,
                 height=graph_height,
                 title="SDEC Plot",
                 tools="box_select,reset,pan,wheel_zoom,save",
-                y_axis_type="linear"
+                y_axis_type="linear",
             )
         else:
             self.fig = fig
@@ -1177,12 +1180,14 @@ class SDECPlotter:
                 line_color="blue",
                 line_dash="dashed",
                 line_width=1,
-                legend_label=f"{packets_mode.capitalize()} Spectrum"
+                legend_label=f"{packets_mode.capitalize()} Spectrum",
             )
 
         if observed_spectrum:
             if distance is None:
-                raise ValueError("Distance must be specified if an observed_spectrum is given.")
+                raise ValueError(
+                    "Distance must be specified if an observed_spectrum is given."
+                )
             observed_spectrum_wavelength = observed_spectrum[0].to(u.AA)
             observed_spectrum_flux = observed_spectrum[1].to("erg/(s cm**2 AA)")
             self.fig.line(
@@ -1190,7 +1195,7 @@ class SDECPlotter:
                 y=observed_spectrum_flux.value,
                 line_color="black",
                 line_width=1.2,
-                legend_label="Observed Spectrum"
+                legend_label="Observed Spectrum",
             )
 
         if blackbody_photosphere:
@@ -1200,7 +1205,7 @@ class SDECPlotter:
                 line_color="red",
                 line_dash="dashed",
                 line_width=1.5,
-                legend_label="Blackbody Photosphere"
+                legend_label="Blackbody Photosphere",
             )
 
         self._show_colorbar_bk()
@@ -1219,40 +1224,72 @@ class SDECPlotter:
     def _plot_emission_bk(self):
         """Plot emission part of the SDEC Plot using Bokeh."""
         lower_level = np.zeros(self.emission_luminosities_df.shape[0])
-        upper_level = lower_level + self.emission_luminosities_df[("noint", "")].to_numpy()
+        upper_level = (
+            lower_level
+            + self.emission_luminosities_df[("noint", "")].to_numpy()
+        )
 
         self.fig.varea(
             x=self.plot_wavelength.value,
-            y1=lower_level, y2=upper_level,
-            fill_color=self._predefined_traces["emission"]["noint"]["fillcolor"],
-            legend_label=self._predefined_traces["emission"]["noint"]["name"]
+            y1=lower_level,
+            y2=upper_level,
+            fill_color=self._predefined_traces["emission"]["noint"][
+                "fillcolor"
+            ],
+            legend_label=self._predefined_traces["emission"]["noint"]["name"],
         )
 
         lower_level = upper_level
-        upper_level = lower_level + self.emission_luminosities_df[("escatter", "")].to_numpy()
+        upper_level = (
+            lower_level
+            + self.emission_luminosities_df[("escatter", "")].to_numpy()
+        )
         self.fig.varea(
             x=self.plot_wavelength.value,
-            y1=lower_level, y2=upper_level,
-            fill_color=self._predefined_traces["emission"]["escatter"]["fillcolor"],
-            legend_label=self._predefined_traces["emission"]["escatter"]["name"]
+            y1=lower_level,
+            y2=upper_level,
+            fill_color=self._predefined_traces["emission"]["escatter"][
+                "fillcolor"
+            ],
+            legend_label=self._predefined_traces["emission"]["escatter"][
+                "name"
+            ],
         )
 
         if "other" in self.emission_luminosities_df.keys():
             lower_level = upper_level
-            upper_level = lower_level + self.emission_luminosities_df[("other", "")].to_numpy()
+            upper_level = (
+                lower_level
+                + self.emission_luminosities_df[("other", "")].to_numpy()
+            )
             self.fig.varea(
                 x=self.plot_wavelength.value,
-                y1=lower_level, y2=upper_level,
-                fill_color=self._predefined_traces["emission"]["other"]["fillcolor"],
-                legend_label=self._predefined_traces["emission"]["other"]["name"]
+                y1=lower_level,
+                y2=upper_level,
+                fill_color=self._predefined_traces["emission"]["other"][
+                    "fillcolor"
+                ],
+                legend_label=self._predefined_traces["emission"]["other"][
+                    "name"
+                ],
             )
 
         for species_counter, identifier in enumerate(self.species):
             try:
                 lower_level = upper_level
-                upper_level = lower_level + self.emission_luminosities_df[tuple(identifier)].to_numpy()
+                upper_level = (
+                    lower_level
+                    + self.emission_luminosities_df[
+                        tuple(identifier)
+                    ].to_numpy()
+                )
                 hex_color = clr.to_hex(self._color_list[species_counter])
-                self.fig.varea(x=self.plot_wavelength.value, y1=lower_level, y2=upper_level, fill_color=hex_color)
+                self.fig.varea(
+                    x=self.plot_wavelength.value,
+                    y1=lower_level,
+                    y2=upper_level,
+                    fill_color=hex_color,
+                )
             except KeyError:
                 self._log_missing_species(identifier, "emitted")
 
@@ -1262,35 +1299,76 @@ class SDECPlotter:
 
         if "other" in self.absorption_luminosities_df.keys():
             upper_level = lower_level
-            lower_level = upper_level - self.absorption_luminosities_df[("other", "")].to_numpy()
-            self.fig.varea(x=self.plot_wavelength.value, y1=upper_level, y2=lower_level, fill_color="silver")
+            lower_level = (
+                upper_level
+                - self.absorption_luminosities_df[("other", "")].to_numpy()
+            )
+            self.fig.varea(
+                x=self.plot_wavelength.value,
+                y1=upper_level,
+                y2=lower_level,
+                fill_color="silver",
+            )
 
         for species_counter, identifier in enumerate(self.species):
             try:
                 upper_level = lower_level
-                lower_level = upper_level - self.absorption_luminosities_df[tuple(identifier)].to_numpy()
+                lower_level = (
+                    upper_level
+                    - self.absorption_luminosities_df[
+                        tuple(identifier)
+                    ].to_numpy()
+                )
                 hex_color = clr.to_hex(self._color_list[species_counter])
-                self.fig.varea(x=self.plot_wavelength.value, y1=upper_level, y2=lower_level, fill_color=hex_color)
+                self.fig.varea(
+                    x=self.plot_wavelength.value,
+                    y1=upper_level,
+                    y2=lower_level,
+                    fill_color=hex_color,
+                )
             except KeyError:
                 self._log_missing_species(identifier, "absorbed")
 
     def _show_colorbar_bk(self):
         """Show Bokeh colorbar with labels of elements mapped to colors."""
-        from bokeh.models import LinearColorMapper, ColorBar, FixedTicker, CustomJSTickFormatter
+        from bokeh.models import (
+            LinearColorMapper,
+            ColorBar,
+            FixedTicker,
+            CustomJSTickFormatter,
+        )
+
         if len(self._species_name) == 0:
             return
 
-        colors = [clr.to_hex(self.cmap(i / len(self._species_name))) for i in range(len(self._species_name))]
-        mapper = LinearColorMapper(palette=colors, low=0, high=len(self._species_name))
+        colors = [
+            clr.to_hex(self.cmap(i / len(self._species_name)))
+            for i in range(len(self._species_name))
+        ]
+        mapper = LinearColorMapper(
+            palette=colors, low=0, high=len(self._species_name)
+        )
 
         ticker = FixedTicker(ticks=np.arange(0, len(self._species_name)) + 0.5)
-        tick_dict = {float(t): str(l) for t, l in zip(np.arange(0, len(self._species_name)) + 0.5, self._species_name)}
+        tick_dict = {
+            float(t): str(l)
+            for t, l in zip(
+                np.arange(0, len(self._species_name)) + 0.5, self._species_name
+            )
+        }
 
-        formatter_js = "const labels = " + str(tick_dict) + "; return labels[tick] || '';"
+        formatter_js = (
+            "const labels = " + str(tick_dict) + "; return labels[tick] || '';"
+        )
         formatter = CustomJSTickFormatter(code=formatter_js)
 
-        color_bar = ColorBar(color_mapper=mapper, ticker=ticker, formatter=formatter, title="Elements")
-        self.fig.add_layout(color_bar, 'right')
+        color_bar = ColorBar(
+            color_mapper=mapper,
+            ticker=ticker,
+            formatter=formatter,
+            title="Elements",
+        )
+        self.fig.add_layout(color_bar, "right")
 
     def generate_plot_ply(
         self,
@@ -1489,7 +1567,7 @@ class SDECPlotter:
         """Show plotly colorbar with labels of elements mapped to colors."""
         if len(self._species_name) == 0:
             return
-            
+
         # Interpolate [0, 1] range to create bins equal to number of elements
         colorscale_bins = np.linspace(0, 1, num=len(self._species_name) + 1)
 

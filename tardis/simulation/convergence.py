@@ -28,8 +28,8 @@ class ConvergenceSolver:
             self.lambda_min = 0.1
             self.lambda_max = 1.0
             self.lambda_step = 0.05
-            self.residual_old = None 
-            self.damping_factor = 0.5  
+            self.residual_old = None
+            self.damping_factor = 0.5
             self.converge = self.adaptive_damped
         elif self.convergence_strategy.type in ("custom"):
             raise NotImplementedError(
@@ -59,7 +59,7 @@ class ConvergenceSolver:
             The converged value
         """
         return value + self.damping_factor * (estimated_value - value)
-    
+
     def adaptive_damped(self, value, estimated_value):
         """Adaptive damped convergence solver
 
@@ -81,8 +81,8 @@ class ConvergenceSolver:
         -----
         The damping factor is updated in place and constrained in the interval [lambda_min, lambda_max]
         """
-        delta = self.lambda_step 
-        base = self.damping_factor 
+        delta = self.lambda_step
+        base = self.damping_factor
 
         candidates = [base]
         if base - delta >= self.lambda_min:

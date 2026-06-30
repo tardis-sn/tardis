@@ -53,7 +53,7 @@ class LineInfoWidget:
         spectrum_luminosity_density_lambda,
         virt_spectrum_wavelength,
         virt_spectrum_luminosity_density_lambda,
-        sdec_figure=None
+        sdec_figure=None,
     ):
         """
         Initialize the LineInfoWidget with line interaction and spectrum data.
@@ -103,7 +103,7 @@ class LineInfoWidget:
             self.figure_widget = self._setup_selection(
                 p=sdec_figure,
                 wavelength=spectrum_wavelength,
-                luminosity_density_lambda=spectrum_luminosity_density_lambda
+                luminosity_density_lambda=spectrum_luminosity_density_lambda,
             )
         else:
             self.figure_widget = self.plot_spectrum(
@@ -165,7 +165,7 @@ class LineInfoWidget:
             virt_spectrum_luminosity_density_lambda=spectrum_solver.spectrum_virtual_packets.luminosity_density_lambda.to(
                 "erg/(s AA)"
             ),
-            sdec_figure=sdec_figure
+            sdec_figure=sdec_figure,
         )
 
     def get_species_interactions(
@@ -326,7 +326,7 @@ class LineInfoWidget:
                     is False
                 )
 
-            except (KeyError, AssertionError):  # selected_species is invalid
+            except KeyError, AssertionError:  # selected_species is invalid
                 allowed_species = [
                     species_tuple_to_string(species)
                     for species in self.line_interaction_analysis[filter_mode]
@@ -480,7 +480,11 @@ class LineInfoWidget:
         self._selection_source = selection_source
 
         # Approximate y_range bounds
-        y_max = np.max(np.abs(luminosity_density_lambda.value)) * 1.5 if len(luminosity_density_lambda.value) > 0 else 1
+        y_max = (
+            np.max(np.abs(luminosity_density_lambda.value)) * 1.5
+            if len(luminosity_density_lambda.value) > 0
+            else 1
+        )
         y_min = -y_max if p.title and "SDEC" in str(p.title.text) else 0.0
         self._y_range = [y_min, y_max]
 

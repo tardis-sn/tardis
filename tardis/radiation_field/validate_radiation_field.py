@@ -4,6 +4,7 @@ from astropy import units as u
 
 logger = logging.getLogger(__name__)
 
+
 def validate_radiative_temperature(t_radiative):
     """
     Validates the radiative temperature to ensure it is physically reasonable.

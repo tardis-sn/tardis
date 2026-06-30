@@ -69,7 +69,9 @@ class TestPlotUtil:
 
     @pytest.fixture(scope="module")
     def packet_data(self, simulation_simple_tracked):
-        data = extract_and_process_packet_data(simulation_simple_tracked, "real")
+        data = extract_and_process_packet_data(
+            simulation_simple_tracked, "real"
+        )
         data["packets_df"]["last_interaction_type"] = data["packets_df"][
             "last_interaction_type"
         ].astype(str)
@@ -205,8 +207,8 @@ class TestPlotUtil:
         )
         return pd.DataFrame({"mask": mask})
 
-    def test_create_wavelength_mask(
-        self, masked_packet_data, regression_data
-    ):
-        expected = regression_data.sync_dataframe(masked_packet_data, key="mask")
+    def test_create_wavelength_mask(self, masked_packet_data, regression_data):
+        expected = regression_data.sync_dataframe(
+            masked_packet_data, key="mask"
+        )
         pd.testing.assert_frame_equal(masked_packet_data, expected)

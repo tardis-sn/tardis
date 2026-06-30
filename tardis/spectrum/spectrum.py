@@ -168,5 +168,5 @@ class TARDISSpectrum(HDFWriterMixin):
             )
         else:
             raise NotImplementedError(
-                'only mode "luminosity_density"' 'and "flux" are implemented'
+                'only mode "luminosity_density"and "flux" are implemented'
             )

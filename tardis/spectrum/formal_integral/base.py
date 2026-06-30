@@ -22,7 +22,9 @@ class IntegrationError(Exception):
     pass
 
 
-def check_formal_integral_requirements(simulation_state, opacity_state, transport, raises=True):
+def check_formal_integral_requirements(
+    simulation_state, opacity_state, transport, raises=True
+):
     """
     A method that determines if the formal integral can be performed with
     the current configuration settings
@@ -97,7 +99,11 @@ def calculate_impact_parameters(radius_max, n_impact_parameters):
     -------
     float64
     """
-    return np.arange(n_impact_parameters).astype(np.float64) * radius_max / (n_impact_parameters - 1)
+    return (
+        np.arange(n_impact_parameters).astype(np.float64)
+        * radius_max
+        / (n_impact_parameters - 1)
+    )
 
 
 def intensity_black_body(frequency, temperature):
@@ -117,4 +123,10 @@ def intensity_black_body(frequency, temperature):
         return np.nan  # to avoid ZeroDivisionError
     beta_rad = 1 / (KB_CGS * temperature)
     coefficient = 2 * H_CGS * C_INV * C_INV
-    return coefficient * frequency * frequency * frequency / (np.exp(H_CGS * frequency * beta_rad) - 1)
+    return (
+        coefficient
+        * frequency
+        * frequency
+        * frequency
+        / (np.exp(H_CGS * frequency * beta_rad) - 1)
+    )

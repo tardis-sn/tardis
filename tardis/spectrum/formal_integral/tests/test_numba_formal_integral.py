@@ -41,7 +41,9 @@ def calculate_intersection_point(r, p):
 
 
 @pytest.mark.parametrize("p", [0.0, 0.5, 1.0])
-def test_calculate_intersection_point(formal_integral_geometry, time_explosion, p):
+def test_calculate_intersection_point(
+    formal_integral_geometry, time_explosion, p
+):
     inv_t = 1.0 / time_explosion
     size = len(formal_integral_geometry.r_outer)
     r_outer = formal_integral_geometry.r_outer
@@ -75,7 +77,9 @@ def test_populate_z_photosphere(formal_integral_geometry, time_explosion, p):
 
     ntest.assert_allclose(oshell_id, np.arange(0, size, 1))
 
-    ntest.assert_allclose(oz, 1 - calculate_intersection_point(r_outer, p), atol=1e-5)
+    ntest.assert_allclose(
+        oz, 1 - calculate_intersection_point(r_outer, p), atol=1e-5
+    )
 
 
 @pytest.mark.parametrize("p", [1e-5, 0.5, 0.99, 1])

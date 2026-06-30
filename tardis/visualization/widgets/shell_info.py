@@ -241,9 +241,7 @@ class ShellInfoWidget:
         self.data = shell_info_data
 
         # Creating the shells data table widget
-        self.shells_table = create_table_widget(
-            self.data.shells_data()
-        )
+        self.shells_table = create_table_widget(self.data.shells_data())
 
         # Creating the element count table widget
         self.element_count_table = create_table_widget(
@@ -398,7 +396,7 @@ class ShellInfoWidget:
                 self.element_count_table.table,
                 self.ion_count_table.table,
                 self.level_count_table.table,
-                sizing_mode='stretch_width'
+                sizing_mode="stretch_width",
             )
             self.shells_table.change_selection([1])
 

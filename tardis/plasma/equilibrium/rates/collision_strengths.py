@@ -239,7 +239,9 @@ class UpsilonRegemorterSolver:
             transition_data.index.get_level_values("level_number_lower")
             < transition_data.index.get_level_values("level_number_upper")
         )
-        self.transition_data = transition_data.sort_index(kind=SORTING_ALGORITHM)
+        self.transition_data = transition_data.sort_index(
+            kind=SORTING_ALGORITHM
+        )
         self.g_bar = g_bar
 
     def solve(self, t_electrons):

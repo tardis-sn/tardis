@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 import numpy as np
@@ -10,7 +9,10 @@ from tardis.io.model.artis.data import ArtisData
 
 def read_artis_density(
     fname: str | Path, legacy_return: bool = True
-) -> tuple[u.Quantity, u.Quantity, u.Quantity] | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]:
+) -> (
+    tuple[u.Quantity, u.Quantity, u.Quantity]
+    | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]
+):
     """
     Read an ARTIS density file.
 
@@ -73,9 +75,9 @@ def read_artis_density(
         names=artis_model_columns,
         sep=r"\s+",
     )
-    assert (
-        len(artis_model) == no_of_shells
-    ), "Number of shells {len(artis_model)} does not match metadate {no_of_shells}"
+    assert len(artis_model) == no_of_shells, (
+        "Number of shells {len(artis_model)} does not match metadate {no_of_shells}"
+    )
     velocity = u.Quantity(artis_model["velocities"], "km/s").to("cm/s")
     mean_density = u.Quantity(10 ** artis_model["mean_densities_0"], "g/cm^3")
 
@@ -133,7 +135,9 @@ def read_artis_mass_fractions(
     mass_fractions_df.index.name = "cell_index"
 
     if normalize:
-        mass_fractions_df = mass_fractions_df.div(mass_fractions_df.sum(axis=1), axis=0)
+        mass_fractions_df = mass_fractions_df.div(
+            mass_fractions_df.sum(axis=1), axis=0
+        )
     mass_fractions_df = mass_fractions_df.T
     mass_fractions_df.index.name = "atomic_number"
     mass_fractions_df.columns.name = "cell_index"
@@ -159,8 +163,10 @@ def read_artis_model(
     ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     """
-    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density( # type: ignore
-        density_fname, legacy_return=False
+    time_of_model, velocity, mean_density, isotope_mass_fractions = (
+        read_artis_density(  # type: ignore
+            density_fname, legacy_return=False
+        )
     )
     mass_fractions = read_artis_mass_fractions(abundance_fname)
     mass_fractions.index = pd.MultiIndex.from_arrays(

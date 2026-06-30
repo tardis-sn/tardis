@@ -70,7 +70,9 @@ class BasePacketSource(abc.ABC):
         self.rng = np.random.default_rng(seed=seed)
 
     # One should either implement create_packet_velocities or create_packet_radii
-    def create_packet_radii(self, no_of_packets: int, *args: Any, **kwargs: Any):
+    def create_packet_radii(
+        self, no_of_packets: int, *args: Any, **kwargs: Any
+    ):
         """
         Create packet radii.
 
@@ -101,7 +103,9 @@ class BasePacketSource(abc.ABC):
             "Subclasses must implement either create_packet_radii or create_packet_velocities"
         )
 
-    def create_packet_velocities(self, no_of_packets: int, *args: Any, **kwargs: Any):
+    def create_packet_velocities(
+        self, no_of_packets: int, *args: Any, **kwargs: Any
+    ):
         """
         Create packet velocities.
 
@@ -173,7 +177,9 @@ class BasePacketSource(abc.ABC):
         """
 
     @abc.abstractmethod
-    def create_packet_energies(self, no_of_packets: int, *args: Any, **kwargs: Any):
+    def create_packet_energies(
+        self, no_of_packets: int, *args: Any, **kwargs: Any
+    ):
         """
         Create packet energies.
 
@@ -265,13 +271,5 @@ class BasePacketSource(abc.ABC):
             Inner luminosity in erg/s.
         """
         return (
-            4
-            * np.pi
-            * const.sigma_sb
-            * self.radius**2
-            * self.temperature**4
+            4 * np.pi * const.sigma_sb * self.radius**2 * self.temperature**4
         ).to("erg/s")
-
-
-
-

@@ -64,5 +64,7 @@ def test_scatter_type(
     expected : list
         Expected parameters
     """
-    actual = scatter_type(compton_opacity, photoabsorption_opacity, total_opacity)
+    actual = scatter_type(
+        compton_opacity, photoabsorption_opacity, total_opacity
+    )
     assert actual == expected
