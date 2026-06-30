@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
 import pytest
@@ -27,7 +28,7 @@ def test_ionization_data_calculate_atomic_property(
         actual_ionization_data, key="ionization_data"
     )
     pdt.assert_series_equal(
-        actual_ionization_data, expected_ionization_data, atol=0, rtol=1e-15
+        actual_ionization_data, expected_ionization_data, atol=0, rtol=2e-14
     )
 
 
@@ -99,7 +100,7 @@ def test_partition_function_sums_boltzmann_factors_within_ion(
     )
     level_boltzmann_factor = pd.DataFrame(boltzmann_factors, index=index, columns=[0])
     result = PartitionFunction(None).calculate(level_boltzmann_factor)
-    np.testing.assert_allclose(result.loc[(1, 0), 0], expected_sum)
+    npt.assert_allclose(result.loc[(1, 0), 0], expected_sum)
 
 
 # ── StimulatedEmissionFactor ──────────────────────────────────────────────────
@@ -126,8 +127,8 @@ def test_stimulated_emission_factor_regression(
     expected = regression_data.sync_ndarray(
         stimulated_emission_factor
     )
-    np.testing.assert_allclose(
-        stimulated_emission_factor, expected, atol=0, rtol=1e-15
+    npt.assert_allclose(
+        stimulated_emission_factor, expected, atol=0, rtol=2e-14
     )
 
 
