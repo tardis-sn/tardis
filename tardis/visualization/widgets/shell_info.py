@@ -228,15 +228,23 @@ class ShellInfoWidget(param.Parameterized):
     tables.
     """
 
-    shell_idx = param.List(default=[], doc="Index of current selected row in shells table")
-    atomic_idx = param.List(default=[], doc="Index of current selected row in element count table")
-    ion_idx = param.List(default=[], doc="Index of current selected row in ion count table")
+    shell_index = param.List(default=[], doc="Index of current selected row in shells table")
+    atomic_index = param.List(default=[], doc="Index of current selected row in element count table")
+    ion_index = param.List(default=[], doc="Index of current selected row in ion count table")
 
     @staticmethod
-    def create_table_widget(data, table_options=None):
+    def _create_table_widget(data):
         """
-        The helper function in widgets/util.py is configured to mimic qgrid functionality
-        which is not needed in this approach
+        Create a table widget using Panel's Tabulator widget
+
+        Parameters
+        ----------
+        data: pandas.DataFrame
+            Data to be displayed in the table widget
+
+        Returns
+        -------
+        panel.widgets.Tabulator
         """
         _df = data.copy()
 
@@ -265,17 +273,17 @@ class ShellInfoWidget(param.Parameterized):
         self.data = shell_info_data
 
         # Creating the shells data table widget
-        self.shells_table = self.create_table_widget(
+        self.shells_table = self._create_table_widget(
             self.data.shells_data()
         )
 
         # Creating the element count table widget
-        self.element_count_table = self.create_table_widget(
+        self.element_count_table = self._create_table_widget(
             self.data.element_count(self.shells_table.value.index[0])
         )
 
         # Creating the ion count table widget
-        self.ion_count_table = self.create_table_widget(
+        self.ion_count_table = self._create_table_widget(
             self.data.ion_count(
                 self.element_count_table.value.index[0],
                 self.shells_table.value.index[0],
@@ -283,7 +291,7 @@ class ShellInfoWidget(param.Parameterized):
         )
 
         # Creating the level count table widget
-        self.level_count_table = self.create_table_widget(
+        self.level_count_table = self._create_table_widget(
             self.data.level_count(
                 self.ion_count_table.value.index[0],
                 self.element_count_table.value.index[0],
@@ -292,43 +300,43 @@ class ShellInfoWidget(param.Parameterized):
         )
 
         # The indexes will update when user clicks on the rows of tables
-        self.shells_table.link(self, selection="shell_idx")
-        self.element_count_table.link(self, selection="atomic_idx")
-        self.ion_count_table.link(self, selection="ion_idx")
+        self.shells_table.link(self, selection="shell_index")
+        self.element_count_table.link(self, selection="atomic_index")
+        self.ion_count_table.link(self, selection="ion_index")
 
-    @param.depends("shell_idx", watch=True)
+    @param.depends("shell_index", watch=True)
     def update_element_count_table(self):
         """Event listener to update the data in element count table widget based
         on interaction (row selected event) in shells table widget.
         """
         # Update element count table data based on selected shell number (shell_idx)
-        self.element_count_table.value = self.data.element_count(self.shell_idx[0]+1)
+        self.element_count_table.value = self.data.element_count(self.shell_index[0] + 1)
 
         self.element_count_table.selection = [0]  # Reset ion_num selection when shell_idx changes
 
-    @param.depends("atomic_idx", "shell_idx", watch=True)
+    @param.depends("atomic_index", "shell_index", watch=True)
     def update_ion_count_table(self):
         """Event listener to update the data in ion count table widget based
         on interaction (row selected event) in element count table widget.
         """
         # Get the selected shell number and atomic number based on selected rows in shells table and element count table
-        shell_num = self.shell_idx[0]+1
-        atomic_num = self.element_count_table.value.index[self.atomic_idx[0]]
+        shell_num = self.shell_index[0] + 1
+        atomic_num = self.element_count_table.value.index[self.atomic_index[0]]
 
         # Update ion count table data based on selected shell number and atomic number
         self.ion_count_table.value = self.data.ion_count(atomic_num, shell_num)
 
         self.ion_count_table.selection = [0]  # Reset ion count table selection when atomic_idx changes
 
-    @param.depends("ion_idx", "atomic_idx", "shell_idx", watch=True)
+    @param.depends("ion_index", "atomic_index", "shell_index", watch=True)
     def update_level_count_table(self):
         """Event listener to update the data in level count table widget based
         on interaction (row selected event) in ion count table widget.
         """
         # Get the selected shell number, atomic number and ion number based on selected rows in their tables
-        shell_num = self.shell_idx[0]+1
-        atomic_num = self.element_count_table.value.index[self.atomic_idx[0]]
-        ion_num = self.ion_count_table.value.index[self.ion_idx[0]]
+        shell_num = self.shell_index[0] + 1
+        atomic_num = self.element_count_table.value.index[self.atomic_index[0]]
+        ion_num = self.ion_count_table.value.index[self.ion_index[0]]
 
         self.level_count_table.value = self.data.level_count(
             ion_num, atomic_num, shell_num
