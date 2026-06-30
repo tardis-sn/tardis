@@ -17,7 +17,7 @@ on:
       - ready_for_review
   workflow_dispatch:
 
-env: 
+env:
   DEPLOY_BRANCH: main
 
 concurrency:
@@ -34,7 +34,6 @@ jobs:
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   build:
     if: github.repository_owner == 'tardis-sn' &&
@@ -88,7 +87,7 @@ jobs:
 
       - name: Accept all asv questions
         run: asv machine --yes
-      
+
       - name: Download environment file for benchmarks
         run: wget -q https://raw.githubusercontent.com/tardis-sn/tardisbase/refs/heads/master/env-benchmark-linux.yml
 
