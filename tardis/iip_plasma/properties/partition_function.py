@@ -801,7 +801,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 nlte_lines_mask |= (atomic_numbers == atomic_number) & (
                     ion_numbers == ion_number
                 )
-            tau_sobolev_property = self.plasma_parent.plasma_properties_dict[
+            tau_sobolev_property = pl.plasma_properties_dict[
                 "TauSobolev"
             ]
             time_explosion = pl.time_explosion
