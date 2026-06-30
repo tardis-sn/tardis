@@ -1,7 +1,0 @@
-tardis.transport.montecarlo.modes.nonhomologous.plasma\_assembly\_base module
-=============================================================================
-
-.. automodule:: tardis.transport.montecarlo.modes.nonhomologous.plasma_assembly_base
-   :members:
-   :show-inheritance:
-   :undoc-members:
