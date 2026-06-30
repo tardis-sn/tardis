@@ -26,7 +26,7 @@ class MCContinuumPropertiesSolver:
         estimators_continuum: EstimatorsContinuum,
         time_simulation: float,
         volume: float,
-    ) -> "ContinuumProperties":
+    ) -> ContinuumProperties:
         """
         Solve for the continuum properties.
 

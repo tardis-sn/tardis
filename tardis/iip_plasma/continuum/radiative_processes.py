@@ -11,7 +11,6 @@ from tardis.iip_plasma.continuum.base import (
     PhysicalContinuumProcess,
 )
 from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
-from tardis.plasma.exceptions import PlasmaException
 from tardis.util.base import intensity_black_body
 
 logger = logging.getLogger(__name__)
@@ -44,7 +43,7 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
     macro_atom_transitions = "continuum"
 
     def __init__(self, input_data):
-        super(RadiativeIonization, self).__init__(input_data)
+        super().__init__(input_data)
 
     def _calculate_rate_coefficient(self, **kwargs):
         rate_coefficient_dilute_bb = (
@@ -66,8 +65,8 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
                 no_of_bad_elements != 0
             ):
                 logger.info(
-                    "Replacing {} photoionization rates with values based on the "
-                    "radiation field model".format(no_of_bad_elements)
+                    f"Replacing {no_of_bad_elements} photoionization rates with values based on the "
+                    "radiation field model"
                 )
 
                 rate_coefficient = self._calculate_rate_coefficient_combination(
@@ -92,9 +91,9 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         -----
         .. math::
 
-            \tilde \gamma_i = 4 \pi \int_{\nu_i}^{\infty} \! \frac{\tilde a_{i \kappa}}{h \nu} J_{\nu}
-             \, \mathrm{d}\nu \\
-            \tilde a_{i\kappa}(\nu)= a_{i\kappa}(\nu)\left(1-\frac{n_{\kappa} n_i^*}{n_i n_{\kappa}^*}
+            \tilde \\gamma_i = 4 \\pi \\int_{\nu_i}^{\\infty} \\! \frac{\tilde a_{i \\kappa}}{h \nu} J_{\nu}
+             \\, \\mathrm{d}\nu \\
+            \tilde a_{i\\kappa}(\nu)= a_{i\\kappa}(\nu)\\left(1-\frac{n_{\\kappa} n_i^*}{n_i n_{\\kappa}^*}
             e^{-h\nu/kT} \right)
 
         """
@@ -171,10 +170,8 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         no_of_bad_elements = (estimator_statistics < count_threshold).sum()
         if no_of_bad_elements != 0:
             logger.warning(
-                "{} MC estimators have been updated less than {} times, with a minimum of"
-                " {} updates".format(
-                    no_of_bad_elements, count_threshold, min_count
-                )
+                f"{no_of_bad_elements} MC estimators have been updated less than {count_threshold} times, with a minimum of"
+                f" {min_count} updates"
             )
         return no_of_bad_elements
 
@@ -234,7 +231,7 @@ class RadiativeRecombination(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
     name = "radiative_recombination"
 
     def __init__(self, input_data):
-        super(RadiativeRecombination, self).__init__(input_data)
+        super().__init__(input_data)
 
     def _calculate_cooling_rate(self):
         sp_recombination_coeff_E = self._calculate_rate_coefficient(
@@ -447,7 +444,7 @@ class FreeFree(PhysicalContinuumProcess):
     name = "free_free"
 
     def __init__(self, input_data, **kwargs):
-        super(FreeFree, self).__init__(input_data, **kwargs)
+        super().__init__(input_data, **kwargs)
         self.chi_ff_factor = self._calculate_chi_ff_factor()
 
     def _calculate_cooling_rate(self, **kwargs):

@@ -4,9 +4,9 @@ from pathlib import Path
 import tardis.util.base
 
 if os.environ.get("QT_API", None) == "pyqt":
-    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWidgets
 elif os.environ.get("QT_API", None) == "pyside":
-    from PySide2 import QtGui, QtCore, QtWidgets
+    from PySide2 import QtCore, QtGui, QtWidgets
 else:
     raise ImportError(
         """QT_API was not set! Please exit the IPython console\n
@@ -15,19 +15,18 @@ else:
     )
 
 import matplotlib
-from matplotlib.figure import *
 import matplotlib.gridspec as gridspec
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import matplotlib.pylab as plt
+from astropy import units as u
+from matplotlib import colors
 from matplotlib.backends.backend_qt5 import (
     NavigationToolbar2QT as NavigationToolbar,
 )
-from matplotlib import colors
-from matplotlib.patches import Circle
-import matplotlib.pylab as plt
-from astropy import units as u
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import *
 
 import tardis
-from tardis import analysis, util
+from tardis import analysis
 
 
 class MatplotlibWidget(FigureCanvas):
@@ -35,7 +34,6 @@ class MatplotlibWidget(FigureCanvas):
 
     def __init__(self, tablecreator, parent, fig=None):
         """Create the canvas. Add toolbar depending on the parent."""
-
         # Force-deactivate LaTeX
         plt.rcParams["text.usetex"] = False
 
@@ -52,11 +50,11 @@ class MatplotlibWidget(FigureCanvas):
         self.cb = None
         self.span = None
 
-        super(MatplotlibWidget, self).__init__(self.figure)
-        super(MatplotlibWidget, self).setSizePolicy(
+        super().__init__(self.figure)
+        super().setSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
         )
-        super(MatplotlibWidget, self).updateGeometry()
+        super().updateGeometry()
         if fig != "model":
             self.toolbar = NavigationToolbar(self, parent)
             self.cid[0] = self.figure.canvas.mpl_connect(
@@ -184,7 +182,7 @@ class MatplotlibWidget(FigureCanvas):
         if left - tolerance <= mouseevent.xdata <= left + tolerance:
             event_attributes["edge"] = "left"
             return True, event_attributes
-        elif right - tolerance <= mouseevent.xdata <= right + tolerance:
+        if right - tolerance <= mouseevent.xdata <= right + tolerance:
             event_attributes["edge"] = "right"
             return True, event_attributes
         return False, event_attributes
@@ -196,7 +194,7 @@ class Shell(matplotlib.patches.Wedge):
     """
 
     def __init__(self, index, center, r_inner, r_outer, **kwargs):
-        super(Shell, self).__init__(
+        super().__init__(
             center, r_outer, 0, 90, width=r_outer - r_inner, **kwargs
         )
         self.index = index
@@ -224,7 +222,7 @@ class ConfigEditor(QtWidgets.QWidget):
             Set to None. The parent is changed when the widget is
             appended to the layout of its parent.
         """
-        super(ConfigEditor, self).__init__(parent)
+        super().__init__(parent)
 
         # Configurations from the input and template
         configDict = yaml.load(open(yamlconfigfile), Loader=yaml.CLoader)
@@ -427,7 +425,7 @@ class ConfigEditor(QtWidgets.QWidget):
                             print("The selected and available options")
                             print(optionselected)
                             print(options)
-                            raise IOError(
+                            raise OSError(
                                 "An invalid option was"
                                 " provided in the input file"
                             )
@@ -442,7 +440,6 @@ class ConfigEditor(QtWidgets.QWidget):
         """Recalculate and display the model from the modified data in
         the ConfigEditor.
         """
-        pass
 
 
 class ModelViewer(QtWidgets.QWidget):
@@ -529,7 +526,6 @@ class ModelViewer(QtWidgets.QWidget):
         """Read some data from tardis model and display on the label for
         quick user access.
         """
-
         model_converged = (
             '<font color="green"><b>True</b></font>'
             if self.model.converged
@@ -654,7 +650,8 @@ class ModelViewer(QtWidgets.QWidget):
 
     def change_spectrum_to_spec_flux_angstrom(self):
         """Change spectrum data back from virtual spectrum. (See the
-        method above)."""
+        method above).
+        """
         if self.model.transport.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
                 self.model.transport.spectrum.wavelength
@@ -811,7 +808,7 @@ class ShellInfo(QtWidgets.QDialog):
 
     def __init__(self, index, tablecreator, parent=None):
         """Create the widget to display shell info and set data."""
-        super(ShellInfo, self).__init__(parent)
+        super().__init__(parent)
 
         self.createTable = tablecreator
         self.parent = parent
@@ -848,7 +845,8 @@ class ShellInfo(QtWidgets.QDialog):
 
     def on_atom_header_double_clicked(self, index):
         """Called when a header in the first column is clicked to show
-        ion populations."""
+        ion populations.
+        """
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
         self.table2_data = self.parent.model.plasma.ion_number_density[
             self.shell_index
@@ -924,8 +922,9 @@ class LineInfo(QtWidgets.QDialog):
 
     def __init__(self, parent, wavelength_start, wavelength_end, tablecreator):
         """Create the dialog and set data in it from the model.
-        Show widget."""
-        super(LineInfo, self).__init__(parent)
+        Show widget.
+        """
+        super().__init__(parent)
         self.createTable = tablecreator
         self.parent = parent
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
@@ -1120,7 +1119,7 @@ class LineInteractionTables(QtWidgets.QWidget):
         tablecreator,
     ):
         """Create the widget and set data."""
-        super(LineInteractionTables, self).__init__()
+        super().__init__()
         self.createTable = tablecreator
         self.text_description = QtWidgets.QLabel(str(description))
         self.species_table = QtWidgets.QTableView()
@@ -1249,7 +1248,6 @@ class Tardis(QtWidgets.QMainWindow):
             Raised when an attempt is made to start the active mode.
             This will be removed when active mode is developed.
         """
-
         # assumes that qt has already been initialized by starting IPython
         # with the flag "--pylab=qt"gut
         # app = QtCore.QCoreApplication.instance()

@@ -39,7 +39,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
         """
         Calculates the level populations with the Boltzmann equation in LTE.
         """
-        super(LevelNumberDensity, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         if hasattr(self.plasma_parent, "plasma_properties_dict"):
             if "HeliumNLTE" in self.plasma_parent.plasma_properties_dict.keys():
                 helium_treatment = "recomb-nlte"
@@ -122,7 +122,7 @@ class LTELevelNumberDensity(LevelNumberDensity):
         levels,
         lte_partition_function_Te,
     ):
-        return super(LTELevelNumberDensity, self)._calculate_dilute_lte(
+        return super()._calculate_dilute_lte(
             lte_level_boltzmann_factor_Te,
             lte_ion_number_density,
             levels,

@@ -49,10 +49,9 @@ def read_stella_model(fname):
                 if "mass of cell" in line:
                     column_names_raw = re.split(r"\s{3,}", line.strip())
                     break
-                else:
-                    raise ValueError(
-                        '"mass of cell" is required in the Stella input file to infer columns'
-                    )
+                raise ValueError(
+                    '"mass of cell" is required in the Stella input file to infer columns'
+                )
 
         metadata["t_max"] = float(metadata["t_max"]) * u.day
         metadata["zones"] = int(metadata["zones"])

@@ -47,9 +47,9 @@ class BasePacketSource(abc.ABC):
 
     def __init__(
         self,
-        base_seed: "int | None" = None,
+        base_seed: int | None = None,
         legacy_mode_enabled: bool = False,
-        legacy_second_seed: "int | None" = None,
+        legacy_second_seed: int | None = None,
     ) -> None:
         self.base_seed = base_seed
         self.legacy_mode_enabled = legacy_mode_enabled

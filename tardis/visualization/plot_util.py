@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
-
 from tardis.util.base import (
     element_symbol2atomic_number,
     int_to_roman,
@@ -53,8 +51,7 @@ def axis_label_in_latex(label_text, unit, only_text=True):
 
     if only_text:
         return f"$\\text{{{label_text}}}\\,[{unit_in_latex}]$"
-    else:
-        return f"${label_text}\\,[{unit_in_latex}]$"
+    return f"${label_text}\\,[{unit_in_latex}]$"
 
 
 def get_mid_point_idx(arr):

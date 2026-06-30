@@ -73,7 +73,7 @@ class EstimatorsContinuum:
         self.ff_heating_estimator = ff_heating_estimator
         self.photo_ion_estimator_statistics = photo_ion_estimator_statistics
 
-    def increment(self, other: "EstimatorsContinuum") -> None:
+    def increment(self, other: EstimatorsContinuum) -> None:
         """
         Increment estimators with values from another instance.
 

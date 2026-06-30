@@ -128,7 +128,7 @@ class TransitionProbabilities(
     outputs = ("transition_probabilities",)
 
     def __init__(self, plasma_parent):
-        super(TransitionProbabilities, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.initialize = True
         self.normalize = True
 

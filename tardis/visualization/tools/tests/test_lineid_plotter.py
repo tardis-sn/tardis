@@ -1,6 +1,7 @@
 import pytest
-from tardis.visualization.tools.sdec_plot import SDECPlotter
 from matplotlib.testing.compare import compare_images
+
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 
 # check if lineid_plot is installed
 lineid_plot = pytest.importorskip(

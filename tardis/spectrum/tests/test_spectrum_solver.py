@@ -1,15 +1,12 @@
-from pathlib import Path
 
 import astropy.units as u
 import numpy as np
 import pandas as pd
 import pytest
 from astropy.tests.helper import assert_quantity_allclose
-
-from tardis.io.configuration.config_reader import Configuration
-from tardis.simulation.base import Simulation
-from tardis.spectrum.base import SpectrumSolver
 from tardisbase.testing.regression_data.regression_data import RegressionData
+
+from tardis.spectrum.base import SpectrumSolver
 
 
 class TestSpectrumSolver:

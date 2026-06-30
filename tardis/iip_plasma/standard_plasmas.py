@@ -48,7 +48,7 @@ class LTEPlasma(BasePlasma):
             + non_nlte_properties
         )
 
-        super(LTEPlasma, self).__init__(
+        super().__init__(
             plasma_properties=plasma_modules,
             t_rad=t_rad,
             abundance=abundance,
@@ -234,7 +234,7 @@ class LegacyPlasmaArray(BasePlasma):
             plasma_modules += continuum_inputs
             plasma_modules += continuum_interaction_properties
 
-        super(LegacyPlasmaArray, self).__init__(
+        super().__init__(
             plasma_properties=plasma_modules,
             t_rad=t_rad,
             abundance=abundance,

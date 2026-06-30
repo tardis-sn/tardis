@@ -12,7 +12,6 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis.simulation import Simulation
 from tardis.tests.fixtures.atom_data import *
-from tardis.tests.test_util import monkeysession
 from tardis.transport.montecarlo.progress_bars import (
     iterations_pbar,
     packet_pbar,

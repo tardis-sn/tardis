@@ -55,8 +55,7 @@ class BenchmarkBase:
         if atomic_data.md5 != DEFAULT_ATOM_DATA_MD5:
             message = f'Need default Kurucz atomic dataset (md5="{DEFAULT_ATOM_DATA_MD5}")'
             raise Exception(message)
-        else:
-            return atomic_data
+        return atomic_data
 
     @functools.cached_property
     def example_configuration_dir(self):

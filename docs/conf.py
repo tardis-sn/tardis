@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 #
 # Astropy documentation build configuration file.
@@ -24,17 +23,17 @@
 # Thus, any C-extensions that are needed to build the documentation will *not*
 # be accessible, and the documentation will not build correctly.
 
+import datetime
 import os
 import sys
-import datetime
-import tardis  # FIXME: this import is required by astropy.constants
 
 # Set environment variable for TARDIS sphinx builds
 os.environ["TARDIS_SPHINX_BUILD"] = "1"
 
 from importlib import import_module
-import toml
 from pathlib import Path
+
+import toml
 
 try:
     from sphinx_astropy.conf.v1 import *  # noqa
@@ -47,7 +46,7 @@ except ImportError:
 # Get configuration information from pyproject.toml
 toml_conf_path = Path(__file__).parent.parent / "pyproject.toml"
 
-with open(toml_conf_path, "r") as f_toml:
+with open(toml_conf_path) as f_toml:
     toml_config = toml.load(f_toml)
 toml_config_project_dict = toml_config["project"]
 toml_config_tool_dict = toml_config["tool"]
@@ -197,7 +196,7 @@ else:
 # This does not *have* to match the package name, but typically does
 project = toml_config_project_dict["name"]
 author = toml_config_project_dict["authors"][0]["name"]
-copyright = "2013-{0}, {1}".format(datetime.datetime.now().year, author)
+copyright = f"2013-{datetime.datetime.now().year}, {author}"
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -378,7 +377,7 @@ def generate_tutorials_page(app):
     title = "Tutorials\n*********\n"
     description = "The following pages contain the TARDIS tutorials:"
 
-    with open("tutorials.rst", mode="wt", encoding="utf-8") as f:
+    with open("tutorials.rst", mode="w", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
 
@@ -394,7 +393,7 @@ def generate_worflows_page(app):
     title = "Workflows\n*********\n"
     description = "The following pages contain the TARDIS workflows:\n\n These examples are intended to help users explore specific modules within TARDIS, with the goal of supporting their individual scientific objectives."
 
-    with open("workflows.rst", mode="wt", encoding="utf-8") as f:
+    with open("workflows.rst", mode="w", encoding="utf-8") as f:
         f.write(f"{title}\n{description}\n{notebooks}")
 
 

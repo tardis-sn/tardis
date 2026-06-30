@@ -4,7 +4,8 @@ This module implements the mathematical framework of absorbing Markov chains
 to compute probabilities of photon absorption in each cell and the expected
 number of steps before absorption from each source state.
 
-References:
+References
+----------
     Absorbing Markov chain theory: https://en.wikipedia.org/wiki/Absorbing_Markov_chain
 """
 

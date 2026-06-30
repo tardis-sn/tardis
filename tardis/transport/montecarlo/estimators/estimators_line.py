@@ -47,7 +47,7 @@ class EstimatorsLine:
         self.mean_intensity_blueward = mean_intensity_blueward
         self.energy_deposition_line_rate = energy_deposition_line_rate
 
-    def increment(self, other: "EstimatorsLine") -> None:
+    def increment(self, other: EstimatorsLine) -> None:
         """
         Increment estimators with values from another instance.
 

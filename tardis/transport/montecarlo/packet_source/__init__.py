@@ -13,11 +13,11 @@ from tardis.transport.montecarlo.packet_source.black_body import (
 from tardis.transport.montecarlo.packet_source.black_body_relativistic import (
     BlackBodySimpleSourceRelativistic,
 )
-from tardis.transport.montecarlo.packet_source.high_energy import (
-    GammaRayPacketSource,
-)
 from tardis.transport.montecarlo.packet_source.black_body_weighted import (
     BlackBodyWeightedSource,
+)
+from tardis.transport.montecarlo.packet_source.high_energy import (
+    GammaRayPacketSource,
 )
 
 __all__ = [

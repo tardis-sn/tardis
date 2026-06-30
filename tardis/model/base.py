@@ -275,7 +275,7 @@ class SimulationState(HDFWriterMixin):
         config: Configuration,
         atom_data: AtomData,
         legacy_mode_enabled: bool = False,
-    ) -> "SimulationState":
+    ) -> SimulationState:
         """Create a new SimulationState instance from a Configuration object.
 
         Parameters
@@ -325,7 +325,7 @@ class SimulationState(HDFWriterMixin):
         cls,
         config: Configuration,
         legacy_mode_enabled: bool = False,
-    ) -> "SimulationState":
+    ) -> SimulationState:
         """
         Create a new SimulationState instance from a Configuration object.
 

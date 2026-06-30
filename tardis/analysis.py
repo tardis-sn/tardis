@@ -386,8 +386,7 @@ class TARDISHistory:
         hdf_store.close()
         if is_scalar:
             return pd.DataFrame(level_populations_dict.values()[0])
-        else:
-            return pd.Panel(level_populations_dict)
+        return pd.Panel(level_populations_dict)
 
     def load_jblues(self, iterations=None):
         jblues_dict = {}
@@ -408,8 +407,7 @@ class TARDISHistory:
         hdf_store.close()
         if is_scalar:
             return pd.DataFrame(jblues_dict.values()[0])
-        else:
-            return pd.Panel(jblues_dict)
+        return pd.Panel(jblues_dict)
 
     def load_ion_populations(self, iterations=None):
         ion_populations_dict = {}
@@ -433,8 +431,7 @@ class TARDISHistory:
         hdf_store.close()
         if is_scalar:
             return pd.DataFrame(ion_populations_dict.values()[0])
-        else:
-            return pd.Panel(ion_populations_dict)
+        return pd.Panel(ion_populations_dict)
 
     def load_spectrum(self, iteration, spectrum_keyword="luminosity_density"):
         hdf_store = pd.HDFStore(self.hdf5_fname, "r")

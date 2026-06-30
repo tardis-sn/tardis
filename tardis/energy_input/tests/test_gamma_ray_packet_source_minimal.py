@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import numpy as np
 import pytest
 from astropy import units as u
 from numpy.testing import assert_allclose
@@ -15,12 +14,12 @@ from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     time_evolve_cumulative_decay,
 )
-from tardis.transport.montecarlo.packet_source.high_energy import (
-    GammaRayPacketSource,
-)
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
+from tardis.transport.montecarlo.packet_source.high_energy import (
+    GammaRayPacketSource,
+)
 
 
 @pytest.fixture(scope="module")

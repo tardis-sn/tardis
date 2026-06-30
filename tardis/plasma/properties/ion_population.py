@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 ION_ZERO_THRESHOLD = 1e-20
 
 __all__ = [
-    "PhiSahaNebular",
-    "PhiSahaLTE",
-    "RadiationFieldCorrection",
     "IonNumberDensity",
     "IonNumberDensityHeNLTE",
+    "PhiSahaLTE",
+    "PhiSahaNebular",
+    "RadiationFieldCorrection",
     "SahaFactor",
     "ThermalPhiSahaLTE",
 ]

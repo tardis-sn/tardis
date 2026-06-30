@@ -269,7 +269,7 @@ class PhysicalContinuumProcess(ContinuumProcess, TransitionProbabilitiesMixin):
     macro_atom_transitions = None
 
     def __init__(self, input_data, **kwargs):
-        super(PhysicalContinuumProcess, self).__init__(input_data)
+        super().__init__(input_data)
         self.rate_coefficient = self._calculate_rate_coefficient(**kwargs)
         if self.cooling is True:
             self.cooling_rate = self._calculate_cooling_rate(**kwargs)

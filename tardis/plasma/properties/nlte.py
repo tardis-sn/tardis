@@ -7,8 +7,8 @@ from tardis.plasma.properties.base import (
 )
 
 __all__ = [
-    "PreviousElectronDensities",
     "PreviousBetaSobolev",
+    "PreviousElectronDensities",
 ]
 
 logger = logging.getLogger(__name__)

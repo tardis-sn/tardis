@@ -1,8 +1,10 @@
 import numpy as np
 import numpy.testing as ntest
-from numba import cuda
 import pytest
+from numba import cuda
 
+import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
+import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.base import (
@@ -11,9 +13,6 @@ from tardis.spectrum.formal_integral.base import (
 from tardis.spectrum.formal_integral.formal_integral_solver import (
     FormalIntegralSolver,
 )
-import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
-import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
-from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 
 @cuda.jit

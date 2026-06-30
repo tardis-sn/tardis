@@ -193,7 +193,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         chi_0_species=(1, 1),
         delta_treatment=None,
     ):
-        super(RadiationFieldCorrection, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.departure_coefficient = departure_coefficient
         try:
             self.delta_treatment = self.plasma_parent.delta_treatment
@@ -281,7 +281,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     )
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
-        super(IonNumberDensity, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
 

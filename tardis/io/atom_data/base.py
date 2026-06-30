@@ -6,6 +6,7 @@ import pandas as pd
 from astropy.units import Quantity
 
 from tardis import constants as const
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.io.atom_data.collision_data import (
     ChiantiCollisionData,
     CMFGENCollisionData,
@@ -16,7 +17,6 @@ from tardis.io.atom_data.util import resolve_atom_data_fname
 from tardis.plasma.properties.continuum_processes.rates import (
     get_ground_state_multi_index,
 )
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class AtomDataNotPreparedError(Exception):

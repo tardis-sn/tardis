@@ -43,7 +43,7 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
     @classmethod
     def from_simulation_state(
         cls, simulation_state, *args: Any, **kwargs: Any
-    ) -> "BlackBodySimpleSource":
+    ) -> BlackBodySimpleSource:
         """
         Create BlackBodySimpleSource from simulation state.
 
@@ -70,8 +70,8 @@ class BlackBodySimpleSource(BasePacketSource, HDFWriterMixin):
 
     def __init__(
         self,
-        radius: "u.Quantity | None" = None,
-        temperature: "u.Quantity | None" = None,
+        radius: u.Quantity | None = None,
+        temperature: u.Quantity | None = None,
         **kwargs: Any,
     ) -> None:
         """

@@ -2,10 +2,10 @@ import numpy as np
 import numpy.testing as npt
 import pytest
 
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.energy_input.samplers import (
     create_energy_cdf,
 )
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 @pytest.mark.parametrize(

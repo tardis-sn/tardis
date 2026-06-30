@@ -3,12 +3,10 @@ import pandas as pd
 import pandas.testing as pdt
 import pytest
 
-from tardis.io.atom_data import AtomData
 from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
 from tardis.plasma.radiation_field.planck_rad_field import (
     PlanckianRadiationField,
 )
-
 
 invalid_index_df = pd.DataFrame(
     {

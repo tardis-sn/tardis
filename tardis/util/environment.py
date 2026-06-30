@@ -1,7 +1,8 @@
+import logging
 import os
 import sys
 from enum import StrEnum
-import logging
+
 from IPython import get_ipython
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ class Environment(StrEnum):
     SPHINX = "sphinx"
 
     @classmethod
-    def get_current_environment(cls) -> "Environment":
+    def get_current_environment(cls) -> Environment:
         """Get the current execution environment.
 
         Returns
@@ -25,17 +26,16 @@ class Environment(StrEnum):
         """
         if cls.is_vscode():
             return cls.VSCODE
-        elif cls.is_notebook():
+        if cls.is_notebook():
             return cls.JUPYTER
-        elif cls.is_sshjh():
+        if cls.is_sshjh():
             return cls.SSH_JH
-        elif cls.is_sphinx():
+        if cls.is_sphinx():
             return cls.SPHINX
-        elif cls.is_terminal():
+        if cls.is_terminal():
             return cls.TERMINAL
-        else:
-            logger.critical("Unknown environment detected")
-            return cls.TERMINAL
+        logger.critical("Unknown environment detected")
+        return cls.TERMINAL
 
     @staticmethod
     def is_terminal() -> bool:
@@ -80,7 +80,7 @@ class Environment(StrEnum):
         if isinstance(shell, ZMQInteractiveShell):
             return True
         # Checking if the shell instance is Terminal IPython based & if True, returning False
-        elif isinstance(shell, InteractiveShell):
+        if isinstance(shell, InteractiveShell):
             return False
         # All other shell instances are returned False
         return False

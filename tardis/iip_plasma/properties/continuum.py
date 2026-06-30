@@ -8,7 +8,7 @@ from scipy.interpolate import PchipInterpolator
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.iip_plasma.continuum.util import get_ion_multi_index
-from tardis.iip_plasma.properties.base import Input, ProcessingPlasmaProperty
+from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.continuum_processes.fast_array_util import (
     cumulative_integrate_array_by_blocks,
 )
@@ -670,6 +670,9 @@ class CollExcCooling(ProcessingPlasmaProperty):
         return coll_exc_cooling.sum(), coll_deexc_heating.sum()
 
 
+from scipy.special import exp1
+
+from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
 from tardis.iip_plasma.properties.general import BetaRadiation, GElectron
 from tardis.iip_plasma.properties.ion_population import PhiSahaElectrons
 from tardis.iip_plasma.properties.level_population import PhiLucy
@@ -677,10 +680,6 @@ from tardis.iip_plasma.properties.partition_function import (
     LevelBoltzmannFactorLTETe,
     PartitionFunction,
 )
-from scipy.special import exp1
-
-from tardis.iip_plasma.continuum.constants import continuum_constants as cconst
-from tardis.iip_plasma.continuum.util import get_ion_multi_index
 
 
 class ThermalBalanceTest(ProcessingPlasmaProperty):
@@ -690,7 +689,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
     latex_formula = ("",)
 
     def __init__(self, plasma_parent, T_min=2500, T_max=1.0e5):
-        super(ThermalBalanceTest, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.T_min = T_min
         self.T_max = T_max
         self._t_diff = None

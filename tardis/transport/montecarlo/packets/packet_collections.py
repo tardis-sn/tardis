@@ -313,7 +313,7 @@ def consolidate_vpacket_tracker(
     spectrum_frequency_grid: np.ndarray,
     start_frequency: float,
     end_frequency: float,
-) -> "VPacketCollection":
+) -> VPacketCollection:
     """
     Consolidate the vpacket trackers from multiple collections into a single vpacket tracker.
 

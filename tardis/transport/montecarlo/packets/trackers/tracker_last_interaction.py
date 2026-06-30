@@ -247,7 +247,6 @@ class TrackerLastInteraction:
         to trim or consolidate. This method exists for interface compatibility
         with TrackerFull and is a no-op.
         """
-        pass
 
     def _pop_boundary_interactions_buffer(self) -> nb.int64:  # type: ignore[misc]
         """

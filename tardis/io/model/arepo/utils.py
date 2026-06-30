@@ -630,15 +630,12 @@ def export_profile_to_csvy(
             )
         )
 
-        for spec in species:
-            f.write(
-                "".join(
+        f.writelines("".join(
                     [
                         f"    -  name: {spec.capitalize()}\n",
                         f"       desc: fractional {spec.capitalize()} abundance.\n",
                     ]
-                )
-            )
+                ) for spec in species)
 
         f.write("\n---\n")
 
@@ -658,8 +655,7 @@ def export_profile_to_csvy(
         inds = np.linspace(0, len(exp[0]) - 1, num=nshells, dtype=int)
         for i in inds:
             f.write("\n")
-            for ii in range(len(exp) - 1):
-                f.write(f"{exp[ii][i]:g},")
+            f.writelines(f"{exp[ii][i]:g}," for ii in range(len(exp) - 1))
             f.write(f"{exp[-1][i]:g}")
 
     return str(filename)
@@ -678,7 +674,7 @@ def plot_profile(
     save: str | Path | None = None,
     dpi: int = 600,
     **kwargs,
-) -> "Figure":
+) -> Figure:
     """
     Plot 1D profiles for both positive and negative directions.
 

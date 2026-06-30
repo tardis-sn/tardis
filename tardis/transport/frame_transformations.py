@@ -19,8 +19,7 @@ def get_doppler_factor(r, mu, time_explosion, enable_full_relativity):
     beta = r * inv_t * inv_c
     if not enable_full_relativity:
         return get_doppler_factor_partial_relativity(mu, beta)
-    else:
-        return get_doppler_factor_full_relativity(mu, beta)
+    return get_doppler_factor_full_relativity(mu, beta)
 
 
 @njit(**njit_dict_no_parallel)
@@ -29,10 +28,9 @@ def get_doppler_factor_nonhomologous(v, mu, enable_full_relativity):
     beta = v * inv_c
     if not enable_full_relativity:
         return get_doppler_factor_partial_relativity(mu, beta)
-    else:
-        raise NotImplementedError(
-            "Full relativity not implemented for non-homologous mode."
-        )
+    raise NotImplementedError(
+        "Full relativity not implemented for non-homologous mode."
+    )
 
 
 @njit(**njit_dict_no_parallel)
@@ -61,8 +59,7 @@ def get_inverse_doppler_factor(r, mu, time_explosion, enable_full_relativity):
     beta = r * inv_t * inv_c
     if not enable_full_relativity:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
-    else:
-        return get_inverse_doppler_factor_full_relativity(mu, beta)
+    return get_inverse_doppler_factor_full_relativity(mu, beta)
 
 
 @njit(**njit_dict_no_parallel)
@@ -80,10 +77,9 @@ def get_inverse_doppler_factor_nonhomologous(v, mu, enable_full_relativity):
     beta = v * inv_c
     if not enable_full_relativity:
         return get_inverse_doppler_factor_partial_relativity(mu, beta)
-    else:
-        raise NotImplementedError(
-            "Full relativity not implemented for non-homologous mode."
-        )
+    raise NotImplementedError(
+        "Full relativity not implemented for non-homologous mode."
+    )
 
 
 @njit(**njit_dict_no_parallel)

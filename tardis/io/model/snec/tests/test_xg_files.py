@@ -1,10 +1,10 @@
-import pytest
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
+import pytest
 from astropy import units as u
 
-from tardis.io.model.snec.xg_files import xg_block_size, read_xg_file, XGData
+from tardis.io.model.snec.xg_files import XGData, read_xg_file, xg_block_size
 
 
 @pytest.fixture

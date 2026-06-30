@@ -2,11 +2,10 @@ import numpy as np
 import numpy.testing as ntest
 import pytest
 
+import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 from tardis import constants as c
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.spectrum.formal_integral.base import C_INV
-import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
-
 
 TESTDATA = [
     {

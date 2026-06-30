@@ -47,7 +47,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
     @classmethod
     def from_simulation_state(
         cls, simulation_state, *args: Any, **kwargs: Any
-    ) -> "BlackBodySimpleSourceRelativistic":
+    ) -> BlackBodySimpleSourceRelativistic:
         """
         Create BlackBodySimpleSourceRelativistic from simulation state.
 
@@ -74,7 +74,7 @@ class BlackBodySimpleSourceRelativistic(BlackBodySimpleSource, HDFWriterMixin):
         )
 
     def __init__(
-        self, time_explosion: "u.Quantity | None" = None, **kwargs: Any
+        self, time_explosion: u.Quantity | None = None, **kwargs: Any
     ) -> None:
         """
         Initialize BlackBodySimpleSourceRelativistic.

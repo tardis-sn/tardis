@@ -153,7 +153,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         Selects appropriate 'calculate' function based on NLTE config
         options selected.
         """
-        super(LevelBoltzmannFactorNLTE, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         if classical_nebular == True and coronal_approximation == False:
             self.calculate = self._calculate_classical_nebular
         elif coronal_approximation == True and classical_nebular == False:
@@ -813,7 +813,7 @@ class LTEPartitionFunction(PartitionFunction):
     outputs = ("lte_partition_function",)
 
     def calculate(self, lte_level_boltzmann_factor):
-        return super(LTEPartitionFunction, self).calculate(
+        return super().calculate(
             lte_level_boltzmann_factor
         )
 
@@ -822,6 +822,6 @@ class LTEPartitionFunctionTe(PartitionFunction):
     outputs = ("lte_partition_function_Te",)
 
     def calculate(self, lte_level_boltzmann_factor_Te):
-        return super(LTEPartitionFunctionTe, self).calculate(
+        return super().calculate(
             lte_level_boltzmann_factor_Te
         )

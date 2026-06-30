@@ -1,15 +1,11 @@
 import logging
-from typing import Optional
 
 import astropy.units as u
 import numpy as np
 import pandas as pd
 from numba.typed import List as TypedList
 
-from tardis.transport.montecarlo.packet_source.high_energy import (
-    GammaRayPacketSource,
-    legacy_calculate_positron_fraction,
-)
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.energy_input.gamma_ray_transport import (
     calculate_ejecta_velocity_volume,
     iron_group_fraction_per_shell,
@@ -18,7 +14,10 @@ from tardis.energy_input.transport.gamma_packet_loop import gamma_packet_loop
 from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import get_index
 from tardis.model.base import SimulationState
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
+from tardis.transport.montecarlo.packet_source.high_energy import (
+    GammaRayPacketSource,
+    legacy_calculate_positron_fraction,
+)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +28,7 @@ def calculate_electron_number_density(
     ejecta_volume: np.ndarray,
     effective_time_array: np.ndarray,
     legacy: bool = False,
-    legacy_atom_data: Optional[object] = None,
+    legacy_atom_data: object | None = None,
 ) -> np.ndarray:
     """
     Calculate electron number density and its time evolution.

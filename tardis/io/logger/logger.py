@@ -1,16 +1,16 @@
 import logging
 import sys
 from dataclasses import dataclass, field
-import panel as pn
+
 from IPython.display import display
-import pandas as pd
-from tardis.io.logger.colored_logger import ColoredFormatter
-from tardis.util.environment import Environment
-from tardis.io.logger.logger_widget import (
-    create_logger_columns,
-    PanelWidgetLogHandler,
-)
+
 import tardis.util.panel_init as panel_init
+from tardis.io.logger.colored_logger import ColoredFormatter
+from tardis.io.logger.logger_widget import (
+    PanelWidgetLogHandler,
+    create_logger_columns,
+)
+from tardis.util.environment import Environment
 
 panel_init.auto()
 
@@ -323,5 +323,4 @@ def logging_state(
 
     if use_widget:
         return log_columns, tardislogger
-    else:
-        return None, tardislogger
+    return None, tardislogger

@@ -41,16 +41,14 @@ class BasePlasma(PlasmaWriterMixin):
     def __getattr__(self, item):
         if item in self.outputs_dict:
             return self.get_value(item)
-        else:
-            super().__getattribute__(item)
+        super().__getattribute__(item)
 
     def __setattr__(self, key, value):
         if key != "module_dict" and key in self.outputs_dict:
             raise AttributeError(
                 "Plasma inputs can only be updated using the 'update' method"
             )
-        else:
-            super().__setattr__(key, value)
+        super().__setattr__(key, value)
 
     def __dir__(self):
         attrs = [item for item in self.__dict__ if not item.startswith("_")]
@@ -291,7 +289,7 @@ class BasePlasma(PlasmaWriterMixin):
             edge labels into the file.
         """
         try:
-            import pygraphviz
+            pass
         except:
             logger.warning(
                 "pygraphviz missing. Plasma graph will not be generated."

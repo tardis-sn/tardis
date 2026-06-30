@@ -7,8 +7,8 @@ import pandas as pd
 import yaml
 from astropy import units as u
 
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.configuration import config_validator
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.util import YAMLLoader, yaml_load_file
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -116,8 +116,7 @@ class ConfigurationNameSpace(dict):
     def __getattr__(self, item):
         if item in self:
             return self[item]
-        else:
-            super().__getattribute__(item)
+        super().__getattribute__(item)
 
     __setattr__ = __setitem__
 
@@ -140,19 +139,17 @@ class ConfigurationNameSpace(dict):
 
             if config_item.startswith("item"):
                 return self[config_item_path[0]]
-            else:
-                return self[config_item]
-        elif len(config_item_path) == 2 and config_item_path[1].startswith(
+            return self[config_item]
+        if len(config_item_path) == 2 and config_item_path[1].startswith(
             "item"
         ):
             return self[config_item_path[0]][
                 int(config_item_path[1].replace("item", ""))
             ]
 
-        else:
-            return self[config_item_path[0]].get_config_item(
-                ".".join(config_item_path[1:])
-            )
+        return self[config_item_path[0]].get_config_item(
+            ".".join(config_item_path[1:])
+        )
 
     def set_config_item(self, config_item_string, value):
         """

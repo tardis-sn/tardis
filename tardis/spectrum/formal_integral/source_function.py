@@ -32,7 +32,7 @@ class SourceFunctionSolver:
         transport_state,
         atomic_data,
         macro_atom_state,
-    ) -> "SourceFunctionState":
+    ) -> SourceFunctionState:
         """
         Solves for att_S_ul, Jred_lu, Jblue_lu, and e_dot_u.
 

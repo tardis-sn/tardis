@@ -6,7 +6,7 @@ from tardis.iip_plasma.continuum.base import ContinuumProcess
 
 class BaseTransitionProbabilities(ContinuumProcess):
     def __init__(self, input_data, **kwargs):
-        super(BaseTransitionProbabilities, self).__init__(input_data)
+        super().__init__(input_data)
         if not kwargs:
             raise ValueError
         self.dataframe = self._prepare_transition_probabilities(**kwargs)
@@ -27,7 +27,7 @@ class TransitionProbabilities(BaseTransitionProbabilities):
         self.destination_level_id = None
         self.transition_type = None
         self.transition_line_id = None
-        super(TransitionProbabilities, self).__init__(input_data, **kwargs)
+        super().__init__(input_data, **kwargs)
 
     def _prepare_transition_probabilities(self, **kwargs):
         mode2append = {
@@ -171,7 +171,7 @@ class TransitionProbabilities(BaseTransitionProbabilities):
 
 class RecombinationTransitionProbabilities(BaseTransitionProbabilities):
     def __init__(self, input_data, **kwargs):
-        super(RecombinationTransitionProbabilities, self).__init__(
+        super().__init__(
             input_data, **kwargs
         )
 

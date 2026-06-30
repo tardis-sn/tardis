@@ -141,8 +141,7 @@ def calculate_absorption_luminosities(
                 "to plot luminosities instead of flux, set distance=None "
                 "or don't specify distance parameter in the function call."
             )
-        else:
-            lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
+        lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
     # Group packets_df by atomic number of elements with which packets
     # had their last absorption (interaction in)
     # or if species_list is requested then group by species id
@@ -317,8 +316,7 @@ def calculate_emission_luminosities(
                 "to plot luminosities instead of flux, set distance=None "
                 "or don't specify distance parameter in the function call."
             )
-        else:
-            lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
+        lum_to_flux = 4.0 * np.pi * (distance.to("cm")) ** 2
 
     # Histogram weights are packet luminosities or flux
     weights = (

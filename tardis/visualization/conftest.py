@@ -1,6 +1,7 @@
-from tardis.base import run_tardis
-import pytest
 from copy import deepcopy
+
+import pytest
+
 from tardis.base import run_tardis
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 

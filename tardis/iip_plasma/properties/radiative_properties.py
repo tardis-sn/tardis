@@ -10,13 +10,13 @@ from tardis.iip_plasma.properties.base import (
     ConvergedPlasmaProperty,
     ProcessingPlasmaProperty,
 )
-from tardis.opacities.tau_sobolev import calculate_beta_sobolev
-from tardis.opacities.macro_atom.util import (
-    fast_calculate_transition_probabilities,
-)
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
 )
+from tardis.opacities.macro_atom.util import (
+    fast_calculate_transition_probabilities,
+)
+from tardis.opacities.tau_sobolev import calculate_beta_sobolev
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     latex_formula = ("1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}",)
 
     def __init__(self, plasma_parent=None, nlte_species=None):
-        super(StimulatedEmissionFactor, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
         try:
@@ -139,7 +139,7 @@ class TauSobolev(ConvergedPlasmaProperty):
     )
 
     def __init__(self, plasma_parent):
-        super(TauSobolev, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.sobolev_coefficient = (
             (
                 ((np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs))
@@ -231,7 +231,7 @@ class TransitionProbabilities(ConvergedPlasmaProperty):
     outputs = ("transition_probabilities",)
 
     def __init__(self, plasma_parent):
-        super(TransitionProbabilities, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.initialize = True
         try:
             self.continuum_treatment = plasma_parent.continuum_treatment
@@ -409,7 +409,7 @@ class TauSobolevDeriv(ProcessingPlasmaProperty):
     )
 
     def __init__(self, plasma_parent):
-        super(TauSobolevDeriv, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.sobolev_coefficient = (
             (
                 ((np.pi * const.e.gauss**2) / (const.m_e.cgs * const.c.cgs))

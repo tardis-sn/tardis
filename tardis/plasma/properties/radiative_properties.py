@@ -14,8 +14,8 @@ from tardis.plasma.properties.base import (
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "StimulatedEmissionFactor",
     "RawRadBoundBoundTransProbs",
+    "StimulatedEmissionFactor",
 ]
 
 C_EINSTEIN = (

@@ -5,7 +5,6 @@ from numba import njit
 
 from tardis import constants as const
 from tardis.transport.frame_transformations import (
-    angle_aberration_CMF_to_LF,
     get_doppler_factor_nonhomologous,
     get_inverse_doppler_factor_nonhomologous,
 )

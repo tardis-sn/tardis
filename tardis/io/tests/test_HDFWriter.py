@@ -4,8 +4,8 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_array_almost_equal
 
-from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis import __version__
+from tardis.io.hdf_writer_mixin import HDFWriterMixin
 
 # Test Cases
 

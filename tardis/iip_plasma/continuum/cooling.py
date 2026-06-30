@@ -17,7 +17,7 @@ CoolingData = namedtuple(
 
 class CoolingRates(ContinuumProcess):
     def __init__(self, input_data, **kwargs):
-        super(CoolingRates, self).__init__(input_data)
+        super().__init__(input_data)
         self.total_cooling_rate = np.zeros(self.no_of_shells)
         self.cooling_processes = kwargs.keys()
         self._set_cooling_rates(**kwargs)
@@ -102,7 +102,7 @@ class CoolingRatesLegacy(ContinuumProcess):
         coll_ionization_cooling_rate,
         fb_cooling_rate,
     ):
-        super(CoolingRatesLegacy, self).__init__(input_data)
+        super().__init__(input_data)
 
         self.ff_cooling = self._calculate_ff_cooling_rate()
         self.collisional_excitation_cooling = coll_excitation_cooling_rate

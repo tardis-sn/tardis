@@ -1,8 +1,6 @@
-import numpy as np
 import numpy.testing as npt
 import pytest
 
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
     TrackerLastInteraction,
 )

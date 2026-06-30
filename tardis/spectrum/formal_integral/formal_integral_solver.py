@@ -100,7 +100,7 @@ class FormalIntegralSolver:
             pass
         elif self.method is None:
             logger.warning(
-                f"The formal integral implementation was not specified. "
+                "The formal integral implementation was not specified. "
                 "Please run with config option numba or cuda."
                 "Defaulting to numba implementation."
             )

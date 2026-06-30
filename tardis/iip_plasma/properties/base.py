@@ -79,7 +79,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
     __metaclass__ = ABCMeta
 
     def __init__(self, plasma_parent):
-        super(ProcessingPlasmaProperty, self).__init__()
+        super().__init__()
         self.plasma_parent = plasma_parent
         self._update_inputs()
 
@@ -131,7 +131,7 @@ class HiddenPlasmaProperty(ProcessingPlasmaProperty):
     __metaclass__ = ABCMeta
 
     def __init__(self, plasma_parent):
-        super(HiddenPlasmaProperty, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
 
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
@@ -145,7 +145,7 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     inputs = ["atomic_data", "selected_atoms"]
 
     def __init__(self, plasma_parent):
-        super(BaseAtomicDataProperty, self).__init__(plasma_parent)
+        super().__init__(plasma_parent)
         self.value = None
 
     @abstractmethod

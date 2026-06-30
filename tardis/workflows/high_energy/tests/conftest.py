@@ -2,8 +2,10 @@
 Pytest fixtures for TARDIS HE workflow tests.
 """
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 from tardis.io.configuration.config_reader import Configuration
 
 

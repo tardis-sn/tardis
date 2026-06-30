@@ -1,10 +1,11 @@
 import logging
 import re
+
 import pandas as pd
-from tardis.util.environment import Environment
 import panel as pn
 
 import tardis.util.panel_init as panel_init
+from tardis.util.environment import Environment
 
 panel_init.auto()
 

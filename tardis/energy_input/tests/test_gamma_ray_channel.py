@@ -14,7 +14,6 @@ from tardis.energy_input.gamma_ray_channel import (
     create_isotope_dicts,
     time_evolve_cumulative_decay,
 )
-
 from tardis.energy_input.main_gamma_ray_loop import get_effective_time_array
 from tardis.energy_input.util import KEV2ERG
 from tardis.io.configuration import config_reader

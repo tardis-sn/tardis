@@ -4,22 +4,21 @@ import numpy as np
 import pandas as pd
 import panel as pn
 from astropy import units as u
-
-from bokeh.plotting import figure
 from bokeh.models import BoxSelectTool, ColumnDataSource
+from bokeh.plotting import figure
+
 from tardis.analysis import LastLineInteraction
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.util.base import (
     species_string_to_tuple,
     species_tuple_to_string,
 )
-
+from tardis.util.environment import Environment
+from tardis.visualization.tools.sdec_plot import SDECPlotter
 from tardis.visualization.widgets.util import (
     TableSummaryLabel,
     create_table_widget,
 )
-from tardis.visualization.tools.sdec_plot import SDECPlotter
-from tardis.util.environment import Environment
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 class LineInfoWidget:
@@ -447,7 +446,6 @@ class LineInfoWidget:
         """
         Shared logic for setting up plot selection callbacks and shapes.
         """
-
         # Create invisible scatter for selection (needed for box select to work)
         source = ColumnDataSource(
             dict(x=wavelength.value, y=luminosity_density_lambda.value)

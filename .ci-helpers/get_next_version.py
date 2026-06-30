@@ -2,6 +2,7 @@
 
 import sys
 from datetime import date
+
 from setuptools_scm import version_from_scm
 from setuptools_scm.version import guess_next_date_ver
 

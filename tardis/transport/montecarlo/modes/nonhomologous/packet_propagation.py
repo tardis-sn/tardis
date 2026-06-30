@@ -96,8 +96,7 @@ def packet_propagation(
         raise NotImplementedError(
             "Full relativity not supported for non-homology."
         )
-    else:
-        set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
+    set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]

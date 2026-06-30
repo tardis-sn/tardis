@@ -442,7 +442,7 @@ def get_index(value, array):
     """
     if value <= array[0]:
         return 0
-    elif value > array[-1]:
+    if value > array[-1]:
         return len(array) - 1
 
     i = 0
@@ -455,6 +455,7 @@ def get_index(value, array):
 def make_isotope_string_tardis_like(isotope_dict):
     """Converts isotope string to TARDIS format
         Ni-56 -> Ni56, Co-56 -> Co56
+
     Parameters
     ----------
     isotope : str
@@ -465,7 +466,6 @@ def make_isotope_string_tardis_like(isotope_dict):
     str
         TARDIS-like isotope string
     """
-
     new_isotope_dict = {}
 
     for key in isotope_dict.keys():

@@ -78,7 +78,7 @@ class CustomAbundanceWidgetData:
         return np.add(str_symbols, str_mass)
 
     @classmethod
-    def from_csvy(cls, fpath: str | Path) -> "CustomAbundanceWidgetData":
+    def from_csvy(cls, fpath: str | Path) -> CustomAbundanceWidgetData:
         """Create a new CustomAbundanceWidgetData instance with data
         from CSVY file.
 

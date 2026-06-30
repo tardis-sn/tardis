@@ -7,8 +7,8 @@ from scipy.optimize import root
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 __all__ = [
-    "NLTEPopulationSolverRoot",
     "NLTEPopulationSolverLU",
+    "NLTEPopulationSolverRoot",
 ]
 
 logger = logging.getLogger(__name__)

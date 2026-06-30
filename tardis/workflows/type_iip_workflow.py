@@ -20,9 +20,6 @@ from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral.formal_integral_solver import (
-    FormalIntegralSolver,
-)
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )

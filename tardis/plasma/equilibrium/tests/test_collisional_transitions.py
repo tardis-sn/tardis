@@ -7,7 +7,6 @@ import pandas.testing as pdt
 import pytest
 from astropy import units as u
 
-from tardis.io.atom_data import AtomData
 from tardis.plasma.assembly.base import (
     PlasmaSolverFactory,
     convert_species_to_multi_index,

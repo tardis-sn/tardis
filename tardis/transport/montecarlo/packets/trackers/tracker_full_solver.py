@@ -6,8 +6,8 @@ import pandas as pd
 
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
-    trackers_full_to_df,
     tracker_full_df2tracker_last_interaction_df,
+    trackers_full_to_df,
 )
 
 

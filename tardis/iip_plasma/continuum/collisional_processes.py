@@ -38,7 +38,7 @@ class CollisionalExcitation(PhysicalContinuumProcess):
 
     def __init__(self, input_data, mode="Van Regemorter"):
         self.mode = mode
-        super(CollisionalExcitation, self).__init__(input_data)
+        super().__init__(input_data)
 
     def _calculate_rate_coefficient(self):
         if self.mode == "Van Regemorter":
@@ -265,7 +265,7 @@ class CollisionalIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
     macro_atom_transitions = "continuum"
 
     def __init__(self, input_data):
-        super(CollisionalIonization, self).__init__(input_data)
+        super().__init__(input_data)
 
     def _calculate_rate_coefficient(self):
         """

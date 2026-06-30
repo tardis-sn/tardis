@@ -1,11 +1,7 @@
-import numpy as np
-from scipy.interpolate import interp1d
-import scipy.sparse as sp
-import scipy.sparse.linalg as linalg
-
 import warnings
 
-from tardis import constants as const
+import numpy as np
+
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 
 C_INV = 3.33564e-11
@@ -53,9 +49,8 @@ def check_formal_integral_requirements(
     def raise_or_return(message):
         if raises:
             raise IntegrationError(message)
-        else:
-            warnings.warn(message)
-            return False
+        warnings.warn(message)
+        return False
 
     for obj in (simulation_state, opacity_state, transport):
         if obj is None:

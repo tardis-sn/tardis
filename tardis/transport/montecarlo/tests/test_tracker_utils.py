@@ -1,17 +1,17 @@
 import numpy as np
 from numba import typeof
 
-from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
-    TrackerLastInteraction,
-)
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
 )
-from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (
-    generate_tracker_last_interaction_list,
-)
 from tardis.transport.montecarlo.packets.trackers.tracker_full_util import (
     generate_tracker_full_list,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction import (
+    TrackerLastInteraction,
+)
+from tardis.transport.montecarlo.packets.trackers.tracker_last_interaction_util import (
+    generate_tracker_last_interaction_list,
 )
 
 

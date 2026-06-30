@@ -3,9 +3,9 @@ import pandas as pd
 from astropy import units as u
 from scipy.interpolate import PchipInterpolator, splev, splrep
 from scipy.special import exp1
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 from tardis import constants as const
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 
 def exp1_times_exp(x):

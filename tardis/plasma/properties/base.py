@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 
 __all__ = [
-    "BasePlasmaProperty",
+    "ArrayInput",
     "BaseAtomicDataProperty",
+    "BasePlasmaProperty",
+    "DataFrameInput",
     "HiddenPlasmaProperty",
     "Input",
-    "ArrayInput",
-    "DataFrameInput",
-    "ProcessingPlasmaProperty",
     "PreviousIterationProperty",
+    "ProcessingPlasmaProperty",
 ]
 
 logger = logging.getLogger(__name__)
@@ -174,13 +174,12 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
 
         if getattr(self, self.outputs[0]) is not None:
             return getattr(self, self.outputs[0])
-        else:
-            raw_atomic_property = getattr(atomic_data, self.outputs[0])
-            return self._set_index(
-                self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms
-                )
+        raw_atomic_property = getattr(atomic_data, self.outputs[0])
+        return self._set_index(
+            self._filter_atomic_property(
+                raw_atomic_property, selected_atoms
             )
+        )
 
 
 class Input(BasePlasmaProperty):

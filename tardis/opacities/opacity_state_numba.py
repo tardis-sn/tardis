@@ -150,7 +150,7 @@ class OpacityStateNumba:
             (0, 0, 0)
         )  # Double check that this is what we want to do. Fixes numba tests.
 
-    def __getitem__(self, i: slice) -> "OpacityStateNumba":
+    def __getitem__(self, i: slice) -> OpacityStateNumba:
         """Get a shell or slice of shells of the attributes of the opacity state.
 
         Parameters

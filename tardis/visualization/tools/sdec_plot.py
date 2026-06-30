@@ -16,13 +16,12 @@ import pandas as pd
 import plotly.graph_objects as go
 from astropy.modeling.models import BlackBody
 
-from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
+from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.util.base import (
     atomic_number2element_symbol,
     int_to_roman,
 )
 from tardis.visualization import plot_util as pu
-from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 logger = logging.getLogger(__name__)
 
@@ -1332,10 +1331,10 @@ class SDECPlotter:
     def _show_colorbar_bk(self):
         """Show Bokeh colorbar with labels of elements mapped to colors."""
         from bokeh.models import (
-            LinearColorMapper,
             ColorBar,
-            FixedTicker,
             CustomJSTickFormatter,
+            FixedTicker,
+            LinearColorMapper,
         )
 
         if len(self._species_name) == 0:

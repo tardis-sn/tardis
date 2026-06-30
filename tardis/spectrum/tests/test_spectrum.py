@@ -1,4 +1,3 @@
-from pathlib import Path
 
 import astropy.tests.helper as test_helper
 import numpy as np

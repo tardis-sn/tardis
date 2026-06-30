@@ -89,10 +89,12 @@ def numba_calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
 
 def calculate_beta_sobolev(tau_sobolevs):
     """Calculate the beta Sobolev values based on the provided tau_sobolevs.
+
     Parameters
     ----------
     tau_sobolevs : pd.DataFrame
         Tau Sobolev opacities.
+
     Returns
     -------
     pd.DataFrame

@@ -1,19 +1,16 @@
 from itertools import product
-from copy import deepcopy
 
 import astropy.units as u
 import numpy as np
+import pandas as pd
 import pytest
 from matplotlib import pyplot as plt
 from matplotlib.collections import PolyCollection
 from matplotlib.lines import Line2D
 from matplotlib.testing.compare import compare_images
-
-import pandas as pd
+from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
 from tardis.visualization.tools.liv_plot import LIVPlotter
-from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
-from tardisbase.testing.regression_data.regression_data import PlotDataHDF
 
 RELATIVE_TOLERANCE_LIV = 1e-12
 
@@ -318,8 +315,8 @@ class TestLIVPlotter:
                         path.vertices,
                         expected.get(
                             "plot_data_hdf/"
-                            + "polypath"
-                            + "ind_"
+                             "polypath"
+                             "ind_"
                             + str(index1)
                             + "ind_"
                             + str(index2)

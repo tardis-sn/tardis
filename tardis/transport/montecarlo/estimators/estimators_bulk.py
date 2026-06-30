@@ -43,7 +43,7 @@ class EstimatorsBulk:
         self.mean_intensity_total = mean_intensity_total
         self.mean_frequency = mean_frequency
 
-    def increment(self, other: "EstimatorsBulk") -> None:
+    def increment(self, other: EstimatorsBulk) -> None:
         """
         Increment estimators with values from another instance.
 

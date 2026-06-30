@@ -1,6 +1,7 @@
+from enum import IntEnum
+
 import numba as nb
 import numpy as np
-from enum import IntEnum
 from numba import njit, objmode
 from numba.experimental import jitclass
 

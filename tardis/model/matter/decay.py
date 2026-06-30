@@ -4,6 +4,7 @@ import pandas as pd
 from astropy import units as u
 from radioactivedecay import Inventory, Nuclide
 from radioactivedecay.utils import Z_to_elem, elem_to_Z
+
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 
 logger = logging.getLogger(__name__)

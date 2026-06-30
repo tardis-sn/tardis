@@ -34,8 +34,8 @@ def resolve_rst_includes(source, target):
 
 def generate_zenodo():
     """Generates `zenodo.rst` file with BibTeX citation
-    Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/"""
-
+    Adapted from: https://astrodata.nyc/posts/2021-04-23-zenodo-sphinx/
+    """
     CONCEPT_DOI = "592480"  # See: https://help.zenodo.org/#versioning
     zenodo_path = pathlib.Path("docs/resources/zenodo.rst")
     year = date.today().year

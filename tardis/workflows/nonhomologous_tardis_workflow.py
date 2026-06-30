@@ -20,8 +20,6 @@ from tardis.transport.montecarlo.modes.nonhomologous.plasma_assembly_base import
 from tardis.transport.montecarlo.modes.nonhomologous.solver import (
     MCTransportSolverNonhomologous,
 )
-from tardis.util.environment import Environment
-from tardis.visualization import ConvergencePlots
 from tardis.workflows.standard_tardis_workflow import StandardTARDISWorkflow
 
 # logging support

@@ -3,7 +3,6 @@ import pandas as pd
 import pytest
 
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
-from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
@@ -133,7 +132,6 @@ def iip_plasma_nlte_init(
         ctardis_compare_config.plasma.nlte,
         initialize_nlte=True,
         n_e_convergence_threshold=0.05,
-        **{},
     )
     return iip_plasma
 

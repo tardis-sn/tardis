@@ -1,7 +1,8 @@
-import panel as pn
-from tardis.util.environment import Environment
 import logging
-import os
+
+import panel as pn
+
+from tardis.util.environment import Environment
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,6 @@
 import numpy as np
 from numba import njit
 
-from tardis import constants as const
 from tardis.transport.montecarlo import njit_dict
 
 

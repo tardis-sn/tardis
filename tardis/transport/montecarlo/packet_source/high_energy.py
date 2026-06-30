@@ -213,7 +213,7 @@ class GammaRayPacketSource(BasePacketSource):
         return energy_array
 
     def create_packet_directions(
-        self, no_of_packets: int, seed: "int | None"
+        self, no_of_packets: int, seed: int | None
     ) -> np.ndarray:
         """
         Create random isotropic directions for packets.
@@ -368,7 +368,7 @@ class GammaRayPacketSource(BasePacketSource):
         self,
         cumulative_decays_df: pd.DataFrame,
         number_of_packets: int,
-        legacy_energy_per_packet: "float | None" = None,
+        legacy_energy_per_packet: float | None = None,
     ) -> GXPacketCollection:
         """
         Initialize a collection of gamma ray packets for simulation.
