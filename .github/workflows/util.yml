@@ -6,25 +6,6 @@ on:
       - master
 
 jobs:
-  git-lfs-pull-label:
-    if: contains(github.event.pull_request.labels.*.name, 'git-lfs-pull')
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      issues: write
-      contents: read
-
-    steps:
-      - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          edit-mode: replace
-          body: |
-            Warning - LFS bandwidth usage
-            ⚠️ **Warning**: The label you applied triggers workflows that consume LFS bandwidth and should be used carefully. For safety, this label will be automatically removed once the checks have run.
-
   add-gsoc-label:
     if: contains(github.event.pull_request.title, 'GSoC')
     runs-on: ubuntu-latest
