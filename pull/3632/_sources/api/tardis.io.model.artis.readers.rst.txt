@@ -1,0 +1,7 @@
+tardis.io.model.artis.readers module
+====================================
+
+.. automodule:: tardis.io.model.artis.readers
+   :members:
+   :show-inheritance:
+   :undoc-members:
