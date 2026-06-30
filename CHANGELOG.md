@@ -1,5 +1,14 @@
 ## Changelog
 
+### release-2026.06.28 (2026/06/27 21:53)
+- [3628](https://github.com/tardis-sn/tardis/pull/3628) Pre-release 2026.06.28 (3628) (@tardis-bot)
+- [3626](https://github.com/tardis-sn/tardis/pull/3626) Handle TARDIS config validator schema paths differently (3626) (@connor-mcclellan)
+- [3620](https://github.com/tardis-sn/tardis/pull/3620) Fix SDEC nelements bug causing Hydrogen to be skipped (3620) (@connor-mcclellan)
+- [3586](https://github.com/tardis-sn/tardis/pull/3586) Radiative Rates Test (3586) (@RishmitaR)
+- [3616](https://github.com/tardis-sn/tardis/pull/3616) Small fix for pandas 3.x compatibility (3616) (@andrewfullard)
+- [3623](https://github.com/tardis-sn/tardis/pull/3623) Update commit hash for tardisbase dependency (3623) (@connor-mcclellan)
+- [3601](https://github.com/tardis-sn/tardis/pull/3601) Deprecation fixes (3601) (@andrewfullard)
+- [3611](https://github.com/tardis-sn/tardis/pull/3611) Post-release 2026.06.14 (3611) (@tardis-bot)
 ### release-2026.06.14 (2026/06/13 22:00)
 - [3610](https://github.com/tardis-sn/tardis/pull/3610) Pre-release 2026.06.14 (3610) (@tardis-bot)
 - [3602](https://github.com/tardis-sn/tardis/pull/3602) Convergence plots for Nonhomologous Workflow (3602) (@connor-mcclellan)
