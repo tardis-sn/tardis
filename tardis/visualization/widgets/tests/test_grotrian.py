@@ -159,9 +159,6 @@ class TestGrotrianWidgetEvents:
         grotrian_widget.shell_selector.value = "2"
         assert grotrian_widget.plot.shell == 2
 
-    def test_shell_selector_all_sets_none(self, grotrian_widget):
-        """Selecting 'All' in the shell_selector should set the GrotrianPlot's
-        shell attribute to None (averaging across shells)."""
         grotrian_widget.shell_selector.value = "All"
         assert grotrian_widget.plot.shell is None
 
@@ -172,8 +169,6 @@ class TestGrotrianWidgetEvents:
         grotrian_widget.max_level_selector.value = 5
         assert grotrian_widget.plot.max_levels == 5
         assert len(grotrian_widget.plot.level_data) <= 6
-        # Restore
-        grotrian_widget.max_level_selector.value = original_max
 
     def test_y_scale_toggle_updates_plot(self, grotrian_widget):
         """Toggling the y_scale_selector should update the GrotrianPlot's
