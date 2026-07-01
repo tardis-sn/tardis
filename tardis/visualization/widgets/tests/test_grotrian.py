@@ -1,10 +1,11 @@
 """Tests for the Grotrian Widget"""
 
 import numpy as np
-import pandas as pd
+import numpy.testing as npt
 import pandas.testing as pdt
 import pytest
 
+from tardis.util.base import int_to_roman
 from tardis.visualization.widgets.grotrian import (
     GrotrianPlot,
     GrotrianWidget,
@@ -35,14 +36,20 @@ def grotrian_plot(simulation_simple_tracked):
     first_species = list(species_group.groups.keys())[0]
     atomic_number, ion_number = first_species
 
-    grotrian_plot._atomic_number = atomic_number
-    grotrian_plot._ion_number = ion_number
+    grotrian_plot.set_ion(atomic_number, ion_number)
+    return grotrian_plot
+
+@pytest.fixture(scope="module")
+def grotrian_figure(grotrian_plot):
+    """Returns the plotly figure from GrotrianPlot display method."""
+    return grotrian_plot.display()
 
 
 class TestGrotrianPlot:
     """Tests for Grotrian Plot Class."""
 
     def test_compute_transitions(self, grotrian_plot, regression_data):
+        """Tests the computation of excitation and deexcitation transitions in the Grotrian Plot."""
         grotrian_plot._compute_transitions()
 
         excitation_lines = grotrian_plot.excite_lines
@@ -55,6 +62,7 @@ class TestGrotrianPlot:
         pdt.assert_frame_equal(deexcitation_lines, expected_deexcitation_lines)
 
     def test_compute_level_data(self, grotrian_plot, regression_data):
+        """Tests the energy level data computed in the Grotrian Plot"""
         grotrian_plot._compute_level_data()
 
         level_data = grotrian_plot.level_data
@@ -62,6 +70,52 @@ class TestGrotrianPlot:
         expected_level_data = regression_data.sync_dataframe(level_data)
 
         pdt.assert_frame_equal(level_data, expected_level_data)
+
+    def test_total_traces(self, grotrian_plot, grotrian_figure):
+        """Tests the total number of traces in the figure"""
+        expected_level_traces = len(grotrian_plot.level_data)
+        expected_excite_traces = len(grotrian_plot.excite_lines)
+        expected_deexcite_traces = len(grotrian_plot.deexcite_lines)
+        expected_colorbar_trace = 1
+    
+        expected_total_traces = (
+            expected_level_traces
+            + expected_excite_traces
+            + expected_deexcite_traces
+            + expected_colorbar_trace
+        )
+
+        assert len(grotrian_figure.data) == expected_total_traces
+        
+    def test_energy_level(self, grotrian_figure, grotrian_plot):
+        """Tests energy level traces plotted in the figure."""
+        for i, (level_number, level_info) in enumerate(grotrian_plot.level_data.iterrows()):
+            npt.assert_allclose(grotrian_figure.data[i].y, level_info.y_coord * np.ones(10))
+            assert len(grotrian_figure.data[i].x) == 10
+            assert "Energy:" in grotrian_figure.data[i].hovertemplate
+        
+    def test_excitation_traces(self, grotrian_figure, grotrian_plot):
+        """Tests excitation traces plotted in the figure."""
+        current_idx = len(grotrian_plot.level_data)
+        for i, (_, line_info) in enumerate(grotrian_plot.excite_lines.iterrows()):
+            trace_idx = current_idx + i
+            y_lower = grotrian_plot.level_data.loc[line_info.merged_level_number_lower].y_coord
+            y_upper = grotrian_plot.level_data.loc[line_info.merged_level_number_upper].y_coord
+                
+            npt.assert_allclose(grotrian_figure.data[trace_idx].y, [y_lower, y_upper])
+            assert len(grotrian_figure.data[trace_idx].x) == 2
+            assert "Wavelength:" in grotrian_figure.data[trace_idx].hovertemplate
+        
+    def test_deexcitation_traces(self, grotrian_figure, grotrian_plot):
+        """Tests deexcitaion traces plotted in the figure."""
+        current_idx = len(grotrian_plot.level_data) + len(grotrian_plot.excite_lines)
+        for i, (_, line_info) in enumerate(grotrian_plot.deexcite_lines.iterrows()):
+            trace_idx = current_idx + i
+            y_lower = grotrian_plot.level_data.loc[line_info.merged_level_number_lower].y_coord
+            y_upper = grotrian_plot.level_data.loc[line_info.merged_level_number_upper].y_coord
+                
+            npt.assert_allclose(grotrian_figure.data[trace_idx].y, [y_upper, y_lower])
+            assert len(grotrian_figure.data[trace_idx].x) == 2
 
 
 @pytest.fixture(scope="module")
@@ -88,8 +142,6 @@ class TestGrotrianWidgetEvents:
         """Changing the ion_selector dropdown should update the GrotrianPlot's
         atomic_number and ion_number to match the selected species."""
         species_options = grotrian_widget.ion_selector.options
-        if len(species_options) < 2:
-            pytest.skip("Not enough species to test ion change")
 
         # Switch to the second available species
         grotrian_widget.ion_selector.value = species_options[1]
@@ -106,8 +158,8 @@ class TestGrotrianWidgetEvents:
         """Changing the shell_selector dropdown should update the GrotrianPlot's
         shell attribute."""
         # Select a specific shell
-        grotrian_widget.shell_selector.value = "1"
-        assert grotrian_widget.plot.shell == 1
+        grotrian_widget.shell_selector.value = "2"
+        assert grotrian_widget.plot.shell == 2
 
     def test_shell_selector_all_sets_none(self, grotrian_widget):
         """Selecting 'All' in the shell_selector should set the GrotrianPlot's
@@ -167,6 +219,6 @@ class TestGrotrianWidgetEvents:
                 == grotrian_widget.plot.min_wavelength
             )
             assert (
-                grotrian_widget.wavelength_range_selector.max
+                grotrian_widget.wavelength_range_selector.max+1
                 == grotrian_widget.plot.max_wavelength
             )
