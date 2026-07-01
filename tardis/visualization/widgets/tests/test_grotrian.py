@@ -5,7 +5,7 @@ import numpy.testing as npt
 import pandas.testing as pdt
 import pytest
 
-from tardis.util.base import int_to_roman
+from tardis.util.base import species_string_to_tuple
 from tardis.visualization.widgets.grotrian import (
     GrotrianPlot,
     GrotrianWidget,
@@ -77,7 +77,7 @@ class TestGrotrianPlot:
         expected_excite_traces = len(grotrian_plot.excite_lines)
         expected_deexcite_traces = len(grotrian_plot.deexcite_lines)
         expected_colorbar_trace = 1
-    
+
         expected_total_traces = (
             expected_level_traces
             + expected_excite_traces
@@ -86,14 +86,14 @@ class TestGrotrianPlot:
         )
 
         assert len(grotrian_figure.data) == expected_total_traces
-        
+
     def test_energy_level(self, grotrian_figure, grotrian_plot):
         """Tests energy level traces plotted in the figure."""
         for i, (level_number, level_info) in enumerate(grotrian_plot.level_data.iterrows()):
             npt.assert_allclose(grotrian_figure.data[i].y, level_info.y_coord * np.ones(10))
             assert len(grotrian_figure.data[i].x) == 10
             assert "Energy:" in grotrian_figure.data[i].hovertemplate
-        
+
     def test_excitation_traces(self, grotrian_figure, grotrian_plot):
         """Tests excitation traces plotted in the figure."""
         current_idx = len(grotrian_plot.level_data)
@@ -101,11 +101,11 @@ class TestGrotrianPlot:
             trace_idx = current_idx + i
             y_lower = grotrian_plot.level_data.loc[line_info.merged_level_number_lower].y_coord
             y_upper = grotrian_plot.level_data.loc[line_info.merged_level_number_upper].y_coord
-                
+
             npt.assert_allclose(grotrian_figure.data[trace_idx].y, [y_lower, y_upper])
             assert len(grotrian_figure.data[trace_idx].x) == 2
             assert "Wavelength:" in grotrian_figure.data[trace_idx].hovertemplate
-        
+
     def test_deexcitation_traces(self, grotrian_figure, grotrian_plot):
         """Tests deexcitaion traces plotted in the figure."""
         current_idx = len(grotrian_plot.level_data) + len(grotrian_plot.excite_lines)
@@ -113,7 +113,7 @@ class TestGrotrianPlot:
             trace_idx = current_idx + i
             y_lower = grotrian_plot.level_data.loc[line_info.merged_level_number_lower].y_coord
             y_upper = grotrian_plot.level_data.loc[line_info.merged_level_number_upper].y_coord
-                
+
             npt.assert_allclose(grotrian_figure.data[trace_idx].y, [y_upper, y_lower])
             assert len(grotrian_figure.data[trace_idx].x) == 2
 
@@ -145,8 +145,6 @@ class TestGrotrianWidgetEvents:
 
         # Switch to the second available species
         grotrian_widget.ion_selector.value = species_options[1]
-
-        from tardis.util.base import species_string_to_tuple
 
         expected_atomic, expected_ion = species_string_to_tuple(
             species_options[1]
