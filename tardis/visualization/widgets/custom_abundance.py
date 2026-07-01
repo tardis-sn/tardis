@@ -598,8 +598,8 @@ class CustomAbundanceWidget:
 
         self.rbs_single_apply = pn.widgets.CheckBoxGroup(
             options=["Only selected shell"],
-            margin=(10, 0, 0, 0),
             value=["Only selected shell"],
+            stylesheets=["label input[type=\"checkbox\"] + span {top: 0px;}"],
         )
         self._watcher_single_apply= self.rbs_single_apply.param.watch(
             self.rbs_single_apply_eventhandler, "value"
@@ -607,7 +607,8 @@ class CustomAbundanceWidget:
         self.rbs_multi_apply = pn.widgets.CheckBoxGroup(
             options=["A range of shells: "],
             width=130,
-            margin=(10, 0, 10, 0),
+            margin=(5, 0, 5, 10),
+            stylesheets=["label input[type=\"checkbox\"] + span {top: 0px;}"],
         )
         self._watcher_multi_apply= self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, "value")
 
