@@ -1375,8 +1375,8 @@ class CustomAbundanceWidget:
                     pn.Row(
                             self.rbs_multi_apply,
                             self.irs_shell_range,
-                            self.abundance_note,
                     ),
+                    self.abundance_note,
                 margin=(0, 0, 15, 50),
             )
 
