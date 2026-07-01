@@ -22,7 +22,14 @@ env:
   CACHE_NUMBER: 0  # increase to reset cache manually
 
 jobs:
+  test-cache:
+    uses: ./.github/workflows/lfs-cache.yml
+    with:
+      atom-data-sparse: true
+      regression-data-repo: tardis-sn/tardis-regression-data
+
   build:
+    needs: [test-cache]
     strategy:
       matrix:
         label: [linux-64]
@@ -38,6 +45,11 @@ jobs:
       - uses: actions/checkout@v6
         with:
           repository: tardis-sn/stardis
+
+      - name: Checkout TARDIS workflow helpers
+        uses: actions/checkout@v6
+        with:
+          path: tardis-source
 
       - name: Download Lock File
         run:  wget -q https://raw.githubusercontent.com/tardis-sn/stardis/main/conda-${{ matrix.label }}.lock
@@ -68,6 +80,17 @@ jobs:
         id: install-stardis
         run: |
           pip install -e .[test]
+
+      - name: Setup atom data
+        uses: ./tardis-source/.github/actions/setup_lfs
+        with:
+          atom-data-sparse: true
+          regression-data-repo: tardis-sn/tardis-regression-data
+
+      - name: Copy atom data
+        run: |
+          mkdir -p ~/Downloads/tardis-data
+          cp ./tardis-regression-data/atom_data/kurucz_cd23_chianti_H_He_latest.h5 ~/Downloads/tardis-data/
 
       - name: Run stardis tests  
         run: pytest

@@ -36,7 +36,6 @@ jobs:
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   tests:
     name: compare-regdata ${{ matrix.continuum }} continuum ${{ matrix.os }}
