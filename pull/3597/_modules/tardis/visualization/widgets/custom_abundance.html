@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=038d3b97"></script>
+      <script src="../../../../_static/documentation_options.js?v=c54134dd"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -765,8 +765,8 @@ class CustomAbundanceWidget:
 
         self.rbs_single_apply = pn.widgets.CheckBoxGroup(
             options=[&quot;Only selected shell&quot;],
-            margin=(10, 0, 0, 0),
             value=[&quot;Only selected shell&quot;],
+            stylesheets=[&quot;label input[type=\&quot;checkbox\&quot;] + span {top: 0px;}&quot;],
         )
         self._watcher_single_apply= self.rbs_single_apply.param.watch(
             self.rbs_single_apply_eventhandler, &quot;value&quot;
@@ -774,7 +774,8 @@ class CustomAbundanceWidget:
         self.rbs_multi_apply = pn.widgets.CheckBoxGroup(
             options=[&quot;A range of shells: &quot;],
             width=130,
-            margin=(10, 0, 10, 0),
+            margin=(5, 0, 5, 10),
+            stylesheets=[&quot;label input[type=\&quot;checkbox\&quot;] + span {top: 0px;}&quot;],
         )
         self._watcher_multi_apply= self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, &quot;value&quot;)</div>
 
@@ -1616,8 +1617,8 @@ class CustomAbundanceWidget:
                     pn.Row(
                             self.rbs_multi_apply,
                             self.irs_shell_range,
-                            self.abundance_note,
                     ),
+                    self.abundance_note,
                 margin=(0, 0, 15, 50),
             )
 
@@ -1626,7 +1627,8 @@ class CustomAbundanceWidget:
                     box_apply,
                     pn.Row(self.box_editor, box_features),
                     box_add_element,
-                    sizing_mode=&quot;stretch_width&quot;
+                    sizing_mode=&quot;stretch_width&quot;,
+                    styles={&#39;width&#39;:&#39;auto&#39;},
             )
             box_density = self.density_editor.display()
 
@@ -2119,7 +2121,8 @@ class DensityEditor:
                 self.dpd_dtype,
                 self.dtype_out,
                 self.btn_calculate,
-                sizing_mode=&quot;stretch_width&quot;
+                sizing_mode=&quot;stretch_width&quot;,
+                styles={&#39;width&#39;:&#39;auto&#39;},
         )
         return widget</div>
 </div>
@@ -2134,7 +2137,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 26 Jun 2026.
+      <span class="lastupdated">Last updated on 01 Jul 2026.
       </span></p>
   </div>
 

@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=038d3b97"></script>
+      <script src="../../../../_static/documentation_options.js?v=c54134dd"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -521,7 +521,7 @@ class SDECPlotter:
                 setattr(self, df_name, processed_df)
 
             self.species = np.sort(
-                self.total_luminosities_df.columns[1:], kind=SORTING_ALGORITHM
+                self._get_species_columns(), kind=SORTING_ALGORITHM
             )
 
         else:  # nelements is not None
@@ -549,7 +549,7 @@ class SDECPlotter:
                 setattr(self, df_name, processed_df)
 
             self.species = np.sort(
-                self.total_luminosities_df.columns[1:], kind=SORTING_ALGORITHM
+                self._get_species_columns(), kind=SORTING_ALGORITHM
             )
 
         # Final calculations
@@ -595,6 +595,17 @@ class SDECPlotter:
             df = df.drop(columns=excluded_keys)
         return df</div>
 
+
+    def _get_species_columns(self):
+        &quot;&quot;&quot;
+        Return actual species in the total luminosities dataframe, excluding
+        any that have been binned into the &#39;other&#39; column.
+        &quot;&quot;&quot;
+        columns = self.total_luminosities_df.columns
+        species_mask = [
+            column != (&quot;other&quot;, &quot;&quot;) and column != &quot;other&quot; for column in columns
+        ]
+        return columns[species_mask]
 
     def _calculate_grouped_luminosities(
         self, packets_mode, mask, nu_column, luminosities_df
@@ -1729,7 +1740,7 @@ class SDECPlotter:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 26 Jun 2026.
+      <span class="lastupdated">Last updated on 01 Jul 2026.
       </span></p>
   </div>
 
