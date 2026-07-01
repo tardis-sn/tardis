@@ -232,6 +232,9 @@ html_theme_options = {
     #    "logotext1": "tardis",  # white,  semi-bold
     #    "logotext2": "",  # orange, light
     #    "logotext3": ":docs"   # white,  light
+    "collapse_navigation": False,
+    "navigation_depth": -1,
+    "titles_only": False,
 }
 
 

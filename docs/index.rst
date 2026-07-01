@@ -121,9 +121,6 @@ Mission Statement
     :caption: Contributing to TARDIS
     :hidden:
 
-    contributing/CONTRIBUTING.md
-    contributing/development/index
-    contributing/tools/index
-    contributing/in_progress/index
+    contributing/index
     
     
