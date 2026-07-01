@@ -51,8 +51,6 @@ TARDIS uses specific cache key formats to efficiently store and retrieve data du
 
 .. warning::
    - The version suffix (-v1) allows for future cache invalidation if needed.
-   - The `lfs-cache` workflow will fail if the cache is not available and will not pull LFS data by default. 
-   - However, if the `allow_lfs_pull` label is added to the PR, the workflow will pull LFS data. Please note that this is to be used sparingly and only with caution.
 
 Streamlined Steps for TARDIS Pipelines
 ========================================
