@@ -1384,7 +1384,8 @@ class CustomAbundanceWidget:
                     box_apply,
                     pn.Row(self.box_editor, box_features),
                     box_add_element,
-                    sizing_mode="stretch_width"
+                    sizing_mode="stretch_width",
+                    styles={'width':'auto'},
             )
             box_density = self.density_editor.display()
 
@@ -1829,6 +1830,7 @@ class DensityEditor:
                 self.dpd_dtype,
                 self.dtype_out,
                 self.btn_calculate,
-                sizing_mode="stretch_width"
+                sizing_mode="stretch_width",
+                styles={'width':'auto'},
         )
         return widget
