@@ -37,7 +37,6 @@ jobs:
     with:
       atom-data-sparse: false
       regression-data-repo: tardis-sn/tardis-regression-data
-      allow_lfs_pull: ${{ github.ref == 'refs/heads/master' || contains(github.event.pull_request.labels.*.name, 'git-lfs-pull') }}
 
   run-tests:
     if: github.repository_owner == 'tardis-sn' && contains(github.event.pull_request.labels.*.name, 'full-tests')
