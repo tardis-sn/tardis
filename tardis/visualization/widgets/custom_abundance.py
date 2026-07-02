@@ -530,7 +530,7 @@ class CustomAbundanceWidget:
             step=1,
             name="Shell No. ",
             disabled=True,
-            margin=(5, 0, 0, 0),
+            margin=(32, 0, 0, 0),
         )
         self.irs_shell_range.param.watch(self.irs_shell_range_eventhandler, "value_throttled")
 
@@ -596,21 +596,15 @@ class CustomAbundanceWidget:
         )
         self.tbs_scale.param.watch(self.tbs_scale_eventhandler, "value")
 
-        self.rbs_single_apply = pn.widgets.CheckBoxGroup(
-            options=["Only selected shell"],
-            value=["Only selected shell"],
-            stylesheets=["label input[type=\"checkbox\"] + span {top: 0px;}"],
+        self.rbs_shell_edit_mode = pn.widgets.RadioBoxGroup(
+            options=["Only selected shell", "A range of shells: "],
+            value="Only selected shell",
+            inline=False,
+            stylesheets=["label input[type=\"radio\"] + span {top: 0px;}", ".bk-input-group {gap: 10px;}"],
         )
-        self._watcher_single_apply= self.rbs_single_apply.param.watch(
-            self.rbs_single_apply_eventhandler, "value"
+        self._watcher_single_apply= self.rbs_shell_edit_mode.param.watch(
+            self.rbs_shell_editing_eventhandler, "value"
         )
-        self.rbs_multi_apply = pn.widgets.CheckBoxGroup(
-            options=["A range of shells: "],
-            width=130,
-            margin=(5, 0, 5, 10),
-            stylesheets=["label input[type=\"checkbox\"] + span {top: 0px;}"],
-        )
-        self._watcher_multi_apply= self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, "value")
 
     def update_input_item_value(self, index, value):
         """Update the value of the widget in the list of abundance inputs.
@@ -921,7 +915,7 @@ class CustomAbundanceWidget:
                 obj.obj.value
             )
 
-            if self.rbs_multi_apply.value is []:
+            if self.rbs_shell_edit_mode.value == "Only selected shell":
                 self.update_abundance_plot(item_index)
             else:
                 self.apply_to_multiple_shells(item_index)
@@ -1012,7 +1006,7 @@ class CustomAbundanceWidget:
         self.read_abundance()
 
         for i in range(self.no_of_elements):
-            if self.rbs_multi_apply.value is []:
+            if self.rbs_shell_edit_mode.value == "Only selected shell":
                 # Only normalize selected shell
                 self.update_abundance_plot(i)
             else:
@@ -1184,49 +1178,32 @@ class CustomAbundanceWidget:
             self.error_view.object = f"Error: {e}"
             self.error_view.visible = True
 
-    def rbs_single_apply_eventhandler(self, obj):
+    def rbs_shell_editing_eventhandler(self, event):
         """Switch to single shell editing mode. Triggered if the
         first radio button is selected.
 
         Parameters
         ----------
-        obj : panel.widgets.Button
-            The clicked button instance.
+        event : param.parameterized.Event
+            A dictionary holding the information about the change.
         """
-        self.abundance_note.visible = False
+        if event.obj.value == "Only selected shell":
+            self.abundance_note.visible = False
 
-        self.rbs_multi_apply.param.unwatch(self._watcher_multi_apply)
-        self.rbs_multi_apply.value = []
-        self._watcher_multi_apply = self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, "value")
+            self.dpd_shell_no.disabled = False
+            self.btn_next.disabled = False
+            self.btn_prev.disabled = False
+            self.irs_shell_range.disabled = True
+        else:
+            self.abundance_note.visible = True
 
-        self.dpd_shell_no.disabled = False
-        self.btn_next.disabled = False
-        self.btn_prev.disabled = False
-        self.irs_shell_range.disabled = True
-        self.update_bar_diagonal()
+            self.shell_no = self.irs_shell_range.value[0]
 
-    def rbs_multi_apply_eventhandler(self, obj):
-        """Switch to multi-shells editing mode. Triggered if the
-        second radio button is selected.
+            self.dpd_shell_no.disabled = True
+            self.btn_next.disabled = True
+            self.btn_prev.disabled = True
+            self.irs_shell_range.disabled = False
 
-        Parameters
-        ----------
-        obj : panel.widgets.Button
-            The clicked button instance.
-        """
-        self.abundance_note.visible = True
-
-        self.shell_no = self.irs_shell_range.value[0]
-
-        self.rbs_single_apply.param.unwatch(self._watcher_single_apply)
-        self.rbs_single_apply.value = []
-        self._watcher_single_apply = self.rbs_single_apply.param.watch(
-            self.rbs_single_apply_eventhandler, "value"
-        )
-        self.dpd_shell_no.disabled = True
-        self.btn_next.disabled = True
-        self.btn_prev.disabled = True
-        self.irs_shell_range.disabled = False
         self.update_bar_diagonal()
 
     def irs_shell_range_eventhandler(self, obj):
@@ -1371,9 +1348,8 @@ class CustomAbundanceWidget:
             box_apply = pn.Column(
 
                     pn.pane.Markdown("Apply abundance(s) to:", margin=(0, 0, 0, 0)),
-                    self.rbs_single_apply,
                     pn.Row(
-                            self.rbs_multi_apply,
+                            self.rbs_shell_edit_mode,
                             self.irs_shell_range,
                     ),
                     self.abundance_note,
