@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
-import numpy as np
 import pandas as pd
-from astropy import units as u
 
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+if TYPE_CHECKING:
+    import numpy as np
+    from astropy import units as u
+
+    from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 
 
 @dataclass
@@ -13,6 +18,7 @@ class ArtisData:
     velocity: np.ndarray
     mean_density: u.Quantity
     mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
+    isotope_mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
 
     def to_geometry(self) -> HomologousRadial1DGeometry:
         """
@@ -25,6 +31,8 @@ class ArtisData:
         tardis.model.geometry.radial1d.HomologousRadial1DGeometry
             The geometry object constructed from the ARTIS data.
         """
+        from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+
         geometry = HomologousRadial1DGeometry(
             v_inner=self.velocity[:-1],
             v_outer=self.velocity[1:],

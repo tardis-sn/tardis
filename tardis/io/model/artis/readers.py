@@ -1,5 +1,5 @@
-
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,10 @@ from tardis.io.model.artis.data import ArtisData
 
 def read_artis_density(
     fname: str | Path, legacy_return: bool = True
-) -> tuple[u.Quantity, u.Quantity, u.Quantity] | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]:
+) -> (
+    tuple[u.Quantity, u.Quantity, u.Quantity]
+    | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]
+):
     """
     Read an ARTIS density file.
 
@@ -73,9 +76,9 @@ def read_artis_density(
         names=artis_model_columns,
         sep=r"\s+",
     )
-    assert (
-        len(artis_model) == no_of_shells
-    ), "Number of shells {len(artis_model)} does not match metadate {no_of_shells}"
+    assert len(artis_model) == no_of_shells, (
+        "Number of shells {len(artis_model)} does not match metadate {no_of_shells}"
+    )
     velocity = u.Quantity(artis_model["velocities"], "km/s").to("cm/s")
     mean_density = u.Quantity(10 ** artis_model["mean_densities_0"], "g/cm^3")
 
@@ -94,11 +97,13 @@ def read_artis_density(
         names=["atomic_number", "mass_number"],
     )
 
-    isotope_mass_fractions.columns = artis_model["cell_index"]
+    isotope_mass_fractions.columns = artis_model["cell_index"].astype(np.int64)
     isotope_mass_fractions.columns.name = "cell_index"
+    mean_density = mean_density[1:]
+    isotope_mass_fractions = isotope_mass_fractions.iloc[:, 1:]
 
     if legacy_return:
-        return time_of_model, velocity, mean_density[1:]
+        return time_of_model, velocity, mean_density
     return time_of_model, velocity, mean_density, isotope_mass_fractions
 
 
@@ -131,14 +136,52 @@ def read_artis_mass_fractions(
     )
 
     mass_fractions_df.index.name = "cell_index"
+    mass_fractions_df = mass_fractions_df.iloc[1:]
 
     if normalize:
-        mass_fractions_df = mass_fractions_df.div(mass_fractions_df.sum(axis=1), axis=0)
+        mass_fractions_df = mass_fractions_df.div(
+            mass_fractions_df.sum(axis=1), axis=0
+        )
     mass_fractions_df = mass_fractions_df.T
     mass_fractions_df.index.name = "atomic_number"
     mass_fractions_df.columns.name = "cell_index"
 
     return mass_fractions_df
+
+
+def read_artis_composition(
+    density_fname: str | Path, abundance_fname: str | Path
+) -> tuple[pd.Index, pd.DataFrame, pd.DataFrame]:
+    """
+    Read ARTIS elemental and isotopic mass fractions.
+
+    ARTIS stores elemental mass fractions in the abundance file and selected
+    radioactive isotope mass fractions in the density file. This reader returns
+    the elemental mass fractions unchanged and the isotope mass fractions as a
+    separate table.
+
+    Parameters
+    ----------
+    density_fname : str or pathlib.Path
+        Path to the ARTIS density file.
+    abundance_fname : str or pathlib.Path
+        Path to the ARTIS abundance file.
+
+    Returns
+    -------
+    index : pandas.Index
+        Atomic numbers for elemental mass fractions.
+    mass_fractions : pandas.DataFrame
+        Elemental mass fractions indexed by atomic number.
+    isotope_mass_fractions : pandas.DataFrame
+        Isotopic mass fractions indexed by atomic and mass number.
+    """
+    _, _, _, isotope_mass_fractions = cast(
+        "tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]",
+        read_artis_density(density_fname, legacy_return=False),
+    )
+    mass_fractions = read_artis_mass_fractions(abundance_fname)
+    return mass_fractions.index, mass_fractions, isotope_mass_fractions
 
 
 def read_artis_model(
@@ -159,17 +202,14 @@ def read_artis_model(
     ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     """
-    time_of_model, velocity, mean_density, isotope_mass_fractions = read_artis_density( # type: ignore
-        density_fname, legacy_return=False
+    time_of_model, velocity, mean_density, isotope_mass_fractions = cast(
+        "tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]",
+        read_artis_density(density_fname, legacy_return=False),
     )
     mass_fractions = read_artis_mass_fractions(abundance_fname)
     mass_fractions.index = pd.MultiIndex.from_arrays(
         [mass_fractions.index, [-1] * len(mass_fractions.index)],
         names=["atomic_number", "mass_number"],
-    )
-    isotope_summed = isotope_mass_fractions.groupby(level="atomic_number").sum()
-    mass_fractions = mass_fractions.sub(
-        isotope_summed, level="atomic_number", fill_value=0
     )
 
     mass_fractions = pd.concat([mass_fractions, isotope_mass_fractions], axis=0)
@@ -179,4 +219,5 @@ def read_artis_model(
         velocity=velocity,
         mean_density=mean_density,
         mass_fractions=mass_fractions,
+        isotope_mass_fractions=isotope_mass_fractions,
     )

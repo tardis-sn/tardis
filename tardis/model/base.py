@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
-from astropy import units as u
 
-from tardis.io.atom_data.base import AtomData
-from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.csvy import load_csvy
 from tardis.io.model.parse_composition_configuration import (
@@ -24,6 +24,10 @@ from tardis.io.model.parse_radiation_field_configuration import (
     parse_radiation_field_state_from_csvy,
 )
 from tardis.util.base import is_valid_nuclide_or_elem
+
+if TYPE_CHECKING:
+    from tardis.io.atom_data.base import AtomData
+    from tardis.io.configuration.config_reader import Configuration
 
 logger = logging.getLogger(__name__)
 
@@ -183,8 +187,7 @@ class SimulationState(HDFWriterMixin):
         ).divide(
             self.composition.isotope_masses.loc[
                 self.composition.isotopic_mass_fraction.index
-            ]
-            * u.u.to(u.g),
+            ],
             axis=0,
         )
         isotopic_number_density = isotopic_number_density.iloc[
@@ -271,8 +274,11 @@ class SimulationState(HDFWriterMixin):
 
     @classmethod
     def from_config(
-        cls, config: Configuration, atom_data: AtomData, legacy_mode_enabled: bool = False
-    ) -> "SimulationState":
+        cls,
+        config: Configuration,
+        atom_data: AtomData,
+        legacy_mode_enabled: bool = False,
+    ) -> SimulationState:
         """Create a new SimulationState instance from a Configuration object.
 
         Parameters
@@ -322,7 +328,7 @@ class SimulationState(HDFWriterMixin):
         cls,
         config: Configuration,
         legacy_mode_enabled: bool = False,
-    ) -> "SimulationState":
+    ) -> SimulationState:
         """
         Create a new SimulationState instance from a Configuration object.
 
@@ -364,7 +370,8 @@ class SimulationState(HDFWriterMixin):
             )
 
             field_names = {
-                field["name"] for field in csvy_data.model_config.datatype.fields
+                field["name"]
+                for field in csvy_data.model_config.datatype.fields
             }
             assert set(csvy_data.raw_csv_data.columns) - field_names == set(), (
                 "CSVY columns exist without field descriptions"
@@ -376,7 +383,8 @@ class SimulationState(HDFWriterMixin):
                 logger.warning(
                     "The following columns are "
                     "specified in the csvy model file,"
-                    f" but are IGNORED by TARDIS: {str(unsupported_columns)}"
+                    " but are IGNORED by TARDIS: %s",
+                    unsupported_columns,
                 )
 
         time_explosion = config.supernova.time_explosion.cgs
@@ -384,7 +392,10 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
 
         geometry = parse_geometry_from_csvy(
-            config, csvy_data.model_config, csvy_data.raw_csv_data, time_explosion
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            time_explosion,
         )
 
         composition = parse_composition_from_csvy(
@@ -399,7 +410,11 @@ class SimulationState(HDFWriterMixin):
         )
 
         radiation_field_state = parse_radiation_field_state_from_csvy(
-            config, csvy_data.model_config, csvy_data.raw_csv_data, geometry, packet_source
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            geometry,
+            packet_source,
         )
 
         return cls(

@@ -1,19 +1,23 @@
+from __future__ import annotations
+
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import astropy.units as u
 import numpy as np
 import pandas as pd
 
-from tardis.io.configuration.config_reader import (
-    Configuration,
-)
 from tardis.io.model.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.base import read_mass_fractions_file
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
+
+if TYPE_CHECKING:
+    import astropy.units as u
+
+    from tardis.io.configuration.config_reader import Configuration
+    from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 
 logger = logging.getLogger(__name__)
 
@@ -66,12 +70,24 @@ def parse_mass_fractions_from_config(
                 Path(config.config_dirname) / mass_fractions_section.filename
             )
 
+        density_fname = None
+        structure_section = config.model.structure
+        if mass_fractions_section.filetype == "artis":
+            if Path(structure_section.filename).is_absolute():
+                density_fname = structure_section.filename
+            else:
+                density_fname = (
+                    Path(config.config_dirname) / structure_section.filename
+                )
+
         (
             index,
             mass_fractions,
             isotope_mass_fractions,
         ) = read_mass_fractions_file(
-            mass_fractions_fname, mass_fractions_section.filetype
+            mass_fractions_fname,
+            mass_fractions_section.filetype,
+            density_filename=density_fname,
         )
 
     mass_fractions = mass_fractions.replace(np.nan, 0.0)

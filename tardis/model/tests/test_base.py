@@ -1,5 +1,7 @@
 from pathlib import Path
+from types import SimpleNamespace
 
+import numpy as np
 import pandas as pd
 import pytest
 from astropy import units as u
@@ -8,6 +10,29 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.model.matter.decay import IsotopicMassFraction
+
+
+def test_isotopic_number_density_uses_shell_shaped_isotope_masses():
+    isotope_index = pd.MultiIndex.from_tuples(
+        [(28, 56)], names=["atomic_number", "mass_number"]
+    )
+    simulation_state = SimulationState.__new__(SimulationState)
+    simulation_state.geometry = SimpleNamespace(
+        v_inner_boundary_index=1,
+        v_outer_boundary_index=3,
+    )
+    simulation_state.composition = SimpleNamespace(
+        isotopic_mass_fraction=pd.DataFrame(
+            [[0.2, 0.3, 0.4]], index=isotope_index
+        ),
+        density=np.array([10.0, 20.0, 30.0]),
+        isotope_masses=pd.DataFrame([[2.0, 2.0, 2.0]], index=isotope_index),
+    )
+
+    isotopic_number_density = simulation_state.isotopic_number_density
+
+    assert list(isotopic_number_density.columns) == [0, 1]
+    assert_array_almost_equal(isotopic_number_density.loc[(28, 56)], [3.0, 6.0])
 
 
 @pytest.fixture
@@ -126,6 +151,21 @@ class TestModelFromArtisDensityAbundances:
     def test_abundances(self):
         assert_almost_equal(
             self.simulation_state.abundance.loc[14, 54], 0.21864420000000001
+        )
+
+    def test_isotope_masses(self):
+        composition = self.simulation_state.composition
+        assert composition.isotope_masses.shape == (
+            composition.isotopic_mass_fraction.shape
+        )
+        assert list(composition.isotope_masses.columns) == list(
+            composition.isotopic_mass_fraction.columns
+        )
+
+    def test_isotopic_number_density(self):
+        isotopic_number_density = self.simulation_state.isotopic_number_density
+        assert isotopic_number_density.shape[1] == (
+            self.simulation_state.no_of_shells
         )
 
 
@@ -349,9 +389,7 @@ def test_radial_1D_geometry_volume(simulation_verysimple, index, expected):
     geometry = simulation_verysimple.simulation_state.geometry
     volume = geometry.volume
 
-    assert_almost_equal(
-        volume[index].to(u.cm**3).value, expected, decimal=-40
-    )
+    assert_almost_equal(volume[index].to(u.cm**3).value, expected, decimal=-40)
 
 
 @pytest.mark.parametrize(
@@ -383,9 +421,9 @@ def test_composition_elemental_number_density(
     comp = simulation_verysimple.simulation_state.composition
 
     assert_almost_equal(
-        comp.calculate_elemental_number_density(atomic_dataset.atom_data.mass).loc[
-            index
-        ],
+        comp.calculate_elemental_number_density(
+            atomic_dataset.atom_data.mass
+        ).loc[index],
         expected,
         decimal=-2,
     )
@@ -429,10 +467,8 @@ def non_uniform_simulation_state(atomic_dataset, example_model_file_dir):
 def test_radial_1d_model_atomic_mass(
     non_uniform_simulation_state, atomic_dataset, index, expected
 ):
-    atomic_mass = (
-        non_uniform_simulation_state.composition.calculate_effective_element_masses(
-            atomic_dataset.atom_data.mass
-        )
+    atomic_mass = non_uniform_simulation_state.composition.calculate_effective_element_masses(
+        atomic_dataset.atom_data.mass
     )
 
     assert_almost_equal(
@@ -452,8 +488,10 @@ class TestModelStateFromNonUniformAbundances:
         return SimulationState.from_config(config, atom_data=atomic_dataset)
 
     def test_atomic_mass(self, simulation_state, atomic_dataset):
-        atomic_mass = simulation_state.composition.calculate_effective_element_masses(
-            atomic_dataset.atom_data.mass
+        atomic_mass = (
+            simulation_state.composition.calculate_effective_element_masses(
+                atomic_dataset.atom_data.mass
+            )
         )
         assert_almost_equal(atomic_mass.loc[(1, 0)], 1.67378172e-24, decimal=30)
         assert_almost_equal(
@@ -464,8 +502,10 @@ class TestModelStateFromNonUniformAbundances:
         )
 
     def test_elemental_number_density(self, simulation_state, atomic_dataset):
-        number = simulation_state.composition.calculate_elemental_number_density(
-            atomic_dataset.atom_data.mass
+        number = (
+            simulation_state.composition.calculate_elemental_number_density(
+                atomic_dataset.atom_data.mass
+            )
         )
         assert_almost_equal(number.loc[(1, 0)], 0)
         assert_almost_equal(number.loc[(28, 0)], 10825403.434893506, decimal=2)

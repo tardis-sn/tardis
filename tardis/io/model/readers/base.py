@@ -18,6 +18,7 @@ def read_mass_fractions_file(
     mass_fractions_filetype,
     inner_boundary_index=None,
     outer_boundary_index=None,
+    density_filename=None,
 ):
     """
     read different density file formats
@@ -32,10 +33,12 @@ def read_mass_fractions_file(
         index of the inner shell, default None
     outer_boundary_index : int
         index of the outer shell, default None
+    density_filename : str or pathlib.Path
+        Matching density file. Required for ARTIS isotope mass fractions,
+        which are stored in the ARTIS density file.
     """
     file_parsers = {
         "simple_ascii": read_simple_ascii_mass_fractions,
-        "artis": read_simple_ascii_mass_fractions,
         "cmfgen_model": read_cmfgen_composition,
         "custom_composition": read_csv_composition,
     }
@@ -45,6 +48,22 @@ def read_mass_fractions_file(
         index, mass_fractions, isotope_mass_fractions = file_parsers[
             mass_fractions_filetype
         ](mass_fractions_filename)
+    elif mass_fractions_filetype == "artis":
+        from tardis.io.model.artis.readers import (
+            read_artis_composition,
+            read_artis_mass_fractions,
+        )
+
+        if density_filename is None:
+            mass_fractions = read_artis_mass_fractions(mass_fractions_filename)
+            index = mass_fractions.T.index
+        else:
+            index, mass_fractions, isotope_mass_fractions = (
+                read_artis_composition(
+                    density_filename, mass_fractions_filename
+                )
+            )
+            index = mass_fractions.T.index
     else:
         index, mass_fractions = file_parsers[mass_fractions_filetype](
             mass_fractions_filename
@@ -59,6 +78,13 @@ def read_mass_fractions_file(
         :, slice(inner_boundary_index, outer_boundary_index_m1)
     ]
     mass_fractions.columns = np.arange(len(mass_fractions.columns))
+    if not isotope_mass_fractions.empty:
+        isotope_mass_fractions = isotope_mass_fractions.loc[
+            :, slice(inner_boundary_index, outer_boundary_index_m1)
+        ]
+        isotope_mass_fractions.columns = np.arange(
+            len(isotope_mass_fractions.columns)
+        )
     return index, mass_fractions, isotope_mass_fractions
 
 
@@ -105,6 +131,13 @@ def read_density_file(filename, filetype):
             electron_densities,
             temperature,
         ) = read_cmfgen_density(filename)
+    elif filetype == "artis":
+        (
+            time_of_model,
+            velocity,
+            unscaled_mean_densities,
+            isotope_mass_fractions,
+        ) = file_parsers[filetype](filename, legacy_return=False)
     else:
         (time_of_model, velocity, unscaled_mean_densities) = file_parsers[
             filetype
@@ -117,7 +150,7 @@ def read_density_file(filename, filetype):
     if invalid_volume_mask.sum() > 0:
         message = "\n".join(
             [
-                f"cell {i:d}: v_inner {v_inner_i:s}, v_outer " f"{v_outer_i:s}"
+                f"cell {i:d}: v_inner {v_inner_i:s}, v_outer {v_outer_i:s}"
                 for i, v_inner_i, v_outer_i in zip(
                     np.arange(len(v_outer))[invalid_volume_mask],
                     v_inner[invalid_volume_mask],
@@ -126,7 +159,7 @@ def read_density_file(filename, filetype):
             ]
         )
         raise ConfigurationError(
-            "Invalid volume of following cell(s):\n" f"{message:s}"
+            f"Invalid volume of following cell(s):\n{message:s}"
         )
 
     return (
