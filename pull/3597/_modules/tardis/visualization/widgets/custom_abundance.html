@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=c54134dd"></script>
+      <script src="../../../../_static/documentation_options.js?v=4f62f268"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -697,7 +697,7 @@ class CustomAbundanceWidget:
             step=1,
             name=&quot;Shell No. &quot;,
             disabled=True,
-            margin=(5, 0, 0, 0),
+            margin=(32, 0, 0, 0),
         )
         self.irs_shell_range.param.watch(self.irs_shell_range_eventhandler, &quot;value_throttled&quot;)
 
@@ -763,21 +763,15 @@ class CustomAbundanceWidget:
         )
         self.tbs_scale.param.watch(self.tbs_scale_eventhandler, &quot;value&quot;)
 
-        self.rbs_single_apply = pn.widgets.CheckBoxGroup(
-            options=[&quot;Only selected shell&quot;],
-            value=[&quot;Only selected shell&quot;],
-            stylesheets=[&quot;label input[type=\&quot;checkbox\&quot;] + span {top: 0px;}&quot;],
+        self.rbs_shell_edit_mode = pn.widgets.RadioBoxGroup(
+            options=[&quot;Only selected shell&quot;, &quot;A range of shells: &quot;],
+            value=&quot;Only selected shell&quot;,
+            inline=False,
+            stylesheets=[&quot;label input[type=\&quot;radio\&quot;] + span {top: 0px;}&quot;, &quot;.bk-input-group {gap: 10px;}&quot;],
         )
-        self._watcher_single_apply= self.rbs_single_apply.param.watch(
-            self.rbs_single_apply_eventhandler, &quot;value&quot;
-        )
-        self.rbs_multi_apply = pn.widgets.CheckBoxGroup(
-            options=[&quot;A range of shells: &quot;],
-            width=130,
-            margin=(5, 0, 5, 10),
-            stylesheets=[&quot;label input[type=\&quot;checkbox\&quot;] + span {top: 0px;}&quot;],
-        )
-        self._watcher_multi_apply= self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, &quot;value&quot;)</div>
+        self._watcher_single_apply= self.rbs_shell_edit_mode.param.watch(
+            self.rbs_shell_editing_eventhandler, &quot;value&quot;
+        )</div>
 
 
 <div class="viewcode-block" id="CustomAbundanceWidget.update_input_item_value">
@@ -1121,7 +1115,7 @@ class CustomAbundanceWidget:
                 obj.obj.value
             )
 
-            if self.rbs_multi_apply.value is []:
+            if self.rbs_shell_edit_mode.value == &quot;Only selected shell&quot;:
                 self.update_abundance_plot(item_index)
             else:
                 self.apply_to_multiple_shells(item_index)
@@ -1227,7 +1221,7 @@ class CustomAbundanceWidget:
         self.read_abundance()
 
         for i in range(self.no_of_elements):
-            if self.rbs_multi_apply.value is []:
+            if self.rbs_shell_edit_mode.value == &quot;Only selected shell&quot;:
                 # Only normalize selected shell
                 self.update_abundance_plot(i)
             else:
@@ -1412,54 +1406,34 @@ class CustomAbundanceWidget:
             self.error_view.visible = True</div>
 
 
-<div class="viewcode-block" id="CustomAbundanceWidget.rbs_single_apply_eventhandler">
-<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_single_apply_eventhandler">[docs]</a>
-    def rbs_single_apply_eventhandler(self, obj):
+<div class="viewcode-block" id="CustomAbundanceWidget.rbs_shell_editing_eventhandler">
+<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_shell_editing_eventhandler">[docs]</a>
+    def rbs_shell_editing_eventhandler(self, event):
         &quot;&quot;&quot;Switch to single shell editing mode. Triggered if the
         first radio button is selected.
 
         Parameters
         ----------
-        obj : panel.widgets.Button
-            The clicked button instance.
+        event : param.parameterized.Event
+            A dictionary holding the information about the change.
         &quot;&quot;&quot;
-        self.abundance_note.visible = False
+        if event.obj.value == &quot;Only selected shell&quot;:
+            self.abundance_note.visible = False
 
-        self.rbs_multi_apply.param.unwatch(self._watcher_multi_apply)
-        self.rbs_multi_apply.value = []
-        self._watcher_multi_apply = self.rbs_multi_apply.param.watch(self.rbs_multi_apply_eventhandler, &quot;value&quot;)
+            self.dpd_shell_no.disabled = False
+            self.btn_next.disabled = False
+            self.btn_prev.disabled = False
+            self.irs_shell_range.disabled = True
+        else:
+            self.abundance_note.visible = True
 
-        self.dpd_shell_no.disabled = False
-        self.btn_next.disabled = False
-        self.btn_prev.disabled = False
-        self.irs_shell_range.disabled = True
-        self.update_bar_diagonal()</div>
+            self.shell_no = self.irs_shell_range.value[0]
 
+            self.dpd_shell_no.disabled = True
+            self.btn_next.disabled = True
+            self.btn_prev.disabled = True
+            self.irs_shell_range.disabled = False
 
-<div class="viewcode-block" id="CustomAbundanceWidget.rbs_multi_apply_eventhandler">
-<a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_multi_apply_eventhandler">[docs]</a>
-    def rbs_multi_apply_eventhandler(self, obj):
-        &quot;&quot;&quot;Switch to multi-shells editing mode. Triggered if the
-        second radio button is selected.
-
-        Parameters
-        ----------
-        obj : panel.widgets.Button
-            The clicked button instance.
-        &quot;&quot;&quot;
-        self.abundance_note.visible = True
-
-        self.shell_no = self.irs_shell_range.value[0]
-
-        self.rbs_single_apply.param.unwatch(self._watcher_single_apply)
-        self.rbs_single_apply.value = []
-        self._watcher_single_apply = self.rbs_single_apply.param.watch(
-            self.rbs_single_apply_eventhandler, &quot;value&quot;
-        )
-        self.dpd_shell_no.disabled = True
-        self.btn_next.disabled = True
-        self.btn_prev.disabled = True
-        self.irs_shell_range.disabled = False
         self.update_bar_diagonal()</div>
 
 
@@ -1613,9 +1587,8 @@ class CustomAbundanceWidget:
             box_apply = pn.Column(
 
                     pn.pane.Markdown(&quot;Apply abundance(s) to:&quot;, margin=(0, 0, 0, 0)),
-                    self.rbs_single_apply,
                     pn.Row(
-                            self.rbs_multi_apply,
+                            self.rbs_shell_edit_mode,
                             self.irs_shell_range,
                     ),
                     self.abundance_note,
@@ -2137,7 +2110,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Jul 2026.
+      <span class="lastupdated">Last updated on 02 Jul 2026.
       </span></p>
   </div>
 

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=c54134dd"></script>
+      <script src="../_static/documentation_options.js?v=4f62f268"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -559,29 +559,14 @@ inserting a new shell within the entered velocity range.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_multi_apply_eventhandler">
-<span class="sig-name descname"><span class="pre">rbs_multi_apply_eventhandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/custom_abundance.html#CustomAbundanceWidget.rbs_multi_apply_eventhandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_multi_apply_eventhandler" title="Link to this definition"></a></dt>
-<dd><p>Switch to multi-shells editing mode. Triggered if the
-second radio button is selected.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>obj</strong><span class="classifier">panel.widgets.Button</span></dt><dd><p>The clicked button instance.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_single_apply_eventhandler">
-<span class="sig-name descname"><span class="pre">rbs_single_apply_eventhandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/custom_abundance.html#CustomAbundanceWidget.rbs_single_apply_eventhandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_single_apply_eventhandler" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_shell_editing_eventhandler">
+<span class="sig-name descname"><span class="pre">rbs_shell_editing_eventhandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/custom_abundance.html#CustomAbundanceWidget.rbs_shell_editing_eventhandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.rbs_shell_editing_eventhandler" title="Link to this definition"></a></dt>
 <dd><p>Switch to single shell editing mode. Triggered if the
 first radio button is selected.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>obj</strong><span class="classifier">panel.widgets.Button</span></dt><dd><p>The clicked button instance.</p>
+<dt><strong>event</strong><span class="classifier">param.parameterized.Event</span></dt><dd><p>A dictionary holding the information about the change.</p>
 </dd>
 </dl>
 </dd>
@@ -1008,7 +993,7 @@ shell No. changes.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 01 Jul 2026.
+      <span class="lastupdated">Last updated on 02 Jul 2026.
       </span></p>
   </div>
 
