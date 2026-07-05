@@ -282,9 +282,7 @@ class CustomAbundanceWidgetData:
         CustomAbundanceWidgetData
         """
         abundance = sim.simulation_state.abundance.copy()
-        isotope_abundance = (
-            sim.simulation_state.composition.raw_isotope_abundance.copy()
-        )
+        isotope_abundance = sim.simulation_state.composition.isotopic_mass_fraction.copy()
 
         # integrate element and isotope to one DataFrame
         abundance["mass_number"] = ""
