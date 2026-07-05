@@ -461,8 +461,8 @@ class CustomAbundanceWidget:
         self.checks = [
             pn.widgets.Checkbox(
                 width=30,
-                sizing_mode="stretch_height",
-                margin=(10, 0, 0, 0)
+                height=30,
+                margin=(11, 0, 0, 0)
             )
             for element in self.data.elements
         ]
