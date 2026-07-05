@@ -1,0 +1,7 @@
+tardis.plasma.properties.helium\_nlte module
+============================================
+
+.. automodule:: tardis.plasma.properties.helium_nlte
+   :members:
+   :show-inheritance:
+   :undoc-members:
