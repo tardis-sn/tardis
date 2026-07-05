@@ -1,5 +1,13 @@
 ## Changelog
 
+### release-2026.07.05 (2026/07/04 21:50)
+- [3637](https://github.com/tardis-sn/tardis/pull/3637) Pre-release 2026.07.05 (3637) (@tardis-bot)
+- [3585](https://github.com/tardis-sn/tardis/pull/3585) DilutePlanckian Field Test Case (3585) (@RishmitaR)
+- [3606](https://github.com/tardis-sn/tardis/pull/3606) Unit Tests for Basic Properties (3606) (@RishmitaR)
+- [3632](https://github.com/tardis-sn/tardis/pull/3632) Remove git LFS pull blocker from all workflows in TARDIS (3632) (@andrewfullard)
+- [3631](https://github.com/tardis-sn/tardis/pull/3631) Rework first time contributor github action (3631) (@connor-mcclellan)
+- [3630](https://github.com/tardis-sn/tardis/pull/3630) Fix stardis-tests action (3630) (@connor-mcclellan)
+- [3629](https://github.com/tardis-sn/tardis/pull/3629) Post-release 2026.06.28 (3629) (@tardis-bot)
 ### release-2026.06.28 (2026/06/27 21:53)
 - [3628](https://github.com/tardis-sn/tardis/pull/3628) Pre-release 2026.06.28 (3628) (@tardis-bot)
 - [3626](https://github.com/tardis-sn/tardis/pull/3626) Handle TARDIS config validator schema paths differently (3626) (@connor-mcclellan)
