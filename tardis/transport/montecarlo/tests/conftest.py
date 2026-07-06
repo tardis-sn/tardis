@@ -211,11 +211,11 @@ def radial_geometry(request) -> NumbaRadial1DGeometry:
 def nonhomologous_geometry(request) -> NumbaNonhomologousRadial1DGeometry:
     params = getattr(request, "param", {})
     if params.get("negative_velocity_gradient", False):
-        v_inner = np.array([1.5e9, 2.0e9])
-        v_outer = np.array([1.0e9, 1.5e9])
-    else:
         v_inner = np.array([1.0e9, 1.5e9])
         v_outer = np.array([1.5e9, 2.0e9])
+    else:
+        v_inner = np.array([2.0e9, 1.5e9])
+        v_outer = np.array([1.5e9, 1.0e9])
 
     return NumbaNonhomologousRadial1DGeometry(
         np.array([7.0e14, 8.0e14]),
