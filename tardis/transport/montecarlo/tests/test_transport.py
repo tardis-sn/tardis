@@ -497,13 +497,13 @@ def test_iip_trace_packet_no_line_fallthrough(
     ),
     [
         (
-            {},
+            {"negative_velocity_gradient": False},
             1.0e-20,
             NO_LINE_OPACITY,
             {"next_line_id": 0, "prev_line_id": 0},
             InteractionType.BOUNDARY,
+            1,
             0,
-            -1,
         ),
         (
             {},
@@ -511,17 +511,17 @@ def test_iip_trace_packet_no_line_fallthrough(
             NO_LINE_OPACITY,
             {"next_line_id": 0, "prev_line_id": 0},
             InteractionType.ESCATTERING,
+            1,
             0,
-            -1,
         ),
         (
             {"r_outer_first_shell": 2.0e16},
             1.0e-20,
             NONHOMOLOGOUS_LINE_OPACITY,
             {"next_line_id": 0, "prev_line_id": 0},
-            InteractionType.LINE,
+            InteractionType.BOUNDARY, # end of line list
+            1,
             0,
-            -1,
         ),
         (
             {"negative_velocity_gradient": True},
@@ -529,8 +529,8 @@ def test_iip_trace_packet_no_line_fallthrough(
             NO_LINE_OPACITY,
             {"next_line_id": 1, "prev_line_id": 1},
             InteractionType.BOUNDARY,
-            2,
             1,
+            0,
         ),
     ],
     indirect=[
