@@ -164,12 +164,15 @@ def pytest_collection_modifyitems(config, items):
 # -------------------------------------------------------------------------
 
 
-def assert_synced_allclose(
+def sync_ndarray_assert_allclose(
     regression_data: object, *actual_values: object, **kwargs: object
 ) -> None:
-    actual_array = np.concatenate([
-        np.asarray(actual, dtype=np.float64).ravel() for actual in actual_values
-    ])
+    actual_array = np.concatenate(
+        [
+            np.asarray(actual, dtype=np.float64).ravel()
+            for actual in actual_values
+        ]
+    )
     expected = regression_data.sync_ndarray(actual_array)
     npt.assert_allclose(actual_array, expected, **kwargs)
 

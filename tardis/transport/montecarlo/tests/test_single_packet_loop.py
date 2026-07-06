@@ -3,7 +3,7 @@ import numpy.testing as npt
 import pytest
 
 import tardis.transport.montecarlo.modes.iip.packet_propagation as iip_propagation
-from tardis.conftest import assert_synced_allclose
+from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.transport.montecarlo import RPacket
 from tardis.transport.montecarlo.modes.classic import (
     packet_propagation as classic_propagation,
@@ -18,6 +18,8 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
 )
+
+RTOL = 1.0e-12
 
 
 class _RecordingTracker:
@@ -136,18 +138,21 @@ def test_classic_packet_propagation_dispatch_numba_disabled(
     assert parametrized_packet.status == PacketStatus.EMITTED
     assert expected_interaction in recording_tracker.events
     assert recording_tracker.events[-1] == InteractionType.BOUNDARY
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
-        np.array([
-            parametrized_packet.r,
-            parametrized_packet.mu,
-            parametrized_packet.nu,
-            parametrized_packet.energy,
-        ]),
+        np.array(
+            [
+                parametrized_packet.r,
+                parametrized_packet.mu,
+                parametrized_packet.nu,
+                parametrized_packet.energy,
+            ]
+        ),
         bulk_estimators.mean_intensity_total,
         bulk_estimators.mean_frequency,
         line_estimators.mean_intensity_blueward,
         line_estimators.energy_deposition_line_rate,
+        rtol=RTOL,
     )
 
 
@@ -216,19 +221,22 @@ def test_iip_packet_propagation_dispatch_numba_disabled(
     assert parametrized_packet.status == PacketStatus.EMITTED
     assert first_interaction in recording_tracker.events
     assert recording_tracker.events[-1] == InteractionType.BOUNDARY
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
-        np.array([
-            parametrized_packet.r,
-            parametrized_packet.mu,
-            parametrized_packet.nu,
-            parametrized_packet.energy,
-        ]),
+        np.array(
+            [
+                parametrized_packet.r,
+                parametrized_packet.mu,
+                parametrized_packet.nu,
+                parametrized_packet.energy,
+            ]
+        ),
         bulk_estimators.mean_intensity_total,
         bulk_estimators.mean_frequency,
         line_estimators.mean_intensity_blueward,
         line_estimators.energy_deposition_line_rate,
         continuum_estimators.photo_ion_estimator,
+        rtol=RTOL,
     )
 
 
@@ -276,18 +284,21 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
     assert parametrized_packet.status == PacketStatus.EMITTED
     assert first_interaction in recording_tracker.events
     assert recording_tracker.events[-1] == InteractionType.BOUNDARY
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
-        np.array([
-            parametrized_packet.r,
-            parametrized_packet.mu,
-            parametrized_packet.nu,
-            parametrized_packet.energy,
-        ]),
+        np.array(
+            [
+                parametrized_packet.r,
+                parametrized_packet.mu,
+                parametrized_packet.nu,
+                parametrized_packet.energy,
+            ]
+        ),
         bulk_estimators.mean_intensity_total,
         bulk_estimators.mean_frequency,
         line_estimators.mean_intensity_blueward,
         line_estimators.energy_deposition_line_rate,
+        rtol=RTOL,
     )
 
 

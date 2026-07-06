@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from tardis.conftest import assert_synced_allclose
+from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     init_estimators_bulk,
 )
@@ -36,6 +36,8 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
 )
+
+RTOL = 1.0e-12
 
 NO_LINE_OPACITY = {
     "tau_sobolev": np.zeros((2, 2)),
@@ -78,11 +80,12 @@ def test_homologous_move_r_packet(
         enable_full_relativity,
     )
 
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         np.array([packet.r, packet.mu]),
         estimators.mean_intensity_total,
         estimators.mean_frequency,
+        rtol=RTOL,
     )
 
 
@@ -103,11 +106,12 @@ def test_nonhomologous_move_r_packet(
         False,
     )
 
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         np.array([packet.r, packet.mu]),
         bulk_estimators.mean_intensity_total,
         bulk_estimators.mean_frequency,
+        rtol=RTOL,
     )
 
 
@@ -153,11 +157,12 @@ def test_homologous_move_r_packet_zero_distance(
         False,
     )
 
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         np.array([packet.r, packet.mu]),
         estimators.mean_intensity_total,
         estimators.mean_frequency,
+        rtol=RTOL,
     )
 
 
@@ -178,11 +183,12 @@ def test_nonhomologous_move_r_packet_zero_distance(
         False,
     )
 
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         np.array([packet.r, packet.mu]),
         bulk_estimators.mean_intensity_total,
         bulk_estimators.mean_frequency,
+        rtol=RTOL,
     )
 
 
@@ -292,11 +298,12 @@ def test_classic_trace_packet(
     assert parametrized_packet.next_line_id == (
         1 if disable_line_scattering else 0
     )
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         distance,
         line_estimators.mean_intensity_blueward,
         line_estimators.energy_deposition_line_rate,
+        rtol=RTOL,
     )
 
 
@@ -334,8 +341,11 @@ def test_classic_trace_packet_no_line_fallthrough(
     assert interaction_type == InteractionType.ESCATTERING
     assert delta_shell == 1
     assert parametrized_packet.next_line_id == 2
-    assert_synced_allclose(
-        regression_data, distance, line_estimators.mean_intensity_blueward
+    sync_ndarray_assert_allclose(
+        regression_data,
+        distance,
+        line_estimators.mean_intensity_blueward,
+        rtol=RTOL,
     )
 
 
@@ -423,11 +433,12 @@ def test_iip_trace_packet(
     assert parametrized_packet.next_line_id == (
         1 if disable_line_scattering else 0
     )
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         distance,
         line_estimators.mean_intensity_blueward,
         line_estimators.energy_deposition_line_rate,
+        rtol=RTOL,
     )
 
 
@@ -466,8 +477,11 @@ def test_iip_trace_packet_no_line_fallthrough(
     assert interaction_type == InteractionType.ESCATTERING
     assert delta_shell == 1
     assert parametrized_packet.next_line_id == 2
-    assert_synced_allclose(
-        regression_data, distance, line_estimators.mean_intensity_blueward
+    sync_ndarray_assert_allclose(
+        regression_data,
+        distance,
+        line_estimators.mean_intensity_blueward,
+        rtol=RTOL,
     )
 
 
@@ -553,11 +567,12 @@ def test_nonhomologous_trace_packet(
     assert delta_shell == 1
     assert parametrized_packet.next_line_id == expected_next_line_id
     assert parametrized_packet.prev_line_id == expected_prev_line_id
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         distance,
         line_estimators.mean_intensity_blueward,
         line_estimators.energy_deposition_line_rate,
+        rtol=RTOL,
     )
 
 
@@ -601,6 +616,9 @@ def test_nonhomologous_trace_packet_no_line_fallthrough(
     assert delta_shell == 1
     assert parametrized_packet.next_line_id == 2
     assert parametrized_packet.prev_line_id == 1
-    assert_synced_allclose(
-        regression_data, distance, line_estimators.mean_intensity_blueward
+    sync_ndarray_assert_allclose(
+        regression_data,
+        distance,
+        line_estimators.mean_intensity_blueward,
+        rtol=RTOL,
     )

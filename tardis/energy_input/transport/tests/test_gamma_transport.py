@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 import tardis.energy_input.transport.gamma_packet_loop as gamma_loop_module
-from tardis.conftest import assert_synced_allclose
+from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.energy_input.transport.gamma_packet_loop import (
     gamma_packet_loop,
     process_packet_path,
@@ -24,6 +24,8 @@ from tardis.energy_input.transport.gamma_ray_interactions import (
 )
 from tardis.energy_input.transport.GXPacket import GXPacket, GXPacketStatus
 from tardis.energy_input.util import ELECTRON_MASS_ENERGY_KEV, H_CGS_KEV
+
+RTOL = 1.0e-12
 
 
 @pytest.fixture
@@ -74,7 +76,7 @@ def test_gamma_distance_radial(
         2.0e14,
     )
 
-    assert_synced_allclose(regression_data, distance)
+    sync_ndarray_assert_allclose(regression_data, distance, rtol=RTOL)
     assert shell_change == 1
 
 
@@ -91,7 +93,7 @@ def test_gamma_distance_radial_inward(
         2.0e14,
     )
 
-    assert_synced_allclose(regression_data, distance)
+    sync_ndarray_assert_allclose(regression_data, distance, rtol=RTOL)
     # Current implementation returns +1 here because the shell-change test
     # compares against ``inner_1 or inner_2``.
     assert shell_change == 1
@@ -132,9 +134,10 @@ def test_gamma_distance_trace(
         1.5e5,
     )
 
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         np.array([distance_interaction, distance_boundary, distance_time]),
+        rtol=RTOL,
     )
     assert shell_change == 1
 
@@ -169,18 +172,19 @@ def test_gamma_distance_trace_winner(
         next_time,
     )
 
-    assert_synced_allclose(regression_data, actual[:3])
+    sync_ndarray_assert_allclose(regression_data, actual[:3], rtol=RTOL)
     assert actual[3] == 1
 
 
 def test_gamma_move_packet(gamma_packet: GXPacket, regression_data) -> None:
     moved_packet = move_packet(gamma_packet, 2.5e13)
 
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         moved_packet.location,
         moved_packet.nu_cmf,
         moved_packet.energy_cmf,
+        rtol=RTOL,
     )
 
 
@@ -221,8 +225,8 @@ def test_gamma_compton_angle(set_seed_fixture, regression_data) -> None:
 
     angle, lost_energy, new_energy = get_compton_angle(1000.0)
 
-    assert_synced_allclose(
-        regression_data, np.array([angle, lost_energy, new_energy])
+    sync_ndarray_assert_allclose(
+        regression_data, np.array([angle, lost_energy, new_energy]), rtol=RTOL
     )
 
 
@@ -231,7 +235,9 @@ def test_gamma_compton_fraction(set_seed_fixture, regression_data) -> None:
 
     angle, fraction = get_compton_fraction(1000.0)
 
-    assert_synced_allclose(regression_data, np.array([angle, fraction]))
+    sync_ndarray_assert_allclose(
+        regression_data, np.array([angle, fraction]), rtol=RTOL
+    )
 
 
 def test_gamma_compton_fraction_artis(
@@ -241,7 +247,9 @@ def test_gamma_compton_fraction_artis(
 
     angle, fraction = get_compton_fraction_artis(1000.0)
 
-    assert_synced_allclose(regression_data, np.array([angle, fraction]))
+    sync_ndarray_assert_allclose(
+        regression_data, np.array([angle, fraction]), rtol=RTOL
+    )
 
 
 def test_gamma_compton_scatter(
@@ -253,7 +261,7 @@ def test_gamma_compton_scatter(
 
     actual = compton_scatter(gamma_packet, 0.5)
 
-    assert_synced_allclose(regression_data, actual)
+    sync_ndarray_assert_allclose(regression_data, actual, rtol=RTOL)
 
 
 def test_gamma_pair_creation_survives(
@@ -269,13 +277,13 @@ def test_gamma_pair_creation_survives(
     actual = pair_creation_packet(packet)
 
     assert actual.status == GXPacketStatus.IN_PROCESS
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         actual.nu_cmf,
         actual.nu_rf,
         actual.energy_rf,
         actual.direction,
-        rtol=1.0e-6,
+        rtol=RTOL,
     )
 
 
@@ -289,7 +297,9 @@ def test_gamma_process_packet_path_photoabsorption(
     actual, ejecta_energy_gained = process_packet_path(packet)
 
     assert actual.status == GXPacketStatus.PHOTOABSORPTION
-    assert_synced_allclose(regression_data, ejecta_energy_gained)
+    sync_ndarray_assert_allclose(
+        regression_data, ejecta_energy_gained, rtol=RTOL
+    )
 
 
 def test_gamma_process_packet_path_pair_creation(
@@ -304,8 +314,12 @@ def test_gamma_process_packet_path_pair_creation(
     actual, ejecta_energy_gained = process_packet_path(packet)
 
     assert actual.status == GXPacketStatus.PAIR_CREATION
-    assert_synced_allclose(
-        regression_data, actual.nu_cmf, actual.energy_rf, ejecta_energy_gained
+    sync_ndarray_assert_allclose(
+        regression_data,
+        actual.nu_cmf,
+        actual.energy_rf,
+        ejecta_energy_gained,
+        rtol=RTOL,
     )
 
 
@@ -321,8 +335,12 @@ def test_gamma_process_packet_path_compton(
     actual, ejecta_energy_gained = process_packet_path(packet)
 
     assert actual.status == GXPacketStatus.PHOTOABSORPTION
-    assert_synced_allclose(
-        regression_data, actual.nu_cmf, actual.energy_rf, ejecta_energy_gained
+    sync_ndarray_assert_allclose(
+        regression_data,
+        actual.nu_cmf,
+        actual.energy_rf,
+        ejecta_energy_gained,
+        rtol=RTOL,
     )
 
 
@@ -380,7 +398,7 @@ def test_gamma_packet_loop_escape_binning(
     assert packet.status == GXPacketStatus.ESCAPED
     assert packet.shell == 1
     assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         energy_out[1, 0],
         energy_out_cosi[1, 0],
@@ -388,6 +406,7 @@ def test_gamma_packet_loop_escape_binning(
         packets_info_array[0, 6],
         energy_deposited_gamma,
         total_energy,
+        rtol=RTOL,
     )
 
 
@@ -420,12 +439,13 @@ def test_gamma_packet_loop_tardis_opacity(
 
     assert packet.status == GXPacketStatus.ESCAPED
     assert packets_info_array[0, 1] == GXPacketStatus.ESCAPED
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         energy_out[1, 0],
         energy_out_cosi[1, 0],
         energy_deposited_gamma,
         total_energy,
+        rtol=RTOL,
     )
 
 
@@ -481,10 +501,11 @@ def test_gamma_packet_loop_time_boundary_end_numba_disabled(
 
     assert packet.status == GXPacketStatus.END
     assert packet.shell == 0
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         gamma_loop_arrays["energy_deposited_gamma"],
         gamma_loop_arrays["total_energy"],
+        rtol=RTOL,
     )
 
 
@@ -515,12 +536,13 @@ def test_gamma_packet_loop_inner_boundary_end_numba_disabled(
 
     assert packet.status == GXPacketStatus.END
     assert packet.shell == -1
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         packet.energy_rf,
         packet.energy_cmf,
         gamma_loop_arrays["energy_deposited_gamma"],
         gamma_loop_arrays["total_energy"],
+        rtol=RTOL,
     )
 
 
@@ -557,11 +579,12 @@ def test_gamma_packet_loop_interaction_deposition_numba_disabled(
     )
 
     assert packet.status == GXPacketStatus.PHOTOABSORPTION
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         energy_deposited_gamma,
         total_energy,
         packets_info_array,
+        rtol=RTOL,
     )
 
 
@@ -620,8 +643,9 @@ def test_gamma_packet_loop_scattered_escape_numba_disabled(
         )
 
     assert packet.status == GXPacketStatus.IN_PROCESS
-    assert_synced_allclose(
+    sync_ndarray_assert_allclose(
         regression_data,
         gamma_loop_arrays["energy_deposited_gamma"],
         gamma_loop_arrays["total_energy"],
+        rtol=RTOL,
     )
