@@ -189,7 +189,8 @@ class TestPlasma:
             if attr == "lines":
                 expected.columns.name = "N."
             if attr == "selected_atoms":
-                npt.assert_allclose(actual.values, expected.values)
+                actual = actual.to_frame(index=False)
+                pdt.assert_frame_equal(actual, expected)
             elif actual.ndim == 1:
                 actual = pd.Series(actual)
                 pdt.assert_series_equal(actual, expected)
@@ -200,7 +201,7 @@ class TestPlasma:
             warnings.warn(f'Property "{attr}" not found')
 
     def test_levels(self, plasma):
-        actual = pd.DataFrame(plasma.levels)
+        actual = plasma.levels.to_frame(index=False)
         key = "plasma/levels"
         expected = pd.read_hdf(self.regression_data.fpath, key)
         pdt.assert_frame_equal(actual, expected)
