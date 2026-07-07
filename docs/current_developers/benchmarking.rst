@@ -1,7 +1,7 @@
 Benchmarks
 ----------
 
-.. _new-explanation-benchmarking:
+.. _explanation-benchmarking:
 
 Explanation: Benchmarking
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -18,7 +18,7 @@ in specific functions.
 Benchmark files live in the ``benchmarks/`` directory. Results are stored under
 ``.asv/``.
 
-.. _new-reference-benchmark-command-reference:
+.. _reference-benchmark-command-reference:
 
 Reference: Benchmark Command Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,7 +44,7 @@ Benchmark classes live under ``benchmarks/``; for example,
 ``BenchmarkTransportMontecarloFormalIntegral`` with ASV methods such as
 ``time_intensity_black_body``.
 
-.. _new-how-to-guide-run-benchmarks:
+.. _how-to-guide-run-benchmarks:
 
 How-To Guide: Run Benchmarks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

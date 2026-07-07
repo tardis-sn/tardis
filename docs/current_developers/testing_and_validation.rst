@@ -1,4 +1,4 @@
-.. _new-testing_and_validation:
+.. _testing_and_validation:
 
 Testing And Regression Data
 ===========================
@@ -8,7 +8,7 @@ Guidance for tests and regression data.
 Tests
 -----
 
-.. _new-how-to-guide-run-unit-tests:
+.. _how-to-guide-run-unit-tests:
 
 How-To Guide: Run Unit Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,7 +38,7 @@ Run one test file:
    pytest tardis/tests/test_util.py
 
 
-.. _new-explanation-good-and-bad-test-cases:
+.. _explanation-good-and-bad-test-cases:
 
 Explanation: Good and Bad Test Cases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -91,7 +91,7 @@ Poor example:
        assert result is not None
 
 
-.. _new-reference-testing-command-reference:
+.. _reference-testing-command-reference:
 
 Reference: Testing Command Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,7 +145,7 @@ Generate reference data:
    pytest tardis --tardis-regression-data=/path/to/tardis-regression-data --generate-reference
 
 
-.. _new-explanation-testing-strategy:
+.. _explanation-testing-strategy:
 
 Explanation: Testing Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -164,7 +164,7 @@ and prevent regressions.
 Regression Data
 ---------------
 
-.. _new-explanation-regression-data:
+.. _explanation-regression-data:
 
 Explanation: Regression Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -179,7 +179,7 @@ should be cloned outside the main ``tardis`` repository.
 The original documentation notes that TARDIS migrated from ``tardis-refdata`` to
 ``tardis-regression-data``.
 
-.. _new-reference-regression-data-push-error:
+.. _reference-regression-data-push-error:
 
 Reference: Regression Data Push Error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,7 +214,7 @@ prioritizes ``.git/config`` over ``.lfsconfig``, so remove duplicates and make s
 
 https://github.com/git-lfs/git-lfs/blob/main/docs/man/git-lfs-config.adoc
 
-.. _new-how-to-guide-run-regression-data-tests:
+.. _how-to-guide-run-regression-data-tests:
 
 How-To Guide: Run Regression Data Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -265,7 +265,7 @@ For example, to run model-reader tests with local regression data:
 
 
 Some cases require updating the regression data. See
-:ref:`Update Regression Data <new-how-to-guide-update-regression-data>`.
+:ref:`Update Regression Data <how-to-guide-update-regression-data>`.
 
 The tests workflow runs on pull requests and push events. To prevent leaking LFS
 quota, tests are disabled on forks. If you need to run tests on a fork, run the
@@ -274,7 +274,7 @@ should be available in child branches. Check whether the cache was generated in
 the ``Setup LFS`` step of the workflow run. The cache can also be found under the
 Management section of the Actions tab.
 
-.. _new-how-to-guide-update-regression-data:
+.. _how-to-guide-update-regression-data:
 
 How-To Guide: Update Regression Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -320,12 +320,12 @@ The pull-request regression comparison workflow uses the same idea in
 
    pytest tardis ${PYTEST_FLAGS} --generate-reference -m "not continuum"
 
-.. _new-test-coverage:
+.. _test-coverage:
 
 Test Coverage
 -------------
 
-.. _new-how-to-guide-generate-and-view-test-coverage:
+.. _how-to-guide-generate-and-view-test-coverage:
 
 How-To Guide: Generate and View Test Coverage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

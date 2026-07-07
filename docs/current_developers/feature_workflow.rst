@@ -1,7 +1,7 @@
 Feature Workflow
 ------------------
 
-.. _new-tutorial-add-a-new-feature:
+.. _tutorial-add-a-new-feature:
 
 Tutorial: Add a New Feature
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,7 +32,7 @@ a failing test near the existing model or configuration tests, update
 ``tardis/io/model/parse_density_configuration.py``, run the targeted tests, and
 then document the new configuration behavior.
 
-.. _new-how-to-guide-introduce-a-new-feature:
+.. _how-to-guide-introduce-a-new-feature:
 
 How-To Guide: Introduce a New Feature
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,7 +69,7 @@ Example feature checklist:
    - Update the relevant configuration or model reader page.
 
 
-.. _new-explanation-developer-workflow:
+.. _explanation-developer-workflow:
 
 Explanation: Developer Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -94,7 +94,7 @@ The workflow emphasizes:
 This helps maintain readable history and helps maintainers understand what
 changed and why.
 
-.. _new-explanation-test-driven-development:
+.. _explanation-test-driven-development:
 
 Explanation: Test-Driven Development
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

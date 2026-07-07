@@ -122,6 +122,7 @@ Mission Statement
     :hidden:
 
     contributing/index
+    current_developers/index
 
 .. toctree::
     :maxdepth: 2

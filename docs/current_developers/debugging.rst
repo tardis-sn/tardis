@@ -1,7 +1,7 @@
 Numba Debugging
 ---------------
 
-.. _new-how-to-guide-debug-numbamontecarlo:
+.. _how-to-guide-debug-numbamontecarlo:
 
 How-To Guide: Debug ``numba_montecarlo``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

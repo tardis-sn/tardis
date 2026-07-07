@@ -1,16 +1,16 @@
-.. _new-code_style_and_syntax:
+.. _code_style_and_syntax:
 
 Code Style And Syntax
 =====================
 
 Guidance for writing readable, maintainable TARDIS code.
 
-.. _new-code-quality:
+.. _code-quality:
 
 Code Quality
 ------------
 
-.. _new-reference-code-quality-reference:
+.. _reference-code-quality-reference:
 
 Quick Reference
 ~~~~~~~~~~~~~~~
@@ -24,7 +24,7 @@ Rule locations:
 
 Naming conventions: https://peps.python.org/pep-0008/#naming-conventions
 
-.. _new-naming-conventions:
+.. _naming-conventions:
 
 Naming Conventions
 ------------------
@@ -35,7 +35,12 @@ function names such as ``parse_density_section_config``,
 preferable to short generic names because they state the operation being performed 
 and the model component being operated on.
 
-.. _new-explanation-variable-and-function-names:
+While functions and methods should use a verb-noun style, class properties 
+and variables should use a noun style. For example, 
+``calculate_power_law_density`` is a good function name, 
+while ``power_law_density`` is a good variable or property name.
+
+.. _explanation-variable-and-function-names:
 
 Explanation: Variable and Function Names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,17 +51,19 @@ implementation detail. Prefer names such as ``density_configuration``,
 objects refer to specific model quantities or schema locations. Ensure that if in
 other parts of the codebase similar concepts exist, use those names.
 
+If you use an object property e.g. ``packet.velocity``, it is reasonable to
+assign it to ``velocity`` in a local scope if it is used more than once or twice.
+
 Avoid names that are too generic for review, such as ``data``, ``arr``, ``x``, or
 ``idx``, unless the scope is very small and the meaning is obvious from the
 surrounding line.
 
-In TARDIS, the ``idx`` or an ``_idx`` suffix should be used for short-lived
-integer positions in a local loop, NumPy array, or packet collection. The
-indexed object should be named nearby, and the value should not escape the small
-local scope. Use ``index`` or an ``_index`` suffix when the value is used outside the scope: 
-a named schema field, a pandas/DataFrame index-like object, a
-lookup location, or a variable that will be read by reviewers outside the
-immediate line. If a variable stores the position of a named field, use the
+In TARDIS, the ``_idx`` suffix should be used for
+integer positions in a loop, NumPy array, or packet collection. The
+indexed object should be named nearby. Use an ``_index`` suffix 
+when the value is used outside the scope: 
+a named schema field, a pandas/DataFrame index-like object, or a
+lookup location. If a variable stores the position of a named field, use the
 ``_index`` suffix and include the concept being indexed:
 
 .. code-block:: python
@@ -87,7 +94,6 @@ Poor examples:
    i = packet_indices[i]
    data = parse_density_section_config(...)
 
-.. _new-typed-numpy-arrays:
 
 Type Hinting
 ------------
@@ -107,7 +113,7 @@ improve readability and maintainability, and they enable static type checking.
     ):
         pass
 
-.. _new-reference-numpy-array-typing:
+.. _reference-numpy-array-typing:
 
 Reference: NumPy Array Typing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

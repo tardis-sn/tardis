@@ -1,17 +1,17 @@
-.. _new-documentation:
+.. _documentation:
 
 Documentation
 =============
 
 Guidance for writing, building, previewing, and troubleshooting developer documentation.
 
-.. _new-docstrings:
+.. _docstrings:
 
 
 Docstrings
 ----------
 
-.. _new-reference-docstring-reference:
+.. _reference-docstring-reference:
 
 Reference: Docstring Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,12 +85,12 @@ Returns section format:
        (optional descriptor)
    """
 
-.. _new-documentation-builds:
+.. _documentation-builds:
 
 Documentation Builds
 --------------------
 
-.. _new-how-to-guide-build-documentation-locally:
+.. _how-to-guide-build-documentation-locally:
 
 How-To Guide: Build Documentation Locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,7 +126,7 @@ When checking only RST changes or link structure, use:
    DISABLE_NBSPHINX=1 make html NCORES=auto
 
 
-.. _new-reference-documentation-command-reference:
+.. _reference-documentation-command-reference:
 
 Reference: Documentation Command Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,7 +182,7 @@ Notebook file-size workaround:
    %config InlineBackend.figure_formats='png2x'
 
 
-.. _new-how-to-guide-share-built-documentation-in-a-pull-request:
+.. _how-to-guide-share-built-documentation-in-a-pull-request:
 
 How-To Guide: Share Built Documentation in a Pull Request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,7 +207,7 @@ To view build logs, go to the Actions tab in the TARDIS repository and select
 the ``docs`` workflow. Search documentation builds by branch to find the relevant
 log.
 
-.. _new-how-to-guide-troubleshoot-documentation-builds:
+.. _how-to-guide-troubleshoot-documentation-builds:
 
 How-To Guide: Troubleshoot Documentation Builds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -237,12 +237,12 @@ https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html
 
 Reach out for help if documentation issues are difficult to resolve.
 
-.. _new-documentation-pages:
+.. _documentation-pages:
 
 Documentation Pages
 -------------------
 
-.. _new-reference-developer-documentation-map:
+.. _reference-developer-documentation-map:
 
 Reference: Developer Documentation Map
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -264,7 +264,7 @@ Advanced core team development pages:
 - Matterbridge
 - Debugging ``numba_montecarlo``
 
-.. _new-how-to-guide-document-code-changes:
+.. _how-to-guide-document-code-changes:
 
 How-To Guide: Document Code Changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -303,7 +303,7 @@ documentation. Sphinx uses docstrings to auto-generate the API documentation for
 the TARDIS package. Build the documentation and check how the corresponding
 module API looks.
 
-.. _new-explanation-documentation-system:
+.. _explanation-documentation-system:
 
 Explanation: Documentation System
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -326,7 +326,7 @@ Notebook output must always be cleared before submission because ``nbsphinx`` ru
 notebooks during the build and inserts fresh output into the generated HTML.
 This helps keep documentation synchronized with the current codebase.
 
-.. _new-how-to-guide-include-a-new-documentation-page:
+.. _how-to-guide-include-a-new-documentation-page:
 
 How-To Guide: Include a New Documentation Page
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

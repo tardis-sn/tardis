@@ -1,7 +1,7 @@
 Git Workflow
 ------------
 
-.. _new-explanation-git-branching-strategy:
+.. _explanation-git-branching-strategy:
 
 Explanation: Git Branching Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,7 +37,7 @@ Merge conflicts can occur if the feature branch and trunk changed the same
 files. Resolve conflicts using the Git rebase documentation and related merge
 resolution guidance.
 
-.. _new-reference-git-command-reference:
+.. _reference-git-command-reference:
 
 Reference: Git Command Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,7 +154,7 @@ Inspect reflog:
 
    git reflog show cool-feature
 
-.. _new-how-to-guide-recover-from-git-mistakes:
+.. _how-to-guide-recover-from-git-mistakes:
 
 How-To Guide: Recover from Git Mistakes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,7 +195,7 @@ Reset to the point before the bad rebase:
 
    git reset --hard cool-feature@{2}
 
-.. _new-how-to-guide-start-a-feature-branch:
+.. _how-to-guide-start-a-feature-branch:
 
 How-To Guide: Start a Feature Branch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -243,7 +243,7 @@ With Git 1.7 or newer, you can set the upstream branch:
    git push --set-upstream origin my-new-feature
 
 
-.. _new-how-to-guide-use-the-editing-workflow:
+.. _how-to-guide-use-the-editing-workflow:
 
 How-To Guide: Use the Editing Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

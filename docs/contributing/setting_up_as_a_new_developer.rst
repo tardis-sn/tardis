@@ -1,4 +1,4 @@
-.. _new-setting-up-as-a-new-developer:
+.. _setting-up-as-a-new-developer:
 
 Setting Up As A New Developer
 =============================
@@ -7,7 +7,7 @@ Use this page when you are preparing a local checkout for TARDIS development.
 It gathers the one-time setup steps that used to be spread across the Git,
 code-style, and codebase-structure pages.
 
-.. _new-how-to-guide-set-up-github-access:
+.. _how-to-guide-set-up-github-access:
 
 Set Up GitHub Access
 --------------------
@@ -17,7 +17,7 @@ Set Up GitHub Access
 3. Use GitHub Help's SSH key instructions:
    https://help.github.com/articles/generating-ssh-keys
 
-.. _new-how-to-guide-fork-and-clone-tardis:
+.. _how-to-guide-fork-and-clone-tardis:
 
 Fork And Clone TARDIS
 ---------------------
@@ -48,7 +48,7 @@ You only need to fork once for each package you want to contribute to.
 
 At this point, ``origin`` should point to your GitHub fork.
 
-.. _new-how-to-guide-connect-your-fork-to-upstream:
+.. _how-to-guide-connect-your-fork-to-upstream:
 
 Connect Your Fork To Upstream
 -----------------------------
@@ -78,7 +78,7 @@ Expected output should include:
    origin     git@github.com:your-user-name/tardis.git (fetch)
    origin     git@github.com:your-user-name/tardis.git (push)
 
-.. _new-how-to-guide-install-tardis-in-development-mode:
+.. _how-to-guide-install-tardis-in-development-mode:
 
 Install TARDIS In Development Mode
 ----------------------------------
@@ -99,7 +99,7 @@ After installation, confirm that Python imports from your checkout:
 
    python -c "import tardis; print(tardis.__file__)"
 
-.. _new-tutorial-prepare-your-local-development-fork:
+.. _tutorial-prepare-your-local-development-fork:
 
 Prepare Your Local Development Fork
 -----------------------------------
@@ -150,7 +150,7 @@ This path prepares a new contributor to work on TARDIS locally.
    working directory. Edits in your clone are available the next time you start a
    Python interpreter and ``import tardis``.
 
-.. _new-how-to-guide-run-ruff:
+.. _how-to-guide-run-ruff:
 
 Run Ruff
 --------

@@ -1,7 +1,7 @@
 Continuous Integration
 ----------------------
 
-.. _new-explanation-continuous-integration:
+.. _explanation-continuous-integration:
 
 Explanation: Continuous Integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -17,7 +17,7 @@ run commands when triggered by events, such as pushes or pull requests.
 Making changes to an existing pipeline is done through a pull request. Creating
 a new workflow requires adding a YAML file under ``.github/workflows``.
 
-.. _new-how-to-guide-configure-a-github-actions-workflow:
+.. _how-to-guide-configure-a-github-actions-workflow:
 
 How-To Guide: Configure a GitHub Actions Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,7 +71,7 @@ the docs:
            run: cd docs/ && make html NCORES=auto
 
 
-.. _new-reference-continuous-integration-reference:
+.. _reference-continuous-integration-reference:
 
 Reference: Continuous Integration Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

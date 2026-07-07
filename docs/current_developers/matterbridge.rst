@@ -1,7 +1,7 @@
 Matterbridge
 ------------
 
-.. _new-how-to-guide-edit-the-cron-job:
+.. _how-to-guide-edit-the-cron-job:
 
 How-To Guide: Edit the Cron Job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -13,7 +13,7 @@ SSH to OpenSupernova.org and run:
    sudo crontab -e
 
 
-.. _new-explanation-matterbridge:
+.. _explanation-matterbridge:
 
 Explanation: Matterbridge
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,7 +39,7 @@ The server runs Ubuntu 14.04, so TARDIS uses an Upstart script instead of a
 Systemd service file. A Systemd file is also included in the repository. A cron
 job restarts the service periodically to prevent disconnections.
 
-.. _new-reference-matterbridge-reference:
+.. _reference-matterbridge-reference:
 
 Reference: Matterbridge Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +74,7 @@ Important repositories and services:
   https://github.com/tardis-sn/tardis-matterbridge
 - Matterbridge releases: https://github.com/42wim/matterbridge/releases/latest
 
-.. _new-how-to-guide-set-up-matterbridge:
+.. _how-to-guide-set-up-matterbridge:
 
 How-To Guide: Set Up Matterbridge
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,7 +101,7 @@ How-To Guide: Set Up Matterbridge
 
 9. Test the gateways.
 
-.. _new-how-to-guide-update-server-configuration:
+.. _how-to-guide-update-server-configuration:
 
 How-To Guide: Update Server Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

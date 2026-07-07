@@ -1,3 +1,6 @@
+TARDIS Design Philosophy
+=======================
+
 An important caveat to the above is that as research software, we expect the user 
 to correctly input parameters and respond to failures. Thus, we do not want to 
 raise exceptions for every possible edge case, as this would make the code unnecessarily 
