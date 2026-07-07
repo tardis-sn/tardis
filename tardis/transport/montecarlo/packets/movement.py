@@ -32,7 +32,6 @@ def move_r_packet(
     geometry: NumbaRadial1DGeometry | NumbaNonhomologousRadial1DGeometry,
     estimators_bulk: EstimatorsBulk,
     enable_full_relativity: bool,
-    full_relativity_supported: bool = True,
 ) -> None:
     """
     Move a radiative packet using velocity from the model geometry.
@@ -49,15 +48,7 @@ def move_r_packet(
         Cell-level bulk radiation field estimators to update in place.
     enable_full_relativity : bool
         Whether to apply full-relativity Doppler and path-length corrections.
-    full_relativity_supported : bool, optional
-        Whether the supplied geometry supports full relativity in this
-        transport mode, by default True.
     """
-    if enable_full_relativity and not full_relativity_supported:
-        raise NotImplementedError(
-            "Full relativity not implemented for non-homologous mode."
-        )
-
     velocity = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     doppler_factor = get_doppler_factor(
         velocity, r_packet.mu, enable_full_relativity

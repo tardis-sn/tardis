@@ -86,7 +86,6 @@ def test_nonhomologous_move_r_packet(
         nonhomologous_geometry,
         bulk_estimators,
         False,
-        False,
     )
 
     sync_ndarray_assert_allclose(
@@ -96,28 +95,6 @@ def test_nonhomologous_move_r_packet(
         bulk_estimators.mean_frequency,
         rtol=RTOL,
     )
-
-
-def test_nonhomologous_move_r_packet_full_relativity(
-    parametrized_packet,
-    nonhomologous_geometry,
-    bulk_estimators,
-) -> None:
-    packet = parametrized_packet
-    packet.current_shell_id = 0
-
-    with pytest.raises(
-        NotImplementedError,
-        match=r"Full relativity not implemented for non-homologous mode.",
-    ):
-        move_r_packet(
-            packet,
-            1.0e13,
-            nonhomologous_geometry,
-            bulk_estimators,
-            True,
-            False,
-        )
 
 
 def test_homologous_move_r_packet_zero_distance(
@@ -160,7 +137,6 @@ def test_nonhomologous_move_r_packet_zero_distance(
         0.0,
         nonhomologous_geometry,
         bulk_estimators,
-        False,
         False,
     )
 

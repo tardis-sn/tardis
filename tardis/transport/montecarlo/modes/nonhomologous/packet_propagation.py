@@ -164,7 +164,6 @@ def packet_propagation(
                 numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                False,
             )
             rpacket_tracker.track_boundary_event(
                 r_packet,
@@ -185,7 +184,6 @@ def packet_propagation(
                 numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                False,
             )
 
             rpacket_tracker.track_line_interaction_before(r_packet)
@@ -215,7 +213,6 @@ def packet_propagation(
                 numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
-                False,
             )
             rpacket_tracker.track_escattering_interaction_before(r_packet)
             thomson_scatter(
