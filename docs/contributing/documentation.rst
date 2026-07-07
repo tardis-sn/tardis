@@ -27,11 +27,6 @@ Sphinx uses docstrings to auto-generate API documentation:
 
 https://tardis-sn.github.io/tardis/api/modules.html
 
-.. raw:: html
-
-   <span style="color:red">Added: replaced generic docstring sample with a TARDIS function example.</span>
-
-
 Example adapted from ``tardis/io/model/parse_density_configuration.py``:
 
 .. code-block:: python
@@ -122,11 +117,6 @@ After the build, open ``docs/_build/html/index.html`` in your browser. Navigate 
 the changed or added page and check that it looks as intended. Check the
 terminal for warnings, often caused by faulty hyperlinks or missing toctree
 entries. Fix warnings before merging.
-
-.. raw:: html
-
-   <span style="color:red">Added: example fast documentation build command.</span>
-
 
 When checking only RST changes or link structure, use:
 
@@ -351,11 +341,6 @@ Whether the page is reStructuredText or a Jupyter notebook:
 Example: a page under "Visualization Tools and Widgets" in the Input/Output
 section belongs in a corresponding directory under ``docs/`` and must be included
 in that section's ``index.rst``.
-
-.. raw:: html
-
-   <span style="color:red">Added: concrete toctree example.</span>
-
 
 For example, a new developer page at
 ``docs/contributing/development/new_tooling.rst`` would be linked from

@@ -1,129 +1,165 @@
 .. _new-testing_and_validation:
 
-Testing And Validation
-======================
+Testing And Regression Data
+===========================
 
-Guidance for tests, regression data, benchmarks, and validation workflows.
+Guidance for tests and regression data.
 
-.. _new-benchmarks:
+Tests
+-----
 
+.. _new-how-to-guide-run-unit-tests:
 
-Benchmarks
-----------
-
-.. _new-explanation-benchmarking:
-
-Explanation: Benchmarking
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The benchmarking system detects performance regressions in TARDIS. It lets
-developers visually check whether performance has improved or worsened.
-
-TARDIS uses AirSpeed Velocity, or ASV. ASV is designed to run benchmarks on
-random servers, such as GitHub-hosted runners, and reduce noise caused by
-technical differences between servers. ASV produces graphs that indicate
-whether a regression occurred and can identify commits that affected performance
-in specific functions.
-
-Benchmark files live in the ``benchmarks/`` directory. Results are stored under
-``.asv/``.
-
-.. _new-reference-benchmark-command-reference:
-
-Reference: Benchmark Command Reference
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. raw:: html
-
-   <span style="color:red">Deleted: condensed repeated ASV setup commands because the benchmark how-to already gives the full sequence.</span>
-
-
-Common ASV commands:
-
-.. code-block:: shell
-
-   asv setup
-   asv machine --yes
-   asv run
-   asv publish
-   asv preview
-
-
-.. raw:: html
-
-   <span style="color:red">Added: example benchmark location in TARDIS.</span>
-
-
-Benchmark classes live under ``benchmarks/``; for example,
-``benchmarks/spectrum_formal_integral.py`` defines
-``BenchmarkTransportMontecarloFormalIntegral`` with ASV methods such as
-``time_intensity_black_body``.
-
-.. _new-how-to-guide-run-benchmarks:
-
-How-To Guide: Run Benchmarks
+How-To Guide: Run Unit Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TARDIS uses AirSpeed Velocity, or ASV, for benchmarks.
+TARDIS uses unit tests, regression-backed tests, and integration-style tests.
+Run tests from the active ``tardis`` environment so imports, optional
+dependencies, and regression-data tooling match the development checkout.
 
-Install ASV and its required environment tooling. ASV needs Conda or Miniconda
-and Mamba. Mini-forge includes these installers and can simplify configuration.
-
-Create the benchmark environment:
-
-.. code-block:: shell
-
-   export MAMBA_ENV_NAME="benchmark"
-   mamba create --yes --name "${MAMBA_ENV_NAME}" python asv mamba
-   mamba init
-
-
-Set up ASV for TARDIS:
+Run the unit tests from the repository root:
 
 .. code-block:: shell
 
-   cd tardis
-   export MAMBA_ENV_NAME="benchmark"
-   mamba activate "${MAMBA_ENV_NAME}"
-   asv setup
-   asv machine --yes
+   pytest tardis
 
 
-Run and publish benchmarks:
+Run one package's tests:
 
 .. code-block:: shell
 
-   cd tardis
-   export MAMBA_ENV_NAME="benchmark"
-   mamba activate "${MAMBA_ENV_NAME}"
-   asv run
-   asv publish
+   pytest tardis/io/model/readers/tests
 
 
-Preview benchmark output:
+Run one test file:
 
 .. code-block:: shell
 
-   asv preview
+   pytest tardis/tests/test_util.py
 
 
-You can also view the generated data with a local web server of your choice.
+.. _new-explanation-good-and-bad-test-cases:
 
-.. raw:: html
+Explanation: Good and Bad Test Cases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   <span style="color:red">Added: example single-benchmark workflow.</span>
+A good test case is narrow, deterministic, and tied to a behavior that matters.
+It should fail for the bug or missing feature it describes, and it should not
+depend on unrelated runtime state.
+
+Good test case patterns:
+
+- Tests one behavior at a time.
+- Uses the smallest realistic fixture or input.
+- Has a clear assertion.
+- Uses ``numpy.testing`` helpers for numerical arrays.
+- Uses ``pandas.testing`` helpers such as ``assert_frame_equal`` and
+  ``assert_series_equal`` for pandas DataFrame and Series comparisons.
+- Names the expected behavior in the test name.
+
+Example:
+
+.. code-block:: python
+
+   import numpy.testing as npt
 
 
-When iterating on one benchmark file, inspect the benchmark name in
-``benchmarks/spectrum_formal_integral.py``, then run a matching ASV benchmark
-locally before publishing results:
+   def test_ascii_density_reader_converts_velocity_units():
+       time_model, velocity, _ = read_simple_ascii_density(...)
+
+       npt.assert_allclose(velocity[3].value, 1.3e4 * 1e5)
+       npt.assert_almost_equal(time_model.to(u.day).value, 1.0)
+
+
+A bad test case is broad, fragile, or unclear. It may pass while the behavior is
+wrong, or fail because of unrelated changes.
+
+Poor test case patterns:
+
+- Tests many unrelated features at once.
+- Uses a full simulation when a small parser/unit test would work.
+- Asserts only that code ran without checking the result.
+- Uses exact equality for floating-point arrays.
+- Depends on local paths, network access, or test ordering.
+
+Poor example:
+
+.. code-block:: python
+
+   def test_model():
+       result = run_everything()
+       assert result is not None
+
+
+.. _new-reference-testing-command-reference:
+
+Reference: Testing Command Reference
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Run unit tests:
 
 .. code-block:: shell
 
-   asv run -b time_intensity_black_body
-   asv preview
+   pytest tardis
 
-.. _new-regression-data:
+Run tests with coverage report generation:
+
+.. code-block:: shell
+
+   pytest tardis \
+       --tardis-regression-data=/path/to/tardis-regression-data/ \
+       --cov=tardis \
+       --cov-report=xml \
+       --cov-report=html
+
+
+Clone regression data:
+
+.. code-block:: shell
+
+   GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/tardis-sn/tardis-regression-data.git
+   cd tardis-regression-data
+   git lfs fetch
+   git lfs checkout
+
+
+Run regression tests:
+
+.. code-block:: shell
+
+   pytest tardis --tardis-regression-data=/path/to/tardis-regression-data/
+
+
+Run regression tests for a path:
+
+.. code-block:: shell
+
+   pytest tardis/path/to/test_file_or_directory \
+       --tardis-regression-data=/path/to/tardis-regression-data/
+
+
+Generate reference data:
+
+.. code-block:: shell
+
+   pytest tardis --tardis-regression-data=/path/to/tardis-regression-data --generate-reference
+
+
+.. _new-explanation-testing-strategy:
+
+Explanation: Testing Strategy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TARDIS uses a mix of unit tests, regression-backed tests, and integration-style
+tests. Unit tests check individual functions and run quickly enough to provide
+immediate feedback after changes, while regression-backed and integration-style
+tests protect behavior that depends on larger simulations and stored reference
+data.
+
+The tests use ``pytest`` and are based on the ``astropy-setup-helpers`` package.
+
+Unit tests are run after suggested changes to TARDIS to maintain code quality
+and prevent regressions.
 
 Regression Data
 ---------------
@@ -221,11 +257,6 @@ Run tests for a specific file or directory:
        --tardis-regression-data=/path/to/tardis-regression-data/
 
 
-.. raw:: html
-
-   <span style="color:red">Added: concrete regression-test path example.</span>
-
-
 For example, to run model-reader tests with local regression data:
 
 .. code-block:: shell
@@ -281,11 +312,6 @@ If you suspect the regression data is outdated:
 If issues arise, tag a TARDIS team member responsible for CI/CD:
 
 https://tardis-sn.github.io/people/collaboration/
-
-.. raw:: html
-
-   <span style="color:red">Added: example from the regression comparison workflow.</span>
-
 
 The pull-request regression comparison workflow uses the same idea in
 ``.github/workflows/compare-regdata.yml``:
@@ -382,176 +408,3 @@ See:
   https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters
 - Coverage.py command reference:
   https://coverage.readthedocs.io/en/latest/cmd.html
-
-.. raw:: html
-
-   <span style="color:red">Added: test coverage workflow and VS Code coverage viewer instructions.</span>
-
-.. _new-tests:
-
-
-Tests
------
-
-.. _new-how-to-guide-run-unit-tests:
-
-How-To Guide: Run Unit Tests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-TARDIS uses unit tests, regression-backed tests, and integration-style tests.
-Run tests from the active ``tardis`` environment so imports, optional
-dependencies, and regression-data tooling match the development checkout.
-
-Run the unit tests from the repository root:
-
-.. code-block:: shell
-
-   pytest tardis
-
-
-.. raw:: html
-
-   <span style="color:red">Added: targeted pytest examples.</span>
-
-
-Run one package's tests:
-
-.. code-block:: shell
-
-   pytest tardis/io/model/readers/tests
-
-
-Run one test file:
-
-.. code-block:: shell
-
-   pytest tardis/tests/test_util.py
-
-
-.. _new-explanation-good-and-bad-test-cases:
-
-Explanation: Good and Bad Test Cases
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-A good test case is narrow, deterministic, and tied to a behavior that matters.
-It should fail for the bug or missing feature it describes, and it should not
-depend on unrelated runtime state.
-
-Good test case patterns:
-
-- Tests one behavior at a time.
-- Uses the smallest realistic fixture or input.
-- Has a clear assertion.
-- Uses ``numpy.testing`` helpers for numerical arrays.
-- Uses ``pandas.testing`` helpers such as ``assert_frame_equal`` and
-  ``assert_series_equal`` for pandas DataFrame and Series comparisons.
-- Names the expected behavior in the test name.
-
-Example:
-
-.. code-block:: python
-
-   import numpy.testing as npt
-
-
-   def test_ascii_density_reader_converts_velocity_units():
-       time_model, velocity, _ = read_simple_ascii_density(...)
-
-       npt.assert_allclose(velocity[3].value, 1.3e4 * 1e5)
-       npt.assert_almost_equal(time_model.to(u.day).value, 1.0)
-
-
-A bad test case is broad, fragile, or unclear. It may pass while the behavior is
-wrong, or fail because of unrelated changes.
-
-Poor test case patterns:
-
-- Tests many unrelated features at once.
-- Uses a full simulation when a small parser/unit test would work.
-- Asserts only that code ran without checking the result.
-- Uses exact equality for floating-point arrays.
-- Depends on local paths, network access, or test ordering.
-
-Poor example:
-
-.. code-block:: python
-
-   def test_model():
-       result = run_everything()
-       assert result is not None
-
-
-.. raw:: html
-
-   <span style="color:red">Added: good-versus-bad test case guidance and examples.</span>
-
-
-.. _new-reference-testing-command-reference:
-
-Reference: Testing Command Reference
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Run unit tests:
-
-.. code-block:: shell
-
-   pytest tardis
-
-Run tests with coverage report generation:
-
-.. code-block:: shell
-
-   pytest tardis \
-       --tardis-regression-data=/path/to/tardis-regression-data/ \
-       --cov=tardis \
-       --cov-report=xml \
-       --cov-report=html
-
-
-Clone regression data:
-
-.. code-block:: shell
-
-   GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/tardis-sn/tardis-regression-data.git
-   cd tardis-regression-data
-   git lfs fetch
-   git lfs checkout
-
-
-Run regression tests:
-
-.. code-block:: shell
-
-   pytest tardis --tardis-regression-data=/path/to/tardis-regression-data/
-
-
-Run regression tests for a path:
-
-.. code-block:: shell
-
-   pytest tardis/path/to/test_file_or_directory \
-       --tardis-regression-data=/path/to/tardis-regression-data/
-
-
-Generate reference data:
-
-.. code-block:: shell
-
-   pytest tardis --tardis-regression-data=/path/to/tardis-regression-data --generate-reference
-
-
-.. _new-explanation-testing-strategy:
-
-Explanation: Testing Strategy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-TARDIS uses a mix of unit tests, regression-backed tests, and integration-style
-tests. Unit tests check individual functions and run quickly enough to provide
-immediate feedback after changes, while regression-backed and integration-style
-tests protect behavior that depends on larger simulations and stored reference
-data.
-
-The tests use ``pytest`` and are based on the ``astropy-setup-helpers`` package.
-
-Unit tests are run after suggested changes to TARDIS to maintain code quality
-and prevent regressions.

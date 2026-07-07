@@ -122,5 +122,9 @@ Mission Statement
     :hidden:
 
     contributing/index
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Features in Progress
     
-    
+    features_in_progress
