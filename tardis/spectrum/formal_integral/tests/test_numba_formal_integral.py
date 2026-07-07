@@ -27,6 +27,7 @@ def formal_integral_geometry(request):
         r[1:],
         r[:-1] * c.c.cgs.value,
         r[1:] * c.c.cgs.value,
+        c.c.cgs.value,
     )
     return geometry
 

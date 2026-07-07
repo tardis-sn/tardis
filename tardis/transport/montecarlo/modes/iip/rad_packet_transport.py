@@ -3,9 +3,6 @@ from numba import njit
 
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacity_state_numba_iip import OpacityStateNumbaIIP
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-)
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_line,
@@ -21,7 +18,7 @@ from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_line,
 )
 from tardis.transport.montecarlo.packets.boundary_movement import (
-    move_packet_across_shell_boundary as move_packet_across_shell_boundary,
+    increment_packet_cell_index as increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_movement import (
     move_r_packet as move_r_packet_with_geometry,
@@ -92,10 +89,10 @@ def trace_packet(
     tau_trace_line_combined = 0.0
 
     # Calculating doppler factor
-    doppler_factor = get_doppler_factor(
+    doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
         r_packet.r,
         r_packet.mu,
-        time_explosion,
+        r_packet.current_shell_id,
         enable_full_relativity,
     )
     comov_nu = r_packet.nu * doppler_factor

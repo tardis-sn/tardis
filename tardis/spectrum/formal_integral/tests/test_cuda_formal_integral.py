@@ -11,7 +11,6 @@ from tardis.spectrum.formal_integral.base import (
 from tardis.spectrum.formal_integral.formal_integral_solver import FormalIntegralSolver
 import tardis.spectrum.formal_integral.formal_integral_numba as formal_integral_numba
 import tardis.spectrum.formal_integral.formal_integral_cuda as formal_integral_cuda
-from tardis.spectrum.formal_integral.source_function import SourceFunctionSolver
 
 
 @cuda.jit
@@ -76,6 +75,7 @@ def formal_integral_geometry(request):
         r[1:],
         r[:-1] * c.c.cgs.value,
         r[1:] * c.c.cgs.value,
+        c.c.cgs.value,
     )
     return geometry
 

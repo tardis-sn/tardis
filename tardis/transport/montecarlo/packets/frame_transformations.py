@@ -5,8 +5,6 @@ from numba import njit
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF_from_velocity,
     angle_aberration_LF_to_CMF_from_velocity,
-    get_doppler_factor_from_velocity,
-    get_inverse_doppler_factor_from_velocity,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.packets.radiative_packet import RPacket
@@ -33,17 +31,18 @@ def transform_packet_lab_to_comoving_frame(
     tuple[float, float, float]
         Comoving-frame frequency, energy, and angle cosine.
     """
-    velocity = geometry.get_velocity(
+    doppler_factor = geometry.get_doppler_factor(
         r_packet.r,
-        r_packet.current_shell_id,
-    )
-    doppler_factor = get_doppler_factor_from_velocity(
-        velocity,
         r_packet.mu,
+        r_packet.current_shell_id,
         enable_full_relativity,
     )
     comoving_mu = r_packet.mu
     if enable_full_relativity:
+        velocity = geometry.get_velocity(
+            r_packet.r,
+            r_packet.current_shell_id,
+        )
         comoving_mu = angle_aberration_LF_to_CMF_from_velocity(
             velocity,
             r_packet.mu,
@@ -82,21 +81,21 @@ def transform_packet_comoving_to_lab_frame(
     enable_full_relativity : bool
         Flag to enable full relativistic calculations.
     """
-    velocity = geometry.get_velocity(
+    inverse_doppler_factor = geometry.get_inverse_doppler_factor(
         r_packet.r,
-        r_packet.current_shell_id,
-    )
-    inverse_doppler_factor = get_inverse_doppler_factor_from_velocity(
-        velocity,
         comoving_mu,
+        r_packet.current_shell_id,
         enable_full_relativity,
     )
     r_packet.nu = comoving_nu * inverse_doppler_factor
     r_packet.energy = comoving_energy * inverse_doppler_factor
     r_packet.mu = comoving_mu
     if enable_full_relativity:
+        velocity = geometry.get_velocity(
+            r_packet.r,
+            r_packet.current_shell_id,
+        )
         r_packet.mu = angle_aberration_CMF_to_LF_from_velocity(
             velocity,
             comoving_mu,
         )
-

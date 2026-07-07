@@ -107,6 +107,36 @@ class RPacket:
             next_line_id -= 1
         self.next_line_id = next_line_id
 
+    def initialize_line_id_from_geometry(
+        self, opacity_state, geometry, enable_full_relativity
+    ):
+        """
+        Initialize the next line id using geometry-derived local velocity.
+
+        Parameters
+        ----------
+        opacity_state
+            Opacity state containing the line list.
+        geometry
+            Geometry object exposing Doppler factor methods.
+        enable_full_relativity
+            Flag to enable full relativistic calculations.
+        """
+        inverse_line_list_nu = opacity_state.line_list_nu[::-1]
+        doppler_factor = geometry.get_doppler_factor(
+            self.r,
+            self.mu,
+            self.current_shell_id,
+            enable_full_relativity,
+        )
+        comov_nu = self.nu * doppler_factor
+        next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
+            inverse_line_list_nu, comov_nu
+        )
+        if next_line_id == len(opacity_state.line_list_nu):
+            next_line_id -= 1
+        self.next_line_id = next_line_id
+
 
 @njit(**njit_dict_no_parallel)
 def print_r_packet_properties(r_packet):

@@ -1,9 +1,14 @@
 import warnings
+import math
 
 import numpy as np
 from astropy import units as u
 from numba import float64
 from numba.experimental import jitclass
+
+from tardis import constants as const
+
+C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
 class HomologousRadial1DGeometry:
@@ -179,6 +184,7 @@ class HomologousRadial1DGeometry:
             self.r_outer_active.to(u.cm).value,
             self.v_inner_active.to(u.cm / u.s).value,
             self.v_outer_active.to(u.cm / u.s).value,
+            1.0 / self.time_explosion.to(u.s).value,
         )
 
 
@@ -187,13 +193,16 @@ numba_geometry_spec = [
     ("r_outer", float64[:]),
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
+    ("inverse_time_explosion", float64),
     ("volume", float64[:]),
 ]
 
 
 @jitclass(numba_geometry_spec)
 class NumbaRadial1DGeometry:
-    def __init__(self, r_inner, r_outer, v_inner, v_outer):
+    def __init__(
+        self, r_inner, r_outer, v_inner, v_outer, inverse_time_explosion
+    ):
         """
         Radial 1D Geometry for the Numba mode
 
@@ -203,12 +212,15 @@ class NumbaRadial1DGeometry:
         r_outer : numpy.ndarray
         v_inner : numpy.ndarray
         v_outer : numpy.ndarray
+        inverse_time_explosion : float
+            Inverse time since explosion in 1/s.
         volume : numpy.ndarray
         """
         self.r_inner = r_inner
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.v_outer = v_outer
+        self.inverse_time_explosion = inverse_time_explosion
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
     def get_velocity(self, r: float, shell_id: int) -> float:
@@ -227,8 +239,66 @@ class NumbaRadial1DGeometry:
         float
             Velocity at radius ``r`` within shell ``shell_id``.
         """
-        return self.v_inner[shell_id] + (
-            (self.v_outer[shell_id] - self.v_inner[shell_id])
-            / (self.r_outer[shell_id] - self.r_inner[shell_id])
-            * (r - self.r_inner[shell_id])
-        )
+        return r * self.inverse_time_explosion
+
+    def get_doppler_factor(
+        self,
+        r: float,
+        mu: float,
+        shell_id: int,
+        enable_full_relativity: bool,
+    ) -> float:
+        """
+        Calculate the lab-to-comoving Doppler factor at radius ``r``.
+
+        Parameters
+        ----------
+        r : float
+            Radius at which to calculate the local homologous velocity.
+        mu : float
+            Packet propagation angle cosine in the lab frame.
+        shell_id : int
+            Shell index. Ignored for homologous geometry.
+        enable_full_relativity : bool
+            Flag to enable full relativistic calculations.
+
+        Returns
+        -------
+        float
+            Doppler factor.
+        """
+        beta = r * self.inverse_time_explosion / C_SPEED_OF_LIGHT
+        if not enable_full_relativity:
+            return 1.0 - mu * beta
+        return (1.0 - mu * beta) / math.sqrt(1.0 - beta * beta)
+
+    def get_inverse_doppler_factor(
+        self,
+        r: float,
+        mu: float,
+        shell_id: int,
+        enable_full_relativity: bool,
+    ) -> float:
+        """
+        Calculate the comoving-to-lab inverse Doppler factor at radius ``r``.
+
+        Parameters
+        ----------
+        r : float
+            Radius at which to calculate the local homologous velocity.
+        mu : float
+            Packet propagation angle cosine in the comoving frame.
+        shell_id : int
+            Shell index. Ignored for homologous geometry.
+        enable_full_relativity : bool
+            Flag to enable full relativistic calculations.
+
+        Returns
+        -------
+        float
+            Inverse Doppler factor.
+        """
+        beta = r * self.inverse_time_explosion / C_SPEED_OF_LIGHT
+        if not enable_full_relativity:
+            return 1.0 / (1.0 - mu * beta)
+        return (1.0 + mu * beta) / math.sqrt(1.0 - beta * beta)

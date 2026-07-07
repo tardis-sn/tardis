@@ -204,6 +204,7 @@ def radial_geometry(request) -> NumbaRadial1DGeometry:
         np.array([r_outer_first_shell, 3.0e16]),
         np.array([-1.0, -1.0]),
         np.array([-1.0, -1.0]),
+        1.0 / 5.2e7,
     )
 
 

@@ -5,6 +5,10 @@ from astropy import units as u
 from numba import float64
 from numba.experimental import jitclass
 
+from tardis import constants as const
+
+C_SPEED_OF_LIGHT = const.c.to("cm/s").value
+
 
 class NonhomologousRadial1DGeometry:
     """
@@ -291,3 +295,60 @@ class NumbaNonhomologousRadial1DGeometry:
         """
         return self.v_inner[shell_id] + self.velocity_gradient[shell_id] * (r - self.r_inner[shell_id])
 
+    def get_doppler_factor(
+        self, r: float, mu: float, shell_id: int, enable_full_relativity: bool
+    ) -> float:
+        """
+        Calculate the lab-to-comoving Doppler factor at radius ``r``.
+
+        Parameters
+        ----------
+        r : float
+            Radius at which to calculate the local velocity.
+        mu : float
+            Packet propagation angle cosine in the lab frame.
+        shell_id : int
+            Shell index.
+        enable_full_relativity : bool
+            Flag to enable full relativistic calculations.
+
+        Returns
+        -------
+        float
+            Doppler factor.
+        """
+        beta = self.get_velocity(r, shell_id) / C_SPEED_OF_LIGHT
+        if not enable_full_relativity:
+            return 1.0 - mu * beta
+        raise NotImplementedError(
+            "Full relativity not implemented for non-homologous mode."
+        )
+
+    def get_inverse_doppler_factor(
+        self, r: float, mu: float, shell_id: int, enable_full_relativity: bool
+    ) -> float:
+        """
+        Calculate the comoving-to-lab inverse Doppler factor at radius ``r``.
+
+        Parameters
+        ----------
+        r : float
+            Radius at which to calculate the local velocity.
+        mu : float
+            Packet propagation angle cosine in the comoving frame.
+        shell_id : int
+            Shell index.
+        enable_full_relativity : bool
+            Flag to enable full relativistic calculations.
+
+        Returns
+        -------
+        float
+            Inverse Doppler factor.
+        """
+        beta = self.get_velocity(r, shell_id) / C_SPEED_OF_LIGHT
+        if not enable_full_relativity:
+            return 1.0 / (1.0 - mu * beta)
+        raise NotImplementedError(
+            "Full relativity not implemented for non-homologous mode."
+        )

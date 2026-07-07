@@ -6,10 +6,6 @@ from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.opacities.opacities import chi_electron_calculator
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-    get_inverse_doppler_factor,
-)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
@@ -26,7 +22,7 @@ from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
-    move_packet_across_shell_boundary,
+    increment_packet_cell_index,
     move_r_packet_geometry,
     trace_packet,
 )
@@ -93,12 +89,14 @@ def packet_propagation(
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        set_packet_props_full_relativity(r_packet, time_explosion)
+        set_packet_props_full_relativity(r_packet, numba_radial_1d_geometry)
     else:
-        set_packet_props_partial_relativity(r_packet, time_explosion)
-    r_packet.initialize_line_id(
+        set_packet_props_partial_relativity(
+            r_packet, numba_radial_1d_geometry
+        )
+    r_packet.initialize_line_id_from_geometry(
         opacity_state,
-        time_explosion,
+        numba_radial_1d_geometry,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
     )
 
@@ -120,10 +118,10 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
-        doppler_factor = get_doppler_factor(
+        doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
             r_packet.r,
             r_packet.mu,
-            time_explosion,
+            r_packet.current_shell_id,
             montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         )
 
@@ -160,7 +158,7 @@ def packet_propagation(
                 r_packet.current_shell_id + delta_shell,
             )
 
-            move_packet_across_shell_boundary(
+            increment_packet_cell_index(
                 r_packet,
                 delta_shell,
                 len(numba_radial_1d_geometry.r_inner),
@@ -247,7 +245,7 @@ def packet_propagation(
 
 @njit
 def set_packet_props_partial_relativity(
-    r_packet: RPacket, time_explosion: float
+    r_packet: RPacket, geometry: NumbaRadial1DGeometry
 ) -> None:
     """
     Set packet properties using partial relativistic corrections.
@@ -259,18 +257,18 @@ def set_packet_props_partial_relativity(
     ----------
     r_packet
         The radiative packet whose properties will be modified.
-    time_explosion
-        Time since explosion in seconds, used to calculate velocity.
+    geometry
+        Radial 1D geometry of the model.
 
     Returns
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     """
-    inverse_doppler_factor = get_inverse_doppler_factor(
+    inverse_doppler_factor = geometry.get_inverse_doppler_factor(
         r_packet.r,
         r_packet.mu,
-        time_explosion,
-        enable_full_relativity=False,
+        r_packet.current_shell_id,
+        False,
     )
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
@@ -278,7 +276,7 @@ def set_packet_props_partial_relativity(
 
 @njit
 def set_packet_props_full_relativity(
-    r_packet: RPacket, time_explosion: float
+    r_packet: RPacket, geometry: NumbaRadial1DGeometry
 ) -> None:
     """
     Set packet properties using full relativistic corrections.
@@ -291,20 +289,23 @@ def set_packet_props_full_relativity(
     ----------
     r_packet
         The radiative packet whose properties will be modified.
-    time_explosion
-        Time since explosion in seconds, used to calculate velocity.
+    geometry
+        Radial 1D geometry of the model.
 
     Returns
     -------
     Modifies r_packet.nu, r_packet.energy, and r_packet.mu in-place.
     """
-    beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
+    beta = geometry.get_velocity(
+        r_packet.r,
+        r_packet.current_shell_id,
+    ) / C_SPEED_OF_LIGHT
 
-    inverse_doppler_factor = get_inverse_doppler_factor(
+    inverse_doppler_factor = geometry.get_inverse_doppler_factor(
         r_packet.r,
         r_packet.mu,
-        time_explosion,
-        enable_full_relativity=True,
+        r_packet.current_shell_id,
+        True,
     )
 
     r_packet.nu *= inverse_doppler_factor

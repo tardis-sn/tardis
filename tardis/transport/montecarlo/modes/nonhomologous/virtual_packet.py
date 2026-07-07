@@ -7,9 +7,6 @@ from numba.experimental import jitclass
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.opacities.opacities import chi_continuum_calculator
-from tardis.transport.frame_transformations import (
-    get_doppler_factor_nonhomologous,
-)
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_line_nonhomologous,
@@ -19,7 +16,7 @@ from tardis.transport.montecarlo.configuration.constants import (
     SIGMA_THOMSON,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
-    move_packet_across_shell_boundary,
+    increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
 
@@ -104,10 +101,10 @@ def trace_vpacket_within_shell(
     chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
-    v = numba_radial_1d_geometry.get_velocity(v_packet.r, v_packet.current_shell_id)
-    doppler_factor = get_doppler_factor_nonhomologous(
-        v,
+    doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
+        v_packet.r,
         v_packet.mu,
+        v_packet.current_shell_id,
         enable_full_relativity,
     )
 
@@ -155,9 +152,7 @@ def trace_vpacket_within_shell(
         ]
 
         distance_trace_line = calculate_distance_line_nonhomologous(
-            v_packet,
-            numba_radial_1d_geometry,
-            nu_line
+            v_packet, numba_radial_1d_geometry, nu_line
         )
 
         if distance_boundary <= distance_trace_line:
@@ -222,7 +217,7 @@ def trace_vpacket(
         )
         tau_trace_combined += tau_trace_combined_shell
 
-        move_packet_across_shell_boundary(
+        increment_packet_cell_index(
             v_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
         )
 
@@ -299,10 +294,10 @@ def trace_vpacket_volley(
         mu_min = 0.0
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
-    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    r_packet_doppler_factor = get_doppler_factor_nonhomologous(
-        v,
+    r_packet_doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
+        r_packet.r,
         r_packet.mu,
+        r_packet.current_shell_id,
         enable_full_relativity,
     )
     for i in range(no_of_vpackets):
@@ -314,7 +309,7 @@ def trace_vpacket_volley(
             # connor-mcclellan: for some reason this is still accessed and
             # causes crashes even when relativity is turned off - beta_inner
             # undefined
-            #else:
+            # else:
             #    weight = (
             #        2
             #        * (v_packet_mu + beta_inner)
@@ -325,9 +320,10 @@ def trace_vpacket_volley(
         else:
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
-        v_packet_doppler_factor = get_doppler_factor_nonhomologous(
-            v,
+        v_packet_doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
+            r_packet.r,
             v_packet_mu,
+            r_packet.current_shell_id,
             enable_full_relativity,
         )
 

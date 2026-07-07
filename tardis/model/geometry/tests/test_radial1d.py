@@ -3,7 +3,10 @@ import numpy.testing as npt
 import pytest
 from astropy import units as u
 
+from tardis import constants as const
 from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+
+C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 
 
 @pytest.fixture(scope="function")
@@ -117,7 +120,7 @@ def test_velocity_boundary(homologous_radial1d_geometry):
 
 
 def test_numba_geometry_get_velocity(homologous_radial1d_geometry):
-    """Test interpolated velocity access in numba homologous geometry."""
+    """Test homologous velocity access in numba geometry."""
     numba_geometry = homologous_radial1d_geometry.to_numba()
     shell_id = 1
     radius = (
@@ -130,6 +133,42 @@ def test_numba_geometry_get_velocity(homologous_radial1d_geometry):
     npt.assert_allclose(
         numba_geometry.get_velocity(radius, shell_id),
         expected_velocity,
+    )
+    npt.assert_allclose(
+        numba_geometry.get_velocity(radius, shell_id),
+        radius * numba_geometry.inverse_time_explosion,
+    )
+
+
+def test_numba_geometry_doppler_factor(homologous_radial1d_geometry):
+    """Test Doppler factor access in numba homologous geometry."""
+    numba_geometry = homologous_radial1d_geometry.to_numba()
+    radius = 7.5e14
+    mu = 0.3
+    beta = (
+        radius
+        * numba_geometry.inverse_time_explosion
+        / C_SPEED_OF_LIGHT
+    )
+    doppler_factor = 1.0 - mu * beta
+
+    npt.assert_allclose(
+        numba_geometry.get_doppler_factor(
+            radius,
+            mu,
+            0,
+            False,
+        ),
+        doppler_factor,
+    )
+    npt.assert_allclose(
+        numba_geometry.get_inverse_doppler_factor(
+            radius,
+            mu,
+            0,
+            False,
+        ),
+        1.0 / doppler_factor,
     )
 
 

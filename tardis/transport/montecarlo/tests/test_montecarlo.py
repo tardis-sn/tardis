@@ -178,7 +178,7 @@ def test_move_packet_across_shell_boundary_emitted(
     energy = 0.9
     packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == radiative_packet.PacketStatus.EMITTED
@@ -197,7 +197,7 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     energy = 0.9
     packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == radiative_packet.PacketStatus.REABSORBED
@@ -216,7 +216,7 @@ def test_move_packet_across_shell_boundary_increment(
     energy = 0.9
     packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.current_shell_id == current_shell_id + delta_shell

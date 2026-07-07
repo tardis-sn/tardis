@@ -10,7 +10,7 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 
 
 @njit(**njit_dict_no_parallel)
-def move_packet_across_shell_boundary(
+def increment_packet_cell_index(
     packet: RPacket, delta_shell: int, no_of_shells: int
 ) -> None:
     """
@@ -33,4 +33,3 @@ def move_packet_across_shell_boundary(
         packet.status = PacketStatus.REABSORBED
     else:
         packet.current_shell_id = next_shell_id
-

@@ -30,6 +30,7 @@ def geometry():
         r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
         v_inner=np.array([-1, -1], dtype=np.float64),
         v_outer=np.array([-1, -1], dtype=np.float64),
+        inverse_time_explosion=1.0 / 5.2e7,
     )
 
 
@@ -344,7 +345,7 @@ def test_move_packet_across_shell_boundary_emitted(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == radiative_packet.PacketStatus.EMITTED
@@ -358,7 +359,7 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == radiative_packet.PacketStatus.REABSORBED
@@ -372,7 +373,7 @@ def test_move_packet_across_shell_boundary_increment(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
+    r_packet_transport.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.current_shell_id == current_shell_id + delta_shell

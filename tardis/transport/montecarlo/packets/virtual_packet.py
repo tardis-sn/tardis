@@ -10,7 +10,6 @@ from tardis.opacities.opacities import chi_continuum_calculator
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
     angle_aberration_LF_to_CMF,
-    get_doppler_factor,
 )
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
@@ -22,7 +21,7 @@ from tardis.transport.montecarlo.configuration.constants import (
     SIGMA_THOMSON,
 )
 from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
-    move_packet_across_shell_boundary,
+    increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
 
@@ -106,10 +105,10 @@ def trace_vpacket_within_shell(
     chi_e = cur_electron_density * SIGMA_THOMSON
 
     # Calculating doppler factor
-    doppler_factor = get_doppler_factor(
+    doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
         v_packet.r,
         v_packet.mu,
-        time_explosion,
+        v_packet.current_shell_id,
         enable_full_relativity,
     )
 
@@ -211,7 +210,7 @@ def trace_vpacket(
         )
         tau_trace_combined += tau_trace_combined_shell
 
-        move_packet_across_shell_boundary(
+        increment_packet_cell_index(
             v_packet, delta_shell, len(numba_radial_1d_geometry.r_inner)
         )
 
@@ -295,15 +294,17 @@ def trace_vpacket_volley(
         mu_min = 0.0
 
         if enable_full_relativity:
-            inv_c = 1 / C_SPEED_OF_LIGHT
-            inv_t = 1 / time_explosion
-            beta_inner = numba_radial_1d_geometry.r_inner[0] * inv_t * inv_c
+            beta_inner = (
+                numba_radial_1d_geometry.r_inner[0]
+                * numba_radial_1d_geometry.inverse_time_explosion
+                / C_SPEED_OF_LIGHT
+            )
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
-    r_packet_doppler_factor = get_doppler_factor(
+    r_packet_doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
         r_packet.r,
         r_packet.mu,
-        time_explosion,
+        r_packet.current_shell_id,
         enable_full_relativity,
     )
     for i in range(no_of_vpackets):
@@ -328,10 +329,10 @@ def trace_vpacket_volley(
             v_packet_mu = angle_aberration_CMF_to_LF(
                 r_packet, time_explosion, v_packet_mu
             )
-        v_packet_doppler_factor = get_doppler_factor(
+        v_packet_doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
             r_packet.r,
             v_packet_mu,
-            time_explosion,
+            r_packet.current_shell_id,
             enable_full_relativity,
         )
 

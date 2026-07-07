@@ -9,10 +9,6 @@ from tardis.model.geometry.radial1d_nonhomologous import (
 )
 from tardis.opacities.opacities import chi_electron_calculator
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
-from tardis.transport.frame_transformations import (
-    get_doppler_factor_nonhomologous,
-    get_inverse_doppler_factor_nonhomologous,
-)
 from tardis.transport.montecarlo.configuration.base import (
     MonteCarloConfiguration,
 )
@@ -29,7 +25,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
-    move_packet_across_shell_boundary,
+    increment_packet_cell_index,
     move_r_packet,
     trace_packet,
 )
@@ -93,16 +89,18 @@ def packet_propagation(
     line_interaction_type = montecarlo_configuration.LINE_INTERACTION_TYPE
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
-        raise NotImplementedError("Full relativity not supported for non-homology.")
+        raise NotImplementedError(
+            "Full relativity not supported for non-homology."
+        )
     else:
         set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
-    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    doppler_factor = get_doppler_factor_nonhomologous(
-        v,
+    doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
+        r_packet.r,
         r_packet.mu,
+        r_packet.current_shell_id,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
     )
     comov_nu = r_packet.nu * doppler_factor
@@ -131,10 +129,10 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
-        v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-        doppler_factor = get_doppler_factor_nonhomologous(
-            v,
+        doppler_factor = numba_radial_1d_geometry.get_doppler_factor(
+            r_packet.r,
             r_packet.mu,
+            r_packet.current_shell_id,
             montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         )
 
@@ -170,7 +168,7 @@ def packet_propagation(
                 r_packet.current_shell_id + delta_shell,
             )
 
-            move_packet_across_shell_boundary(
+            increment_packet_cell_index(
                 r_packet,
                 delta_shell,
                 len(numba_radial_1d_geometry.r_inner),
@@ -255,8 +253,7 @@ def packet_propagation(
 
 @njit
 def set_packet_props_partial_relativity(
-    r_packet: RPacket,
-    geometry: NumbaNonhomologousRadial1DGeometry
+    r_packet: RPacket, geometry: NumbaNonhomologousRadial1DGeometry
 ) -> None:
     """
     Set packet properties using partial relativistic corrections.
@@ -275,9 +272,11 @@ def set_packet_props_partial_relativity(
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     """
-    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
-        v, r_packet.mu, False
+    inverse_doppler_factor = geometry.get_inverse_doppler_factor(
+        r_packet.r,
+        r_packet.mu,
+        r_packet.current_shell_id,
+        False,
     )
     r_packet.nu *= inverse_doppler_factor
     r_packet.energy *= inverse_doppler_factor
@@ -289,6 +288,8 @@ def set_packet_props_full_relativity(
 ) -> None:
 
     raise NotImplementedError("Full relativity not supported for non-homology.")
+
+
 #    beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 #
 #    inverse_doppler_factor = get_inverse_doppler_factor(
