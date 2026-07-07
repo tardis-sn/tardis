@@ -23,6 +23,7 @@ from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bulk,
     update_estimators_line,
 )
+from tardis.transport.montecarlo.packets.movement import move_r_packet_core
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
@@ -210,24 +211,13 @@ def move_r_packet(
         r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
     )
 
-    r = r_packet.r
-    if distance > 0.0:
-        new_r = np.sqrt(
-            r * r + distance * distance + 2.0 * r * distance * r_packet.mu
-        )
-        r_packet.mu = (r_packet.mu * r + distance) / new_r
-        r_packet.r = new_r
-
-        comov_nu = r_packet.nu * doppler_factor
-        comov_energy = r_packet.energy * doppler_factor
-
-        # Account for length contraction
-        if enable_full_relativity:
-            distance *= doppler_factor
-
-        update_estimators_bulk(
-            r_packet, distance, estimators_bulk, comov_nu, comov_energy
-        )
+    move_r_packet_core(
+        r_packet,
+        distance,
+        doppler_factor,
+        enable_full_relativity,
+        estimators_bulk,
+    )
 
 
 @njit(**njit_dict_no_parallel)

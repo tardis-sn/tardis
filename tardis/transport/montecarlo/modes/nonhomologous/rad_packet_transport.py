@@ -25,6 +25,7 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_bulk,
 )
+from tardis.transport.montecarlo.packets.movement import move_r_packet_core
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
     PacketStatus,
@@ -102,7 +103,9 @@ def trace_packet(
         nu_line = opacity_state.line_list_nu[cur_line_id]
 
         # Getting the tau for the next line
-        tau_trace_line = opacity_state.tau_sobolev[cur_line_id, r_packet.current_shell_id]
+        tau_trace_line = opacity_state.tau_sobolev[
+            cur_line_id, r_packet.current_shell_id
+        ]
 
         # Adding it to the tau_trace_line_combined
         tau_trace_line_combined += tau_trace_line
@@ -124,7 +127,9 @@ def trace_packet(
         distance = min(distance_trace, distance_boundary, distance_electron)
 
         if distance_trace != 0:
-            if (distance == distance_boundary) or (distance == distance_electron):
+            if (distance == distance_boundary) or (
+                distance == distance_electron
+            ):
                 if dvdr >= 0.0:
                     r_packet.next_line_id = cur_line_id
                     r_packet.prev_line_id = cur_line_id - 1
@@ -148,12 +153,16 @@ def trace_packet(
         # Get the packet's new energy to use for the estimator update
         # Replaces the call to `calc_packet_energy` within `update_estimators_line`
         new_r = np.sqrt(
-            r_packet.r * r_packet.r + distance_trace * distance_trace + 2.0 * r_packet.r * distance_trace * r_packet.mu
+            r_packet.r * r_packet.r
+            + distance_trace * distance_trace
+            + 2.0 * r_packet.r * distance_trace * r_packet.mu
         )
         new_mu = (r_packet.mu * r_packet.r + distance_trace) / new_r
-        dvdr = numba_radial_1d_geometry.velocity_gradient[r_packet.current_shell_id]
-        new_v = v_inner + dvdr*(new_r - r_inner)
-        new_doppler_factor = (1.0 - new_v/C_SPEED_OF_LIGHT * new_mu)
+        dvdr = numba_radial_1d_geometry.velocity_gradient[
+            r_packet.current_shell_id
+        ]
+        new_v = v_inner + dvdr * (new_r - r_inner)
+        new_doppler_factor = 1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
         energy = r_packet.energy * new_doppler_factor
 
         # Update the estimators
@@ -232,24 +241,13 @@ def move_r_packet(
         enable_full_relativity,
     )
 
-    r = r_packet.r
-    if distance > 0.0:
-        new_r = np.sqrt(
-            r * r + distance * distance + 2.0 * r * distance * r_packet.mu
-        )
-        r_packet.mu = (r_packet.mu * r + distance) / new_r
-        r_packet.r = new_r
-
-        comov_nu = r_packet.nu * doppler_factor
-        comov_energy = r_packet.energy * doppler_factor
-
-        # Account for length contraction
-        if enable_full_relativity:
-            distance *= doppler_factor
-
-        update_estimators_bulk(
-            r_packet, distance, estimators_bulk, comov_nu, comov_energy
-        )
+    move_r_packet_core(
+        r_packet,
+        distance,
+        doppler_factor,
+        enable_full_relativity,
+        estimators_bulk,
+    )
 
 
 @njit(**njit_dict_no_parallel)
