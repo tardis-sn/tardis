@@ -6,31 +6,17 @@ from tardis.transport.montecarlo.estimators.estimators_bulk import (
     init_estimators_bulk,
 )
 from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
-    move_packet_across_shell_boundary as classic_move_boundary,
-)
-from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
-    move_r_packet as classic_move_r_packet,
-)
-from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
     trace_packet as classic_trace_packet,
-)
-from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
-    move_packet_across_shell_boundary as iip_move_boundary,
-)
-from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
-    move_r_packet as iip_move_r_packet,
 )
 from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
     trace_packet as iip_trace_packet,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
-    move_packet_across_shell_boundary as nonhomologous_move_boundary,
-)
-from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
-    move_r_packet as nonhomologous_move_r_packet,
-)
-from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
     trace_packet as nonhomologous_trace_packet,
+)
+from tardis.transport.montecarlo.packets.movement import (
+    move_packet_across_shell_boundary,
+    move_r_packet,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
@@ -57,14 +43,10 @@ FALLTHROUGH_OPACITY = {
 }
 
 
-@pytest.mark.parametrize(
-    "move_r_packet",
-    [classic_move_r_packet, iip_move_r_packet],
-)
 @pytest.mark.parametrize("enable_full_relativity", [False, True])
 def test_homologous_move_r_packet(
-    move_r_packet,
     parametrized_packet,
+    radial_geometry,
     enable_full_relativity: bool,
     regression_data,
 ) -> None:
@@ -75,7 +57,7 @@ def test_homologous_move_r_packet(
     move_r_packet(
         packet,
         1.0e13,
-        5.2e7,
+        radial_geometry,
         estimators,
         enable_full_relativity,
     )
@@ -98,11 +80,12 @@ def test_nonhomologous_move_r_packet(
     packet = parametrized_packet
     packet.current_shell_id = 0
 
-    nonhomologous_move_r_packet(
+    move_r_packet(
         packet,
         1.0e13,
         nonhomologous_geometry,
         bulk_estimators,
+        False,
         False,
     )
 
@@ -127,22 +110,19 @@ def test_nonhomologous_move_r_packet_full_relativity(
         NotImplementedError,
         match=r"Full relativity not implemented for non-homologous mode.",
     ):
-        nonhomologous_move_r_packet(
+        move_r_packet(
             packet,
             1.0e13,
             nonhomologous_geometry,
             bulk_estimators,
             True,
+            False,
         )
 
 
-@pytest.mark.parametrize(
-    "move_r_packet",
-    [classic_move_r_packet, iip_move_r_packet],
-)
 def test_homologous_move_r_packet_zero_distance(
-    move_r_packet,
     parametrized_packet,
+    radial_geometry,
     regression_data,
 ) -> None:
     packet = parametrized_packet
@@ -152,7 +132,7 @@ def test_homologous_move_r_packet_zero_distance(
     move_r_packet(
         packet,
         0.0,
-        5.2e7,
+        radial_geometry,
         estimators,
         False,
     )
@@ -175,11 +155,12 @@ def test_nonhomologous_move_r_packet_zero_distance(
     packet = parametrized_packet
     packet.current_shell_id = 0
 
-    nonhomologous_move_r_packet(
+    move_r_packet(
         packet,
         0.0,
         nonhomologous_geometry,
         bulk_estimators,
+        False,
         False,
     )
 
@@ -192,10 +173,6 @@ def test_nonhomologous_move_r_packet_zero_distance(
     )
 
 
-@pytest.mark.parametrize(
-    "move_boundary",
-    [classic_move_boundary, iip_move_boundary, nonhomologous_move_boundary],
-)
 @pytest.mark.parametrize(
     (
         "current_shell_id",
@@ -212,7 +189,6 @@ def test_nonhomologous_move_r_packet_zero_distance(
     ],
 )
 def test_move_packet_across_shell_boundary(
-    move_boundary,
     parametrized_packet,
     current_shell_id: int,
     delta_shell: int,
@@ -223,7 +199,7 @@ def test_move_packet_across_shell_boundary(
     packet = parametrized_packet
     packet.current_shell_id = current_shell_id
 
-    move_boundary(packet, delta_shell, no_of_shells)
+    move_packet_across_shell_boundary(packet, delta_shell, no_of_shells)
 
     assert packet.status == expected_status
     assert packet.current_shell_id == expected_shell_id

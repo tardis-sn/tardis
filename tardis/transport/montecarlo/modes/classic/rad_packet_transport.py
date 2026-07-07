@@ -13,20 +13,14 @@ from tardis.transport.geometry.calculate_distances import (
     calculate_distance_line,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.estimators.estimators_bulk import (
-    EstimatorsBulk,
-)
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
 )
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_estimators_bulk,
     update_estimators_line,
 )
-from tardis.transport.montecarlo.packets.movement import move_r_packet_core
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
-    PacketStatus,
     RPacket,
 )
 
@@ -87,10 +81,12 @@ def trace_packet(
     tau_trace_line_combined = 0.0
 
     # Calculating doppler factor
+    velocity = numba_radial_1d_geometry.get_velocity(
+        r_packet.r, r_packet.current_shell_id
+    )
     doppler_factor = get_doppler_factor(
-        r_packet.r,
+        velocity,
         r_packet.mu,
-        time_explosion,
         enable_full_relativity,
     )
     comov_nu = r_packet.nu * doppler_factor
@@ -181,67 +177,3 @@ def trace_packet(
             interaction_type = InteractionType.BOUNDARY
 
     return distance, interaction_type, delta_shell
-
-
-@njit(**njit_dict_no_parallel)
-def move_r_packet(
-    r_packet: RPacket,
-    distance: float,
-    time_explosion: float,
-    estimators_bulk: EstimatorsBulk,
-    enable_full_relativity: bool,
-) -> None:
-    """
-    Move packet a distance and recalculate the new angle mu.
-
-    Parameters
-    ----------
-    r_packet : RPacket
-        Radiative packet object
-    distance : float
-        Distance to move in cm
-    time_explosion : float
-        Time since explosion in seconds
-    estimators_bulk : EstimatorsBulk
-        Cell-level bulk radiation field estimators
-    enable_full_relativity : bool
-        Flag to enable full relativistic calculations
-    """
-    doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
-    )
-
-    move_r_packet_core(
-        r_packet,
-        distance,
-        doppler_factor,
-        enable_full_relativity,
-        estimators_bulk,
-    )
-
-
-@njit(**njit_dict_no_parallel)
-def move_packet_across_shell_boundary(
-    packet: RPacket, delta_shell: int, no_of_shells: int
-) -> None:
-    """
-    Move packet across shell boundary - realizing if we are still in the simulation or have
-    moved out through the inner boundary or outer boundary and updating packet status.
-
-    Parameters
-    ----------
-    packet : RPacket
-        Radiative packet object
-    delta_shell : int
-        Change in shell index (+1 if moving outward or -1 if moving inward)
-    no_of_shells : int
-        Number of shells in TARDIS simulation
-    """
-    next_shell_id = packet.current_shell_id + delta_shell
-
-    if next_shell_id >= no_of_shells:
-        packet.status = PacketStatus.EMITTED
-    elif next_shell_id < 0:
-        packet.status = PacketStatus.REABSORBED
-    else:
-        packet.current_shell_id = next_shell_id

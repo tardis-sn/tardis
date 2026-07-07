@@ -199,11 +199,14 @@ def parametrized_packet(static_packet: RPacket, request) -> RPacket:
 @pytest.fixture
 def radial_geometry(request) -> NumbaRadial1DGeometry:
     r_outer_first_shell = getattr(request, "param", 8.0e14)
+    time_explosion = 5.2e7
+    r_inner = np.array([7.0e14, 8.0e14])
+    r_outer = np.array([r_outer_first_shell, 3.0e16])
     return NumbaRadial1DGeometry(
-        np.array([7.0e14, 8.0e14]),
-        np.array([r_outer_first_shell, 3.0e16]),
-        np.array([-1.0, -1.0]),
-        np.array([-1.0, -1.0]),
+        r_inner,
+        r_outer,
+        r_inner / time_explosion,
+        r_outer / time_explosion,
     )
 
 

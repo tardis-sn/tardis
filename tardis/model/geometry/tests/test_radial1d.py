@@ -12,10 +12,9 @@ def homologous_radial1d_geometry():
     v_inner = velocity[:-1]
     v_outer = velocity[1:]
     time_explosion = 5 * u.day
-    geometry = HomologousRadial1DGeometry(
+    return HomologousRadial1DGeometry(
         v_inner, v_outer, v_inner[0], v_outer[-1], time_explosion
     )
-    return geometry
 
 
 def test_vb_indices(homologous_radial1d_geometry):
@@ -79,6 +78,22 @@ def test_vb_indices(homologous_radial1d_geometry):
         homologous_radial1d_geometry.v_outer[-2] - EPSILON_VELOCITY_SHIFT
     )
     assert homologous_radial1d_geometry.v_outer_boundary_index == 11
+
+
+def test_numba_homologous_velocity(homologous_radial1d_geometry):
+    numba_geometry = homologous_radial1d_geometry.to_numba()
+    expected_time_explosion = (
+        numba_geometry.r_inner[0] / numba_geometry.v_inner[0]
+    )
+    radius = numba_geometry.r_inner[0] * 1.2
+
+    npt.assert_allclose(
+        numba_geometry.time_explosion, expected_time_explosion
+    )
+    npt.assert_allclose(
+        numba_geometry.get_velocity(radius, 0),
+        radius / expected_time_explosion,
+    )
 
 
 def test_velocity_boundary(homologous_radial1d_geometry):

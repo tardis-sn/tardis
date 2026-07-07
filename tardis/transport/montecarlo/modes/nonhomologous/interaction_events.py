@@ -5,9 +5,8 @@ from numba import njit
 
 from tardis import constants as const
 from tardis.transport.frame_transformations import (
-    angle_aberration_CMF_to_LF,
-    get_doppler_factor_nonhomologous,
-    get_inverse_doppler_factor_nonhomologous,
+    get_doppler_factor,
+    get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
@@ -32,8 +31,7 @@ def get_current_line_id(nu, line_list):
 
     reverse_line_list = line_list[::-1]
     number_of_lines = len(line_list)
-    line_id = number_of_lines - np.searchsorted(reverse_line_list, nu)
-    return line_id
+    return number_of_lines - np.searchsorted(reverse_line_list, nu)
 
 
 @njit(**njit_dict_no_parallel)
@@ -76,7 +74,7 @@ def bound_free_emission(
     continuum_id : int
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_doppler_factor = get_inverse_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,
@@ -166,7 +164,7 @@ def free_free_emission(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_doppler_factor = get_inverse_doppler_factor(
         v, r_packet.mu, enable_full_relativity
     )
     comov_nu = sample_nu_free_free(opacity_state, r_packet.current_shell_id)
@@ -193,10 +191,10 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : 
+    geometry :
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    old_doppler_factor = get_doppler_factor_nonhomologous(
+    old_doppler_factor = get_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,
@@ -204,7 +202,7 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
-    inverse_new_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_new_doppler_factor = get_inverse_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,
@@ -217,11 +215,6 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
         #r_packet.mu = angle_aberration_CMF_to_LF(
         #    r_packet, geometry, r_packet.mu
         #)
-    temp_doppler_factor = get_doppler_factor_nonhomologous(
-        v,
-        r_packet.mu,
-        enable_full_relativity,
-    )
 
 
 class LineInteractionType(IntEnum):
@@ -251,7 +244,7 @@ def line_emission(
     if emission_line_id != r_packet.next_line_id:
         pass
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_doppler_factor = get_inverse_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,

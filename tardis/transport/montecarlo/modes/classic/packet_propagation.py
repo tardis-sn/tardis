@@ -26,9 +26,11 @@ from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
+    trace_packet,
+)
+from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
     move_r_packet,
-    trace_packet,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
@@ -120,10 +122,12 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
+        velocity = numba_radial_1d_geometry.get_velocity(
+            r_packet.r, r_packet.current_shell_id
+        )
         doppler_factor = get_doppler_factor(
-            r_packet.r,
+            velocity,
             r_packet.mu,
-            time_explosion,
             montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         )
 
@@ -150,7 +154,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
@@ -170,7 +174,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
@@ -200,7 +204,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
@@ -266,10 +270,10 @@ def set_packet_props_partial_relativity(
     -------
     Modifies r_packet.nu and r_packet.energy in-place.
     """
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r,
+        velocity,
         r_packet.mu,
-        time_explosion,
         enable_full_relativity=False,
     )
     r_packet.nu *= inverse_doppler_factor
@@ -300,10 +304,10 @@ def set_packet_props_full_relativity(
     """
     beta = (r_packet.r / time_explosion) / C_SPEED_OF_LIGHT
 
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r,
+        velocity,
         r_packet.mu,
-        time_explosion,
         enable_full_relativity=True,
     )
 
