@@ -18,12 +18,19 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
 )
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_estimators_bulk,
     update_estimators_line,
+)
+from tardis.transport.montecarlo.packets.boundary_movement import (
+    move_packet_across_shell_boundary as move_packet_across_shell_boundary,
+)
+from tardis.transport.montecarlo.packets.radiative_movement import (
+    move_r_packet as move_r_packet_with_geometry,
+)
+from tardis.transport.montecarlo.packets.radiative_movement import (
+    move_r_packet_with_velocity,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
-    PacketStatus,
     RPacket,
 )
 
@@ -215,52 +222,44 @@ def move_r_packet(
     enable_full_relativity
         Flag to enable full relativistic calculations
     """
-    doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+    velocity = r_packet.r / time_explosion
+    move_r_packet_with_velocity(
+        r_packet,
+        distance,
+        velocity,
+        estimators_bulk,
+        enable_full_relativity,
     )
-
-    r = r_packet.r
-    if distance > 0.0:
-        new_r = np.sqrt(
-            r * r + distance * distance + 2.0 * r * distance * r_packet.mu
-        )
-        r_packet.mu = (r_packet.mu * r + distance) / new_r
-        r_packet.r = new_r
-
-        comov_nu = r_packet.nu * doppler_factor
-        comov_energy = r_packet.energy * doppler_factor
-
-        # Account for length contraction
-        if enable_full_relativity:
-            distance *= doppler_factor
-
-        update_estimators_bulk(
-            r_packet, distance, estimators_bulk, comov_nu, comov_energy
-        )
 
 
 @njit(**njit_dict_no_parallel)
-def move_packet_across_shell_boundary(
-    packet: RPacket, delta_shell: int, no_of_shells: int
+def move_r_packet_geometry(
+    r_packet: RPacket,
+    distance: float,
+    geometry: NumbaRadial1DGeometry,
+    estimators_bulk: EstimatorsBulk,
+    enable_full_relativity: bool,
 ) -> None:
     """
-    Move packet across shell boundary - realizing if we are still in the simulation or have
-    moved out through the inner boundary or outer boundary and updating packet status.
+    Move packet using geometry-derived homologous velocity.
 
     Parameters
     ----------
-    packet
-        Radiative packet object
-    delta_shell
-        Change in shell index (+1 if moving outward or -1 if moving inward)
-    no_of_shells
-        Number of shells in TARDIS simulation
+    r_packet
+        Radiative packet object.
+    distance
+        Distance to move in cm.
+    geometry
+        Radial 1D geometry of the model.
+    estimators_bulk
+        Cell-level bulk radiation field estimators.
+    enable_full_relativity
+        Flag to enable full relativistic calculations.
     """
-    next_shell_id = packet.current_shell_id + delta_shell
-
-    if next_shell_id >= no_of_shells:
-        packet.status = PacketStatus.EMITTED
-    elif next_shell_id < 0:
-        packet.status = PacketStatus.REABSORBED
-    else:
-        packet.current_shell_id = next_shell_id
+    move_r_packet_with_geometry(
+        r_packet,
+        distance,
+        geometry,
+        estimators_bulk,
+        enable_full_relativity,
+    )

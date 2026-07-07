@@ -116,6 +116,23 @@ def test_velocity_boundary(homologous_radial1d_geometry):
     )
 
 
+def test_numba_geometry_get_velocity(homologous_radial1d_geometry):
+    """Test interpolated velocity access in numba homologous geometry."""
+    numba_geometry = homologous_radial1d_geometry.to_numba()
+    shell_id = 1
+    radius = (
+        numba_geometry.r_inner[shell_id] + numba_geometry.r_outer[shell_id]
+    ) / 2.0
+    expected_velocity = (
+        numba_geometry.v_inner[shell_id] + numba_geometry.v_outer[shell_id]
+    ) / 2.0
+
+    npt.assert_allclose(
+        numba_geometry.get_velocity(radius, shell_id),
+        expected_velocity,
+    )
+
+
 def test_v_middle_active_default_boundaries(homologous_radial1d_geometry):
     """Test v_middle_active with default (full range) boundaries"""
     v_middle_active = homologous_radial1d_geometry.v_middle_active

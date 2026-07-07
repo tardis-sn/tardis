@@ -27,7 +27,7 @@ from tardis.transport.montecarlo.interaction_events import (
 )
 from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
     move_packet_across_shell_boundary,
-    move_r_packet,
+    move_r_packet_geometry,
     trace_packet,
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
@@ -147,10 +147,10 @@ def packet_propagation(
         )
 
         if interaction_type == InteractionType.BOUNDARY:
-            move_r_packet(
+            move_r_packet_geometry(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
@@ -167,10 +167,10 @@ def packet_propagation(
             )
 
         elif interaction_type == InteractionType.LINE:
-            move_r_packet(
+            move_r_packet_geometry(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
@@ -197,10 +197,10 @@ def packet_propagation(
             )
 
         elif interaction_type == InteractionType.ESCATTERING:
-            move_r_packet(
+            move_r_packet_geometry(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )

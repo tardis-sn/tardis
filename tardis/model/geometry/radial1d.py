@@ -210,3 +210,25 @@ class NumbaRadial1DGeometry:
         self.v_inner = v_inner
         self.v_outer = v_outer
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+    def get_velocity(self, r: float, shell_id: int) -> float:
+        """
+        Calculate the homologous velocity at a given radius within a shell.
+
+        Parameters
+        ----------
+        r : float
+            Radius at which to calculate the velocity.
+        shell_id : int
+            Shell index.
+
+        Returns
+        -------
+        float
+            Velocity at radius ``r`` within shell ``shell_id``.
+        """
+        return self.v_inner[shell_id] + (
+            (self.v_outer[shell_id] - self.v_inner[shell_id])
+            / (self.r_outer[shell_id] - self.r_inner[shell_id])
+            * (r - self.r_inner[shell_id])
+        )

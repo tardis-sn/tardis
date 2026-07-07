@@ -35,7 +35,7 @@ from tardis.transport.montecarlo.interaction_events import (
 )
 from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
     move_packet_across_shell_boundary,
-    move_r_packet,
+    move_r_packet_geometry,
     trace_packet,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
@@ -164,10 +164,10 @@ def packet_propagation(
 
         # Handle interaction types
         if interaction_type == InteractionType.BOUNDARY:
-            move_r_packet(
+            move_r_packet_geometry(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -184,10 +184,10 @@ def packet_propagation(
             )
 
         elif interaction_type == InteractionType.LINE:
-            move_r_packet(
+            move_r_packet_geometry(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -204,10 +204,10 @@ def packet_propagation(
             rpacket_tracker.track_line_interaction_after(r_packet)
 
         elif interaction_type == InteractionType.ESCATTERING:
-            move_r_packet(
+            move_r_packet_geometry(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -221,10 +221,10 @@ def packet_propagation(
 
         # IIP mode: continuum processes always enabled
         elif interaction_type == InteractionType.CONTINUUM_PROCESS:
-            move_r_packet(
+            move_r_packet_geometry(
                 r_packet,
                 distance,
-                time_explosion,
+                numba_radial_1d_geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
