@@ -1,7 +1,7 @@
 Issues
 ------
 
-.. _new-how-to-guide-report-issues:
+.. _how-to-guide-report-issues:
 
 How-To Guide: Report Issues
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -14,13 +14,13 @@ https://github.com/tardis-sn/tardis
 Interested users are encouraged to contribute to TARDIS development by following
 the development workflow.
 
-.. _new-matterbridge:
+.. _matterbridge:
 
 
 Pull Requests
 -------------
 
-.. _new-how-to-guide-open-a-pull-request:
+.. _how-to-guide-open-a-pull-request:
 
 How-To Guide: Open a Pull Request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,7 +55,7 @@ Example pull request description:
    - Please check whether the error message is clear for invalid density types.
 
 
-.. _new-how-to-guide-review-pull-requests:
+.. _how-to-guide-review-pull-requests:
 
 How-To Guide: Review Pull Requests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,7 +102,7 @@ After making and committing your changes, push them to your fork:
    git push origin helping-with-PR116
 
 
-.. _new-how-to-guide-update-a-pull-request:
+.. _how-to-guide-update-a-pull-request:
 
 How-To Guide: Update a Pull Request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

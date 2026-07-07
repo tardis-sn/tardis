@@ -1,22 +1,22 @@
-.. _new-collaboration_and_reproducibility:
+.. _collaboration_and_reproducibility:
 
 Collaboration And Reproducibility
 =================================
 
 Guidance for issues, Git workflow, pull requests, CI, releases, and collaboration infrastructure.
 
-.. _new-continuous-integration:
+.. _continuous-integration:
 
 
-.. _new-developer-workflow:
+.. _developer-workflow:
 
 
-.. _new-external-links:
+.. _external-links:
 
 External Links
 --------------
 
-.. _new-reference-external-link-reference:
+.. _reference-external-link-reference:
 
 Reference: External Link Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,4 +98,4 @@ TARDIS data and CI links:
 - Carsus: https://tardis-sn.github.io/carsus/
 
 
-.. _new-git-workflow:
+.. _git-workflow:
