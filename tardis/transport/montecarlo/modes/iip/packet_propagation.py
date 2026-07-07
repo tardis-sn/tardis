@@ -30,9 +30,11 @@ from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
-    increment_packet_cell_index,
     move_r_packet_geometry,
     trace_packet,
+)
+from tardis.transport.montecarlo.packets.radiative_movement import (
+    increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
@@ -314,10 +316,13 @@ def set_packet_props_full_relativity(
     -------
     Modifies r_packet.nu, r_packet.energy, and r_packet.mu in-place.
     """
-    beta = geometry.get_velocity(
-        r_packet.r,
-        r_packet.current_shell_id,
-    ) / C_SPEED_OF_LIGHT
+    beta = (
+        geometry.get_velocity(
+            r_packet.r,
+            r_packet.current_shell_id,
+        )
+        / C_SPEED_OF_LIGHT
+    )
 
     inverse_doppler_factor = geometry.get_inverse_doppler_factor(
         r_packet.r,

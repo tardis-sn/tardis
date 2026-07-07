@@ -15,7 +15,7 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import (
     SIGMA_THOMSON,
 )
-from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
+from tardis.transport.montecarlo.packets.radiative_movement import (
     increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus

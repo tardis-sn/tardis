@@ -25,7 +25,6 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
     thomson_scatter,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
-    increment_packet_cell_index,
     move_r_packet,
     trace_packet,
 )
@@ -34,6 +33,9 @@ from tardis.transport.montecarlo.modes.nonhomologous.virtual_packet import (
 )
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
+)
+from tardis.transport.montecarlo.packets.radiative_movement import (
+    increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,

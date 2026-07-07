@@ -19,7 +19,7 @@ from tardis.transport.montecarlo.estimators.estimators_bulk import (
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
 )
-from tardis.transport.montecarlo.packets.boundary_movement import (
+from tardis.transport.montecarlo.packets.radiative_movement import (
     increment_packet_cell_index as increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_movement import (

@@ -16,7 +16,10 @@ from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
 from tardis.transport.montecarlo.packets.frame_transformations import (
     transform_packet_lab_to_comoving_frame,
 )
-from tardis.transport.montecarlo.packets.radiative_packet import RPacket
+from tardis.transport.montecarlo.packets.radiative_packet import (
+    PacketStatus,
+    RPacket,
+)
 
 
 @njit(**njit_dict_no_parallel)
@@ -113,3 +116,28 @@ def move_r_packet(
             r_packet, distance, estimators_bulk, comov_nu, comov_energy
         )
 
+
+@njit(**njit_dict_no_parallel)
+def increment_packet_cell_index(
+    packet: RPacket, delta_shell: int, no_of_shells: int
+) -> None:
+    """
+    Move a packet across a shell boundary and update its transport status.
+
+    Parameters
+    ----------
+    packet : RPacket
+        Radiative packet object.
+    delta_shell : int
+        Change in shell index, positive outward and negative inward.
+    no_of_shells : int
+        Number of shells in the transport grid.
+    """
+    next_shell_id = packet.current_shell_id + delta_shell
+
+    if next_shell_id >= no_of_shells:
+        packet.status = PacketStatus.EMITTED
+    elif next_shell_id < 0:
+        packet.status = PacketStatus.REABSORBED
+    else:
+        packet.current_shell_id = next_shell_id

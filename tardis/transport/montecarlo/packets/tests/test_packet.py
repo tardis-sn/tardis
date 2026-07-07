@@ -10,6 +10,7 @@ import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 import tardis.transport.montecarlo.modes.classic.rad_packet_transport as r_packet_transport
+import tardis.transport.montecarlo.packets.radiative_movement
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
@@ -345,7 +346,7 @@ def test_move_packet_across_shell_boundary_emitted(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.increment_packet_cell_index(
+    tardis.transport.montecarlo.packets.radiative_movement.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == radiative_packet.PacketStatus.EMITTED
@@ -359,7 +360,7 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.increment_packet_cell_index(
+    tardis.transport.montecarlo.packets.radiative_movement.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.status == radiative_packet.PacketStatus.REABSORBED
@@ -373,7 +374,7 @@ def test_move_packet_across_shell_boundary_increment(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.increment_packet_cell_index(
+    tardis.transport.montecarlo.packets.radiative_movement.increment_packet_cell_index(
         packet, delta_shell, no_of_shells
     )
     assert packet.current_shell_id == current_shell_id + delta_shell
