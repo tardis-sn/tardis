@@ -277,18 +277,18 @@ def determine_bf_macro_activation_idx(
         Macro atom activation idx.
     """
     # Perform a MC experiment to determine the continuum for absorption
-    index = np.searchsorted(chi_bf_contributions, np.random.random())
-    continuum_id = active_continua[index]
+    sampled_continuum_idx = np.searchsorted(chi_bf_contributions, np.random.random())
+    active_continuum_idx = active_continua[sampled_continuum_idx]
 
     # Perform a MC experiment to determine whether thermal or
     # ionization energy is created
-    nu_threshold = opacity_state.photo_ion_nu_threshold_mins[continuum_id]
+    nu_threshold = opacity_state.photo_ion_nu_threshold_mins[active_continuum_idx]
     fraction_ionization = nu_threshold / nu
     if (
         np.random.random() < fraction_ionization
     ):  # Create ionization energy (i-packet)
         destination_level_idx = opacity_state.photo_ion_activation_idx[
-            continuum_id
+            active_continuum_idx
         ]
     else:  # Create thermal energy (k-packet)
         destination_level_idx = opacity_state.k_packet_idx

@@ -66,7 +66,7 @@ class GXPacket:
         self.status = status
         self.shell = shell
         self.time_start = time_start
-        self.time_index = time_index
+        self.time_idx = time_index
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())
 
