@@ -121,11 +121,11 @@ class NonhomologousRadial1DGeometry:
         )
 
     @property
-    def v_inner_boundary_index(self):
+    def v_inner_boundary_idx(self):
         return self.r_inner_boundary_index
 
     @property
-    def v_outer_boundary_index(self):
+    def v_outer_boundary_idx(self):
         return self.r_outer_boundary_index
 
     @property

@@ -132,7 +132,7 @@ def montecarlo_transport(
     )
 
     for i in prange(no_of_packets):
-        packet_index = np.int64(i)
+        packet_idx = np.int64(i)
         thread_id = get_thread_id()
         if show_progress_bars:
             if thread_id == main_thread_id:
@@ -144,12 +144,12 @@ def montecarlo_transport(
                     )
 
         r_packet = RPacket(
-            packet_collection.initial_radii[packet_index],
-            packet_collection.initial_mus[packet_index],
-            packet_collection.initial_nus[packet_index],
-            packet_collection.initial_energies[packet_index],
-            packet_collection.packet_seeds[packet_index],
-            packet_index,
+            packet_collection.initial_radii[packet_idx],
+            packet_collection.initial_mus[packet_idx],
+            packet_collection.initial_nus[packet_idx],
+            packet_collection.initial_energies[packet_idx],
+            packet_collection.packet_seeds[packet_idx],
+            packet_idx,
         )
         # Seed the random number generator
         np.random.seed(r_packet.seed)
@@ -159,9 +159,9 @@ def montecarlo_transport(
         estimators_line_thread = estimators_line_list_thread[thread_id]
 
         # Get the thread-local v_packet_collection for this thread
-        vpacket_collection = vpacket_collections[packet_index]
+        vpacket_collection = vpacket_collections[packet_idx]
         # RPacket Tracker for this thread
-        tracker = trackers[packet_index]
+        tracker = trackers[packet_idx]
 
         loop = packet_propagation(
             r_packet,

@@ -28,14 +28,14 @@ def test_vb_indices(homologous_radial1d_geometry):
     homologous_radial1d_geometry.v_outer_boundary = (
         homologous_radial1d_geometry.v_outer[-1]
     )
-    assert homologous_radial1d_geometry.v_inner_boundary_index == 0
-    assert homologous_radial1d_geometry.v_outer_boundary_index == len(
+    assert homologous_radial1d_geometry.v_inner_boundary_idx == 0
+    assert homologous_radial1d_geometry.v_outer_boundary_idx == len(
         homologous_radial1d_geometry.v_inner
     )
-    vib_index = homologous_radial1d_geometry.v_inner_boundary_index
-    vob_index = homologous_radial1d_geometry.v_outer_boundary_index
+    vib_idx = homologous_radial1d_geometry.v_inner_boundary_idx
+    vob_idx = homologous_radial1d_geometry.v_outer_boundary_idx
     assert np.all(
-        homologous_radial1d_geometry.v_inner[vib_index:vob_index]
+        homologous_radial1d_geometry.v_inner[vib_idx:vob_idx]
         == homologous_radial1d_geometry.v_inner
     )
     EPSILON_VELOCITY_SHIFT = 1 * u.km / u.s
@@ -44,41 +44,41 @@ def test_vb_indices(homologous_radial1d_geometry):
     homologous_radial1d_geometry.v_inner_boundary = (
         homologous_radial1d_geometry.v_inner[0] + EPSILON_VELOCITY_SHIFT
     )
-    assert homologous_radial1d_geometry.v_inner_boundary_index == 0
+    assert homologous_radial1d_geometry.v_inner_boundary_idx == 0
     homologous_radial1d_geometry.v_inner_boundary = (
         homologous_radial1d_geometry.v_inner[0] - EPSILON_VELOCITY_SHIFT
     )
-    assert homologous_radial1d_geometry.v_inner_boundary_index == 0
+    assert homologous_radial1d_geometry.v_inner_boundary_idx == 0
 
     # pivoting around the first shell boundary of the simulation
     homologous_radial1d_geometry.v_inner_boundary = (
         homologous_radial1d_geometry.v_inner[1] - EPSILON_VELOCITY_SHIFT
     )
-    assert homologous_radial1d_geometry.v_inner_boundary_index == 0
+    assert homologous_radial1d_geometry.v_inner_boundary_idx == 0
     homologous_radial1d_geometry.v_inner_boundary = (
         homologous_radial1d_geometry.v_inner[1] + EPSILON_VELOCITY_SHIFT
     )
-    assert homologous_radial1d_geometry.v_inner_boundary_index == 1
+    assert homologous_radial1d_geometry.v_inner_boundary_idx == 1
 
     # pivoting around the outer boundary of the simulation
     homologous_radial1d_geometry.v_outer_boundary = (
         homologous_radial1d_geometry.v_outer[-1] + EPSILON_VELOCITY_SHIFT
     )
-    assert homologous_radial1d_geometry.v_outer_boundary_index == 12
+    assert homologous_radial1d_geometry.v_outer_boundary_idx == 12
     homologous_radial1d_geometry.v_outer_boundary = (
         homologous_radial1d_geometry.v_outer[-1] - EPSILON_VELOCITY_SHIFT
     )
-    assert homologous_radial1d_geometry.v_outer_boundary_index == 12
+    assert homologous_radial1d_geometry.v_outer_boundary_idx == 12
 
     # pivoting around the second to outer boundary of the simulation
     homologous_radial1d_geometry.v_outer_boundary = (
         homologous_radial1d_geometry.v_outer[-2] + EPSILON_VELOCITY_SHIFT
     )
-    assert homologous_radial1d_geometry.v_outer_boundary_index == 12
+    assert homologous_radial1d_geometry.v_outer_boundary_idx == 12
     homologous_radial1d_geometry.v_outer_boundary = (
         homologous_radial1d_geometry.v_outer[-2] - EPSILON_VELOCITY_SHIFT
     )
-    assert homologous_radial1d_geometry.v_outer_boundary_index == 11
+    assert homologous_radial1d_geometry.v_outer_boundary_idx == 11
 
 
 def test_velocity_boundary(homologous_radial1d_geometry):

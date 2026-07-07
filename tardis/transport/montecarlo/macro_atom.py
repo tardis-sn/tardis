@@ -147,27 +147,27 @@ def macro_atom_interaction_iip(
         )
 
     # Handle second prob call for emission process from that state
-    block_start_index = opacity_state.macro_block_references[
+    block_start_idx = opacity_state.macro_block_edge_index[
         absorbing_activation_level_idx
     ]
-    block_end_index = opacity_state.macro_block_references[
+    block_end_idx = opacity_state.macro_block_edge_index[
         absorbing_activation_level_idx + 1
     ]
     emission_transition_probability = 0.0
     probability_emission_event = np.random.random()
 
-    for deactivation_channel_index in range(block_start_index, block_end_index):
+    for deactivation_channel_idx in range(block_start_idx, block_end_idx):
         deactivation_probability = opacity_state.transition_probabilities[
-            deactivation_channel_index, current_shell_id
+            deactivation_channel_idx, current_shell_id
         ]
         emission_transition_probability += deactivation_probability
 
         if emission_transition_probability > probability_emission_event:
             emission_process = opacity_state.transition_type[
-                deactivation_channel_index
+                deactivation_channel_idx
             ]
             emission_line_id = opacity_state.transition_line_id[
-                deactivation_channel_index
+                deactivation_channel_idx
             ]
             break
 
@@ -176,7 +176,7 @@ def macro_atom_interaction_iip(
             "MacroAtom ran out of the block. This should not happen as "
             "the sum of probabilities is normalized to 1 and "
             "the probability_event should be less than 1. \n"
-            f"block indices are {block_start_index}, {block_end_index}"
+            f"block indices are {block_start_idx}, {block_end_idx}"
         )
     return (
         emission_line_id,
