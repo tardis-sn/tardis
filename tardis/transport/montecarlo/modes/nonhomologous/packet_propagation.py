@@ -54,6 +54,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 def packet_propagation(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaNonhomologousRadial1DGeometry,
+    time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
     estimators_line: EstimatorsLine,
@@ -73,6 +74,9 @@ def packet_propagation(
         The radiative packet to transport through the ejecta.
     numba_radial_1d_geometry : NumbaNonhomologousRadial1DGeometry
         The spherically symmetric geometry of the supernova ejecta.
+    time_explosion : float
+        Time since explosion in seconds. Accepted for interface parity with
+        homologous transport; not used by nonhomologous transport.
     opacity_state : OpacityStateNumba
         Current opacity state containing line opacities.
     estimators_bulk : EstimatorsBulk

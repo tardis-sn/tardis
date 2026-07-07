@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import tardis.transport.montecarlo.modes.classic.rad_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
