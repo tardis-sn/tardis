@@ -33,7 +33,7 @@ from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
     move_r_packet_geometry,
     trace_packet,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (

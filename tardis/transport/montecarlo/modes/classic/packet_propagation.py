@@ -28,7 +28,7 @@ from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
 from tardis.transport.montecarlo.packets.packet_collections import (
     VPacketCollection,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (

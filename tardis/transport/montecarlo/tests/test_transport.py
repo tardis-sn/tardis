@@ -5,7 +5,7 @@ from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     init_estimators_bulk,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     increment_packet_cell_index as classic_move_boundary,
 )
 from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
@@ -14,7 +14,7 @@ from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
 from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
     trace_packet as classic_trace_packet,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     increment_packet_cell_index as iip_move_boundary,
 )
 from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
@@ -23,7 +23,7 @@ from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
 from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
     trace_packet as iip_trace_packet,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     increment_packet_cell_index as nonhomologous_move_boundary,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (

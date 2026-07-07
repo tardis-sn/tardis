@@ -19,13 +19,13 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_line,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     increment_packet_cell_index as increment_packet_cell_index,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     move_r_packet as move_r_packet_with_geometry,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     move_r_packet_with_velocity,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (

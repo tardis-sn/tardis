@@ -24,7 +24,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
 from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
     OpacitySolver as NonhomologousOpacitySolver,
 )
-from tardis.transport.montecarlo.packets.radiative_movement import (
+from tardis.transport.montecarlo.packets.movement import (
     increment_packet_cell_index,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
