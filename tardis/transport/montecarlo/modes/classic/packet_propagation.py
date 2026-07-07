@@ -25,7 +25,7 @@ from tardis.transport.montecarlo.interaction_event_callers import (
 from tardis.transport.montecarlo.interaction_events import (
     thomson_scatter,
 )
-from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
+from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
     trace_packet,
 )
 from tardis.transport.montecarlo.packets.movement import (
@@ -146,6 +146,8 @@ def packet_propagation(
             opacity_state,
             estimators_line,
             opacity_electron,
+            1.0,
+            False,
             montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             montecarlo_configuration.DISABLE_LINE_SCATTERING,
         )

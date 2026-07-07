@@ -1,28 +1,31 @@
-"""Classic mode rad packet transport - line-only without continuum processes."""
+"""Shared homologous-mode radiative packet tracing."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numba import njit
 
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
-from tardis.opacities.opacity_state_numba import OpacityStateNumba
-from tardis.transport.frame_transformations import (
-    get_doppler_factor,
-)
+from tardis.transport.frame_transformations import get_doppler_factor
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_line,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
-from tardis.transport.montecarlo.estimators.estimators_line import (
-    EstimatorsLine,
-)
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_line,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
-    RPacket,
 )
+
+if TYPE_CHECKING:
+    from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+    from tardis.transport.montecarlo.estimators.estimators_line import (
+        EstimatorsLine,
+    )
+    from tardis.transport.montecarlo.packets.radiative_packet import RPacket
 
 
 @njit(**njit_dict_no_parallel)
@@ -30,40 +33,46 @@ def trace_packet(
     r_packet: RPacket,
     numba_radial_1d_geometry: NumbaRadial1DGeometry,
     time_explosion: float,
-    opacity_state: OpacityStateNumba,
+    opacity_state,
     estimators_line: EstimatorsLine,
-    opacity_electron: float,
+    continuous_opacity: float,
+    escat_prob: float,
+    continuum_process_enabled: bool,
     enable_full_relativity: bool,
     disable_line_scattering: bool,
 ) -> tuple[float, InteractionType, int]:
     """
-    Traces the RPacket through the ejecta and stops when an interaction happens.
-
-    Classic mode: only handles line interactions and electron scattering.
+    Trace a homologous radiative packet until an interaction occurs.
 
     Parameters
     ----------
     r_packet : RPacket
-        The radiative packet being transported
+        Radiative packet being transported.
     numba_radial_1d_geometry : NumbaRadial1DGeometry
-        Radial 1D geometry of the model
+        Radial 1D geometry of the model.
     time_explosion : float
-        Time since explosion in seconds
-    opacity_state : OpacityStateNumba
-        Opacity state containing line list and tau sobolev
+        Time since explosion in seconds.
+    opacity_state
+        Opacity state containing line frequencies and Sobolev optical depths.
     estimators_line : EstimatorsLine
-        Line-level radiation field estimators
-    opacity_electron : float
-        Electron scattering opacity
+        Line-level radiation field estimators.
+    continuous_opacity : float
+        Continuous interaction opacity. In classic mode this is electron
+        scattering opacity; in IIP mode this is total continuum opacity.
+    escat_prob : float
+        Probability that a continuous interaction is electron scattering.
+        Ignored when continuum processes are disabled.
+    continuum_process_enabled : bool
+        Whether continuous interactions may produce continuum-process events.
     enable_full_relativity : bool
-        Flag to enable full relativistic calculations
+        Whether full relativistic calculations are enabled.
     disable_line_scattering : bool
-        Flag to disable line scattering
+        Whether line scattering is disabled.
 
     Returns
     -------
     tuple[float, InteractionType, int]
-        (distance, interaction_type, delta_shell)
+        Distance, interaction type, and shell-index change.
     """
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
@@ -73,14 +82,10 @@ def trace_packet(
         delta_shell,
     ) = calculate_distance_boundary(r_packet.r, r_packet.mu, r_inner, r_outer)
 
-    # defining start for line interaction
     start_line_id = r_packet.next_line_id
-
-    # defining taus
     tau_event = -np.log(np.random.random())
     tau_trace_line_combined = 0.0
 
-    # Calculating doppler factor
     velocity = numba_radial_1d_geometry.get_velocity(
         r_packet.r, r_packet.current_shell_id
     )
@@ -91,26 +96,17 @@ def trace_packet(
     )
     comov_nu = r_packet.nu * doppler_factor
 
-    distance_electron = tau_event / opacity_electron
-    cur_line_id = start_line_id  # initializing varibale for Numba
-    # - do not remove
+    distance_continuous = tau_event / continuous_opacity
+    cur_line_id = start_line_id
     last_line_id = len(opacity_state.line_list_nu) - 1
     for cur_line_id in range(start_line_id, len(opacity_state.line_list_nu)):
-        # Going through the lines
         nu_line = opacity_state.line_list_nu[cur_line_id]
-
-        # Getting the tau for the next line
         tau_trace_line = opacity_state.tau_sobolev[
             cur_line_id, r_packet.current_shell_id
         ]
-
-        # Adding it to the tau_trace_line_combined
         tau_trace_line_combined += tau_trace_line
 
-        # Calculating the distance until the current photons co-moving nu
-        # redshifts to the line frequency
         is_last_line = cur_line_id == last_line_id
-
         distance_trace = calculate_distance_line(
             r_packet,
             comov_nu,
@@ -120,27 +116,30 @@ def trace_packet(
             enable_full_relativity,
         )
 
-        # calculating the tau electron of how far the trace has progressed
-        tau_trace_electron = opacity_electron * distance_trace
-
-        # calculating the trace
-        tau_trace_combined = tau_trace_line_combined + tau_trace_electron
-
-        distance = min(distance_trace, distance_boundary, distance_electron)
+        tau_trace_continuous = continuous_opacity * distance_trace
+        tau_trace_combined = (
+            tau_trace_line_combined + tau_trace_continuous
+        )
+        distance = min(
+            distance_trace, distance_boundary, distance_continuous
+        )
 
         if distance_trace != 0:
             if distance == distance_boundary:
-                interaction_type = InteractionType.BOUNDARY  # BOUNDARY
+                interaction_type = InteractionType.BOUNDARY
                 r_packet.next_line_id = cur_line_id
                 break
-            if distance == distance_electron:
-                interaction_type = InteractionType.ESCATTERING
+            if distance == distance_continuous:
+                if continuum_process_enabled:
+                    zrand = np.random.random()
+                    if zrand < escat_prob:
+                        interaction_type = InteractionType.ESCATTERING
+                    else:
+                        interaction_type = InteractionType.CONTINUUM_PROCESS
+                else:
+                    interaction_type = InteractionType.ESCATTERING
                 r_packet.next_line_id = cur_line_id
                 break
-
-        # Updating the J_b_lu and E_dot_lu
-        # This means we are still looking for line interaction and have not
-        # been kicked out of the path by boundary or electron interaction
 
         update_estimators_line(
             estimators_line,
@@ -152,26 +151,28 @@ def trace_packet(
         )
 
         if tau_trace_combined > tau_event and not disable_line_scattering:
-            interaction_type = InteractionType.LINE  # Line
+            interaction_type = InteractionType.LINE
             r_packet.next_line_id = cur_line_id
             distance = distance_trace
             break
 
-        # Recalculating distance_electron using tau_event -
-        # tau_trace_line_combined
-        distance_electron = (tau_event - tau_trace_line_combined) / (
-            opacity_electron
-        )
+        distance_continuous = (
+            tau_event - tau_trace_line_combined
+        ) / continuous_opacity
 
-    else:  # Executed when no break occurs in the for loop
-        # We are beyond the line list now and the only next thing is to see
-        # if we are interacting with the boundary or electron scattering
-        if cur_line_id == (len(opacity_state.line_list_nu) - 1):
-            # Treatment for last line
+    else:
+        if cur_line_id == last_line_id:
             cur_line_id += 1
-        if distance_electron < distance_boundary:
-            distance = distance_electron
-            interaction_type = InteractionType.ESCATTERING
+        if distance_continuous < distance_boundary:
+            distance = distance_continuous
+            if continuum_process_enabled:
+                zrand = np.random.random()
+                if zrand < escat_prob:
+                    interaction_type = InteractionType.ESCATTERING
+                else:
+                    interaction_type = InteractionType.CONTINUUM_PROCESS
+            else:
+                interaction_type = InteractionType.ESCATTERING
         else:
             distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY

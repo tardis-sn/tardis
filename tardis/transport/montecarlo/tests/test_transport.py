@@ -5,11 +5,8 @@ from tardis.conftest import sync_ndarray_assert_allclose
 from tardis.transport.montecarlo.estimators.estimators_bulk import (
     init_estimators_bulk,
 )
-from tardis.transport.montecarlo.modes.classic.rad_packet_transport import (
-    trace_packet as classic_trace_packet,
-)
-from tardis.transport.montecarlo.modes.iip.rad_packet_transport import (
-    trace_packet as iip_trace_packet,
+from tardis.transport.montecarlo.modes.homologous_rad_packet_transport import (
+    trace_packet as homologous_trace_packet,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
     trace_packet as nonhomologous_trace_packet,
@@ -234,13 +231,15 @@ def test_classic_trace_packet(
 ) -> None:
     set_seed_fixture(1963)
 
-    distance, interaction_type, delta_shell = classic_trace_packet(
+    distance, interaction_type, delta_shell = homologous_trace_packet(
         parametrized_packet,
         radial_geometry,
         5.2e7,
         classic_opacity_state,
         line_estimators,
         opacity_electron,
+        1.0,
+        False,
         False,
         disable_line_scattering,
     )
@@ -279,13 +278,15 @@ def test_classic_trace_packet_no_line_fallthrough(
     # Start beyond the available line list to lock in the no-line fallthrough.
     set_seed_fixture(1963)
 
-    distance, interaction_type, delta_shell = classic_trace_packet(
+    distance, interaction_type, delta_shell = homologous_trace_packet(
         parametrized_packet,
         radial_geometry,
         5.2e7,
         classic_opacity_state,
         line_estimators,
         1.0e-12,
+        1.0,
+        False,
         False,
         False,
     )
@@ -368,7 +369,7 @@ def test_iip_trace_packet(
 ) -> None:
     set_seed_fixture(1963)
 
-    distance, interaction_type, delta_shell = iip_trace_packet(
+    distance, interaction_type, delta_shell = homologous_trace_packet(
         parametrized_packet,
         radial_geometry,
         5.2e7,
@@ -376,6 +377,7 @@ def test_iip_trace_packet(
         line_estimators,
         chi_continuum,
         escat_prob,
+        True,
         False,
         disable_line_scattering,
     )
@@ -414,7 +416,7 @@ def test_iip_trace_packet_no_line_fallthrough(
     # Start beyond the available line list to lock in the no-line fallthrough.
     set_seed_fixture(1963)
 
-    distance, interaction_type, delta_shell = iip_trace_packet(
+    distance, interaction_type, delta_shell = homologous_trace_packet(
         parametrized_packet,
         radial_geometry,
         5.2e7,
@@ -422,6 +424,7 @@ def test_iip_trace_packet_no_line_fallthrough(
         line_estimators,
         1.0e-12,
         1.0,
+        True,
         False,
         False,
     )
