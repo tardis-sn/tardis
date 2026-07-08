@@ -4,16 +4,21 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import tardis.transport.montecarlo.modes.classic.rad_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
+from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.frame_transformations import (
     angle_aberration_CMF_to_LF,
     angle_aberration_LF_to_CMF,
     get_doppler_factor,
+    get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo.estimators import init_estimators_bulk
+from tardis.transport.montecarlo.packets.movement import (
+    move_packet_across_shell_boundary,
+    move_r_packet,
+)
 from tardis.transport.montecarlo.packets.trackers.tracker_full import (
     TrackerFull,
 )
@@ -178,9 +183,7 @@ def test_move_packet_across_shell_boundary_emitted(
     energy = 0.9
     packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
-        packet, delta_shell, no_of_shells
-    )
+    move_packet_across_shell_boundary(packet, delta_shell, no_of_shells)
     assert packet.status == radiative_packet.PacketStatus.EMITTED
 
 
@@ -197,9 +200,7 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     energy = 0.9
     packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
-        packet, delta_shell, no_of_shells
-    )
+    move_packet_across_shell_boundary(packet, delta_shell, no_of_shells)
     assert packet.status == radiative_packet.PacketStatus.REABSORBED
 
 
@@ -216,9 +217,7 @@ def test_move_packet_across_shell_boundary_increment(
     energy = 0.9
     packet = radiative_packet.RPacket(r, mu, nu, energy)
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
-        packet, delta_shell, no_of_shells
-    )
+    move_packet_across_shell_boundary(packet, delta_shell, no_of_shells)
     assert packet.current_shell_id == current_shell_id + delta_shell
 
 
@@ -293,9 +292,8 @@ def test_compute_distance2line(packet_params, expected_params):
 
     time_explosion = 5.2e7
 
-    doppler_factor = get_doppler_factor(
-        packet.r, packet.mu, time_explosion, False
-    )
+    velocity = packet.r / time_explosion
+    doppler_factor = get_doppler_factor(velocity, packet.mu, False)
     comov_nu = packet.nu * doppler_factor
 
     d_line = 0
@@ -363,16 +361,23 @@ def test_move_packet(packet_params, expected_params, full_relativity):
     packet.r = packet_params["r"]
     # model.full_relativity = full_relativity
 
+    velocity = packet.r / time_explosion
     doppler_factor = get_doppler_factor(
-        packet.r, packet.mu, time_explosion, full_relativity
+        velocity, packet.mu, full_relativity
     )
 
     numba_estimator = init_estimators_bulk(
         mean_intensity_total=packet_params["j"],
         mean_frequency=packet_params["nu_bar"],
     )
-    r_packet_transport.move_r_packet(
-        packet, distance, time_explosion, numba_estimator, full_relativity
+    geometry = NumbaRadial1DGeometry(
+        np.array([7.0e14]),
+        np.array([9.0e14]),
+        np.array([7.0e14 / time_explosion]),
+        np.array([9.0e14 / time_explosion]),
+    )
+    move_r_packet(
+        packet, distance, geometry, numba_estimator, full_relativity
     )
 
     assert_almost_equal(packet.mu, expected_params["mu"])
@@ -472,14 +477,15 @@ def test_frame_transformations(mu, r, inv_t_exp, full_relativity):
     mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
     mc.ENABLE_FULL_RELATIVITY = full_relativity
 
-    inverse_doppler_factor = radiative_packet.get_inverse_doppler_factor(
-        r, mu, 1 / inv_t_exp
+    velocity = r * inv_t_exp
+    inverse_doppler_factor = get_inverse_doppler_factor(
+        velocity, mu, full_relativity
     )
     radiative_packet.angle_aberration_CMF_to_LF(
         packet, 1 / inv_t_exp, packet.mu
     )
 
-    doppler_factor = get_doppler_factor(r, mu, 1 / inv_t_exp)
+    doppler_factor = get_doppler_factor(velocity, mu, full_relativity)
     mc.ENABLE_FULL_RELATIVITY = False
 
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
@@ -529,16 +535,23 @@ def test_compute_distance2line_relativistic(
     )
     mc.ENABLE_FULL_RELATIVITY = bool(full_relativity)
 
-    doppler_factor = get_doppler_factor(r, mu, t_exp)
+    velocity = r / t_exp
+    doppler_factor = get_doppler_factor(velocity, mu, full_relativity)
     comov_nu = packet.nu * doppler_factor
     distance = radiative_packet.calculate_distance_line(
         packet, comov_nu, nu_line, t_exp
     )
-    r_packet_transport.move_r_packet(
-        packet, distance, t_exp, numba_estimator, bool(full_relativity)
+    geometry = NumbaRadial1DGeometry(
+        np.array([r * 0.9]),
+        np.array([r * 1.1]),
+        np.array([r * 0.9 / t_exp]),
+        np.array([r * 1.1 / t_exp]),
+    )
+    move_r_packet(
+        packet, distance, geometry, numba_estimator, bool(full_relativity)
     )
 
-    doppler_factor = get_doppler_factor(r, mu, t_exp)
+    doppler_factor = get_doppler_factor(velocity, mu, full_relativity)
     comov_nu = packet.nu * doppler_factor
     mc.ENABLE_FULL_RELATIVITY = False
 

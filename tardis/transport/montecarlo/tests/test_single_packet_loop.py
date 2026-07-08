@@ -273,6 +273,7 @@ def test_nonhomologous_packet_propagation_dispatch_numba_disabled(
     nonhomologous_propagation.packet_propagation(
         parametrized_packet,
         nonhomologous_geometry,
+        0.0,
         classic_opacity_state,
         bulk_estimators,
         line_estimators,

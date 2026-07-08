@@ -8,7 +8,7 @@ from numba.experimental import jitclass
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.opacities.opacities import chi_continuum_calculator
 from tardis.transport.frame_transformations import (
-    get_doppler_factor_nonhomologous,
+    get_doppler_factor,
 )
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
@@ -18,7 +18,7 @@ from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import (
     SIGMA_THOMSON,
 )
-from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
+from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
@@ -105,7 +105,7 @@ def trace_vpacket_within_shell(
 
     # Calculating doppler factor
     v = numba_radial_1d_geometry.get_velocity(v_packet.r, v_packet.current_shell_id)
-    doppler_factor = get_doppler_factor_nonhomologous(
+    doppler_factor = get_doppler_factor(
         v,
         v_packet.mu,
         enable_full_relativity,
@@ -300,7 +300,7 @@ def trace_vpacket_volley(
 
     mu_bin = (1.0 - mu_min) / no_of_vpackets
     v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    r_packet_doppler_factor = get_doppler_factor_nonhomologous(
+    r_packet_doppler_factor = get_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,
@@ -325,7 +325,7 @@ def trace_vpacket_volley(
         else:
             weight = (1 - mu_min) / (2 * no_of_vpackets)
 
-        v_packet_doppler_factor = get_doppler_factor_nonhomologous(
+        v_packet_doppler_factor = get_doppler_factor(
             v,
             v_packet_mu,
             enable_full_relativity,
