@@ -8,10 +8,8 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 
+from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-
-if TYPE_CHECKING:
-    from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 
 logger = logging.getLogger(__name__)
 
