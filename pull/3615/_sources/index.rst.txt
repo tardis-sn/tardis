@@ -115,6 +115,7 @@ Mission Statement
     contributing/CHANGELOG.md 
     resources/research_done_using_TARDIS/research_papers
     resources/zreferences
+    reference/external_links
 
 .. toctree::
     :maxdepth: 2
