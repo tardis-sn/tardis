@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import logging
 import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import h5py
 import numpy as np
@@ -10,6 +12,9 @@ from astropy import units as u
 
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+
+if TYPE_CHECKING:
+    from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +58,7 @@ INITIALIZATION_DERIVED_PLASMA_OUTPUTS = frozenset(
 
 
 def save_checkpoint(
-    workflow: Any,
+    workflow: TypeIIPWorkflow,
     normalized_continuum_estimators: dict[str, object] | None = None,
     estimated_values: dict[str, object] | None = None,
 ) -> None:
@@ -62,9 +67,8 @@ def save_checkpoint(
 
     Parameters
     ----------
-    workflow : Any
-        IIP workflow with a ``plasma_solver``, ``completed_iterations``, and
-        optional base ``checkpoint_path``.
+    workflow : TypeIIPWorkflow
+        IIP workflow to checkpoint.
     normalized_continuum_estimators : dict[str, object], optional
         Continuum estimators needed to rebuild the continuum state on resume.
     estimated_values : dict[str, object], optional
@@ -116,11 +120,24 @@ def base_checkpoint_path(checkpoint_path: str | Path) -> Path:
 
 def write_workflow_state(
     group: h5py.Group,
-    workflow: Any,
+    workflow: TypeIIPWorkflow,
     normalized_continuum_estimators: dict[str, object] | None,
     estimated_values: dict[str, object] | None,
 ) -> None:
-    """Write workflow-level resume state into an HDF5 group."""
+    """
+    Write workflow-level resume state into an HDF5 group.
+
+    Parameters
+    ----------
+    group : h5py.Group
+        HDF5 group that receives the workflow state.
+    workflow : TypeIIPWorkflow
+        IIP workflow whose resume state is written.
+    normalized_continuum_estimators : dict[str, object] or None
+        Continuum estimators needed to rebuild the continuum state on resume.
+    estimated_values : dict[str, object] or None
+        Convergence estimates from the Monte Carlo iteration.
+    """
     write_mapping(
         group,
         {
@@ -605,9 +622,23 @@ def restore_property_state(
 
 
 def resume_from_checkpoint(
-    workflow: Any, checkpoint_path: str | Path
+    workflow: TypeIIPWorkflow, checkpoint_path: str | Path
 ) -> dict[str, object]:
-    """Resume an IIP workflow from an HDF5 checkpoint file."""
+    """
+    Resume an IIP workflow from an HDF5 checkpoint file.
+
+    Parameters
+    ----------
+    workflow : TypeIIPWorkflow
+        IIP workflow to restore.
+    checkpoint_path : str or Path
+        Path to the HDF5 checkpoint file.
+
+    Returns
+    -------
+    dict[str, object]
+        Loaded checkpoint payload.
+    """
     checkpoint = load_checkpoint(checkpoint_path)
     restore_workflow_checkpoint(workflow, checkpoint)
     workflow._resumed_from_checkpoint = True
@@ -615,9 +646,18 @@ def resume_from_checkpoint(
 
 
 def restore_workflow_checkpoint(
-    workflow: Any, checkpoint: dict[str, object]
+    workflow: TypeIIPWorkflow, checkpoint: dict[str, object]
 ) -> None:
-    """Restore plasma and workflow state from a checkpoint payload."""
+    """
+    Restore plasma and workflow state from a checkpoint payload.
+
+    Parameters
+    ----------
+    workflow : TypeIIPWorkflow
+        IIP workflow to restore.
+    checkpoint : dict[str, object]
+        Loaded checkpoint payload.
+    """
     restore_plasma_checkpoint(workflow.plasma_solver, checkpoint)
 
     workflow_state = checkpoint["workflow_state"]
