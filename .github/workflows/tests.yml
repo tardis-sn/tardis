@@ -24,7 +24,7 @@ on:
         default: false
 
 env:
-  CACHE_NUMBER: 0  # increase to reset cache manually
+  CACHE_NUMBER: 0 # increase to reset cache manually
   PYTEST_FLAGS: --tardis-regression-data=${{ github.workspace }}/tardis-regression-data --cov=tardis --cov-report=xml --cov-report=html --cov-append
   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         label: [osx-arm64, linux-64]
-        continuum: ['not']
+        continuum: ["not"]
         pip_git: ${{ contains(github.event.pull_request.labels.*.name, 'pip-git-tests') && fromJSON('[true, false]') || fromJSON('[false]') }}
         include:
           - label: osx-arm64
@@ -63,8 +63,8 @@ jobs:
             os: ubuntu-latest
             prefix: /usr/share/miniconda3/envs/tardis
     steps:
-      - uses: actions/checkout@v6  
-     
+      - uses: actions/checkout@v6
+
       - name: Free Disk Space (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         uses: jlumbroso/free-disk-space@main
@@ -72,21 +72,21 @@ jobs:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
           tool-cache: false
-          
+
           # other packages
           android: true
           dotnet: true
           haskell: true
           large-packages: true
           swap-storage: true
-      
+
       - name: Free up disk space on macOS
         if: matrix.os == 'macos-latest'
         continue-on-error: True
         run: |
           echo "Initial disk usage:"
           df -h
-          
+
           # Remove unnecessary Xcode versions (if any)
           if ls /Applications/Xcode_*.app 1> /dev/null 2>&1; then
             echo "Removing old Xcode versions..."
@@ -94,11 +94,11 @@ jobs:
           else
             echo "No additional Xcode versions found"
           fi
-          
+
           # Clean Homebrew cache
           echo "Cleaning Homebrew cache..."
           brew cleanup --prune=all || true
-          
+
           # Remove iOS simulators (only if simctl is available)
           if command -v xcrun simctl &> /dev/null; then
             echo "Cleaning iOS simulators..."
@@ -106,11 +106,11 @@ jobs:
           else
             echo "simctl not available, skipping iOS simulator cleanup"
           fi
-          
+
           # Clear system caches (be more selective)
           echo "Clearing system caches..."
           rm -rf ~/Library/Caches/* 2>/dev/null || true
-          
+
           # Remove other large files
           sudo rm -rf /usr/local/lib/android 2>/dev/null || true
           sudo rm -rf /usr/local/share/dotnet 2>/dev/null || true
@@ -120,8 +120,6 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
           echo "Final disk usage:"
           df -h
-        
-   
 
       - name: Setup LFS
         uses: tardis-sn/tardis-actions/setup-lfs@main
@@ -148,6 +146,11 @@ jobs:
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} -m "${{ matrix.continuum }} continuum"
+
+      - name: Run JIT-disabled tests
+        env:
+          NUMBA_DISABLE_JIT: "1"
+        run: pytest tardis/transport/montecarlo/tests/test_single_packet_loop.py tardis/energy_input/transport/tests/test_gamma_transport.py -k numba_disabled ${{ env.PYTEST_FLAGS }}
 
       - name: Regression Data Generation tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }} --generate-reference -m "${{ matrix.continuum }} continuum"

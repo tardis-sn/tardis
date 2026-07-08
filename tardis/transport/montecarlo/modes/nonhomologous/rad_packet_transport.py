@@ -7,27 +7,17 @@ from tardis.model.geometry.radial1d_nonhomologous import (
     NumbaNonhomologousRadial1DGeometry,
 )
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
-from tardis.transport.frame_transformations import (
-    get_doppler_factor_nonhomologous,
-)
 from tardis.transport.geometry.calculate_distances import (
     calculate_distance_boundary,
     calculate_distance_line_nonhomologous,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.configuration.constants import C_SPEED_OF_LIGHT
-from tardis.transport.montecarlo.estimators.estimators_bulk import (
-    EstimatorsBulk,
-)
 from tardis.transport.montecarlo.estimators.estimators_line import (
     EstimatorsLine,
 )
-from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
-    update_estimators_bulk,
-)
 from tardis.transport.montecarlo.packets.radiative_packet import (
     InteractionType,
-    PacketStatus,
     RPacket,
 )
 
@@ -72,7 +62,6 @@ def trace_packet(
     r_inner = numba_radial_1d_geometry.r_inner[r_packet.current_shell_id]
     r_outer = numba_radial_1d_geometry.r_outer[r_packet.current_shell_id]
     v_inner = numba_radial_1d_geometry.v_inner[r_packet.current_shell_id]
-    v_outer = numba_radial_1d_geometry.v_outer[r_packet.current_shell_id]
 
     (
         distance_boundary,
@@ -102,7 +91,9 @@ def trace_packet(
         nu_line = opacity_state.line_list_nu[cur_line_id]
 
         # Getting the tau for the next line
-        tau_trace_line = opacity_state.tau_sobolev[cur_line_id, r_packet.current_shell_id]
+        tau_trace_line = opacity_state.tau_sobolev[
+            cur_line_id, r_packet.current_shell_id
+        ]
 
         # Adding it to the tau_trace_line_combined
         tau_trace_line_combined += tau_trace_line
@@ -124,7 +115,9 @@ def trace_packet(
         distance = min(distance_trace, distance_boundary, distance_electron)
 
         if distance_trace != 0:
-            if (distance == distance_boundary) or (distance == distance_electron):
+            if (distance == distance_boundary) or (
+                distance == distance_electron
+            ):
                 if dvdr >= 0.0:
                     r_packet.next_line_id = cur_line_id
                     r_packet.prev_line_id = cur_line_id - 1
@@ -148,12 +141,16 @@ def trace_packet(
         # Get the packet's new energy to use for the estimator update
         # Replaces the call to `calc_packet_energy` within `update_estimators_line`
         new_r = np.sqrt(
-            r_packet.r * r_packet.r + distance_trace * distance_trace + 2.0 * r_packet.r * distance_trace * r_packet.mu
+            r_packet.r * r_packet.r
+            + distance_trace * distance_trace
+            + 2.0 * r_packet.r * distance_trace * r_packet.mu
         )
         new_mu = (r_packet.mu * r_packet.r + distance_trace) / new_r
-        dvdr = numba_radial_1d_geometry.velocity_gradient[r_packet.current_shell_id]
-        new_v = v_inner + dvdr*(new_r - r_inner)
-        new_doppler_factor = (1.0 - new_v/C_SPEED_OF_LIGHT * new_mu)
+        dvdr = numba_radial_1d_geometry.velocity_gradient[
+            r_packet.current_shell_id
+        ]
+        new_v = v_inner + dvdr * (new_r - r_inner)
+        new_doppler_factor = 1.0 - new_v / C_SPEED_OF_LIGHT * new_mu
         energy = r_packet.energy * new_doppler_factor
 
         # Update the estimators
@@ -199,81 +196,3 @@ def trace_packet(
             interaction_type = InteractionType.BOUNDARY
 
     return distance, interaction_type, delta_shell
-
-
-@njit(**njit_dict_no_parallel)
-def move_r_packet(
-    r_packet: RPacket,
-    distance: float,
-    geometry: NumbaNonhomologousRadial1DGeometry,
-    estimators_bulk: EstimatorsBulk,
-    enable_full_relativity: bool,
-) -> None:
-    """
-    Move packet a distance and recalculate the new angle mu.
-
-    Parameters
-    ----------
-    r_packet : RPacket
-        Radiative packet object
-    distance : float
-        Distance to move in cm
-    geometry : NumbaNonhomologousRadial1DGeometry
-        Radius, velocity, and velocity gradient per cell.
-    estimators_bulk : EstimatorsBulk
-        Cell-level bulk radiation field estimators
-    enable_full_relativity : bool
-        Flag to enable full relativistic calculations
-    """
-    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    doppler_factor = get_doppler_factor_nonhomologous(
-        v,
-        r_packet.mu,
-        enable_full_relativity,
-    )
-
-    r = r_packet.r
-    if distance > 0.0:
-        new_r = np.sqrt(
-            r * r + distance * distance + 2.0 * r * distance * r_packet.mu
-        )
-        r_packet.mu = (r_packet.mu * r + distance) / new_r
-        r_packet.r = new_r
-
-        comov_nu = r_packet.nu * doppler_factor
-        comov_energy = r_packet.energy * doppler_factor
-
-        # Account for length contraction
-        if enable_full_relativity:
-            distance *= doppler_factor
-
-        update_estimators_bulk(
-            r_packet, distance, estimators_bulk, comov_nu, comov_energy
-        )
-
-
-@njit(**njit_dict_no_parallel)
-def move_packet_across_shell_boundary(
-    packet: RPacket, delta_shell: int, no_of_shells: int
-) -> None:
-    """
-    Move packet across shell boundary - realizing if we are still in the simulation or have
-    moved out through the inner boundary or outer boundary and updating packet status.
-
-    Parameters
-    ----------
-    packet : RPacket
-        Radiative packet object
-    delta_shell : int
-        Change in shell index (+1 if moving outward or -1 if moving inward)
-    no_of_shells : int
-        Number of shells in TARDIS simulation
-    """
-    next_shell_id = packet.current_shell_id + delta_shell
-
-    if next_shell_id >= no_of_shells:
-        packet.status = PacketStatus.EMITTED
-    elif next_shell_id < 0:
-        packet.status = PacketStatus.REABSORBED
-    else:
-        packet.current_shell_id = next_shell_id

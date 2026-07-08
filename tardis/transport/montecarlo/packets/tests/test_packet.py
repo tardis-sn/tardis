@@ -9,13 +9,17 @@ import tardis.opacities.opacities as opacities
 import tardis.transport.frame_transformations as frame_transformations
 import tardis.transport.geometry.calculate_distances as calculate_distances
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
-import tardis.transport.montecarlo.modes.classic.rad_packet_transport as r_packet_transport
+import tardis.transport.montecarlo.modes.homologous_rad_packet_transport as r_packet_transport
 import tardis.transport.montecarlo.packets.radiative_packet as radiative_packet
 import tardis.transport.montecarlo.utils as utils
 from tardis import constants as const
 from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.transport.montecarlo.estimators.radfield_estimator_calcs import (
     update_estimators_line,
+)
+from tardis.transport.montecarlo.packets.movement import (
+    move_packet_across_shell_boundary,
+    move_r_packet,
 )
 from tardis.transport.montecarlo.packets.radiative_packet import InteractionType
 
@@ -25,11 +29,14 @@ SIGMA_THOMSON = const.sigma_T.to("cm^2").value
 
 @pytest.fixture(scope="function")
 def geometry():
+    time_explosion = 5.2e7
+    r_inner = np.array([6.912e14, 8.64e14], dtype=np.float64)
+    r_outer = np.array([8.64e14, 1.0368e15], dtype=np.float64)
     return NumbaRadial1DGeometry(
-        r_inner=np.array([6.912e14, 8.64e14], dtype=np.float64),
-        r_outer=np.array([8.64e14, 1.0368e15], dtype=np.float64),
-        v_inner=np.array([-1, -1], dtype=np.float64),
-        v_outer=np.array([-1, -1], dtype=np.float64),
+        r_inner=r_inner,
+        r_outer=r_outer,
+        v_inner=r_inner / time_explosion,
+        v_outer=r_outer / time_explosion,
     )
 
 
@@ -102,8 +109,9 @@ def test_calculate_distance_line(
     nu_line = packet_params["nu_line"]
     is_last_line = packet_params["is_last_line"]
 
+    velocity = static_packet.r / time_explosion
     doppler_factor = frame_transformations.get_doppler_factor(
-        static_packet.r, static_packet.mu, time_explosion, False
+        velocity, static_packet.mu, False
     )
     comov_nu = static_packet.nu * doppler_factor
 
@@ -276,6 +284,7 @@ def test_move_r_packet(
     packet_params,
     expected_params,
     packet,
+    geometry,
     time_explosion,
     estimators,
     ENABLE_FULL_RELATIVITY,
@@ -287,15 +296,16 @@ def test_move_r_packet(
     packet.r = packet_params["r"]
 
     montecarlo_globals.ENABLE_FULL_RELATIVITY = ENABLE_FULL_RELATIVITY
-    r_packet_transport.move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
+    move_r_packet.recompile()  # This must be done as move_r_packet was jitted with ENABLE_FULL_RELATIVITY
+    velocity = packet.r / time_explosion
     doppler_factor = frame_transformations.get_doppler_factor(
-        packet.r, packet.mu, time_explosion, ENABLE_FULL_RELATIVITY
+        velocity, packet.mu, ENABLE_FULL_RELATIVITY
     )
 
-    r_packet_transport.move_r_packet(
+    move_r_packet(
         packet,
         distance,
-        time_explosion,
+        geometry,
         estimators,
         ENABLE_FULL_RELATIVITY,
     )
@@ -344,9 +354,7 @@ def test_move_packet_across_shell_boundary_emitted(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
-        packet, delta_shell, no_of_shells
-    )
+    move_packet_across_shell_boundary(packet, delta_shell, no_of_shells)
     assert packet.status == radiative_packet.PacketStatus.EMITTED
 
 
@@ -358,9 +366,7 @@ def test_move_packet_across_shell_boundary_reabsorbed(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
-        packet, delta_shell, no_of_shells
-    )
+    move_packet_across_shell_boundary(packet, delta_shell, no_of_shells)
     assert packet.status == radiative_packet.PacketStatus.REABSORBED
 
 
@@ -372,7 +378,5 @@ def test_move_packet_across_shell_boundary_increment(
     packet, current_shell_id, delta_shell, no_of_shells
 ):
     packet.current_shell_id = current_shell_id
-    r_packet_transport.move_packet_across_shell_boundary(
-        packet, delta_shell, no_of_shells
-    )
+    move_packet_across_shell_boundary(packet, delta_shell, no_of_shells)
     assert packet.current_shell_id == current_shell_id + delta_shell

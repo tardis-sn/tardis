@@ -24,7 +24,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
 from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
     OpacitySolver as NonhomologousOpacitySolver,
 )
-from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
+from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (

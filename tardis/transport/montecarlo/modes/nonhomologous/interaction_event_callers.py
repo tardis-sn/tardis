@@ -3,8 +3,8 @@ from numba import njit
 
 import tardis.transport.montecarlo.configuration.montecarlo_globals as montecarlo_globals
 from tardis.transport.frame_transformations import (
-    get_doppler_factor_nonhomologous,
-    get_inverse_doppler_factor_nonhomologous,
+    get_doppler_factor,
+    get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.macro_atom import (
@@ -152,12 +152,12 @@ def continuum_event(
     continuum : tardis.transport.montecarlo.numba_interface.Continuum
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    old_doppler_factor = get_doppler_factor_nonhomologous(
+    old_doppler_factor = get_doppler_factor(
         v, r_packet.mu, enable_full_relativity
     )
 
     r_packet.mu = get_random_mu()
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_doppler_factor = get_inverse_doppler_factor(
         v, r_packet.mu, enable_full_relativity
     )
     comov_energy = r_packet.energy * old_doppler_factor
@@ -204,12 +204,12 @@ def line_scatter_event(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    old_doppler_factor = get_doppler_factor_nonhomologous(
+    old_doppler_factor = get_doppler_factor(
         v, r_packet.mu, enable_full_relativity
     )
     r_packet.mu = get_random_mu()
 
-    inverse_new_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_new_doppler_factor = get_inverse_doppler_factor(
         v, r_packet.mu, enable_full_relativity
     )
 
