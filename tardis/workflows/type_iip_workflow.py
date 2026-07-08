@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -32,7 +35,15 @@ from tardis.transport.montecarlo.modes.iip.solver import (
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
+from tardis.workflows.iip_workflow_checkpoints import (
+    base_checkpoint_path,
+    resume_from_checkpoint,
+    save_checkpoint,
+)
 from tardis.workflows.workflow_logging import WorkflowLogging
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # logging support
 logger = logging.getLogger(__name__)
@@ -236,6 +247,7 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.consecutive_converges_count = 0
         self.converged = False
         self.completed_iterations = 0
+        self.checkpoint_path: str | Path | None = None
         self.luminosity_requested = (
             configuration.supernova.luminosity_requested.cgs
         )
@@ -252,6 +264,35 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.convergence_solvers["dilution_factor"] = ConvergenceSolver(
             self.convergence_strategy.w
         )
+
+    @classmethod
+    def restore_checkpoint(
+        cls,
+        configuration,
+        checkpoint_path: str | Path,
+        csvy: bool = False,
+    ) -> TypeIIPWorkflow:
+        """Create an IIP workflow and restore it from a checkpoint.
+
+        Parameters
+        ----------
+        configuration : Configuration
+            Configuration object used to initialize the workflow.
+        checkpoint_path : str or Path
+            Path to the HDF5 checkpoint file.
+        csvy : bool, optional
+            Set true if the configuration uses CSVY, by default False.
+
+        Returns
+        -------
+        TypeIIPWorkflow
+            Workflow restored to the checkpoint state and ready to resume with
+            :meth:`run`.
+        """
+        workflow = cls(configuration, csvy=csvy)
+        workflow.checkpoint_path = base_checkpoint_path(checkpoint_path)
+        resume_from_checkpoint(workflow, checkpoint_path)
+        return workflow
 
     @staticmethod
     def initialize_radiation_field(
@@ -955,6 +996,12 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.solve_continuum_state(normalized_continuum_estimators)
 
+            if getattr(self, "checkpoint_path", None) is not None:
+                save_checkpoint(
+                    self,
+                    normalized_continuum_estimators,
+                    estimated_values,
+                )
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
             if self.converged and self.convergence_strategy.stop_if_converged:
