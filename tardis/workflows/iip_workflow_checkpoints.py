@@ -74,7 +74,7 @@ def save_checkpoint(
     estimated_values : dict[str, object], optional
         Convergence estimates from the Monte Carlo iteration.
     """
-    checkpoint_base_path = getattr(workflow, "checkpoint_path", None)
+    checkpoint_base_path = workflow.configuration.checkpoints.path
     if checkpoint_base_path is None:
         return
 

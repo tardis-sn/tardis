@@ -34,7 +34,6 @@ from tardis.transport.montecarlo.modes.iip.solver import (
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
 from tardis.workflows.iip_workflow_checkpoints import (
-    base_checkpoint_path,
     resume_from_checkpoint,
     save_checkpoint,
 )
@@ -53,7 +52,7 @@ class TypeIIPWorkflow(WorkflowLogging):
     log_level = None
     specific_log_level = None
 
-    def __init__(self, configuration, csvy=False):
+    def __init__(self, configuration, csvy: bool = False):
         """A TARDIS workflow for simulating Type IIP supernovae.
 
         Parameters
@@ -245,7 +244,6 @@ class TypeIIPWorkflow(WorkflowLogging):
         self.consecutive_converges_count = 0
         self.converged = False
         self.completed_iterations = 0
-        self.checkpoint_path: str | Path | None = None
         self.luminosity_requested = (
             configuration.supernova.luminosity_requested.cgs
         )
@@ -288,7 +286,6 @@ class TypeIIPWorkflow(WorkflowLogging):
             :meth:`run`.
         """
         workflow = cls(configuration, csvy=csvy)
-        workflow.checkpoint_path = base_checkpoint_path(checkpoint_path)
         resume_from_checkpoint(workflow, checkpoint_path)
         return workflow
 
@@ -957,6 +954,16 @@ class TypeIIPWorkflow(WorkflowLogging):
         # probably needs to expand again in the future to handle formal integral
         self.spectrum_solver.transport_state = self.transport_state
 
+    def should_save_checkpoint(self) -> bool:
+        """Return whether the next completed iteration should be checkpointed."""
+        next_completed_iteration = self.completed_iterations + 1
+        checkpoint_path = self.configuration.checkpoints.path
+        checkpoint_interval = self.configuration.checkpoints.interval
+        return (
+            checkpoint_path is not None
+            and next_completed_iteration % checkpoint_interval == 0
+        )
+
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
         # Initialize iterations progress bar if showing progress bars
@@ -994,7 +1001,7 @@ class TypeIIPWorkflow(WorkflowLogging):
 
             self.solve_continuum_state(normalized_continuum_estimators)
 
-            if getattr(self, "checkpoint_path", None) is not None:
+            if self.should_save_checkpoint():
                 save_checkpoint(
                     self,
                     normalized_continuum_estimators,
