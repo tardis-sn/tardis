@@ -210,7 +210,9 @@ class NumbaRadial1DGeometry:
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.v_outer = v_outer
-        self.time_explosion = self.r_inner[0] / self.v_inner[0]
+        self.time_explosion = (
+            self.r_outer[0] / self.v_outer[0]
+        )  # avoids potential division by zero if v_inner is 0
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
 
     def get_velocity(self, r: float, shell_id: int) -> float:

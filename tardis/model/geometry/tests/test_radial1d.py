@@ -3,7 +3,10 @@ import numpy.testing as npt
 import pytest
 from astropy import units as u
 
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d import (
+    HomologousRadial1DGeometry,
+    NumbaRadial1DGeometry,
+)
 
 
 @pytest.fixture(scope="function")
@@ -94,6 +97,24 @@ def test_numba_homologous_velocity(homologous_radial1d_geometry):
         numba_geometry.get_velocity(radius, 0),
         radius / expected_time_explosion,
     )
+
+
+def test_numba_homologous_velocity_at_origin():
+    time_explosion = 5.0
+    r_inner = np.array([0.0, 10.0])
+    r_outer = np.array([10.0, 20.0])
+    v_inner = r_inner / time_explosion
+    v_outer = r_outer / time_explosion
+
+    numba_geometry = NumbaRadial1DGeometry(
+        r_inner,
+        r_outer,
+        v_inner,
+        v_outer,
+    )
+
+    npt.assert_allclose(numba_geometry.time_explosion, time_explosion)
+    npt.assert_allclose(numba_geometry.get_velocity(15.0, 1), 3.0)
 
 
 def test_velocity_boundary(homologous_radial1d_geometry):
