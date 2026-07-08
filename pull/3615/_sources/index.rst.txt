@@ -112,7 +112,7 @@ Mission Statement
     reference/visualization_reference
     io/configuration/index
     io/hdf/index
-    contributing/CHANGELOG.md 
+    ../CHANGELOG.md 
     resources/research_done_using_TARDIS/research_papers
     resources/zreferences
     reference/external_links
@@ -122,7 +122,7 @@ Mission Statement
     :caption: Contributing to TARDIS
     :hidden:
 
-    contributing/index
+    new_developers/index
     current_developers/index
 
 .. toctree::
