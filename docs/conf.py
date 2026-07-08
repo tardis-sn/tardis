@@ -357,7 +357,6 @@ html_js_files = [
 # Only source files that convert to html like .rst, .ipynb, etc. are allowed
 
 redirects = [
-    ("using/gui/index.rst", "using/visualization/index.rst"),
 ]
 
 
