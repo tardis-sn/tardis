@@ -73,6 +73,7 @@ exclude_patterns.append("_build")
 exclude_patterns.append("**_template.rst")
 exclude_patterns.append("**.ipynb_checkpoints")
 exclude_patterns.append("resources/research_done_using_TARDIS/ads.ipynb")
+exclude_patterns.append("how_to/output/how_to_to_hdf.ipynb")
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
