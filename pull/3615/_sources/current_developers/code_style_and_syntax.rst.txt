@@ -102,6 +102,7 @@ Use type hints for all function definitions in new or touched code. Type hints
 improve readability and maintainability, and they enable static type checking.
 
 .. code-block:: python
+    
     from tardis.opacities.opacity_state_numba import (
         OpacityStateNumba,
     )
