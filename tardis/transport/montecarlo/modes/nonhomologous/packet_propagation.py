@@ -53,7 +53,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 @njit
 def packet_propagation(
     r_packet: RPacket,
-    numba_radial_1d_geometry: NumbaNonhomologousRadial1DGeometry,
+    geometry: NumbaNonhomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
@@ -72,7 +72,7 @@ def packet_propagation(
     ----------
     r_packet : RPacket
         The radiative packet to transport through the ejecta.
-    numba_radial_1d_geometry : NumbaNonhomologousRadial1DGeometry
+    geometry : NumbaNonhomologousRadial1DGeometry
         The spherically symmetric geometry of the supernova ejecta.
     time_explosion : float
         Time since explosion in seconds. Accepted for interface parity with
@@ -100,11 +100,11 @@ def packet_propagation(
 
     if montecarlo_configuration.ENABLE_FULL_RELATIVITY:
         raise NotImplementedError("Full relativity not supported for non-homology.")
-    set_packet_props_partial_relativity(r_packet, numba_radial_1d_geometry)
+    set_packet_props_partial_relativity(r_packet, geometry)
     # Manually perform the function of r_packet.initialize_line_id for now until
     # nonhomology is supported
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
-    v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
+    v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
     doppler_factor = get_doppler_factor(
         v,
         r_packet.mu,
@@ -122,7 +122,7 @@ def packet_propagation(
     trace_vpacket_volley(
         r_packet,
         vpacket_collection,
-        numba_radial_1d_geometry,
+        geometry,
         opacity_state,
         montecarlo_configuration.ENABLE_FULL_RELATIVITY,
         montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -136,7 +136,7 @@ def packet_propagation(
     # this part of the code is temporary and will be better incorporated
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute electron scattering opacity
-        v = numba_radial_1d_geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
+        v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
         doppler_factor = get_doppler_factor(
             v,
             r_packet.mu,
@@ -153,7 +153,7 @@ def packet_propagation(
 
         distance, interaction_type, delta_shell = trace_packet(
             r_packet,
-            numba_radial_1d_geometry,
+            geometry,
             opacity_state,
             estimators_line,
             opacity_electron,
@@ -165,7 +165,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_radial_1d_geometry,
+                geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
@@ -178,14 +178,14 @@ def packet_propagation(
             move_packet_across_shell_boundary(
                 r_packet,
                 delta_shell,
-                len(numba_radial_1d_geometry.r_inner),
+                len(geometry.r_inner),
             )
 
         elif interaction_type == InteractionType.LINE:
             move_r_packet(
                 r_packet,
                 distance,
-                numba_radial_1d_geometry,
+                geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
@@ -194,7 +194,7 @@ def packet_propagation(
 
             line_scatter_event(
                 r_packet,
-                numba_radial_1d_geometry,
+                geometry,
                 line_interaction_type,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
@@ -203,7 +203,7 @@ def packet_propagation(
             trace_vpacket_volley(
                 r_packet,
                 vpacket_collection,
-                numba_radial_1d_geometry,
+                geometry,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,
@@ -214,14 +214,14 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_radial_1d_geometry,
+                geometry,
                 estimators_bulk,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_escattering_interaction_before(r_packet)
             thomson_scatter(
                 r_packet,
-                numba_radial_1d_geometry,
+                geometry,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
             )
             rpacket_tracker.track_escattering_interaction_after(r_packet)
@@ -229,7 +229,7 @@ def packet_propagation(
             trace_vpacket_volley(
                 r_packet,
                 vpacket_collection,
-                numba_radial_1d_geometry,
+                geometry,
                 opacity_state,
                 montecarlo_configuration.ENABLE_FULL_RELATIVITY,
                 montecarlo_configuration.VPACKET_TAU_RUSSIAN,

@@ -52,7 +52,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 @njit
 def packet_propagation(
     r_packet: RPacket,
-    numba_radial_1d_geometry: NumbaRadial1DGeometry,
+    geometry: NumbaRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumbaIIP,
     estimators_bulk: EstimatorsBulk,
@@ -73,7 +73,7 @@ def packet_propagation(
     ----------
     r_packet
         The radiative packet to transport through the ejecta.
-    numba_radial_1d_geometry
+    geometry
         The spherically symmetric geometry of the supernova ejecta.
     time_explosion
         Time since explosion in seconds.
@@ -114,9 +114,7 @@ def packet_propagation(
     while r_packet.status == PacketStatus.IN_PROCESS:
         # Compute continuum quantities
         # trace packet (takes opacities)
-        velocity = numba_radial_1d_geometry.get_velocity(
-            r_packet.r, r_packet.current_shell_id
-        )
+        velocity = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
         doppler_factor = get_doppler_factor(
             velocity,
             r_packet.mu,
@@ -144,7 +142,7 @@ def packet_propagation(
         chi_continuum *= doppler_factor
         distance, interaction_type, delta_shell = trace_packet(
             r_packet,
-            numba_radial_1d_geometry,
+            geometry,
             time_explosion,
             opacity_state,
             estimators_line,
@@ -172,7 +170,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_radial_1d_geometry,
+                geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -185,14 +183,14 @@ def packet_propagation(
             move_packet_across_shell_boundary(
                 r_packet,
                 delta_shell,
-                len(numba_radial_1d_geometry.r_inner),
+                len(geometry.r_inner),
             )
 
         elif interaction_type == InteractionType.LINE:
             move_r_packet(
                 r_packet,
                 distance,
-                numba_radial_1d_geometry,
+                geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -212,7 +210,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_radial_1d_geometry,
+                geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
@@ -229,7 +227,7 @@ def packet_propagation(
             move_r_packet(
                 r_packet,
                 distance,
-                numba_radial_1d_geometry,
+                geometry,
                 estimators_bulk,
                 enable_full_relativity=True,
             )
