@@ -14,7 +14,6 @@ workflows.
     design_philosophy
     documentation
     feature_workflow
-    features_with_git
     matterbridge
     testing_and_validation
     tools/index

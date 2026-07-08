@@ -11,4 +11,4 @@ workflows.
    issues_and_prs
    setting_up_as_a_new_developer
    code_style_and_syntax
-   collaboration_and_reproducibility
+   features_with_git

@@ -1,25 +1,7 @@
-.. _collaboration_and_reproducibility:
 
-Collaboration And Reproducibility
-=================================
-
-Guidance for issues, Git workflow, pull requests, CI, releases, and collaboration infrastructure.
-
-.. _continuous-integration:
-
-
-.. _developer-workflow:
-
-
-.. _external-links:
 
 External Links
 --------------
-
-.. _reference-external-link-reference:
-
-Reference: External Link Reference
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Project links:
 
@@ -74,10 +56,6 @@ Tool links:
 - ASV installation:
   https://asv.readthedocs.io/en/latest/installing.html#installing-airspeed-velocity
 
-.. raw:: html
-
-   <span style="color:red">Deleted: removed several older general-purpose Git learning links from this draft to keep the reference focused on links directly used by the developer workflow.</span>
-
 
 TARDIS data and CI links:
 
@@ -96,6 +74,3 @@ TARDIS data and CI links:
 - Push event:
   https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
 - Carsus: https://tardis-sn.github.io/carsus/
-
-
-.. _git-workflow:
