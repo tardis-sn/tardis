@@ -204,7 +204,7 @@ class TestCustomAbundanceWidget:
         expected : list
         """
         if multishell_edit:
-            caw.rbs_multi_apply.index = 0
+            caw.rbs_shell_edit_mode.value = ["A range of shells: "]
             for i, item in enumerate(caw.input_items):
                 item.value = inputs[i]
                 caw.checks[i].value = locks[i]
