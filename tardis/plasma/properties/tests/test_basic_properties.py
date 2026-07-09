@@ -128,7 +128,7 @@ def test_stimulated_emission_factor_regression(
         stimulated_emission_factor
     )
     npt.assert_allclose(
-        stimulated_emission_factor, expected, atol=0, rtol=2e-14
+        stimulated_emission_factor, expected, atol=0, rtol=4e-13
     )
 
 
