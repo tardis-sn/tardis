@@ -11,7 +11,9 @@ from tardis.io.configuration.config_reader import (
 from tardis.io.model.parse_geometry_configuration import (
     parse_structure_from_config,
 )
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NonhomologousRadial1DGeometry,
+)
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.radiation_field.validate_radiation_field import (
     validate_radiative_temperature,
@@ -23,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def parse_radiation_field_state_from_config(
     config: Configuration,
-    geometry: HomologousRadial1DGeometry,
+    geometry: NonhomologousRadial1DGeometry,
     dilution_factor: np.ndarray | None = None,
     packet_source: BasePacketSource | None = None,
 ) -> DilutePlanckianRadiationField:
@@ -83,7 +85,7 @@ def parse_radiation_field_state_from_csvy(
     config: Configuration,
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
-    geometry: HomologousRadial1DGeometry,
+    geometry: NonhomologousRadial1DGeometry,
     packet_source: BasePacketSource,
 ) -> DilutePlanckianRadiationField:
     """Parses the radiation field state for CSVY model inputs.
@@ -142,7 +144,7 @@ def parse_radiation_field_state_from_csvy(
 
 
 def calculate_t_radiative_from_t_inner(
-    geometry: HomologousRadial1DGeometry,
+    geometry: NonhomologousRadial1DGeometry,
     packet_source: BasePacketSource,
 ) -> u.Quantity:
     """Calculates the radiative temperature based on the inner temperature
@@ -169,7 +171,7 @@ def calculate_t_radiative_from_t_inner(
 
 
 def calculate_geometric_dilution_factor(
-    geometry: HomologousRadial1DGeometry,
+    geometry: NonhomologousRadial1DGeometry,
 ) -> np.ndarray:
     """Calculates the geometric dilution factor w for models without a defined w.
 

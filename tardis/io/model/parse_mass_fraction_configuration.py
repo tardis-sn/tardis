@@ -11,7 +11,9 @@ from tardis.io.configuration.config_reader import (
 from tardis.io.model.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.base import read_mass_fractions_file
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NonhomologousRadial1DGeometry,
+)
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
 
@@ -20,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 def parse_mass_fractions_from_config(
     config: Configuration,
-    geometry: HomologousRadial1DGeometry,
+    geometry: NonhomologousRadial1DGeometry,
     time_explosion: u.Quantity,
 ) -> pd.DataFrame:
     """Parse the mass fraction configuration data.
@@ -112,7 +114,7 @@ def parse_mass_fractions_from_config(
 def parse_mass_fractions_from_csvy(
     csvy_model_config: Configuration,
     csvy_model_data: pd.DataFrame | None,
-    geometry: HomologousRadial1DGeometry,
+    geometry: NonhomologousRadial1DGeometry,
     time_explosion: u.Quantity,
 ) -> pd.DataFrame:
     """Parse the mass fraction data from a CSVY model.

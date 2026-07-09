@@ -21,7 +21,9 @@ from tardis.transport.montecarlo.packets.radiative_packet import (
 )
 
 if TYPE_CHECKING:
-    from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+    from tardis.model.geometry.radial1d_nonhomologous import (
+        NumbaNonhomologousRadial1DGeometry,
+    )
     from tardis.transport.montecarlo.estimators.estimators_line import (
         EstimatorsLine,
     )
@@ -31,7 +33,7 @@ if TYPE_CHECKING:
 @njit(**njit_dict_no_parallel)
 def trace_packet(
     r_packet: RPacket,
-    numba_radial_1d_geometry: NumbaRadial1DGeometry,
+    numba_radial_1d_geometry: NumbaNonhomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state,
     estimators_line: EstimatorsLine,
@@ -48,7 +50,7 @@ def trace_packet(
     ----------
     r_packet : RPacket
         Radiative packet being transported.
-    numba_radial_1d_geometry : NumbaRadial1DGeometry
+    numba_radial_1d_geometry : NumbaNonhomologousRadial1DGeometry
         Radial 1D geometry of the model.
     time_explosion : float
         Time since explosion in seconds.

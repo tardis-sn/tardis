@@ -37,7 +37,7 @@ class CSVYData:
 
     def to_geometry(self, time_explosion: u.Quantity | None = None):
         """
-        Construct a HomologousRadial1DGeometry object from this CSVYData.
+        Construct a NonhomologousRadial1DGeometry object from this CSVYData.
 
         Parameters
         ----------
@@ -46,10 +46,12 @@ class CSVYData:
 
         Returns
         -------
-        HomologousRadial1DGeometry
+        NonhomologousRadial1DGeometry
             The geometry object constructed from the CSVY data.
         """
-        from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+        from tardis.model.geometry.radial1d_nonhomologous import (
+            NonhomologousRadial1DGeometry,
+        )
 
         if time_explosion is None:
             # Try to extract time_explosion from model_config
@@ -58,11 +60,16 @@ class CSVYData:
                 if not isinstance(time_explosion, u.Quantity):
                     time_explosion = u.Quantity(time_explosion)
 
-        geometry = HomologousRadial1DGeometry(
+        v_inner = self.velocity[:-1]
+        v_outer = self.velocity[1:]
+        geometry = NonhomologousRadial1DGeometry(
+            r_inner=(v_inner * time_explosion).cgs,
+            r_outer=(v_outer * time_explosion).cgs,
             v_inner=self.velocity[:-1],
             v_outer=self.velocity[1:],
+            r_inner_boundary=None,
+            r_outer_boundary=None,
             v_inner_boundary=None,
             v_outer_boundary=None,
-            time_explosion=time_explosion,
         )
         return geometry
