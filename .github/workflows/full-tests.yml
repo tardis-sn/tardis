@@ -69,3 +69,8 @@ jobs:
 
       - name: Run tests
         run: pytest tardis ${{ env.PYTEST_FLAGS }}
+      
+      - name: Run JIT-disabled tests
+        env:
+          NUMBA_DISABLE_JIT: "1"
+        run: pytest tardis/transport/montecarlo/tests/test_single_packet_loop.py tardis/energy_input/transport/tests/test_gamma_transport.py -k numba_disabled ${{ env.PYTEST_FLAGS }}

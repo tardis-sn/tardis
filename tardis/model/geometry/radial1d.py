@@ -187,6 +187,7 @@ numba_geometry_spec = [
     ("r_outer", float64[:]),
     ("v_inner", float64[:]),
     ("v_outer", float64[:]),
+    ("time_explosion", float64),
     ("volume", float64[:]),
 ]
 
@@ -209,4 +210,26 @@ class NumbaRadial1DGeometry:
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.v_outer = v_outer
+        self.time_explosion = (
+            self.r_outer[0] / self.v_outer[0]
+        )  # avoids potential division by zero if v_inner is 0
         self.volume = (4 / 3) * np.pi * (self.r_outer**3 - self.r_inner**3)
+
+    def get_velocity(self, r: float, shell_id: int) -> float:
+        """
+        Calculate homologous velocity at a radius.
+
+        Parameters
+        ----------
+        r : float
+            Radius at which to calculate the velocity [cm].
+        shell_id : int
+            Shell index. Included for interface parity with non-homologous
+            geometry; not used for homologous expansion.
+
+        Returns
+        -------
+        float
+            Homologous velocity at radius r [cm / s].
+        """
+        return r / self.time_explosion

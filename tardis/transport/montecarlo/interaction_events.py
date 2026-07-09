@@ -75,8 +75,9 @@ def bound_free_emission(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     continuum_id : int
     """
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
 
     comov_nu = sample_nu_free_bound(
@@ -164,8 +165,9 @@ def free_free_emission(
     time_explosion : float
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
     comov_nu = sample_nu_free_free(opacity_state, r_packet.current_shell_id)
     r_packet.nu = comov_nu * inverse_doppler_factor
@@ -193,14 +195,15 @@ def thomson_scatter(r_packet, time_explosion, enable_full_relativity):
     time_explosion : float
         time since explosion in seconds
     """
+    velocity = r_packet.r / time_explosion
     old_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
     inverse_new_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
 
     r_packet.nu = comov_nu * inverse_new_doppler_factor
@@ -210,7 +213,7 @@ def thomson_scatter(r_packet, time_explosion, enable_full_relativity):
             r_packet, time_explosion, r_packet.mu
         )
     temp_doppler_factor = get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
 
 
@@ -240,8 +243,9 @@ def line_emission(
     """
     if emission_line_id != r_packet.next_line_id:
         pass
+    velocity = r_packet.r / time_explosion
     inverse_doppler_factor = get_inverse_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion, enable_full_relativity
+        velocity, r_packet.mu, enable_full_relativity
     )
     r_packet.nu = (
         opacity_state.line_list_nu[emission_line_id] * inverse_doppler_factor

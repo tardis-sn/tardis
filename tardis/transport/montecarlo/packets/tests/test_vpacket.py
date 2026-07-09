@@ -27,8 +27,9 @@ def v_packet():
 
 def v_packet_initialize_line_id(v_packet, opacity_state, time_explosion):
     inverse_line_list_nu = opacity_state.line_list_nu[::-1]
+    velocity = v_packet.r / time_explosion
     doppler_factor = get_doppler_factor(
-        v_packet.r, v_packet.mu, time_explosion, False
+        velocity, v_packet.mu, False
     )
     comov_nu = v_packet.nu * doppler_factor
     next_line_id = len(opacity_state.line_list_nu) - np.searchsorted(
