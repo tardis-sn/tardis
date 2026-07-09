@@ -751,7 +751,7 @@ class NLTEIonNumberDensity(ProcessingPlasmaProperty):
         ion_guess = []
         for name, group in number_density_neutral[shell].groupby(level=[0]):
             count = len(group)
-            total_density = group[0]
+            total_density = group.iloc[0]
             ion_guess.append(np.ones(count) * total_density / count)
         ion_guess = np.hstack(ion_guess)
         ion_number = number_density_neutral.index.get_level_values(1).values
