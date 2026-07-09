@@ -33,7 +33,7 @@ gxpacket_spec = [
     ("status", int64),
     ("shell", int64),
     ("time_start", float64),
-    ("time_index", int64),
+    ("time_idx", int64),
     ("tau", float64),
 ]
 
@@ -55,7 +55,7 @@ class GXPacket:
         status,
         shell,
         time_start,
-        time_index,
+        time_idx,
     ):
         self.location = location
         self.direction = direction
@@ -66,7 +66,7 @@ class GXPacket:
         self.status = status
         self.shell = shell
         self.time_start = time_start
-        self.time_idx = time_index
+        self.time_idx = time_idx
         # TODO: rename to tau_event
         self.tau = -np.log(np.random.random())
 

@@ -284,7 +284,7 @@ def run_gamma_ray_loop(
         number_of_packets,
     )
     for i, p in enumerate(packets):
-        total_energy[p.shell, p.time_index] += (
+        total_energy[p.shell, p.time_idx] += (
             isotope_positron_fraction[i] * energy_per_packet
         )
 

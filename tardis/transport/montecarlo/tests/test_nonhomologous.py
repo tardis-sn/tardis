@@ -342,7 +342,7 @@ def test_nonhomologous_opacity_solver(
             legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
         )
         pdt.assert_series_equal(
-            macro_atom_state.macro_block_references,
+            macro_atom_state.macro_block_edge_index,
             legacy_plasma.atomic_data.macro_atom_references["block_references"],
         )
         pdt.assert_series_equal(

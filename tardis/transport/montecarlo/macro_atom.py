@@ -70,8 +70,8 @@ def macro_atom_interaction(
         probability = 0.0
         probability_event = np.random.random()
 
-        block_start = opacity_state.macro_block_references[activation_level_id]
-        block_end = opacity_state.macro_block_references[
+        block_start = opacity_state.macro_block_edge_index[activation_level_id]
+        block_end = opacity_state.macro_block_edge_index[
             activation_level_id + 1
         ]
 

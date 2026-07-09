@@ -42,7 +42,7 @@ class OpacityStateNumbaIIP:
         tau_sobolev: np.ndarray,
         transition_probabilities: np.ndarray,
         line2macro_level_upper: np.ndarray,
-        macro_block_references: np.ndarray,
+        macro_block_edge_index: np.ndarray,
         transition_type: np.ndarray,
         destination_level_id: np.ndarray,
         transition_line_id: np.ndarray,
@@ -77,7 +77,7 @@ class OpacityStateNumbaIIP:
             Probabilities for macro atom transitions.
         line2macro_level_upper
             Mapping from line indices to macro atom upper levels.
-        macro_block_references
+        macro_block_edge_index
             Block references for macro atom data.
         transition_type
             Type identifiers for transitions.
@@ -124,7 +124,7 @@ class OpacityStateNumbaIIP:
         self.transition_probabilities = transition_probabilities
         self.line2macro_level_upper = line2macro_level_upper
 
-        self.macro_block_edge_index = macro_block_references
+        self.macro_block_edge_index = macro_block_edge_index
         self.transition_type = transition_type
 
         # Destination level is not needed and/or generated for downbranch
