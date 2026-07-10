@@ -208,7 +208,7 @@ In the developer workflow, the TARDIS ``master`` branch is the trunk.
 
    .. code-block:: shell
 
-      git fetch upstream
+      git fetch upstream master
 
 
 3. Start from the current upstream trunk:
@@ -253,7 +253,7 @@ How-To Guide: Use the Editing Workflow
 
    .. code-block:: shell
 
-      pytest tardis
+      pytest tardis --tardis-regression-data=/path/to/tardis-regression-data
 
 
 3. If Sphinx is installed, check the documentation build:

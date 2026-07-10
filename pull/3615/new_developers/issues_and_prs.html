@@ -15,7 +15,7 @@
     </script>
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Issues &mdash; tardis</title>
+  <title>Reporting Problems with TARDIS &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9b890d3e"></script>
+      <script src="../_static/documentation_options.js?v=0798e7e1"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4704,7 +4704,7 @@
 <li class="toctree-l3"><a class="reference internal" href="CONTRIBUTING.html#what-if-i-need-help">What if I need help?</a></li>
 </ul>
 </li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Issues</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Reporting Problems with TARDIS</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-guide-report-issues">How-To Guide: Report Issues</a></li>
 </ul>
 </li>
@@ -4926,7 +4926,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="index.html">For New Developers</a></li>
-      <li class="breadcrumb-item active">Issues</li>
+      <li class="breadcrumb-item active">Reporting Problems with TARDIS</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/new_developers/issues_and_prs.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -4936,8 +4936,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="issues">
-<h1>Issues<a class="headerlink" href="#issues" title="Link to this heading"></a></h1>
+  <section id="reporting-problems-with-tardis">
+<h1>Reporting Problems with TARDIS<a class="headerlink" href="#reporting-problems-with-tardis" title="Link to this heading"></a></h1>
 <section id="how-to-guide-report-issues">
 <span id="id1"></span><h2>How-To Guide: Report Issues<a class="headerlink" href="#how-to-guide-report-issues" title="Link to this heading"></a></h2>
 <p>TARDIS is under constant development, so bugs, inconsistencies, and missing
@@ -4959,25 +4959,14 @@ the development workflow.</p>
 <li><p>Enter a title and an explanation of what you have done.</p></li>
 <li><p>Include anything that needs particular attention, such as a complicated
 change or code you are unsure about.</p></li>
-<li><p>If the request is not ready to merge, say so in the pull request message.
+<li><p>If the request is not ready to merge, say so in the pull request message
+and set the pull request to Draft using the drop-down menu.
 Opening an unfinished pull request can still be a good way to start a
 preliminary code review.</p></li>
 <li><p>Build documentation for the pull request using the documentation preview
 process so reviewers can see how notebooks, docstrings, and API docs render.</p></li>
 </ol>
 <p>Example pull request description:</p>
-<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>Summary
-<span class="k">-</span><span class="w"> </span>Update density parsing validation.
-<span class="k">-</span><span class="w"> </span>Add a regression or unit test for the new behavior.
-
-Checks
-<span class="k">-</span><span class="w"> </span>pytest tardis/io/model/readers/tests
-<span class="k">-</span><span class="w"> </span>ruff check tardis/io/model
-
-Notes for reviewers
-<span class="k">-</span><span class="w"> </span>Please check whether the error message is clear for invalid density types.
-</pre></div>
-</div>
 </section>
 <section id="how-to-guide-review-pull-requests">
 <span id="id3"></span><h2>How-To Guide: Review Pull Requests<a class="headerlink" href="#how-to-guide-review-pull-requests" title="Link to this heading"></a></h2>
@@ -5011,36 +5000,21 @@ pull request.</p>
 <section id="how-to-guide-update-a-pull-request">
 <span id="id4"></span><h2>How-To Guide: Update a Pull Request<a class="headerlink" href="#how-to-guide-update-a-pull-request" title="Link to this heading"></a></h2>
 <p>Pull requests often remain open while feedback is added and other pull requests
-are merged. If changes on trunk affect your work, rebase your feature branch on
-top of the current trunk.</p>
+are merged. If changes on trunk affect your work, merge the trunk into your feature branch.</p>
 <p>Fetch trunk and switch to your branch:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>fetch<span class="w"> </span>upstream
 git<span class="w"> </span>checkout<span class="w"> </span>cool-feature
 </pre></div>
 </div>
-<p>Create a temporary backup branch:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>branch<span class="w"> </span>tmp<span class="w"> </span>cool-feature
+<p>Merge upstream trunk into your feature branch:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>merge<span class="w"> </span>upstream/master
 </pre></div>
 </div>
-<p>Rebase onto upstream trunk:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>rebase<span class="w"> </span>--onto<span class="w"> </span>upstream/master<span class="w"> </span>upstream/master<span class="w"> </span>cool-feature
+<p>Resolve any merge conflicts and commit the changes.</p>
+<p>If the feature branch is already on GitHub, push after merging:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>cool-feature
 </pre></div>
 </div>
-<p>If you are already on <code class="docutils literal notranslate"><span class="pre">cool-feature</span></code>, the command can be shortened:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>rebase<span class="w"> </span>upstream/master
-</pre></div>
-</div>
-<p>When everything looks good, delete the backup branch:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>branch<span class="w"> </span>-D<span class="w"> </span>tmp
-</pre></div>
-</div>
-<p>If the feature branch is already on GitHub, force push after rebasing:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>push<span class="w"> </span>-f<span class="w"> </span>origin<span class="w"> </span>cool-feature
-</pre></div>
-</div>
-<p>Force pushing overwrites the branch on GitHub and can lose commits if used
-incorrectly. Never force push to the main TARDIS repository, typically called
-<code class="docutils literal notranslate"><span class="pre">upstream</span></code>, because that rewrites shared history.</p>
 </section>
 </section>
 
@@ -5056,7 +5030,7 @@ incorrectly. Never force push to the main TARDIS repository, typically called
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Jul 2026.
+      <span class="lastupdated">Last updated on 10 Jul 2026.
       </span></p>
   </div>
 
