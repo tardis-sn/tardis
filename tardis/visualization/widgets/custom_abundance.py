@@ -807,7 +807,7 @@ class CustomAbundanceWidget:
             # New shell will overwrite the original shell that ends at v_end.
             v_vals = np.delete(v_vals, end_index)
             self.data.abundance = self.data.abundance.drop(
-                max(0, end_index - 1), 1
+                max(0, end_index - 1), axis=1
             )
 
         # Insert new velocities calculate new densities according
@@ -830,7 +830,7 @@ class CustomAbundanceWidget:
             self.data.abundance.insert(start_index, "", new_shell_abundances)
             self.data.abundance = self.data.abundance.drop(
                 self.data.abundance.iloc[:, start_index : end_index - 1],
-                1,
+                axis=1,
             )
         else:
             if start_index == 0:
