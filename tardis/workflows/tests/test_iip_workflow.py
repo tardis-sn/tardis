@@ -719,7 +719,7 @@ def test_iip_plasma_after_mc(
             regression_data,
             f"after_mc_{attr}",
             getattr(iip_plasma_after_mc, attr),
-            rtol=3e-9 # Mac numerical divergence
+            rtol=5e-9 # Mac numerical divergence
         )
 
 
@@ -883,7 +883,7 @@ def test_thermal_balance_solver(
             regression_data,
             f"after_thermal_balance_{attr}",
             getattr(type_iip_workflow.plasma_solver, attr),
-            rtol=4e-12
+            rtol=5e-12 # Mac numerical divergence
         )
 
     final_guess, max_electron_number_density = thermal_balance_guess(
