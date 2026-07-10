@@ -54,18 +54,12 @@ def cumulative_integrate_array_by_blocks(f, x, block_references):
     """
     n_rows = len(block_references) - 1
     integrated = np.zeros_like(f)
-    for i in prange(f.shape[1]):
-        for j in range(n_rows):
+    for i in prange(f.shape[1]):  # columns
+        # TODO: Avoid this loop through vectorization of cumulative_trapezoid
+        for j in prange(n_rows):  # rows
             start = block_references[j]
             stop = block_references[j + 1]
-            if stop - start <= 1:
-                continue
-            cumulative_integral = 0.0
-            for k in range(start + 1, stop):
-                cumulative_integral += (
-                    (x[k] - x[k - 1]) * (f[k, i] + f[k - 1, i]) / 2.0
-                )
-                integrated[k, i] = cumulative_integral
-            for k in range(start + 1, stop):
-                integrated[k, i] /= cumulative_integral
+            integrated[start + 1 : stop, i] = numba_cumulative_trapezoid(
+                f[start:stop, i], x[start:stop]
+            )
     return integrated
