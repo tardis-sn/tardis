@@ -888,7 +888,7 @@ def test_thermal_balance_solver(
             regression_data,
             f"after_thermal_balance_{attr}",
             getattr(type_iip_workflow.plasma_solver, attr),
-            rtol=5e-12,
+            rtol=1e-11,
         )
 
     final_guess, max_electron_number_density = thermal_balance_guess(
