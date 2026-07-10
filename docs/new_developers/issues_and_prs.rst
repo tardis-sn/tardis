@@ -1,5 +1,5 @@
-Issues
-------
+Reporting Problems with TARDIS
+------------------------------
 
 .. _how-to-guide-report-issues:
 
@@ -33,7 +33,8 @@ When you are ready for review or merge consideration:
 4. Enter a title and an explanation of what you have done.
 5. Include anything that needs particular attention, such as a complicated
    change or code you are unsure about.
-6. If the request is not ready to merge, say so in the pull request message.
+6. If the request is not ready to merge, say so in the pull request message 
+   and set the pull request to Draft using the drop-down menu.
    Opening an unfinished pull request can still be a good way to start a
    preliminary code review.
 7. Build documentation for the pull request using the documentation preview
@@ -42,17 +43,36 @@ When you are ready for review or merge consideration:
 Example pull request description:
 
 .. code-block:: markdown
+   ### :pencil: Description
 
-   Summary
-   - Update density parsing validation.
-   - Add a regression or unit test for the new behavior.
+   **Type:** :beetle: `bugfix` 
 
-   Checks
-   - pytest tardis/io/model/readers/tests
-   - ruff check tardis/io/model
+   The NLTE mask calculation for stimulated emission factor uses a lambda function acting on rows of a dataframe. This is extremely slow. Instead here is a vectorized version.
 
-   Notes for reviewers
-   - Please check whether the error message is clear for invalid density types.
+   Also includes various other performance improvements across the IIP plasma and the macroatom. Needs regression data.
+
+   ### :pushpin: Resources
+
+   [nlte_line_mask_benchmark.pdf](https://github.com/user-attachments/files/29320046/nlte_line_mask_benchmark.pdf)
+
+   https://github.com/tardis-sn/tardis-regression-data/pull/103
+
+   ### :vertical_traffic_light: Testing
+
+   How did you test these changes?
+
+   - [x] Testing pipeline
+   - [ ] Other method (describe)
+   - [ ] My changes can't be tested (explain why)
+
+
+   ### :ballot_box_with_check: Checklist
+
+   - [x] I requested two reviewers for this pull request
+   - [ ] I updated the documentation according to my changes
+   - [ ] I built the documentation by applying the `build_docs` label
+
+   > **Note:** If you are not allowed to perform any of these actions, ping (@) a contributor.
 
 
 .. _how-to-guide-review-pull-requests:
@@ -108,8 +128,7 @@ How-To Guide: Update a Pull Request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pull requests often remain open while feedback is added and other pull requests
-are merged. If changes on trunk affect your work, rebase your feature branch on
-top of the current trunk.
+are merged. If changes on trunk affect your work, merge the trunk into your feature branch.
 
 Fetch trunk and switch to your branch:
 
@@ -119,42 +138,20 @@ Fetch trunk and switch to your branch:
    git checkout cool-feature
 
 
-Create a temporary backup branch:
+Merge upstream trunk into your feature branch:
 
 .. code-block:: shell
 
-   git branch tmp cool-feature
+   git merge upstream/master
+
+Resolve any merge conflicts and commit the changes.
 
 
-Rebase onto upstream trunk:
-
-.. code-block:: shell
-
-   git rebase --onto upstream/master upstream/master cool-feature
-
-
-If you are already on ``cool-feature``, the command can be shortened:
+If the feature branch is already on GitHub, push after merging:
 
 .. code-block:: shell
 
-   git rebase upstream/master
+   git push origin cool-feature
 
 
-When everything looks good, delete the backup branch:
-
-.. code-block:: shell
-
-   git branch -D tmp
-
-
-If the feature branch is already on GitHub, force push after rebasing:
-
-.. code-block:: shell
-
-   git push -f origin cool-feature
-
-
-Force pushing overwrites the branch on GitHub and can lose commits if used
-incorrectly. Never force push to the main TARDIS repository, typically called
-``upstream``, because that rewrites shared history.
 

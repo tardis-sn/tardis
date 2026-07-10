@@ -79,10 +79,6 @@ Important repositories and services:
 How-To Guide: Set Up Matterbridge
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. raw:: html
-
-   <span style="color:red">Deleted: removed repeated Matterbridge overview because the explanation above already defines the service.</span>
-
 
 1. SSH to the OpenSupernova.org server.
 2. Download the Matterbridge binary for Linux from the releases section.

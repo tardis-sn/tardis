@@ -23,10 +23,6 @@ Benchmark files live in the ``benchmarks/`` directory. Results are stored under
 Reference: Benchmark Command Reference
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. raw:: html
-
-   <span style="color:red">Deleted: condensed repeated ASV setup commands because the benchmark how-to already gives the full sequence.</span>
-
 
 Common ASV commands:
 

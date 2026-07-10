@@ -24,10 +24,6 @@ How-To Guide: Configure a GitHub Actions Workflow
 
 To create a workflow, add a YAML file under ``.github/workflows``.
 
-.. raw:: html
-
-   <span style="color:red">Deleted: removed repeated GitHub Actions overview sentence already covered in the explanation.</span>
-
 
 Use common TARDIS setup actions and settings:
 

@@ -223,10 +223,6 @@ Advanced tests require TARDIS regression data from:
 
 https://github.com/tardis-sn/tardis-regression-data
 
-.. raw:: html
-
-   <span style="color:red">Deleted: removed repeated migration and repository format explanation already covered in the regression-data explanation.</span>
-
 
 Clone the regression data outside the main ``tardis`` repository:
 
