@@ -228,9 +228,9 @@ class ShellInfoWidget(param.Parameterized):
     tables.
     """
 
-    shell_index = param.List(default=[], doc="Index of current selected row in shells table")
-    atomic_index = param.List(default=[], doc="Index of current selected row in element count table")
-    ion_index = param.List(default=[], doc="Index of current selected row in ion count table")
+    shell_idx = param.List(default=[], doc="Index of current selected row in shells table")
+    atomic_idx = param.List(default=[], doc="Index of current selected row in element count table")
+    ion_idx = param.List(default=[], doc="Index of current selected row in ion count table")
 
     @staticmethod
     def _create_table_widget(data):
@@ -300,48 +300,48 @@ class ShellInfoWidget(param.Parameterized):
         )
 
         # The indexes will update when user clicks on the rows of tables
-        self.shells_table.link(self, selection="shell_index")
-        self.element_count_table.link(self, selection="atomic_index")
-        self.ion_count_table.link(self, selection="ion_index")
+        self.shells_table.link(self, selection="shell_idx")
+        self.element_count_table.link(self, selection="atomic_idx")
+        self.ion_count_table.link(self, selection="ion_idx")
 
-        # Initialize selections to keep indices non-empty and trigger updates.
+        # Initialize tables.
         self.shells_table.selection = [0]
         self.element_count_table.selection = [0]
         self.ion_count_table.selection = [0]
 
-    @param.depends("shell_index", watch=True)
+    @param.depends("shell_idx", watch=True)
     def update_element_count_table(self):
         """Event listener to update the data in element count table widget based
         on interaction (row selected event) in shells table widget.
         """
         # Update element count table data based on selected shell number (shell_idx)
-        self.element_count_table.value = self.data.element_count(self.shell_index[0] + 1)
+        self.element_count_table.value = self.data.element_count(self.shell_idx[0] + 1)
 
         self.element_count_table.selection = [0]  # Reset ion_num selection when shell_idx changes
 
-    @param.depends("atomic_index", "shell_index", watch=True)
+    @param.depends("atomic_idx", "shell_idx", watch=True)
     def update_ion_count_table(self):
         """Event listener to update the data in ion count table widget based
         on interaction (row selected event) in element count table widget.
         """
         # Get the selected shell number and atomic number based on selected rows in shells table and element count table
-        shell_num = self.shell_index[0] + 1
-        atomic_num = self.element_count_table.value.index[self.atomic_index[0]]
+        shell_num = self.shell_idx[0] + 1
+        atomic_num = self.element_count_table.value.index[self.atomic_idx[0]]
 
         # Update ion count table data based on selected shell number and atomic number
         self.ion_count_table.value = self.data.ion_count(atomic_num, shell_num)
 
         self.ion_count_table.selection = [0]  # Reset ion count table selection when atomic_idx changes
 
-    @param.depends("ion_index", "atomic_index", "shell_index", watch=True)
+    @param.depends("ion_idx", "atomic_idx", "shell_idx", watch=True)
     def update_level_count_table(self):
         """Event listener to update the data in level count table widget based
         on interaction (row selected event) in ion count table widget.
         """
         # Get the selected shell number, atomic number and ion number based on selected rows in their tables
-        shell_num = self.shell_index[0] + 1
-        atomic_num = self.element_count_table.value.index[self.atomic_index[0]]
-        ion_num = self.ion_count_table.value.index[self.ion_index[0]]
+        shell_num = self.shell_idx[0] + 1
+        atomic_num = self.element_count_table.value.index[self.atomic_idx[0]]
+        ion_num = self.ion_count_table.value.index[self.ion_idx[0]]
 
         self.level_count_table.value = self.data.level_count(
             ion_num, atomic_num, shell_num
