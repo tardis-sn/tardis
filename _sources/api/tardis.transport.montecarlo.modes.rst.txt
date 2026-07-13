@@ -7,9 +7,16 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   tardis.transport.montecarlo.modes.classic
    tardis.transport.montecarlo.modes.iip
-   tardis.transport.montecarlo.modes.nonhomologous
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tardis.transport.montecarlo.modes.homologous_rad_packet_transport
+   tardis.transport.montecarlo.modes.montecarlo_transport
 
 Module contents
 ---------------

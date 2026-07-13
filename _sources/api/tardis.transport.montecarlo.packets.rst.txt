@@ -15,6 +15,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   tardis.transport.montecarlo.packets.movement
    tardis.transport.montecarlo.packets.packet_collections
    tardis.transport.montecarlo.packets.radiative_packet
    tardis.transport.montecarlo.packets.virtual_packet
