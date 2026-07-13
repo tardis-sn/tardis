@@ -60,7 +60,7 @@ surrounding line.
 
 .. _index_vs_idx:
 
-INDEX VS. IDX
+Index vs. IDX in TARDIS
 ~~~~~~~~~~~~~
 
 In the TARDIS codebase, we attempt to use index and idx as separate designations 

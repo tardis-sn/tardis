@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=1b1f1785"></script>
+      <script src="../_static/documentation_options.js?v=04e715a6"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4751,7 +4751,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#naming-conventions">Naming Conventions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#explanation-variable-and-function-names">Explanation: Variable and Function Names</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#index-vs-idx">INDEX VS. IDX</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#index-vs-idx-in-tardis">Index vs. IDX in TARDIS</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#type-hinting">Type Hinting</a><ul>
@@ -4977,8 +4977,8 @@ assign it to <code class="docutils literal notranslate"><span class="pre">veloci
 <code class="docutils literal notranslate"><span class="pre">idx</span></code>, unless the scope is very small and the meaning is obvious from the
 surrounding line.</p>
 </section>
-<section id="index-vs-idx">
-<span id="id5"></span><h3>INDEX VS. IDX<a class="headerlink" href="#index-vs-idx" title="Link to this heading"></a></h3>
+<section id="index-vs-idx-in-tardis">
+<span id="index-vs-idx"></span><h3>Index vs. IDX in TARDIS<a class="headerlink" href="#index-vs-idx-in-tardis" title="Link to this heading"></a></h3>
 <p>In the TARDIS codebase, we attempt to use index and idx as separate designations
 with different meanings. We use {var_name}_idx to specify that a variable refers to the
 integer position in some array-like object, with pythonic zero-indexed location
@@ -5024,7 +5024,7 @@ improve readability and maintainability, and they enable static type checking.</
 </pre></div>
 </div>
 <section id="reference-numpy-array-typing">
-<span id="id6"></span><h3>Reference: NumPy Array Typing<a class="headerlink" href="#reference-numpy-array-typing" title="Link to this heading"></a></h3>
+<span id="id5"></span><h3>Reference: NumPy Array Typing<a class="headerlink" href="#reference-numpy-array-typing" title="Link to this heading"></a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">numpy.typing.NDArray</span></code> for typed NumPy array annotations in new or touched
 code when the function accepts or returns concrete NumPy arrays. NumPy provides
 <code class="docutils literal notranslate"><span class="pre">numpy.typing.NDArray</span></code> as a runtime-available alias for annotating arrays with a
