@@ -28,7 +28,7 @@ __all__ = [
 ]
 
 
-@njit(njit_dict_no_fastmath)
+@njit(**njit_dict_no_fastmath)
 def _calculate_beta_sobolevs_from_selected_lines(
     level_density_values: np.ndarray,
     line_indices: np.ndarray,
