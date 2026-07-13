@@ -58,42 +58,40 @@ Avoid names that are too generic for review, such as ``data``, ``arr``, ``x``, o
 ``idx``, unless the scope is very small and the meaning is obvious from the
 surrounding line.
 
-In TARDIS, the ``_idx`` suffix should be used for
-integer positions in a loop, NumPy array, or packet collection. The
-indexed object should be named nearby. Use an ``_index`` suffix 
-when the value is used outside the scope: 
-a named schema field, a pandas/DataFrame index-like object, or a
-lookup location. If a variable stores the position of a named field, use the
-``_index`` suffix and include the concept being indexed:
+.. _index_vs_idx:
 
-.. code-block:: python
+INDEX VS. IDX
+~~~~~~~~~~~~~
 
-   velocity_field_index = [
-       field.name for field in csvy_model_config.datatype.fields
-   ].index("velocity")
+In the TARDIS codebase, we attempt to use index and idx as separate designations 
+with different meanings. We use {var_name}_idx to specify that a variable refers to the 
+integer position in some array-like object, with pythonic zero-indexed location 
+(i.e., any pandas object accessed via .iloc would be done so with an idx 
+variable). Alternatively, we use {var_name}_index as a variable that is explicitly not 
+an integer location, but is still used for lookup via a key to a dictionary-like 
+object (e.g., a pandas object accessed with .loc). 
 
-   density_field_index = [
-       field.name for field in csvy_model_config.datatype.fields
-   ].index("density")
-
+Consequently, an object named index in the tardis codebase will often store idx
+values. The dictionary-like is the index, and the values are idxs. 
 
 Good examples:
 
 .. code-block:: python
 
-   velocity_field_index = fields.index("velocity")
-   density_field_index = fields.index("density")
-   packet_idx = packet_indices[i]
+    block_start_idx = opacity_state.macro_block_edge_index[
+        absorbing_activation_level_idx
+    ]
+    block_end_idx = opacity_state.macro_block_edge_index[
+        absorbing_activation_level_idx + 1
+    ]
+    emission_transition_probability = 0.0
+    probability_emission_event = np.random.random()
 
-
-Poor examples:
-
-.. code-block:: python
-
-   idx = fields.index("density")
-   i = packet_indices[i]
-   data = parse_density_section_config(...)
-
+    for deactivation_channel_idx in range(block_start_idx, block_end_idx):
+        deactivation_probability = opacity_state.transition_probabilities[
+            deactivation_channel_idx, current_shell_id
+        ]
+        emission_transition_probability += deactivation_probability
 
 Type Hinting
 ------------
