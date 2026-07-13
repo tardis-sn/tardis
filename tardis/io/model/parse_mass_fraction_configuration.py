@@ -1,23 +1,17 @@
-from __future__ import annotations
-
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
 
+import astropy.units as u
 import numpy as np
 import pandas as pd
 
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.csvy import parse_csv_mass_fractions
 from tardis.io.model.readers.base import read_mass_fractions_file
 from tardis.io.model.readers.generic_readers import read_uniform_mass_fractions
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
-
-if TYPE_CHECKING:
-    import astropy.units as u
-
-    from tardis.io.configuration.config_reader import Configuration
-    from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,10 @@
-from __future__ import annotations
-
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import numpy as np
 
+from tardis.io.atom_data.base import AtomData
+from tardis.io.configuration.config_reader import Configuration
 from tardis.io.hdf_writer_mixin import HDFWriterMixin
 from tardis.io.model.csvy import load_csvy
 from tardis.io.model.parse_composition_configuration import (
@@ -24,10 +23,6 @@ from tardis.io.model.parse_radiation_field_configuration import (
     parse_radiation_field_state_from_csvy,
 )
 from tardis.util.base import is_valid_nuclide_or_elem
-
-if TYPE_CHECKING:
-    from tardis.io.atom_data.base import AtomData
-    from tardis.io.configuration.config_reader import Configuration
 
 logger = logging.getLogger(__name__)
 
