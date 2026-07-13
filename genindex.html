@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=fe9753de"></script>
+      <script src="_static/documentation_options.js?v=c813aa88"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4329,7 +4329,11 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.HDFShellInfo"><code class="docutils literal notranslate"><span class="pre">HDFShellInfo</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.atomic_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.display"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.display()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.ion_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.name"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.name</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.shell_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_element_count_table()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_ion_count_table()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_level_count_table()</span></code></a></li>
@@ -5018,14 +5022,14 @@
 </li>
       <li><a href="api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget.apply_to_multiple_shells">apply_to_multiple_shells() (tardis.visualization.widgets.custom_abundance.CustomAbundanceWidget method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.io.model.arepo.html#tardis.io.model.arepo.ArepoData">ArepoData (class in tardis.io.model.arepo)</a>
 
       <ul>
         <li><a href="api/tardis.io.model.arepo.data.html#tardis.io.model.arepo.data.ArepoData">(class in tardis.io.model.arepo.data)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.iip_plasma.properties.base.html#tardis.iip_plasma.properties.base.ArrayInput">ArrayInput (class in tardis.iip_plasma.properties.base)</a>
 
       <ul>
@@ -5055,6 +5059,8 @@
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomDataMissingError">AtomDataMissingError</a>
 </li>
       <li><a href="api/tardis.io.atom_data.base.html#tardis.io.atom_data.base.AtomDataNotPreparedError">AtomDataNotPreparedError</a>
+</li>
+      <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx">atomic_idx (tardis.visualization.widgets.shell_info.ShellInfoWidget attribute)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.atomic_name">atomic_name (tardis.visualization.widgets.grotrian.GrotrianPlot property)</a>
 </li>
@@ -7072,10 +7078,10 @@
 </li>
       <li><a href="api/tardis.energy_input.energy_source.html#tardis.energy_input.energy_source.intensity_ratio">intensity_ratio() (in module tardis.energy_input.energy_source)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.montecarlo.packets.trackers.tracker_full.html#tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull.interaction_type">interaction_type (tardis.transport.montecarlo.packets.trackers.tracker_full.TrackerFull attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/tardis.transport.montecarlo.packets.radiative_packet.html#tardis.transport.montecarlo.packets.radiative_packet.InteractionType">InteractionType (class in tardis.transport.montecarlo.packets.radiative_packet)</a>
 </li>
       <li><a href="api/tardis.transport.montecarlo.macro_atom.html#tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType.INTERNAL_DOWN">INTERNAL_DOWN (tardis.transport.montecarlo.macro_atom.MacroAtomTransitionType attribute)</a>
@@ -7103,6 +7109,8 @@
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.InverseProcess">InverseProcess (class in tardis.iip_plasma.continuum.base)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.BaseShellInfo.ion_count">ion_count() (tardis.visualization.widgets.shell_info.BaseShellInfo method)</a>
+</li>
+      <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx">ion_idx (tardis.visualization.widgets.shell_info.ShellInfoWidget attribute)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.ion_number">ion_number (tardis.visualization.widgets.grotrian.GrotrianPlot property)</a>
 </li>
@@ -8490,6 +8498,8 @@
 </li>
         <li><a href="api/tardis.plasma.properties.base.html#tardis.plasma.properties.base.BasePlasmaProperty.name">(tardis.plasma.properties.base.BasePlasmaProperty property)</a>
 </li>
+        <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.name">(tardis.visualization.widgets.shell_info.ShellInfoWidget attribute)</a>
+</li>
       </ul></li>
       <li><a href="api/tardis.iip_plasma.continuum.base.html#tardis.iip_plasma.continuum.base.InverseProcess.name_of_inverse_process">name_of_inverse_process (tardis.iip_plasma.continuum.base.InverseProcess attribute)</a>
 
@@ -9692,6 +9702,8 @@
       <li><a href="api/tardis.spectrum.base.html#tardis.spectrum.base.SpectrumSolver.setup_optional_spectra">setup_optional_spectra() (tardis.spectrum.base.SpectrumSolver method)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.grotrian.html#tardis.visualization.widgets.grotrian.GrotrianPlot.shell">shell (tardis.visualization.widgets.grotrian.GrotrianPlot property)</a>
+</li>
+      <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx">shell_idx (tardis.visualization.widgets.shell_info.ShellInfoWidget attribute)</a>
 </li>
       <li><a href="api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.shell_info_from_hdf">shell_info_from_hdf() (in module tardis.visualization.widgets.shell_info)</a>
 </li>

@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=fe9753de"></script>
+      <script src="../_static/documentation_options.js?v=c813aa88"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4332,7 +4332,11 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.HDFShellInfo"><code class="docutils literal notranslate"><span class="pre">HDFShellInfo</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.atomic_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.display"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.display()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.ion_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.name"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.name</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.shell_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_element_count_table()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_ion_count_table()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_level_count_table()</span></code></a></li>
@@ -5084,7 +5088,7 @@ default arguments)</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tardis.visualization.widgets.shell_info.</span></span><span class="sig-name descname"><span class="pre">ShellInfoWidget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shell_info_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Parameterized</span></code></p>
 <p>The Shell Info Widget to explore abundances in different shells.</p>
 <p>It consists of four interlinked table widgets - shells table; element count,
 ion count and level count tables - allowing to explore fractional abundances
@@ -5101,6 +5105,11 @@ file</p>
 </dl>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx">
+<span class="sig-name descname"><span class="pre">atomic_idx</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.display">
 <span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.display" title="Link to this definition"></a></dt>
@@ -5116,67 +5125,40 @@ together and allowing interaction between the table widgets</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx">
+<span class="sig-name descname"><span class="pre">ion_idx</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ShellInfoWidget'</span></em><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx">
+<span class="sig-name descname"><span class="pre">shell_idx</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table">
-<span class="sig-name descname"><span class="pre">update_element_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_element_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_element_count_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_element_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table" title="Link to this definition"></a></dt>
 <dd><p>Event listener to update the data in element count table widget based
 on interaction (row selected event) in shells table widget.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>event</strong><span class="classifier">dict</span></dt><dd><p>Dictionary that holds information about event (see Notes section)</p>
-</dd>
-<dt><strong>panel_widget</strong><span class="classifier">PanelTableWidget</span></dt><dd><p>PanelTableWidget instance that fired the event (see Notes section)</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>You will never need to pass any of these arguments explicitly. This is
-the expected signature of the function passed to <code class="code docutils literal notranslate"><span class="pre">handler</span></code> argument
-of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (PanelTableWidget object).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table">
-<span class="sig-name descname"><span class="pre">update_ion_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_ion_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_ion_count_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_ion_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table" title="Link to this definition"></a></dt>
 <dd><p>Event listener to update the data in ion count table widget based
 on interaction (row selected event) in element count table widget.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>event</strong><span class="classifier">dict</span></dt><dd><p>Dictionary that holds information about event (see Notes section)</p>
-</dd>
-<dt><strong>panel_widget</strong><span class="classifier">PanelTableWidget</span></dt><dd><p>PanelTableWidget instance that fired the event (see Notes section)</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>You will never need to pass any of these arguments explicitly. This is
-the expected signature of the function passed to <code class="code docutils literal notranslate"><span class="pre">handler</span></code> argument
-of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (PanelTableWidget object).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table">
-<span class="sig-name descname"><span class="pre">update_level_count_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">panel_widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_level_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update_level_count_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tardis/visualization/widgets/shell_info.html#ShellInfoWidget.update_level_count_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table" title="Link to this definition"></a></dt>
 <dd><p>Event listener to update the data in level count table widget based
 on interaction (row selected event) in ion count table widget.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>event</strong><span class="classifier">dict</span></dt><dd><p>Dictionary that holds information about event (see Notes section)</p>
-</dd>
-<dt><strong>panel_widget</strong><span class="classifier">PanelTableWidget</span></dt><dd><p>PanelTableWidget instance that fired the event (see Notes section)</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>You will never need to pass any of these arguments explicitly. This is
-the expected signature of the function passed to <code class="code docutils literal notranslate"><span class="pre">handler</span></code> argument
-of <code class="code docutils literal notranslate"><span class="pre">on</span></code> method of a table widget (PanelTableWidget object).</p>
 </dd></dl>
 
 </dd></dl>

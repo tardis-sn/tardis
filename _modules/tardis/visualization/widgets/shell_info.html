@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=fe9753de"></script>
+      <script src="../../../../_static/documentation_options.js?v=c813aa88"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4329,7 +4329,11 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.HDFShellInfo"><code class="docutils literal notranslate"><span class="pre">HDFShellInfo</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.atomic_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.display"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.display()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.ion_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.name"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.name</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.shell_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_element_count_table()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_ion_count_table()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_level_count_table()</span></code></a></li>
@@ -4935,13 +4939,13 @@
   <h1>Source code for tardis.visualization.widgets.shell_info</h1><div class="highlight"><pre>
 <span></span>import pandas as pd
 import panel as pn
+import param
 
 from tardis.util.base import (
     atomic_number2element_symbol,
     species_tuple_to_string,
 )
 from tardis.util.environment import Environment
-from tardis.visualization.widgets.util import create_table_widget
 
 
 <div class="viewcode-block" id="BaseShellInfo">
@@ -5177,7 +5181,7 @@ class HDFShellInfo(BaseShellInfo):
 
 <div class="viewcode-block" id="ShellInfoWidget">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget">[docs]</a>
-class ShellInfoWidget:
+class ShellInfoWidget(param.Parameterized):
     &quot;&quot;&quot;The Shell Info Widget to explore abundances in different shells.
 
     It consists of four interlinked table widgets - shells table; element count,
@@ -5185,6 +5189,37 @@ class ShellInfoWidget:
     all the way from elements, to ions, to levels by clicking on the rows of
     tables.
     &quot;&quot;&quot;
+
+    shell_idx = param.List(default=[], doc=&quot;Index of current selected row in shells table&quot;)
+    atomic_idx = param.List(default=[], doc=&quot;Index of current selected row in element count table&quot;)
+    ion_idx = param.List(default=[], doc=&quot;Index of current selected row in ion count table&quot;)
+
+    @staticmethod
+    def _create_table_widget(data):
+        &quot;&quot;&quot;
+        Create a table widget using Panel&#39;s Tabulator widget
+
+        Parameters
+        ----------
+        data: pandas.DataFrame
+            Data to be displayed in the table widget
+
+        Returns
+        -------
+        panel.widgets.Tabulator
+        &quot;&quot;&quot;
+        _df = data.copy()
+
+        # Create the table
+        table = pn.widgets.Tabulator(
+            _df,
+            selectable=True,  # Single row selection (radio button style)
+            show_index=True,
+            sizing_mode=&#39;stretch_width&#39;,
+            height=min(400, max(200, len(_df) * 30 + 50)),
+            disabled=True,  # Make cells non-editable
+        )
+        return table
 
     def __init__(self, shell_info_data):
         &quot;&quot;&quot;Initialize the object with the shell information of a simulation
@@ -5196,141 +5231,90 @@ class ShellInfoWidget:
             Shell information object constructed from Simulation object or HDF
             file
         &quot;&quot;&quot;
+        super().__init__()
         self.data = shell_info_data
 
         # Creating the shells data table widget
-        self.shells_table = create_table_widget(
+        self.shells_table = self._create_table_widget(
             self.data.shells_data()
         )
 
         # Creating the element count table widget
-        self.element_count_table = create_table_widget(
-            self.data.element_count(self.shells_table.df.index[0])
+        self.element_count_table = self._create_table_widget(
+            self.data.element_count(self.shells_table.value.index[0])
         )
 
         # Creating the ion count table widget
-        self.ion_count_table = create_table_widget(
+        self.ion_count_table = self._create_table_widget(
             self.data.ion_count(
-                self.element_count_table.df.index[0],
-                self.shells_table.df.index[0],
+                self.element_count_table.value.index[0],
+                self.shells_table.value.index[0],
             )
         )
 
         # Creating the level count table widget
-        self.level_count_table = create_table_widget(
+        self.level_count_table = self._create_table_widget(
             self.data.level_count(
-                self.ion_count_table.df.index[0],
-                self.element_count_table.df.index[0],
-                self.shells_table.df.index[0],
+                self.ion_count_table.value.index[0],
+                self.element_count_table.value.index[0],
+                self.shells_table.value.index[0],
             )
         )
 
+        # The indexes will update when user clicks on the rows of tables
+        self.shells_table.link(self, selection=&quot;shell_idx&quot;)
+        self.element_count_table.link(self, selection=&quot;atomic_idx&quot;)
+        self.ion_count_table.link(self, selection=&quot;ion_idx&quot;)
+
+        # Initialize tables.
+        self.shells_table.selection = [0]
+        self.element_count_table.selection = [0]
+        self.ion_count_table.selection = [0]
+
 <div class="viewcode-block" id="ShellInfoWidget.update_element_count_table">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table">[docs]</a>
-    def update_element_count_table(self, event, panel_widget):
+    @param.depends(&quot;shell_idx&quot;, watch=True)
+    def update_element_count_table(self):
         &quot;&quot;&quot;Event listener to update the data in element count table widget based
         on interaction (row selected event) in shells table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        panel_widget : PanelTableWidget
-            PanelTableWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (PanelTableWidget object).
         &quot;&quot;&quot;
-        # Get shell number from row selected in shells_table
-        shell_num = event[&quot;new&quot;][0] + 1
+        # Update element count table data based on selected shell number (shell_idx)
+        self.element_count_table.value = self.data.element_count(self.shell_idx[0] + 1)
 
-        # Update data in element_count_table
-        self.element_count_table.df = self.data.element_count(shell_num)
-
-        # Get atomic_num of 0th row of element_count_table
-        atomic_num0 = self.element_count_table.df.index[0]
-
-        # Also update next table (ion counts) by triggering its event listener
-        # Listener won&#39;t trigger if last row selected in element_count_table was also 0th
-        if self.element_count_table.get_selected_rows() == [0]:
-            self.element_count_table.change_selection([])  # Unselect rows
-        # Select 0th row in count table which will trigger update_ion_count_table
-        self.element_count_table.change_selection([atomic_num0])</div>
+        self.element_count_table.selection = [0]  # Reset ion_num selection when shell_idx changes</div>
 
 
 <div class="viewcode-block" id="ShellInfoWidget.update_ion_count_table">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table">[docs]</a>
-    def update_ion_count_table(self, event, panel_widget):
+    @param.depends(&quot;atomic_idx&quot;, &quot;shell_idx&quot;, watch=True)
+    def update_ion_count_table(self):
         &quot;&quot;&quot;Event listener to update the data in ion count table widget based
         on interaction (row selected event) in element count table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        panel_widget : PanelTableWidget
-            PanelTableWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (PanelTableWidget object).
         &quot;&quot;&quot;
-        # Don&#39;t execute function if no row was selected
-        if not event[&quot;new&quot;]:
-            return
+        # Get the selected shell number and atomic number based on selected rows in shells table and element count table
+        shell_num = self.shell_idx[0] + 1
+        atomic_num = self.element_count_table.value.index[self.atomic_idx[0]]
 
-        # Get shell no. &amp; atomic_num from rows selected in previous tables
-        shell_num = self.shells_table.get_selected_rows()[0] + 1
-        atomic_num = self.element_count_table.df.index[event[&quot;new&quot;][0]]
+        # Update ion count table data based on selected shell number and atomic number
+        self.ion_count_table.value = self.data.ion_count(atomic_num, shell_num)
 
-        # Update data in ion_count_table
-        self.ion_count_table.df = self.data.ion_count(atomic_num, shell_num)
-
-        # Also update next table (level counts) by triggering its event listener
-        ion0 = self.ion_count_table.df.index[0]
-        if self.ion_count_table.get_selected_rows() == [0]:
-            self.ion_count_table.change_selection([])
-        self.ion_count_table.change_selection([ion0])</div>
+        self.ion_count_table.selection = [0]  # Reset ion count table selection when atomic_idx changes</div>
 
 
 <div class="viewcode-block" id="ShellInfoWidget.update_level_count_table">
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table">[docs]</a>
-    def update_level_count_table(self, event, panel_widget):
+    @param.depends(&quot;ion_idx&quot;, &quot;atomic_idx&quot;, &quot;shell_idx&quot;, watch=True)
+    def update_level_count_table(self):
         &quot;&quot;&quot;Event listener to update the data in level count table widget based
         on interaction (row selected event) in ion count table widget.
-
-        Parameters
-        ----------
-        event : dict
-            Dictionary that holds information about event (see Notes section)
-        panel_widget : PanelTableWidget
-            PanelTableWidget instance that fired the event (see Notes section)
-
-        Notes
-        -----
-        You will never need to pass any of these arguments explicitly. This is
-        the expected signature of the function passed to :code:`handler` argument
-        of :code:`on` method of a table widget (PanelTableWidget object).
         &quot;&quot;&quot;
-        # Don&#39;t execute function if no row was selected
-        if not event[&quot;new&quot;]:
-            return
+        # Get the selected shell number, atomic number and ion number based on selected rows in their tables
+        shell_num = self.shell_idx[0] + 1
+        atomic_num = self.element_count_table.value.index[self.atomic_idx[0]]
+        ion_num = self.ion_count_table.value.index[self.ion_idx[0]]
 
-        # Get shell no., atomic_num, ion from selected rows in previous tables
-        shell_num = self.shells_table.get_selected_rows()[0] + 1
-        atomic_num = self.element_count_table.df.index[
-            self.element_count_table.get_selected_rows()[0]
-        ]
-        ion = self.ion_count_table.df.index[event[&quot;new&quot;][0]]
-
-        # Update data in level_count_table
-        self.level_count_table.df = self.data.level_count(
-            ion, atomic_num, shell_num
+        self.level_count_table.value = self.data.level_count(
+            ion_num, atomic_num, shell_num
         )</div>
 
 
@@ -5348,28 +5332,15 @@ class ShellInfoWidget:
         if not Environment.allows_widget_display():
             print(&quot;Please use a notebook to display the widget&quot;)
         else:
-            # Panel tables handle their own sizing automatically
-
-            # Attach event listeners to table widgets
-            self.shells_table.on(
-                &quot;selection_changed&quot;, self.update_element_count_table
-            )
-            self.element_count_table.on(
-                &quot;selection_changed&quot;, self.update_ion_count_table
-            )
-            self.ion_count_table.on(
-                &quot;selection_changed&quot;, self.update_level_count_table
-            )
 
             # Create Panel layout for the tables
             shell_info_tables_container = pn.Row(
-                self.shells_table.table,
-                self.element_count_table.table,
-                self.ion_count_table.table,
-                self.level_count_table.table,
+                self.shells_table,
+                self.element_count_table,
+                self.ion_count_table,
+                self.level_count_table,
                 sizing_mode=&#39;stretch_width&#39;
             )
-            self.shells_table.change_selection([1])
 
             # Notes text explaining how to interpret tables widgets&#39; data
             text = pn.pane.HTML(
