@@ -11,6 +11,7 @@ from tardis.iip_plasma.exceptions import (
 )
 from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
 from tardis.opacities.tau_sobolev import calculate_beta_sobolev
+from tardis.transport.montecarlo import njit_dict_no_fastmath
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ __all__ = [
 ]
 
 
-@njit(error_model="numpy")
+@njit(njit_dict_no_fastmath)
 def _calculate_beta_sobolevs_from_selected_lines(
     level_density_values: np.ndarray,
     line_indices: np.ndarray,
@@ -559,8 +560,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     )
 
                     initial = (
-                        self.plasma_parent
-                        .level_number_density[i]
+                        self.plasma_parent.level_number_density[i]
                         .loc[species]
                         .values
                     ).copy()
@@ -801,9 +801,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 nlte_lines_mask |= (atomic_numbers == atomic_number) & (
                     ion_numbers == ion_number
                 )
-            tau_sobolev_property = pl.plasma_properties_dict[
-                "TauSobolev"
-            ]
+            tau_sobolev_property = pl.plasma_properties_dict["TauSobolev"]
             time_explosion = pl.time_explosion
             if hasattr(time_explosion, "to_value"):
                 time_explosion = time_explosion.to_value("s")
@@ -895,20 +893,24 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             (number_of_levels, number_of_levels, len(t_electrons)),
             dtype=np.float64,
         )
-        r_ul_matrix_reshaped = r_ul_matrix.reshape((
-            number_of_levels**2,
-            len(t_electrons),
-        ))
+        r_ul_matrix_reshaped = r_ul_matrix.reshape(
+            (
+                number_of_levels**2,
+                len(t_electrons),
+            )
+        )
         r_ul_matrix_reshaped[r_ul_index] = (
             A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
         )
         # TODO: Revert
         # r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
         r_lu_matrix = np.zeros_like(r_ul_matrix)
-        r_lu_matrix_reshaped = r_lu_matrix.reshape((
-            number_of_levels**2,
-            len(t_electrons),
-        ))
+        r_lu_matrix_reshaped = r_lu_matrix.reshape(
+            (
+                number_of_levels**2,
+                len(t_electrons),
+            )
+        )
         # r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
         #        j_blues[lines_index] * beta_sobolevs[lines_index]
         r_lu_matrix_reshaped[r_lu_index] = (
@@ -991,15 +993,13 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
         index = list(self._get_rate_index(no_of_levels))
         coll_excitation_rates = (
-            coll_exc_coeff
-            .reindex(index)
+            coll_exc_coeff.reindex(index)
             .fillna(0)
             .to_numpy()
             .reshape((no_of_levels, no_of_levels, len(electron_densities)))
         )
         coll_deexcitation_rates = (
-            coll_deexc_coeff
-            .reindex(index)
+            coll_deexc_coeff.reindex(index)
             .fillna(0)
             .to_numpy()
             .reshape((no_of_levels, no_of_levels, len(electron_densities)))

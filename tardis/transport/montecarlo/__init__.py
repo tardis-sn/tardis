@@ -20,6 +20,11 @@ njit_dict_no_parallel = {
     "error_model": "numpy",
     "parallel": False,
 }
+njit_dict_no_fastmath = {
+    "fastmath": False,
+    "error_model": "numpy",
+    "parallel": False,
+}
 
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
