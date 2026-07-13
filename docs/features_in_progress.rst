@@ -1,4 +1,4 @@
-.. _in-progress:
+.. _new-in-progress:
   
 ********************
 Features In-Progress
