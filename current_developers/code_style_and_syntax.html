@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=c813aa88"></script>
+      <script src="../_static/documentation_options.js?v=6902b63f"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -4755,6 +4755,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#naming-conventions">Naming Conventions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#explanation-variable-and-function-names">Explanation: Variable and Function Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#index-vs-idx-in-tardis">Index vs. IDX in TARDIS</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#type-hinting">Type Hinting</a><ul>
@@ -4979,32 +4980,33 @@ assign it to <code class="docutils literal notranslate"><span class="pre">veloci
 <p>Avoid names that are too generic for review, such as <code class="docutils literal notranslate"><span class="pre">data</span></code>, <code class="docutils literal notranslate"><span class="pre">arr</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>, or
 <code class="docutils literal notranslate"><span class="pre">idx</span></code>, unless the scope is very small and the meaning is obvious from the
 surrounding line.</p>
-<p>In TARDIS, the <code class="docutils literal notranslate"><span class="pre">_idx</span></code> suffix should be used for
-integer positions in a loop, NumPy array, or packet collection. The
-indexed object should be named nearby. Use an <code class="docutils literal notranslate"><span class="pre">_index</span></code> suffix
-when the value is used outside the scope:
-a named schema field, a pandas/DataFrame index-like object, or a
-lookup location. If a variable stores the position of a named field, use the
-<code class="docutils literal notranslate"><span class="pre">_index</span></code> suffix and include the concept being indexed:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">velocity_field_index</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">csvy_model_config</span><span class="o">.</span><span class="n">datatype</span><span class="o">.</span><span class="n">fields</span>
-<span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;velocity&quot;</span><span class="p">)</span>
-
-<span class="n">density_field_index</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">csvy_model_config</span><span class="o">.</span><span class="n">datatype</span><span class="o">.</span><span class="n">fields</span>
-<span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
+</section>
+<section id="index-vs-idx-in-tardis">
+<span id="index-vs-idx"></span><h3>Index vs. IDX in TARDIS<a class="headerlink" href="#index-vs-idx-in-tardis" title="Link to this heading"></a></h3>
+<p>In the TARDIS codebase, we attempt to use index and idx as separate designations
+with different meanings. We use {var_name}_idx to specify that a variable refers to the
+integer position in some array-like object, with pythonic zero-indexed location
+(i.e., any pandas object accessed via .iloc would be done so with an idx
+variable). Alternatively, we use {var_name}_index as a variable that is explicitly not
+an integer location, but is still used for lookup via a key to a dictionary-like
+object (e.g., a pandas object accessed with .loc).</p>
+<p>Consequently, an object named index in the tardis codebase will often store idx
+values. The dictionary-like is the index, and the values are idxs.</p>
 <p>Good examples:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">velocity_field_index</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;velocity&quot;</span><span class="p">)</span>
-<span class="n">density_field_index</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
-<span class="n">packet_idx</span> <span class="o">=</span> <span class="n">packet_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>Poor examples:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">idx</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
-<span class="n">i</span> <span class="o">=</span> <span class="n">packet_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">parse_density_section_config</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">block_start_idx</span> <span class="o">=</span> <span class="n">opacity_state</span><span class="o">.</span><span class="n">macro_block_edge_index</span><span class="p">[</span>
+    <span class="n">absorbing_activation_level_idx</span>
+<span class="p">]</span>
+<span class="n">block_end_idx</span> <span class="o">=</span> <span class="n">opacity_state</span><span class="o">.</span><span class="n">macro_block_edge_index</span><span class="p">[</span>
+    <span class="n">absorbing_activation_level_idx</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">]</span>
+<span class="n">emission_transition_probability</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">probability_emission_event</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">deactivation_channel_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">block_start_idx</span><span class="p">,</span> <span class="n">block_end_idx</span><span class="p">):</span>
+    <span class="n">deactivation_probability</span> <span class="o">=</span> <span class="n">opacity_state</span><span class="o">.</span><span class="n">transition_probabilities</span><span class="p">[</span>
+        <span class="n">deactivation_channel_idx</span><span class="p">,</span> <span class="n">current_shell_id</span>
+    <span class="p">]</span>
+    <span class="n">emission_transition_probability</span> <span class="o">+=</span> <span class="n">deactivation_probability</span>
 </pre></div>
 </div>
 </section>
