@@ -7,6 +7,7 @@ from astropy import units as u
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.io.model.artis.readers import (
+    read_artis_composition,
     read_artis_density,
     read_artis_mass_fractions,
     read_artis_model,
@@ -90,6 +91,11 @@ def test_artis_model_reader(artis_data_dir):
         artis_model_data.mean_density
     )
     assert artis_model_data.isotope_mass_fractions.shape == (4, 69)
+    npt.assert_allclose(
+        artis_model_data.isotope_mass_fractions.loc[(28, 56), 2],
+        0.9788986,
+    )
+    npt.assert_allclose(artis_model_data.mass_fractions.sum(axis=0), 1.0)
     # Dummy check for mass fractions DataFrame (non-empty)
     assert artis_model_data.mass_fractions.size > 0, (
         "Mass fractions should not be empty"
@@ -134,11 +140,47 @@ def test_artis_generic_readers_shell_slicing(artis_data_dir):
         (26, 52),
         (24, 48),
     ]
-    direct_mass_fractions = read_artis_mass_fractions(
+    direct_elemental_mass_fractions = read_artis_mass_fractions(
         artis_data_dir / "artis_abundances.dat"
     )
+    reconstructed_elemental_mass_fractions = mass_fractions.add(
+        isotope_mass_fractions.groupby(level="atomic_number").sum(),
+        fill_value=0.0,
+    )
     npt.assert_allclose(
-        mass_fractions.to_numpy(), direct_mass_fractions.to_numpy()
+        reconstructed_elemental_mass_fractions.to_numpy(),
+        direct_elemental_mass_fractions.to_numpy(),
+    )
+    npt.assert_allclose(
+        isotope_mass_fractions.loc[(28, 56), 0],
+        0.9788986,
+    )
+
+
+def test_artis_composition_preserves_explicit_isotopes(artis_data_dir):
+    _, elemental_mass_fractions, isotope_mass_fractions = (
+        read_artis_composition(
+            artis_data_dir / "artis_model.dat",
+            artis_data_dir / "artis_abundances.dat",
+        )
+    )
+    original_elemental_mass_fractions = read_artis_mass_fractions(
+        artis_data_dir / "artis_abundances.dat"
+    )
+
+    npt.assert_allclose(
+        isotope_mass_fractions.loc[(28, 56), 2],
+        0.9788986,
+    )
+    npt.assert_allclose(
+        elemental_mass_fractions.loc[28, 2]
+        + isotope_mass_fractions.loc[(28, 56), 2],
+        original_elemental_mass_fractions.loc[28, 2],
+    )
+    npt.assert_allclose(
+        elemental_mass_fractions.sum(axis=0)
+        + isotope_mass_fractions.sum(axis=0),
+        1.0,
     )
 
 
@@ -172,5 +214,5 @@ def test_artis_isotopes_reach_composition(artis_data_dir):
     assert (composition.nuclide_mass_fraction.values >= 0).all()
     npt.assert_allclose(
         composition.isotopic_mass_fraction.loc[(28, 56), 0],
-        0.49466527994064846,
+        0.9788986,
     )

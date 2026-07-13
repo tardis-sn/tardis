@@ -8,6 +8,24 @@ from astropy import units as u
 from tardis.io.model.artis.data import ArtisData
 
 
+def _remove_explicit_isotopes_from_elemental_mass_fractions(
+    elemental_mass_fractions: pd.DataFrame,
+    isotope_mass_fractions: pd.DataFrame,
+) -> pd.DataFrame:
+    """Remove explicitly tracked ARTIS isotopes from elemental totals."""
+    isotope_element_mass_fractions = isotope_mass_fractions.groupby(
+        level="atomic_number"
+    ).sum()
+    residual_elemental_mass_fractions = elemental_mass_fractions.sub(
+        isotope_element_mass_fractions, fill_value=0.0
+    )
+
+    roundoff_negative = (residual_elemental_mass_fractions < 0.0) & (
+        residual_elemental_mass_fractions >= -np.finfo(np.float64).eps
+    )
+    return residual_elemental_mass_fractions.mask(roundoff_negative, 0.0)
+
+
 def read_artis_density(
     fname: str | Path, legacy_return: bool = True
 ) -> (
@@ -77,7 +95,7 @@ def read_artis_density(
         sep=r"\s+",
     )
     assert len(artis_model) == no_of_shells, (
-        "Number of shells {len(artis_model)} does not match metadate {no_of_shells}"
+        f"Number of shells {len(artis_model)} does not match metadata {no_of_shells}"
     )
     velocity = u.Quantity(artis_model["velocities"], "km/s").to("cm/s")
     mean_density = u.Quantity(10 ** artis_model["mean_densities_0"], "g/cm^3")
@@ -155,10 +173,10 @@ def read_artis_composition(
     """
     Read ARTIS elemental and isotopic mass fractions.
 
-    ARTIS stores elemental mass fractions in the abundance file and selected
-    radioactive isotope mass fractions in the density file. This reader returns
-    the elemental mass fractions unchanged and the isotope mass fractions as a
-    separate table.
+    ARTIS stores total elemental mass fractions in the abundance file and
+    selected radioactive isotope mass fractions in the density file. This
+    reader removes those explicit isotopes from their elemental totals so that
+    each nuclide is represented exactly once downstream.
 
     Parameters
     ----------
@@ -181,6 +199,9 @@ def read_artis_composition(
         read_artis_density(density_fname, legacy_return=False),
     )
     mass_fractions = read_artis_mass_fractions(abundance_fname)
+    mass_fractions = _remove_explicit_isotopes_from_elemental_mass_fractions(
+        mass_fractions, isotope_mass_fractions
+    )
     return mass_fractions.index, mass_fractions, isotope_mass_fractions
 
 
@@ -207,6 +228,9 @@ def read_artis_model(
         read_artis_density(density_fname, legacy_return=False),
     )
     mass_fractions = read_artis_mass_fractions(abundance_fname)
+    mass_fractions = _remove_explicit_isotopes_from_elemental_mass_fractions(
+        mass_fractions, isotope_mass_fractions
+    )
     mass_fractions.index = pd.MultiIndex.from_arrays(
         [mass_fractions.index, [-1] * len(mass_fractions.index)],
         names=["atomic_number", "mass_number"],

@@ -80,7 +80,7 @@ def read_mass_fractions_file(
     mass_fractions.columns = np.arange(len(mass_fractions.columns))
     if not isotope_mass_fractions.empty:
         isotope_mass_fractions = isotope_mass_fractions.loc[
-            :, slice(inner_boundary_index, outer_boundary_index_m1)
+            :, slice(inner_boundary_idx, outer_boundary_idx_m1)
         ]
         isotope_mass_fractions.columns = np.arange(
             len(isotope_mass_fractions.columns)
@@ -113,7 +113,7 @@ def read_density_file(filename, filetype):
         The array containing temperatures
     """
     # Lazy import to avoid circular dependency
-    from tardis.io.model.artis.readers import (  # noqa: PLC0415
+    from tardis.io.model.artis.readers import (
         read_artis_density,
     )
 
