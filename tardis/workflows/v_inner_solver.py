@@ -162,7 +162,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
         )
 
         interpolator = interp1d(
-            self.tau_integ[self.simulation_state.geometry.v_inner_boundary_index :],
+            self.tau_integ[self.simulation_state.geometry.v_inner_boundary_idx :],
             self.simulation_state.geometry.v_inner_active,  # Only use the active values as we only need a numerical estimate, not an index
             fill_value="extrapolate",
         )
@@ -191,7 +191,7 @@ class InnerVelocitySolverWorkflow(StandardTARDISWorkflow):
     def property_mask(self):
         mask = np.zeros((len(self.simulation_state.geometry.r_inner)), dtype=bool)
         mask[
-            self.simulation_state.geometry.v_inner_boundary_index : self.simulation_state.geometry.v_outer_boundary_index
+            self.simulation_state.geometry.v_inner_boundary_idx : self.simulation_state.geometry.v_outer_boundary_idx
         ] = True
         return mask
 

@@ -112,18 +112,21 @@ Mission Statement
     reference/visualization_reference
     io/configuration/index
     io/hdf/index
-    contributing/CHANGELOG.md 
+    ../CHANGELOG.md 
     resources/research_done_using_TARDIS/research_papers
     resources/zreferences
+    reference/external_links
 
 .. toctree::
     :maxdepth: 2
     :caption: Contributing to TARDIS
     :hidden:
 
-    contributing/CONTRIBUTING.md
-    contributing/development/index
-    contributing/tools/index
-    contributing/in_progress/index
+    new_developers/index
+    current_developers/index
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Features in Progress
     
-    
+    features_in_progress

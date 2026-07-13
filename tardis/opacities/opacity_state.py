@@ -15,7 +15,7 @@ opacity_state_spec = [
     ("tau_sobolev", float64[:, :]),
     ("transition_probabilities", float64[:, :]),
     ("line2macro_level_upper", int64[:]),
-    ("macro_block_references", int64[:]),
+    ("macro_block_edge_index", int64[:]),
     ("transition_type", int64[:]),
     ("destination_level_id", int64[:]),
     ("transition_line_id", int64[:]),
@@ -170,7 +170,7 @@ class OpacityState:
                 (array_size, array_size), dtype=np.float64
             )  # to adhere to data types
             line2macro_level_upper = np.zeros(array_size, dtype=np.int64)
-            macro_block_references = np.zeros(array_size, dtype=np.int64)
+            macro_block_edge_index = np.zeros(array_size, dtype=np.int64)
             transition_type = np.zeros(array_size, dtype=np.int64)
             destination_level_id = np.zeros(array_size, dtype=np.int64)
             transition_line_id = np.zeros(array_size, dtype=np.int64)
@@ -185,8 +185,8 @@ class OpacityState:
             line2macro_level_upper = (
                 macro_atom_state.line2macro_level_upper.values
             )
-            macro_block_references = np.asarray(
-                macro_atom_state.macro_block_references
+            macro_block_edge_index = np.asarray(
+                macro_atom_state.macro_block_edge_index
             )
             transition_type = (
                 macro_atom_state.transition_metadata.transition_type.values
@@ -240,7 +240,7 @@ class OpacityState:
                 tau_sobolev,
                 transition_probabilities,
                 line2macro_level_upper,
-                macro_block_references,
+                macro_block_edge_index,
                 transition_type,
                 destination_level_id,
                 transition_line_id,
@@ -269,8 +269,8 @@ class OpacityState:
             )
             # TODO: Fix setting of block references for non-continuum mode
 
-            macro_block_references = np.asarray(
-                macro_atom_state.macro_block_references
+            macro_block_edge_index = np.asarray(
+                macro_atom_state.macro_block_edge_index
             )
 
             transition_type = (
@@ -290,7 +290,7 @@ class OpacityState:
             tau_sobolev,
             transition_probabilities,
             line2macro_level_upper,
-            macro_block_references,
+            macro_block_edge_index,
             transition_type,
             destination_level_id,
             transition_line_id,
@@ -345,7 +345,7 @@ def opacity_state_initialize(
             (array_size, array_size), dtype=np.float64
         )  # to adhere to data types
         line2macro_level_upper = np.zeros(array_size, dtype=np.int64)
-        macro_block_references = np.zeros(array_size, dtype=np.int64)
+        macro_block_edge_index = np.zeros(array_size, dtype=np.int64)
         transition_type = np.zeros(array_size, dtype=np.int64)
         destination_level_id = np.zeros(array_size, dtype=np.int64)
         transition_line_id = np.zeros(array_size, dtype=np.int64)
@@ -359,9 +359,9 @@ def opacity_state_initialize(
         # TODO: Fix setting of block references for non-continuum mode
 
         if montecarlo_globals.CONTINUUM_PROCESSES_ENABLED:
-            macro_block_references = plasma.macro_block_references
+            macro_block_edge_index = plasma.macro_block_edge_index
         else:
-            macro_block_references = plasma.atomic_data.macro_atom_references[
+            macro_block_edge_index = plasma.atomic_data.macro_atom_references[
                 "block_references"
             ].values
         transition_type = plasma.macro_atom_data["transition_type"].values
@@ -432,7 +432,7 @@ def opacity_state_initialize(
         tau_sobolev,
         transition_probabilities,
         line2macro_level_upper,
-        macro_block_references,
+        macro_block_edge_index,
         transition_type,
         destination_level_id,
         transition_line_id,
