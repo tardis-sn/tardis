@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 
-from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NonhomologousRadial1DGeometry,
+)
 
 
 @dataclass
@@ -14,22 +16,27 @@ class ArtisData:
     mean_density: u.Quantity
     mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
 
-    def to_geometry(self) -> HomologousRadial1DGeometry:
+    def to_geometry(self) -> NonhomologousRadial1DGeometry:
         """
-        Construct a HomologousRadial1DGeometry object from this ArtisData.
+        Construct a NonhomologousRadial1DGeometry object from this ArtisData.
 
         The time_of_model is used as the time_explosion.
 
         Returns
         -------
-        tardis.model.geometry.radial1d.HomologousRadial1DGeometry
+        tardis.model.geometry.radial1d_nonhomologous.NonhomologousRadial1DGeometry
             The geometry object constructed from the ARTIS data.
         """
-        geometry = HomologousRadial1DGeometry(
+        v_inner = self.velocity[:-1]
+        v_outer = self.velocity[1:]
+        geometry = NonhomologousRadial1DGeometry(
+            r_inner=(v_inner * self.time_of_model).cgs,
+            r_outer=(v_outer * self.time_of_model).cgs,
             v_inner=self.velocity[:-1],
             v_outer=self.velocity[1:],
+            r_inner_boundary=None,
+            r_outer_boundary=None,
             v_inner_boundary=None,
             v_outer_boundary=None,
-            time_explosion=self.time_of_model,
         )
         return geometry

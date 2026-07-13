@@ -3,7 +3,9 @@
 from numba import njit
 
 from tardis import constants as const
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
+from tardis.model.geometry.radial1d_nonhomologous import (
+    NumbaNonhomologousRadial1DGeometry,
+)
 from tardis.opacities.opacities import chi_electron_calculator
 from tardis.opacities.opacity_state_numba import OpacityStateNumba
 from tardis.transport.frame_transformations import (
@@ -50,7 +52,7 @@ C_SPEED_OF_LIGHT = const.c.to("cm/s").value
 @njit
 def packet_propagation(
     r_packet: RPacket,
-    geometry: NumbaRadial1DGeometry,
+    geometry: NumbaNonhomologousRadial1DGeometry,
     time_explosion: float,
     opacity_state: OpacityStateNumba,
     estimators_bulk: EstimatorsBulk,
@@ -69,7 +71,7 @@ def packet_propagation(
     ----------
     r_packet : RPacket
         The radiative packet to transport through the ejecta.
-    geometry : NumbaRadial1DGeometry
+    geometry : NumbaNonhomologousRadial1DGeometry
         The spherically symmetric geometry of the supernova ejecta.
     time_explosion : float
         Time since explosion in seconds.

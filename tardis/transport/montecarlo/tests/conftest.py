@@ -3,7 +3,6 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from tardis.model.geometry.radial1d import NumbaRadial1DGeometry
 from tardis.model.geometry.radial1d_nonhomologous import (
     NumbaNonhomologousRadial1DGeometry,
 )
@@ -197,12 +196,12 @@ def parametrized_packet(static_packet: RPacket, request) -> RPacket:
 
 
 @pytest.fixture
-def radial_geometry(request) -> NumbaRadial1DGeometry:
+def radial_geometry(request) -> NumbaNonhomologousRadial1DGeometry:
     r_outer_first_shell = getattr(request, "param", 8.0e14)
     time_explosion = 5.2e7
     r_inner = np.array([7.0e14, 8.0e14])
     r_outer = np.array([r_outer_first_shell, 3.0e16])
-    return NumbaRadial1DGeometry(
+    return NumbaNonhomologousRadial1DGeometry(
         r_inner,
         r_outer,
         r_inner / time_explosion,
