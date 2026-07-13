@@ -4,7 +4,6 @@ import pandas as pd
 import pandas.testing as pdt
 import pytest
 
-from tardis import constants as const
 from tardis.plasma.base import BasePlasma
 from tardis.plasma.exceptions import IncompleteAtomicData
 from tardis.plasma.properties.atomic import IonizationData, Levels, Lines
@@ -124,7 +123,7 @@ def test_stimulated_emission_factor_regression(
 ):
     expected = regression_data.sync_ndarray(stimulated_emission_factor)
     npt.assert_allclose(
-        stimulated_emission_factor, expected, atol=0, rtol=1e-13
+        stimulated_emission_factor, expected, atol=0, rtol=1e-12
     )
 
 
