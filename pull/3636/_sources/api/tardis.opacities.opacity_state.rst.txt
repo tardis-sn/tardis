@@ -1,0 +1,7 @@
+tardis.opacities.opacity\_state module
+======================================
+
+.. automodule:: tardis.opacities.opacity_state
+   :members:
+   :show-inheritance:
+   :undoc-members:
