@@ -1,5 +1,5 @@
 import numpy as np
-from numba import njit, objmode, prange
+from numba import njit, prange
 from numba.np.ufunc.parallel import get_num_threads, get_thread_id
 from numba.typed import List
 
@@ -24,14 +24,14 @@ from tardis.transport.montecarlo.estimators.estimators_line import (
 from tardis.transport.montecarlo.modes.iip.packet_propagation import (
     packet_propagation,
 )
+from tardis.transport.montecarlo.modes.montecarlo_transport import (
+    make_r_packet,
+    set_packet_collection_output,
+    update_packet_progress,
+)
 from tardis.transport.montecarlo.packets.packet_collections import (
     PacketCollection,
 )
-from tardis.transport.montecarlo.packets.radiative_packet import (
-    PacketStatus,
-    RPacket,
-)
-from tardis.transport.montecarlo.progress_bars import update_packets_pbar
 
 
 @njit(**njit_dict)
@@ -120,26 +120,17 @@ def montecarlo_transport(
     )
 
     for i in prange(no_of_packets):
+        packet_index = np.int64(i)
         thread_id = get_thread_id()
-        if show_progress_bars:
-            if thread_id == main_thread_id:
-                with objmode:
-                    update_amount = 1 * n_threads
-                    update_packets_pbar(
-                        update_amount,
-                        no_of_packets,
-                    )
-
-        r_packet = RPacket(
-            packet_collection.initial_radii[i],
-            packet_collection.initial_mus[i],
-            packet_collection.initial_nus[i],
-            packet_collection.initial_energies[i],
-            packet_collection.packet_seeds[i],
-            i,
+        update_packet_progress(
+            show_progress_bars,
+            thread_id,
+            main_thread_id,
+            n_threads,
+            no_of_packets,
         )
-        # Seed the random number generator
-        np.random.seed(r_packet.seed)
+
+        r_packet = make_r_packet(packet_collection, packet_index)
 
         # Get the thread-local estimators for this thread
         estimators_bulk_thread = estimators_bulk_list_thread[thread_id]
@@ -149,9 +140,9 @@ def montecarlo_transport(
         ]
 
         # Get the RPacket tracker for this thread
-        tracker = trackers[i]
+        tracker = trackers[packet_index]
 
-        loop = packet_propagation(
+        packet_propagation(
             r_packet,
             geometry_state_numba,
             time_explosion,
@@ -162,13 +153,7 @@ def montecarlo_transport(
             tracker,
             montecarlo_configuration,
         )
-        packet_collection.output_nus[i] = r_packet.nu
-
-        if r_packet.status == PacketStatus.REABSORBED:
-            packet_collection.output_energies[i] = -r_packet.energy
-
-        elif r_packet.status == PacketStatus.EMITTED:
-            packet_collection.output_energies[i] = r_packet.energy
+        set_packet_collection_output(packet_collection, r_packet, i)
 
         # Finalize the tracker (e.g. trim arrays to actual size)
         tracker.finalize()

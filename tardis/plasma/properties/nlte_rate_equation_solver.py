@@ -771,22 +771,22 @@ def calculate_jacobian_matrix(
         Jacobian matrix used for NLTE ionization solver
     """
     # TODO: for future use, can be vectorized.
-    index = 0
+    rate_matrix_start_idx = 0
     jacobian_matrix = rate_matrix.copy().values
     jacobian_matrix[:-1, -1] = populations[1:]
     for atomic_number in atomic_numbers:
-        for i in range(index, index + atomic_number):
+        for i in range(rate_matrix_start_idx, rate_matrix_start_idx + atomic_number):
             if rate_matrix_index[i][2] == "nlte_ion":
                 jacobian_matrix[i, -1] = deriv_matrix_block(
                     atomic_number,
                     total_rad_recomb_coefficients.loc[(atomic_number,)],
                     total_coll_ion_coefficients.loc[(atomic_number,)],
                     total_coll_recomb_coefficients.loc[(atomic_number,)],
-                    populations[index : index + atomic_number + 1],
+                    populations[rate_matrix_start_idx : rate_matrix_start_idx + atomic_number + 1],
                     populations[-1],
-                )[i - index]
-        index += atomic_number + 1
-        jacobian_matrix[index - 1, -1] = 0  # number conservation row
+                )[i - rate_matrix_start_idx]
+        rate_matrix_start_idx += atomic_number + 1
+        jacobian_matrix[rate_matrix_start_idx - 1, -1] = 0  # number conservation row
     return jacobian_matrix
 
 

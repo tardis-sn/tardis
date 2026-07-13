@@ -58,8 +58,8 @@ class SourceFunctionSolver:
                 The rate energy density is added to the upper level of transitions excited to it
         """
         # Parse states for required values
-        v_inner_boundary_index = sim_state.geometry.v_inner_boundary_index
-        v_outer_boundary_index = sim_state.geometry.v_outer_boundary_index
+        v_inner_boundary_idx = sim_state.geometry.v_inner_boundary_idx
+        v_outer_boundary_idx = sim_state.geometry.v_outer_boundary_idx
         no_of_shells = sim_state.no_of_shells
         dilution_factor = sim_state.dilution_factor
         time_explosion = sim_state.time_explosion
@@ -79,7 +79,7 @@ class SourceFunctionSolver:
         )
 
         # slice for the active shells
-        local_slice = slice(v_inner_boundary_index, v_outer_boundary_index)
+        local_slice = slice(v_inner_boundary_idx, v_outer_boundary_idx)
 
         transition_probabilities = transition_probabilities[:, local_slice]
         tau_sobolevs = tau_sobolev[:, local_slice]

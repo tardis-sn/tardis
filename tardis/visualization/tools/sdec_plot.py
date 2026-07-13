@@ -371,7 +371,7 @@ class SDECPlotter:
                 setattr(self, df_name, processed_df)
 
             self.species = np.sort(
-                self.total_luminosities_df.columns[1:], kind=SORTING_ALGORITHM
+                self._get_species_columns(), kind=SORTING_ALGORITHM
             )
 
         else:  # nelements is not None
@@ -399,7 +399,7 @@ class SDECPlotter:
                 setattr(self, df_name, processed_df)
 
             self.species = np.sort(
-                self.total_luminosities_df.columns[1:], kind=SORTING_ALGORITHM
+                self._get_species_columns(), kind=SORTING_ALGORITHM
             )
 
         # Final calculations
@@ -442,6 +442,17 @@ class SDECPlotter:
             )
             df = df.drop(columns=excluded_keys)
         return df
+
+    def _get_species_columns(self):
+        """
+        Return actual species in the total luminosities dataframe, excluding
+        any that have been binned into the 'other' column.
+        """
+        columns = self.total_luminosities_df.columns
+        species_mask = [
+            column != ("other", "") and column != "other" for column in columns
+        ]
+        return columns[species_mask]
 
     def _calculate_grouped_luminosities(
         self, packets_mode, mask, nu_column, luminosities_df

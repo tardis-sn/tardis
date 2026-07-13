@@ -5,9 +5,8 @@ from numba import njit
 
 from tardis import constants as const
 from tardis.transport.frame_transformations import (
-    angle_aberration_CMF_to_LF,
-    get_doppler_factor_nonhomologous,
-    get_inverse_doppler_factor_nonhomologous,
+    get_doppler_factor,
+    get_inverse_doppler_factor,
 )
 from tardis.transport.montecarlo import njit_dict_no_parallel
 from tardis.transport.montecarlo.packets.radiative_packet import PacketStatus
@@ -32,8 +31,7 @@ def get_current_line_id(nu, line_list):
 
     reverse_line_list = line_list[::-1]
     number_of_lines = len(line_list)
-    line_id = number_of_lines - np.searchsorted(reverse_line_list, nu)
-    return line_id
+    return number_of_lines - np.searchsorted(reverse_line_list, nu)
 
 
 @njit(**njit_dict_no_parallel)
@@ -76,7 +74,7 @@ def bound_free_emission(
     continuum_id : int
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_doppler_factor = get_inverse_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,
@@ -166,7 +164,7 @@ def free_free_emission(
     opacity_state : tardis.transport.montecarlo.numba_interface.OpacityState
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_doppler_factor = get_inverse_doppler_factor(
         v, r_packet.mu, enable_full_relativity
     )
     comov_nu = sample_nu_free_free(opacity_state, r_packet.current_shell_id)
@@ -193,10 +191,10 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
     Parameters
     ----------
     r_packet : tardis.transport.montecarlo.r_packet.RPacket
-    geometry : 
+    geometry :
     """
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    old_doppler_factor = get_doppler_factor_nonhomologous(
+    old_doppler_factor = get_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,
@@ -204,7 +202,7 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
     comov_nu = r_packet.nu * old_doppler_factor
     comov_energy = r_packet.energy * old_doppler_factor
     r_packet.mu = get_random_mu()
-    inverse_new_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_new_doppler_factor = get_inverse_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,
@@ -217,11 +215,6 @@ def thomson_scatter(r_packet, geometry, enable_full_relativity):
         #r_packet.mu = angle_aberration_CMF_to_LF(
         #    r_packet, geometry, r_packet.mu
         #)
-    temp_doppler_factor = get_doppler_factor_nonhomologous(
-        v,
-        r_packet.mu,
-        enable_full_relativity,
-    )
 
 
 class LineInteractionType(IntEnum):
@@ -251,7 +244,7 @@ def line_emission(
     if emission_line_id != r_packet.next_line_id:
         pass
     v = geometry.get_velocity(r_packet.r, r_packet.current_shell_id)
-    inverse_doppler_factor = get_inverse_doppler_factor_nonhomologous(
+    inverse_doppler_factor = get_inverse_doppler_factor(
         v,
         r_packet.mu,
         enable_full_relativity,
@@ -270,7 +263,7 @@ def line_emission(
 
 @njit(**njit_dict_no_parallel)
 def determine_bf_macro_activation_idx(
-    opacity_state, nu, chi_bf_contributions, active_continua
+    opacity_state, nu, chi_bf_contributions, active_continua_index
 ):
     """
     Determine the macro atom activation level after bound-free absorption.
@@ -291,18 +284,18 @@ def determine_bf_macro_activation_idx(
         Macro atom activation idx.
     """
     # Perform a MC experiment to determine the continuum for absorption
-    index = np.searchsorted(chi_bf_contributions, np.random.random())
-    continuum_id = active_continua[index]
+    sampled_continuum_idx = np.searchsorted(chi_bf_contributions, np.random.random())
+    active_continuum_idx = active_continua_index[sampled_continuum_idx]
 
     # Perform a MC experiment to determine whether thermal or
     # ionization energy is created
-    nu_threshold = opacity_state.photo_ion_nu_threshold_mins[continuum_id]
+    nu_threshold = opacity_state.photo_ion_nu_threshold_mins[active_continuum_idx]
     fraction_ionization = nu_threshold / nu
     if (
         np.random.random() < fraction_ionization
     ):  # Create ionization energy (i-packet)
         destination_level_idx = opacity_state.photo_ion_activation_idx[
-            continuum_id
+            active_continuum_idx
         ]
     else:  # Create thermal energy (k-packet)
         destination_level_idx = opacity_state.k_packet_idx

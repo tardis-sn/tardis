@@ -193,6 +193,9 @@ lint.ignore = [
     "SIM201",  # NegateEqualOp
     "SIM300",  # yoda condition
 
+    # type-hinting
+    "TC001", # typing-only-first-party-import
+
     # flake8-print (T20)
     "T201",  # PrintUsed
 

@@ -131,14 +131,14 @@ class SimulationState(HDFWriterMixin):
     @property
     def dilution_factor(self):
         return self.radiation_field_state.dilution_factor[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @dilution_factor.setter
     def dilution_factor(self, new_dilution_factor):
         if len(new_dilution_factor) == self.no_of_shells:
             self.radiation_field_state.dilution_factor[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+                self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
             ] = new_dilution_factor
         else:
             raise ValueError(
@@ -148,14 +148,14 @@ class SimulationState(HDFWriterMixin):
     @property
     def t_radiative(self):
         return self.radiation_field_state.temperature[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @t_radiative.setter
     def t_radiative(self, new_t_radiative):
         if len(new_t_radiative) == self.no_of_shells:
             self.radiation_field_state.temperature[
-                self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+                self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
             ] = new_t_radiative
         else:
             raise ValueError(
@@ -173,7 +173,7 @@ class SimulationState(HDFWriterMixin):
         )
         elemental_number_density = elemental_number_density.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         elemental_number_density.columns = range(
             len(elemental_number_density.columns)
@@ -192,7 +192,7 @@ class SimulationState(HDFWriterMixin):
         )
         isotopic_number_density = isotopic_number_density.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         isotopic_number_density.columns = range(
             len(isotopic_number_density.columns)
@@ -243,7 +243,7 @@ class SimulationState(HDFWriterMixin):
     @property
     def density(self):
         return self.composition.density[
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx
         ]
 
     @property
@@ -253,7 +253,7 @@ class SimulationState(HDFWriterMixin):
         )
         elemental_mass_fraction = elemental_mass_fraction.iloc[
             :,
-            self.geometry.v_inner_boundary_index : self.geometry.v_outer_boundary_index,
+            self.geometry.v_inner_boundary_idx : self.geometry.v_outer_boundary_idx,
         ]
         elemental_mass_fraction.columns = range(
             len(elemental_mass_fraction.columns)

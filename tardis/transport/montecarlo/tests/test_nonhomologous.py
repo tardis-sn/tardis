@@ -24,7 +24,7 @@ from tardis.transport.montecarlo.modes.nonhomologous.interaction_events import (
 from tardis.transport.montecarlo.modes.nonhomologous.opacity_solver import (
     OpacitySolver as NonhomologousOpacitySolver,
 )
-from tardis.transport.montecarlo.modes.nonhomologous.rad_packet_transport import (
+from tardis.transport.montecarlo.packets.movement import (
     move_packet_across_shell_boundary,
 )
 from tardis.transport.montecarlo.modes.nonhomologous.tau_sobolev import (
@@ -342,7 +342,7 @@ def test_nonhomologous_opacity_solver(
             legacy_plasma.atomic_data.lines_upper2macro_reference_idx,
         )
         pdt.assert_series_equal(
-            macro_atom_state.macro_block_references,
+            macro_atom_state.macro_block_edge_index,
             legacy_plasma.atomic_data.macro_atom_references["block_references"],
         )
         pdt.assert_series_equal(
