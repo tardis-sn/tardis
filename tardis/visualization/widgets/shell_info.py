@@ -304,6 +304,11 @@ class ShellInfoWidget(param.Parameterized):
         self.element_count_table.link(self, selection="atomic_index")
         self.ion_count_table.link(self, selection="ion_index")
 
+        # Initialize selections to keep indices non-empty and trigger updates.
+        self.shells_table.selection = [0]
+        self.element_count_table.selection = [0]
+        self.ion_count_table.selection = [0]
+
     @param.depends("shell_index", watch=True)
     def update_element_count_table(self):
         """Event listener to update the data in element count table widget based
