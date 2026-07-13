@@ -1,5 +1,10 @@
 ## Changelog
 
+### release-2026.07.12 (2026/07/09 11:51)
+- [3634](https://github.com/tardis-sn/tardis/pull/3634) Make the bot only post in PRs if benchmarks change (3634) (@andrewfullard)
+- [3640](https://github.com/tardis-sn/tardis/pull/3640) Monte carlo deduplication (3640) (@andrewfullard)
+- [3608](https://github.com/tardis-sn/tardis/pull/3608) Monte Carlo refactoring tests (3608) (@andrewfullard)
+- [3638](https://github.com/tardis-sn/tardis/pull/3638) Post-release 2026.07.05 (3638) (@tardis-bot)
 ### release-2026.07.05 (2026/07/04 21:50)
 - [3637](https://github.com/tardis-sn/tardis/pull/3637) Pre-release 2026.07.05 (3637) (@tardis-bot)
 - [3585](https://github.com/tardis-sn/tardis/pull/3585) DilutePlanckian Field Test Case (3585) (@RishmitaR)
