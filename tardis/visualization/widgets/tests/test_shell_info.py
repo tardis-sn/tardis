@@ -135,9 +135,9 @@ class TestHDFShellInfo(TestBaseShellInfo):
 
 class TestShellInfoWidget:
     # Indices of each table to select for testing
-    select_shell_index = 4
-    select_atomic_index = 2
-    select_ion_index = 3
+    select_shell_idx = 4
+    select_atomic_idx = 2
+    select_ion_idx = 3
 
     @pytest.fixture(scope="class")
     def shell_info_widget(self, base_shell_info, monkeysession):
@@ -152,9 +152,9 @@ class TestShellInfoWidget:
     def test_selection_on_shells_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.shells_table.selection = [self.select_shell_index]
+        shell_info_widget.shells_table.selection = [self.select_shell_idx]
 
-        select_shell_num = self.select_shell_index+1
+        select_shell_num = self.select_shell_idx + 1
 
         expected_element_count = base_shell_info.element_count(
             select_shell_num
@@ -182,10 +182,10 @@ class TestShellInfoWidget:
     def test_selection_on_element_count_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.element_count_table.selection = [self.select_atomic_index]
+        shell_info_widget.element_count_table.selection = [self.select_atomic_idx]
 
-        select_shell_num = self.select_shell_index+1
-        select_atomic_num = shell_info_widget.element_count_table.value.index[self.select_atomic_index]
+        select_shell_num = self.select_shell_idx + 1
+        select_atomic_num = shell_info_widget.element_count_table.value.index[self.select_atomic_idx]
 
         expected_ion_count = base_shell_info.ion_count(
             select_atomic_num, select_shell_num
@@ -206,11 +206,11 @@ class TestShellInfoWidget:
     def test_selection_on_ion_count_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.ion_count_table.selection = [self.select_ion_index]
+        shell_info_widget.ion_count_table.selection = [self.select_ion_idx]
 
-        select_shell_num = self.select_shell_index + 1
-        select_atomic_num = shell_info_widget.element_count_table.value.index[self.select_atomic_index]
-        select_ion_num = shell_info_widget.ion_count_table.value.index[self.select_ion_index]
+        select_shell_num = self.select_shell_idx + 1
+        select_atomic_num = shell_info_widget.element_count_table.value.index[self.select_atomic_idx]
+        select_ion_num = shell_info_widget.ion_count_table.value.index[self.select_ion_idx]
 
         expected_level_count = base_shell_info.level_count(
             select_ion_num, select_atomic_num, select_shell_num
