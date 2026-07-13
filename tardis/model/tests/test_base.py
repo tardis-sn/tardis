@@ -1,5 +1,4 @@
 from pathlib import Path
-from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
@@ -9,30 +8,55 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.matter.composition import Composition
 from tardis.model.matter.decay import IsotopicMassFraction
 
 
-def test_isotopic_number_density_uses_shell_shaped_isotope_masses():
+@pytest.fixture
+def simulation_state_with_isotopes() -> SimulationState:
     isotope_index = pd.MultiIndex.from_tuples(
         [(28, 56)], names=["atomic_number", "mass_number"]
     )
-    simulation_state = SimulationState.__new__(SimulationState)
-    simulation_state.geometry = SimpleNamespace(
-        v_inner_boundary_index=1,
-        v_outer_boundary_index=3,
-    )
-    simulation_state.composition = SimpleNamespace(
-        isotopic_mass_fraction=pd.DataFrame(
+    density = np.array([10.0, 20.0, 30.0]) * u.g / u.cm**3
+    composition = Composition(
+        density=density,
+        nuclide_mass_fraction=pd.DataFrame(
             [[0.2, 0.3, 0.4]], index=isotope_index
         ),
-        density=np.array([10.0, 20.0, 30.0]),
-        isotope_masses=pd.DataFrame([[2.0, 2.0, 2.0]], index=isotope_index),
     )
 
+    velocity = np.arange(1.0, 5.0) * u.km / u.s
+    time_explosion = 5 * u.day
+    geometry = HomologousRadial1DGeometry(
+        v_inner=velocity[:-1],
+        v_outer=velocity[1:],
+        v_inner_boundary=velocity[1],
+        v_outer_boundary=velocity[-1],
+        time_explosion=time_explosion,
+    )
+
+    return SimulationState(
+        geometry=geometry,
+        composition=composition,
+        radiation_field_state=None,
+        time_explosion=time_explosion,
+        packet_source=None,
+    )
+
+
+def test_isotopic_number_density_uses_shell_shaped_isotope_masses(
+    simulation_state_with_isotopes: SimulationState,
+) -> None:
+    simulation_state = simulation_state_with_isotopes
     isotopic_number_density = simulation_state.isotopic_number_density
+    isotope_mass = simulation_state.composition.isotope_masses.iloc[0, 0]
+    expected_number_density = np.array([0.3 * 20.0, 0.4 * 30.0]) / isotope_mass
 
     assert list(isotopic_number_density.columns) == [0, 1]
-    assert_array_almost_equal(isotopic_number_density.loc[(28, 56)], [3.0, 6.0])
+    assert_array_almost_equal(
+        isotopic_number_density.loc[(28, 56)], expected_number_density
+    )
 
 
 @pytest.fixture
