@@ -23,5 +23,5 @@ def basic_gamma_ray():
         status=GXPacketStatus.IN_PROCESS,
         shell=1,
         time_start=2.0,
-        time_index=0,
+        time_idx=0,
     )

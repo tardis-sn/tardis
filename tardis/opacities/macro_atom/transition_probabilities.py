@@ -262,7 +262,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
         "level_absorption_probs",
         "deactivation_channel_probs",
         "transition_probabilities",
-        "macro_block_references",
+        "macro_block_edge_index",
         "macro_atom_data",
     )
     """
@@ -272,7 +272,7 @@ class MonteCarloTransProbs(ProcessingPlasmaProperty):
     level_absorption_probs
     deactivation_channel_probs
     transition_probabilities
-    macro_block_references
+    macro_block_edge_index
     macro_atom_data
     """
 
