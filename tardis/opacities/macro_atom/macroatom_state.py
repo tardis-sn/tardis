@@ -115,6 +115,7 @@ class MacroAtomState:
         absorbing_probability_matrix: np.ndarray | None = None,
         photo_ion_block_idx: int = -99,
         k_packet_idx: int = -99,
+        source_idx_to_absorbing_matrix_idx_map: dict = {},
     ) -> None:
         """
         Initialize a MacroAtomState object.
@@ -135,6 +136,8 @@ class MacroAtomState:
             Ndarray describing a single jump from an interaction handler activation to a state to deactivate from.
         k_packet_idx:
             Int describing the index location of the k_packet block
+        source_idx_to_absorbing_matrix_idx_map
+
         """
         self.transition_probabilities = transition_probabilities
         self.transition_metadata = transition_metadata
@@ -145,6 +148,9 @@ class MacroAtomState:
         self.absorbing_probability_matrix = absorbing_probability_matrix
         self.photo_ion_block_idx = photo_ion_block_idx
         self.k_packet_idx = k_packet_idx
+        self.source_idx_to_absorbing_matrix_idx_map = (
+            source_idx_to_absorbing_matrix_idx_map
+        )
 
     def to_legacy_format(self) -> LegacyMacroAtomState:
         """

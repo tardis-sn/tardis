@@ -35,6 +35,9 @@ class OpacityStateNumba:
     photo_ion_activation_idx: nb.int64[:]  # type: ignore[misc]
     k_packet_idx: nb.int64  # type: ignore[misc]
     absorbing_markov_probabilities: nb.float64[:, :, :]  # type: ignore[misc]
+    # source_idx_to_absorbing_matrix_idx_map: dict  # type: ignore[misc]
+    abs_matrix_source_indices: nb.int64[:]  # type: ignore[misc]
+    absorbing_matrix_indices: nb.int64[:]  # type: ignore[misc]
 
     def __init__(
         self,
@@ -149,6 +152,8 @@ class OpacityStateNumba:
         self.absorbing_markov_probabilities = np.ones(
             (0, 0, 0)
         )  # Double check that this is what we want to do. Fixes numba tests.
+        self.abs_matrix_source_indices = np.ndarray([])
+        self.absorbing_matrix_indices = np.ndarray([])
 
     def __getitem__(self, i: slice) -> "OpacityStateNumba":
         """Get a shell or slice of shells of the attributes of the opacity state.

@@ -162,6 +162,8 @@ class OpacityState:
         emissivities = np.zeros((0, 0), dtype=np.float64)
         photo_ion_activation_idx = np.zeros(0, dtype=np.int64)
         k_packet_idx = np.int64(-1)
+        abs_matrix_source_indices = np.zeros(0, dtype=np.int64)
+        absorbing_matrix_indices = np.zeros(0, dtype=np.int64)
 
         if line_interaction_type == "scatter":
             # to adhere to data types, we must have an array of minimum size 1
@@ -225,13 +227,22 @@ class OpacityState:
             emissivities = self.continuum_state.emissivities.values
             photo_ion_activation_idx = (
                 macro_atom_state.photo_ion_block_idx
-                * np.ones(
-                    30, dtype=np.int64
-                )  # TODO: Fix this more with flexible input. This will only work for Hydrogen
-            )
+                * np.ones(30, dtype=np.int64)
+            )  # JOSH: This works for hydrogen only photoionization. This should be fixed and read in better
+            # (
+            #     self.continuum_state.photo_ion_activation_idx.values
+            # )
             k_packet_idx = np.int64(macro_atom_state.k_packet_idx)
             absorbing_markov_probabilities = (
                 macro_atom_state.absorbing_probability_matrix
+            )
+            abs_matrix_source_indices = np.fromiter(
+                macro_atom_state.source_idx_to_absorbing_matrix_idx_map.keys(),
+                dtype=np.int64,
+            )
+            absorbing_matrix_indices = np.fromiter(
+                macro_atom_state.source_idx_to_absorbing_matrix_idx_map.values(),
+                dtype=np.int64,
             )
             return OpacityStateNumbaIIP(
                 electron_densities,
@@ -257,6 +268,8 @@ class OpacityState:
                 photo_ion_activation_idx,
                 k_packet_idx,
                 absorbing_markov_probabilities,
+                abs_matrix_source_indices,
+                absorbing_matrix_indices,
             )
         else:
             # Not continuum
