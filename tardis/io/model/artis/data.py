@@ -26,8 +26,6 @@ class ArtisData:
         tardis.model.geometry.radial1d.HomologousRadial1DGeometry
             The geometry object constructed from the ARTIS data.
         """
-        from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
-
         geometry = HomologousRadial1DGeometry(
             v_inner=self.velocity[:-1],
             v_outer=self.velocity[1:],
