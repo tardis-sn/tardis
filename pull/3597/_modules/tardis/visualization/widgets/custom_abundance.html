@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../_static/tardis_logo.ico"/>
       <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../_static/documentation_options.js?v=1e02deae"></script>
+      <script src="../../../../_static/documentation_options.js?v=945f2acb"></script>
       <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1001,7 +1001,7 @@ class CustomAbundanceWidget:
             # New shell will overwrite the original shell that ends at v_end.
             v_vals = np.delete(v_vals, end_index)
             self.data.abundance = self.data.abundance.drop(
-                max(0, end_index - 1), 1
+                max(0, end_index - 1), axis=1
             )
 
         # Insert new velocities calculate new densities according
@@ -1011,9 +1011,9 @@ class CustomAbundanceWidget:
 
         self.data.density = (
             np.interp(
-                v_vals,
+                v_vals[1:],
                 self.data.velocity[1:].value,
-                self.data.density[1:].value,
+                self.data.density.value,
             )
             * self.data.density.unit
         )
@@ -1024,7 +1024,7 @@ class CustomAbundanceWidget:
             self.data.abundance.insert(start_index, &quot;&quot;, new_shell_abundances)
             self.data.abundance = self.data.abundance.drop(
                 self.data.abundance.iloc[:, start_index : end_index - 1],
-                1,
+                axis=1,
             )
         else:
             if start_index == 0:
@@ -1945,7 +1945,7 @@ class DensityEditor:
         &quot;&quot;&quot;Read density data in DataFrame to density input box when
         shell No. changes.
         &quot;&quot;&quot;
-        dvalue = self.data.density[self.shell_no].value
+        dvalue = self.data.density[self.shell_no-1].value
         self._trigger = False
         self.input_d.value = float(f&quot;{dvalue:.3e}&quot;)
         self._trigger = True</div>
@@ -1955,7 +1955,7 @@ class DensityEditor:
 <a class="viewcode-back" href="../../../../api/tardis.visualization.widgets.custom_abundance.html#tardis.visualization.widgets.custom_abundance.DensityEditor.update_density_plot">[docs]</a>
     def update_density_plot(self):
         &quot;&quot;&quot;Update the density line in the plot.&quot;&quot;&quot;
-        y = np.append(self.data.density[1:], self.data.density[-1])
+        y = np.append(self.data.density, self.data.density[-1])
         self.fig.data[1].y = y</div>
 
 
@@ -1972,7 +1972,7 @@ class DensityEditor:
         &quot;&quot;&quot;
         if self._trigger:
             new_value = obj.new
-            self.data.density[self.shell_no] = (
+            self.data.density[self.shell_no-1] = (
                 new_value * self.data.density.unit
             )
 
@@ -2108,7 +2108,7 @@ class DensityEditor:
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 08 Jul 2026.
+      <span class="lastupdated">Last updated on 14 Jul 2026.
       </span></p>
   </div>
 
