@@ -1,15 +1,10 @@
-from __future__ import annotations
-
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
 
+import numpy as np
 import pandas as pd
+from astropy import units as u
 
-if TYPE_CHECKING:
-    import numpy as np
-    from astropy import units as u
-
-    from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
 
 
 @dataclass
