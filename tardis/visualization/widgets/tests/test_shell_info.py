@@ -135,9 +135,9 @@ class TestHDFShellInfo(TestBaseShellInfo):
 
 class TestShellInfoWidget:
     # Indices of each table to select for testing
-    select_shell_num = 4
-    select_atomic_num = 12
-    select_ion_num = 3
+    select_shell_idx = 4
+    select_atomic_idx = 2
+    select_ion_idx = 3
 
     @pytest.fixture(scope="class")
     def shell_info_widget(self, base_shell_info, monkeysession):
@@ -152,64 +152,69 @@ class TestShellInfoWidget:
     def test_selection_on_shells_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.shells_table.change_selection([self.select_shell_num])
+        shell_info_widget.shells_table.selection = [self.select_shell_idx]
+
+        select_shell_num = self.select_shell_idx + 1
 
         expected_element_count = base_shell_info.element_count(
-            self.select_shell_num
+            select_shell_num
         )
         pdt.assert_frame_equal(
-            expected_element_count, shell_info_widget.element_count_table.df
+            expected_element_count, shell_info_widget.element_count_table.value
         )
 
         expected_ion_count = base_shell_info.ion_count(
-            expected_element_count.index[0], self.select_shell_num
+            expected_element_count.index[0], select_shell_num
         )
         pdt.assert_frame_equal(
-            expected_ion_count, shell_info_widget.ion_count_table.df
+            expected_ion_count, shell_info_widget.ion_count_table.value
         )
 
         expected_level_count = base_shell_info.level_count(
             expected_ion_count.index[0],
             expected_element_count.index[0],
-            self.select_shell_num,
+            select_shell_num,
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
 
     def test_selection_on_element_count_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.element_count_table.change_selection(
-            [self.select_atomic_num]
-        )
+        shell_info_widget.element_count_table.selection = [self.select_atomic_idx]
+
+        select_shell_num = self.select_shell_idx + 1
+        select_atomic_num = shell_info_widget.element_count_table.value.index[self.select_atomic_idx]
 
         expected_ion_count = base_shell_info.ion_count(
-            self.select_atomic_num, self.select_shell_num
+            select_atomic_num, select_shell_num
         )
         pdt.assert_frame_equal(
-            expected_ion_count, shell_info_widget.ion_count_table.df
+            expected_ion_count, shell_info_widget.ion_count_table.value
         )
 
         expected_level_count = base_shell_info.level_count(
             expected_ion_count.index[0],
-            self.select_atomic_num,
-            self.select_shell_num,
+            select_atomic_num,
+            select_shell_num,
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
 
     def test_selection_on_ion_count_table(
         self, base_shell_info, shell_info_widget
     ):
-        shell_info_widget.ion_count_table.change_selection(
-            [self.select_ion_num]
-        )
+        shell_info_widget.ion_count_table.selection = [self.select_ion_idx]
+
+        select_shell_num = self.select_shell_idx + 1
+        select_atomic_num = shell_info_widget.element_count_table.value.index[self.select_atomic_idx]
+        select_ion_num = shell_info_widget.ion_count_table.value.index[self.select_ion_idx]
 
         expected_level_count = base_shell_info.level_count(
-            self.select_ion_num, self.select_atomic_num, self.select_shell_num
+            select_ion_num, select_atomic_num, select_shell_num
         )
         pdt.assert_frame_equal(
-            expected_level_count, shell_info_widget.level_count_table.df
+            expected_level_count, shell_info_widget.level_count_table.value
         )
