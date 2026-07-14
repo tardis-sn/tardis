@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=34bc066f"></script>
+      <script src="../_static/documentation_options.js?v=07293096"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -5057,6 +5057,34 @@ as columns, holding the mass fractions for each element and shell.</p>
 <dt class="sig sig-object py" id="tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions">
 <span class="sig-prename descclassname"><span class="pre">tardis.io.model.artis.readers.</span></span><span class="sig-name descname"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elemental_mass_fractions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_mass_fractions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/artis/readers.html#remove_explicit_isotopes_from_elemental_mass_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions" title="Link to this definition"></a></dt>
 <dd><p>Remove explicitly tracked ARTIS isotopes from elemental totals.</p>
+<p>ARTIS abundance files contain total elemental mass fractions, while the
+corresponding structure files separately identify selected isotopes. This
+function subtracts those isotope fractions from their elemental totals so
+that each nuclide is represented exactly once in the TARDIS composition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elemental_mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Total elemental mass fractions. Rows are indexed by atomic number and
+columns correspond to model cells.</p>
+</dd>
+<dt><strong>isotope_mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Explicit isotope mass fractions. Rows use a <code class="docutils literal notranslate"><span class="pre">(atomic_number,</span>
+<span class="pre">mass_number)</span></code> MultiIndex and columns correspond to model cells.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Residual elemental mass fractions with explicit isotope contributions
+removed. The index and columns follow <code class="docutils literal notranslate"><span class="pre">elemental_mass_fractions</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Isotope fractions are summed by atomic number before subtraction. Negative
+residuals no larger than machine precision are treated as floating-point
+roundoff and replaced with zero. Larger negative values are preserved for
+downstream composition validation.</p>
 </dd></dl>
 
 </section>
