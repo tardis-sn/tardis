@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6902b63f"></script>
+      <script src="../_static/documentation_options.js?v=931bc708"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -678,16 +678,6 @@
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="tardis.grid.html#module-tardis.grid">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="tardis.gui.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="tardis.gui.datahandler.html">tardis.gui.datahandler module</a></li>
-<li class="toctree-l6"><a class="reference internal" href="tardis.gui.interface.html">tardis.gui.interface module</a></li>
-<li class="toctree-l6"><a class="reference internal" href="tardis.gui.widgets.html">tardis.gui.widgets module</a></li>
-</ul>
-</li>
-<li class="toctree-l5"><a class="reference internal" href="tardis.gui.html#module-tardis.gui">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.iip_plasma.html">tardis.iip_plasma package</a><ul>
@@ -1848,7 +1838,12 @@
 </ul>
 </li>
 <li class="toctree-l7"><a class="reference internal" href="tardis.io.model.html#submodules">Submodules</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html">tardis.io.model.parse_composition_configuration module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html">tardis.io.model.parse_composition_configuration module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_config"><code class="docutils literal notranslate"><span class="pre">parse_composition_from_config()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_csvy"><code class="docutils literal notranslate"><span class="pre">parse_composition_from_csvy()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_density_from_config"><code class="docutils literal notranslate"><span class="pre">parse_density_from_config()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html">tardis.io.model.parse_density_configuration module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.calculate_density_after_time"><code class="docutils literal notranslate"><span class="pre">calculate_density_after_time()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.calculate_exponential_density"><code class="docutils literal notranslate"><span class="pre">calculate_exponential_density()</span></code></a></li>
@@ -2126,24 +2121,7 @@
 <li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l8"><a class="reference internal" href="tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities"><code class="docutils literal notranslate"><span class="pre">NonMarkovChainTransitionProbabilities</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities.outputs"><code class="docutils literal notranslate"><span class="pre">NonMarkovChainTransitionProbabilities.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.calculate"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities.calculate()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.initialize_macro_atom_transition_type_filters"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities.initialize_macro_atom_transition_type_filters()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.outputs"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities.outputs</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.prepare_transition_probabilities"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities.prepare_transition_probabilities()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_macro_atom_data"><code class="docutils literal notranslate"><span class="pre">get_macro_atom_data()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_transition_probability_coefs"><code class="docutils literal notranslate"><span class="pre">get_transition_probability_coefs()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_macro_atom_transition_type_filters"><code class="docutils literal notranslate"><span class="pre">initialize_macro_atom_transition_type_filters()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_transition_probabilities"><code class="docutils literal notranslate"><span class="pre">initialize_transition_probabilities()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l8"><a class="reference internal" href="tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a></li>
 <li class="toctree-l8"><a class="reference internal" href="tardis.opacities.macro_atom.macroatom_continuum_transitions.html">tardis.opacities.macro_atom.macroatom_continuum_transitions module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_deexc_to_k_packet"><code class="docutils literal notranslate"><span class="pre">collisional_transition_deexc_to_k_packet()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_internal"><code class="docutils literal notranslate"><span class="pre">collisional_transition_excitation_internal()</span></code></a></li>
@@ -3522,7 +3500,13 @@
 </li>
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html">tardis.transport.montecarlo.estimators.estimators_continuum module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.bf_heating_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.bf_heating_estimator</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.class_type</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.ff_heating_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.ff_heating_estimator</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.photo_ion_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.photo_ion_estimator</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.photo_ion_estimator_statistics"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.photo_ion_estimator_statistics</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.stim_recomb_cooling_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.stim_recomb_cooling_estimator</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.stim_recomb_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.stim_recomb_estimator</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.create_estimators_continuum_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_continuum_list()</span></code></a></li>
@@ -3532,6 +3516,8 @@
 <li class="toctree-l10"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_line.html">tardis.transport.montecarlo.estimators.estimators_line module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine"><code class="docutils literal notranslate"><span class="pre">EstimatorsLine</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsLine.class_type</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.energy_deposition_line_rate"><code class="docutils literal notranslate"><span class="pre">EstimatorsLine.energy_deposition_line_rate</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.mean_intensity_blueward"><code class="docutils literal notranslate"><span class="pre">EstimatorsLine.mean_intensity_blueward</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.create_estimators_line_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_line_list()</span></code></a></li>
@@ -3824,7 +3810,22 @@
 </li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
 <li class="toctree-l13"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.after_energy"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.after_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.after_mu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.after_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.after_nu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.after_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.before_energy"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.before_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.before_mu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.before_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.before_nu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.before_nu</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.class_type"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.class_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.energy"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interaction_line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.interaction_line_absorb_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interaction_line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.interaction_line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.interaction_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interactions_count"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.interactions_count</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.mu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.nu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.radius"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.radius</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.shell_id</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4962,11 +4963,6 @@
 <li class="toctree-l4"><a class="reference internal" href="tardis.grid.html#module-tardis.grid">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tardis.gui.html">tardis.gui package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tardis.gui.html#module-tardis.gui">Module contents</a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="tardis.iip_plasma.html">tardis.iip_plasma package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tardis.iip_plasma.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tardis.iip_plasma.html#submodules">Submodules</a></li>
@@ -5069,7 +5065,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 13 Jul 2026.
+      <span class="lastupdated">Last updated on 14 Jul 2026.
       </span></p>
   </div>
 
