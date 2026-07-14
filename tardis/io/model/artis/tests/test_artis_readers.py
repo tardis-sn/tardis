@@ -37,16 +37,12 @@ def artis_density_fname(artis_data_dir):
 def test_artis_density_reader(artis_density_fname: str):
     # Using a test ARTIS density file.
     # File: tardis_artis_density_test.dat
-    time_model, velocity, mean_density, isotopic_mass_fractions = (
-        read_artis_density(artis_density_fname, legacy_return=False)
-    )
+    time_model, velocity, mean_density = read_artis_density(artis_density_fname)
     # Check that time is recognized as time
     assert time_model.unit.physical_type == "time"
     # Check velocity unit is cm/s
     assert velocity.unit == u.Unit("cm/s")
     assert len(mean_density) == len(velocity) - 1
-    assert isotopic_mass_fractions.shape[1] == len(mean_density)
-    assert isotopic_mass_fractions.columns[0] == 2
     # The first ARTIS row is the unused inner shell.
     npt.assert_allclose(mean_density.value[0], 10**3.013383e-04)
     # Additional check that all density values are positive
@@ -102,9 +98,9 @@ def test_artis_model_reader(artis_data_dir):
     )
 
 
-def test_simple_legacy_read_artis_density(artis_density_fname: str):
+def test_read_artis_density(artis_density_fname: str):
     time_of_model, velocity, mean_density = read_artis_density(
-        artis_density_fname, legacy_return=True
+        artis_density_fname
     )
 
     assert np.isclose(0.00114661 * u.day, time_of_model, atol=1e-7 * u.day)

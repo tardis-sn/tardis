@@ -133,13 +133,6 @@ def read_density_file(filename, filetype):
             electron_densities,
             temperature,
         ) = read_cmfgen_density(filename)
-    elif filetype == "artis":
-        (
-            time_of_model,
-            velocity,
-            unscaled_mean_densities,
-            isotope_mass_fractions,
-        ) = file_parsers[filetype](filename, legacy_return=False)
     else:
         (time_of_model, velocity, unscaled_mean_densities) = file_parsers[
             filetype
