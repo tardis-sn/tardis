@@ -27,7 +27,35 @@ def remove_explicit_isotopes_from_elemental_mass_fractions(
     elemental_mass_fractions: pd.DataFrame,
     isotope_mass_fractions: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Remove explicitly tracked ARTIS isotopes from elemental totals."""
+    """Remove explicitly tracked ARTIS isotopes from elemental totals.
+
+    ARTIS abundance files contain total elemental mass fractions, while the
+    corresponding structure files separately identify selected isotopes. This
+    function subtracts those isotope fractions from their elemental totals so
+    that each nuclide is represented exactly once in the TARDIS composition.
+
+    Parameters
+    ----------
+    elemental_mass_fractions : pandas.DataFrame
+        Total elemental mass fractions. Rows are indexed by atomic number and
+        columns correspond to model cells.
+    isotope_mass_fractions : pandas.DataFrame
+        Explicit isotope mass fractions. Rows use a ``(atomic_number,
+        mass_number)`` MultiIndex and columns correspond to model cells.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Residual elemental mass fractions with explicit isotope contributions
+        removed. The index and columns follow ``elemental_mass_fractions``.
+
+    Notes
+    -----
+    Isotope fractions are summed by atomic number before subtraction. Negative
+    residuals no larger than machine precision are treated as floating-point
+    roundoff and replaced with zero. Larger negative values are preserved for
+    downstream composition validation.
+    """
     isotope_element_mass_fractions = isotope_mass_fractions.groupby(
         level="atomic_number"
     ).sum()
