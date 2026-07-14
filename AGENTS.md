@@ -121,6 +121,11 @@ upstream trunk and never work directly on local `master`.
 - Regression data lives in the separate `tardis-regression-data` repository and
   must remain outside this checkout. Run regression-backed tests with
   `--tardis-regression-data=/path/to/tardis-regression-data/`.
+- When touching code exercised by regression-backed tests, identify and run the
+  matching test path with `--tardis-regression-data`. Do not treat unit-test
+  results as a substitute. If the required regression dataset is unavailable,
+  report regression validation as incomplete and state the blocking reason in
+  the handoff.
 - Do not generate, overwrite, or commit regression references unless the task
   explicitly authorizes the behavior change and regression-data update. When
   authorized, inspect generated references, update the paired
@@ -154,4 +159,3 @@ upstream trunk and never work directly on local `master`.
   assumptions unless the request clearly includes that authority.
 - In every handoff, report files changed, scientific or behavioral rationale,
   commands run with outcomes, and every omitted check with its reason.
-
