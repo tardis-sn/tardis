@@ -653,7 +653,6 @@ def test_thermal_balance_solver(
     type_iip_workflow,
     iip_plasma_after_mc,
     regression_data,
-    thermal_balance_guess,
 ):
 
     type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
