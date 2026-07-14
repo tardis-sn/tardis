@@ -817,9 +817,9 @@ class CustomAbundanceWidget:
 
         self.data.density = (
             np.interp(
-                v_vals,
+                v_vals[1:],
                 self.data.velocity[1:].value,
-                self.data.density[1:].value,
+                self.data.density.value,
             )
             * self.data.density.unit
         )
@@ -1676,14 +1676,14 @@ class DensityEditor:
         """Read density data in DataFrame to density input box when
         shell No. changes.
         """
-        dvalue = self.data.density[self.shell_no].value
+        dvalue = self.data.density[self.shell_no-1].value
         self._trigger = False
         self.input_d.value = float(f"{dvalue:.3e}")
         self._trigger = True
 
     def update_density_plot(self):
         """Update the density line in the plot."""
-        y = np.append(self.data.density[1:], self.data.density[-1])
+        y = np.append(self.data.density, self.data.density[-1])
         self.fig.data[1].y = y
 
     def input_d_eventhandler(self, obj):
@@ -1697,7 +1697,7 @@ class DensityEditor:
         """
         if self._trigger:
             new_value = obj.new
-            self.data.density[self.shell_no] = (
+            self.data.density[self.shell_no-1] = (
                 new_value * self.data.density.unit
             )
 
