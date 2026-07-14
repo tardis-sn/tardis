@@ -1,7 +1,0 @@
-tardis.iip\_plasma.properties.base module
-=========================================
-
-.. automodule:: tardis.iip_plasma.properties.base
-   :members:
-   :show-inheritance:
-   :undoc-members:
