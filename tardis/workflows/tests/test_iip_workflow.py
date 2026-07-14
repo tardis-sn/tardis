@@ -1,7 +1,4 @@
-from __future__ import annotations
-
 from copy import deepcopy
-from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -10,10 +7,6 @@ import pytest
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-    from typing import Any
 
 
 def _max_rel_diff(actual, expected):
@@ -27,7 +20,7 @@ def _max_rel_diff(actual, expected):
     return float(np.nanmax(relative_difference))
 
 
-def _as_regression_dataframe(value: Any) -> pd.DataFrame:
+def _as_regression_dataframe(value: pd.DataFrame | pd.Series) -> pd.DataFrame:
     if isinstance(value, pd.DataFrame):
         return value
     if isinstance(value, pd.Series):
@@ -40,9 +33,9 @@ def _as_regression_dataframe(value: Any) -> pd.DataFrame:
 
 
 def _assert_regression_dataframe(
-    regression_data: Any,
+    regression_data: pd.DataFrame | pd.Series,
     key: str,
-    actual: Any,
+    actual: pd.DataFrame | pd.Series,
     *,
     rtol: float = 1e-12,
     atol: float = 0.0,
@@ -86,30 +79,6 @@ INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS = (
 @pytest.fixture
 def iip_regression_path(tardis_regression_path):
     return tardis_regression_path / "tardis" / "workflows" / "tests"
-
-
-@pytest.fixture
-def thermal_balance_guess() -> Callable[[Any], tuple[np.ndarray, np.ndarray]]:
-    def build_guess(plasma_solver: Any) -> tuple[np.ndarray, np.ndarray]:
-        max_electron_number_density = (
-            plasma_solver.number_density.multiply(
-                plasma_solver.number_density.index.values,
-                axis=0,
-            )
-            .sum()
-            .values
-        )
-        electron_fraction = (
-            plasma_solver.electron_densities / max_electron_number_density
-        ).values
-
-        guess = np.zeros(2 * len(plasma_solver.link_t_rad_t_electron))
-        guess[::2] = electron_fraction
-        guess[1::2] = plasma_solver.link_t_rad_t_electron
-
-        return guess, max_electron_number_density
-
-    return build_guess
 
 
 @pytest.fixture
@@ -372,7 +341,7 @@ def test_type_iip_workflow_initial_plasma_regression(
             regression_data,
             f"workflow_init_{attr}",
             getattr(type_iip_workflow.plasma_solver, attr),
-            rtol=1e-10 # Mac ARM64 tolerance
+            rtol=1e-10,  # Mac ARM64 tolerance
         )
 
 
@@ -686,6 +655,29 @@ def test_iip_plasma_after_mc(
         )
 
 
+def thermal_balance_guess(
+    plasma_solver: LegacyPlasmaArray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Used for test below to calculate a thermal balance guess from a plasma"""
+    max_electron_number_density = (
+        plasma_solver.number_density.multiply(
+            plasma_solver.number_density.index.values,
+            axis=0,
+        )
+        .sum()
+        .values
+    )
+    electron_fraction = (
+        plasma_solver.electron_densities / max_electron_number_density
+    ).values
+
+    guess = np.zeros(2 * len(plasma_solver.link_t_rad_t_electron))
+    guess[::2] = electron_fraction
+    guess[1::2] = plasma_solver.link_t_rad_t_electron
+
+    return guess, max_electron_number_density
+
+
 def test_thermal_balance_solver(
     iip_regression_path,
     type_iip_workflow,
@@ -693,6 +685,7 @@ def test_thermal_balance_solver(
     regression_data,
     thermal_balance_guess,
 ):
+
     type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
     initial_guess, max_electron_number_density = thermal_balance_guess(
         type_iip_workflow.plasma_solver
@@ -819,7 +812,7 @@ def test_thermal_balance_solver(
         regression_data,
         "after_thermal_balance_fractional_heating",
         iip_plasma_after_mc.fractional_heating,
-        atol=2e-13, # values near zero
+        atol=2e-13,  # values near zero
     )
 
     for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
