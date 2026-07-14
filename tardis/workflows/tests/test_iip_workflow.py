@@ -372,6 +372,7 @@ def test_type_iip_workflow_initial_plasma_regression(
             regression_data,
             f"workflow_init_{attr}",
             getattr(type_iip_workflow.plasma_solver, attr),
+            rtol=1e-10 # Mac ARM64 tolerance
         )
 
 
