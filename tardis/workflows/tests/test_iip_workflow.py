@@ -36,7 +36,6 @@ def _assert_regression_dataframe(
     regression_data: pd.DataFrame | pd.Series,
     key: str,
     actual: pd.DataFrame | pd.Series,
-    *,
     rtol: float = 1e-12,
     atol: float = 0.0,
 ) -> None:
