@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../../../_static/tardis_logo.ico"/>
       <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../../../_static/documentation_options.js?v=17646f8d"></script>
+      <script src="../../../../../_static/documentation_options.js?v=34bc066f"></script>
       <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -675,16 +675,6 @@
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../../api/tardis.grid.html#module-tardis.grid">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../api/tardis.gui.html">tardis.gui package</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="../../../../../api/tardis.gui.html#submodules">Submodules</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="../../../../../api/tardis.gui.datahandler.html">tardis.gui.datahandler module</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../../../api/tardis.gui.interface.html">tardis.gui.interface module</a></li>
-<li class="toctree-l6"><a class="reference internal" href="../../../../../api/tardis.gui.widgets.html">tardis.gui.widgets module</a></li>
-</ul>
-</li>
-<li class="toctree-l5"><a class="reference internal" href="../../../../../api/tardis.gui.html#module-tardis.gui">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../api/tardis.iip_plasma.html">tardis.iip_plasma package</a><ul>
@@ -1695,6 +1685,7 @@
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1847,7 +1838,12 @@
 </ul>
 </li>
 <li class="toctree-l7"><a class="reference internal" href="../../../../../api/tardis.io.model.html#submodules">Submodules</a><ul>
-<li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.io.model.parse_composition_configuration.html">tardis.io.model.parse_composition_configuration module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.io.model.parse_composition_configuration.html">tardis.io.model.parse_composition_configuration module</a><ul>
+<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_config"><code class="docutils literal notranslate"><span class="pre">parse_composition_from_config()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_csvy"><code class="docutils literal notranslate"><span class="pre">parse_composition_from_csvy()</span></code></a></li>
+<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_density_from_config"><code class="docutils literal notranslate"><span class="pre">parse_density_from_config()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.io.model.parse_density_configuration.html">tardis.io.model.parse_density_configuration module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.calculate_density_after_time"><code class="docutils literal notranslate"><span class="pre">calculate_density_after_time()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.io.model.parse_density_configuration.html#tardis.io.model.parse_density_configuration.calculate_exponential_density"><code class="docutils literal notranslate"><span class="pre">calculate_exponential_density()</span></code></a></li>
@@ -2125,24 +2121,7 @@
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.absorbing_markov_chain.html#tardis.opacities.macro_atom.absorbing_markov_chain.create_absorbing_probs"><code class="docutils literal notranslate"><span class="pre">create_absorbing_probs()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a><ul>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities"><code class="docutils literal notranslate"><span class="pre">NonMarkovChainTransitionProbabilities</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.NonMarkovChainTransitionProbabilities.outputs"><code class="docutils literal notranslate"><span class="pre">NonMarkovChainTransitionProbabilities.outputs</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities</span></code></a><ul>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.calculate"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities.calculate()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.initialize_macro_atom_transition_type_filters"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities.initialize_macro_atom_transition_type_filters()</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.outputs"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities.outputs</span></code></a></li>
-<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.TransitionProbabilities.prepare_transition_probabilities"><code class="docutils literal notranslate"><span class="pre">TransitionProbabilities.prepare_transition_probabilities()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_macro_atom_data"><code class="docutils literal notranslate"><span class="pre">get_macro_atom_data()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.get_transition_probability_coefs"><code class="docutils literal notranslate"><span class="pre">get_transition_probability_coefs()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_macro_atom_transition_type_filters"><code class="docutils literal notranslate"><span class="pre">initialize_macro_atom_transition_type_filters()</span></code></a></li>
-<li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html#tardis.opacities.macro_atom.base.initialize_transition_probabilities"><code class="docutils literal notranslate"><span class="pre">initialize_transition_probabilities()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.base.html">tardis.opacities.macro_atom.base module</a></li>
 <li class="toctree-l8"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html">tardis.opacities.macro_atom.macroatom_continuum_transitions module</a><ul>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_deexc_to_k_packet"><code class="docutils literal notranslate"><span class="pre">collisional_transition_deexc_to_k_packet()</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.opacities.macro_atom.macroatom_continuum_transitions.html#tardis.opacities.macro_atom.macroatom_continuum_transitions.collisional_transition_excitation_internal"><code class="docutils literal notranslate"><span class="pre">collisional_transition_excitation_internal()</span></code></a></li>
@@ -3521,7 +3500,13 @@
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html">tardis.transport.montecarlo.estimators.estimators_continuum module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.bf_heating_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.bf_heating_estimator</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.class_type</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.ff_heating_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.ff_heating_estimator</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.photo_ion_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.photo_ion_estimator</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.photo_ion_estimator_statistics"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.photo_ion_estimator_statistics</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.stim_recomb_cooling_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.stim_recomb_cooling_estimator</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.EstimatorsContinuum.stim_recomb_estimator"><code class="docutils literal notranslate"><span class="pre">EstimatorsContinuum.stim_recomb_estimator</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_continuum.html#tardis.transport.montecarlo.estimators.estimators_continuum.create_estimators_continuum_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_continuum_list()</span></code></a></li>
@@ -3531,6 +3516,8 @@
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_line.html">tardis.transport.montecarlo.estimators.estimators_line module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine"><code class="docutils literal notranslate"><span class="pre">EstimatorsLine</span></code></a><ul>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.class_type"><code class="docutils literal notranslate"><span class="pre">EstimatorsLine.class_type</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.energy_deposition_line_rate"><code class="docutils literal notranslate"><span class="pre">EstimatorsLine.energy_deposition_line_rate</span></code></a></li>
+<li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.EstimatorsLine.mean_intensity_blueward"><code class="docutils literal notranslate"><span class="pre">EstimatorsLine.mean_intensity_blueward</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l11"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.estimators.estimators_line.html#tardis.transport.montecarlo.estimators.estimators_line.create_estimators_line_list"><code class="docutils literal notranslate"><span class="pre">create_estimators_line_list()</span></code></a></li>
@@ -3823,7 +3810,22 @@
 </li>
 <li class="toctree-l12"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html">tardis.transport.montecarlo.packets.trackers.tracker_last_interaction module</a><ul>
 <li class="toctree-l13"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction</span></code></a><ul>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.after_energy"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.after_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.after_mu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.after_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.after_nu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.after_nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.before_energy"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.before_energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.before_mu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.before_mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.before_nu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.before_nu</span></code></a></li>
 <li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.class_type"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.class_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.energy"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.energy</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interaction_line_absorb_id"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.interaction_line_absorb_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interaction_line_emit_id"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.interaction_line_emit_id</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interaction_type"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.interaction_type</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.interactions_count"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.interactions_count</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.mu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.mu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.nu"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.nu</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.radius"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.radius</span></code></a></li>
+<li class="toctree-l14"><a class="reference internal" href="../../../../../api/tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.html#tardis.transport.montecarlo.packets.trackers.tracker_last_interaction.TrackerLastInteraction.shell_id"><code class="docutils literal notranslate"><span class="pre">TrackerLastInteraction.shell_id</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4331,7 +4333,11 @@
 </li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.HDFShellInfo"><code class="docutils literal notranslate"><span class="pre">HDFShellInfo</span></code></a></li>
 <li class="toctree-l9"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget</span></code></a><ul>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.atomic_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.atomic_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.display"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.display()</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.ion_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.ion_idx</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.name"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.name</span></code></a></li>
+<li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.shell_idx"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.shell_idx</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_element_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_element_count_table()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_ion_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_ion_count_table()</span></code></a></li>
 <li class="toctree-l10"><a class="reference internal" href="../../../../../api/tardis.visualization.widgets.shell_info.html#tardis.visualization.widgets.shell_info.ShellInfoWidget.update_level_count_table"><code class="docutils literal notranslate"><span class="pre">ShellInfoWidget.update_level_count_table()</span></code></a></li>
@@ -4750,6 +4756,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../current_developers/code_style_and_syntax.html#naming-conventions">Naming Conventions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../current_developers/code_style_and_syntax.html#explanation-variable-and-function-names">Explanation: Variable and Function Names</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../current_developers/code_style_and_syntax.html#index-vs-idx-in-tardis">Index vs. IDX in TARDIS</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../current_developers/code_style_and_syntax.html#type-hinting">Type Hinting</a><ul>
@@ -4936,7 +4943,6 @@
              
   <h1>Source code for tardis.io.model.artis.readers</h1><div class="highlight"><pre>
 <span></span>from pathlib import Path
-from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -4944,8 +4950,26 @@ from astropy import units as u
 
 from tardis.io.model.artis.data import ArtisData
 
+ARTIS_MODEL_COLUMNS = (
+    &quot;cell_index&quot;,
+    &quot;velocities&quot;,
+    &quot;mean_densities_0&quot;,
+    &quot;ni56_mass_fraction&quot;,
+    &quot;co56_mass_fraction&quot;,
+    &quot;fe52_mass_fraction&quot;,
+    &quot;cr48_mass_fraction&quot;,
+)
+ARTIS_ISOTOPES = {
+    &quot;ni56_mass_fraction&quot;: (28, 56),
+    &quot;co56_mass_fraction&quot;: (27, 56),
+    &quot;fe52_mass_fraction&quot;: (26, 52),
+    &quot;cr48_mass_fraction&quot;: (24, 48),
+}
 
-def _remove_explicit_isotopes_from_elemental_mass_fractions(
+
+<div class="viewcode-block" id="remove_explicit_isotopes_from_elemental_mass_fractions">
+<a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions">[docs]</a>
+def remove_explicit_isotopes_from_elemental_mass_fractions(
     elemental_mass_fractions: pd.DataFrame,
     isotope_mass_fractions: pd.DataFrame,
 ) -&gt; pd.DataFrame:
@@ -4960,38 +4984,58 @@ def _remove_explicit_isotopes_from_elemental_mass_fractions(
     roundoff_negative = (residual_elemental_mass_fractions &lt; 0.0) &amp; (
         residual_elemental_mass_fractions &gt;= -np.finfo(np.float64).eps
     )
-    return residual_elemental_mass_fractions.mask(roundoff_negative, 0.0)
+    return residual_elemental_mass_fractions.mask(roundoff_negative, 0.0)</div>
+
+
+
+def _read_artis_structure(fname: str | Path) -&gt; ArtisData:
+    &quot;&quot;&quot;Read density and isotope data from an ARTIS structure file.&quot;&quot;&quot;
+    fname = Path(fname)
+    with fname.open() as fh:
+        no_of_shells = int(fh.readline().strip())
+        time_of_model = u.Quantity(float(fh.readline().strip()), &quot;day&quot;).to(&quot;s&quot;)
+
+    artis_model = pd.read_csv(
+        fname,
+        skiprows=2,
+        usecols=(0, 1, 2, 4, 5, 6, 7),
+        dtype=dict.fromkeys(ARTIS_MODEL_COLUMNS, np.float64),
+        names=ARTIS_MODEL_COLUMNS,
+        sep=r&quot;\s+&quot;,
+    )
+    assert len(artis_model) == no_of_shells, (
+        f&quot;Number of shells {len(artis_model)} does not match metadata {no_of_shells}&quot;
+    )
+
+    isotope_mass_fractions = artis_model[list(ARTIS_ISOTOPES)].T.copy()
+    isotope_mass_fractions.index = pd.MultiIndex.from_tuples(
+        ARTIS_ISOTOPES.values(),
+        names=[&quot;atomic_number&quot;, &quot;mass_number&quot;],
+    )
+    isotope_mass_fractions.columns = artis_model[&quot;cell_index&quot;].astype(np.int64)
+    isotope_mass_fractions.columns.name = &quot;cell_index&quot;
+
+    return ArtisData(
+        time_of_model=time_of_model,
+        velocity=u.Quantity(artis_model[&quot;velocities&quot;], &quot;km/s&quot;).to(&quot;cm/s&quot;),
+        mean_density=u.Quantity(
+            10 ** artis_model[&quot;mean_densities_0&quot;], &quot;g/cm^3&quot;
+        )[1:],
+        isotope_mass_fractions=isotope_mass_fractions.iloc[:, 1:],
+    )
 
 
 <div class="viewcode-block" id="read_artis_density">
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density">[docs]</a>
 def read_artis_density(
-    fname: str | Path, legacy_return: bool = True
-) -&gt; (
-    tuple[u.Quantity, u.Quantity, u.Quantity]
-    | tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]
-):
-    &quot;&quot;&quot;
-    Read an ARTIS density file.
-
-    The file is expected to have:
-      • First line: number of shells (ignored beyond reading the integer).
-      • Second line: time of the model in days, which is then converted to seconds.
-      • Remaining lines: columns containing cell_id, velocity (km/s), log10(density),
-        and mass fractions of Ni56, Co56, Fe52, and Cr48.
-
-    Notes
-    -----
-    The first density (i.e., the center of the model) is not used in the returned arrays.
+    fname: str | Path,
+) -&gt; tuple[u.Quantity, u.Quantity, u.Quantity]:
+    &quot;&quot;&quot;Read an ARTIS density file. Returns the time of model, velocity, and density.
 
     Parameters
     ----------
     fname : str or pathlib.Path
         Path to the ARTIS density file.
-    legacy_return : bool, optional
-        If True, returns (time_of_model, velocity, mean_density).
-        If False, returns (time_of_model, velocity, mean_density, isotope_mass_fractions).
-        Default is True.
 
     Returns
     -------
@@ -5001,67 +5045,13 @@ def read_artis_density(
         The velocity array in cm/s.
     mean_density : astropy.units.Quantity
         The array of mean densities in g/cm^3, excluding the first (central) value.
-    isotope_mass_fractions : pandas.DataFrame, optional
-        Mass fractions for Ni56, Co56, Fe52, and Cr48 if legacy_return=False.
-        The DataFrame has a MultiIndex of (Z, A) for rows and the cell_id for columns.
     &quot;&quot;&quot;
-    fname = Path(fname)
-    with fname.open() as fh:
-        for i, line in enumerate(fh):
-            if i == 0:
-                no_of_shells = np.int64(line.strip())
-            elif i == 1:
-                time_of_model = u.Quantity(float(line.strip()), &quot;day&quot;).to(&quot;s&quot;)
-            elif i == 2:
-                break
-
-    artis_model_columns = [
-        &quot;cell_index&quot;,
-        &quot;velocities&quot;,
-        &quot;mean_densities_0&quot;,
-        &quot;ni56_mass_fraction&quot;,
-        &quot;co56_mass_fraction&quot;,
-        &quot;fe52_mass_fraction&quot;,
-        &quot;cr48_mass_fraction&quot;,
-    ]
-
-    artis_model = pd.read_csv(
-        fname,
-        skiprows=2,
-        usecols=(0, 1, 2, 4, 5, 6, 7),
-        dtype=dict.fromkeys(artis_model_columns, np.float64),
-        names=artis_model_columns,
-        sep=r&quot;\s+&quot;,
-    )
-    assert len(artis_model) == no_of_shells, (
-        f&quot;Number of shells {len(artis_model)} does not match metadata {no_of_shells}&quot;
-    )
-    velocity = u.Quantity(artis_model[&quot;velocities&quot;], &quot;km/s&quot;).to(&quot;cm/s&quot;)
-    mean_density = u.Quantity(10 ** artis_model[&quot;mean_densities_0&quot;], &quot;g/cm^3&quot;)
-
-    isotope_mass_fractions = pd.DataFrame(
-        artis_model[
-            [
-                &quot;ni56_mass_fraction&quot;,
-                &quot;co56_mass_fraction&quot;,
-                &quot;fe52_mass_fraction&quot;,
-                &quot;cr48_mass_fraction&quot;,
-            ]
-        ].T
-    )
-    isotope_mass_fractions.index = pd.MultiIndex.from_tuples(
-        [(28, 56), (27, 56), (26, 52), (24, 48)],
-        names=[&quot;atomic_number&quot;, &quot;mass_number&quot;],
-    )
-
-    isotope_mass_fractions.columns = artis_model[&quot;cell_index&quot;].astype(np.int64)
-    isotope_mass_fractions.columns.name = &quot;cell_index&quot;
-    mean_density = mean_density[1:]
-    isotope_mass_fractions = isotope_mass_fractions.iloc[:, 1:]
-
-    if legacy_return:
-        return time_of_model, velocity, mean_density
-    return time_of_model, velocity, mean_density, isotope_mass_fractions</div>
+    artis_data = _read_artis_structure(fname)
+    return (
+        artis_data.time_of_model,
+        artis_data.velocity,
+        artis_data.mean_density,
+    )</div>
 
 
 
@@ -5110,6 +5100,16 @@ def read_artis_mass_fractions(
 
 
 
+def _read_artis_abundances(
+    abundance_fname: str | Path,
+    isotope_mass_fractions: pd.DataFrame,
+) -&gt; pd.DataFrame:
+    elemental_mass_fractions = read_artis_mass_fractions(abundance_fname)
+    return remove_explicit_isotopes_from_elemental_mass_fractions(
+        elemental_mass_fractions, isotope_mass_fractions
+    )
+
+
 <div class="viewcode-block" id="read_artis_composition">
 <a class="viewcode-back" href="../../../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition">[docs]</a>
 def read_artis_composition(
@@ -5139,15 +5139,15 @@ def read_artis_composition(
     isotope_mass_fractions : pandas.DataFrame
         Isotopic mass fractions indexed by atomic and mass number.
     &quot;&quot;&quot;
-    _, _, _, isotope_mass_fractions = cast(
-        &quot;tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]&quot;,
-        read_artis_density(density_fname, legacy_return=False),
+    artis_data = _read_artis_structure(density_fname)
+    elemental_mass_fractions = _read_artis_abundances(
+        abundance_fname, artis_data.isotope_mass_fractions
     )
-    mass_fractions = read_artis_mass_fractions(abundance_fname)
-    mass_fractions = _remove_explicit_isotopes_from_elemental_mass_fractions(
-        mass_fractions, isotope_mass_fractions
-    )
-    return mass_fractions.index, mass_fractions, isotope_mass_fractions</div>
+    return (
+        elemental_mass_fractions.index,
+        elemental_mass_fractions,
+        artis_data.isotope_mass_fractions,
+    )</div>
 
 
 
@@ -5171,28 +5171,21 @@ def read_artis_model(
     ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     &quot;&quot;&quot;
-    time_of_model, velocity, mean_density, isotope_mass_fractions = cast(
-        &quot;tuple[u.Quantity, u.Quantity, u.Quantity, pd.DataFrame]&quot;,
-        read_artis_density(density_fname, legacy_return=False),
+    artis_data = _read_artis_structure(density_fname)
+    elemental_mass_fractions = _read_artis_abundances(
+        abundance_fname, artis_data.isotope_mass_fractions
     )
-    mass_fractions = read_artis_mass_fractions(abundance_fname)
-    mass_fractions = _remove_explicit_isotopes_from_elemental_mass_fractions(
-        mass_fractions, isotope_mass_fractions
-    )
-    mass_fractions.index = pd.MultiIndex.from_arrays(
-        [mass_fractions.index, [-1] * len(mass_fractions.index)],
+    elemental_mass_fractions.index = pd.MultiIndex.from_arrays(
+        [
+            elemental_mass_fractions.index,
+            [-1] * len(elemental_mass_fractions.index),
+        ],
         names=[&quot;atomic_number&quot;, &quot;mass_number&quot;],
     )
-
-    mass_fractions = pd.concat([mass_fractions, isotope_mass_fractions], axis=0)
-
-    return ArtisData(
-        time_of_model=time_of_model,
-        velocity=velocity,
-        mean_density=mean_density,
-        mass_fractions=mass_fractions,
-        isotope_mass_fractions=isotope_mass_fractions,
-    )</div>
+    artis_data.mass_fractions = pd.concat(
+        [elemental_mass_fractions, artis_data.isotope_mass_fractions]
+    )
+    return artis_data</div>
 
 </pre></div>
 
@@ -5204,7 +5197,7 @@ def read_artis_model(
 
   <div role="contentinfo">
     <p>&#169; Copyright 2013-2026, TARDIS Collaboration.
-      <span class="lastupdated">Last updated on 13 Jul 2026.
+      <span class="lastupdated">Last updated on 14 Jul 2026.
       </span></p>
   </div>
 

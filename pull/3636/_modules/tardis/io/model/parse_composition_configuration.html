@@ -14,7 +14,7 @@
     </script>
     
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tardis.plasma.properties.radiative_properties &mdash; tardis</title>
+  <title>tardis.io.model.parse_composition_configuration &mdash; tardis</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -4932,7 +4932,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">tardis.plasma.properties.radiative_properties</li>
+      <li class="breadcrumb-item active">tardis.io.model.parse_composition_configuration</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -4941,202 +4941,164 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for tardis.plasma.properties.radiative_properties</h1><div class="highlight"><pre>
+  <h1>Source code for tardis.io.model.parse_composition_configuration</h1><div class="highlight"><pre>
 <span></span>import logging
 
-import numpy as np
 import pandas as pd
 from astropy import units as u
 
-from tardis import constants as const
-from tardis.opacities.macro_atom.base import TransitionProbabilities
-from tardis.plasma.properties.base import (
-    ProcessingPlasmaProperty,
-    TransitionProbabilitiesProperty,
+from tardis.io.configuration.config_reader import Configuration
+from tardis.io.model.parse_density_configuration import (
+    calculate_density_after_time,
+    parse_density_from_csvy,
+    parse_density_section_config,
 )
+from tardis.io.model.parse_geometry_configuration import (
+    parse_structure_from_config,
+)
+from tardis.io.model.parse_mass_fraction_configuration import (
+    parse_mass_fractions_from_config,
+    parse_mass_fractions_from_csvy,
+)
+from tardis.model.geometry.radial1d import HomologousRadial1DGeometry
+from tardis.model.matter.composition import Composition
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    &quot;StimulatedEmissionFactor&quot;,
-    &quot;RawRadBoundBoundTransProbs&quot;,
-]
 
-C_EINSTEIN = (
-    4.0 * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)
-).value  # See tardis/docs/physics/plasma/macroatom.rst
+<div class="viewcode-block" id="parse_density_from_config">
+<a class="viewcode-back" href="../../../../api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_density_from_config">[docs]</a>
+def parse_density_from_config(
+    config: Configuration,
+) -&gt; tuple[u.Quantity, u.Quantity | None]:
+    &quot;&quot;&quot;Parse the configuration file and produce a density at time_explosion.
 
-
-<div class="viewcode-block" id="StimulatedEmissionFactor">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor">[docs]</a>
-class StimulatedEmissionFactor(ProcessingPlasmaProperty):
-    &quot;&quot;&quot;
-    Attributes
+    Parameters
     ----------
-    stimulated_emission_factor : Numpy Array, dtype float
-         Indexed by lines, columns as zones.
+    config
+        The configuration object.
+
+    Returns
+    -------
+    density
+        Density at time_explosion.
+    electron_densities
+        Electron densities.
     &quot;&quot;&quot;
+    time_explosion = config.supernova.time_explosion.cgs
+    (
+        density_time,
+        velocity,
+        density,
+        electron_densities,
+        temperature,
+    ) = parse_structure_from_config(config)
 
-    outputs = (&quot;stimulated_emission_factor&quot;,)
-    latex_formula = (r&quot;1-\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}&quot;,)
-
-    def __init__(self, plasma_parent=None, nlte_species=None):
-        super().__init__(plasma_parent)
-        self._g_upper = None
-        self._g_lower = None
-        self.nlte_species = nlte_species
-
-<div class="viewcode-block" id="StimulatedEmissionFactor.get_g_lower">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_lower">[docs]</a>
-    def get_g_lower(self, g, lines_lower_level_index):
-        if self._g_lower is None:
-            g_lower = np.array(
-                g.iloc[lines_lower_level_index], dtype=np.float64
-            )
-            self._g_lower = g_lower[np.newaxis].T
-        return self._g_lower</div>
-
-
-<div class="viewcode-block" id="StimulatedEmissionFactor.get_g_upper">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_g_upper">[docs]</a>
-    def get_g_upper(self, g, lines_upper_level_index):
-        if self._g_upper is None:
-            g_upper = np.array(
-                g.iloc[lines_upper_level_index], dtype=np.float64
-            )
-            self._g_upper = g_upper[np.newaxis].T
-        return self._g_upper</div>
-
-
-<div class="viewcode-block" id="StimulatedEmissionFactor.get_metastable_upper">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.get_metastable_upper">[docs]</a>
-    def get_metastable_upper(self, metastability, lines_upper_level_index):
-        if getattr(self, &quot;_meta_stable_upper&quot;, None) is None:
-            self._meta_stable_upper = metastability.values[
-                lines_upper_level_index
-            ][np.newaxis].T
-        return self._meta_stable_upper</div>
-
-
-<div class="viewcode-block" id="StimulatedEmissionFactor.calculate">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.StimulatedEmissionFactor.calculate">[docs]</a>
-    def calculate(
-        self,
-        g,
-        level_number_density,
-        lines_lower_level_index,
-        lines_upper_level_index,
-        metastability,
-        lines,
-    ):
-        n_lower = level_number_density.values.take(
-            lines_lower_level_index, axis=0, mode=&quot;raise&quot;
-        )
-        n_upper = level_number_density.values.take(
-            lines_upper_level_index, axis=0, mode=&quot;raise&quot;
-        )
-        g_lower = self.get_g_lower(g, lines_lower_level_index)
-        g_upper = self.get_g_upper(g, lines_upper_level_index)
-        meta_stable_upper = self.get_metastable_upper(
-            metastability, lines_upper_level_index
+    if density is None:
+        adjusted_velocity = velocity.insert(0, 0)
+        v_middle = adjusted_velocity[1:] * 0.5 + adjusted_velocity[:-1] * 0.5
+        d_conf = config.model.structure.density
+        density, density_time = parse_density_section_config(
+            d_conf, v_middle, time_explosion
         )
 
-        # In theory the factor should be 1 for n_lower = 0, but in practice the opacity is reduced to 0 anyway
-        stimulated_emission_factor = np.zeros(n_lower.shape, dtype=np.float64)
-
-        n_lower_zero_mask = n_lower == 0.0
-        stimulated_emission_factor[~n_lower_zero_mask] = 1 - (
-            (g_lower * n_upper)[~n_lower_zero_mask]
-            / (g_upper * n_lower)[~n_lower_zero_mask]
+    density = calculate_density_after_time(density, density_time, time_explosion)
+    # Note: This is the number of shells *without* taking in mind the
+    #       v boundaries.
+    if len(density) == len(velocity):
+        logger.warning(
+            &quot;Number of density points larger than number of shells. Assuming inner point irrelevant&quot;
         )
+        density = density[1:]
 
-        # the following line probably can be removed as well
-        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = (
-            0.0
-        )
-        stimulated_emission_factor[
-            meta_stable_upper &amp; (stimulated_emission_factor &lt; 0)
-        ] = 0.0
-        if self.nlte_species:
-            nlte_lines_mask = (
-                lines.reset_index()
-                .apply(
-                    lambda row: (row.atomic_number, row.ion_number)
-                    in self.nlte_species,
-                    axis=1,
-                )
-                .values
-            )
-            stimulated_emission_factor[
-                (stimulated_emission_factor &lt; 0) &amp; nlte_lines_mask[np.newaxis].T
-            ] = 0.0
-        return stimulated_emission_factor</div>
-</div>
+    return density, electron_densities</div>
 
 
 
-<div class="viewcode-block" id="RawRadBoundBoundTransProbs">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs">[docs]</a>
-class RawRadBoundBoundTransProbs(
-    TransitionProbabilities, TransitionProbabilitiesProperty
-):
-    &quot;&quot;&quot;
-    Attributes
+<div class="viewcode-block" id="parse_composition_from_config">
+<a class="viewcode-back" href="../../../../api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_config">[docs]</a>
+def parse_composition_from_config(
+    atom_data,
+    config: Configuration,
+    time_explosion: u.Quantity,
+    geometry: HomologousRadial1DGeometry,
+) -&gt; tuple[Composition, u.Quantity | None]:
+    &quot;&quot;&quot;Parse the composition data from a config.
+
+    Parameters
     ----------
-    p_rad_bb : pandas.DataFrame, dtype float
-        Unnormalized transition probabilities for radiative bound-bound
-        transitions
+    atom_data
+        The atom data used for parsing.
+    config
+        The configuration data.
+    time_explosion
+        The time of the explosion.
+    geometry
+        The geometry of the model.
+
+    Returns
+    -------
+    composition
+        The parsed composition.
+    electron_densities
+        Electron densities.
     &quot;&quot;&quot;
+    density, electron_densities = parse_density_from_config(config)
 
-    outputs = (&quot;p_rad_bb&quot;,)
-    transition_probabilities_outputs = (&quot;p_rad_bb&quot;,)
+    nuclide_mass_fractions = parse_mass_fractions_from_config(
+        config, geometry, time_explosion
+    )
 
-    def __init__(self, plasma_parent):
-        super().__init__(plasma_parent)
-        self.normalize = False
+    return (
+        Composition(
+            density,
+            nuclide_mass_fractions,
+        ),
+        electron_densities,
+    )</div>
 
-<div class="viewcode-block" id="RawRadBoundBoundTransProbs.calculate">
-<a class="viewcode-back" href="../../../../api/tardis.plasma.properties.radiative_properties.html#tardis.plasma.properties.radiative_properties.RawRadBoundBoundTransProbs.calculate">[docs]</a>
-    def calculate(
-        self,
-        atomic_data,
-        beta_sobolev,
-        j_blues,
-        stimulated_emission_factor,
-        tau_sobolevs,
-        continuum_interaction_species,
-    ):
-        p_rad_bb = super().calculate(
-            atomic_data,
-            beta_sobolev,
-            j_blues,
-            stimulated_emission_factor,
-            tau_sobolevs,
-        )
-        transition_type = atomic_data.macro_atom_data.transition_type.replace(
-            1, 0
-        )
-        index = pd.MultiIndex.from_arrays(
-            [
-                atomic_data.macro_atom_data.source_level_idx,
-                atomic_data.macro_atom_data.destination_level_idx,
-                transition_type,
-            ]
-        )
-        mask_continuum_species = pd.MultiIndex.from_arrays(
-            [
-                atomic_data.macro_atom_data.atomic_number,
-                atomic_data.macro_atom_data.ion_number,
-            ]
-        ).isin(continuum_interaction_species)
-        p_rad_bb = p_rad_bb.set_index(index, drop=True)[mask_continuum_species]
-        # To obtain energy-flow rates in cgs from the precomputed transition
-        # probabilities in the atomic data, we have to multiply by the
-        # constant C_EINSTEIN and convert from eV to erg.
-        # See tardis/docs/physics/plasma/macroatom.rst
-        p_rad_bb = p_rad_bb * C_EINSTEIN * u.eV.to(u.erg)
-        return p_rad_bb</div>
-</div>
+
+
+<div class="viewcode-block" id="parse_composition_from_csvy">
+<a class="viewcode-back" href="../../../../api/tardis.io.model.parse_composition_configuration.html#tardis.io.model.parse_composition_configuration.parse_composition_from_csvy">[docs]</a>
+def parse_composition_from_csvy(
+    csvy_model_config: Configuration,
+    csvy_model_data: pd.DataFrame | None,
+    time_explosion: u.Quantity,
+    geometry: HomologousRadial1DGeometry,
+) -&gt; Composition:
+    &quot;&quot;&quot;Parse the composition data from a CSVY model.
+
+    Parameters
+    ----------
+    csvy_model_config
+        The configuration data of the CSVY model.
+    csvy_model_data
+        The data of the CSVY model.
+    time_explosion
+        The time of the explosion.
+    geometry
+        The geometry of the model.
+
+    Returns
+    -------
+    composition
+        The parsed composition.
+
+    Notes
+    -----
+    This function parses the composition data from a CSVY model. It calls the &#39;parse_density_from_csvy&#39;
+    function to parse the density data, and the &#39;parse_mass_fractions_from_csvy&#39; function to parse the mass fraction
+    and isotope mass fraction data. The parsed data is returned as a Composition object.
+    &quot;&quot;&quot;
+    density = parse_density_from_csvy(
+        csvy_model_config, csvy_model_data, time_explosion
+    )
+
+    nuclide_mass_fractions = parse_mass_fractions_from_csvy(
+        csvy_model_config, csvy_model_data, geometry, time_explosion
+    )
+    return Composition(density, nuclide_mass_fractions)</div>
 
 </pre></div>
 
