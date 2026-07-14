@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import numpy.testing as npt
+import pandas as pd
 import pytest
 from astropy import units as u
 from astropy.version import version as astropy_version
@@ -413,3 +414,61 @@ def iip_atom_data(tardis_regression_path):
     atom_data.has_collision_data = False
 
     return atom_data
+
+
+def _as_regression_dataframe(value: pd.DataFrame | pd.Series) -> pd.DataFrame:
+    """Convert a regression_data object to a dataframe
+
+    Parameters
+    ----------
+    value : pd.DataFrame | pd.Series
+        Regression data value
+
+    Returns
+    -------
+    pd.DataFrame
+        Regression data as DataFrame
+    """
+    if isinstance(value, pd.DataFrame):
+        return value
+    if isinstance(value, pd.Series):
+        return value.to_frame("value")
+
+    values = np.asarray(value)
+    if values.ndim == 1:
+        return pd.DataFrame({"value": values})
+    return pd.DataFrame(values)
+
+
+def assert_regression_dataframe(
+    regression_data: pd.DataFrame | pd.Series,
+    key: str,
+    actual: pd.DataFrame | pd.Series,
+    rtol: float = 1e-12,
+    atol: float = 0.0,
+) -> None:
+    """Sync and test a regression object as a DataFrame
+
+    Parameters
+    ----------
+    regression_data : pd.DataFrame | pd.Series
+        Regression data
+    key : str
+        Regression data key
+    actual : pd.DataFrame | pd.Series
+        Test data
+    rtol : float, optional
+        Relative tolerance for comparison, by default 1e-12
+    atol : float, optional
+        Absolute tolerance for comparison, by default 0.0
+    """
+    actual_frame = _as_regression_dataframe(actual)
+    expected_frame = regression_data.sync_dataframe(actual_frame, key=key)
+    pd.testing.assert_frame_equal(
+        actual_frame,
+        expected_frame,
+        rtol=rtol,
+        atol=atol,
+        check_dtype=False,
+        check_names=False,
+    )

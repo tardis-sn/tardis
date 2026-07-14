@@ -4,12 +4,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from tardis.conftest import assert_regression_dataframe
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
 
 def _max_rel_diff(actual, expected):
+    """Helper function to print relative diffs for checking broken tests"""
     actual_vals = actual.values
     expected_vals = expected.values
 
@@ -18,37 +20,6 @@ def _max_rel_diff(actual, expected):
     )
 
     return float(np.nanmax(relative_difference))
-
-
-def _as_regression_dataframe(value: pd.DataFrame | pd.Series) -> pd.DataFrame:
-    if isinstance(value, pd.DataFrame):
-        return value
-    if isinstance(value, pd.Series):
-        return value.to_frame("value")
-
-    values = np.asarray(value)
-    if values.ndim == 1:
-        return pd.DataFrame({"value": values})
-    return pd.DataFrame(values)
-
-
-def _assert_regression_dataframe(
-    regression_data: pd.DataFrame | pd.Series,
-    key: str,
-    actual: pd.DataFrame | pd.Series,
-    rtol: float = 1e-12,
-    atol: float = 0.0,
-) -> None:
-    actual_frame = _as_regression_dataframe(actual)
-    expected_frame = regression_data.sync_dataframe(actual_frame, key=key)
-    pd.testing.assert_frame_equal(
-        actual_frame,
-        expected_frame,
-        rtol=rtol,
-        atol=atol,
-        check_dtype=False,
-        check_names=False,
-    )
 
 
 PLASMA_SOLVER_REGRESSION_OUTPUTS = (
@@ -336,7 +307,7 @@ def test_type_iip_workflow_initial_plasma_regression(
     regression_data,
 ):
     for attr in INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS:
-        _assert_regression_dataframe(
+        assert_regression_dataframe(
             regression_data,
             f"workflow_init_{attr}",
             getattr(type_iip_workflow.plasma_solver, attr),
@@ -638,7 +609,7 @@ def test_iip_plasma_after_mc(
         check_names=False,
     )
 
-    _assert_regression_dataframe(
+    assert_regression_dataframe(
         regression_data,
         "after_mc_fractional_heating",
         iip_plasma_after_mc.fractional_heating,
@@ -646,7 +617,7 @@ def test_iip_plasma_after_mc(
     )
 
     for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
-        _assert_regression_dataframe(
+        assert_regression_dataframe(
             regression_data,
             f"after_mc_{attr}",
             getattr(iip_plasma_after_mc, attr),
@@ -693,7 +664,7 @@ def test_thermal_balance_solver(
         initial_guess,
         max_electron_number_density,
     )
-    _assert_regression_dataframe(
+    assert_regression_dataframe(
         regression_data,
         "thermal_balance_iteration_initial_residual",
         initial_residual,
@@ -807,7 +778,7 @@ def test_thermal_balance_solver(
         check_names=False,
     )
 
-    _assert_regression_dataframe(
+    assert_regression_dataframe(
         regression_data,
         "after_thermal_balance_fractional_heating",
         iip_plasma_after_mc.fractional_heating,
@@ -815,7 +786,7 @@ def test_thermal_balance_solver(
     )
 
     for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
-        _assert_regression_dataframe(
+        assert_regression_dataframe(
             regression_data,
             f"after_thermal_balance_{attr}",
             getattr(type_iip_workflow.plasma_solver, attr),
@@ -829,7 +800,7 @@ def test_thermal_balance_solver(
         final_guess,
         max_electron_number_density,
     )
-    _assert_regression_dataframe(
+    assert_regression_dataframe(
         regression_data,
         "thermal_balance_iteration_residual",
         residual,
