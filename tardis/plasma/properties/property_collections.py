@@ -1,5 +1,4 @@
 from tardis.plasma.properties import *
-from tardis.opacities.continuum.bound_free import BoundFreeOpacity
 
 
 class PlasmaPropertyCollection(list):
@@ -82,53 +81,4 @@ helium_lte_properties = PlasmaPropertyCollection(
 )
 helium_numerical_nlte_properties = PlasmaPropertyCollection(
     [HeliumNumericalNLTE]
-)
-continuum_interaction_inputs = PlasmaPropertyCollection(
-    [
-        PhotoIonRateCoeff,
-        StimRecombRateFactor,
-        BfHeatingRateCoeffEstimator,
-        StimRecombCoolingRateCoeffEstimator,
-        YgData,
-    ]
-)
-continuum_interaction_properties = PlasmaPropertyCollection(
-    [
-        StimRecombRateCoeff,
-        PhotoIonizationData,
-        SpontRecombRateCoeff,
-        ThermalLevelBoltzmannFactorLTE,
-        ThermalLTEPartitionFunction,
-        BetaElectron,
-        ThermalGElectron,
-        ThermalPhiSahaLTE,
-        SahaFactor,
-        CorrPhotoIonRateCoeff,
-        SpontRecombCoolingRateCoeff,
-        YgInterpolator,
-        CollExcRateCoeff,
-        CollDeexcRateCoeff,
-        RawCollisionTransProbs,
-        MarkovChainIndex,
-        FreeFreeCoolingRate,
-        FreeBoundCoolingRate,
-        LevelNumberDensityLTE,
-        PhotoIonBoltzmannFactor,
-        FreeBoundEmissionCDF,
-        LevelIdxs2LineIdx,
-        LevelIdxs2TransitionIdx,
-        CollIonRateCoeffSeaton,
-        CollRecombRateCoeff,
-        ContinuumInteractionHandler,
-        BoundFreeOpacity,  # Adding this property for continuum - probably shouldn't be there long term
-    ]
-)
-adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
-two_photon_properties = PlasmaPropertyCollection(
-    [
-        RawTwoPhotonTransProbs,
-        TwoPhotonData,
-        TwoPhotonEmissionCDF,
-        TwoPhotonFrequencySampler,
-    ]
 )

@@ -10,7 +10,6 @@ from tardis.io.configuration.config_reader import Configuration
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     BoundBoundMacroAtomSolver,
-    ContinuumMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.assembly import PlasmaSolverFactory
@@ -22,9 +21,6 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 )
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
-)
-from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
-    MCContinuumPropertiesSolver,
 )
 from tardis.transport.montecarlo.modes.classic.solver import (
     MCTransportSolverClassic,
@@ -93,8 +89,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
         )
 
         line_interaction_type = configuration.plasma.line_interaction_type
-        continuum_interactions = configuration.plasma.continuum_interaction
-
         self.opacity_solver = OpacitySolver(
             line_interaction_type,
             configuration.plasma.disable_line_scattering,
@@ -102,15 +96,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         if line_interaction_type == "scatter":
             self.macro_atom_solver = None
-        elif continuum_interactions.species:
-            self.macro_atom_solver = ContinuumMacroAtomSolver(
-                atom_data.levels,
-                atom_data.lines,
-                atom_data.photoionization_data,
-                atom_data.ionization_data,
-                selected_continuum_transitions=self.plasma_solver.continuum_interaction_species,
-                line_interaction_type=line_interaction_type,
-            )
         else:
             self.macro_atom_solver = BoundBoundMacroAtomSolver(
                 atom_data.levels,
@@ -375,21 +360,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
             raise ValueError(
                 f"radiative_rates_type type unknown - {self.plasma.plasma_solver_settings.RADIATIVE_RATES_TYPE}"
             )
-        if isinstance(self.macro_atom_solver, ContinuumMacroAtomSolver):
-            continuum_property_solver = MCContinuumPropertiesSolver(
-                self.plasma_solver.atomic_data
-            )
-            estimated_continuum_properties = continuum_property_solver.solve(
-                self.transport_state.estimators_continuum,
-                self.transport_state.time_of_simulation,
-                self.transport_state.geometry_state.volume,
-            )
-            update_properties.update(
-                gamma=estimated_continuum_properties.photo_ionization_rate_coefficient,
-                alpha_stim_factor=estimated_continuum_properties.stimulated_recombination_rate_factor,
-                bf_heating_coeff_estimator=self.transport_state.estimators_continuum.bf_heating_estimator,
-                stim_recomb_cooling_coeff_estimator=self.transport_state.estimators_continuum.stim_recomb_cooling_estimator,
-            )
         self.plasma_solver.update(**update_properties)
 
     def solve_opacity(self):
@@ -407,23 +377,6 @@ class SimpleTARDISWorkflow(WorkflowLogging):
 
         if self.macro_atom_solver is None:
             macro_atom_state = None
-        elif isinstance(self.macro_atom_solver, ContinuumMacroAtomSolver):
-            macro_atom_state = self.macro_atom_solver.solve(
-                self.plasma_solver.j_blues,
-                opacity_state.beta_sobolev,
-                self.plasma_solver.stimulated_emission_factor,
-                self.plasma_solver.gamma_corr,
-                self.plasma_solver.alpha_sp,
-                self.plasma_solver.coll_deexc_coeff,
-                self.plasma_solver.coll_exc_coeff,
-                self.plasma_solver.coll_ion_coeff,
-                self.plasma_solver.coll_recomb_coeff,
-                self.plasma_solver.electron_densities,
-                self.plasma_solver.delta_E_yg,
-            )
-            opacity_state.continuum_state.k_packet_idx = macro_atom_state.references_index.iloc[
-                -1
-            ]  # Hacky way to point to k-packet activation level - continuum state needs to be reexamined
         else:
             macro_atom_state = self.macro_atom_solver.solve(
                 self.plasma_solver.j_blues,

@@ -7,6 +7,7 @@ from numpy.testing import assert_almost_equal
 
 from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
+from tardis.plasma.assembly.base import PlasmaSolverFactory
 from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.exceptions import PlasmaConfigError
 
@@ -56,10 +57,23 @@ def test_from_config_dict(tardis_config_verysimple):
 
     tardis_config_verysimple["spectrum"]["start"] = "Invalid"
     with pytest.raises(ValidationError):
-        conf = Configuration.from_config_dict(
+        Configuration.from_config_dict(
             tardis_config_verysimple, validate=True, config_dirname="test"
         )
 
+
+def test_classic_continuum_interactions_require_iip(tardis_config_verysimple):
+    config = Configuration.from_config_dict(tardis_config_verysimple)
+    config.plasma.continuum_interaction.species = ["H I"]
+    plasma_solver_factory = PlasmaSolverFactory(atom_data=None, config=config)
+
+    with pytest.raises(
+        PlasmaConfigError,
+        match=r"Continuum interactions are supported only by the IIP workflow\.",
+    ):
+        plasma_solver_factory.prepare_factory(
+            [], "tardis.plasma.properties.property_collections", config
+        )
 
 def test_config_hdf(hdf_file_path, tardis_config_verysimple):
     expected = Configuration.from_config_dict(

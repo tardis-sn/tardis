@@ -1,10 +1,6 @@
-from tardis.opacities.continuum.bound_free import BoundFreeOpacity
 from tardis.opacities.macro_atom.base import (
     NonMarkovChainTransitionProbabilities,
     TransitionProbabilities,
-)
-from tardis.opacities.macro_atom.continuum_processes.collisional_ion_trans_prob import (
-    RawCollIonTransProbs,
 )
 from tardis.opacities.tau_sobolev import BetaSobolev, TauSobolev
 from tardis.plasma.properties import *
@@ -88,63 +84,4 @@ helium_lte_properties = PlasmaPropertyCollection(
 )
 helium_numerical_nlte_properties = PlasmaPropertyCollection(
     [HeliumNumericalNLTE]
-)
-continuum_interaction_inputs = PlasmaPropertyCollection(
-    [
-        PhotoIonRateCoeff,
-        StimRecombRateFactor,
-        BfHeatingRateCoeffEstimator,
-        StimRecombCoolingRateCoeffEstimator,
-        YgData,
-    ]
-)
-continuum_interaction_properties = PlasmaPropertyCollection(
-    [
-        StimRecombRateCoeff,
-        PhotoIonizationData,
-        SpontRecombRateCoeff,
-        ThermalLevelBoltzmannFactorLTE,
-        ThermalLTEPartitionFunction,
-        BetaElectron,
-        ThermalGElectron,
-        ThermalPhiSahaLTE,
-        SahaFactor,
-        CorrPhotoIonRateCoeff,
-        SpontRecombCoolingRateCoeff,
-        RawRecombTransProbs,
-        RawPhotoIonTransProbs,
-        RawRadBoundBoundTransProbs,
-        MarkovChainTransProbs,
-        NonContinuumTransProbsMask,
-        YgInterpolator,
-        CollExcRateCoeff,
-        CollDeexcRateCoeff,
-        RawCollisionTransProbs,
-        MarkovChainIndex,
-        MarkovChainTransProbsCollector,
-        NonMarkovChainTransitionProbabilities,
-        MonteCarloTransProbs,
-        FreeFreeCoolingRate,
-        FreeBoundCoolingRate,
-        BoundFreeOpacity,
-        LevelNumberDensityLTE,
-        PhotoIonBoltzmannFactor,
-        FreeBoundEmissionCDF,
-        LevelIdxs2LineIdx,
-        LevelIdxs2TransitionIdx,
-        CollIonRateCoeffSeaton,
-        CollRecombRateCoeff,
-        RawCollIonTransProbs,
-        ContinuumInteractionHandler,
-        BetaSobolev,
-    ]
-)
-adiabatic_cooling_properties = PlasmaPropertyCollection([AdiabaticCoolingRate])
-two_photon_properties = PlasmaPropertyCollection(
-    [
-        RawTwoPhotonTransProbs,
-        TwoPhotonData,
-        TwoPhotonEmissionCDF,
-        TwoPhotonFrequencySampler,
-    ]
 )

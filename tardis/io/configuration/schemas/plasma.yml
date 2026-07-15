@@ -83,7 +83,7 @@ properties:
       species:
         type: array
         default: []
-        description: Species that are requested to be treated with continuum
+        description: Species that are requested to be treated with IIP continuum
             interactios (radiative/collisional ionization and recombination)
             in the format ['Si II', 'Ca I', etc.]
       enable_adiabatic_cooling:

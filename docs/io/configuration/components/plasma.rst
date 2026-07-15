@@ -47,7 +47,7 @@ Continuum Interaction
                 - He II 
             enable_adiabatic_cooling: True
 
-This will add continuum interactions for all specified species. Setting :math:`T_\textrm{rad} = T_\textrm{electron}` through 
+Continuum interactions are supported only by the IIP workflow. This will add continuum interactions for all specified species in that workflow. Setting :math:`T_\textrm{rad} = T_\textrm{electron}` through
 ``link_t_rad_t_electron: 1.0`` is recommended to enforce LTE (unless the simulation uses NLTE treatment). 
 ``enable_adiabatic_cooling`` enables adiabatic cooling.
 
