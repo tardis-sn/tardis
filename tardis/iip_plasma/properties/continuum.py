@@ -57,62 +57,23 @@ def calculate_rate_coefficient_from_estimator(
 
 
 def integrate_array_by_level_groups(
-    values: np.ndarray, nu: pd.Series
-) -> pd.Series | pd.DataFrame:
-    group_indices, index, nu_values = prepare_level_group_integration(nu)
-    return integrate_array_by_prepared_level_groups(
-        values,
-        group_indices,
-        index,
-        nu_values,
-    )
-
-
-def prepare_level_group_integration(
-    nu: pd.Series,
-) -> tuple[tuple[np.ndarray, ...], pd.MultiIndex, np.ndarray]:
-    """Prepare reusable level-group metadata for continuum integration.
-
-    Parameters
-    ----------
-    nu : pandas.Series
-        Frequencies indexed by atomic number, ion number, and level number.
-
-    Returns
-    -------
-    tuple[tuple[numpy.ndarray, ...], pandas.MultiIndex, numpy.ndarray]
-        Group row positions, the grouped level index, and the frequency values
-        aligned with arrays passed to ``integrate_array_by_prepared_level_groups``.
-    """
-    grouped_nu = tuple(nu.groupby(level=[0, 1, 2]).indices.items())
-    group_indices = tuple(group_indices for _, group_indices in grouped_nu)
-    index = pd.MultiIndex.from_tuples(
-        [group_key for group_key, _ in grouped_nu],
-        names=nu.index.names,
-    )
-    return group_indices, index, nu.values
-
-
-def integrate_array_by_prepared_level_groups(
     values: np.ndarray,
-    group_indices: tuple[np.ndarray, ...],
-    index: pd.MultiIndex,
-    nu_values: np.ndarray,
+    nu: pd.Series,
+    level_groups: tuple[tuple[tuple[int, int, int], np.ndarray], ...]
+    | None = None,
 ) -> pd.Series | pd.DataFrame:
-    """Integrate values over precomputed continuum level groups.
+    """Integrate values over continuum level groups.
 
     Parameters
     ----------
     values : numpy.ndarray
-        One- or two-dimensional values aligned with ``nu_values`` along the
-        first axis.
-    group_indices : tuple[numpy.ndarray, ...]
-        Row positions for each level group, as returned by
-        ``prepare_level_group_integration``.
-    index : pandas.MultiIndex
-        Output index for the integrated level groups.
-    nu_values : numpy.ndarray
-        Frequency values aligned with the first axis of ``values``.
+        One- or two-dimensional values aligned with ``nu`` along the first
+        axis.
+    nu : pandas.Series
+        Frequencies indexed by atomic number, ion number, and level number.
+    level_groups : tuple, optional
+        Cached pairs of level index and row positions. If omitted, they are
+        derived from ``nu``.
 
     Returns
     -------
@@ -121,17 +82,25 @@ def integrate_array_by_prepared_level_groups(
         returns a Series; two-dimensional input returns a DataFrame with the
         remaining input axis preserved as columns.
     """
+    if level_groups is None:
+        level_groups = tuple(nu.groupby(level=[0, 1, 2]).indices.items())
+
+    index = pd.MultiIndex.from_tuples(
+        [group_key for group_key, _ in level_groups],
+        names=nu.index.names,
+    )
+    nu_values = nu.to_numpy()
     if values.ndim == 1:
-        integrated = np.empty(len(group_indices))
-        for group_number, indices in enumerate(group_indices):
+        integrated = np.empty(len(level_groups))
+        for group_number, (_, indices) in enumerate(level_groups):
             integrated[group_number] = trapezoid(
                 values[indices],
                 nu_values[indices],
             )
         return pd.Series(integrated, index=index)
 
-    integrated = np.empty((len(group_indices), values.shape[1]))
-    for group_number, indices in enumerate(group_indices):
+    integrated = np.empty((len(level_groups), values.shape[1]))
+    for group_number, (_, indices) in enumerate(level_groups):
         integrated[group_number] = trapezoid(
             values[indices],
             nu_values[indices],
@@ -807,9 +776,9 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
 
         Returns
         -------
-        tuple[pandas.Series, tuple[tuple[numpy.ndarray, ...], pandas.MultiIndex, numpy.ndarray]]
-            Bound-free energy prefactor and prepared integration metadata used
-            by the thermal balance solver.
+        tuple
+            Frequencies, threshold frequencies, bound-free energy prefactor,
+            collisional-ionization coefficients, and cached level groups.
         """
         cache_key = id(photo_ion_cross_sections)
         if cache_key not in self._photo_ion_thermal_cache:
@@ -829,7 +798,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
             alpha_sp_energy_prefactor = alpha_sp_energy_prefactor.multiply(
                 1.0 - nu_i_expanded
             )
-            integration_data = prepare_level_group_integration(nu)
+            level_groups = tuple(nu.groupby(level=[0, 1, 2]).indices.items())
 
             collion_coeff = photo_ion_cross_sections.groupby(
                 level=[0, 1, 2]
@@ -845,7 +814,7 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
                 nu_i,
                 alpha_sp_energy_prefactor,
                 collion_coeff,
-                integration_data,
+                level_groups,
             )
         return self._photo_ion_thermal_cache[cache_key]
 
@@ -1200,15 +1169,16 @@ class ThermalBalanceTest(ProcessingPlasmaProperty):
             _,
             alpha_sp_energy_prefactor,
             _,
-            integration_data,
+            level_groups,
         ) = self._get_photo_ion_thermal_data(photo_ion_cross_sections)
         boltzmann_factor = np.exp(
             -nu.values / t_electron * (const.h.cgs.value / const.k_B.cgs.value)
         )
         alpha_sp_E = alpha_sp_energy_prefactor.values * boltzmann_factor
-        alpha_sp_E = integrate_array_by_prepared_level_groups(
+        alpha_sp_E = integrate_array_by_level_groups(
             alpha_sp_E,
-            *integration_data,
+            nu,
+            level_groups,
         )
         return alpha_sp_E
 

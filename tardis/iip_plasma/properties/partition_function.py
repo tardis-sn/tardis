@@ -10,7 +10,6 @@ from tardis.iip_plasma.exceptions import (
     PlasmaNLTEExcitationError,
 )
 from tardis.iip_plasma.properties.base import ProcessingPlasmaProperty
-from tardis.opacities.tau_sobolev import calculate_beta_sobolev
 
 logger = logging.getLogger(__name__)
 
@@ -622,7 +621,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             level_density_nlte_species
         )
 
-        beta_sobolev = self._calculate_beta_sobolevs_from_values(
+        beta_sobolev = self._calculate_beta_sobolevs(
             level_density_values, lines_idx
         )
         radiative_rates = self._setup_radiative_rates(
@@ -711,44 +710,6 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
         return rates_matrix
 
-    def _caculate_beta_sobolevs(self, level_number_density):
-        pl = self.plasma_parent
-
-        tau_sobolev_calc = self.plasma_parent.plasma_properties_dict[
-            "TauSobolev"
-        ].calculate
-        # beta_sobolev_calc = self.plasma_parent.plasma_properties_dict['BetaSobolev'].calculate
-        stim_emission_factor_calc = self.plasma_parent.plasma_properties_dict[
-            "StimulatedEmissionFactor"
-        ].calculate
-
-        stim_emission_factor = stim_emission_factor_calc(
-            pl.g,
-            level_number_density,
-            pl.lines_lower_level_index,
-            pl.lines_upper_level_index,
-            pl.metastability,
-            pl.lines,
-        )
-
-        tau_sobolev = tau_sobolev_calc(
-            pl.lines,
-            level_number_density,
-            pl.lines_lower_level_index,
-            pl.time_explosion,
-            stim_emission_factor,
-            pl.j_blues,
-            pl.f_lu,
-            pl.wavelength_cm,
-        )
-
-        # import ipdb; ipdb.set_trace()
-        beta_sobolev = np.zeros_like(tau_sobolev.values)
-
-        beta_sobolev = calculate_beta_sobolev(tau_sobolev)
-
-        return beta_sobolev.values
-
     def _get_species_level_positions(
         self, species: tuple[int, int]
     ) -> np.ndarray:
@@ -775,14 +736,24 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             )
         return self._species_level_positions[species]
 
-    def _get_cached_beta_sobolev_inputs(self) -> dict[str, np.ndarray | float]:
-        """Return cached inputs shared by beta Sobolev array calculations.
+    def _calculate_beta_sobolevs(
+        self,
+        level_density_values: np.ndarray,
+        line_indices: np.ndarray | slice | None = None,
+    ) -> np.ndarray:
+        """Calculate beta Sobolev values from level-density arrays.
+
+        Parameters
+        ----------
+        level_density_values : numpy.ndarray
+            Level number densities aligned with the plasma level index.
+        line_indices : numpy.ndarray or slice or None, optional
+            Line positions to calculate. If None, all lines are calculated.
 
         Returns
         -------
-        dict[str, numpy.ndarray or float]
-            Arrays and scalar coefficients derived from plasma state that do
-            not change during an individual beta Sobolev solve.
+        numpy.ndarray
+            Beta Sobolev values for the requested line positions.
         """
         if self._beta_sobolev_inputs is None:
             pl = self.plasma_parent
@@ -822,28 +793,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     * time_explosion
                 ),
             }
-        return self._beta_sobolev_inputs
-
-    def _calculate_beta_sobolevs_from_values(
-        self,
-        level_density_values: np.ndarray,
-        line_indices: np.ndarray | slice | None = None,
-    ) -> np.ndarray:
-        """Calculate beta Sobolev values from level-density arrays.
-
-        Parameters
-        ----------
-        level_density_values : numpy.ndarray
-            Level number densities aligned with the plasma level index.
-        line_indices : numpy.ndarray or slice or None, optional
-            Line positions to calculate. If None, all lines are calculated.
-
-        Returns
-        -------
-        numpy.ndarray
-            Beta Sobolev values for the requested line positions.
-        """
-        cached_inputs = self._get_cached_beta_sobolev_inputs()
+        cached_inputs = self._beta_sobolev_inputs
         if line_indices is None:
             line_indices = np.arange(len(cached_inputs["tau_coefficient"]))
         elif isinstance(line_indices, tuple):

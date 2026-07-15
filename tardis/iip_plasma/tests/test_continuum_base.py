@@ -102,7 +102,8 @@ def test_integrate_array_by_level_groups_matches_series_groupby_apply():
     nu = pd.Series([1.0, 1.5, 2.0, 3.0, 4.0], index=index)
     values = np.array([1.0, 1.5, 2.0, 0.5, 1.0])
 
-    actual = integrate_array_by_level_groups(values, nu)
+    level_groups = tuple(nu.groupby(level=[0, 1, 2]).indices.items())
+    actual = integrate_array_by_level_groups(values, nu, level_groups)
 
     frame = pd.DataFrame({"values": values, "nu": nu}, index=index)
     expected = frame.groupby(level=[0, 1, 2]).apply(
