@@ -25,7 +25,7 @@
     <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=45d8d360"></script>
+      <script src="../_static/documentation_options.js?v=5f057a67"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1673,6 +1673,7 @@
 <li class="toctree-l9 current"><a class="reference internal" href="tardis.io.model.artis.html#submodules">Submodules</a><ul class="current">
 <li class="toctree-l10"><a class="reference internal" href="tardis.io.model.artis.data.html">tardis.io.model.artis.data module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData"><code class="docutils literal notranslate"><span class="pre">ArtisData</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
@@ -1683,9 +1684,12 @@
 </ul>
 </li>
 <li class="toctree-l10 current"><a class="current reference internal" href="#">tardis.io.model.artis.readers module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass"><code class="docutils literal notranslate"><span class="pre">parse_artis_structure_to_dataclass()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="#tardis.io.model.artis.readers.read_artis_composition"><code class="docutils literal notranslate"><span class="pre">read_artis_composition()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4949,26 +4953,84 @@
   <section id="module-tardis.io.model.artis.readers">
 <span id="tardis-io-model-artis-readers-module"></span><h1>tardis.io.model.artis.readers module<a class="headerlink" href="#module-tardis.io.model.artis.readers" title="Link to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="tardis.io.model.artis.readers.read_artis_density">
-<span class="sig-prename descclassname"><span class="pre">tardis.io.model.artis.readers.</span></span><span class="sig-name descname"><span class="pre">read_artis_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">legacy_return</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/io/model/artis/readers.html#read_artis_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.artis.readers.read_artis_density" title="Link to this definition"></a></dt>
-<dd><p>Read an ARTIS density file.</p>
-<dl class="simple">
-<dt>The file is expected to have:</dt><dd><ul class="simple">
-<li><p>First line: number of shells (ignored beyond reading the integer).</p></li>
-<li><p>Second line: time of the model in days, which is then converted to seconds.</p></li>
-<li><p>Remaining lines: columns containing cell_id, velocity (km/s), log10(density),
-and mass fractions of Ni56, Co56, Fe52, and Cr48.</p></li>
-</ul>
+<dt class="sig sig-object py" id="tardis.io.model.artis.readers.parse_artis_structure_to_dataclass">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.artis.readers.</span></span><span class="sig-name descname"><span class="pre">parse_artis_structure_to_dataclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData" title="tardis.io.model.artis.data.ArtisData"><span class="pre">ArtisData</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/artis/readers.html#parse_artis_structure_to_dataclass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass" title="Link to this definition"></a></dt>
+<dd><p>Parse an ARTIS structure file into an <code class="xref py py-class docutils literal notranslate"><span class="pre">ArtisData</span></code> object.</p>
+<p>The first two lines of an ARTIS structure file specify the number of model
+cells and the model time in days. Subsequent rows provide cell indices,
+velocities, logarithmic densities, and the explicit mass fractions of
+Ni56, Co56, Fe52, and Cr48.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fname</strong><span class="classifier">str or pathlib.Path</span></dt><dd><p>Path to the ARTIS structure file.</p>
 </dd>
 </dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>ArtisData</dt><dd><p>Parsed structure data. <code class="docutils literal notranslate"><span class="pre">time_of_model</span></code> is expressed in seconds,
+<code class="docutils literal notranslate"><span class="pre">velocity</span></code> in cm/s, and <code class="docutils literal notranslate"><span class="pre">mean_density</span></code> in g/cm**3.
+<code class="docutils literal notranslate"><span class="pre">isotope_mass_fractions</span></code> contains rows indexed by atomic and mass
+number and columns indexed by ARTIS cell number. The
+<code class="docutils literal notranslate"><span class="pre">mass_fractions</span></code> field remains empty because elemental abundances are
+stored in a separate ARTIS file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>AssertionError</dt><dd><p>If the number of data rows does not match the shell count declared in
+the file header.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The first ARTIS row represents the unused central model point. It is
+retained in <code class="docutils literal notranslate"><span class="pre">velocity</span></code> as the first shell boundary but removed from
+<code class="docutils literal notranslate"><span class="pre">mean_density</span></code> and <code class="docutils literal notranslate"><span class="pre">isotope_mass_fractions</span></code>. Consequently, the returned
+velocity array has one more entry than the shell-based arrays.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.artis.readers.read_artis_composition">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.artis.readers.</span></span><span class="sig-name descname"><span class="pre">read_artis_composition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density_fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">abundance_fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">Index</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/io/model/artis/readers.html#read_artis_composition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.artis.readers.read_artis_composition" title="Link to this definition"></a></dt>
+<dd><p>Read ARTIS elemental and isotopic mass fractions.</p>
+<p>ARTIS stores total elemental mass fractions in the abundance file and
+selected radioactive isotope mass fractions in the density file. This
+reader removes those explicit isotopes from their elemental totals so that
+each nuclide is represented exactly once downstream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>density_fname</strong><span class="classifier">str or pathlib.Path</span></dt><dd><p>Path to the ARTIS density file.</p>
+</dd>
+<dt><strong>abundance_fname</strong><span class="classifier">str or pathlib.Path</span></dt><dd><p>Path to the ARTIS abundance file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>index</strong><span class="classifier">pandas.Index</span></dt><dd><p>Atomic numbers for elemental mass fractions.</p>
+</dd>
+<dt><strong>mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Elemental mass fractions indexed by atomic number.</p>
+</dd>
+<dt><strong>isotope_mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Isotopic mass fractions indexed by atomic and mass number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.artis.readers.read_artis_density">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.artis.readers.</span></span><span class="sig-name descname"><span class="pre">read_artis_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v8.0)"><span class="pre">Quantity</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tardis/io/model/artis/readers.html#read_artis_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.artis.readers.read_artis_density" title="Link to this definition"></a></dt>
+<dd><p>Read an ARTIS density file. Returns the time of model, velocity, and density.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>fname</strong><span class="classifier">str or pathlib.Path</span></dt><dd><p>Path to the ARTIS density file.</p>
-</dd>
-<dt><strong>legacy_return</strong><span class="classifier">bool, optional</span></dt><dd><p>If True, returns (time_of_model, velocity, mean_density).
-If False, returns (time_of_model, velocity, mean_density, isotope_mass_fractions).
-Default is True.</p>
 </dd>
 </dl>
 </dd>
@@ -4980,14 +5042,9 @@ Default is True.</p>
 </dd>
 <dt><strong>mean_density</strong><span class="classifier">astropy.units.Quantity</span></dt><dd><p>The array of mean densities in g/cm^3, excluding the first (central) value.</p>
 </dd>
-<dt><strong>isotope_mass_fractions</strong><span class="classifier">pandas.DataFrame, optional</span></dt><dd><p>Mass fractions for Ni56, Co56, Fe52, and Cr48 if legacy_return=False.
-The DataFrame has a MultiIndex of (Z, A) for rows and the cell_id for columns.</p>
-</dd>
 </dl>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>The first density (i.e., the center of the model) is not used in the returned arrays.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -5036,6 +5093,40 @@ as columns, holding the mass fractions for each element and shell.</p>
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions">
+<span class="sig-prename descclassname"><span class="pre">tardis.io.model.artis.readers.</span></span><span class="sig-name descname"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elemental_mass_fractions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_mass_fractions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="http://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1.0.dev0+1159.gd7b577e035)"><span class="pre">DataFrame</span></a></span></span><a class="reference internal" href="../_modules/tardis/io/model/artis/readers.html#remove_explicit_isotopes_from_elemental_mass_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions" title="Link to this definition"></a></dt>
+<dd><p>Remove explicitly tracked ARTIS isotopes from elemental totals.</p>
+<p>ARTIS abundance files contain total elemental mass fractions, while the
+corresponding structure files separately identify selected isotopes. This
+function subtracts those isotope fractions from their elemental totals so
+that each nuclide is represented exactly once in the TARDIS composition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elemental_mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Total elemental mass fractions. Rows are indexed by atomic number and
+columns correspond to model cells.</p>
+</dd>
+<dt><strong>isotope_mass_fractions</strong><span class="classifier">pandas.DataFrame</span></dt><dd><p>Explicit isotope mass fractions. Rows use a <code class="docutils literal notranslate"><span class="pre">(atomic_number,</span>
+<span class="pre">mass_number)</span></code> MultiIndex and columns correspond to model cells.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pandas.DataFrame</dt><dd><p>Residual elemental mass fractions with explicit isotope contributions
+removed. The index and columns follow <code class="docutils literal notranslate"><span class="pre">elemental_mass_fractions</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Isotope fractions are summed by atomic number before subtraction. Negative
+residuals no larger than machine precision are treated as floating-point
+roundoff and replaced with zero. Larger negative values are preserved for
+downstream composition validation.</p>
 </dd></dl>
 
 </section>
