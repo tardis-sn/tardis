@@ -1060,7 +1060,6 @@ class GrotrianWidget:
             name="Y-Scale",
             options=list(GrotrianPlot.Y_SCALE_OPTION.keys()),
             value=self.plot.y_scale,
-            button_type="primary",
         )
         self.y_scale_selector.param.watch(
             lambda event: self._change_handler("y_scale", event.new),
@@ -1074,6 +1073,11 @@ class GrotrianWidget:
             end=self.plot.max_wavelength,
             step=0.1,
             format=PrintfTickFormatter(format='%0.1e'),
+            width= 605,
+            stylesheets=[
+                "div.noUi-connect {background-color: #3FB8AF !important;}",
+                "[disabled] div.noUi-connect {background-color: #B8B8B8 !important;}",
+            ]
         )
         self.wavelength_range_selector.param.watch(
             self._wavelength_change_handler,
