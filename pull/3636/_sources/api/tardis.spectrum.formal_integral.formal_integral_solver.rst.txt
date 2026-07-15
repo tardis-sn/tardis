@@ -1,7 +1,0 @@
-tardis.spectrum.formal\_integral.formal\_integral\_solver module
-================================================================
-
-.. automodule:: tardis.spectrum.formal_integral.formal_integral_solver
-   :members:
-   :show-inheritance:
-   :undoc-members:
