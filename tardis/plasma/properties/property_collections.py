@@ -15,8 +15,6 @@ basic_inputs = PlasmaPropertyCollection(
         LinkTRadTElectron,
         HeliumTreatment,
         ContinuumInteractionSpecies,
-        NLTEIonizationSpecies,
-        NLTEExcitationSpecies,
     ]
 )
 basic_properties = PlasmaPropertyCollection(
@@ -59,12 +57,6 @@ nlte_properties = PlasmaPropertyCollection(
         PreviousElectronDensities,
         PreviousBetaSobolev,
     ]
-)
-nlte_root_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTEPopulationSolverRoot]
-)
-nlte_lu_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTEPopulationSolverLU]
 )
 helium_nlte_properties = PlasmaPropertyCollection(
     [

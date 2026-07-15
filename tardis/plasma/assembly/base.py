@@ -13,11 +13,6 @@ from tardis.plasma.properties import (
     RadiationFieldCorrection,
     StimulatedEmissionFactor,
 )
-from tardis.plasma.properties.level_population import LevelNumberDensity
-from tardis.plasma.properties.nlte_rate_equation_solver import (
-    NLTEPopulationSolverLU,
-    NLTEPopulationSolverRoot,
-)
 from tardis.util.base import species_string_to_tuple
 
 
@@ -46,10 +41,6 @@ class PlasmaSolverFactory:
 
     ## Statistical Balance Solver
     legacy_nlte_species: list = []
-
-    nlte_excitation_species: list = []
-    nlte_ionization_species: list = []
-    nlte_solver: str = "lu"
 
     ## Helium Treatment options
     helium_treatment: str = "none"
@@ -110,11 +101,6 @@ class PlasmaSolverFactory:
 
         self.helium_treatment = plasma_config.helium_treatment
         self.heating_rate_data_file = plasma_config.heating_rate_data_file
-
-        self.nlte_ionization_species = plasma_config.nlte_ionization_species
-        self.nlte_excitation_species = plasma_config.nlte_excitation_species
-
-        self.nlte_solver = plasma_config.nlte_solver
 
         self.radiative_rates_type = plasma_config.radiative_rates_type
 
@@ -182,34 +168,7 @@ class PlasmaSolverFactory:
             The path to the heating rate data file. Required when using
             "numerical-nlte" helium treatment.
 
-        Raises
-        ------
-        PlasmaConfigError
-            If the helium NLTE treatment is incompatible with the NLTE ionization
-            and excitation treatment.
-
-            If the heating rate data file is not specified when using
-            "numerical-nlte" helium treatment.
         """
-        if (
-            self.helium_treatment == "recomb-nlte"
-            or self.helium_treatment == "numerical-nlte"
-        ) and (
-            len(self.nlte_ionization_species + self.nlte_excitation_species) > 0
-        ):
-            # Prevent the user from using helium NLTE treatment with
-            # NLTE ionization and excitation treatment. This is because
-            # the helium_nlte_properties could overwrite the NLTE ionization
-            # and excitation ion number and electron densities.
-            # helium_numerical_nlte_properties is also included here because
-            # it is currently in the same if else block, and thus may block
-            # the addition of the components from the else block.
-            raise PlasmaConfigError(
-                "Helium NLTE treatment is incompatible with the NLTE ionization and excitation treatment."
-            )
-
-        # TODO: Disentangle these if else block such that compatible components
-        # can be added independently.
         if self.helium_treatment == "recomb-nlte":
             self.plasma_modules += self.plasma_collection.helium_nlte_properties
         elif self.helium_treatment == "numerical-nlte":
@@ -222,18 +181,7 @@ class PlasmaSolverFactory:
                 heating_rate_data_file=self.heating_rate_data_file
             )
         else:
-            # If nlte ionization species are present, we don't want to add the
-            # IonNumberDensity from helium_lte_properties, since we want
-            # to use the IonNumberDensity provided by the NLTE solver.
-            if (
-                len(self.nlte_ionization_species + self.nlte_excitation_species)
-                > 0
-            ):
-                self.plasma_modules.append(LevelNumberDensity)
-            else:
-                self.plasma_modules += (
-                    self.plasma_collection.helium_lte_properties
-                )
+            self.plasma_modules += self.plasma_collection.helium_lte_properties
 
     def setup_legacy_nlte(self, nlte_config):
         """
@@ -356,18 +304,6 @@ class PlasmaSolverFactory:
             self.property_kwargs[IonNumberDensityHeNLTE] = dict(
                 electron_densities=electron_densities
             )
-        elif (
-            len(self.nlte_ionization_species + self.nlte_excitation_species) > 0
-        ) and self.nlte_solver == "root":
-            self.property_kwargs[NLTEPopulationSolverRoot] = dict(
-                electron_densities=electron_densities
-            )
-        elif (
-            len(self.nlte_ionization_species + self.nlte_excitation_species) > 0
-        ) and self.nlte_solver == "lu":
-            self.property_kwargs[NLTEPopulationSolverLU] = dict(
-                electron_densities=electron_densities
-            )
         else:
             self.property_kwargs[IonNumberDensity] = dict(
                 electron_densities=electron_densities
@@ -420,8 +356,6 @@ class PlasmaSolverFactory:
             atomic_data=self.atom_data,
             j_blues=j_blues,
             continuum_interaction_species=self.continuum_interaction_species_multi_index,
-            nlte_ionization_species=self.nlte_ionization_species,
-            nlte_excitation_species=self.nlte_excitation_species,
         )
         if electron_densities is not None:
             electron_densities = pd.Series(electron_densities.cgs.value)

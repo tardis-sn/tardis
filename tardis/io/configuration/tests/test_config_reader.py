@@ -8,7 +8,6 @@ from numpy.testing import assert_almost_equal
 from tardis.io.configuration import config_reader
 from tardis.io.configuration.config_reader import Configuration
 from tardis.plasma.assembly.base import PlasmaSolverFactory
-from tardis.plasma.assembly.legacy_assembly import assemble_plasma
 from tardis.plasma.exceptions import PlasmaConfigError
 
 
@@ -181,100 +180,21 @@ def test_plasma_section_config(key, tardis_config_verysimple):
         )
 
 
-def test_plasma_nlte_section_root_config(
-    tardis_config_verysimple_nlte,
-    nlte_raw_model_root,
-    nlte_atom_data,
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("nlte_ionization_species", ["H I"]),
+        ("nlte_excitation_species", ["H I"]),
+        ("nlte_solver", "root"),
+    ],
+)
+def test_removed_legacy_nlte_config_keys_are_rejected(
+    key, value, tardis_config_verysimple
 ):
-    """
-    Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
+    tardis_config_verysimple["plasma"][key] = value
 
-    Validates:
-        nlte_ionization_species: should be included in continuum_interaction
-
-    Parameter
-    ---------
-        `tardis_config_verysimple_nlte_root` : YAML File
-        `nlte_raw_model` : A simple model
-        `nlte_atom_data` : An example atomic dataset
-
-    Result
-    ------
-        Assertion based on validation for specified values
-    """
-    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
-        "species"
-    ] = [
-        "He I",
-    ]
-    tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
-    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
-    with pytest.raises(PlasmaConfigError) as ve:
-        assemble_plasma(config, nlte_raw_model_root, nlte_atom_data)
-
-
-def test_plasma_nlte_section_lu_config(
-    tardis_config_verysimple_nlte,
-    nlte_raw_model_lu,
-    nlte_atom_data,
-):
-    """
-    Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
-
-    Validates:
-        nlte_ionization_species: should be included in continuum_interaction
-
-    Parameter
-    ---------
-        `tardis_config_verysimple_nlte_root` : YAML File
-        `nlte_raw_model` : A simple model
-        `nlte_atom_data` : An example atomic dataset
-
-    Result
-    ------
-        Assertion based on validation for specified values
-    """
-    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
-        "species"
-    ] = [
-        "He I",
-    ]
-    tardis_config_verysimple_nlte["plasma"]["nlte_ionization_species"] = ["H I"]
-    tardis_config_verysimple_nlte["plasma"]["nlte_solver"] = "lu"
-    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
-    with pytest.raises(PlasmaConfigError) as ve:
-        assemble_plasma(config, nlte_raw_model_lu, nlte_atom_data)
-
-
-def test_plasma_nlte_root_exc_section_config(
-    tardis_config_verysimple_nlte, nlte_raw_model_root, nlte_atom_data
-):
-    """
-    Configuration Validation Test for Plasma Section of the Tardis Config YAML File.
-
-    Validates:
-        nlte_excitation_species: should be included in continuum_interaction
-
-    Parameter
-    ---------
-        `tardis_config_verysimple_nlte_root` : YAML File
-        `nlte_raw_model` : A simple model
-        `nlte_atom_data` : An example atomic dataset
-
-    Result
-    ------
-        Assertion based on validation for specified values
-    """
-    tardis_config_verysimple_nlte["plasma"]["continuum_interaction"][
-        "species"
-    ] = [
-        "He I",
-    ]
-    tardis_config_verysimple_nlte["plasma"]["nlte_excitation_species"] = ["H I"]
-    tardis_config_verysimple_nlte["plasma"]["nlte_solver"] = "root"
-    config = Configuration.from_config_dict(tardis_config_verysimple_nlte)
-    with pytest.raises(PlasmaConfigError):
-        plasma = assemble_plasma(config, nlte_raw_model_root, nlte_atom_data)
+    with pytest.raises(ValidationError):
+        Configuration.from_config_dict(tardis_config_verysimple, validate=True)
 
 
 def test_spectrum_section_config(tardis_config_verysimple):

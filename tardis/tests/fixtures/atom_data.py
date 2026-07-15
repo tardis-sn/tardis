@@ -3,8 +3,6 @@ from copy import deepcopy
 import pytest
 
 from tardis.io.atom_data.base import AtomData
-from tardis.io.configuration.config_reader import Configuration
-from tardis.model.base import SimulationState
 
 DEFAULT_ATOM_DATA_MD5 = "5d80fa4ae0638469bf1ff281b6ca2a94"
 
@@ -48,7 +46,7 @@ def kurucz_atomic_data(atomic_dataset):
 @pytest.fixture  # (scope="session")
 def nlte_atomic_data_fname(tardis_regression_path):
     """
-    File name for the atomic data file used in NTLE ionization solver tests.
+    File name for atomic data used in equilibrium NLTE tests.
     """
     atomic_data_fname = (
         tardis_regression_path
@@ -70,7 +68,7 @@ def nlte_atomic_data_fname(tardis_regression_path):
 @pytest.fixture  # (scope="session")
 def nlte_atomic_dataset(nlte_atomic_data_fname):
     """
-    Atomic dataset used for NLTE ionization solver tests.
+    Atomic dataset used in equilibrium NLTE tests.
     """
     nlte_atomic_data = AtomData.from_hdf(nlte_atomic_data_fname)
     return nlte_atomic_data
@@ -80,35 +78,3 @@ def nlte_atomic_dataset(nlte_atomic_data_fname):
 def nlte_atom_data(nlte_atomic_dataset):
     atomic_data = deepcopy(nlte_atomic_dataset)
     return atomic_data
-
-
-@pytest.fixture  # (scope="session")
-def tardis_model_config_nlte_root(example_configuration_dir):
-    config = Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_nlte.yml"
-    )
-    config.plasma.nlte_solver = "root"
-    return config
-
-
-@pytest.fixture  # (scope="session")
-def tardis_model_config_nlte_lu(example_configuration_dir):
-    config = Configuration.from_yaml(
-        example_configuration_dir / "tardis_configv1_nlte.yml"
-    )
-    config.plasma.nlte_solver = "lu"
-    return config
-
-
-@pytest.fixture  # (scope="session")
-def nlte_raw_model_root(tardis_model_config_nlte_root, nlte_atom_data):
-    return SimulationState.from_config(
-        tardis_model_config_nlte_root, nlte_atom_data
-    )
-
-
-@pytest.fixture  # (scope="session")
-def nlte_raw_model_lu(tardis_model_config_nlte_lu, nlte_atom_data):
-    return SimulationState.from_config(
-        tardis_model_config_nlte_lu, nlte_atom_data
-    )

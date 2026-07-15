@@ -1,7 +1,4 @@
-from tardis.opacities.macro_atom.base import (
-    NonMarkovChainTransitionProbabilities,
-    TransitionProbabilities,
-)
+from tardis.opacities.macro_atom.base import TransitionProbabilities
 from tardis.opacities.tau_sobolev import BetaSobolev, TauSobolev
 from tardis.plasma.properties import *
 
@@ -20,8 +17,6 @@ basic_inputs = PlasmaPropertyCollection(
         LinkTRadTElectron,
         HeliumTreatment,
         ContinuumInteractionSpecies,
-        NLTEIonizationSpecies,
-        NLTEExcitationSpecies,
     ]
 )
 basic_properties = PlasmaPropertyCollection(
@@ -62,12 +57,6 @@ nlte_properties = PlasmaPropertyCollection(
         PreviousBetaSobolev,
         BetaSobolev,
     ]
-)
-nlte_root_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTEPopulationSolverRoot]
-)
-nlte_lu_solver_properties = PlasmaPropertyCollection(
-    [NLTEIndexHelper, NLTEPopulationSolverLU]
 )
 helium_nlte_properties = PlasmaPropertyCollection(
     [
