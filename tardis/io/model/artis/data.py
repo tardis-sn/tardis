@@ -13,6 +13,7 @@ class ArtisData:
     velocity: np.ndarray
     mean_density: u.Quantity
     mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
+    isotope_mass_fractions: pd.DataFrame = field(default_factory=pd.DataFrame)
 
     def to_geometry(self) -> HomologousRadial1DGeometry:
         """
