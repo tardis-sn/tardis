@@ -49,7 +49,8 @@ class TestGrotrianPlot:
     """Tests for Grotrian Plot Class."""
 
     def test_compute_transitions(self, grotrian_plot, regression_data):
-        """Tests the computation of excitation and deexcitation transitions in the Grotrian Plot."""
+        """Tests the computation of excitation and deexcitation transitions
+        in the Grotrian Plot."""
         grotrian_plot._compute_transitions()
 
         excitation_lines = grotrian_plot.excite_lines
@@ -69,7 +70,12 @@ class TestGrotrianPlot:
 
         expected_level_data = regression_data.sync_dataframe(level_data)
 
-        pdt.assert_frame_equal(level_data, expected_level_data, rtol=1e-14, atol=0)
+        pdt.assert_frame_equal(
+            level_data,
+            expected_level_data,
+            rtol=1e-14,
+            atol=0,
+        )
 
     def test_total_traces(self, grotrian_plot, grotrian_figure):
         """Tests the total number of traces in the figure"""
@@ -99,22 +105,36 @@ class TestGrotrianPlot:
         current_idx = len(grotrian_plot.level_data)
         for i, (_, line_info) in enumerate(grotrian_plot.excite_lines.iterrows()):
             trace_idx = current_idx + i
-            y_lower = grotrian_plot.level_data.loc[line_info.merged_level_number_lower].y_coord
-            y_upper = grotrian_plot.level_data.loc[line_info.merged_level_number_upper].y_coord
+            y_lower = grotrian_plot.level_data.loc[
+                line_info.merged_level_number_lower
+            ].y_coord
+            y_upper = grotrian_plot.level_data.loc[
+                line_info.merged_level_number_upper
+            ].y_coord
 
-            npt.assert_allclose(grotrian_figure.data[trace_idx].y, [y_lower, y_upper])
+            npt.assert_allclose(
+                grotrian_figure.data[trace_idx].y,
+                [y_lower, y_upper]
+            )
             assert len(grotrian_figure.data[trace_idx].x) == 2
             assert "Wavelength:" in grotrian_figure.data[trace_idx].hovertemplate
 
     def test_deexcitation_traces(self, grotrian_figure, grotrian_plot):
-        """Tests deexcitaion traces plotted in the figure."""
+        """Tests deexcitation traces plotted in the figure."""
         current_idx = len(grotrian_plot.level_data) + len(grotrian_plot.excite_lines)
         for i, (_, line_info) in enumerate(grotrian_plot.deexcite_lines.iterrows()):
             trace_idx = current_idx + i
-            y_lower = grotrian_plot.level_data.loc[line_info.merged_level_number_lower].y_coord
-            y_upper = grotrian_plot.level_data.loc[line_info.merged_level_number_upper].y_coord
+            y_lower = grotrian_plot.level_data.loc[
+                line_info.merged_level_number_lower
+            ].y_coord
+            y_upper = grotrian_plot.level_data.loc[
+                line_info.merged_level_number_upper
+            ].y_coord
 
-            npt.assert_allclose(grotrian_figure.data[trace_idx].y, [y_upper, y_lower])
+            npt.assert_allclose(
+                grotrian_figure.data[trace_idx].y,
+                [y_upper, y_lower]
+            )
             assert len(grotrian_figure.data[trace_idx].x) == 2
 
 
@@ -165,7 +185,6 @@ class TestGrotrianWidgetEvents:
     def test_max_level_selector_updates_plot(self, grotrian_widget):
         """Changing the max_level_selector should update the GrotrianPlot's
         max_levels attribute and recompute level data."""
-        original_max = grotrian_widget.max_level_selector.value
         grotrian_widget.max_level_selector.value = 5
         assert grotrian_widget.plot.max_levels == 5
         assert len(grotrian_widget.plot.level_data) <= 6
@@ -180,8 +199,8 @@ class TestGrotrianWidgetEvents:
         assert grotrian_widget.plot.y_scale == "Log"
 
     def test_wavelength_slider_updates_plot(self, grotrian_widget):
-        """Changing the wavelength_range_selector should update the GrotrianPlot's
-        min_wavelength and max_wavelength."""
+        """Changing the wavelength_range_selector should update
+        the GrotrianPlot's min_wavelength and max_wavelength."""
         min_wl = grotrian_widget.wavelength_range_selector.min
         max_wl = grotrian_widget.wavelength_range_selector.max
 
