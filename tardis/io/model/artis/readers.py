@@ -69,8 +69,42 @@ def remove_explicit_isotopes_from_elemental_mass_fractions(
     return residual_elemental_mass_fractions.mask(roundoff_negative, 0.0)
 
 
-def _read_artis_structure(fname: str | Path) -> ArtisData:
-    """Read density and isotope data from an ARTIS structure file."""
+def parse_artis_structure_to_dataclass(fname: str | Path) -> ArtisData:
+    """Parse an ARTIS structure file into an :class:`ArtisData` object.
+
+    The first two lines of an ARTIS structure file specify the number of model
+    cells and the model time in days. Subsequent rows provide cell indices,
+    velocities, logarithmic densities, and the explicit mass fractions of
+    Ni56, Co56, Fe52, and Cr48.
+
+    Parameters
+    ----------
+    fname : str or pathlib.Path
+        Path to the ARTIS structure file.
+
+    Returns
+    -------
+    ArtisData
+        Parsed structure data. ``time_of_model`` is expressed in seconds,
+        ``velocity`` in cm/s, and ``mean_density`` in g/cm**3.
+        ``isotope_mass_fractions`` contains rows indexed by atomic and mass
+        number and columns indexed by ARTIS cell number. The
+        ``mass_fractions`` field remains empty because elemental abundances are
+        stored in a separate ARTIS file.
+
+    Raises
+    ------
+    AssertionError
+        If the number of data rows does not match the shell count declared in
+        the file header.
+
+    Notes
+    -----
+    The first ARTIS row represents the unused central model point. It is
+    retained in ``velocity`` as the first shell boundary but removed from
+    ``mean_density`` and ``isotope_mass_fractions``. Consequently, the returned
+    velocity array has one more entry than the shell-based arrays.
+    """
     fname = Path(fname)
     with fname.open() as fh:
         no_of_shells = int(fh.readline().strip())
@@ -125,7 +159,7 @@ def read_artis_density(
     mean_density : astropy.units.Quantity
         The array of mean densities in g/cm^3, excluding the first (central) value.
     """
-    artis_data = _read_artis_structure(fname)
+    artis_data = parse_artis_structure_to_dataclass(fname)
     return (
         artis_data.time_of_model,
         artis_data.velocity,
@@ -175,10 +209,34 @@ def read_artis_mass_fractions(
     return mass_fractions_df
 
 
-def _read_artis_abundances(
+def _read_artis_residual_elemental_mass_fractions(
     abundance_fname: str | Path,
     isotope_mass_fractions: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Read ARTIS abundances and remove explicitly tracked isotopes.
+
+    Parameters
+    ----------
+    abundance_fname : str or pathlib.Path
+        Path to the ARTIS elemental abundance file.
+    isotope_mass_fractions : pandas.DataFrame
+        Explicit isotope mass fractions read from the corresponding ARTIS
+        structure file. Rows use a ``(atomic_number, mass_number)`` MultiIndex
+        and columns correspond to model cells.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Residual elemental mass fractions indexed by atomic number, with model
+        cells as columns. Explicit isotope contributions are removed from their
+        corresponding elemental totals.
+
+    Notes
+    -----
+    Elemental abundances are normalized by :func:`read_artis_mass_fractions`
+    before the isotope contributions are removed. The isotope values themselves
+    are not modified.
+    """
     elemental_mass_fractions = read_artis_mass_fractions(abundance_fname)
     return remove_explicit_isotopes_from_elemental_mass_fractions(
         elemental_mass_fractions, isotope_mass_fractions
@@ -212,8 +270,8 @@ def read_artis_composition(
     isotope_mass_fractions : pandas.DataFrame
         Isotopic mass fractions indexed by atomic and mass number.
     """
-    artis_data = _read_artis_structure(density_fname)
-    elemental_mass_fractions = _read_artis_abundances(
+    artis_data = parse_artis_structure_to_dataclass(density_fname)
+    elemental_mass_fractions = _read_artis_residual_elemental_mass_fractions(
         abundance_fname, artis_data.isotope_mass_fractions
     )
     return (
@@ -241,8 +299,8 @@ def read_artis_model(
     ArtisData
         Combined data with time_of_model, velocity, mean_density, and mass_fractions.
     """
-    artis_data = _read_artis_structure(density_fname)
-    elemental_mass_fractions = _read_artis_abundances(
+    artis_data = parse_artis_structure_to_dataclass(density_fname)
+    elemental_mass_fractions = _read_artis_residual_elemental_mass_fractions(
         abundance_fname, artis_data.isotope_mass_fractions
     )
     elemental_mass_fractions.index = pd.MultiIndex.from_arrays(
