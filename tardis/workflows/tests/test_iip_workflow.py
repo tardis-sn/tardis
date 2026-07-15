@@ -1,14 +1,17 @@
+from copy import deepcopy
+
 import numpy as np
 import pandas as pd
 import pytest
 
+from tardis.conftest import assert_regression_dataframe
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
-from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
 
 def _max_rel_diff(actual, expected):
+    """Helper function to print relative diffs for checking broken tests"""
     actual_vals = actual.values
     expected_vals = expected.values
 
@@ -17,6 +20,30 @@ def _max_rel_diff(actual, expected):
     )
 
     return float(np.nanmax(relative_difference))
+
+
+PLASMA_SOLVER_REGRESSION_OUTPUTS = (
+    "electron_densities",
+    "t_electrons",
+    "link_t_rad_t_electron",
+    "p_fb_deactivation",
+    "chi_bf",
+    "sp_fb_cooling_rates",
+    "stimulated_emission_factor",
+    "b",
+    "ion_ratio",
+    "j_blues",
+)
+
+
+INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS = (
+    "transition_probabilities",
+    "ion_number_density",
+    "tau_sobolevs",
+    "beta_sobolev",
+    "level_number_density",
+    *PLASMA_SOLVER_REGRESSION_OUTPUTS,
+)
 
 
 @pytest.fixture
@@ -133,7 +160,6 @@ def iip_plasma_nlte_init(
         ctardis_compare_config.plasma.nlte,
         initialize_nlte=True,
         n_e_convergence_threshold=0.05,
-        **{},
     )
     return iip_plasma
 
@@ -274,6 +300,19 @@ def iip_plasma_after_mc(
     )
 
     return iip_plasma_nlte_init
+
+
+def test_type_iip_workflow_initial_plasma_regression(
+    type_iip_workflow,
+    regression_data,
+):
+    for attr in INITIAL_PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        assert_regression_dataframe(
+            regression_data,
+            f"workflow_init_{attr}",
+            getattr(type_iip_workflow.plasma_solver, attr),
+            rtol=1e-10,  # Mac ARM64 tolerance
+        )
 
 
 def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
@@ -462,6 +501,7 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
 def test_iip_plasma_after_mc(
     iip_regression_path,
     iip_plasma_after_mc,
+    regression_data,
 ):
     tau_sobolevs_ctardis = pd.read_hdf(
         iip_regression_path / "ctardis_tau_sobolevs_after_mc.h5",
@@ -569,10 +609,67 @@ def test_iip_plasma_after_mc(
         check_names=False,
     )
 
+    assert_regression_dataframe(
+        regression_data,
+        "after_mc_fractional_heating",
+        iip_plasma_after_mc.fractional_heating,
+        rtol=2e-10,
+    )
+
+    for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        assert_regression_dataframe(
+            regression_data,
+            f"after_mc_{attr}",
+            getattr(iip_plasma_after_mc, attr),
+            rtol=4e-8,
+        )
+
+
+def thermal_balance_guess(
+    plasma_solver: LegacyPlasmaArray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Used for test below to calculate a thermal balance guess from a plasma"""
+    max_electron_number_density = (
+        plasma_solver.number_density.multiply(
+            plasma_solver.number_density.index.values,
+            axis=0,
+        )
+        .sum()
+        .values
+    )
+    electron_fraction = (
+        plasma_solver.electron_densities / max_electron_number_density
+    ).values
+
+    guess = np.zeros(2 * len(plasma_solver.link_t_rad_t_electron))
+    guess[::2] = electron_fraction
+    guess[1::2] = plasma_solver.link_t_rad_t_electron
+
+    return guess, max_electron_number_density
+
 
 def test_thermal_balance_solver(
-    iip_regression_path, type_iip_workflow, iip_plasma_after_mc
+    iip_regression_path,
+    type_iip_workflow,
+    iip_plasma_after_mc,
+    regression_data,
 ):
+
+    type_iip_workflow.plasma_solver = deepcopy(iip_plasma_after_mc)
+    initial_guess, max_electron_number_density = thermal_balance_guess(
+        type_iip_workflow.plasma_solver
+    )
+    initial_residual = type_iip_workflow.thermal_balance_iteration(
+        initial_guess,
+        max_electron_number_density,
+    )
+    assert_regression_dataframe(
+        regression_data,
+        "thermal_balance_iteration_initial_residual",
+        initial_residual,
+        atol=3e-14,  # values near zero
+    )
+
     type_iip_workflow.plasma_solver = iip_plasma_after_mc
     type_iip_workflow.solve_thermal_balance()
 
@@ -678,6 +775,35 @@ def test_thermal_balance_solver(
         atol=0,
         check_dtype=False,
         check_names=False,
+    )
+
+    assert_regression_dataframe(
+        regression_data,
+        "after_thermal_balance_fractional_heating",
+        iip_plasma_after_mc.fractional_heating,
+        atol=2e-13,  # values near zero
+    )
+
+    for attr in PLASMA_SOLVER_REGRESSION_OUTPUTS:
+        assert_regression_dataframe(
+            regression_data,
+            f"after_thermal_balance_{attr}",
+            getattr(type_iip_workflow.plasma_solver, attr),
+            rtol=3e-11,
+        )
+
+    final_guess, max_electron_number_density = thermal_balance_guess(
+        type_iip_workflow.plasma_solver
+    )
+    residual = type_iip_workflow.thermal_balance_iteration(
+        final_guess,
+        max_electron_number_density,
+    )
+    assert_regression_dataframe(
+        regression_data,
+        "thermal_balance_iteration_residual",
+        residual,
+        atol=1e-13,  # values near zero
     )
 
 
