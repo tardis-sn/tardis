@@ -931,7 +931,7 @@ class TypeIIPWorkflow(WorkflowLogging):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
-
+logger.info("Opacity solve started.")
             self.opacity_states = self.solve_opacity()
             logger.info("Opacity solve finished.")
             self.solve_montecarlo(self.opacity_states, self.real_packet_count)
