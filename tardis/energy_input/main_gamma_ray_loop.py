@@ -4,6 +4,7 @@ import astropy.units as u
 import numpy as np
 import pandas as pd
 from numba.typed import List as TypedList
+from numpy.typing import NDArray  # noqa: TC002
 
 from tardis.configuration.sorting_globals import SORTING_ALGORITHM
 from tardis.energy_input.gamma_ray_transport import (
@@ -13,6 +14,7 @@ from tardis.energy_input.gamma_ray_transport import (
 from tardis.energy_input.transport.gamma_packet_loop import gamma_packet_loop
 from tardis.energy_input.transport.GXPacket import GXPacket
 from tardis.energy_input.util import get_index
+from tardis.io.atom_data import AtomData
 from tardis.model.base import SimulationState
 from tardis.transport.montecarlo.packet_source.high_energy import (
     GammaRayPacketSource,
@@ -25,31 +27,38 @@ logging.basicConfig(level=logging.INFO)
 
 def calculate_electron_number_density(
     simulation_state: SimulationState,
-    ejecta_volume: np.ndarray,
-    effective_time_array: np.ndarray,
+    ejecta_volume: NDArray[np.float64],
+    effective_time_array: NDArray[np.float64],
     legacy: bool = False,
-    legacy_atom_data: object | None = None,
-) -> np.ndarray:
-    """
-    Calculate electron number density and its time evolution.
+    legacy_atom_data: AtomData | None = None,
+) -> NDArray[np.float64]:
+    """Calculate the time-dependent electron number density.
 
     Parameters
     ----------
-    model : SimulationState
-        Tardis model object.
-    ejecta_volume : np.ndarray
-        Ejecta volume array.
-    effective_time_array : np.ndarray
-        Effective time array in seconds.
+    simulation_state : SimulationState
+        State containing the ejecta geometry and composition.
+    ejecta_volume : numpy.ndarray
+        Shell volumes in cubic centimeters at the simulation-state time.
+    effective_time_array : numpy.ndarray
+        Effective times in seconds at which to evaluate the density.
     legacy : bool, optional
-        Whether to use legacy calculation method. Default is False.
-    legacy_atom_data : object, optional
-        Legacy atom data object. Required if legacy=True.
+        If ``True``, calculate the elemental number density through the legacy
+        simulation-state interface.
+    legacy_atom_data : AtomData or None, optional
+        Atomic data supplying elemental masses for the legacy calculation.
+        Required when ``legacy`` is ``True``.
 
     Returns
     -------
-    electron_number_density_time : np.ndarray
-        Electron number density evolution with time.
+    numpy.ndarray
+        Electron number density in inverse cubic centimeters, indexed by shell
+        and effective time.
+
+    Raises
+    ------
+    ValueError
+        If legacy mode is requested without ``legacy_atom_data``.
     """
     ejecta_velocity_volume = calculate_ejecta_velocity_volume(simulation_state)
 
@@ -90,27 +99,37 @@ def calculate_electron_number_density(
     return electron_number_density_time
 
 
-def get_effective_time_array(time_start, time_end, time_space, time_steps):
-    """
-    Function to get the effective time array for the gamma-ray loop.
+def get_effective_time_array(
+    time_start: float,
+    time_end: float,
+    time_space: str,
+    time_steps: int,
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Create time-bin boundaries and representative effective times.
 
     Parameters
     ----------
     time_start : float
-        start time in days.
+        Start time in days.
     time_end : float
-        end time in days.
+        End time in days.
     time_space : str
-        linear or log.
+        Time-bin spacing, either ``"linear"`` or ``"log"``.
     time_steps : int
-        number of time steps.
+        Number of time bins.
 
     Returns
     -------
-    times : np.ndarray
-        array of times in secs.
-    effective_time_array : np.ndarray
-        effective time array in secs.
+    times : numpy.ndarray
+        Time-bin boundaries in days. The array has ``time_steps + 1`` entries.
+    effective_time_array : numpy.ndarray
+        Representative time of each bin in days. Logarithmic bins use the
+        geometric mean and linear bins use the arithmetic mean.
+
+    Raises
+    ------
+    AssertionError
+        If ``time_start`` is not smaller than ``time_end``.
     """
     assert time_start < time_end, "time_start must be smaller than time_end!"
     if time_space == "log":
@@ -124,62 +143,85 @@ def get_effective_time_array(time_start, time_end, time_space, time_steps):
 
 
 def run_gamma_ray_loop(
-    simulation_state,
-    legacy_isotope_decacy_df,
-    cumulative_decays_df,
-    number_of_packets,
-    times,
-    effective_time_array,
-    seed,
-    positronium_fraction,
-    spectrum_bins,
-    grey_opacity,
-    photoabsorption_opacity="tardis",
-    pair_creation_opacity="tardis",
-    legacy=False,
-    legacy_atom_data=None,
-):
-    """
-    Main loop to determine the gamma-ray propagation through the ejecta.
+    simulation_state: SimulationState,
+    legacy_isotope_decacy_df: pd.DataFrame,
+    cumulative_decays_df: pd.DataFrame,
+    number_of_packets: int,
+    times: NDArray[np.float64],
+    effective_time_array: NDArray[np.float64],
+    seed: int,
+    positronium_fraction: float,
+    spectrum_bins: int,
+    grey_opacity: float,
+    photoabsorption_opacity: str = "tardis",
+    pair_creation_opacity: str = "tardis",
+    legacy: bool = False,
+    legacy_atom_data: AtomData | None = None,
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+]:
+    """Propagate gamma-ray packets through homologously expanding ejecta.
 
     Parameters
     ----------
-    model : tardis.model.Radial1DModel
-            Tardis model object.
-    plasma : tardis.plasma.standard_plasmas.BasePlasma
-            Tardis plasma object.
-    isotope_decay_df : pd.DataFrame
-            DataFrame containing the cumulative decay data.
+    simulation_state : SimulationState
+        State containing the ejecta geometry, density, and composition.
+    legacy_isotope_decacy_df : pandas.DataFrame
+        Radioactive-decay transition data used to compute packet energies and
+        isotope-specific positron fractions.
     cumulative_decays_df : pd.DataFrame
-            DataFrame containing the time evolving mass fractions.
-    num_decays : int
-            Number of packets to decay.
-    times : np.ndarray
-            Array of times in days.
-    effective_time_array : np.ndarray
-            Effective time array in days.
+        Time-dependent radioactive-decay data from which packets are sampled.
+    number_of_packets : int
+        Number of Monte Carlo packets to propagate.
+    times : numpy.ndarray
+        Time-bin boundaries in days.
+    effective_time_array : numpy.ndarray
+        Representative time of each time bin in days.
     seed : int
-            Seed for the random number generator.
+        Seed for the random number generator.
     positronium_fraction : float
-            Fraction of positronium.
+        Fraction of positrons that form positronium.
     spectrum_bins : int
-            Number of spectrum bins.
+        Number of logarithmically spaced escaping-spectrum energy bins.
     grey_opacity : float
-            Grey opacity.
-    photoabsorption_opacity : str
-            Photoabsorption opacity.
-    pair_creation_opacity : str
-            Pair creation opacity.
-
+        Grey opacity in square centimeters per gram. A negative value enables
+        the detailed interaction opacities.
+    photoabsorption_opacity : {"kasen", "tardis"}, optional
+        Photoabsorption opacity prescription used when ``grey_opacity`` is
+        negative.
+    pair_creation_opacity : {"artis", "tardis"}, optional
+        Pair-creation opacity prescription used when ``grey_opacity`` is
+        negative.
+    legacy : bool, optional
+        Whether to use the legacy elemental-density and packet-energy
+        calculations.
+    legacy_atom_data : AtomData or None, optional
+        Atomic data used by the legacy elemental-density calculation. Required
+        when ``legacy`` is ``True``.
 
     Returns
     -------
-    escape_energy : pd.DataFrame
-            DataFrame containing the energy escaping the ejecta.
-    packets_df_escaped : pd.DataFrame
-            DataFrame containing the packets info that escaped the ejecta.
-
-
+    escape_energy : pandas.DataFrame
+        Escaping spectral luminosity, indexed by energy in keV with time-bin
+        columns in seconds.
+    escape_energy_cosi : pandas.DataFrame
+        Escaping photon rate per energy bin, indexed by energy in keV with
+        time-bin columns in seconds.
+    packets_df_escaped : pandas.DataFrame
+        Final packet diagnostics, including status, frequencies, energies, and
+        shell number.
+    gamma_ray_deposited_energy : pandas.DataFrame
+        Gamma-ray energy deposited in each shell and time bin, in ergs.
+    total_deposited_energy : pandas.DataFrame
+        Gamma-ray plus positron energy deposition rate in each shell and time
+        bin, in ergs per second.
+    positron_energy_df : pandas.DataFrame
+        Positron energy deposited in each shell and time bin, in ergs.
     """
     np.random.seed(seed)
     times = times * u.d.to(u.s)
@@ -391,27 +433,43 @@ def run_gamma_ray_loop(
     )
 
 
-def get_packet_properties(number_of_shells, times, time_steps, packets):
-    """
-    Function to get the properties of the packets.
+def get_packet_properties(
+    number_of_shells: int,
+    times: NDArray[np.float64],
+    time_steps: int,
+    packets: list[GXPacket],
+) -> tuple[
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+]:
+    """Bin packet frequencies and energies by shell and time.
 
     Parameters
     ----------
-    packets : list
-        List of packets.
+    number_of_shells : int
+        Number of ejecta shells.
+    times : numpy.ndarray
+        Time-bin boundaries in the same units as each packet's current time.
+    time_steps : int
+        Number of time bins.
+    packets : list of GXPacket
+        Gamma-ray packets to bin by shell and time.
 
     Returns
     -------
-    packets_nu_cmf_array : np.ndarray
-        Array of packets in cmf.
-    packets_nu_rf_array : np.ndarray
-        Array of packets in rf.
-    packets_energy_cmf_array : np.ndarray
-        Array of packets energy in cmf.
-    packets_energy_rf_array : np.ndarray
-        Array of packets energy in rf.
-    packets_positron_energy_array : np.ndarray
-        Array of packets positron energy.
+    packets_nu_cmf_array : numpy.ndarray
+        Sum of comoving-frame frequencies in each shell and time bin.
+    packets_nu_rf_array : numpy.ndarray
+        Sum of rest-frame frequencies in each shell and time bin.
+    packets_energy_cmf_array : numpy.ndarray
+        Sum of comoving-frame energies in each shell and time bin.
+    packets_energy_rf_array : numpy.ndarray
+        Sum of rest-frame energies in each shell and time bin.
+    packets_positron_energy_array : numpy.ndarray
+        Sum of positron energies in each shell and time bin.
     """
     shell_number = []
     time_current = []
