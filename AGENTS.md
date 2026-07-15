@@ -34,8 +34,8 @@ Follow the current developer documentation, not superseded documentation paths.
   extra before running visualization tools.
 - Use the project's installed dependency versions; do not substitute physical
   constants or add dependencies when existing TARDIS dependencies suffice.
-- Run every test, lint, documentation-build, benchmark, and Python command that
-  imports TARDIS in the `tardis` Conda environment. When the shell is not
+- Run every test, lint, documentation-build, and Python command that imports
+  TARDIS in the `tardis` Conda environment. When the shell is not
   activated, prefix the command with `conda run --no-capture-output -n tardis`:
 
   ```shell
@@ -50,22 +50,19 @@ Follow the current developer documentation, not superseded documentation paths.
 
 ## Feature Workflow
 
-For a behavior change:
+For any new or changed observable or scientific behavior, use the repo skill
+`$tardis-behavior-change`.
 
-1. Record the science requirement, expected behavior, and data assumptions. If
-   the request identifies an issue, include its identifier in the handoff; do
-   not create or modify issues without user authorization.
-2. Find the smallest code path that owns the behavior and inspect nearby tests
-   and fixtures.
-3. Add a narrow failing test that captures the requested behavior. Run it and
-   confirm that it fails for the intended reason.
-4. Implement the smallest change that makes the test pass. If the test already
-   passes, treat it as coverage for existing behavior rather than changing code.
-5. Run the targeted tests and Ruff. Build the documentation when the task
-   changes documentation or user-facing behavior.
-6. Document every user-facing change. In the handoff, include the issue
-   identifier when supplied, validation commands, and scientific or
-   regression-data assumptions.
+- Record the science requirement, expected behavior, and data assumptions. If
+  the request identifies an issue, include its identifier in the handoff; do
+  not create or modify issues without user authorization.
+- Preserve the red-green workflow: demonstrate the requested behavior with a
+  narrow failing test, confirm the intended failure, and implement the smallest
+  change that makes the test pass. If the test already passes, treat it as
+  coverage for existing behavior rather than changing code.
+- Run targeted tests and Ruff, use `$tardis-regression-validation` when the
+  affected path has regression-backed coverage, and document every user-facing
+  change.
 
 Break large features into small, quantifiable goals. Do not create or switch
 branches unless the task authorizes it; when authorized, branch from current
@@ -87,8 +84,9 @@ upstream trunk and never work directly on local `master`.
 - Use physical constants from `tardis.constants`, which is based on Astropy's
   `astropy13constants`.
 - Introduce Numba only for a numerical hotspot with a stated performance need.
-  Verify that the changed code compiles in nopython mode and report benchmark
-  evidence; otherwise use the existing non-Numba implementation.
+  Verify that the changed code compiles in nopython mode. Leave performance
+  measurement to remote CI and report available CI benchmark evidence;
+  otherwise use the existing non-Numba implementation.
 - Use composition instead of inheritance. Use a classmethod when only
   construction changes and a subclass when method behavior changes.
 - Add input validation only for an error that is both likely and directly
@@ -118,22 +116,19 @@ upstream trunk and never work directly on local `master`.
   conda run --no-capture-output -n tardis pytest tardis
   ```
 
+- For code exercised by regression-backed tests, use the repo skill
+  `$tardis-regression-validation` and run the matching test path with
+  `--tardis-regression-data`. Unit-test results are not a substitute.
 - Regression data lives in the separate `tardis-regression-data` repository and
-  must remain outside this checkout. Run regression-backed tests with
-  `--tardis-regression-data=/path/to/tardis-regression-data/`.
-- When touching code exercised by regression-backed tests, identify and run the
-  matching test path with `--tardis-regression-data`. Do not treat unit-test
-  results as a substitute. If the required regression dataset is unavailable,
-  report regression validation as incomplete and state the blocking reason in
-  the handoff.
+  must remain outside this checkout. If the required dataset is unavailable,
+  report regression validation as incomplete and state the blocking reason.
 - Do not generate, overwrite, or commit regression references unless the task
   explicitly authorizes the behavior change and regression-data update. When
   authorized, inspect generated references, update the paired
   `tardis-regression-data` repository on a separate branch, and document the
   baseline rationale.
-- When changing a performance-sensitive path, run the affected ASV benchmark
-  before and after the change. Do not claim a performance result without those
-  measurements.
+- Do not run ASV benchmarks locally. Remote CI owns performance benchmark
+  execution. Do not claim a performance result without evidence.
 
 ## Documentation and CI
 

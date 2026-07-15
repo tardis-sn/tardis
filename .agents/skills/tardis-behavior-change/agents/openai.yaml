@@ -1,0 +1,4 @@
+interface:
+  display_name: "TARDIS Behavior Change"
+  short_description: "Implement TARDIS behavior test-first"
+  default_prompt: "Use $tardis-behavior-change to implement this TARDIS behavior change with test-first validation."
