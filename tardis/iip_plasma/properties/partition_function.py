@@ -559,8 +559,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     )
 
                     initial = (
-                        self.plasma_parent
-                        .level_number_density[i]
+                        self.plasma_parent.level_number_density[i]
                         .loc[species]
                         .values
                     ).copy()
@@ -895,20 +894,24 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             (number_of_levels, number_of_levels, len(t_electrons)),
             dtype=np.float64,
         )
-        r_ul_matrix_reshaped = r_ul_matrix.reshape((
-            number_of_levels**2,
-            len(t_electrons),
-        ))
+        r_ul_matrix_reshaped = r_ul_matrix.reshape(
+            (
+                number_of_levels**2,
+                len(t_electrons),
+            )
+        )
         r_ul_matrix_reshaped[r_ul_index] = (
             A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
         )
         # TODO: Revert
         # r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
         r_lu_matrix = np.zeros_like(r_ul_matrix)
-        r_lu_matrix_reshaped = r_lu_matrix.reshape((
-            number_of_levels**2,
-            len(t_electrons),
-        ))
+        r_lu_matrix_reshaped = r_lu_matrix.reshape(
+            (
+                number_of_levels**2,
+                len(t_electrons),
+            )
+        )
         # r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
         #        j_blues[lines_index] * beta_sobolevs[lines_index]
         r_lu_matrix_reshaped[r_lu_index] = (
@@ -991,15 +994,13 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
         index = list(self._get_rate_index(no_of_levels))
         coll_excitation_rates = (
-            coll_exc_coeff
-            .reindex(index)
+            coll_exc_coeff.reindex(index)
             .fillna(0)
             .to_numpy()
             .reshape((no_of_levels, no_of_levels, len(electron_densities)))
         )
         coll_deexcitation_rates = (
-            coll_deexc_coeff
-            .reindex(index)
+            coll_deexc_coeff.reindex(index)
             .fillna(0)
             .to_numpy()
             .reshape((no_of_levels, no_of_levels, len(electron_densities)))

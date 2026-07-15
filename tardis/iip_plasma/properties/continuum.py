@@ -631,16 +631,20 @@ class CollExcRateCoeff(ProcessingPlasmaProperty):
         # Josh: This mess breaks. It seems like we're just recreating
         # delta_E_yg which I make in the continuum connectors
         ind = yg.index
-        ll_index = pd.MultiIndex.from_arrays([
-            ind.get_level_values(0),
-            ind.get_level_values(1),
-            ind.get_level_values(2),
-        ])
-        lu_index = pd.MultiIndex.from_arrays([
-            ind.get_level_values(0),
-            ind.get_level_values(1),
-            ind.get_level_values(3),
-        ])
+        ll_index = pd.MultiIndex.from_arrays(
+            [
+                ind.get_level_values(0),
+                ind.get_level_values(1),
+                ind.get_level_values(2),
+            ]
+        )
+        lu_index = pd.MultiIndex.from_arrays(
+            [
+                ind.get_level_values(0),
+                ind.get_level_values(1),
+                ind.get_level_values(3),
+            ]
+        )
         e_lu = excitation_energy.reindex(lu_index)
         e_ll = excitation_energy.reindex(ll_index)
         hnu = e_lu.values - e_ll.values
@@ -696,16 +700,20 @@ class CollDeexcRateCoeff(ProcessingPlasmaProperty):
         ion_number = coll_exc_coeff.index.get_level_values(1).values
         level_number_lower = coll_exc_coeff.index.get_level_values(2).values
         level_number_upper = coll_exc_coeff.index.get_level_values(3).values
-        index_lower = pd.MultiIndex.from_arrays([
-            atom_number,
-            ion_number,
-            level_number_lower,
-        ])
-        index_upper = pd.MultiIndex.from_arrays([
-            atom_number,
-            ion_number,
-            level_number_upper,
-        ])
+        index_lower = pd.MultiIndex.from_arrays(
+            [
+                atom_number,
+                ion_number,
+                level_number_lower,
+            ]
+        )
+        index_upper = pd.MultiIndex.from_arrays(
+            [
+                atom_number,
+                ion_number,
+                level_number_upper,
+            ]
+        )
 
         n_lower_prop = lte_level_boltzmann_factor_Te.loc[index_lower].values
         n_upper_prop = lte_level_boltzmann_factor_Te.loc[index_upper].values

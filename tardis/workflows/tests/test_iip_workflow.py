@@ -670,7 +670,7 @@ def test_nlte_beta_sobolev_array_path_matches_dataframe_path(
     np.testing.assert_allclose(
         array_beta_sobolev,
         dataframe_beta_sobolev,
-        rtol=5e-13, # AVX-512 tolerance
+        rtol=5e-13,  # AVX-512 tolerance
         atol=0.0,
     )
 

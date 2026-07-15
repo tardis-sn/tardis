@@ -82,7 +82,7 @@ def create_absorbing_probs(
         Returns
         -------
         tuple[np.ndarray, pd.DataFrame]
-            Full state-by-state absorbing probability matrix, and deactivating 
+            Full state-by-state absorbing probability matrix, and deactivating
             probability DataFrame.
         """
         # In each cell, solve for absorbing markov chain probability
