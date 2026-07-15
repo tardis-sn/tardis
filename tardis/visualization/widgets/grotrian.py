@@ -1160,7 +1160,7 @@ class GrotrianWidget:
             self.wavelength_range_selector.disabled = True
             return
 
-        elif min_wavelength == max_wavelength:
+        elif f"{min_wavelength:.1e}" == f"{max_wavelength:.1e}":
             self.wavelength_range_selector.visible = True
             self.wavelength_range_selector.disabled = True
         else:
