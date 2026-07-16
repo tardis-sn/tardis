@@ -3,7 +3,6 @@ Grotrian Diagram Widget for TARDIS simulation models.
 
 This widget displays a Grotrian Diagram of the last line interactions of the simulation packets
 """
-from bokeh.models.formatters import PrintfTickFormatter
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,6 +10,7 @@ import pandas as pd
 import panel as pn
 import plotly.graph_objects as go
 from astropy import units as u
+from bokeh.models.formatters import PrintfTickFormatter
 from plotly.subplots import make_subplots
 
 from tardis.analysis import LastLineInteraction
@@ -1164,7 +1164,7 @@ class GrotrianWidget:
             self.wavelength_range_selector.disabled = True
             return
 
-        elif f"{min_wavelength:.1e}" == f"{max_wavelength:.1e}":
+        if f"{min_wavelength:.1e}" == f"{max_wavelength:.1e}":
             self.wavelength_range_selector.visible = True
             self.wavelength_range_selector.disabled = True
         else:
