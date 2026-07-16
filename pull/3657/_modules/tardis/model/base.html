@@ -24,7 +24,7 @@
     <link rel="shortcut icon" href="../../../_static/tardis_logo.ico"/>
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=685ab738"></script>
+      <script src="../../../_static/documentation_options.js?v=732c10b8"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1670,6 +1670,7 @@
 <li class="toctree-l9"><a class="reference internal" href="../../../api/tardis.io.model.artis.html#submodules">Submodules</a><ul>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.io.model.artis.data.html">tardis.io.model.artis.data module</a><ul>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData"><code class="docutils literal notranslate"><span class="pre">ArtisData</span></code></a><ul>
+<li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.isotope_mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.isotope_mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mass_fractions"><code class="docutils literal notranslate"><span class="pre">ArtisData.mass_fractions</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.mean_density"><code class="docutils literal notranslate"><span class="pre">ArtisData.mean_density</span></code></a></li>
 <li class="toctree-l12"><a class="reference internal" href="../../../api/tardis.io.model.artis.data.html#tardis.io.model.artis.data.ArtisData.time_of_model"><code class="docutils literal notranslate"><span class="pre">ArtisData.time_of_model</span></code></a></li>
@@ -1680,9 +1681,12 @@
 </ul>
 </li>
 <li class="toctree-l10"><a class="reference internal" href="../../../api/tardis.io.model.artis.readers.html">tardis.io.model.artis.readers module</a><ul>
+<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.parse_artis_structure_to_dataclass"><code class="docutils literal notranslate"><span class="pre">parse_artis_structure_to_dataclass()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_composition"><code class="docutils literal notranslate"><span class="pre">read_artis_composition()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_density"><code class="docutils literal notranslate"><span class="pre">read_artis_density()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_mass_fractions"><code class="docutils literal notranslate"><span class="pre">read_artis_mass_fractions()</span></code></a></li>
 <li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.read_artis_model"><code class="docutils literal notranslate"><span class="pre">read_artis_model()</span></code></a></li>
+<li class="toctree-l11"><a class="reference internal" href="../../../api/tardis.io.model.artis.readers.html#tardis.io.model.artis.readers.remove_explicit_isotopes_from_elemental_mass_fractions"><code class="docutils literal notranslate"><span class="pre">remove_explicit_isotopes_from_elemental_mass_fractions()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -4943,7 +4947,6 @@
 from pathlib import Path
 
 import numpy as np
-from astropy import units as u
 
 from tardis.io.atom_data.base import AtomData
 from tardis.io.configuration.config_reader import Configuration
@@ -5129,8 +5132,7 @@ class SimulationState(HDFWriterMixin):
         ).divide(
             self.composition.isotope_masses.loc[
                 self.composition.isotopic_mass_fraction.index
-            ]
-            * u.u.to(u.g),
+            ],
             axis=0,
         )
         isotopic_number_density = isotopic_number_density.iloc[
@@ -5219,8 +5221,11 @@ class SimulationState(HDFWriterMixin):
 <a class="viewcode-back" href="../../../api/tardis.model.base.html#tardis.model.base.SimulationState.from_config">[docs]</a>
     @classmethod
     def from_config(
-        cls, config: Configuration, atom_data: AtomData, legacy_mode_enabled: bool = False
-    ) -&gt; &quot;SimulationState&quot;:
+        cls,
+        config: Configuration,
+        atom_data: AtomData,
+        legacy_mode_enabled: bool = False,
+    ) -&gt; SimulationState:
         &quot;&quot;&quot;Create a new SimulationState instance from a Configuration object.
 
         Parameters
@@ -5273,7 +5278,7 @@ class SimulationState(HDFWriterMixin):
         cls,
         config: Configuration,
         legacy_mode_enabled: bool = False,
-    ) -&gt; &quot;SimulationState&quot;:
+    ) -&gt; SimulationState:
         &quot;&quot;&quot;
         Create a new SimulationState instance from a Configuration object.
 
@@ -5315,7 +5320,8 @@ class SimulationState(HDFWriterMixin):
             )
 
             field_names = {
-                field[&quot;name&quot;] for field in csvy_data.model_config.datatype.fields
+                field[&quot;name&quot;]
+                for field in csvy_data.model_config.datatype.fields
             }
             assert set(csvy_data.raw_csv_data.columns) - field_names == set(), (
                 &quot;CSVY columns exist without field descriptions&quot;
@@ -5327,7 +5333,8 @@ class SimulationState(HDFWriterMixin):
                 logger.warning(
                     &quot;The following columns are &quot;
                     &quot;specified in the csvy model file,&quot;
-                    f&quot; but are IGNORED by TARDIS: {str(unsupported_columns)}&quot;
+                    &quot; but are IGNORED by TARDIS: %s&quot;,
+                    unsupported_columns,
                 )
 
         time_explosion = config.supernova.time_explosion.cgs
@@ -5335,7 +5342,10 @@ class SimulationState(HDFWriterMixin):
         electron_densities = None
 
         geometry = parse_geometry_from_csvy(
-            config, csvy_data.model_config, csvy_data.raw_csv_data, time_explosion
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            time_explosion,
         )
 
         composition = parse_composition_from_csvy(
@@ -5350,7 +5360,11 @@ class SimulationState(HDFWriterMixin):
         )
 
         radiation_field_state = parse_radiation_field_state_from_csvy(
-            config, csvy_data.model_config, csvy_data.raw_csv_data, geometry, packet_source
+            config,
+            csvy_data.model_config,
+            csvy_data.raw_csv_data,
+            geometry,
+            packet_source,
         )
 
         return cls(
