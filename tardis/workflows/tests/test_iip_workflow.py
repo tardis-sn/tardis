@@ -1,10 +1,17 @@
 import numpy as np
 import pandas as pd
 import pytest
+from astropy import units as u
 
 from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
-from tardis.io.atom_data import AtomData
 from tardis.io.configuration.config_reader import Configuration
+from tardis.plasma.electron_energy_distribution import (
+    ThermalElectronEnergyDistribution,
+)
+from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
+from tardis.plasma.equilibrium.rate_matrix import RateMatrix
+from tardis.plasma.equilibrium.rates.radiative_rates import RadiativeRatesSolver
+from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.workflows.type_iip_workflow import TypeIIPWorkflow
 
 
@@ -133,7 +140,6 @@ def iip_plasma_nlte_init(
         ctardis_compare_config.plasma.nlte,
         initialize_nlte=True,
         n_e_convergence_threshold=0.05,
-        **{},
     )
     return iip_plasma
 
@@ -454,6 +460,55 @@ def test_iip_plasma_initialization(iip_plasma_nlte_init, iip_regression_path):
         iip_plasma_nlte_init.chi_bf.values,
         chi_bf_ctardis.values,
         rtol=4e-8,
+        atol=0,
+    )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason=(
+        "The standalone bound-bound solver does not include IIP's coupled "
+        "continuum rates, ion-stage ratios, or population-dependent Sobolev "
+        "escape probabilities."
+    ),
+)
+def test_standalone_level_populations_do_not_claim_iip_coupled_parity(
+    iip_plasma_nlte_init,
+):
+    """Characterize the known standalone-equilibrium/IIP population gap."""
+    atom_data = iip_plasma_nlte_init.atomic_data
+    hydrogen_lines = atom_data.lines.loc[(1, 0, slice(None), slice(None))]
+    standard_rate_matrix = RateMatrix(
+        [(RadiativeRatesSolver(hydrogen_lines), "radiative")],
+        atom_data.levels,
+    )
+    radiation_field = DilutePlanckianRadiationField(
+        np.asarray(iip_plasma_nlte_init.t_rad) * u.K,
+        np.asarray(iip_plasma_nlte_init.w),
+    )
+    electron_distribution = ThermalElectronEnergyDistribution(
+        0 * u.erg,
+        np.asarray(iip_plasma_nlte_init.t_electrons) * u.K,
+        np.asarray(iip_plasma_nlte_init.electron_densities) / u.cm**3,
+    )
+    standard_matrices = standard_rate_matrix.solve(
+        radiation_field,
+        electron_distribution,
+    )
+    standard_populations = LevelPopulationSolver(
+        standard_matrices, atom_data.levels
+    ).solve().loc[(1, 0)]
+    iip_populations = iip_plasma_nlte_init.level_number_density.loc[(1, 0)]
+    iip_ion_population = iip_plasma_nlte_init.ion_number_density.loc[(1, 0)]
+    iip_populations = iip_populations.divide(iip_ion_population, axis=1)
+
+    common_levels = standard_populations.index.intersection(
+        iip_populations.index
+    )
+    np.testing.assert_allclose(
+        standard_populations.loc[common_levels].to_numpy(),
+        iip_populations.loc[common_levels].to_numpy(),
+        rtol=1e-6,
         atol=0,
     )
 
