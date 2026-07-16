@@ -1,8 +1,8 @@
 import astropy.units as u
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
 import pandas.testing as pdt
-import pytest
 
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
@@ -87,3 +87,35 @@ def test_solve(rate_matrix_solver, regression_data):
     pdt.assert_series_equal(
         actual_electron_density, expected_electron_density, atol=0, rtol=1e-15
     )
+
+    assert np.all(actual_ion_population.to_numpy() >= 0.0)
+    number_density_from_ions = actual_ion_population.groupby(
+        level="atomic_number"
+    ).sum()
+    pdt.assert_index_equal(
+        number_density_from_ions.index,
+        elemental_number_density.index,
+        check_names=False,
+    )
+    npt.assert_allclose(
+        number_density_from_ions.to_numpy(),
+        elemental_number_density.to_numpy(),
+        rtol=1e-12,
+    )
+
+    electron_density_from_ions = (
+        actual_ion_population
+        * actual_ion_population.index.get_level_values("ion_number").to_numpy()[:, None]
+    ).sum()
+    npt.assert_allclose(
+        actual_electron_density.to_numpy(),
+        electron_density_from_ions.to_numpy(),
+        rtol=1e-12,
+    )
+
+    for shell in actual_ion_population.columns:
+        matrix = ion_population_solver.rates_matrices.loc[1, shell]
+        population = actual_ion_population[shell].to_numpy()
+        balance = np.array([0.0, elemental_number_density.loc[1, shell]])
+        npt.assert_allclose(matrix @ population, balance, rtol=1e-12, atol=1e-12)
+        assert np.isfinite(np.linalg.cond(matrix))

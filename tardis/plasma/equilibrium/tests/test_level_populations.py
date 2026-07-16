@@ -1,6 +1,5 @@
 import astropy.units as u
 import numpy as np
-import pandas as pd
 import pandas.testing as pdt
 import pytest
 
@@ -68,7 +67,24 @@ class TestLevelPopulationSolver:
 
     def test_solve(self, regression_data):
         """Test the solve method."""
-        expected_populations = False
         result = self.solver.solve()
         expected_populations = regression_data.sync_dataframe(result)
         pdt.assert_frame_equal(result, expected_populations, atol=0, rtol=1e-15)
+
+        for species_id in self.solver.rates_matrices.index:
+            species_matrices = self.solver.rates_matrices.loc[species_id]
+            species_populations = result.loc[species_id]
+            for shell in result.columns:
+                matrix = species_matrices[shell]
+                population = species_populations[shell].to_numpy()
+                balance = np.zeros(matrix.shape[0])
+                balance[0] = 1.0
+
+                np.testing.assert_allclose(
+                    matrix @ population, balance, rtol=1e-12, atol=1e-14
+                )
+                np.testing.assert_allclose(
+                    population.sum(), 1.0, rtol=1e-12, atol=1e-14
+                )
+                assert np.all(population >= 0.0)
+                assert np.isfinite(np.linalg.cond(matrix))
