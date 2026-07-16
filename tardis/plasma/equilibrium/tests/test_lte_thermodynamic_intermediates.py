@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 import pandas.testing as pdt
+import pytest
 
 from tardis.iip_plasma.properties.atomic import AtomicMass, Levels
 from tardis.iip_plasma.properties.general import (
@@ -64,7 +65,9 @@ from tardis.plasma.properties.partition_function import (
 )
 
 
-def _calculate_lte_equilibrium_inputs(state):
+@pytest.fixture
+def lte_equilibrium_inputs(basic_thermodynamic_state):
+    state = basic_thermodynamic_state
     atom_data = state["atomic_data"]
     selected_atoms = state["selected_atoms"]
     levels, excitation_energy, metastability, g = StandardLevels(None).calculate(
@@ -123,9 +126,9 @@ def _assert_canonical_frame_pair(standard, iip):
 
 
 def test_boltzmann_factors_and_partition_functions_match_iip(
-    basic_thermodynamic_state,
+    lte_equilibrium_inputs,
 ):
-    inputs = _calculate_lte_equilibrium_inputs(basic_thermodynamic_state)
+    inputs = lte_equilibrium_inputs
 
     standard_rad_bf = LevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
@@ -193,9 +196,9 @@ def test_boltzmann_factors_and_partition_functions_match_iip(
 
 
 def test_dilute_lte_correction_only_changes_non_metastable_levels(
-    basic_thermodynamic_state,
+    lte_equilibrium_inputs,
 ):
-    inputs = _calculate_lte_equilibrium_inputs(basic_thermodynamic_state)
+    inputs = lte_equilibrium_inputs
     dilute = LevelBoltzmannFactorDiluteLTE(None).calculate(
         inputs["levels"],
         inputs["g"],
@@ -220,9 +223,9 @@ def test_dilute_lte_correction_only_changes_non_metastable_levels(
 
 
 def test_saha_factors_and_phi_ik_match_iip(
-    basic_thermodynamic_state,
+    lte_equilibrium_inputs,
 ):
-    inputs = _calculate_lte_equilibrium_inputs(basic_thermodynamic_state)
+    inputs = lte_equilibrium_inputs
     standard_rad_bf = LevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
         inputs["g"],
@@ -277,9 +280,9 @@ def test_saha_factors_and_phi_ik_match_iip(
 
 
 def test_lte_ion_and_level_populations_conserve_elements(
-    basic_thermodynamic_state,
+    lte_equilibrium_inputs,
 ):
-    inputs = _calculate_lte_equilibrium_inputs(basic_thermodynamic_state)
+    inputs = lte_equilibrium_inputs
     level_bf = LevelBoltzmannFactorLTE(None).calculate(
         inputs["excitation_energy"],
         inputs["g"],

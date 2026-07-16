@@ -3,6 +3,7 @@ import copy
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+import pytest
 from astropy import units as u
 
 from tardis import constants as const
@@ -25,8 +26,9 @@ from tardis.plasma.radiation_field.planck_rad_field import (
 from tardis.util.base import intensity_black_body
 
 
-def _one_transition(atom_data):
-    transition_index = pd.MultiIndex.from_tuples(
+@pytest.fixture
+def transition_index():
+    return pd.MultiIndex.from_tuples(
         [(1, 0, 0, 1)],
         names=[
             "atomic_number",
@@ -35,13 +37,17 @@ def _one_transition(atom_data):
             "level_number_upper",
         ],
     )
-    line = atom_data.lines.loc[transition_index].copy()
-    return transition_index, line
 
 
-def test_radiative_rates_match_einstein_relations():
-    index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1)],
+@pytest.fixture
+def real_einstein_data(new_chianti_atomic_dataset):
+    einstein = new_chianti_atomic_dataset.lines.loc[
+        (1, 0, slice(None), slice(None))
+    ].iloc[:1][
+        ["A_ul", "B_ul", "B_lu", "nu"]
+    ].copy()
+    einstein.index = pd.MultiIndex.from_tuples(
+        [(1, 0, *index) for index in einstein.index],
         names=[
             "atomic_number",
             "ion_number",
@@ -49,10 +55,11 @@ def test_radiative_rates_match_einstein_relations():
             "level_number_upper",
         ],
     )
-    einstein = pd.DataFrame(
-        {"A_ul": [2.0e8], "B_ul": [3.0e-19], "B_lu": [6.0e-19], "nu": [2.0e15]},
-        index=index,
-    )
+    return einstein
+
+
+def test_radiative_rates_match_einstein_relations(real_einstein_data):
+    einstein = real_einstein_data
     radiation_field = DilutePlanckianRadiationField(
         np.array([10000.0, 12000.0]) * u.K, np.array([0.3, 0.7])
     )
@@ -81,20 +88,9 @@ def test_radiative_rates_match_einstein_relations():
     )
 
 
-def test_radiative_rates_scale_linearly_with_dilution():
-    index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1)],
-        names=[
-            "atomic_number",
-            "ion_number",
-            "level_number_lower",
-            "level_number_upper",
-        ],
-    )
-    einstein = pd.DataFrame(
-        {"A_ul": [0.0], "B_ul": [3.0e-19], "B_lu": [6.0e-19], "nu": [2.0e15]},
-        index=index,
-    )
+def test_radiative_rates_scale_linearly_with_dilution(real_einstein_data):
+    einstein = real_einstein_data
+    einstein["A_ul"] = 0.0
     field_a = DilutePlanckianRadiationField(
         np.array([10000.0]) * u.K, np.array([0.25])
     )
@@ -108,16 +104,17 @@ def test_radiative_rates_scale_linearly_with_dilution():
 
 
 def test_tabulated_collision_strength_interpolation_matches_iip(
-    nlte_atomic_dataset,
+    nlte_atomic_dataset, transition_index,
 ):
     standard_atom_data = copy.deepcopy(nlte_atomic_dataset)
     iip_atom_data = copy.deepcopy(nlte_atomic_dataset)
-    transition_index, lines = _one_transition(standard_atom_data)
-    iip_transition_index, iip_lines = _one_transition(iip_atom_data)
-    assert transition_index.equals(iip_transition_index)
-    temperatures = np.array([10000.0, 15000.0, 20000.0])
+    lines = standard_atom_data.lines.loc[transition_index].copy()
+    iip_lines = iip_atom_data.lines.loc[transition_index].copy()
+    temperatures = standard_atom_data.collision_data_temperatures
     supplied_strengths = pd.DataFrame(
-        [[0.10, 0.20, 0.30]], index=transition_index, columns=temperatures
+        standard_atom_data.yg_data.loc[transition_index].to_numpy(),
+        index=transition_index,
+        columns=temperatures,
     )
     test_temperatures = np.array([12500.0, 17500.0]) * u.K
 
@@ -154,13 +151,15 @@ def test_tabulated_collision_strength_interpolation_matches_iip(
 
 
 def test_collisional_coefficients_satisfy_detailed_balance_and_temperature_scaling(
-    nlte_atomic_dataset,
+    nlte_atomic_dataset, transition_index,
 ):
     atom_data = copy.deepcopy(nlte_atomic_dataset)
-    transition_index, lines = _one_transition(atom_data)
-    temperatures = np.array([10000.0, 20000.0])
+    lines = atom_data.lines.loc[transition_index].copy()
+    temperatures = atom_data.collision_data_temperatures[[2, 3]]
     supplied_strengths = pd.DataFrame(
-        [[0.10, 0.20]], index=transition_index, columns=temperatures
+        atom_data.yg_data.loc[transition_index, [2, 3]].to_numpy(),
+        index=transition_index,
+        columns=temperatures,
     )
     rates = ThermalCollisionalRateSolver(
         atom_data.levels,
@@ -213,7 +212,8 @@ def test_collisional_coefficients_satisfy_detailed_balance_and_temperature_scali
     npt.assert_allclose(upward / downward, expected_ratio, rtol=1e-10)
     assert np.all(upward > 0)
     assert np.all(downward > 0)
-    expected_temperature_scaling = (0.20 / 0.10) * np.sqrt(
+    strength_ratio = supplied_strengths.iloc[0, 1] / supplied_strengths.iloc[0, 0]
+    expected_temperature_scaling = strength_ratio * np.sqrt(
         temperatures[0] / temperatures[1]
     ) * np.exp(
         delta_energy

@@ -112,7 +112,13 @@ def test_dilute_planckian_mean_intensity_matches_analytic_planck_function(
     basic_thermodynamic_state,
 ):
     state = basic_thermodynamic_state
-    frequencies = np.array([1.0e14, 2.0e15, 1.0e16]) * u.Hz
+    frequencies = (
+        state["atomic_data"]
+        .lines.loc[(1, 0, slice(None), slice(None)), "nu"]
+        .iloc[:3]
+        .to_numpy()
+        * u.Hz
+    )
     actual = state["radiation_field"].calculate_mean_intensity(frequencies)
     expected = state["dilution_factor"].to_numpy() * intensity_black_body(
         frequencies[np.newaxis].T, state["t_rad"].to_numpy() * u.K
@@ -124,18 +130,16 @@ def test_dilute_planckian_mean_intensity_matches_analytic_planck_function(
     npt.assert_allclose(actual, expected)
 
 
-def test_supplied_line_mean_intensities_preserve_canonical_shell_order():
-    line_index = pd.MultiIndex.from_tuples(
-        [(1, 0, 0, 1), (2, 0, 0, 1)],
-        names=[
-            "atomic_number",
-            "ion_number",
-            "level_number_lower",
-            "level_number_upper",
-        ],
-    )
-    expected = np.array(
-        [[1.0e-5, 2.0e-5, 3.0e-5], [4.0e-5, 5.0e-5, 6.0e-5]]
+def test_supplied_line_mean_intensities_preserve_canonical_shell_order(
+    basic_thermodynamic_state,
+):
+    state = basic_thermodynamic_state
+    lines = state["atomic_data"].lines.loc[
+        (1, 0, slice(None), slice(None))
+    ].iloc[:2]
+    line_index = lines.index
+    expected = state["radiation_field"].calculate_mean_intensity(
+        lines.nu.to_numpy() * u.Hz
     )
     supplied = pd.DataFrame(
         expected,
