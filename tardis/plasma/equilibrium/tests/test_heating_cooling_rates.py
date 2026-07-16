@@ -750,8 +750,25 @@ def test_thermal_balance_reconstructs_net_and_fractional_rates(
     )
     heating = sum(term[0] for term in (bound_free, free_free, collisional_ionization, collisional_bound))
     cooling = sum(term[1] for term in (bound_free, free_free, collisional_ionization, collisional_bound))
-    assert_allclose(total_heating.to_numpy(), (heating - cooling).to_numpy(), rtol=1e-12)
-    assert_allclose(fractional_heating.to_numpy(), ((heating - cooling) / cooling).to_numpy(), rtol=1e-12)
+    reconstructed_net = heating - cooling
+    reconstructed_fractional = reconstructed_net / cooling
+
+    # Compare the thermal residual against the local heating/cooling scale,
+    # not against zero. This is the numerical criterion used for a converged
+    # thermal balance and remains meaningful in shells with a small net rate.
+    physical_floor = np.finfo(float).tiny
+    thermal_scale = np.maximum(
+        np.maximum(np.abs(heating.to_numpy()), np.abs(cooling.to_numpy())),
+        physical_floor,
+    )
+    net_residual = np.abs(
+        total_heating.to_numpy() - reconstructed_net.to_numpy()
+    )
+    fractional_residual = np.abs(
+        fractional_heating.to_numpy() - reconstructed_fractional.to_numpy()
+    )
+    assert np.all(net_residual <= 1e-12 * thermal_scale)
+    assert np.all(fractional_residual <= 1e-12)
 
 
 def test_free_free_thermal_root_is_stable_to_bracket_perturbations(

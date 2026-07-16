@@ -79,7 +79,10 @@ def test_bound_bound_rate_matrix_solves_normalized_balance_equations(
         right_hand_side = np.zeros(matrix.shape[0])
         right_hand_side[0] = 1.0
         population = np.linalg.solve(matrix, right_hand_side)
-        npt.assert_allclose(matrix @ population, right_hand_side, rtol=1e-12)
+        # The null-space residual is roundoff-sized for the normalized solve.
+        npt.assert_allclose(
+            matrix @ population, right_hand_side, rtol=1e-12, atol=1e-15
+        )
         npt.assert_allclose(population.sum(), 1.0, rtol=1e-12)
         assert np.all(population >= 0.0)
 
@@ -139,7 +142,9 @@ def test_ion_rate_matrix_has_charge_and_normalization_rows(
             (np.arange(ion_states), -1.0)
         )
         npt.assert_array_equal(matrix[0], expected_charge_row)
-        npt.assert_array_equal(matrix[1, :ion_states], 1.0)
+        # The extra column is the electron-density unknown and is zero in the
+        # elemental normalization row.
+        npt.assert_array_equal(matrix[-1], np.hstack((np.ones(ion_states), 0)))
         assert matrix.shape == (ion_states + 1, ion_states + 1)
 
 
