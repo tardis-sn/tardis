@@ -18,7 +18,11 @@ description: Implement observable TARDIS behavior changes through the repository
 
 3. Add the narrowest deterministic test that demonstrates the requested
    behavior. Place it near existing coverage, reuse existing fixtures, and use
-   NumPy or pandas comparison helpers for numerical or tabular results.
+   NumPy or pandas comparison helpers for numerical or tabular results. Prefer
+   explicit inputs, fixtures, and dependency injection over monkey patching.
+   Use monkey patching only when a stable external boundary cannot otherwise be
+   isolated, and patch that boundary rather than internal implementation
+   details.
 
 4. Run the new test in the `tardis` Conda environment and confirm that it fails
    because the behavior is missing. Investigate an unexpected failure before

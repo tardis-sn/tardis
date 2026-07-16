@@ -17,16 +17,24 @@ description: Refactor TARDIS internals while preserving intended scientific and 
      documented behavior unless the request explicitly changes them.
    - Do not preserve functions, classes, methods, imports, signatures, or
      module locations merely for API compatibility. TARDIS has no public API.
-   - Update every in-repository caller, test, fixture, example, and
-     documentation reference in the same change. Do not add compatibility
-     aliases, wrappers, or deprecation shims unless a concrete in-scope
-     consumer requires them.
+   - Update every in-repository production caller, example, and documentation
+     reference in the same change. Do not add compatibility aliases, wrappers,
+     or deprecation shims unless a concrete in-scope consumer requires them.
 
 3. Establish a passing baseline with the narrowest existing tests that cover
-   the invariants. Add a focused characterization test only when important
-   behavior is currently unprotected; assert behavior rather than the old
-   implementation structure. A pure refactor uses a green-to-green workflow,
-   not an artificial failing test.
+   the invariants. Treat those tests as a fixed behavioral contract and do not
+   modify, remove, or replace them by default. Modify a test only when the
+   refactor cannot proceed otherwise, such as when it directly imports a moved
+   internal interface, constructs an intentionally changed signature, or
+   asserts an implementation detail that no longer exists. Before editing it,
+   state why a production-only change is impossible. Keep the edit to the
+   smallest mechanical migration; do not weaken assertions or change expected
+   scientific results.
+
+   Add a focused characterization test only when an important invariant is
+   unprotected and preserving it cannot be demonstrated with existing tests.
+   Do not add tests merely to facilitate the refactor. A pure refactor uses a
+   green-to-green workflow, not an artificial failing test.
 
 4. Make the smallest coherent structural change that solves the stated design
    problem. Remove superseded code and migrate call sites completely. Avoid
@@ -45,5 +53,5 @@ description: Refactor TARDIS internals while preserving intended scientific and 
 
 7. In the handoff, report the design improvement, interfaces intentionally
    changed or removed, preserved behavioral and scientific invariants, files
-   changed, validation commands and outcomes, and every omitted check with its
-   reason.
+   changed, any test edits and why each was unavoidable, validation commands
+   and outcomes, and every omitted check with its reason.
