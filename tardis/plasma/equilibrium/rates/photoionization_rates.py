@@ -87,7 +87,7 @@ class AnalyticPhotoionizationRateSolver:
         # Lucy 2003 Eq 14
         level_to_ion_population_factor = lte_level_population.values / (
             lte_ion_population.values
-            * electron_energy_distribution.number_density
+            * electron_energy_distribution.number_density.value
         )
 
         # used to scale the photoionization rate because we keep the level population
@@ -100,7 +100,7 @@ class AnalyticPhotoionizationRateSolver:
         spontaneous_recombination_rate = (
             spontaneous_recombination_rate_coeff
             * level_to_ion_population_factor
-            * electron_energy_distribution.number_density
+            * electron_energy_distribution.number_density.value
         )
 
         photoionization_rate = reindex_ionization_rate_dataframe(
@@ -131,9 +131,10 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
         self,
         electron_energy_distribution,
         estimators_continuum,
-        time_simulation,
-        volume,
         level_population,
+        lte_level_population,
+        ion_population,
+        lte_ion_population,
     ):
         """Solve the photoionization and spontaneous recombination rates in the
         case where the radiation field is estimated by Monte Carlo processes.
@@ -144,12 +145,10 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
             Electron properties.
         estimators_continuum : EstimatorsContinuum
             Estimators of the continuum radiation field properties.
-        time_simulation : u.Quantity
-            Time of simulation.
-        volume : u.Quantity
-            Volume per cell.
         level_population : pd.DataFrame
             Electron energy level number density. Columns are cells.
+        level_population_ratio : pd.DataFrame
+            Ratio of LTE level population to ion population. Columns are cells.
 
         Returns
         -------
@@ -164,8 +163,10 @@ class EstimatedPhotoionizationRateSolver(AnalyticPhotoionizationRateSolver):
 
         photoionization_rate_coeff = photoionization_rate_coeff_solver.solve(
             estimators_continuum,
-            time_simulation,
-            volume,
+            level_population,
+            lte_level_population,
+            ion_population,
+            lte_ion_population,
         )
 
         spontaneous_recombination_rate_coeff = (

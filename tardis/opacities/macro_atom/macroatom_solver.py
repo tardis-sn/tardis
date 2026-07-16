@@ -47,7 +47,7 @@ from tardis.opacities.macro_atom.macroatom_state import (
     LegacyMacroAtomState,
     MacroAtomState,
 )
-from tardis.plasma.array_util import (
+from tardis.plasma.equilibrium.rates.util import (
     get_ground_state_multi_index,
 )
 from tardis.transport.montecarlo.macro_atom import MacroAtomTransitionType
@@ -806,7 +806,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         ionization_energies: pd.Series,
         selected_continuum_transitions: np.ndarray = np.array([]),
         line_interaction_type: str = "macroatom",
-        nthreads: int = 1,
     ) -> None:
         """
         Initialize the ContinuumMacroAtomSolver.
@@ -826,9 +825,6 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             If empty, all photoionization transitions are included.
         line_interaction_type
             Type of line interaction to use. Default is "macroatom".
-        nthreads
-            Maximum number of worker threads for shell-independent opacity
-            calculations.
         """
         super().__init__(
             lines=lines,
@@ -841,6 +837,12 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             )
 
         if selected_continuum_transitions.size > 0:
+            selected_continuum_transitions = [
+                tuple(transition)
+                for transition in np.asarray(
+                    selected_continuum_transitions
+                ).tolist()
+            ]
             included_species = photoionization_data.index.droplevel(
                 "level_number"
             ).isin(selected_continuum_transitions)
@@ -856,29 +858,14 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
         #     self.photoionization_data.groupby(level=[0, 1, 2]).first().nu
         # )
         self.ionization_energies = ionization_energies
-        self.nthreads = nthreads
 
     def solve(
         self,
         mean_intensities_blue_wing: pd.DataFrame,
         beta_sobolevs: pd.DataFrame,
         stimulated_emission_factors: np.ndarray,
-        stim_recomb_corrected_photoionization_rate_coeff: pd.DataFrame,
-        spontaneous_recombination_coeff: pd.DataFrame,
-        coll_deexc_coeff: pd.DataFrame,
-        coll_exc_coeff: pd.DataFrame,
-        coll_ion_coeff: pd.DataFrame,
-        coll_recomb_coeff: pd.DataFrame,
+        continuum_state,
         electron_densities: pd.Series,
-        delta_E_yg: pd.Series,
-        coll_exc_cool_rate: pd.Series,
-        coll_exc_cool_arr: np.ndarray,
-        coll_exc_cool_destinations: np.ndarray,
-        coll_ion_cool_rate: pd.Series,
-        coll_ion_cool_arr: np.ndarray,
-        fb_cool_rate: pd.Series,
-        fb_cool_probs_arr: np.ndarray,
-        ff_cool_rate: pd.Series,
     ) -> MacroAtomState:
         """
         Solve the Macro Atom State including continuum transitions.
@@ -896,44 +883,44 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             Escape probabilities for the Sobolev approximation.
         stimulated_emission_factors
             Stimulated emission factors for the lines.
-        stim_recomb_corrected_photoionization_rate_coeff
-            Corrected photoionization rate coefficients for continuum transitions.
-        spontaneous_recombination_coeff
-            Spontaneous recombination coefficients for continuum transitions.
-        coll_deexc_coeff
-            Collisional de-excitation coefficients.
-        coll_exc_coeff
-            Collisional excitation coefficients.
-        coll_ion_coeff
-            Collisional ionization coefficients.
-        coll_recomb_coeff
-            Collisional recombination coefficients.
+        continuum_state
+            Structured equilibrium continuum coefficients and cooling metadata.
         electron_densities
             Electron number densities for each cell.
-        delta_E_yg
-            Energy differences for transitions.
-        coll_exc_cool_rate
-            Collisional excitation cooling rates per cell.
-        coll_exc_cool_arr
-            Array of collisional excitation cooling rates by transition.
-        coll_exc_cool_destinations
-            Multi-index object describing destinations for the cooling transitions.
-        coll_ion_cool_rate
-            Collisional ionization cooling rates per cell.
-        coll_ion_cool_arr
-            Array of collisional ionization cooling rates by transition.
-        fb_cool_rate
-            Free-bound cooling rates per cell.
-        fb_cool_probs_arr
-            Array of free-bound cooling probabilities by bound level.
-        ff_cool_rate
-            Free-free (bremsstrahlung) cooling rates per cell.
-
         Returns
         -------
         MacroAtomState
             State of the macro atom including continuum transitions, ready to be placed into the OpacityState.
         """
+        stim_recomb_corrected_photoionization_rate_coeff = (
+            continuum_state.radiative_ionization_rate
+        )
+        spontaneous_recombination_coeff = (
+            continuum_state.radiative_recombination_rate
+        )
+        coll_deexc_coeff = continuum_state.collisional_deexcitation_rate
+        coll_exc_coeff = continuum_state.collisional_excitation_rate
+        coll_ion_coeff = continuum_state.collisional_ionization_rate
+        coll_recomb_coeff = continuum_state.collisional_recombination_rate
+        delta_E_yg = continuum_state.delta_E_yg
+        coll_exc_cool_rate = (
+            continuum_state.collisional_excitation_cooling_probability
+        )
+        coll_exc_cool_arr = continuum_state.collisional_excitation_cooling_array
+        coll_exc_cool_destinations = (
+            continuum_state.collisional_excitation_references
+        )
+        coll_ion_cool_rate = (
+            continuum_state.collisional_ionization_cooling_probability
+        )
+        coll_ion_cool_arr = continuum_state.collisional_ionization_cooling_array
+        fb_cool_rate = (
+            continuum_state.radiative_recombination_cooling_probability
+        )
+        fb_cool_probs_arr = (
+            continuum_state.radiative_recombination_cooling_array
+        )
+        ff_cool_rate = continuum_state.free_free_cooling_probability
         is_first_iteration = not hasattr(self, "computed_metadata")
 
         if is_first_iteration:
@@ -1320,9 +1307,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities,
-            macro_atom_transition_metadata,
-            max_workers=self.nthreads,
+            normalized_probabilities, macro_atom_transition_metadata
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata
@@ -1653,9 +1638,7 @@ class ContinuumMacroAtomSolver(BoundBoundMacroAtomSolver):
             absorbing_probability_matrix,
             deactivating_probs,
         ) = create_absorbing_probs(
-            normalized_probabilities,
-            macro_atom_transition_metadata,
-            max_workers=self.nthreads,
+            normalized_probabilities, macro_atom_transition_metadata
         )
         normalized_deactivating_probs = self.normalize_transition_probabilities(
             deactivating_probs, macro_atom_transition_metadata

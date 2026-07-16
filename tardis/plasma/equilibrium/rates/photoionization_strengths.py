@@ -13,6 +13,26 @@ H = const.h.cgs
 K_B = const.k_B.cgs
 
 
+def _align_photoionization_population(
+    population: pd.DataFrame,
+    photoionization_index: pd.MultiIndex,
+) -> pd.DataFrame:
+    """Align a level- or ion-indexed population with photoionizing levels."""
+    if population.index.nlevels == photoionization_index.nlevels:
+        return population.reindex(photoionization_index)
+
+    destination_ions = pd.MultiIndex.from_arrays(
+        [
+            photoionization_index.get_level_values("atomic_number"),
+            photoionization_index.get_level_values("ion_number") + 1,
+        ],
+        names=["atomic_number", "ion_number"],
+    )
+    aligned = population.reindex(destination_ions)
+    aligned.index = photoionization_index
+    return aligned
+
+
 class SpontaneousRecombinationCoeffSolver:
     def __init__(
         self,
@@ -280,6 +300,10 @@ class AnalyticPhotoionizationCoeffSolver(SpontaneousRecombinationCoeffSolver):
             mean_intensity_photoionization_df,
         )
 
+        # Lymann continuum handling
+        photoionization_rate_coeff.loc[(1, 0, 0)] = 0.0
+        stimulated_recombination_rate_coeff.loc[(1, 0, 0)] = 0.0
+
         return (
             photoionization_rate_coeff,
             stimulated_recombination_rate_coeff,
@@ -353,6 +377,18 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
         # need to handle He and up. They have extra ionization states that
         # break the indexing.
         # Lucy 2003 Eq 18
+        photoionization_index = self.photoionization_index
+        lte_level_population = lte_level_population.reindex(
+            photoionization_index
+        )
+        level_population = level_population.reindex(photoionization_index)
+        lte_ion_population = _align_photoionization_population(
+            lte_ion_population, photoionization_index
+        )
+        ion_population = _align_photoionization_population(
+            ion_population, photoionization_index
+        )
+
         correction_factor = (
             1
             - (ion_population / lte_ion_population).values
@@ -426,6 +462,9 @@ class AnalyticCorrectedPhotoionizationCoeffSolver(
             )
         )
 
+        # Lymann continuum handling
+        corrected_photoionization_rate_coeff.loc[(1, 0, 0)] = 0.0
+
         return corrected_photoionization_rate_coeff
 
 
@@ -439,8 +478,10 @@ class EstimatedPhotoionizationCoeffSolver:
     def solve(
         self,
         estimators_continuum,
-        time_simulation,
-        volume,
+        level_population,
+        lte_level_population,
+        ion_population,
+        lte_ion_population,
     ):
         """
         Solve for the continuum properties.
@@ -449,10 +490,6 @@ class EstimatedPhotoionizationCoeffSolver:
         ----------
         estimators_continuum : EstimatorsContinuum
             The Monte Carlo estimators for the continuum radiation field.
-        time_simulation : float
-            The simulation time.
-        volume : float
-            The volume of the cells.
 
         Returns
         -------
@@ -466,18 +503,39 @@ class EstimatedPhotoionizationCoeffSolver:
         # TODO: the estimators are computed in the form epsilon_nu * distance * xsection / comoving_nu
         # with the stimulated recombination multiplied by a Boltzmann factor exp(-h * comoving_nu / k * electron_temp)
         # This is why this method does not match the one in AnalyticPhotoionizationCoeffSolver
-        photoionization_normalization = (time_simulation * volume * H) ** -1
+        # photoionization_normalization = (time_simulation * volume * H) ** -1
 
         photoionization_rate_coeff = bound_free_estimator_array2frame(
-            estimators_continuum.photo_ion_estimator,
+            estimators_continuum["photoionization_rate_estimator"],
             self.level2continuum_edge_idx,
         )
-        photoionization_rate_coeff *= photoionization_normalization
 
         stimulated_recombination_rate_coeff = bound_free_estimator_array2frame(
-            estimators_continuum.stim_recomb_estimator,
+            estimators_continuum["stimulated_recombination_rate_estimator"],
             self.level2continuum_edge_idx,
         )
-        stimulated_recombination_rate_coeff *= photoionization_normalization
 
-        return photoionization_rate_coeff, stimulated_recombination_rate_coeff
+        photoionization_index = self.level2continuum_edge_idx.index
+        lte_level_population = lte_level_population.reindex(
+            photoionization_index
+        )
+        level_population = level_population.reindex(photoionization_index)
+        lte_ion_population = _align_photoionization_population(
+            lte_ion_population, photoionization_index
+        )
+        ion_population = _align_photoionization_population(
+            ion_population, photoionization_index
+        )
+        lte_nlte_population_ratio = (
+            ion_population / lte_ion_population
+        ).values * (lte_level_population / level_population)
+
+        photoionization_rate_coeff = (
+            photoionization_rate_coeff
+            - lte_nlte_population_ratio * stimulated_recombination_rate_coeff
+        )
+
+        # Lymann continuum handling
+        photoionization_rate_coeff.loc[(1, 0, 0)] = 0.0
+
+        return photoionization_rate_coeff

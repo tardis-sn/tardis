@@ -98,7 +98,9 @@ class OpacityState:
         )
 
     @classmethod
-    def from_plasma(cls, plasma, tau_sobolev, beta_sobolev):
+    def from_plasma(
+        cls, plasma, tau_sobolev, beta_sobolev, continuum_state=None
+    ):
         """
         Generates an OpacityStatePython object from a tardis BasePlasma
 
@@ -115,9 +117,11 @@ class OpacityState:
         -------
         OpacityStatePython
         """
-        if hasattr(plasma, "photo_ion_cross_sections"):
+        if continuum_state is None and hasattr(
+            plasma, "photo_ion_cross_sections"
+        ):
             continuum_state = ContinuumState.from_legacy_plasma(plasma)
-        else:
+        elif continuum_state is None:
             continuum_state = None
 
         return cls(
@@ -224,10 +228,9 @@ class OpacityState:
             ).astype(np.float64)
             emissivities = self.continuum_state.emissivities.values
             photo_ion_activation_idx = (
-                macro_atom_state.photo_ion_block_idx
-                * np.ones(
-                    30, dtype=np.int64
-                )  # TODO: Fix this more with flexible input. This will only work for Hydrogen
+                self.continuum_state.photo_ion_activation_idx.to_numpy(
+                    dtype=np.int64
+                )
             )
             k_packet_idx = np.int64(macro_atom_state.k_packet_idx)
             absorbing_markov_probabilities = (

@@ -9,7 +9,8 @@ The role of the plasma module is to determine the ionisation and excitation stat
 supernova ejecta, given the basic structure, including the elemental abundances, densities and radiation temperature.
 After the calculation of the plasma state, the :math:`\tau_{\textrm{sobolev}}` values can be calculated.
 
-The TARDIS plasma structure inherits from the `BasePlasma` class. The code currently uses the `LegacyPlasmaArray`
+The TARDIS plasma structure inherits from the `BasePlasma` class. The Type IIP workflow uses the equilibrium-backed
+standard plasma assembled by `IIPPlasmaSolverFactory`.
 for generating a plasma from the information provided by `model`. A variety of different plasmas can be generated
 depending on the options selected in the plasma section of the TARDIS config. file. The options currently considered
 by the Legacy Plasma when creating the plasma calculation structure include:
@@ -21,7 +22,9 @@ plasma:
  * helium_treatment: dilute-lte/recomb-nlte
  * nlte: [can provide list of ion species to be treated in NLTE, as well as specifying the use of the coronal_approximation/classical_nebular settings.
 
-`LegacyPlasmaArray` uses these options to construct a map of the necessary plasma parameters that demonstrates how these parameters are dependent on one another (using `NetworkX <https://networkx.github.io/>`_). Each time a particular parameter of the plasma is updated, all of the parameters dependent (directly or indirectly) on that particular one can be easily updated automatically, without requiring that all the plasma calculations are repeated.
+The standard property graph uses these options to construct a map of the necessary plasma parameters and their dependencies
+(using `NetworkX <https://networkx.github.io/>`_). For Type IIP simulations, hydrogen continuum populations, rate
+coefficients, heating and cooling, and transport continuum state are calculated through the equilibrium solver components.
 
 Properties, Inputs and Outputs
 ------------------------------

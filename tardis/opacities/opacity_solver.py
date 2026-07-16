@@ -66,7 +66,13 @@ class OpacitySolver:
 
         return opacity_state
 
-    def solve(self, plasma) -> OpacityState:
+    def solve(
+        self,
+        plasma,
+        continuum_state=None,
+        tau_sobolev=None,
+        beta_sobolev=None,
+    ) -> OpacityState:
         """
         Solves the opacity state
 
@@ -74,6 +80,10 @@ class OpacitySolver:
         ----------
         plasma : tardis.plasma.BasePlasma
             legacy base plasma
+        continuum_state : optional structured continuum state
+            Continuum opacity inputs prepared by the active plasma assembly.
+        tau_sobolev, beta_sobolev : optional pandas.DataFrame
+            Precomputed Sobolev quantities from the plasma assembly.
 
         Returns
         -------
@@ -90,7 +100,12 @@ class OpacitySolver:
                 ),
                 index=plasma.atomic_data.lines.index,
             )
-        else:
+            beta_sobolev = pd.DataFrame(
+                np.ones_like(tau_sobolev),
+                index=tau_sobolev.index,
+                columns=tau_sobolev.columns,
+            )
+        elif tau_sobolev is None:
             tau_sobolev = calculate_sobolev_line_opacity(
                 plasma.atomic_data.lines,
                 plasma.level_number_density,
@@ -99,8 +114,11 @@ class OpacitySolver:
             )
             beta_sobolev = calculate_beta_sobolev(tau_sobolev)
 
+        if beta_sobolev is None:
+            beta_sobolev = calculate_beta_sobolev(tau_sobolev)
+
         opacity_state = OpacityState.from_plasma(
-            plasma, tau_sobolev, beta_sobolev
+            plasma, tau_sobolev, beta_sobolev, continuum_state
         )
 
         return opacity_state

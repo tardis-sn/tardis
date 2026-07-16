@@ -46,7 +46,7 @@ class BoundFreeThermalRates:
         level_population_ratio: pd.DataFrame,
         radiation_field: DilutePlanckianRadiationField | None = None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
-        stimulated_recombination_estimator: pd.DataFrame | None = None,
+        stimulated_recombination_cooling_estimator: pd.DataFrame | None = None,
     ) -> tuple[pd.Series, pd.Series]:
         """Compute the bound-free heating and cooling rates.
 
@@ -64,7 +64,7 @@ class BoundFreeThermalRates:
             A radiation field that can compute its mean intensity.
         bound_free_heating_estimator : pd.DataFrame, optional
             Montecarlo bound free heating estimator. Columns represent cells, by default None
-        stimulated_recombination_estimator : pd.DataFrame, optional
+        stimulated_recombination_cooling_estimator : pd.DataFrame, optional
             Montecarlo stimulated recombination estimator. Columns represent cells, by default None
 
         Returns
@@ -170,11 +170,11 @@ class BoundFreeThermalRates:
             * ion_cooling_factor  # Hydrogen ion population
         )
 
-        if stimulated_recombination_estimator is not None:
+        if stimulated_recombination_cooling_estimator is not None:
             stimulated_recombination_cooling_rate = (
-                stimulated_recombination_estimator
+                stimulated_recombination_cooling_estimator
                 * level_population_ratio.loc[
-                    stimulated_recombination_estimator.index
+                    stimulated_recombination_cooling_estimator.index
                 ]
                 * ion_cooling_factor
             )
@@ -229,6 +229,27 @@ class FreeFreeThermalRates:
         )
         return heating_factor
 
+    def cooling_rate(self, electron_temperature, heating_factor):
+        """Compute the free-free cooling rate.
+
+        Parameters
+        ----------
+        electron_temperature : np.ndarray
+            Electron temperature value in Kelvin.
+        heating_factor : pd.Series
+            The free-free heating factor for all cells.
+
+        Returns
+        -------
+        float
+            The free-free cooling rate constant in cgs units.
+        """
+        return (
+            self.cooling_constant
+            * np.sqrt(electron_temperature)
+            * heating_factor
+        )
+
     def solve(
         self,
         heating_estimator: pd.DataFrame,
@@ -268,10 +289,8 @@ class FreeFreeThermalRates:
         ### COOLING
         # Lucy 03 Eq 32
 
-        cooling_rate = (
-            self.cooling_constant
-            * np.sqrt(thermal_electron_distribution.temperature.cgs.value)
-            * heating_factor
+        cooling_rate = self.cooling_rate(
+            thermal_electron_distribution.temperature.cgs.value, heating_factor
         )
 
         return heating_rate, cooling_rate

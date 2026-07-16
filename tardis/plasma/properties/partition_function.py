@@ -8,7 +8,7 @@ from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
 from tardis.plasma.equilibrium.level_populations import LevelPopulationSolver
-from tardis.plasma.equilibrium.rate_matrix import RateMatrix
+from tardis.plasma.equilibrium.rate_matrix import LevelRateMatrix
 from tardis.plasma.equilibrium.rates import (
     RadiativeRatesSolver,
     ThermalCollisionalRateSolver,
@@ -202,13 +202,6 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 col_strengths,
                 "chianti",
             )
-            rate_solvers = [
-                (radiative_rate_solver, "radiative"),
-                (collisional_rate_solver, "electron"),
-            ]
-
-            rate_matrix_solver = RateMatrix(rate_solvers, atomic_data.levels)
-
             # A fake electron distribution. Will eventually be a direct input
             # to the plasma property.
             electron_distribution = ThermalElectronEnergyDistribution(
@@ -217,8 +210,12 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 previous_electron_densities.values * u.g / u.cm**3,
             )
 
-            rate_matrix = rate_matrix_solver.solve(
-                dilute_planckian_radiation_field, electron_distribution
+            rate_matrix = LevelRateMatrix(atomic_data.levels).solve(
+                radiative_rate_solver.solve(dilute_planckian_radiation_field),
+                collisional_rate_solver.solve(
+                    electron_distribution.temperature
+                ),
+                electron_distribution.number_density.value,
             )
 
             solver = LevelPopulationSolver(rate_matrix, atomic_data.levels)

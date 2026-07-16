@@ -8,21 +8,22 @@ from scipy.optimize import least_squares as lsq
 from scipy.sparse import block_diag
 
 from tardis import constants as const
-from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
-from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
-from tardis.iip_plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.atom_data.parse_atom_data import parse_atom_data
 from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
 from tardis.opacities.opacity_solver import OpacitySolver
+from tardis.opacities.opacity_state_continuum import (
+    EquilibriumContinuumOpacityState,
+)
+from tardis.plasma.assembly import IIPPlasmaSolverFactory
+from tardis.plasma.equilibrium.continuum_state import (
+    EquilibriumContinuumState,
+)
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
 from tardis.spectrum.base import SpectrumSolver
-from tardis.spectrum.formal_integral.formal_integral_solver import (
-    FormalIntegralSolver,
-)
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
@@ -75,32 +76,9 @@ class TypeIIPWorkflow:
                 atom_data=self.atom_data,
             )
 
-        configuration.plasma.nlte.species = [
-            (1, 0)
-        ]  # Hack to force config necessary for Christian's plasma
         self.configuration = configuration
 
         montecarlo_globals.CONTINUUM_PROCESSES_ENABLED = True
-
-        self.atom_data.prepare_atom_data(
-            self.simulation_state.abundance.index,
-            "macroatom",
-            [(1, 0)],
-            [(1, 0)],
-        )
-        self.atom_data.continuum_data = ContinuumData(
-            self.atom_data, selected_continuum_species=[(1, 0)]
-        )
-        # hacky thing from CTARDIS. Something to do with the Lyman continuum.
-        self.atom_data.continuum_data.photoionization_data.loc[
-            (1, 0, 0), "x_sect"
-        ] *= 0.0
-        # CTARDIS plasma expects the columns to be temperatures
-        self.atom_data.yg_data.columns = list(
-            self.atom_data.collision_data_temperatures
-        )
-        self.atom_data.nlte_data._init_indices()
-        self.atom_data.has_collision_data = False
 
         elemental_number_density = (
             self.simulation_state.calculate_elemental_number_density(
@@ -108,22 +86,12 @@ class TypeIIPWorkflow:
             )
         )
 
-        self.plasma_solver = LegacyPlasmaArray(
-            elemental_number_density,
-            self.atom_data,
-            self.configuration.supernova.time_explosion.to("s"),
-            nlte_config=self.configuration.plasma.nlte,
-            delta_treatment=None,
-            ionization_mode="nlte",  # configuration.plasma.ionization, nlte is currently not an allowed value - should be included
-            excitation_mode=self.configuration.plasma.excitation,
-            line_interaction_type=self.configuration.plasma.line_interaction_type,
-            link_t_rad_t_electron=self.configuration.plasma.link_t_rad_t_electron
-            * np.ones(self.simulation_state.geometry.no_of_shells_active),
-            helium_treatment="none",
-            heating_rate_data_file=None,
-            v_inner=None,
-            v_outer=None,
-            continuum_treatment=True,
+        factory = IIPPlasmaSolverFactory(self.atom_data, self.configuration)
+        factory.prepare_factory(
+            self.simulation_state.abundance.index,
+            "tardis.plasma.properties.iip_property_collections",
+            [(1, 0)],
+            self.configuration,
         )
 
         t_radiative, dilution_factor = self.initialize_radiation_field(
@@ -140,29 +108,33 @@ class TypeIIPWorkflow:
 
         self.simulation_state.radiation_field_state = radiation_field
 
-        j_blues = radiation_field.calculate_mean_intensity(
-            self.plasma_solver.atomic_data.lines.nu.values
-        )
-
-        # Initialize NLTE
-
-        self.plasma_solver.update_radiationfield(
-            t_radiative,
-            dilution_factor,
-            pd.DataFrame(
-                j_blues, index=self.plasma_solver.atomic_data.lines.index
+        self.plasma_solver = factory.assemble(
+            elemental_number_density,
+            radiation_field,
+            self.configuration.supernova.time_explosion.to("s"),
+            iteration=0,
+            previous_electron_densities=elemental_number_density.sum(axis=0),
+            previous_ion_number_density=None,
+            previous_level_number_density=None,
+            j_blues=factory.initialize_j_blues(
+                radiation_field, self.atom_data.lines
             ),
-            self.configuration.plasma.nlte,
-            initialize_nlte=True,
-            n_e_convergence_threshold=0.05,
+            photoionization_rate_estimator=None,
+            stimulated_recombination_rate_estimator=None,
+            collisional_ionization_rate_coefficient=None,
+            collisional_excitation_rate_coefficient=None,
+            collisional_deexcitation_rate_coefficient=None,
+            free_free_heating_estimator=None,
+            bound_free_heating_estimator=None,
+            stimulated_recombination_cooling_estimator=None,
         )
-
-        self.base_continuum = BaseContinuum(
-            plasma_array=self.plasma_solver,
-            atom_data=self.atom_data,
-            ws=dilution_factor,
-            radiative_transition_probabilities=self.plasma_solver.transition_probabilities,
-            estimators=None,
+        self.continuum_state = EquilibriumContinuumState.from_plasma(
+            self.plasma_solver
+        )
+        self.continuum_opacity_state = (
+            EquilibriumContinuumOpacityState.from_plasma(
+                self.plasma_solver, self.continuum_state
+            )
         )
 
         # After initializing NLTE
@@ -183,9 +155,11 @@ class TypeIIPWorkflow:
             self.atom_data.lines,
             self.atom_data.photoionization_data,
             self.atom_data.ionization_data,
+            selected_continuum_transitions=np.array([(1, 0)]),
             line_interaction_type=line_interaction_type,
             nthreads=configuration.montecarlo.nthreads,
         )
+        self._synchronize_plasma_contract()
 
         self.transport_state = None
         self.transport_solver = MCTransportSolverIIP.from_config(
@@ -462,23 +436,19 @@ class TypeIIPWorkflow:
         """
         continuum_estimators = {}
 
-        continuum_estimators["photo_ion_estimator"] = (
+        continuum_estimators["photoionization_rate_estimator"] = (
             self.transport_state.estimators_continuum.photo_ion_estimator
         )
-        continuum_estimators["photo_ion_statistics"] = (
-            self.transport_state.estimators_continuum.photo_ion_estimator_statistics
-        )
-        continuum_estimators["stim_recomb_estimator"] = (
+        continuum_estimators["stimulated_recombination_rate_estimator"] = (
             self.transport_state.estimators_continuum.stim_recomb_estimator
         )
-        continuum_estimators["bf_heating_estimator"] = (
+        continuum_estimators["bound_free_heating_estimator"] = (
             self.transport_state.estimators_continuum.bf_heating_estimator
         )
-        continuum_estimators["stim_recomb_cooling_estimator"] = (
+        continuum_estimators["stimulated_recombination_cooling_estimator"] = (
             self.transport_state.estimators_continuum.stim_recomb_cooling_estimator
         )
-        continuum_estimators["coll_deexc_heating_estimator"] = None
-        continuum_estimators["ff_heating_estimator"] = (
+        continuum_estimators["free_free_heating_estimator"] = (
             self.transport_state.estimators_continuum.ff_heating_estimator
         )
 
@@ -520,12 +490,9 @@ class TypeIIPWorkflow:
             J_blues DataFrame for the radiation field
         """
         self.plasma_solver.update_radiationfield(
-            self.simulation_state.t_radiative.value,
+            self.simulation_state.t_radiative,
             self.simulation_state.dilution_factor,
             j_blues_df,
-            self.configuration.plasma.nlte,
-            initialize_nlte=False,
-            n_e_convergence_threshold=0.05,
             **continuum_estimators,
         )
 
@@ -557,17 +524,17 @@ class TypeIIPWorkflow:
 
         pl = self.plasma_solver
 
-        electron_densities = (
-            max_electron_number_density * electron_density_fraction
+        electron_densities = pd.Series(
+            max_electron_number_density * electron_density_fraction,
+            index=self.plasma_solver.electron_densities.index,
         )
 
         self.plasma_solver.update(
             previous_ion_number_density=pl.ion_number_density.copy(),
             previous_electron_densities=electron_densities,
-            previous_beta_sobolev=pl.beta_sobolev.copy(),
+            previous_level_number_density=pl.level_number_density.copy(),
             link_t_rad_t_electron=link_t_rad_t_electron,
-            previous_b=pl.b,
-            previous_t_electrons=pl.t_rad * link_t_rad_t_electron,
+            iteration=1,
         )
 
         solution = np.zeros(2 * len(self.plasma_solver.fractional_heating))
@@ -614,7 +581,14 @@ class TypeIIPWorkflow:
         setting the electron number density and link_t_rad_t_electron
         to values that satisfy thermal balance
         """
-        link_t_rad_t_electron_start = self.plasma_solver.link_t_rad_t_electron
+        link_t_rad_t_electron_start = np.asarray(
+            self.plasma_solver.link_t_rad_t_electron
+        )
+        if link_t_rad_t_electron_start.ndim == 0:
+            link_t_rad_t_electron_start = np.full(
+                self.simulation_state.geometry.no_of_shells_active,
+                link_t_rad_t_electron_start,
+            )
         if np.array_equal(
             link_t_rad_t_electron_start,
             np.ones_like(link_t_rad_t_electron_start),
@@ -720,30 +694,28 @@ class TypeIIPWorkflow:
         logger.info("Ion Ratio Convergence: %s", ion_ratio_conv)
 
     def solve_continuum_state(self, continuum_estimators):
-        """Update the BaseContinuum object with the latest continuum estimators.
-        Update the continuum data in the atom data with the new level number
-        densities from the plasma solver.
-
-        Parameters
-        ----------
-        continuum_estimators : dict
-            Continuum interaction estimators
-        """
-        self.base_continuum = BaseContinuum(
-            plasma_array=self.plasma_solver,
-            atom_data=self.atom_data,
-            ws=self.simulation_state.dilution_factor,
-            radiative_transition_probabilities=self.plasma_solver.transition_probabilities,
-            estimators=continuum_estimators,
+        """Refresh continuum coefficients from the equilibrium plasma."""
+        self.continuum_state = EquilibriumContinuumState.from_plasma(
+            self.plasma_solver, continuum_estimators
         )
-
-        self.atom_data.continuum_data.set_level_number_density(
-            self.plasma_solver.level_number_density
+        self.continuum_opacity_state = (
+            EquilibriumContinuumOpacityState.from_plasma(
+                self.plasma_solver, self.continuum_state
+            )
         )
+        self._synchronize_plasma_contract()
 
-        self.atom_data.continuum_data.set_level_number_density_ratio(
-            self.plasma_solver
+    def _synchronize_plasma_contract(self):
+        """Expose structured continuum outputs on the standard plasma."""
+        self.plasma_solver.p_fb_deactivation = (
+            self.continuum_opacity_state.p_fb_deactivation
         )
+        self.plasma_solver.chi_bf = self.continuum_opacity_state.chi_bf
+        if hasattr(self, "macro_atom_solver"):
+            macro_atom_state = self.solve_macro_atom_state()
+            self.plasma_solver.transition_probabilities = (
+                macro_atom_state.transition_probabilities
+            )
 
     def normalize_continuum_estimators(
         self, continuum_estimators, j_blues, j_estimators
@@ -775,16 +747,16 @@ class TypeIIPWorkflow:
         )
         damping_factor = self.get_radiation_field_damping_factor(j_estimators)
 
-        continuum_estimators["photo_ion_estimator"] *= (
+        continuum_estimators["photoionization_rate_estimator"] *= (
             photo_ion_norm_factor * damping_factor
         )
-        continuum_estimators["stim_recomb_estimator"] *= (
+        continuum_estimators["stimulated_recombination_rate_estimator"] *= (
             photo_ion_norm_factor * damping_factor
         )
-        continuum_estimators["bf_heating_estimator"] *= (
+        continuum_estimators["bound_free_heating_estimator"] *= (
             photo_ion_norm_factor * const.h.cgs.value * damping_factor
         )
-        continuum_estimators["stim_recomb_cooling_estimator"] *= (
+        continuum_estimators["stimulated_recombination_cooling_estimator"] *= (
             photo_ion_norm_factor * const.h.cgs.value * damping_factor
         )
 
@@ -796,7 +768,7 @@ class TypeIIPWorkflow:
         ff_norm_factor *= (
             photo_ion_norm_factor * const.h.cgs.value * damping_factor
         )
-        continuum_estimators["ff_heating_estimator"] *= ff_norm_factor
+        continuum_estimators["free_free_heating_estimator"] *= ff_norm_factor
         j_blues *= damping_factor
         return continuum_estimators, j_blues
 
@@ -871,42 +843,34 @@ class TypeIIPWorkflow:
             macro_atom_state : tardis.opacities.macro_atom.macro_atom_state.MacroAtomState or None
                 State of the macro atom
         """
-        opacity_state = self.opacity_solver.solve(self.plasma_solver)
-        j_blues_df = pd.DataFrame(
-            self.plasma_solver.j_blues,
-            index=self.plasma_solver.lines.index,
+        opacity_state = self.opacity_solver.solve(
+            self.plasma_solver,
+            self.continuum_opacity_state,
+            tau_sobolev=self.plasma_solver.tau_sobolevs,
+            beta_sobolev=self.plasma_solver.beta_sobolev,
         )
-
-        coll_exc_cool_destinations = self.atom_data.macro_atom_references.iloc[
-            self.base_continuum.cooling_rates.collisional_excitation.references
-        ].index
-
-        macro_atom_state = self.macro_atom_solver.solve(
-            j_blues_df,
-            opacity_state.beta_sobolev,
-            self.plasma_solver.stimulated_emission_factor,
-            self.base_continuum.radiative_ionization.rate_coefficient,
-            self.base_continuum.radiative_recombination.rate_coefficient,
-            self.plasma_solver.coll_deexc_coeff,
-            self.plasma_solver.coll_exc_coeff,
-            self.plasma_solver.coll_ion_coeff,
-            self.plasma_solver.coll_recomb_coeff,
-            self.plasma_solver.electron_densities,
-            self.plasma_solver.delta_E_yg,
-            self.base_continuum.cooling_rates.collisional_excitation.cooling_probability,
-            self.base_continuum.cooling_rates.collisional_excitation.probabilities_array,
-            coll_exc_cool_destinations,
-            self.base_continuum.cooling_rates.collisional_ionization.cooling_probability,
-            self.base_continuum.cooling_rates.collisional_ionization.probabilities_array,
-            self.base_continuum.cooling_rates.radiative_recombination.cooling_probability,
-            self.base_continuum.cooling_rates.radiative_recombination.probabilities_array,
-            self.base_continuum.cooling_rates.free_free_probability,
-        )
+        macro_atom_state = self.solve_macro_atom_state()
+        self._synchronize_plasma_contract()
 
         return {
             "opacity_state": opacity_state,
             "macro_atom_state": macro_atom_state,
         }
+
+    def solve_macro_atom_state(self):
+        """Build the continuum macro-atom state from the structured state."""
+        j_blues_df = pd.DataFrame(
+            self.plasma_solver.j_blues,
+            index=self.plasma_solver.lines.index,
+        )
+        continuum = self.continuum_state
+        return self.macro_atom_solver.solve(
+            j_blues_df,
+            self.plasma_solver.beta_sobolev,
+            self.plasma_solver.stimulated_emission_factor,
+            continuum,
+            self.plasma_solver.electron_densities,
+        )
 
     def solve_montecarlo(
         self, opacity_states, no_of_real_packets, no_of_virtual_packets=0
@@ -971,7 +935,7 @@ class TypeIIPWorkflow:
             logger.info("Montecarlo solve finished.")
             (
                 estimated_values,
-                estimated_radfield_properties,
+                _estimated_radfield_properties,
             ) = self.get_convergence_estimates()
 
             self.solve_simulation_state(estimated_values)

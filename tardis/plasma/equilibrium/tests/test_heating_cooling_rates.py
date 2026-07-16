@@ -229,7 +229,7 @@ def test_bound_free_thermal_rates_solve_with_estimators(
         thermal_electron_distribution,
         level_population_ratio,
         bound_free_heating_estimator=bound_free_heating_estimator,
-        stimulated_recombination_estimator=stimulated_recombination_estimator,
+        stimulated_recombination_cooling_estimator=stimulated_recombination_estimator,
     )
 
     # Original parametrized assertions

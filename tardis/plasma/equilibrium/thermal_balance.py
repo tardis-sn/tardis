@@ -55,7 +55,7 @@ class ThermalBalanceSolver:
         level_population_ratio: pd.DataFrame,
         radiation_field: DilutePlanckianRadiationField | None = None,
         bound_free_heating_estimator: pd.DataFrame | None = None,
-        stimulated_recombination_estimator: pd.DataFrame | None = None,
+        stimulated_recombination_cooling_estimator: pd.DataFrame | None = None,
     ) -> tuple[pd.Series, pd.Series]:
         """Compute the current heating rate and the fractional heating
         rate using all available processes. See section 6.4 in Lucy 03.
@@ -82,8 +82,8 @@ class ThermalBalanceSolver:
             Radiation field for mean intensity calculation.
         bound_free_heating_estimator : pd.DataFrame, optional
             Bound-free heating estimator.
-        stimulated_recombination_estimator : pd.DataFrame, optional
-            Stimulated recombination estimator.
+        stimulated_recombination_cooling_estimator : pd.DataFrame, optional
+            Stimulated recombination cooling estimator.
 
         Returns
         -------
@@ -99,7 +99,7 @@ class ThermalBalanceSolver:
             level_population_ratio,
             radiation_field,
             bound_free_heating_estimator,
-            stimulated_recombination_estimator,
+            stimulated_recombination_cooling_estimator,
         )
 
         free_free_heating, free_free_cooling = self.free_free_solver.solve(

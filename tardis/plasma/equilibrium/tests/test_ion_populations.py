@@ -7,14 +7,20 @@ import pandas.testing as pdt
 from tardis.plasma.electron_energy_distribution import (
     ThermalElectronEnergyDistribution,
 )
-from tardis.plasma.equilibrium.ion_populations import IonPopulationSolver
+from tardis.plasma.equilibrium.ion_populations import (
+    AnalyticEquilibriumIonPopulationSolver,
+)
+from tardis.plasma.equilibrium.rate_matrix import EquilibriumIonRateMatrix
 from tardis.plasma.radiation_field import (
     DilutePlanckianRadiationField,
 )
 
 
-def test_solve(rate_matrix_solver, regression_data):
-    ion_population_solver = IonPopulationSolver(rate_matrix_solver)
+def test_solve(
+    photoionization_rate_solver,
+    collisional_ionization_rate_solver,
+    regression_data,
+):
 
     radiation_field = DilutePlanckianRadiationField(
         np.ones(20) * 10000 * u.K, dilution_factor=np.ones(20) * 0.5
@@ -59,19 +65,23 @@ def test_solve(rate_matrix_solver, regression_data):
     ion_population = lte_ion_population.copy() * 1.1
     charge_conservation = False
 
-    actual_ion_population, actual_electron_density = (
-        ion_population_solver.solve(
-            radiation_field,
-            thermal_electron_energy_distribution,
-            elemental_number_density,
-            lte_level_population,
-            level_population,
-            lte_ion_population,
-            ion_population,
-            1.0,
-            boltzmann_factor,
-            charge_conservation,
-        )
+    ion_population_solver = AnalyticEquilibriumIonPopulationSolver(
+        EquilibriumIonRateMatrix(),
+        photoionization_rate_solver,
+        collisional_ionization_rate_solver,
+        elemental_number_density,
+    )
+
+    actual_ion_population, actual_electron_density = ion_population_solver.solve(
+        radiation_field,
+        thermal_electron_energy_distribution,
+        lte_level_population,
+        level_population,
+        lte_ion_population,
+        ion_population,
+        1.0,
+        boltzmann_factor,
+        charge_conservation,
     )
 
     expected_ion_population = regression_data.sync_dataframe(

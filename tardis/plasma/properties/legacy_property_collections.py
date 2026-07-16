@@ -1,6 +1,7 @@
 from tardis.opacities.macro_atom.base import TransitionProbabilities
 from tardis.opacities.tau_sobolev import BetaSobolev, TauSobolev
 from tardis.plasma.properties import *
+from tardis.plasma.properties.continuum_processes import *
 
 
 class PlasmaPropertyCollection(list):

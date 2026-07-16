@@ -151,61 +151,66 @@ def test_analytic_corrected_photoionization_coeff_solver(
     )
 
 
-def test_estimated_photoionization_coeff_solver(regression_data):
-    level2continuum_edge_idx = pd.Series(np.array([0, 2, 4]))
+def test_estimated_photoionization_coeff_solver():
+    photoionization_index = pd.MultiIndex.from_tuples(
+        [(1, 0, 0), (1, 0, 1), (1, 1, 0)],
+        names=["atomic_number", "ion_number", "level_number"],
+    )
+    level2continuum_edge_idx = pd.Series(
+        np.array([0, 2, 4]), index=photoionization_index
+    )
     solver = EstimatedPhotoionizationCoeffSolver(level2continuum_edge_idx)
 
     # Create mock estimator arrays
     photo_ion_array = np.array([[1e-5], [2e-5], [3e-5]])
     stim_recomb_array = np.array([[1e-6], [2e-6], [3e-6]])
 
-    time_simulation = 1e5 * u.s
-    volume = 1e30 * u.cm**3
-
-    # Initialize with correct factory signature
-    estimators_continuum = init_estimators_continuum(
+    estimator_state = init_estimators_continuum(
         n_levels_bf_species_by_n_cells_tuple=(3, 1), n_cells=1
     )
 
     # Set the estimator values
-    estimators_continuum.photo_ion_estimator[:] = photo_ion_array
-    estimators_continuum.stim_recomb_estimator[:] = stim_recomb_array
+    estimator_state.photo_ion_estimator[:] = photo_ion_array
+    estimator_state.stim_recomb_estimator[:] = stim_recomb_array
 
-    (
-        actual_photoionization_rate_coeff,
-        actual_stimulated_recombination_rate_coeff,
-    ) = solver.solve(estimators_continuum, time_simulation, volume)
+    estimators_continuum = {
+        "photoionization_rate_estimator": estimator_state.photo_ion_estimator,
+        "stimulated_recombination_rate_estimator": estimator_state.stim_recomb_estimator,
+    }
+
+    lte_level_population = pd.DataFrame(
+        1.0, index=photoionization_index, columns=[0]
+    )
+    level_population = lte_level_population.copy()
+    ion_population = pd.DataFrame(
+        1.0,
+        index=pd.MultiIndex.from_tuples(
+            [(1, 1), (1, 2)], names=["atomic_number", "ion_number"]
+        ),
+        columns=[0],
+    )
+    lte_ion_population = ion_population.copy()
+
+    actual_photoionization_rate_coeff = solver.solve(
+        estimators_continuum,
+        level_population,
+        lte_level_population,
+        ion_population,
+        lte_ion_population,
+    )
 
     assert isinstance(actual_photoionization_rate_coeff, pd.DataFrame)
-    assert isinstance(actual_stimulated_recombination_rate_coeff, pd.DataFrame)
     assert actual_photoionization_rate_coeff.shape[0] == len(
         level2continuum_edge_idx
     )
-    assert actual_stimulated_recombination_rate_coeff.shape[0] == len(
-        level2continuum_edge_idx
+    expected_photoionization_rate_coeff = pd.DataFrame(
+        [[0.0], [1.8e-5], [2.7e-5]],
+        index=photoionization_index,
+        columns=pd.Index([0], name="Shell No."),
     )
-
-    # Regression data comparison
-    expected_photoionization_rate_coeff = regression_data.sync_dataframe(
-        actual_photoionization_rate_coeff,
-        key="estimated_photoionization_rate_coeff",
-    )
-    expected_stimulated_recombination_rate_coeff = (
-        regression_data.sync_dataframe(
-            actual_stimulated_recombination_rate_coeff,
-            key="estimated_stimulated_recombination_rate_coeff",
-        )
-    )
-
     pdt.assert_frame_equal(
         actual_photoionization_rate_coeff,
         expected_photoionization_rate_coeff,
-        atol=0,
-        rtol=1e-15,
-    )
-    pdt.assert_frame_equal(
-        actual_stimulated_recombination_rate_coeff,
-        expected_stimulated_recombination_rate_coeff,
         atol=0,
         rtol=1e-15,
     )

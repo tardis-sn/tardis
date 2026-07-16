@@ -108,8 +108,14 @@ class MCTransportSolverIIP(HDFWriterMixin):
         iteration=0,
     ):
         if not plasma.continuum_interaction_species.empty:
-            # Combine phi_lucy data for all nlte_species to get total shape
-            if plasma.nlte_species:
+            if hasattr(plasma, "photo_ion_index"):
+                n_levels_bf_species_by_n_cells_tuple = (
+                    len(plasma.photo_ion_index),
+                    len(plasma.electron_densities),
+                )
+            elif plasma.nlte_species:
+                # Legacy plasma fallback while the standard plasma is
+                # adopted by the other transport modes.
                 all_species_phi_lucy = pd.concat(
                     [
                         plasma.phi_lucy.loc[species]
