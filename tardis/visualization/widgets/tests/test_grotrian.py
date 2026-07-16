@@ -200,19 +200,19 @@ class TestGrotrianWidgetEvents:
     def test_wavelength_slider_updates_plot(self, grotrian_widget):
         """Changing the wavelength_range_selector should update
         the GrotrianPlot's min_wavelength and max_wavelength."""
-        min_wl = grotrian_widget.wavelength_range_selector.min
-        max_wl = grotrian_widget.wavelength_range_selector.max
+        min_wavelength = grotrian_widget.wavelength_range_selector.min
+        max_wavelength = grotrian_widget.wavelength_range_selector.max
 
         # Set to a sub-range
-        mid = (min_wl + max_wl) / 2
-        grotrian_widget.wavelength_range_selector.value = (min_wl, mid)
+        mean_wavelength = (min_wavelength + max_wavelength) / 2
+        grotrian_widget.wavelength_range_selector.value = (min_wavelength, mean_wavelength)
 
         assert grotrian_widget.plot.min_wavelength == pytest.approx(
-            min_wl, rel=0.1
+            min_wavelength, rel=0.1
         )
         # max_wavelength gets +1 in the handler
         assert grotrian_widget.plot.max_wavelength == pytest.approx(
-            mid + 1, rel=0.1
+            mean_wavelength + 1, rel=0.1
         )
 
     def test_wavelength_resetter_on_ion_change(self, grotrian_widget):
@@ -224,12 +224,11 @@ class TestGrotrianWidgetEvents:
         grotrian_widget.ion_selector.value = species_options[0]
 
         # The slider min/max should match the plot's wavelength range
-        if grotrian_widget.plot.min_wavelength is not None:
-            assert (
-                grotrian_widget.wavelength_range_selector.min
-                == grotrian_widget.plot.min_wavelength
-            )
-            assert (
-                grotrian_widget.wavelength_range_selector.max+1
-                == grotrian_widget.plot.max_wavelength
-            )
+        assert (
+            grotrian_widget.wavelength_range_selector.min
+            == grotrian_widget.plot.min_wavelength
+        )
+        assert (
+            grotrian_widget.wavelength_range_selector.max+1
+            == grotrian_widget.plot.max_wavelength
+        )
