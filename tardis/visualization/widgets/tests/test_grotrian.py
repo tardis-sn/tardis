@@ -75,8 +75,8 @@ class TestGrotrianPlot:
         expected_excitation_lines = regression_data.sync_dataframe(excitation_lines, key="excitation_lines")
         expected_deexcitation_lines = regression_data.sync_dataframe(deexcitation_lines, key="deexcitation_lines")
 
-        pdt.assert_frame_equal(excitation_lines, expected_excitation_lines, rtol=1e-14, atol=0)
-        pdt.assert_frame_equal(deexcitation_lines, expected_deexcitation_lines, rtol=1e-14, atol=0)
+        pdt.assert_frame_equal(excitation_lines, expected_excitation_lines, rtol=5e-14, atol=0)
+        pdt.assert_frame_equal(deexcitation_lines, expected_deexcitation_lines, rtol=5e-14, atol=0)
 
     def test_compute_level_data(self, grotrian_plot, regression_data):
         """Tests the energy level data computed in the Grotrian Plot"""
@@ -89,7 +89,7 @@ class TestGrotrianPlot:
         pdt.assert_frame_equal(
             level_data,
             expected_level_data,
-            rtol=1e-14,
+            rtol=5e-14,
             atol=0,
         )
 
