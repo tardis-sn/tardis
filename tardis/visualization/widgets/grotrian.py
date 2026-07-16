@@ -1060,6 +1060,7 @@ class GrotrianWidget:
             name="Y-Scale",
             options=list(GrotrianPlot.Y_SCALE_OPTION.keys()),
             value=self.plot.y_scale,
+            width=200,
         )
         self.y_scale_selector.param.watch(
             lambda event: self._change_handler("y_scale", event.new),
@@ -1073,6 +1074,7 @@ class GrotrianWidget:
             end=self.plot.max_wavelength,
             step=0.1,
             format=PrintfTickFormatter(format='%0.1e'),
+            margin=(5, 10, 5, 65),
             width= 605,
             stylesheets=[
                 "div.noUi-connect {background-color: #3FB8AF !important;}",
@@ -1085,7 +1087,9 @@ class GrotrianWidget:
         )
 
         self.plot_pane = pn.pane.Plotly(
-            self.plot.display(), sizing_mode="stretch_width", height=700
+            self.plot.display(),
+            sizing_mode="stretch_width",
+            height=700,
         )
         self._wavelength_resetter()
 
@@ -1178,7 +1182,7 @@ class GrotrianWidget:
         """
         Function to render the Grotrian Widget containing the plot and Panel widgets together
         """
-        w = pn.Column(
+        widget = pn.Column(
             pn.Row(
                 self.ion_selector,
                 self.shell_selector,
@@ -1186,7 +1190,11 @@ class GrotrianWidget:
                 sizing_mode="stretch_width",
             ),
             pn.Row(
-                self.y_scale_selector,
+                pn.Row(
+                    pn.pane.Markdown("Y-Scale", margin=(0, 0, 0, 10)),
+                    self.y_scale_selector,
+                    align="end",
+                ),
                 self.wavelength_range_selector,
                 sizing_mode="stretch_width",
             ),
@@ -1194,4 +1202,4 @@ class GrotrianWidget:
             sizing_mode="stretch_width",
         )
 
-        return w
+        return widget
