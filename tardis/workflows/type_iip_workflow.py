@@ -653,6 +653,37 @@ class TypeIIPWorkflow(WorkflowLogging):
 
         lower_bound = [0.0, minimum_t_rad_link] * no_shells
         upper_bound = [1.0, 1.5] * no_shells
+        lower_bound = np.asarray(lower_bound, dtype=float)
+        upper_bound = np.asarray(upper_bound, dtype=float)
+
+        out_of_bounds = (initial_guess < lower_bound) | (
+            initial_guess > upper_bound
+        )
+        if np.any(out_of_bounds):
+            offending_indices = np.flatnonzero(out_of_bounds)
+            offending_values = [
+                {
+                    "shell": index // 2,
+                    "source": (
+                        "initial_electron_fraction"
+                        if index % 2 == 0
+                        else "link_t_rad_t_electron_start"
+                    ),
+                    "value": initial_guess[index],
+                    "lower_bound": lower_bound[index],
+                    "upper_bound": upper_bound[index],
+                }
+                for index in offending_indices
+            ]
+            logger.warning(
+                "Out-of-bounds thermal balance initial guess values; "
+                "clipping to bounds: %s",
+                offending_values,
+            )
+            initial_guess = np.clip(
+                initial_guess, lower_bound, upper_bound
+            )
+
         self.plasma_solver.plasma_converged = False
         thermal_lsq_result = lsq(
             self.thermal_balance_iteration,
