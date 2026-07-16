@@ -44,6 +44,22 @@ def grotrian_figure(grotrian_plot):
     """Returns the plotly figure from GrotrianPlot display method."""
     return grotrian_plot.display()
 
+@pytest.fixture(scope="module")
+def grotrian_widget(simulation_simple_tracked, monkeysession):
+    """Creates a GrotrianWidget from the tracked simulation fixture.
+
+    Returns
+    -------
+    GrotrianWidget
+        A GrotrianWidget instance with display() called.
+    """
+    widget = GrotrianWidget.from_simulation(simulation_simple_tracked)
+    monkeysession.setattr(
+        "tardis.util.environment.Environment.is_notebook", lambda: True
+    )
+    widget.display()
+    return widget
+
 
 class TestGrotrianPlot:
     """Tests for Grotrian Plot Class."""
@@ -136,23 +152,6 @@ class TestGrotrianPlot:
                 [y_upper, y_lower]
             )
             assert len(grotrian_figure.data[trace_idx].x) == 2
-
-
-@pytest.fixture(scope="module")
-def grotrian_widget(simulation_simple_tracked, monkeysession):
-    """Creates a GrotrianWidget from the tracked simulation fixture.
-
-    Returns
-    -------
-    GrotrianWidget
-        A GrotrianWidget instance with display() called.
-    """
-    widget = GrotrianWidget.from_simulation(simulation_simple_tracked)
-    monkeysession.setattr(
-        "tardis.util.environment.Environment.is_notebook", lambda: True
-    )
-    widget.display()
-    return widget
 
 
 class TestGrotrianWidgetEvents:
