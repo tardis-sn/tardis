@@ -63,7 +63,6 @@ def parse_structure_from_config(config: Configuration):
             electron_densities,
             temperature,
         ) = read_density_file(structure_config_fname, structure_config.filetype)
-        density = density.insert(0, 0)
     else:
         raise NotImplementedError
 
