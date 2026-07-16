@@ -200,8 +200,8 @@ class TestGrotrianWidgetEvents:
     def test_wavelength_slider_updates_plot(self, grotrian_widget):
         """Changing the wavelength_range_selector should update
         the GrotrianPlot's min_wavelength and max_wavelength."""
-        min_wavelength = grotrian_widget.wavelength_range_selector.min
-        max_wavelength = grotrian_widget.wavelength_range_selector.max
+        min_wavelength = grotrian_widget.wavelength_range_selector.start
+        max_wavelength = grotrian_widget.wavelength_range_selector.end
 
         # Set to a sub-range
         mean_wavelength = (min_wavelength + max_wavelength) / 2
@@ -225,10 +225,10 @@ class TestGrotrianWidgetEvents:
 
         # The slider min/max should match the plot's wavelength range
         assert (
-            grotrian_widget.wavelength_range_selector.min
+            grotrian_widget.wavelength_range_selector.start
             == grotrian_widget.plot.min_wavelength
         )
         assert (
-            grotrian_widget.wavelength_range_selector.max+1
+            grotrian_widget.wavelength_range_selector.end+1
             == grotrian_widget.plot.max_wavelength
         )
